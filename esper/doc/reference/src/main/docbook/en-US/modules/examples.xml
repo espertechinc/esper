@@ -1,0 +1,1068 @@
+<chapter xml:id="examples" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>Examples, Tutorials, Case Studies</title>
+    
+    <sect1 xml:id="examples-overview">
+        <title>Examples Overview</title>
+        
+		<para>
+			This chapter outlines the examples that come with Esper in the <literal>examples</literal> folder of the distribution. Each sample is in a separate folder that contains all files needed by the example, excluding jar files.
+		</para>
+    	
+		<para>
+			Here is an overview over the examples in alphabetical order:
+		</para>
+
+		<table frame="topbot">
+			<title>Examples</title>
+			<tgroup cols="2">
+				<colspec colwidth="0.40*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Name</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry><xref linkend="examples-autoid"/></entry>
+						<entry>
+							<para>
+								An array of RFID readers sense RFID tags as pallets are coming within the range of one of the readers.
+							</para>
+							<para>
+								Shows the use of an XSD schema and XML event representation. A single statement shows a rolling time window, a where-clause filter on a nested property and a group-by.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-marketdata-monitor"/></entry>
+						<entry>
+							<para>
+								Processes a raw market data feed and reports throughput statistics and detects when the data rate of a feed falls off unexpectedly.
+							</para>
+							<para>
+								Demonstrates a batch time window and a rolling time window with a having-clause. Multi-threaded example with a configurable number of threads and a simulator for generating feed data.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-matchmaker"/></entry>
+						<entry>
+							<para>
+								In the MatchMaker example every mobile user has an X and Y location and the task of the event patterns created by this example is to detect mobile users that are within proximity given a certain range, and for which certain properties match preferences.
+							</para>
+							<para>
+								Dynamically creates and removes event patterns that use range matching based on mobile user events received.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-namedwindowquery"/></entry>
+						<entry>
+							<para>
+								A mini-benchmark that handles temperature sensor events. The sample creates a named window and fills it with a large number of events. It then executes a large number of pre-defined queries as well as fire-and-forget queries and reports times.
+							</para>
+							<para>
+								Study this example if you are interested in named windows, Map event type representation, fire-and-forget queries as well as pre-defined queries via on-select, and the performance aspects.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-virtualdw"/></entry>
+						<entry>
+							<para>
+								This example demonstrates the use of virtual data window to expose a (large) external data store, without any need to keep events in memory, and without sacrificing query performance.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-cycledetect"/></entry>
+						<entry>
+							<para>
+								This example showcases the aggregation multi-function extension API for use with a cycle-detection problem detecting cycles in transactions between accounts.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-ohlcpluginview"/></entry>
+						<entry>
+							<para>
+								A plug-in custom view addressing a problem in the financial space: Computes open-high-low-close bars for minute-intervals of events that may arrive late, based on each event's timestamp.
+							</para>
+							<para>
+								A custom plug-in view based on the extension API can be a convenient and reusable way to express a domain-specific analysis problem as a unit, and this example includes the code for the OHLC view factory and view as well as simulator to test the view.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="performance-kit"/></entry>
+						<entry>
+							<para>
+								A benchmark that is further described in the performance section of this document under performance kit.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-qossla"/></entry>
+						<entry>
+							<para>
+								This example develops some code for measuring quality-of-service levels such as for a service-level agreement (SLA).
+							</para>
+							<para>
+								This example combines patterns with select-statements, shows the use of the timer <literal>'at'</literal> operator and followed-by operator <literal>-&gt;</literal>, and uses the iterator API to poll for current results.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-assets-moving"/></entry>
+						<entry>
+							<para>
+								An example out of the RFID domain processes location report events. The example includes a simple Swing-based GUI for visualization allows moving tags from zone to zone visually. It also a contains comprehensive simulator to generate data for a large number of asset groups and their tracking.
+							</para>
+							<para>
+								The example hooks up statements that aggregate and detect patterns in the aggregated data to determine when an asset group constraint is violated.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-runtimeconfig"/></entry>
+						<entry>
+							<para>
+								Example code to demonstrate various key runtime configuration options such as adding event types on-the-fly, adding new variables, adding plug-in single-row and aggregation functions and adding variant streams and revision type definition.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-servershell"/></entry>
+						<entry>
+							<para>
+								The server shell is a Java Messaging Service (JMS) -based server and client that send and listens to messages on a JMS destination. It also demonstrates a simple Java Management Extension (JMX) MBean for remote statement management.
+							</para>
+							<para>
+								A single EPL statement computes an average duration for each IP address on a rolling time window and outputs a snapshot every 2 seconds.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-stockticker"/></entry>
+						<entry>
+							<para>
+								An example from the financial domain that features event patterns to filter stock tick events based on price and symbol. The example is designed to provide a high volume of events and includes multithreaded unit test code as well as a simulting data generator.
+							</para>
+							<para>
+								Perhaps this is a good example to learn the API and get started with event patterns. The example dynamically creates and removes event patterns based on price limit events received.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-terminalsvc-J2EE"/></entry>
+						<entry>
+							<para>
+								A J2EE-based self-service terminal managing system in an airport that gets a lot of events from connected terminals.
+							</para>
+							<para>
+								Contains a message-driven bean (EJB-MDB) for use in a J2EE container, a client and a simulator, as well as EPL statements for detecting various conditions. A version that runs outside of a J2EE container is also available.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><xref linkend="examples-trivia"/></entry>
+						<entry>
+							<para>
+								Trivia Geeks Club demonstrates EPL for a scoring system computing scores in a trivia game.
+							</para>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+	</sect1>
+
+    <sect1 xml:id="examples-running">
+        <title>Running the Examples</title>
+		<para>
+			In order to compile and run the samples please follow the below instructions:
+		</para>
+
+		<orderedlist>
+			<listitem>
+				<para>
+                    Make sure Java 1.6 or greater is installed and the JAVA_HOME environment variable is set.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Open a console window and change directory to examples/<emphasis>example_name</emphasis>/etc.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Run "setenv.bat" (Windows) or "setenv.sh" (Unix) to verify your environment settings.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Run "compile.bat" (Windows) or "compile.sh" (Unix) to compile an example.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Now you are ready to run an example. Some examples require mandatory parameters that are also described in the file "readme.txt" in the "etc" folder.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Modify the logger logging level in the "log4j.xml" configuration file 
+                    changing DEBUG to INFO on a class or package level to control the volume of text output. 
+                </para>
+			</listitem>
+		</orderedlist>
+
+		<para>
+			Each example also provides Eclipse project <literal>.classpath</literal> and <literal>.project</literal> files. The Eclipse projects expect an <literal>esper_runtime</literal> user library that includes the runtime dependencies.
+		</para>		
+
+		<para>
+			JUnit tests exist for the example code. The JUnit test source code for the examples can be found in each example's <literal>src/test</literal> folder. To build and run the example JUnit tests, use the Maven 2 goal <literal>test</literal>.
+		</para>		
+    </sect1>
+
+    <sect1 xml:id="examples-autoid">
+        <title>AutoID RFID Reader</title>
+
+		<para>
+			In this example an array of RFID readers sense RFID tags as pallets are coming within the range of one of the readers. 
+			A reader generates XML documents with observation information such as reader sensor ID, observation time 
+			and tags observed. A statement computes the total number of tags per reader sensor ID within the last 60 seconds.
+		</para>
+    	
+		<para>
+			This example demonstrates how XML documents unmarshalled to <literal>org.w3c.dom.Node</literal> DOM document nodes
+			can natively be processed by the engine without requiring Java object event representations. The example uses an XPath
+			expression for an event property counting the number of tags observed by a sensor. The XML documents follow the AutoID (<literal>http://www.autoid.org/</literal>) organization
+			standard. 
+		</para>
+
+		<para>
+			The classes for this example can be found in package <literal>com.espertech.esper.example.autoid</literal>.
+			As events are XML documents with no Java object representation, the example does not have event classes.
+		</para>
+
+		<para>
+			A simulator that can be run from the command line is also available for this example.
+			The simulator generates a number of XML documents as specified by a command line argument and
+			prints out the totals per sensor.
+			Run "run_autoid.bat" (Windows) or "run_autoid.sh" (Unix) to start the AutoID simulator. 
+			Please see the readme file in the same folder for build instructions and command line parameters.
+		</para>
+
+		<para>
+			The code snippet below shows the simple statement to compute the total number of tags per sensor. The statement is created by class 
+			<literal>com.espertech.esper.example.autoid.RFIDTagsPerSensorStmt</literal>.
+		</para>
+
+<programlisting><![CDATA[select ID as sensorId, sum(countTags) as numTagsPerSensor
+from AutoIdRFIDExample.win:time(60 seconds)
+where Observation[0].Command = 'READ_PALLET_TAGS_ONLY'
+group by ID]]></programlisting>
+
+    </sect1>
+
+    <sect1 xml:id="examples-runtimeconfig">
+        <title>Runtime Configuration</title>
+
+		<para>
+			This example demonstrates various key runtime configuration options such as adding event types on-the-fly, adding new variables, adding plug-in single-row and aggregation functions and adding variant streams and revision type definition.
+		</para>
+
+		<para>
+			The classes for this example live in package <literal>com.espertech.esper.example.runtimeconfig</literal>. 
+		</para>
+	</sect1>
+
+    <sect1 xml:id="examples-servershell">
+        <title>JMS Server Shell and Client</title>
+
+        <sect2 xml:id="examples-servershell-processes">
+			<title>Overview</title>
+			<para>
+				The server shell is a Java Messaging Service (JMS) -based server that listens to messages on a JMS destination, and sends the received events into Esper. The example also demonstrates a Java Management Extension (JMX) MBean that allows remote dynamic statement management. This server has been designed to run with either Tibco (TM) Enterprise Messaging System (Tibco EMS), or with Apache ActiveMQ, controlled by a properties file.			
+			</para>
+	
+			<para>
+				The server shell has been created as an alternative to the EsperIO Spring JMSTemplate adapter.  The server shell is a low-latency processor for byte messages. It employs JMS listeners to process message in multiple threads, this model reduces thread context switching for many JMS providers. The server is configurable and has been tested with two JMS providers. It consists of only 10 classes and is thus easy to understand.
+			</para>
+
+			<para>
+				The server shell sample comes with a client (server shell client) that sends events into the JMS-based server, and that also creates a statement on the server remotely through a JMX MBean proxy class.
+			</para>
+	
+			<para>
+				The server shell classes for this example live in package <literal>com.espertech.esper.example.servershell</literal>. 
+				Configure the server to point to your JMS provider by changing the properties in the file <literal>servershell_config.properties</literal> in the <literal>etc</literal> folder.
+				Make sure your JMS provider (ActiveMQ or Tibco EMS) is running, then run "run_servershell.bat" (Windows) or "run_servershell.sh" (Unix) to start the JMS server. 
+			</para>
+
+			<para>
+				Start the server shell process first before starting the client, since the client also demonstrates remote statement management through JMX by attaching to the server process.
+			</para>
+	
+			<para>		
+				The client classes to the server shell can be found in package <literal>com.espertech.esper.example.servershellclient</literal>. 
+				The client shares the same configuration file as the server shell.
+				Run "run_servershellclient.bat" (Windows) or "run_servershellclient.sh" (Unix) to start the JMS producer client  that includes a JMX client as well. 
+			</para>
+	
+		</sect2>
+
+        <sect2 xml:id="examples-servershell-jmsevents">
+			<title>JMS Messages as Events</title>
+			
+			<para>
+				The server shell starts a configurable number of JMS <literal>MessageListener</literal> instances that listen to a given JMS destination. The listeners expect a <literal>BytesMessage</literal> that contain a String payload. The payload consists of an IP address and a double-typed duration value separated by a comma.
+			</para>
+
+			<para>
+				Each listener extracts the payload of a message, constructs an event object and sends the event into the shared Esper engine instance. 
+			</para>
+				
+			<para>
+				At startup time, the server creates a single EPL statement with the Esper engine that prints out the average duration per IP address for the last 10 seconds of events, and that specifies an output rate of 2 seconds. By running the server and then the client, you can see the output of the averages every 2 seconds.
+			</para>
+
+			<para>
+				The server shell client acts as a JMS producer that sends 1000 events with random IP addresses and durations.
+			</para>
+		</sect2>
+
+        <sect2 xml:id="examples-servershell-jmx">
+			<title>JMX for Remote Dynamic Statement Management</title>
+
+			<para>
+				The server shell is also a JMX server providing an RMI-based connector. The server shell exposes a JMX MBean that allows remote statement management. The JMX MBean allows to create a statement remotely, attach a listener to the statement and destroy a statement remotely. 
+			</para>
+
+			<para>
+				The server shell client, upon startup, obtains a remote instance of the management MBean exposed by the server shell. It creates a statement through the MBean that filters out all durations greater then the value 9.9. 
+				After sending 1000 events, the client then destroys the statement remotely on the server.
+			</para>
+		</sect2>
+    </sect1>
+
+    <sect1 xml:id="examples-marketdata-monitor">
+        <title>Market Data Feed Monitor</title>
+
+		<para>
+			This example processes a raw market data feed. It reports throughput statistics and 
+			detects when the data rate of a feed falls off unexpectedly. A rate fall-off may mean that the data is stale and 
+			we want to alert when there is a possible problem with the feed.
+		</para>
+
+		<para>
+			The classes for this example live in package <literal>com.espertech.esper.example.marketdatafeed</literal>. 
+			Run "run_mktdatafeed.bat" (Windows) or "run_mktdatafeed.sh" (Unix) in the <literal>examples/etc</literal> folder 
+			to start the market data feed simulator. 			
+		</para>
+		
+        <sect2 xml:id="examples-marketdata-monitor-input">
+        	<title>Input Events</title>
+        
+			<para>
+				The input stream consists of 1 event stream that contains 2 simulated market data feeds. Each individual event in the stream 
+				indicates the feed that supplies the market data, the security symbol and some pricing information:
+			</para>
+
+<programlisting><![CDATA[String symbol;
+FeedEnum feed;
+double bidPrice;
+double askPrice;
+]]></programlisting>
+		</sect2>
+			
+        <sect2 xml:id="examples-marketdata-computing">
+        	<title>Computing Rates Per Feed</title>
+
+			<para>
+				For the throughput statistics and to detect rapid fall-off we calculate a ticks per second rate for each market data feed. 
+			</para>
+
+			<para>
+				We can use an EPL statement that specifies a view onto the market data event stream that batches together 1 second of events. 
+				We specify the feed and a count of events per feed as output values. To make this data available for further processing, we
+				insert output events into the TicksPerSecond event stream:
+			</para>
+
+<programlisting><![CDATA[insert into TicksPerSecond
+select feed, count(*) as cnt 
+  from MarketDataEvent.win:time_batch(1 second) 
+ group by feed]]></programlisting>
+		</sect2>
+
+        <sect2 xml:id="examples-marketdata-falloff">
+        	<title>Detecting a Fall-off</title>
+
+			<para>
+				We define a rapid fall-off by alerting when the number of ticks per second for any second falls below 75% of the 
+				average number of ticks per second over the last 10 seconds. 
+			</para>
+
+			<para>
+				We can compute the average number of ticks per second over the last 10 seconds simply by using the TicksPerSecond events computed by the
+				prior statement and averaging the last 10 seconds. Next, we compare the current rate with the moving average and
+				filter out any rates that fall below 75% of the average:
+			</para>
+
+<programlisting><![CDATA[select feed, avg(cnt) as avgCnt, cnt as feedCnt 
+  from TicksPerSecond.win:time(10 seconds)
+ group by feed 
+having cnt < avg(cnt) * 0.75]]></programlisting>
+		</sect2>
+
+        <sect2 xml:id="examples-marketdata-monitor-sim">
+			<title>Event generator</title>
+			<para>
+				The simulator generates market data events for 2 feeds, feed A and feed B. 
+				The first parameter to the simulator is a number of threads. Each thread sends events for each feed in an endless loop.
+				Note that as the Java VM garbage collection kicks in, the example generates rate drop-offs during such pauses.
+			</para>
+
+			<para>
+				The second parameter is a rate drop probability parameter specifies the probability in percent that the simulator drops the rate 
+				for a randomly chosen feed to 60% of the target rate for that second. Thus rate fall-off alerts can be generated.
+			</para>
+
+			<para>
+				The third parameter defines the number of seconds to run the example.
+			</para>
+		</sect2>
+    </sect1>
+
+    <sect1 xml:id="examples-ohlcpluginview">
+        <title>OHLC Plug-in View</title>
+        <para>
+			This example contains a fully-functional custom view based on the extension API that computes OHLC open-high-low-close bars for events that provide a long-typed timestamp and a double-typed value.
+        </para>
+
+        <para>
+			OHLC bar is a problem out of the financial domain. The "Open" refers to the first datapoint and the "Close" to the last datapoint in an interval. The "High" refers to the maximum and the "Low" to the minimum value during each interval. The term "bar" is used to describe each interval results of these 4 values.
+        </para>
+
+        <para>
+			The example provides an OHLC view that is hardcoded to 1-minute bars. It considers the timestamp value carried by each event, and not the system time. The cutoff time after which an event is no longer considered for a bar is hardcoded to 5 seconds.
+        </para>
+
+        <para>
+			The view assumes that events arrive in timestamp order: Each event's timestamp value is equal to or higher then the timestamp value provided by the prior event.
+        </para>
+
+        <para>
+			The view may also be used together with <literal>std:groupwin</literal> to group per criteria, such as symbol. In this case the assumption of timestamp order applies per symbol.
+        </para>
+
+        <para>
+			The view gracefully handles no-event and late-event scenarios. Interval boundaries are defined by system time, thus event timestamp and system time must roughly be in-sync, unless using external timer events.
+        </para>
+    </sect1>
+
+    <sect1 xml:id="examples-transaction-3-event-challenge">
+        <title>Transaction 3-Event Challenge</title>
+
+		<para>
+			The classes for this example live in package <literal>com.espertech.esper.example.transaction</literal>. 
+			Run "run_txnsim.bat" (Windows) or "run_txnsim.sh" (Unix) to start the transaction simulator. 
+			Please see the readme file in the same folder for build instructions and command line parameters.
+		</para>
+
+        <sect2 xml:id="examples-txn3event-1" >
+			<title>The Events</title>
+
+			<para>
+	The use case involves tracking three components of a transaction. It‘s important that we use at least three components, since some engines have different performance or coding for only two events per transaction. Each component comes to the engine as an event with the following fields:
+			</para>
+	
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Transaction ID
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Time stamp
+					</para>
+				</listitem>
+			</itemizedlist>
+	
+			<para>
+				In addition, we have the following extra fields:
+			</para>
+	
+			<para>
+				In event A:
+			</para>
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Customer ID
+					</para>
+				</listitem>
+			</itemizedlist>
+	
+			<para>
+				In event C:
+			</para>
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Supplier ID (the ID of the supplier that the order was filled through)
+					</para>
+				</listitem>
+			</itemizedlist>
+		</sect2>
+
+        <sect2 xml:id="examples-txn3event-2" >
+			<title>Combined event</title>
+
+			<para>
+					We need to take in events A, B and C and produce a single, combined event with the following fields:
+			</para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Transaction ID
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Customer ID
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Time stamp from event A
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Time stamp from event B
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Time stamp from event C
+					</para>
+				</listitem>
+			</itemizedlist>
+
+			<para>
+What we‘re doing here is matching the transaction IDs on each event, to form an aggregate event. If all these events were in a relational database, this could be done as a simple SQL join… except that with 10,000 events per second, you will need some serious database hardware to do it.
+			</para>
+		</sect2>
+		
+        <sect2 xml:id="examples-txn3event-3">
+			<title>Real time summary data</title>
+
+			<para>
+Further, we need to produce the following:
+			</para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Min,Max,Average total latency from the events (difference in time between A and C) over the past 30 minutes.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Min,Max,Average latency grouped by (a) customer ID and (b) supplier ID. In other words, metrics on the the latency of the orders coming from each customer and going to each supplier.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Min,Max,Average latency between events A/B (time stamp of B minus A) and B/C (time stamp of C minus B).
+					</para>
+				</listitem>
+			</itemizedlist>
+		</sect2>
+		
+        <sect2 xml:id="examples-txn3event-4">
+			<title>Find problems</title>
+
+			<para>
+We need to detect a transaction that did not make it through all three events. In other words, a transaction with events A or B, but not C. Note that, in this case, what we care about is event C. The lack of events A or B could indicate a failure in the event transport and should be ignored. Although the lack of an event C could also be a transport failure, it merits looking into.
+			</para>			
+		</sect2>
+		
+        <sect2 xml:id="examples-txn3event-5">
+			<title>Event generator</title>
+		
+			<para>
+To make testing easier, standard and to demonstrate how the example works, the example is including an event generator. The generator generates events for a given number of transactions, using the following rules:
+			</para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						One in 5,000 transactions will skip event A
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						One in 1,000 transactions will skip event B
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						One in 10,000 transactions will skip event C.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Transaction identifiers are randomly generated
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Customer and supplier identifiers are randomly chosen from two lists
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The time stamp on each event is based on the system time. Between events A and B as well as B and C, between 0 and 999 is added to the time. So, we have an expected time difference of around 500 milliseconds between each event
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Events are randomly shuffled as described below
+					</para>
+				</listitem>
+				</itemizedlist>
+	
+				<para>
+	To make things harder, we don‘t want transaction events coming in order. This code ensures that they come completely out of order. To do this, we fill in a bucket with events and, when the bucket is full, we shuffle it. The buckets are sized so that some transactions‘ events will be split between buckets. So, you have a fairly randomized flow of events, representing the worst case from a big, distributed infrastructure.
+				</para>
+	
+				<para>
+	The generator lets you change the size of the bucket (small, medium, large, larger, largerer). The larger the bucket size, the more events potentially come in between two events in a given transaction and so, the more the performance characteristics like buffers, hashes/indexes and other structures are put to the test as the bucket size increases.
+				</para>
+			</sect2>
+    </sect1>
+
+    <sect1 xml:id="examples-terminalsvc-J2EE">
+        <title>Self-Service Terminal</title>
+
+		<para>
+			The example is about a J2EE-based self-service terminal managing system in an airport that gets a lot of events from connected terminals. The event rate is around 500 events per second. Some events indicate abnormal situations such as 'paper low' or 'terminal out of order'. Other events observe activity as customers use a terminal to check in and print boarding tickets.
+		</para>
+		
+        <sect2 xml:id="examples-terminalsvc-events">
+			<title>Events</title>
+
+			<para>
+				Each self-service terminal can publish any of the 6 events below.
+			</para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Checkin - Indicates a customer started a check-in dialog
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Cancelled - Indicates a customer cancelled a check-in dialog
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Completed	- Indicates a customer completed a check-in dialog
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						OutOfOrder - Indicates the terminal detected a hardware problem
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						LowPaper	- Indicates the terminal is low on paper
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Status - Indicates terminal status, published every 1 minute regardless of activity as a terminal heartbeat
+					</para>
+				</listitem>
+			</itemizedlist>
+			
+			<para>
+				All events provide information about the terminal that published the event, and a timestamp. The terminal information is held in a property named "term" and provides a terminal id. Since all events carry similar information, we model each event as a subtype to a base class BaseTerminalEvent, which will provide the terminal information that all events share. This enables us to treat all terminal events polymorphically, that is we can treat derived event types just like their parent event types. This helps simplify our queries.
+			</para>
+
+			<para>
+				All terminals publish Status events every 1 minute. In normal cases, the Status events indicate that a terminal is alive and online. The absence of status events may indicate that a terminal went offline for some reason and that may need to be investigated.
+			</para>
+			
+		</sect2>
+
+        <sect2 xml:id="examples-terminalsvc-pattern1">
+			<title>Detecting Customer Check-in Issues</title>
+
+			<para>
+				A customer may be in the middle of a check-in when the terminal detects a hardware problem or when the network goes down. In that situation we want to alert a team member to help the customer. When the terminal detects a problem, it issues an OutOfOrder event. A pattern can find situations where the terminal indicates out-of-order and the customer is in the middle of the check-in process:
+			</para>
+
+<programlisting><![CDATA[select * from pattern [ every a=Checkin -> 
+      ( OutOfOrder(term.id=a.term.id) and not 
+          (Cancelled(term.id=a.term.id) or Completed(term.id=a.term.id)) )]]]></programlisting>
+			
+		</sect2>
+
+        <sect2 xml:id="examples-terminalsvc-pattern2">
+			<title>Absence of Status Events</title>
+
+			<para>
+				Since Status events arrive in regular intervals of 60 seconds, we can make us of temporal pattern matching using timer to find events that didn't arrive. We can use the every operator and timer:interval() to repeat an action every 60 seconds. Then we combine this with a not operator to check for absence of Status events. A 65 second interval during which we look for Status events allows 5 seconds to account for a possible delay in transmission or processing:
+			</para>
+
+<programlisting><![CDATA[select 'terminal 1 is offline' from pattern 
+  [every timer:interval(60 sec) -> (timer:interval(65 sec) and not Status(term.id = 'T1'))]
+output first every 5 minutes]]></programlisting>
+
+		</sect2>
+
+        <sect2 xml:id="examples-terminalsvc-epl1">
+			<title>Activity Summary Data</title>
+
+			<para>
+				By presenting statistical information about terminal activity to our staff in real-time we enable them to monitor the system and spot problems. The next example query simply gives us a count per event type every 1 minute. We could further use this data, available through the CountPerType event stream, to join and compare against a recorded usage pattern, or to just summarize activity in real-time.
+			</para>
+
+<programlisting><![CDATA[insert into CountPerType
+select type, count(*) as countPerType 
+from BaseTerminalEvent.win:time(10 minutes) 
+group by type
+output all every 1 minutes]]></programlisting>
+		</sect2>
+
+        <sect2 xml:id="examples-terminalsvc-j2ee">
+			<title>Sample Application for J2EE Application Server</title>
+
+			<para>
+				The example code in the distribution package implements a message-driven enterprise java bean (MDB EJB). We used an MDB as a convenient place for processing incoming events via a JMS message queue or topic. The example uses 2 JMS queues: One queue to receive events published by terminals, and a second queue to indicate situations detected via EPL statement and listener back to a receiving process.
+			</para>
+
+			<para>
+				This example has been packaged for deployment into a JBoss Java application server (see http://www.jboss.org) with default deployment configuration. JBoss is an open-source application server available under LGPL license. Of course the choice of application server does not indicate a requirement or preference for the use of Esper in a J2EE container. Other quality J2EE application servers are available and perhaps more suitable to run this example or a similar application.
+			</para>
+
+			<para>
+				The complete example code can be found in the "examples/terminalsvc" folder of the distribution. The standalone version that does not require a J2EE container is in "examples/terminalsvc-jse".
+			</para>
+			
+			<sect3 xml:id="examples-terminalsvc-j2ee-running">
+				<title>Running the Example</title>
+			
+				<para>
+					The pre-build EAR file contains the MDB for deployment to a JBoss application server with default deployment options. The JBoss default configuration provides 2 queues that this example utilizes: queue/A and queue/B. The queue/B is used to send events into the MDB, while queue/A is used to indicate back the any data received by listeners to EPL statements.
+				</para>
+
+				<para>
+					The application can be deployed by copying the ear file in the "examples/terminalsvc/terminalsvc-ear" folder to your JBoss deployment directory located under the JBoss home directory under "standalone/deployments".
+				</para>
+
+				<para>
+					The example contains an event simulator and an event receiver that can be invoked from the command line. See the folder "examples/terminalsvc/etc" folder readme file and start scripts for Windows and Unix, and the documentation set for further information on the simulator.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="examples-terminalsvc-j2ee-building">
+				<title>Building the Example</title>
+
+				<para>
+					This example requires Maven 2 to build. To build the example, change directory to the folder "examples/terminalsvc" and type "mvn package". The instructions have been tested with JBoss AS 7.1.1  and Maven 3.0.4.
+				</para>
+
+				<para>
+					The Maven build packages the EAR file for deployment to a JBoss application server with default deployment options.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="examples-terminalsvc-j2ee-running-sim">
+				<title>Running the Event Simulator and Receiver</title>
+
+					<para>
+						The example also contains an event simulator that generates meaningful events. The simulator can be run from the directory "examples/terminalsvc/etc" via the command "run_terminalsvc_sender.bat" (Windows) and "run_terminalsvc_sender.sh" (Linux). The event simulator generates a batch of at least 200 events every 1 second. Randomly, with a chance of 1 in 10 for each batch of events, the simulator generates either an OutOfOrder or a LowPaper event for a random terminal. Each batch the simulator generates 100 random terminal ids and generates a Checkin event for each. It then generates either a Cancelled or a Completed event for each. With a chance of 1 in 1000, it generates an OutOfOrder event instead of the Cancelled or Completed event for a terminal.
+					</para>
+
+					<para>
+						The event receiver listens to the MDB-outcoming queue for alerts and prints these out to console. The receiver can be run from the directory "examples/terminalsvc/etc" via the command "run_terminalsvc_receiver.bat" (Windows) and "run_terminalsvc_receiver.sh" (Linux). Before running please copy the <literal>jboss-client.jar</literal> file from your JBoss AS installation bin directory to the "terminalsvc/lib" folder.
+					</para>
+					
+					<para>
+					  The receiver and sender code use "guest" as user and "pass" as password. Add the "guest" user using the Jboss "add-user" script and assign the role "guest".
+					  Your JBoss server may need to start with "-c standalone-full.xml" to have the messaging subsystem available.
+					</para>
+					
+					<para>
+					  Add queue configurations to the messaging subsystem configuration as follows:
+					</para>
+
+<programlisting><![CDATA[<jms-queue name="queue_a">
+  <entry name="queue_a"/>
+  <entry name="java:jboss/exported/jms/queue/queue_a"/>
+</jms-queue>
+<jms-queue name="queue_b">
+  <entry name="queue_b"/>
+  <entry name="java:jboss/exported/jms/queue/queue_b"/>
+</jms-queue>]]></programlisting>
+
+					<para>
+					  Disable persistence in the messaging subsystem for this example so we are not running out of disk space:
+					</para>
+<programlisting><![CDATA[<persistence-enabled>false</persistence-enabled>]]></programlisting>
+
+			</sect3>	
+		</sect2>
+    </sect1>
+
+    <sect1 xml:id="examples-assets-moving">
+        <title>Assets Moving Across Zones - An RFID Example</title>
+
+		<para>
+			This example out of the RFID domain processes location report events. Each location report event indicates an asset id and the current zone of the asset. 
+			The example solves the problem that when a given set of assets is not moving together from zone to zone, then an alert must be fired.
+		</para>
+    	
+		<para>
+			Each asset group is tracked by 2 statements. The two statements to track a single asset group consisting of assets identified by asset ids {1, 2, 3} are as follows:
+		</para>
+
+<programlisting><![CDATA[insert into CountZone_G1
+select 1 as groupId, zone, count(*) as cnt
+from LocationReport(assetId in 1, 2, 3).std:unique(assetId)
+group by zone
+
+select Part.zone from pattern [
+  every Part=CountZone_G1(cnt in (1,2)) ->
+    (timer:interval(10 sec)  and not CountZone_G1(zone=Part.zone, cnt in (0,3)))]]]></programlisting>
+
+		<para>
+			The classes for this example can be found in package <literal>com.espertech.esper.example.rfid</literal>.
+		</para>
+
+		<para>
+			This example provides a Swing-based GUI that can be run from the command line.
+			The GUI allows drag-and-drop of three RFID tags that form one asset group from zone to zone. Each time you move an asset across the screen the example sends an
+			event into the engine indicating the asset id and current zone. The example detects if within 10 seconds the three assets do not join each other
+			within the same zone, but stay split across zones.
+			Run "run_rfid_swing.bat" (Windows) or "run_rfid_swing.sh" (Unix) to start the example's Swing GUI. 
+		</para>
+
+		<para>
+			The example also provides a simulator that can be run from the command line.
+			The simulator generates a number of asset groups as specified by a command line argument and starts a number of threads as specified by a command line argument
+			to send location report events into the engine.
+			Run "run_rfid_sim.bat" (Windows) or "run_rfid_sim.sh" (Unix) to start the RFID location report event simulator. 
+			Please see the readme file in the same folder for build instructions and command line parameters.
+		</para>
+
+    </sect1>
+
+    <sect1 xml:id="examples-stockticker">
+        <title>StockTicker</title>
+
+		<para>
+			 The StockTicker example comes from the stock trading domain. The example creates event patterns to filter stock tick events based on price and symbol. 
+			 When a stock tick event is encountered that falls outside the lower or upper price limit, the example simply displays that stock tick event.
+			 The price range itself is dynamically created and changed. This is accomplished by an event patterns that searches for another event class, the price limit event.			 			 
+		</para>
+    	
+		<para>
+			The classes <literal>com.espertech.esper.example.stockticker.event.StockTick</literal> and <literal>PriceLimit</literal> represent our events. The event patterns are created by the class <literal>com.espertech.esper.example.stockticker.monitor.StockTickerMonitor</literal>. 
+		</para>
+
+		<para>
+			Summary:
+		</para>
+
+        <itemizedlist spacing="compact">
+			<listitem>
+				<para>
+                    Good example to learn the API and get started with event patterns
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Dynamically creates and removes event patterns based on price limit events received
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Simple, highly-performant filter expressions for event properties in the stock tick event such as symbol and price
+                </para>
+			</listitem>
+		</itemizedlist>
+    </sect1>
+
+    <sect1 xml:id="examples-matchmaker">
+        <title>MatchMaker</title>
+
+		<para>
+			 In the MatchMaker example every mobile user has an X and Y location, a set of properties (gender, hair color, age range) and a set of preferences (one for each property) to match. The task of the event patterns created by this example is to detect mobile users that are within proximity given a certain range, and for which the properties match preferences.
+		</para>
+		
+		<para>
+			The event class representing mobile users is <literal>com.espertech.esper.example.matchmaker.event.MobileUserBean</literal>. The <literal>com.espertech.esper.example.matchmaker.monitor.MatchMakingMonitor</literal> class contains the patterns for detecing matches.
+		</para>
+    	
+		<para>
+			Summary:
+		</para>
+
+        <itemizedlist spacing="compact">
+			<listitem>
+				<para>
+                    Dynamically creates and removes event patterns based on mobile user events received
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Uses range matching for X and Y properties of mobile user events
+                </para>
+			</listitem>
+		</itemizedlist>
+
+    </sect1>
+    
+    <sect1 xml:id="examples-namedwindowquery">
+        <title>Named Window Query</title>
+
+		<para>
+			This example handles very minimal temperature sensor events which are represented by <literal>java.util.Map</literal>. It creates a named window and fills it with a large number of events. It then executes a large number of pre-defined queries via on-select as well as performs a large number of fire-and-forget queries against the named window, and reports execution times.
+		</para>
+
+    </sect1>
+
+    <sect1 xml:id="examples-virtualdw">
+        <title>Sample Virtual Data Window</title>
+
+		<para>
+			Virtual data windows are an extension API used to integrate external stores and expose the data therein as a named window.
+		</para>
+		
+		<para>
+		   See the <literal>virtualdw</literal> folder for example code, compile and run scripts.
+		</para>
+
+    </sect1>
+
+    <sect1 xml:id="examples-cycledetect">
+        <title>Sample Cycle Detection</title>
+
+		<para>
+			The example is also discussed in the section on extension APIs specifically the aggregation multi-function development.
+			The example uses the <literal>jgrapht</literal> library for a cycle-detection problem detecting cycles in transactions between accounts.
+		</para>
+		
+		<para>
+		   See the <literal>examples/cycledetect</literal> folder for example code, compile and run scripts.
+		</para>
+
+    </sect1>
+
+	<sect1 xml:id="examples-qossla" revision="2">
+        <title>Quality of Service</title>
+            
+        <para>
+            This example develops some code for measuring quality-of-service levels such as for a service-level agreement (SLA).
+            A SLA is a contract between 2 parties that defines service constraints such as maximum latency for service operations or error rates.
+        </para>
+            
+        <para>                      
+            The example measures and monitors operation latency and error counts per customer and operation. When 
+            one of our operations oversteps these constraints, we want to be alerted right away. Additionally, we would like to have some monitoring in
+            place that checks the health of our service and provides some information on how the operations are used.
+        </para>
+
+        <para>                      
+            Some of the constraints we need to check are:
+         </para>
+            
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					That the latency (time to finish) of some of the operations is always less then X seconds.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					That the latency average is always less then Y seconds over Z operation invocations. 
+				</para>
+			</listitem>
+		</itemizedlist>
+		
+		<para>
+			The <literal>com.espertech.esper.example.qos_sla.events.OperationMeasurement</literal> event class with its latency and status properties is the main event used for the SLA analysis. The other event <literal>LatencyLimit</literal> serves to set latency limits on the fly.
+		</para>
+
+		<para>
+			The <literal>com.espertech.esper.example.qos_sla.monitor.AverageLatencyMonitor</literal> creates an EPL statement that computes latency statistics per customer and operation for the
+			last 100 events. The <literal>DynaLatencySpikeMonitor</literal> uses an event pattern to listen to spikes in latency with dynamically set limits. The <literal>ErrorRateMonitor</literal> uses the timer <literal>'at'</literal> operator in an event pattern that wakes up periodically and polls the error rate within the last 10 minutes. The <literal>ServiceHealthMonitor</literal> simply alerts when 3 errors occur, and the <literal>SpikeAndErrorMonitor</literal> alerts when a fixed latency is overstepped or an error status is reported.
+		</para>
+
+		<para>
+			Summary:
+		</para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+                    This example combines event patterns with EPL statements for event stream analysis.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Shows the use of the timer <literal>'at'</literal> operator and followed-by operator <literal>-&gt;</literal> in event patterns.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Outlines basic EPL statements.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Shows how to pull data out of EPL statements rather then subscribing to events a statement publishes.
+                </para>
+			</listitem>
+		</itemizedlist>
+    </sect1>    
+    
+	<sect1 xml:id="examples-trivia" revision="2">
+        <title>Trivia Geeks Club</title>
+            
+        <para>
+            This example was developed for the DEBS 2011 conference and demonstrates how scoring rules for a trivia game can be implemented in EPL.
+        </para>
+        
+        <para>
+          The EPL module that implements all scoring rules is located in the <literal>etc</literal> folder in file <literal>trivia.epl</literal>. The EPL is all required to run the solution without any custom functions required.
+        </para>
+        
+        <para>
+           The trivia geeks club rules (the requirements) are provided in the <literal>etc</literal> folder in file <literal>trivia_scoring_requirements.htm</literal>.
+        </para>
+        
+        <para>
+           The implementation we provide tests the questions, answers and scoring according to the data provided in <literal>trivia_test_questions_small.htm</literal> and <literal>trivia_test_questions_large.htm</literal>.
+        </para>
+    </sect1>    
+</chapter>

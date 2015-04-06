@@ -1,0 +1,1578 @@
+<chapter xml:id="dataflow" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>EPL Reference: Data Flow</title>
+        
+	<sect1 xml:id="dataflow-intro">
+		<title>Introduction</title>
+		<indexterm><primary>dataflow</primary></indexterm>
+		
+		<para>
+			Data flows in Esper EPL have the following purposes:			
+		</para>
+		
+		<orderedlist spacing="compact">
+			<listitem>
+				<para>
+					Support for data flow programming and flow-based programming.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Declarative and runtime manageable integration of Esper input and output adapters that may be provided by EsperIO or by an application.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Remove the need to use an event bus achieving dataflow-only visibility of events and event types for performance gains.
+				</para>
+			</listitem>
+		</orderedlist>
+		
+		<para>
+		  Data flow operators communicate via streams of either underlying event objects or wrapped events. Underlying event objects are POJO, Map, Object-array or DOM/XML. Wrapped events are represented by <literal>EventBean</literal> instances that associate type information to underlying event objects.
+		</para>		
+
+		<para>
+		  For more information on data flow programming or flow-based programming please consult the <link xlink:href="http://en.wikipedia.org/wiki/Flow-based_programming">Wikipedia FBP Article</link>.		  
+		</para>		
+
+		<para>
+		  Esper offers a number of useful built-in operators that can be combined in a graph to program a data flow. In addition EsperIO offers prebuilt operators that act as sources or sinks of events. An application can easily create and use its own data flow operators.
+		</para>
+		
+		<para>
+		  Using data flows an application can provide events to the data flow operators directly without using an engine's event bus. Not using an event bus (as represented by <literal>EPRuntime.sendEvent</literal>) can achieve performance gains as the engine does not need to match events to statements and the engine does not need to wrap underlying event objects in <literal>EventBean</literal> instances.
+		</para>
+
+		<para>
+		  Data flows also allow for finer-grained control over threading, synchronous and asynchronous operation.
+		</para>
+		
+		<note>
+			<para>
+			  Data flows are new in release 4.6 and may be subject to evolutionary change.
+			</para>
+		</note>
+	</sect1>
+
+	<sect1 xml:id="dataflow-usage">
+		<title>Usage</title>		
+		
+		<sect2 xml:id="dataflow-usage-overview">
+			<title>Overview</title>		
+			<para>
+				Your application declares a data flow using <literal>create dataflow </literal><emphasis>dataflow-name</emphasis>. Declaring the data flow causes the EPL compiler to validate the syntax and some aspects of the data flow graph of operators. Declaring the data flow does not actually instantiate or execute a data flow. Resolving event types and instantiating operators (as required) takes place at time of data flow instantiation.
+			</para>
+
+			<para>
+				After your application has declared a data flow, it can instantiate the data flow and execute it. A data flow can be instantiated as many times as needed and each data flow instance can only be executed once.
+			</para>
+			
+			<para>
+			  The example EPL below creates a data flow that, upon execution, outputs the text <literal>Hello World</literal> to console and then ends.
+			</para>
+			<programlisting><![CDATA[create dataflow HelloWorldDataFlow
+  BeaconSource -> helloworld.stream { text: 'hello world' , iterations: 1}
+  LogSink(helloworld.stream) {}]]></programlisting>
+  
+			 <para>
+				The sample data flow above declares a <literal>BeaconSource</literal> operator parameterized by the "hello world" text and 1 iteration. The <literal>-&gt;</literal> keyword reads as <emphasis>produces streams</emphasis>. The <literal>BeaconSource</literal> operator produces a single stream named <literal>helloworld.stream</literal>. The <literal>LogSink</literal> operator receives this stream and prints it unformatted.
+			 </para>
+	
+			<para>
+			  The next program code snippet declares the data flow to the engine:
+			</para>
+			<programlisting><![CDATA[String epl = "create dataflow HelloWorldDataFlow\n" +
+  "BeaconSource -> helloworldStream { text: 'hello world' , iterations: 1}\n" +
+  "LogSink(helloworldStream) {}";
+epService.getEPAdministrator().createEPL(epl);]]></programlisting>
+  
+			 <para>
+			   After declaring a data flow to an engine, your application can then instantiate and execute the data flow.
+			 </para>
+			 
+			 <para>
+			   The following program code snippet instantiates the data flow:
+			 </para>
+			<programlisting><![CDATA[EPDataFlowInstance instance =
+  epService.getEPRuntime().getDataFlowRuntime().instantiate("HelloWorldDataFlow");]]></programlisting>
+
+			  <para>
+			    A data flow instance is represented by an <literal>EPDataFlowInstance</literal> object.
+			  </para>
+			  
+			 <para>
+			   The next code snippet executes the data flow instance:
+			 </para>
+			<programlisting><![CDATA[instance.run();]]></programlisting>
+
+			<para>
+			  By using the <literal>run</literal> method of <literal>EPDataFlowInstance</literal> the engine executes the data flow using the same thread (blocking execute) and returns when the data flow completes. A data flow completes when all operators receive final markers.
+			</para>
+
+			<para>
+			  The hello world data flow simply prints an unformatted <literal>Hello World</literal> string to console. Please check the built-in operator reference for <literal>BeaconSource</literal> and <literal>LogSink</literal> for more options.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="dataflow-usage-syntax">
+			<title>Syntax</title>
+
+			<para>
+			  The synopsis for declaring a data flow is:
+			</para>
+			<synopsis>create dataflow <emphasis>name</emphasis>
+	[<emphasis>schema_declarations</emphasis>]
+	[<emphasis>operator_declarations</emphasis>]
+	</synopsis>
+	
+			<para>
+			  After <literal>create dataflow</literal> follows the data flow name and a mixed list of event type (schema) declarations and operator declarations.
+			</para>
+			
+			<para>
+			  Schema declarations define an event type. Specify any number of <literal>create schema</literal> clauses as part of the data flow declaration followed by a comma character to end each schema declaration. The syntax for <literal>create schema</literal> is described in <xref linkend="epl_createschema"/>.
+			</para>
+			
+			<para>
+			  All event types that are defined as part of a data flow are private to the data flow and not available to other EPL statements. To define event types that are available across data flows and other EPL statements, use a <literal>create schema</literal> EPL statement, runtime or static configuration.
+			</para>
+
+			<para>
+			  Annotations as well as expression declarations and scripts can also be pre-pended to the data flow declaration.
+			</para>
+			
+			<sect3 xml:id="dataflow-usage-syntax-op">
+				<title>Operator Declaration</title>
+				
+				<para>
+				  For each operator, declare the operator name, input streams, output streams and operator parameters.
+				</para>
+
+				<para>
+				  The syntax for declaring a data flow operator is:
+				</para>
+
+				<synopsis><emphasis>operator_name</emphasis> [(<emphasis>input_streams</emphasis>)]  [-&gt; <emphasis>output_streams</emphasis>] {
+  [<emphasis>parameter_name</emphasis> : <emphasis>parameter_value_expr</emphasis>] [, ...]
+}</synopsis>
+	            
+	            <para>
+	              The operator name is an identifier that identifies an operator.
+	            </para>
+
+	            <para>
+	              If the operator accepts input streams then those may be listed in parenthesis after the operator name, see <xref linkend="dataflow-usage-syntax-opinputstreams"/>.
+	            </para>
+	            
+	            <para>
+	              If the operator can produce output streams then specify <literal>-&gt;</literal> followed by a list of output stream names and types. See <xref linkend="dataflow-usage-syntax-opoutputstreams"/>.
+	            </para>
+	            
+	            <para>
+	              Following the input and output stream declaration provide curly brackets (<literal>{}</literal>) containing operator parameters. See <xref linkend="dataflow-usage-syntax-opparams"/>.
+	            </para>
+	            
+				<para>
+				  An operator that receives no input streams, produces no output streams and has no parameters assigned to it is shown in this EPL example data flow:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperatorSimple {}]]></programlisting>
+
+				<para>
+				  The next EPL shows a data flow that consists of an operator <literal>MyOperator</literal> that receives a single input stream <literal>myInStream</literal> and produces a single output stream <literal>myOutStream</literal> holding <literal>MyEvent</literal> events.
+				  The EPL configures the operator parameter <literal>myParameter</literal> with a value of 10:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  create schema MyEvent as (id string, price double),
+  MyOperator(myInStream) -> myOutStream<MyEvent> {
+    myParameter : 10
+  }]]></programlisting>
+  
+				  <para>
+				    The next sections outline input stream, output stream and parameter assignment in greater detail.
+				  </para>
+			</sect3>
+			
+			<sect3 xml:id="dataflow-usage-syntax-opinputstreams">
+				<title>Declaring Input Streams</title>
+				
+				<para>
+				  In case the operator receives input streams, list the input stream names within parenthesis following the operator name. As part of the input stream declaration you may use the <literal>as</literal> keyword to assign an alias short name to one or multiple input streams.
+				</para>
+
+				<para>
+				  The EPL shown next declares <literal>myInStream</literal> and assigns the alias <literal>mis</literal>:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator(myInStream as mis) {}]]></programlisting>
+
+				<para>
+				  Multiple input streams can be listed separated by comma. We use the term <emphasis>input port</emphasis> to mean the ordinal number of the input stream in the order the input streams are listed.
+				</para>
+
+				<para>
+				  The EPL as below declares two input streams and assigns an alias to each. The engine assigns <literal>streamOne</literal> to input port 0 (zero) and <literal>streamTwo</literal> to port 1.
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator(streamOne as one, streamTwo as two) {}]]></programlisting>
+
+				<para>
+				  You may assign multiple input streams to the same port and alias by placing the stream names into parenthesis. All input streams for the same port must have the same event type associated.
+				</para>
+				
+				<para>
+				  The next EPL statement declares an operator that receives input streams <literal>streamA</literal> and <literal>streamB</literal> both assigned to port 0 (zero) and alias <literal>streamsAB</literal>:
+				</para>				
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator( (streamA, streamB) as streamsAB) {}]]></programlisting>
+  
+				 <para>
+				    Input and output stream names can have the dot-character in their name.
+				 </para>
+
+				<para>
+				    The following is also valid EPL:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator(my.in.stream) -> my.out.stream {}]]></programlisting>
+  
+				  <note>
+					  <para>
+					    Reserved keywords may not appear in the stream name.
+					  </para>
+				  </note>
+			</sect3>
+			
+			<sect3 xml:id="dataflow-usage-syntax-opoutputstreams">
+				<title>Declaring Output Streams</title>
+				
+				<para>
+				  In case the operator produces output streams, list the output streams after the <literal>-&gt;</literal> keyword. Multiple output streams can be listed separated by comma. We use the term <emphasis>output port</emphasis> to mean the ordinal number of the output stream in the order the output streams are listed.
+				</para>
+
+				<para>
+				    The sample EPL below declares an operator that produces two output streams <literal>my.out.one</literal> and <literal>my.out.two</literal>. 
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator -> my.out.one, my.out.two {}]]></programlisting>
+
+				<para>
+				   Each output stream can be assigned optional type information within less/greater-then (<literal>&lt;&gt;</literal>). Type information is required if the operator cannot deduce the output type from the input type and the operator does not declare explicit output type(s). The event type name can 
+				   either be an event type defined within the same data flow or an event type defined in the engine.
+				</para>
+
+				<para>
+				    This EPL example declares an <literal>RFIDSchema</literal> event type based on an object-array event representation and associates the output stream <literal>rfid.stream</literal> with the <literal>RFIDSchema</literal> type. 
+				    The stream <literal>rfid.stream</literal> therefore carries object-array (<literal>Object[]</literal>) typed objects according to schema <literal>RFIDSchema</literal>:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  create objectarray schema RFIDSchema (tagId string, locX double, locY double),
+  MyOperator -> rfid.stream<RFIDSchema> {}]]></programlisting>
+  				  
+				<para>
+				  The keyword <literal>eventbean</literal> is reserved: Use <literal>eventbean&lt;</literal><emphasis>type-name</emphasis><literal>&gt;</literal> to indicate that a stream carries <literal>EventBean</literal> instances of the given type instead of the underlying event object.
+				</para>
+				  
+				<para>
+				    This EPL example declares an <literal>RFIDSchema</literal> event type based on an object-array event representation and associates the output stream <literal>rfid.stream</literal> with the event type,
+				    such that the stream <literal>rfid.stream</literal> carries <literal>EventBean</literal> objects:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  create objectarray schema RFIDSchema (tagId string, locX double, locy double),
+  MyOperator -> rfid.stream<eventbean<RFIDSchema>> {}]]></programlisting>
+
+				<para>
+				   Use questionmark (<literal>?</literal>) to indicate that the type of events is not known in advance.
+				</para>
+				
+				<para>
+				    In the next EPL the stream <literal>my.stream</literal> carries <literal>EventBean</literal> instances of any type:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator -> my.stream<eventbean<?>> {}]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="dataflow-usage-syntax-opparams">
+				<title>Declaring Operator Parameters</title>
+				
+				<para>
+				  Operators can receive constants, objects, EPL expressions and complete EPL statements as parameters. All parameters are listed within curly brackets (<literal>{}</literal>) after input and output stream declarations. Curly brackets are required as a separator even if 
+				  the operator has no parameters.
+				</para>
+				
+				<para>
+				  The syntax for parameters is:
+				</para>
+				<synopsis><emphasis>name</emphasis> : <emphasis>value_expr</emphasis> [,...]</synopsis>
+				
+				<para>
+				  The parameter name is an identifier that is followed by the colon (<literal>:</literal>) or equals (<literal>=</literal>) character and a value expression. A value expression can be any expression, system property, JSON notation object or EPL statement. Parameters are separated by comma character.
+				</para>
+				
+				<para>
+				    The next EPL demonstrates operator parameters that are scalar values:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator {
+    stringParam : 'sample',
+    secondString : "double-quotes are fine",
+    intParam : 10
+  }]]></programlisting>
+
+				<para>
+				  Operator parameters can be any EPL expression including expressions that use variables. Subqueries, aggregations and the <literal>prev</literal> and <literal>prior</literal> functions cannot be applied here.
+				</para>
+
+				<para>
+				    The EPL shown below lists operator parameters that are expressions:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator {
+    intParam : 24*60*60,
+    threshold : var_threshold	// a variable defined in the engine
+  }]]></programlisting>
+
+				<para>
+				  To obtain the value of a system property, the special <literal>systemProperties</literal> property name is reserved for access to system properties.
+				</para>
+
+				<para>
+				    The following EPL sets operator parameters to a value obtained from a system property:
+				</para>
+				<programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator {
+    someSystemProperty : systemProperties('mySystemProperty') 
+  }]]></programlisting>
+  
+				 <para>
+				    Any JSON value can also be used as a value. Use square brackets <literal>[]</literal> for JSON arrays. Use curly brackets <literal>{}</literal> to hold nested Map or other object values. Provide the special <literal>class</literal> property to 
+				    instantiate a given instance by class name. The engine populates the respective array, Map or Object as specified in the JSON parameter value.
+				 </para>
+
+				 <para>
+					The below EPL demonstrates operator parameters that are JSON values:
+				 </para>
+				 <programlisting><![CDATA[create dataflow MyDataFlow
+  MyOperator {
+    myStringArray: ['a', "b"],
+    myMapOrObject: {
+      a : 10,
+      b : 'xyz',
+    },
+    myInstance: {
+      class: 'com.myorg.myapp.MyImplementation',
+      myValue : 'sample'
+    }
+  }]]></programlisting>
+		  
+				 <para>
+				    The special parameter name <literal>select</literal> is reserved for use with EPL select statements. Please see the <literal>Select</literal> built-in operator for an example.
+				 </para>
+
+			</sect3>
+		</sect2>
+    </sect1>
+
+	<sect1 xml:id="dataflow-reference">
+
+		<title>Built-in Operators</title>		
+		<para>
+			The below table summarizes the built-in data flow operators (Esper only) available:
+		</para>
+
+		<table frame="topbot" xml:id="data_flow_operators_esper" revision="2">
+			<title>Esper Built-in Operators</title>
+			<tgroup cols="2">
+				<colspec colwidth="1.0*"/>
+				<colspec colwidth="2.0*"/>
+				<thead>
+					<row>
+						<entry>Operator</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>BeaconSource</entry>
+						<entry>
+							<para>
+								Utility source that generates events. See <xref linkend="dataflow-reference-beaconsource"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>Emitter</entry>
+						<entry>
+							<para>
+								Special operator for injecting events into a stream. See <xref linkend="dataflow-api-startcaptive"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>EPStatementSource</entry>
+						<entry>
+							<para>
+								One or more EPL statements act as event sources. See <xref linkend="dataflow-reference-epstatementsource"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>EventBusSink</entry>
+						<entry>
+							<para>
+								The event bus is the sink: Sends events from the data flow into the event bus. See <xref linkend="dataflow-reference-eventbussink"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>EventBusSource</entry>
+						<entry>
+							<para>
+								The event bus is the source: Receives events from the event bus into the data flow. See <xref linkend="dataflow-reference-eventbussource"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>Filter</entry>
+						<entry>
+							<para>
+								Filters an input stream and produces an output stream containing the events passing the filter criteria. See <xref linkend="dataflow-reference-filter"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>LogSink</entry>
+						<entry>
+							<para>
+								Utility sink that outputs events to console or log. See <xref linkend="dataflow-reference-logsink"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>Select</entry>
+						<entry>
+							<para>
+								An EPL select statement that executes on the input stream events. See <xref linkend="dataflow-reference-select"/>.
+							</para>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>		
+
+		<para>
+			The below table summarizes the built-in EsperIO data flow operators. Please see the EsperIO documentation and source for more information.
+		</para>
+
+		<table frame="topbot" xml:id="data_flow_operators_esperio" revision="2">
+			<title>EsperIO Built-in Operators</title>
+			<tgroup cols="2">
+				<colspec colwidth="1.0*"/>
+				<colspec colwidth="2.0*"/>
+				<thead>
+					<row>
+						<entry>Operator</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>AMQPSource</entry>
+						<entry>
+							<para>
+								Attaches to AMQP broker to receive messages to process. 
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>AMQPSink</entry>
+						<entry>
+							<para>
+								Attaches to AMQP broker to send messages.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>FileSource</entry>
+						<entry>
+							<para>
+								Reads one or more files and produces events from file data.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>FileSink</entry>
+						<entry>
+							<para>
+								Write one or more files from events received.
+							</para>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>		
+
+		<sect2 xml:id="dataflow-reference-beaconsource">
+			<title>BeaconSource</title>		
+			
+			<para>
+			  The BeaconSource operator generates events and populates event properties.
+			</para>
+			
+			<para>
+			  The BeaconSource operator does not accept any input streams and has no input ports.
+			</para>
+			
+			<para>
+			  The BeaconSource operator must have a single output stream. When the BeaconSource operator completed generating events according to the number of iterations provided or when it is cancelled it outputs a final marker to the output stream.
+			</para>
+
+			<para>
+			  Parameters for the BeaconSource operator are all optional parameters:
+			</para>
+			
+			<table frame="topbot" xml:id="beacon_params" revision="2">
+				<title>BeaconSource Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>initialDelay</entry>
+							<entry>Specifies the number of seconds delay before producing events.</entry>
+						</row>
+						<row>
+							<entry>interval</entry>
+							<entry>Time interval between events. Takes a integer or double-typed value for the number of seconds. The interval is zero when not provided.</entry>
+						</row>
+						<row>
+							<entry>iterations</entry>
+							<entry>Number of events produced. Takes an integer value. When not provided the operator produces tuples until the data flow instance gets cancelled.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+			
+			<para>
+			  Event properties to be populated can simply be added to the parameters.
+			</para>
+			
+			<para>
+			  If your declaration provides an event type for the output stream then BeaconSource will populate event properties of the underlying events. If no event type is specified, BeaconSource creates an anonymous object-array event type to carry the event properties that are generated and associates this type with its output stream.
+			</para>
+			
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  create schema SampleSchema(tagId string, locX double),	// sample type			
+			
+  // BeaconSource that produces empty object-array events without delay 
+  // or interval until cancelled.
+  BeaconSource -> stream.one {}
+  
+  // BeaconSource that produces one RFIDSchema event populating event properties
+  // from a user-defined function "generateTagId" and the provided values.
+  BeaconSource -> stream.two<SampleSchema> {
+    iterations : 1,
+    tagId : generateTagId(),
+    locX : 10
+  }
+  
+  // BeaconSource that produces 10 object-array events populating
+  // the price property with a random value.
+  BeaconSource -> stream.three {
+    iterations : 1,
+    interval : 10, // every 10 seconds
+    initialDelay : 5, // start after 5 seconds
+    price : Math.random() * 100
+  }]]></programlisting>			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-epstatementsource">
+			<title>EPStatementSource</title>		
+			
+			<para>
+			  The EPStatementSource operator maintains a subscription to the results of one or more EPL statements. The operator produces the statement output events.
+			</para>
+			
+			<para>
+			  The EPStatementSource operator does not accept any input streams and has no input ports.
+			</para>
+			
+			<para>
+			  The EPStatementSource operator must have a single output stream. It does not generate a final or other marker.
+			</para>
+
+			<para>
+			  Either the statement name or the statement filter parameter is required:
+			</para>
+			
+			<table frame="topbot" xml:id="epstatementsource_params" revision="2">
+				<title>EPStatementSource Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>collector</entry>
+							<entry>Optional parameter, used to transform statement output events to submitted events.</entry>
+						</row>
+						<row>
+							<entry>statementName</entry>
+							<entry>Name of the statement that produces events. The statement does not need to exist at the time of data flow instantiation.</entry>
+						</row>
+						<row>
+							<entry>statementFilter</entry>
+							<entry>Implementation of the <literal>EPDataFlowEPStatementFilter</literal> that returns true for each statement that produces events. Statements do not need to exist at the time of data flow instantiation.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+			
+			<para>
+				  If a statement name is provided, the operator subscribes to output events of the statement if the statement exists or when it gets created at a later point in time.  
+			</para>
+			
+			<para>
+				  If a statement filter is provided instead, the operator subscribes to output events of all statements that currently exist and pass the filter <literal>pass</literal> method or that get created at a later point in time and pass the filter <literal>pass</literal> method.
+			</para>
+
+			<para>
+				  The <literal>collector</literal> can be specified to transform output events. If no collector is specified the operator submits the underlying events of the insert stream received from the statement. The collector object must implement the interface <literal>EPDataFlowIRStreamCollector</literal>.
+			</para>
+
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  create schema SampleSchema(tagId string, locX double),	// sample type			
+			
+  // Consider only the statement named MySelectStatement when it exists.
+  // No transformation.
+  EPStatementSource -> stream.one<eventbean<?>> {
+    statementName : 'MySelectStatement'
+  }
+  
+  // Consider all statements that match the filter object provided.
+  // No transformation.
+  EPStatementSource -> stream.two<eventbean<?>> {
+    statementFilter : {
+      class : 'com.mycompany.filters.MyStatementFilter'
+    }
+  }
+  
+  // Consider all statements that match the filter object provided.
+  // With collector that performs transformation.
+  EPStatementSource -> stream.two<SampleSchema> {
+    collector : {
+      class : 'com.mycompany.filters.MyCollector'
+    },
+    statementFilter : {
+      class : 'com.mycompany.filters.MyStatementFilter'
+    }
+  }]]></programlisting>
+    			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-eventbussink">
+			<title>EventBusSink</title>		
+			
+			<para>
+			  The EventBusSink operator send events received from a data flow into the event bus. Any statement that looks for any of the events gets triggered, equivalent to <literal>EPRuntime.sendEvent</literal> or the <literal>insert into</literal> clause.
+			</para>
+			
+			<para>
+			  The EventBusSink operator accepts any number of input streams. The operator forwards all events arriving on any input ports to the event bus, equivalent to <literal>EPRuntime.sendEvent</literal>.
+			</para>
+			
+			<para>
+			  The EventBusSink operator cannot declare any output streams. 
+			</para>
+
+			<para>
+			  Parameters for the EventBusSink operator are all optional parameters:
+			</para>
+			
+			<table frame="topbot" xml:id="eventbussink_params" revision="2">
+				<title>EventBusSink Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>collector</entry>
+							<entry>Optional parameter, used to transform data flow events to event bus events.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+						
+			<para>
+				  The <literal>collector</literal> can be specified to transform data flow events to event bus events. If no collector is specified the operator submits the events directly to the event bus. The collector object must implement the interface <literal>EPDataFlowEventCollector</literal>.
+			</para>
+
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  BeaconSource -> instream<SampleSchema> {}  // produces a sample stream
+  
+  // Send SampleSchema events produced by beacon to the event bus.
+  EventBusSink(instream) {}
+  
+  // Send SampleSchema events produced by beacon to the event bus.
+  // With collector that performs transformation.
+  EventBusSink(instream) {
+    collector : {
+      class : 'com.mycompany.filters.MyCollector'
+    }
+  }]]></programlisting>
+			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-eventbussource">
+			<title>EventBusSource</title>		
+			
+			<para>
+			  The EventBusSource operator receives events from the event bus and produces an output stream of the events received. With the term event bus we mean any event visible to the engine either because the application send the event via <literal>EPRuntime.sendEvent</literal> or because statements populated streams as a result of <literal>insert into</literal>.
+			</para>
+			
+			<para>
+			  The EventBusSource operator does not accept any input streams and has no input ports.
+			</para>
+			
+			<para>
+			  The EventBusSource operator must have a single output stream. It does not generate a final or other marker. The event type declared for the output stream is the event type of events received from the event bus.
+			</para>
+
+			<para>
+			  All parameters to EventBusSource are optional:
+			</para>
+			
+			<table frame="topbot" xml:id="eventbussource_params" revision="2">
+				<title>EventBusSource Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>collector</entry>
+							<entry>Optional parameter and used to transform event bus events to submitted events.</entry>
+						</row>
+						<row>
+							<entry>filter</entry>
+							<entry>Filter expression for event bus matching.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+						
+			<para>
+				  The <literal>collector</literal> can be specified to transform output events. If no collector is specified the operator submits the underlying events of the stream received from the event bus. The collector object must implement the interface <literal>EPDataFlowEventBeanCollector</literal>.
+			</para>
+
+			<para>
+				  The <literal>filter</literal> is an expression that the event bus compiles and efficiently matches even in the presence of a large number of event bus sources. The filter expression must return a boolean-typed value, returning true for those events that the event bus passes to the operator.
+			</para>
+
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+
+  // Receive all SampleSchema events from the event bus.
+  // No transformation.
+  EventBusSource -> stream.one<SampleSchema> {}
+  
+  // Receive all SampleSchema events with tag id '001' from the event bus.
+  // No transformation.
+  EventBusSource -> stream.one<SampleSchema> {
+    filter : tagId = '001'
+  }
+
+  // Receive all SampleSchema events from the event bus.
+  // With collector that performs transformation.
+  EventBusSource -> stream.two<SampleSchema> {
+    collector : {
+      class : 'com.mycompany.filters.MyCollector'
+    },
+  }]]></programlisting>
+    			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-filter">
+			<title>Filter</title>		
+			
+			<para>
+			  The Filter operator filters an input stream and produces an output stream containing the events passing the filter criteria. If a second output stream is provided, the operator sends events not passing filter criteria to that output stream.
+			</para>
+			
+			<para>
+			  The Filter operator accepts a single input stream.
+			</para>
+			
+			<para>
+			  The Filter operator requires one or two output streams. The event type of the input and output stream(s) must be the same. The first output stream receives the matching events according to the filter expression. If declaring two output streams, the second stream receives non-matching events.
+			</para>
+
+			<para>
+			  The Filter operator has a single required parameter:
+			</para>
+			
+			<table frame="topbot" xml:id="filter_params" revision="2">
+				<title>Filter Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>filter</entry>
+							<entry>The filter criteria expression.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+						
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  create schema SampleSchema(tagId string, locX double),	// sample type
+  BeaconSource -> samplestream<SampleSchema> {}  // sample source
+  
+  // Filter all events that have a tag id of '001'
+  Filter(samplestream) -> tags_001 {
+    filter : tagId = '001' 
+  }
+  
+  // Filter all events that have a tag id of '001', 
+  // putting all other events into the second stream
+  Filter(samplestream) -> tags_001, tags_other {
+    filter : tagId = '001' 
+  }]]></programlisting>
+			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-logsink">
+			<title>LogSink</title>		
+			
+			<para>
+			  The LogSink operator outputs events to console or log file in either a JSON, XML or built-in format (the default).
+			</para>
+			
+			<para>
+			  The LogSink operator accepts any number of input streams. All events arriving on any input ports are logged.
+			</para>
+			
+			<para>
+			  The LogSink operator cannot declare any output streams. 
+			</para>
+
+			<para>
+			  Parameters for the LogSink operator are all optional parameters:
+			</para>
+			
+			<table frame="topbot" xml:id="logsink_params" revision="2">
+				<title>LogSink Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>format</entry>
+							<entry>Specify format as a string value: <literal>json</literal> for JSON-formatted output, <literal>xml</literal> for XML-formatted output and <literal>summary</literal> (default) for a built-in format.</entry>
+						</row>
+						<row>
+							<entry>layout</entry>
+							<entry>Pattern string according to which output is formatted. Place <literal>%df</literal> for data flow name,  <literal>%p</literal> for port number, <literal>%i</literal> for data flow instance id, <literal>%t</literal> for title, <literal>%e</literal> for event data.</entry>
+						</row>
+						<row>
+							<entry>log</entry>
+							<entry>Boolean true (default) for log output, false for console output.</entry>
+						</row>
+						<row>
+							<entry>linefeed</entry>
+							<entry>Boolean true (default) for line feed, false for no line feed.</entry>
+						</row>
+						<row>
+							<entry>title</entry>
+							<entry>String title text pre-pended to output.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+						
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  BeaconSource -> instream {}  // produces sample stream to use below
+  
+  // Output textual event to log using defaults.
+  LogSink(instream) {}
+  
+  // Output JSON-formatted to console.
+  LogSink(instream) {
+    format : 'json',
+    layout : '%t [%e]',
+    log : false,
+    linefeed : true,
+    title : 'My Custom Title:'
+  }]]></programlisting>
+			
+		</sect2>
+
+		<sect2 xml:id="dataflow-reference-select">
+			<title>Select</title>		
+			
+			<para>
+			  The Select operator is configured with an EPL select statement. It applies events from input streams to the select statement and outputs results either continuously or when the final marker arrives.
+			</para>
+			
+			<para>
+			  The Select operator accepts one or more input streams.
+			</para>
+			
+			<para>
+			  The Select operator requires a single output stream. 
+			</para>
+
+			<para>
+			  The Select operator requires the <literal>select</literal> parameter, all other parameters are optional:
+			</para>
+			
+			<table frame="topbot" xml:id="select_params" revision="2">
+				<title>Select Operator Parameters</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.2*"/>
+					<colspec colwidth="0.8*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>iterate</entry>
+							<entry>Boolean indicator whether results should be output continuously or only upon arrival of the final marker.</entry>
+						</row>
+						<row>
+							<entry>select</entry>
+							<entry>EPL <literal>select</literal> statement in parenthesis.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+			
+			<para>
+			  Set the optional <literal>iterate</literal> flag to false (the default) to have the operator output results continuously. Set the <literal>iterate</literal> flag to true to indicate that the operator outputs results only when the final marker arrives. If <literal>iterate</literal> is true then output rate limiting clauses are not supported.
+			</para>
+			
+			<para>
+			  The <literal>select</literal> parameter is required and provides an EPL select statement within parenthesis. 
+			  For each input port the statement should list the input stream name or the alias name in the <literal>from</literal> clause. Only filter-based streams are allowed in the <literal>from</literal> clause and patterns or named windows are not supported. Also not allowed are 
+			  the <literal>insert into</literal> clause, the <literal>irstream</literal> keyword and subselects.
+			</para>
+			
+			<para>
+			  The Select operator determines the event type of output events based on the <literal>select</literal> clause. It is not necessary to declare an event type for the output stream.
+			</para>
+			
+			<para>
+				Examples are:
+			</para>
+			<programlisting><![CDATA[create dataflow MyDataFlow
+  create schema SampleSchema(tagId string, locX double),	// sample type			
+  BeaconSource -> instream<SampleSchema> {}  // sample stream
+  BeaconSource -> secondstream<SampleSchema> {}  // sample stream
+  
+  // Simple continuous count of events
+  Select(instream) -> outstream {
+    select: (select count(*) from instream)
+  }
+  
+  // Demonstrate use of alias
+  Select(instream as myalias) -> outstream {
+    select: (select count(*) from myalias)
+  }
+  
+  // Output only when the final marker arrives
+  Select(instream as myalias) -> outstream {
+    select: (select count(*) from myalias),
+    iterate: true
+  }
+
+  // Same input port for the two sample streams
+  Select( (instream, secondstream) as myalias) -> outstream {
+    select: (select count(*) from myalias)
+  }
+
+  // A join with multiple input streams,
+  // joining the last event per stream forming pairs
+  Select(instream, secondstream) -> outstream {
+    select: (select a.tagId, b.tagId 
+        from instream.std:lastevent() as a, secondstream.std:lastevent() as b)
+  }
+  
+  // A join with multiple input streams and using aliases.
+  Select(instream as S1, secondstream as S2) -> outstream {
+    select: (select a.tagId, b.tagId 
+        from S1.std:lastevent() as a, S2.std:lastevent() as b)
+  }]]></programlisting>
+			
+		</sect2>
+
+	</sect1>
+
+	<sect1 xml:id="dataflow-api">
+		<title>API</title>
+		<para>
+			This section outlines the steps to declare, instantiate, execute and cancel or complete data flows.
+		</para>
+
+		<sect2 xml:id="dataflow-api-declaring">
+			<title>Declaring a Data Flow</title>
+			<para>
+				Use the <literal>createEPL</literal> and related <literal>create</literal> methods on <literal>EPAdministrator</literal> to declare a data flow or the deployment admin API. The <literal>EPStatementObjectModel</literal> statement object model can also be used to declare a data flow.
+			</para>
+			
+			<para>
+			  Annotations that are listed at the top of the EPL text are applied to all EPL statements and operators in the data flow. Annotations listed for a specific operator apply to that operator only.
+			</para>
+			
+			<para>
+			  The next program code snippet declares a data flow to the engine:
+			</para>
+			<programlisting><![CDATA[String epl = "@Name('MyStatementName') create dataflow HelloWorldDataFlow\n" +
+  "BeaconSource -> helloworldStream { text: 'hello world' , iterations: 1}\n" +
+  "LogSink(helloworldStream) {}";
+EPStatement stmt = epService.getEPAdministrator().createEPL(epl);]]></programlisting>
+
+			<para>
+			  The statement name that can be assigned to the statement is used only for statement management. Your application may stop and/or destroy the statement declaring the data flow thereby making the data flow unavailable for instantiation. Existing instances of the data flow are not affected by a stop or destroy of the statement that declares the data flow (example: <literal>stmt.destroy()</literal>).
+			</para>
+			
+			<para>
+			  Listeners or the subscriber to the statement declaring a data flow receive no events or other output. The statement declaring a data flow returns no rows when iterated.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-instantiating">
+			<title>Instantiating a Data Flow</title>
+			<para>
+			  The <literal>com.espertech.esper.client.dataflow.EPDataFlowRuntime</literal> available via <literal>getDataFlowRuntime</literal> on <literal>EPRuntime</literal> manages declared data flows.
+			</para>
+
+			<para>
+			  Use the <literal>instantiate</literal> method on <literal>EPDataFlowRuntime</literal> to instantiate a data flow after it has been declared. Pass the data flow name and optional instantiation options to the method. A data flow can be instantiated any number of times.
+			</para>
+			
+			<para>
+			  A data flow instance is represented by an instance of <literal>EPDataFlowInstance</literal>. Each instance has a state as well as methods to start, run, join and cancel as well as methods to obtain execution statistics.
+			</para>
+			
+			<para>
+			  Various optional arguments including operator parameters can be passed to <literal>instantiate</literal> via the <literal>EPDataFlowInstantiationOptions</literal> object as explained in more detail below.
+			</para>
+
+			 <para>
+			   The following code snippet instantiates the data flow:
+			 </para>
+			<programlisting><![CDATA[EPDataFlowInstance instance =
+  epService.getEPRuntime().getDataFlowRuntime().instantiate("HelloWorldDataFlow");]]></programlisting>
+			
+			<para>
+			  The engine does not track or otherwise retain data flow instances in memory. It is up to your application to retain data flow instances as needed.
+			</para>
+			
+			<para>
+			  Each data flow instance associates to a state. The start state is <literal>EPDataFlowState.INSTANTIATED</literal>. The end state is either <literal>COMPLETED</literal> or <literal>CANCELLED</literal>.
+			</para>
+
+			<para>
+			  The following table outlines all states:
+			</para>
+
+			<table frame="topbot" xml:id="data_flow_instance_states" revision="2">
+				<title>Data Flow Instance States</title>
+				<tgroup cols="2">
+					<colspec colwidth="1.0*"/>
+					<colspec colwidth="2.0*"/>
+					<thead>
+						<row>
+							<entry>State</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>INSTANTIATED</entry>
+							<entry>
+								<para>
+									Start state, applies when a data flow instance has been instantiated and has not executed.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry>RUNNING</entry>
+							<entry>
+								<para>
+									A data flow instance transitions from instantiated to running when any of the <literal>start</literal>, <literal>run</literal> or <literal>startCaptive</literal> methods are invoked.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry>COMPLETED</entry>
+							<entry>
+								<para>
+									A data flow instance transitions from running to completed when all final markers have been processed by all operators.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry>CANCELLED</entry>
+							<entry>
+								<para>
+									A data flow instance transitions from running to cancelled when your application invokes the <literal>cancel</literal> method on the data flow instance.
+								</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-executing">
+			<title>Executing a Data Flow</title>
+			<para>
+			  After your application instantiated a data flow instance it can execute the data flow instance using either the <literal>start</literal>, <literal>run</literal> or <literal>startCaptive</literal> methods.
+			</para>
+			
+			<para>
+			  Use the <literal>start</literal> method to have the engine allocate a thread for each source operator. Execution is non-blocking. Use the <literal>join</literal> method to have one or more threads join a data flow instance execution.
+			</para>
+			  
+			<para>
+			  Use the <literal>run</literal> method to have the engine use the current thread to execute the single source operator. Multiple source operators are not allowed when using <literal>run</literal>.
+			</para>
+
+			<para>
+			  Use the <literal>startCaptive</literal> method to have the engine return all <literal>Runnable</literal> instances and emitters, for the purpose of having complete control over execution. The engine allocates no threads and does not perform any logic for the data flow unless your application employs the <literal>Runnable</literal> instances and emitters returned by the method. 
+			</para>
+
+			 <para>
+			   The next code snippet executes the data flow instance as a blocking call:
+			 </para>
+			<programlisting><![CDATA[instance.run();]]></programlisting>
+
+			<para>
+			  By using the <literal>run</literal> method of <literal>EPDataFlowInstance</literal> the engine executes the data flow instance using the same thread (blocking execute) and returns when the data flow instance completes. A data flow instance completes when all operators receive final markers.
+			</para>
+
+			<para>
+			  The hello world data flow simply prints an unformatted <literal>Hello World</literal> string to console. The <literal>BeaconSource</literal> operator generates a final marker when it finishes the 1 iteration. The data flow instance thus transitions to complete after the <literal>LogSink</literal> operator receives the final marker, and the thread invoking the <literal>run</literal> method returns.
+			</para>
+			
+			 <para>
+			   The next code snippet executes the data flow instance as a non-blocking call:
+			 </para>
+			<programlisting><![CDATA[instance.start();]]></programlisting>
+
+			<para>
+			  Use the <literal>cancel</literal> method to cancel execution of a running data flow instance:
+			</para>
+			<programlisting><![CDATA[instance.cancel();]]></programlisting>
+
+			<para>
+			  Use the <literal>join</literal> method to join execution of a running data flow instance, causing the joining thread to block until the data flow instance either completes or is cancelled:
+			</para>
+			<programlisting><![CDATA[instance.join();]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-instantiationoptions">
+			<title>Instantiation Options</title>
+			<para>
+				The <literal>EPDataFlowInstantiationOptions</literal> object that can be passed to the <literal>instantiate</literal> method may be used to customize the operator graph, operator parameters and execution of the data flow instance.
+			</para>
+			
+			<para>
+			    Passing runtime parameters to data flow operators is easiest using the <literal>addParameterURI</literal> method. The first parameter is the data flow operator name and the 
+			    operator parameter name separated by the slash character. The second parameter is the value object.
+			</para>
+			<para>
+			    For example, in order to pass the file name to the <literal>FileSource</literal> operator at runtime, use the following code:
+			</para>
+			<programlisting><![CDATA[EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
+options.addParameterURI("FileSource/file", filename);
+EPDataFlowInstance instance = epService.getEPRuntime().getDataFlowRuntime()
+    .instantiate("MyFileReaderDataFlow",options);
+instance.run();]]></programlisting>
+
+			<para>
+			    The optional <literal>operatorProvider</literal> member takes an implementation of the <literal>EPDataFlowOperatorProvider</literal> interface. The engine invokes this provider to obtain operator instances.
+			</para>
+			
+			<para>
+			    The optional <literal>parameterProvider</literal> member takes an implementation of the <literal>EPDataFlowOperatorParameterProvider</literal> interface. The engine invokes this provider to obtain operator parameter values. The values override the values provided via parameter URI above.
+			</para>
+
+			<para>
+			    The optional <literal>exceptionHandler</literal> member takes an implementation of the <literal>EPDataFlowExceptionHandler</literal> interface. The engine invokes this provider to when exceptions occur.
+			</para>
+
+			<para>
+			    The optional <literal>dataFlowInstanceId</literal> can be assigned any string value for the purpose of identifying the data flow instance.
+			</para>
+
+			<para>
+			    The optional <literal>dataFlowInstanceUserObject</literal> can be assigned any object value for the purpose of associating a user object to the data flow instance.
+			</para>
+			
+			<para>
+			  Set the <literal>operatorStatistics</literal> flag to true to obtain statistics for operator execution.
+			</para>
+
+			<para>
+			  Set the <literal>cpuStatistics</literal> flag to true to obtain CPU statistics for operator execution.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-startcaptive">
+			<title>Start Captive</title>			
+			<para>
+				Use the <literal>startCaptive</literal> method on a <literal>EPDataFlowInstance</literal> data flow instance when your application requires full control over threading. This method returns an <literal>EPDataFlowInstanceCaptive</literal> instance
+				that contains a list of <literal>java.lang.Runnable</literal> instances that represent each source operator.
+			</para>
+
+			<para>
+				The special <literal>Emitter</literal> operator can occur in a data flow. This emitter can be used to inject events into the data flow without writing a new operator. Emitter takes a single <literal>name</literal> parameter that provides the name of the emitter
+				and that is returned in a map of emitters by <literal>EPDataFlowInstanceCaptive</literal>. 
+			</para>
+
+			<para>
+			  The example EPL below creates a data flow that uses emitter.
+			</para>
+			<programlisting><![CDATA[create dataflow HelloWorldDataFlow
+  create objectarray schema SampleSchema(text string),	// sample type		
+	
+  Emitter -> helloworld.stream<SampleSchema> { name: 'myemitter' }
+  LogSink(helloworld.stream) {}]]></programlisting>
+  
+		    <para>
+			  Your application may obtain the Emitter instance and sends events directly into the output stream. This feature is only supported in relationship with <literal>startCaptive</literal> since the engine does not allocate any threads or run source operators.
+		    </para>
+
+			<para>
+			  The example code snippet below obtains the emitter instance and send events directly into the data flow instance:
+			</para>
+			<programlisting><![CDATA[EPDataFlowInstance instance =
+      epService.getEPRuntime().getDataFlowRuntime().instantiate("HelloWorldDataFlow", options);
+EPDataFlowInstanceCaptive captiveStart = instance.startCaptive();
+Emitter emitter = captiveStart.getEmitters().get("myemitter");
+emitter.submit(new Object[] {"this is some text"});]]></programlisting>  
+
+			<para>
+			  When emitting DOM XML events please emit the root element obtained from <literal>document.getDocumentElement()</literal>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-punctuation">
+			<title>Data Flow Punctuation with Markers</title>
+			<para>
+				When your application executes a data flow instance by means of the <literal>start</literal> (non-blocking) or <literal>run</literal> (blocking) methods, the data flow instance stays running until either completed or cancelled. While cancellation is always via the <literal>cancel</literal> method,
+				completion occurs when all source operators provide final markers.
+			</para>
+			
+			<para>
+			   The final marker is an object that implements the <literal>EPDataFlowSignalFinalMarker</literal> interface. Some operators may also provide or process data window markers which implement the <literal>EPDataFlowSignalWindowMarker</literal> interface. All such signals implement the <literal>EPDataFlowSignal</literal> interface.
+			</para>
+			
+			<para>
+			  Some source operators such as <literal>EventBusSource</literal> and <literal>EPStatementSource</literal> do not generate final markers as they act continuously.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="dataflow-api-exception">
+			<title>Exception Handling</title>
+			<para>
+				All exceptions during the execution of a data flow are logged and reported to the <literal>EPDataFlowExceptionHandler</literal> instance if one was provided. 
+			</para>
+			<para>
+				If no exception handler is provided or the provided exception handler re-throws or generates a new runtime exception,
+				the source operator handles the exception and completes (ends). When all source operators complete then the data flow instance transitions to complete.
+			</para>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="dataflow-examples">
+		<title>Examples</title>
+		<para>
+			The following example is a rolling top words count implemented as a data flow, over a 30 second time window and providing the top 3 words every 2 seconds:
+		</para>
+		<programlisting><![CDATA[create dataflow RollingTopWords
+  create objectarray schema WordEvent (word string),
+  
+  Emitter -> wordstream<WordEvent> {name:'a'} {} // Produces word stream
+  
+  Select(wordstream) -> wordcount { // Sliding time window count per word
+    select: (select word, count(*) as wordcount 
+          from wordstream.win:time(30) group by word)
+  }
+
+  Select(wordcount) -> wordranks { // Rank of words
+    select: (select window(*) as rankedWords 
+          from wordcount.ext:sort(3, wordcount desc) 
+          output snapshot every 2 seconds)
+  }
+  
+  LogSink(wordranks) {}]]></programlisting>
+		
+		<para>
+			The next example implements a bargain index computation that separates a mixed trade and quote event stream into a trade and a quote stream, computes a vwap and joins the two streams to compute an index:
+		</para>
+		<programlisting><![CDATA[create dataflow VWAPSample
+  create objectarray schema TradeQuoteType as (type string, ticker string, price double, volume long, askprice double, asksize long),
+  
+  MyObjectArrayGraphSource -> TradeQuoteStream<TradeQuoteType> {}
+  
+  Filter(TradeQuoteStream) -> TradeStream {
+    filter: type = "trade"
+  }
+  
+  Filter(TradeQuoteStream) -> QuoteStream {
+    filter: type = "quote"
+  }
+  
+  Select(TradeStream) -> VwapTrades {
+    select: (select ticker, sum(price * volume) / sum(volume) as vwap, 
+          min(price) as minprice
+          from TradeStream.std:groupwin(ticker).win:length(4) group by ticker)
+  }
+  
+  Select(VwapTrades as T, QuoteStream as Q) -> BargainIndex {
+    select: 
+      (select case when vwap > askprice then asksize * (Math.exp(vwap - askprice)) else 0.0d end as index
+      from T.std:unique(ticker) as t, Q.std:lastevent() as q
+      where t.ticker = q.ticker)
+  }
+  
+  LogSink(BargainIndex) {}
+]]></programlisting>
+	
+		<para>
+			The final example is a word count data flow, in which three custom operators tokenize, word count and aggregate. The custom operators in this example are discussed next.
+		</para>
+		<programlisting><![CDATA[create dataflow WordCount
+  MyLineFeedSource -> LineOfTextStream {}
+  MyTokenizerCounter(LineOfTextStream) -> SingleLineCountStream {}
+  MyWordCountAggregator(SingleLineCountStream) -> WordCountStream {}
+  LogSink(WordCountStream) {}]]></programlisting>
+	</sect1>
+
+	<sect1 xml:id="dataflow-op">
+		<title>Operator Implementation</title>
+		<para>
+			This section discusses how to implement classes that serve as operators in a data flow. The section employs the example data flow as shown earlier.
+		</para>
+		
+		<para>
+			This example data flow has operators <literal>MyLineFeedSource</literal>, <literal>MyTokenizerCounter</literal> and <literal>MyWordCountAggregator</literal> that are application provided operators:
+		</para>
+		<programlisting><![CDATA[create dataflow WordCount
+  MyLineFeedSource -> LineOfTextStream {}
+  MyTokenizerCounter(LineOfTextStream) -> SingleLineCountStream {}
+  MyWordCountAggregator(SingleLineCountStream) -> WordCountStream {}
+  LogSink(WordCountStream) {}]]></programlisting>
+  
+	  <para>
+	    In order to resolve application operators, add the package or operator class to imports:
+	  </para>
+	<programlisting><![CDATA[// Sample code adds 'package.*' to simply import the package.
+epService.getEPAdministrator().getConfiguration()
+  .addImport(MyTokenizerCounter.class.getPackage().getName() + ".*");]]></programlisting>
+		  
+		<sect2 xml:id="dataflow-op-source">
+			<title>Sample Operator Acting as Source</title>
+			
+			<para>
+				The implementation class must implement the <literal>DataFlowSourceOperator</literal> interface.
+			</para>
+			
+			<para>
+			  The implementation for the sample <literal>MyLineFeedSource</literal> with comments is:
+			</para>
+			
+			<programlisting><![CDATA[
+// The OutputTypes annotation can be used to specify the type of events 
+// that are output by the operator.
+// If provided, it is not necessary to declare output types in the data flow.
+// The event representation is object-array.
+@OutputTypes(value = {
+    @OutputType(name = "line", typeName = "String")
+    })
+
+// Provide the DataFlowOpProvideSignal annotation to indicate that 
+// the source operator provides a final marker.
+@DataFlowOpProvideSignal
+
+public class MyLineFeedSource implements DataFlowSourceOperator {
+
+     // Use the DataFlowContext annotation to indicate the field that receives the emitter.
+     // The engine provides the emitter. 
+    @DataFlowContext
+    private EPDataFlowEmitter dataFlowEmitter;
+
+    // Mark a parameter using the DataFlowOpParameter annotation
+    @DataFlowOpParameter
+    private String myStringParameter;
+
+    private final Iterator<String> lines;
+
+    public MyLineFeedSource(Iterator<String> lines) {
+        this.lines = lines;
+    }
+
+    // Invoked by the engine at time of data flow instantiation.
+    public DataFlowOpInitializeResult initialize(DataFlowOpInitializateContext context) throws Exception {
+        return null;	// can return type information here instead 
+    }
+
+    // Invoked by the engine at time of data flow instante execution.
+    public void open(DataFlowOpOpenContext openContext) {
+      // attach to input
+    }
+
+    // Invoked by the engine in a tight loop. 
+    // Submits the events which contain lines of text.
+    public void next() {
+        // read and submit events
+        if (lines.hasNext()) {
+            dataFlowEmitter.submit(new Object[] {lines.next()});
+        }
+        else {
+            dataFlowEmitter.submitSignal(new EPDataFlowSignalFinalMarker() {});
+        }
+    }
+
+    // Invoked by the engine at time of cancellation or completion.
+    public void close(DataFlowOpCloseContext openContext) {
+      // detach from input
+    }
+}]]></programlisting>
+		</sect2>
+		  		 
+		<sect2 xml:id="dataflow-op-second">
+			<title>Sample Tokenizer Operator</title>
+			
+			<para>
+			  The implementation for the sample <literal>MyTokenizerCounter</literal> with comments is:
+			</para>
+			
+			<programlisting><![CDATA[// Annotate with DataFlowOperator so the engine knows its a data flow operator
+@DataFlowOperator
+
+@OutputTypes({
+    @OutputType(name = "line", type = int.class),
+    @OutputType(name = "wordCount", type = int.class),
+    @OutputType(name = "charCount", type = int.class)
+    })
+
+public class MyTokenizerCounter {
+
+    @DataFlowContext
+    private EPDataFlowEmitter dataFlowEmitter;
+
+    // Name the method that receives data onInput(...)
+    public void onInput(String line) {
+        // tokenize
+        StringTokenizer tokenizer = new StringTokenizer(line, " \t");
+        int wordCount = tokenizer.countTokens();
+        int charCount = 0;
+        while(tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            charCount += token.length();
+        }
+        
+        // submit count of line, words and characters
+        dataFlowEmitter.submit(new Object[] {1, wordCount, charCount});
+    }
+}]]></programlisting>
+		</sect2>
+		
+		<sect2 xml:id="dataflow-op-third">
+			<title>Sample Aggregator Operator</title>
+			
+			<para>
+			  The implementation for the sample <literal>MyWordCountAggregator</literal> with comments is:
+			</para>
+			
+			<programlisting><![CDATA[@DataFlowOperator
+
+@OutputTypes(value = {
+    @OutputType(name = "stats", type = MyWordCountStats.class)
+    })
+    
+public class MyWordCountAggregator {
+  
+    @DataFlowContext
+    private EPDataFlowEmitter dataFlowEmitter;
+
+    private final MyWordCountStats aggregate = new MyWordCountStats();
+
+    public void onInput(int lines, int words, int chars) {
+        aggregate.add(lines, words, chars);
+    }
+
+    // Name the method that receives a marker onSignal
+    public void onSignal(EPDataFlowSignal signal) {
+        // Received puntuation, submit aggregated totals
+        dataFlowEmitter.submit(aggregate);
+    }
+}]]></programlisting>
+		</sect2>
+		
+	</sect1>
+</chapter>

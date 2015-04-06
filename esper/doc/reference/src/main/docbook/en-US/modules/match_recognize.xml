@@ -1,0 +1,1993 @@
+<chapter xml:id="match-recognize" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>EPL Reference: Match Recognize</title>
+    
+    <sect1 xml:id="match-recognize-intro">
+        <title>Overview</title>
+
+		<indexterm><primary>match recognize</primary><secondary>overview</secondary></indexterm>
+
+        <para>
+			Using <emphasis>match recognize</emphasis> patterns are defined in the familiar syntax of regular expressions. 
+		</para>
+		
+        <para>
+			The match recognize syntax presents an alternative way to specify pattern detection as compared to the EPL pattern language described in the previous chapter. A comparison of match recognize and EPL patterns is below.
+		</para>
+		
+        <para>
+			The match recognize syntax is a proposal for incorporation into the SQL standard. It is thus subject to change as the standard evolves and finalizes (it has not finalized yet). Please consult "row-pattern-recogniton-11-public.pdf" for further information.
+		</para>
+
+        <para>
+			You may be familiar with regular expressions in the context of finding text of interest in a string, such as particular characters, words, or patterns of characters. Instead of matching characters, match recognize matches sequences of events of interest.
+		</para>
+			
+        <para>
+			Esper can apply match-recognize patterns in real-time upon arrival of new events in a stream of events (also termed incrementally,  streaming or continuous). Esper can also match patterns on-demand via the <literal>iterator</literal> pull-API, if specifying a named window or data window on a stream (tables cannot be used in the <literal>from</literal>-clause with match-recognize).
+		</para>
+    </sect1>
+   
+    <sect1 xml:id="match-recognize-compare-pattern">
+        <title>Comparison of Match Recognize and EPL Patterns</title>
+
+		<indexterm><primary>match recognize</primary><secondary>comparison</secondary></indexterm>
+
+        <para>
+			This section compares pattern detection via match recognize and via the EPL pattern language.
+         </para>
+
+		<table frame="topbot">
+			<title>Comparison Match Recognize to EPL Patterns</title>
+			<tgroup cols="3">
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Category</entry>
+						<entry>EPL Patterns</entry>
+						<entry>Match Recognize</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>Purpose</entry>
+						<entry>Pattern detection in sequences of events.</entry>
+						<entry>Same.</entry>
+					</row>
+					<row>
+						<entry>Standards</entry>
+						<entry>Not standardized, similar to Rapide pattern language.</entry>
+						<entry>Proposal for incorporation into the SQL standard.</entry>
+					</row>
+					<row>
+						<entry>Real-time Processing</entry>
+						<entry>Yes.</entry>
+						<entry>Yes.</entry>
+					</row>
+					<row>
+						<entry>On-Demand query via Iterator</entry>
+						<entry>No.</entry>
+						<entry>Yes.</entry>
+					</row>
+					<row>
+						<entry>Language</entry>
+						<entry>Nestable expressions consisting of boolean <literal>AND</literal>, <literal>OR</literal>, <literal>NOT</literal> and time or arrival-based constructs such as <literal>-></literal> (followed-by), <literal>timer:within</literal> and <literal>timer:interval</literal>.</entry>
+						<entry>Regular expression consisting of variables each representing conditions on events.</entry>
+					</row>
+					<row>
+						<entry>Event Types</entry>
+						<entry>An EPL pattern may react to multiple different types of events.</entry>
+						<entry>The input is a single type of event (unless used with variant streams).</entry>
+					</row>
+					<row>
+						<entry>Data Window Interaction</entry>
+						<entry>Disconnected, i.e. an event leaving a data window does not change pattern state.</entry>
+						<entry>Connected, i.e. an event leaving a data window removes the event from match selection.</entry>
+					</row>
+					<row>
+						<entry>Semantic Evaluation</entry>
+						<entry>Truth-value based: A EPL pattern such as <literal>(A and B) </literal> can fire when a single event arrives that satisfies both A and B conditions.</entry>
+						<entry>Sequence-based: A regular expression <literal>(A B)</literal> requires at least two events to match.</entry>
+					</row>
+					<row>
+						<entry>Time Relationship Between Events</entry>
+						<entry>The <literal>timer:within</literal>, <literal>timer:interval</literal> and <literal>NOT</literal> operator can expressively search for absence of events or other more complex timing relationships.</entry>
+						<entry>Some support for detecting absence of events using the <literal>interval</literal> clause.</entry>
+					</row>
+					<row>
+						<entry>Extensibility</entry>
+						<entry>Custom pattern objects, user-defined functions.</entry>
+						<entry>User-defined functions, custom aggregation functions.</entry>
+					</row>
+					<row>
+						<entry>Memory Use</entry>
+						<entry>Likely between 500 bytes to 2k per open sequence, depends on pattern.</entry>
+						<entry>Likely between 100 bytes to 1k per open sequence, depends on pattern.</entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+
+    </sect1>
+
+    <sect1 xml:id="match-recognize-syntax">
+        <title>Syntax</title>
+
+        <para>
+			The synopsis is as follows:
+        </para>
+        <synopsis>match_recognize (
+  [ partition by <emphasis>partition_expression</emphasis> [, <emphasis>partition_expression</emphasis>] [,...]  ]
+  measures  <emphasis>measure_expression</emphasis> <literal>as</literal> <emphasis>col_name</emphasis> [, <emphasis>measure_expression</emphasis> <literal>as</literal> <emphasis>col_name</emphasis> ] [,...]
+  [ all matches ]
+  [ after match skip (past last row | to next row | to current row) ]
+  pattern ( <emphasis>variable_regular_expr</emphasis> [, <emphasis>variable_regular_expr</emphasis>] [,...] )
+  [ interval <emphasis>time_period</emphasis> [or terminated] ]
+  [ define  <emphasis>variable</emphasis> as <emphasis>variable_condition</emphasis> [, <emphasis>variable</emphasis> as <emphasis>variable_condition]</emphasis>  [,...] ]
+)</synopsis>
+
+        <para>
+			The <literal>match_recognize</literal> keyword starts the match recognize definition and occurs right after the <literal>from</literal> clause in an EPL <literal>select</literal> statement. It is followed by parenthesis that surround the match recognize definition.
+        </para>
+
+        <para>
+			<literal>Partition by</literal> is optional and may be used to specify that events are to be partitioned by one or more event properties or expressions. If there is no <literal>Partition by</literal> then all rows of the table constitute a single partition. The regular expression applies to events in the same partition and not across partitions.
+        </para>
+        
+        <para>
+			The <literal>measures</literal> clause defines columns that contain expressions over the pattern variables. The expressions can reference partition columns, singleton variables, aggregates as well as indexed properties on the group variables. Each <emphasis>measure_expression</emphasis> expression must be followed by the <literal>as</literal> keyword and a <emphasis>col_name</emphasis> column name.
+		</para>
+
+        <para>
+			The <literal>all matches</literal> keywords are optional and instructs the engine to find all possible matches. By default matches are ranked and the engine returns a single match following an algorithm to eliminate duplicate matches, as described below. When specifying <literal>all matches</literal>, matches may overlap and may start at the same row.
+		</para>
+
+        <para>
+			The <literal>after match skip</literal> keywords are optional and serve to determine the resumption point of pattern matching after a match has been found. By default the behavior is <literal>after match skip past last row</literal>. This means that after eliminating duplicate matches, the logic skips to resume pattern matching at the next event after the last event of the current match.
+		</para>
+
+        <para>
+			The <literal>pattern</literal> component is used to specify a regular expression. The regular expression is built from variable names, and may use quantifiers such as <literal>*</literal>, <literal>+</literal>, <literal>?</literal>, <literal>*?</literal>, <literal>+?</literal>, <literal>??</literal>, <literal>{repetition}</literal> and <literal>|</literal> alteration (concatenation is indicated by the absence of any operator sign between two successive items in a pattern).
+		</para>
+
+        <para>
+			With the optional <literal>interval</literal> keyword, time period and <literal>or terminated</literal> you can control how long the engine should wait for further events to arrive that may be part of a matching event sequence, before indicating a match (or matches) (not applicable to on-demand pattern matching).
+		</para>
+
+        <para>
+			<literal>Define</literal> is optional and is used to specify the boolean condition(s) that define some or all variable names that are declared in the pattern. A variable name does not require a definition and if there is no definition, the default is a predicate that is always true. Such a variable name can be used to match any row.
+		</para>
+
+		<sect2 xml:id="match-recognize-syntax-example">
+			<title>Syntax Example</title>
+			<para>
+				For illustration, the examples in this chapter use the <literal>TemperatureSensorEvent</literal> event. Each event has 3 properties: the <literal>id</literal> property is a unique event id, the <literal>device</literal> is a sensor device number and the <literal>temp</literal> property is a temperature reading. An event described as <literal>"id=E1, device=1, temp=100"</literal> is a <literal>TemperatureSensorEvent</literal> event with id "E1" for device 1 with a reading of 100.
+			</para>
+	
+			<para>
+				This example statement looks for two <literal>TemperatureSensorEvent</literal> events from the same device, directly following each other, that indicate a jump in temperature of 10 or more between the two events:
+			</para>
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id, A.temp as a_temp, B.temp as b_temp
+  pattern (A B)
+  define 
+    B as Math.abs(B.temp - A.temp) >= 10
+)]]></programlisting>
+
+			<para>
+			  The <literal>partition by</literal> ensures that the regular expression applies to sequences of events from the same device.
+			</para>
+
+			<para>
+			  The <literal>measures</literal> clause provides a list of properties or expressions to be selected from matching events. Each property name must be prefixed by the variable name.
+			</para>
+
+			<para>
+			  In the <literal>pattern</literal> component the statement declares two variables: <literal>A</literal> and <literal>B</literal>. As a matter of convention, variable names are uppercase characters.
+			</para>
+
+			<para>
+			  The <literal>define</literal> clause specifies no condition for variable A. This means that A defaults to true and any event matches A. Therefore, the pattern can start at any event.
+			</para>
+	
+			<para>
+			  The pattern <literal>A B</literal> indicates to look for a pattern in which an event that fulfills the condition for variable A is immediately followed by an event that fulfills the condition for variable B.
+			  A pattern thus defines the sequence (or sequences) of conditions that must be met for the pattern to fire.
+			</para>
+	
+			<para>
+			  Below table is an example sequence of events and output of the pattern:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=50</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=55</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=60</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=70</entry>
+							<entry>a_id = E3, b_id = E4, a_temp = 60, b_temp = 70</entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=85</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>6000</entry>
+							<entry>id=E6, device=1, temp=85</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>7000</entry>
+							<entry>id=E7, device=2, temp=100</entry>
+							<entry></entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+	
+			<para>
+				At time 4000 when event with id <literal>E4</literal> (or event E4 or just E4 for short) arrives the pattern matches and produces an output event. Matching then skips past the last event of the current match (E4) and begins at event E5 (the default skip clause is past last row). Therefore events E4 and E5 do not constitute a match.
+			</para>
+
+			<para>
+				At time 3000, events E1 and E3 do not constitute a match as E3 does not immediately follow E, since there is E2 in between.
+			</para>
+
+			<para>
+				At time 7000, event E7 does not constitute a match as it is from device 2 and thereby not in the same partition as prior events.
+			</para>
+		</sect2>
+
+    </sect1>
+
+    <sect1 xml:id="match-recognize-patternops">
+        <title>Pattern and Pattern Operators</title>
+       
+		<para>
+			The <literal>pattern</literal> specifies the pattern to be recognized in the ordered sequence of events in a partition using regular expression syntax. Each variable name in a pattern corresponds to a boolean condition, which is specified later
+			using the <literal>define</literal> component of the syntax. Thus the <literal>pattern</literal>  can be regarded as implicitly declaring one or more variable names; the definition of those variable names appears later in the
+			syntax. If a variable is not defined the variable defaults to true.
+		</para>
+		
+		<para>
+			It is permitted for a variable name to occur more than once in a pattern, for example <literal>pattern (A B A)</literal>.					
+		</para>
+
+		<sect2 xml:id="match-recognize-patternops-precedence">
+			<title>Operator Precedence</title>
+	
+			<indexterm><primary>match_recognize</primary><secondary>operator precedences</secondary></indexterm>
+			<para>
+				The operators at the top of this table take precedence over operators lower on the table. 
+			</para>
+			
+		   <table frame="topbot">
+				<title>Match Recognize Regular Expression Operator Precedence</title>
+				<tgroup cols="4">
+					<colspec colwidth="0.4*"/>
+					<colspec colwidth="0.6*"/>
+					<colspec colwidth="0.8*"/>
+					<colspec colwidth="1.2*"/>
+					<thead>
+						<row>
+							<entry>Precedence</entry>
+							<entry>Operator</entry>
+							<entry>Description</entry>
+							<entry>Example</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1</entry>
+							<entry>Grouping</entry>
+							<entry><literal>()</literal></entry>
+							<entry><programlisting><![CDATA[(A B)]]></programlisting></entry>
+						</row>
+						<row>
+							<entry>2</entry>
+							<entry>Quantifiers</entry>
+							<entry><literal>* + ? {repetition}</literal></entry>
+							<entry><programlisting><![CDATA[A* B+ C?]]></programlisting></entry>
+						</row>
+						<row>
+							<entry>3</entry>
+							<entry>Concatenation</entry>
+							<entry>(no operator)</entry>
+							<entry><programlisting>A B</programlisting></entry>
+						</row>
+						<row>
+							<entry>4</entry>
+							<entry>Alternation</entry>
+							<entry><literal>|</literal></entry>
+							<entry><programlisting><![CDATA[A | B]]></programlisting></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table> 
+	
+			<para>
+				If you are not sure about the precedence, please consider placing parenthesis <literal>()</literal> around your groups. Parenthesis can also help make
+				expressions easier to read and understand.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-concatenation">
+			<title>Concatenation</title>
+			
+			<para>
+				The concatenation is indicated by the absence of any operator sign between two successive items in a pattern.
+			</para>
+			
+			<para>
+				In below pattern the two items A and B have no operator between them. The pattern matches for any event immediately followed by an event from the same device that indicates a jump in temperature over 10:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id, A.temp as a_temp, B.temp as b_temp
+  pattern (A B)
+  define 
+    B as Math.abs(B.temp - A.temp) >= 10
+)]]></programlisting>
+
+			<para>
+				Please see the <xref linkend="match-recognize-syntax-example"/> for a sample event sequence.
+			</para>
+		</sect2>
+			  
+		<sect2 xml:id="match-recognize-patternops-alternation">
+			<title>Alternation</title>
+			
+			<para>
+				The alternation operator is a vertical bar (<literal> | </literal>).
+			</para>
+			
+			<para>
+				The alternation operator has the lowest precedence of all operators. It tells the engine to match either everything to the left of the vertical bar, or everything to the right of the vertical bar. If you want to limit the reach of the alternation, you will need to use parentheses for grouping.
+			</para>
+
+			<para>
+				This example pattern looks for a sequence of an event with a temperature over 50 followed immediately by either an event with a temperature less than 45 or an event that indicates the temperature jumped by 10 (all for the same device):
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id, C.id as c.id
+  pattern (A (B | C))
+  define 
+    A as A.temp >= 50,
+    B as B.temp <= 45,
+    C as Math.abs(C.temp - A.temp) >= 10)]]></programlisting>
+
+			<para>
+			  Below table is an example sequence of events and output of the pattern:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=50</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=45</entry>
+							<entry>a_id=E1, b_id=E2, c_id=null</entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=46</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=48</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=50</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>6000</entry>
+							<entry>id=E6, device=1, temp=60</entry>
+							<entry>a_id = E5, b_id = null, c_id=E6</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>			
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiers">
+			<title>Quantifiers Overview</title>
+			
+			<para>
+				Quantifiers are postfix operators with the following choices:
+			</para>
+			
+		   <table frame="topbot">
+				<title>Quantifiers</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.1*"/>
+					<colspec colwidth="0.4*"/>
+					<thead>
+						<row>
+							<entry>Quantifier</entry>
+							<entry>Meaning</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>*</entry>
+							<entry>Zero or more matches (greedy).</entry>
+						</row>
+						<row>
+							<entry>+</entry>
+							<entry>One or more matches (greedy).</entry>
+						</row>
+						<row>
+							<entry>?</entry>
+							<entry>Zero or one match (greedy).</entry>
+						</row>
+						<row>
+							<entry>*?</entry>
+							<entry>Zero or more matches (reluctant).</entry>
+						</row>
+						<row>
+							<entry>+?</entry>
+							<entry>One or more matches (reluctant).</entry>
+						</row>
+						<row>
+							<entry>??</entry>
+							<entry>Zero or one match (reluctant).</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table> 
+					
+			<para>
+				Quantifiers that control the number of repetitions are:
+			</para>
+			
+		   <table frame="topbot">
+				<title>Quantifiers</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.1*"/>
+					<colspec colwidth="0.4*"/>
+					<thead>
+						<row>
+							<entry>Quantifier</entry>
+							<entry>Meaning</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>{n}</entry>
+							<entry>Exactly <emphasis>n</emphasis> matches.</entry>
+						</row>
+						<row>
+							<entry>{n, }</entry>
+							<entry><emphasis>n</emphasis> or more matches.</entry>
+						</row>
+						<row>
+							<entry>{n, m}</entry>
+							<entry>Between <emphasis>n</emphasis> and <emphasis>m</emphasis> matches (inclusive).</entry>
+						</row>
+						<row>
+							<entry>{ ,m}</entry>
+							<entry>Between zero and <emphasis>m</emphasis> matches (inclusive).</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+
+			<para>Repetition quantifiers can be combined with other quantifiers and grouping. For example <literal>A?{2}</literal> or <literal>(A B){2}</literal> are valid.</para>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-permutation">
+			<title>Permutations</title>
+
+			<para>
+				To detect patterns that consist of a permutation of variables you may use <literal>match_recognize_permute</literal>. 
+				It is possible to express a permutation as alternations but it becomes clumsy when many variables are involved. 
+				For example, if all permutations of three variables A B C are needed we could express it as: (A B C | A C B | B A C | B C A | C A B | C B A).
+			</para>
+			
+			<para>
+				You may use <literal>match_recognize_permute</literal> followed by a comma-separated list of variables, grouping, alternations or concatenations.
+			</para>
+			
+			<para>
+				The following table outlines sample equivalent permutations.
+			</para>
+
+		   <table frame="topbot">
+				<title>Equivalent Pattern Expressions</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.8*"/>
+					<colspec colwidth="0.8*"/>
+					<colspec colwidth="2*"/>
+					<thead>
+						<row>
+							<entry>Pattern</entry>
+							<entry>Equivalent</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>match_recognize_permute(A)</entry>
+							<entry>A</entry>
+						</row>
+						<row>
+							<entry>match_recognize_permute(A,B)</entry>
+							<entry>(A B|B A)</entry>
+						</row>
+						<row>
+							<entry>match_recognize_permute(A,B,C)</entry>
+							<entry>A B C|A C B|B A C|B C A|C A B|C B A</entry>
+						</row>
+						<row>
+							<entry>match_recognize_permute((A B), C)</entry>
+							<entry>(A B) C|C (A B)</entry>
+						</row>
+						<row>
+							<entry>A match_recognize_permute(B,C) D</entry>
+							<entry>A (B C|C B) D</entry>
+						</row>
+						<row>
+							<entry>match_recognize_permute(A, match_recognize_permute(B, C))</entry>
+							<entry>A (B C|C B)|(B C|C B) A</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table> 
+
+			<para>
+				This sample pattern looks for either an event with temperature less than 100 and then an event with temperature greater or equal to 100,
+				or an event with temperature greater or equal to 100 and then an event with temperature less than 100.
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id
+  pattern (match_recognize_permute(A, B))
+  define 
+    A as A.temp < 100, 
+    B as B.temp >= 100)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry>a_id = E1, b_id = E2</entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=99</entry>
+							<entry>a_id = E4, b_id = E3</entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=98</entry>
+							<entry></entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-singletonvars">
+			<title>Variables Can be Singleton or Group</title>
+
+			<para>
+				A <emphasis>singleton variable</emphasis> is a variable in a pattern that does not have a quantifier or has a zero-or-one quantifier (<literal>?</literal> or <literal>??</literal>) and occurs only once in the pattern (except with alteration).
+				In the <literal>measures</literal> clause a singleton variable can be selected as: 
+			</para>
+			<synopsis>variableName.propertyName</synopsis>			
+			
+			<para>
+				Variables with a zero-or-more or one-or-more quantifier, or variables that occur multiple places in a pattern (except when using alteration), may match multiple events and are <emphasis>group variables</emphasis>.
+				In the <literal>measures</literal> clause a group variable must be selected either by providing an index or via any of the aggregation functions, such as <literal>first</literal>, <literal>last</literal>, <literal>count</literal> and <literal>sum</literal>:
+			</para>
+			<synopsis>variableName[<emphasis>index</emphasis>].propertyName</synopsis>			
+			<synopsis>last(variableName.propertyName)</synopsis>
+			
+			<para>
+				Enumeration methods can also be applied to group variables. An example is provided in <xref linkend="enumeration-ds-matchrecog"/>.
+			</para>
+
+			<para>
+				Please find examples of singleton and group variables and example <literal>measures</literal> and <literal>define</literal> clauses below.
+			</para>
+
+			<sect3 xml:id="match-recognize-patternops-singletonvars-aggfunc">
+				<title>Additional Aggregation Functions</title>
+				
+					<para>
+						For group variables all existing aggregation functions can be used and in addition the following aggregation functions may be used (<literal>measures</literal>-clause only):
+					</para>
+				
+					<table frame="topbot" xml:id="match-recognize-patternops-singletonvars-aggfunc-table" revision="2">
+						<title>Syntax and results of aggregate functions</title>
+						<tgroup cols="2">
+							<colspec colwidth="1*"/>
+							<colspec colwidth="2.0*"/>
+							<thead>
+								<row>
+									<entry>Aggregate Function</entry>
+									<entry>Result</entry>
+								</row>
+							</thead>
+							<tbody>
+								<row>
+									<entry>first([all|distinct] <emphasis>expression</emphasis>)</entry>
+									<entry>
+										<para>
+											Returns the first value.
+										</para>
+									</entry>
+								</row>
+								<row>
+									<entry>last([all|distinct] <emphasis>expression</emphasis>)</entry>
+									<entry>
+										<para>
+											Returns the last value.
+										</para>
+									</entry>
+								</row>
+							</tbody>
+						</tgroup>
+					</table>
+			</sect3>
+			
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-iterator">
+			<title>Eliminating Duplicate Matches</title>
+
+			<para>
+				The execution of match recognize is continuous and real-time by default. This means that every arriving event, or batch of events if using batching, evaluates against the pattern and matches are immediately indicated. Elimination of duplicate matches occurs between all matches of the arriving events (or batch of events) at a given time.
+			</para>
+			
+			<para>
+				As an alternative, and if your application does not require continuous pattern evaluation, you may use the <literal>iterator</literal> API to perform on-demand matching of the pattern. For the purpose of indicating to the engine to not
+				generate continuous results, specify the <literal>@Hint('iterate_only')</literal> hint.
+			</para>
+
+			<para>
+				When using one-or-more, zero-or-more or zero-or-one quantifiers (<literal>?, +, *, ??, +?, *?</literal>), the output of the real-time continuous query can differ from the output of the on-demand <literal>iterator</literal> execution: The continuous query will output a match (or multiple matches) as soon as matches are detected at a given time upon arrival of events (not knowing what further events may arrive). The on-demand execution, since it knows all possible events in advance, can determine the longest match(es). Thus elimination of duplicate matches can lead to different results between real-time and on-demand use.
+			</para>
+			
+			<para>
+				If the <literal>all matches</literal> keywords are specified, then all matches are returned as the result and no elimination of duplicate matches as below occurs.
+			</para>
+			
+			<para>
+				Otherwise matches to a pattern in a partition are ordered by preferment. Preferment is given to matches based on the following priorities:
+			</para>
+			
+			<orderedlist>
+				<listitem>
+					<para>
+						A match that begins at an earlier row is preferred over a match that begins at a later row.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Of two matches matching a greedy quantifier, the longer match is preferred.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Of two matches matching a reluctant quantifier, the shorter match is preferred.
+					</para>
+				</listitem>
+			</orderedlist>
+			
+			<para>
+				After ranking matches by preferment, matches are chosen as follows:
+			</para>
+
+			<orderedlist numeration="arabic">
+				<listitem>
+					<para>
+						The first match by preferment is taken.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The pool of matches is reduced as follows based on the SKIP TO clause: If SKIP PAST LAST ROW is specified, all matches that overlap the first match are discarded from the pool. If SKIP TO NEXT ROW is specified, then all matches that overlap the first row
+of the first match are discarded. If SKIP TO CURRENT ROW is specified, then no matches are discarded.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The first match by preferment of the ones remaining is taken.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Step 2 is repeated to remove more matches from the pool.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Steps 3 and 4 are repeated until there are no remaining matches in the pool.
+					</para>
+				</listitem>
+			</orderedlist>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiers-reluctant">
+			<title>Greedy Or Reluctant</title>
+
+			<para>
+				Reluctant quantifiers are indicated by an additional question mark (<literal>*?, +?, ??,</literal>). Reluctant quantifiers try to match as few rows as possible, whereas non-reluctant quantifiers are greedy and try to match as many rows
+as possible.
+			</para>
+
+			<para>
+				Greedy and reluctant come into play only for match selection among multiple possible matches. When specifying <literal>all matches</literal> there is no difference between greedy and reluctant quantifiers.
+			</para>
+
+			<para>
+				Consider the below example. The conditions may overlap: an event with a temperature reading of 105 and over matches both A and B conditions:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id
+  pattern (A?? B?)
+  define 
+    A as A.temp >= 100
+    B as B.temp >= 105)]]></programlisting>
+
+			<para>
+				A sample sequence of events and pattern matches:
+			</para>
+
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=2, temp=106</entry>
+							<entry>a_id=null, b_id=E2</entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry>a_id=E3, b_id=null</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+
+			<para>
+				As the <literal>?</literal> qualifier on condition B is greedy, event E2 matches the pattern and is indicated as a B event by the <literal>measure</literal> clause (and not as an A event therefore <literal>a_id</literal> is null).
+			</para>
+		</sect2>			
+
+		<sect2 xml:id="match-recognize-patternops-quantifiers-oneormore">
+			<title>Quantifier - One Or More (+ and +?)</title>
+
+			<para>
+				The one-or-more quantifier (+) must be matched one or more times by events. The operator is greedy and the reluctant version is <literal>+?</literal>.
+			</para>
+
+			<para>
+				In the below example with <literal>pattern (A+ B+)</literal> the pattern consists of two variable names, A and B, each of which is quantified with <literal>+</literal>, indicating that they must be matched one or more times.
+			</para>
+			
+			<para>
+				The pattern looks for one or more events in which the temperature is over 100 followed by one or more events indicating a higher temperature:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures first(A.id) as first_a, last(A.id) as last_a, B[0].id as b0_id, B[1].id as b1_id
+  pattern (A+ B+)
+  define 
+	A as A.temp >= 100,
+	B as B.temp > A.temp)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=101</entry>
+							<entry>first_a = E2, last_a = E3, b0_id = E4, b1_id = null</entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=102</entry>
+							<entry></entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		
+			<para>
+				Note that for continuous queries, there is no match that includes event E5 since after the pattern matches for E4 the pattern skips to start fresh at E5 (by default skip clause). When performing on-demand matching via <literal>iterator</literal>, event E5 gets included in the match 
+				and the output is <literal>first_a = E2, last_a = E3, b0_id = E4, b1_id = E5</literal>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiers-zeroormore">
+			<title>Quantifier - Zero Or More (* and *?)</title>
+
+			<para>
+				The zero-or-more quantifier (*) must be matched zero or more times by events. The operator is greedy and the reluctant version is <literal>*?</literal>.
+			</para>
+
+			<para>
+				The pattern looks for a sequence of events in which the temperature starts out below 50 and then stays between 50 and 60 and finally comes over 60:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, count(B.id) as count_b, C.id as c_id
+  pattern (A B* C)
+  define 
+	A as A.temp < 50,
+	B as B.temp between 50 and 60,
+	C as C.temp > 60)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=55</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=52</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=49</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=51</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=55</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>6000</entry>
+							<entry>id=E5, device=1, temp=61</entry>
+							<entry>a_id=E3, count_b=2, c_id=E6</entry>
+						</row>
+					</tbody>
+				</tgroup>								
+			</table>	
+		</sect2>
+		
+		<sect2 xml:id="match-recognize-patternops-quantifiers-zeroorone">
+			<title>Quantifier - Zero Or One (? and ??)</title>
+
+			<para>
+				The zero-or-one quantifier (?) must be matched zero or one time by events. The operator is greedy and the reluctant version is <literal>??</literal>.
+			</para>
+
+			<para>
+				The pattern looks for a sequence of events in which the temperature is below 50 and then dips to over 50 and then to under 50 before indicating a value over 55:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id, B.id as b_id, C.id as c_id, D.id as d_id
+  pattern (A B? C? D)
+  define 
+	A as A.temp < 50,
+	B as B.temp > 50,
+	C as C.temp < 50,
+	D as D.temp > 55)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=44</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=49</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=51</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=49</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=56</entry>
+							<entry>a_id=E2, b_id=E3, c_id=E4, d_id=E5</entry>
+						</row>
+						<row>
+							<entry>6000</entry>
+							<entry>id=E5, device=1, temp=61</entry>
+							<entry></entry>
+						</row>
+					</tbody>
+				</tgroup>								
+			</table>	
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiersrepeat-exactlyn">
+			<title>Repetition - Exactly N Matches</title>
+
+			<para>
+				The exactly-n quantifier ({n}) must be matched exactly N times. The repetition quantifier can be combined with other non-repetition quantifiers and can be used with grouping.
+			</para>
+
+			<para>
+				In the below example the <literal>pattern (A{2})</literal> consists of one variable names, A, quantified with <literal>{2}</literal>, indicating that the condition must match exactly two times.
+			</para>
+			
+			<para>
+				This sample pattern looks for two events in which the temperature is over 100:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A[0].id as a0_id, A[1].id as a1_id
+  pattern (A{2})
+  define 
+	A as A.temp >= 100)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry>a0_id = E2, a1_id = E3</entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=102</entry>
+							<entry>a0_id = E4, a1_id = E5</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+
+			<para>
+				The next sample applies the quantifier to a group. This sample pattern looks for a four events in which the temperature is, in sequence, 100, 101, 100 and 101:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A[0].id as a0_id, A[1].id as a1_id
+  pattern (A B){2}
+  define 
+	A as A.temp = 100,
+	B as B.temp = 101)]]></programlisting>
+		</sect2>
+		
+		<sect2 xml:id="match-recognize-patternops-quantifiersrepeat-n_or_more">
+			<title>Repetition - N Or More Matches</title>
+
+			<para>
+				The quantifier <literal>{n, }</literal> must be matched N or more times. The repetition quantifier can be combined with other non-repetition quantifiers and can be used with grouping.
+			</para>
+
+			<para>
+				In the below example the <literal>pattern (A{2,} B)</literal> consists of two variable names, A and B. The condition A must match two or more times and the B condition must match once.
+			</para>
+			
+			<para>
+				This sample pattern looks for two or more events in which the temperature is over 100 and thereafter an event with a temperature over 102:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A[0].id as a0_id, A[1].id as a1_id, A[2].id as a2_id, B.id as b_id
+  pattern (A{2,} B)
+  define 
+	A as A.temp >= 100,
+	B as B.temp >= 102)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=102</entry>
+							<entry>a0_id = E2, a1_id = E3, a2_id = E4, b_id = E5</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiersrepeat-between_n_and_m">
+			<title>Repetition - Between N and M Matches</title>
+
+			<para>
+				The quantifier <literal>{n, m}</literal> must be matched between N and M times. The repetition quantifier can be combined with other non-repetition quantifiers and can be used with grouping.
+			</para>
+
+			<para>
+				In the below example the <literal>pattern (A{2,3} B)</literal> consists of two variable names, A and B. The condition A must match two or three times and the B condition must match once.
+			</para>
+			
+			<para>
+				This sample pattern looks for two or three events in which the temperature is over 100 and thereafter an event with a temperature over 102:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A[0].id as a0_id, A[1].id as a1_id, A[2].id as a2_id, B.id as b_id
+  pattern (A{2,3} B)
+  define 
+	A as A.temp >= 100,
+	B as B.temp >= 102)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=102</entry>
+							<entry>a0_id = E2, a1_id = E3, a2_id = E4, b_id = E5</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-quantifiersrepeat-">
+			<title>Repetition - Between Zero and M Matches</title>
+
+			<para>
+				The quantifier <literal>{, m}</literal> must be matched between zero and M times. The repetition quantifier can be combined with other non-repetition quantifiers and can be used with grouping.
+			</para>
+
+			<para>
+				In the below example the <literal>pattern (A{, 2} B)</literal> consists of two variable names, A and B. The condition A must match zero, once or twice and the B condition must match once.
+			</para>
+			
+			<para>
+				This sample pattern looks for between zero and two events in which the temperature is over 100 and thereafter an event with a temperature over 102:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A[0].id as a0_id, A[1].id as a1_id, B.id as b_id
+  pattern (A{,2} B)
+  define 
+	A as A.temp >= 100,
+	B as B.temp >= 102)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=100</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=102</entry>
+							<entry>a0_id = E3, a1_id = E4, b_id = E5</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		</sect2>
+
+		<sect2 xml:id="match-recognize-patternops-repeat-equiv">
+			<title>Repetition Equivalence</title>
+			<para>
+				The following table outlines sample equivalent patterns.
+			</para>
+
+		   <table frame="topbot">
+				<title>Equivalent Pattern Expressions</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.8*"/>
+					<colspec colwidth="0.8*"/>
+					<colspec colwidth="2*"/>
+					<thead>
+						<row>
+							<entry>Expression</entry>
+							<entry>Equivalent</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Atom Examples</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>A{2}</entry>
+							<entry>A A</entry>
+						</row>
+						<row>
+							<entry>A{2, }</entry>
+							<entry>A A A*</entry>
+						</row>
+						<row>
+							<entry>A{2, 4}</entry>
+							<entry>A A A? A?</entry>
+						</row>
+						<row>
+							<entry>A{, 2}</entry>
+							<entry>A? A?</entry>
+						</row>
+						<row>
+							<entry>Group Examples</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>(A B){2}</entry>
+							<entry>(A B) (A B)</entry>
+						</row>
+						<row>
+							<entry>(A B){2, }</entry>
+							<entry>(A B) (A B) (A B)*</entry>
+						</row>
+						<row>
+							<entry>(A B){2, 4}</entry>
+							<entry>(A B) (A B) (A B)? (A B)?</entry>
+						</row>
+						<row>
+							<entry>(A B){, 2}</entry>
+							<entry>(A B)? (A B)?</entry>
+						</row>
+						<row>
+							<entry>Quantifier Examples</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>A+{2, }</entry>
+							<entry>A+ A+ A*</entry>
+						</row>
+						<row>
+							<entry>A?{2, }</entry>
+							<entry>A? A? A*</entry>
+						</row>
+						<row>
+							<entry>A+{2, 4}</entry>
+							<entry>A+ A+ A* A*</entry>
+						</row>
+						<row>
+							<entry>A+{, 2}</entry>
+							<entry>A* A*</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table> 
+		</sect2>
+
+    </sect1>
+
+    <sect1 xml:id="match-recognize-define">
+        <title><literal>Define</literal> Clause</title>
+
+        <para>
+			Within <literal>define</literal> are listed the boolean conditions that defines a variable name that is declared in the pattern. 
+		</para>
+		
+		<para>
+			A variable name does not require a definition and if there is no definition, the default is a predicate
+			that is always true. Such a variable name can be used to match any row.
+		</para>
+
+		<para>
+			The definitions of variable names may reference the same or other variable names as prior examples have shown. 
+		</para>
+
+        <para>
+			If a variable in your condition expression is a singleton variable, then only individual columns may be referenced. If the variable is not matched by an event, a <literal>null</literal> value is returned.
+        </para>
+
+        <para>
+			If a variable in your condition expression is a group variable, then only indexed columns may be referenced. If the variable is not matched by an event, a <literal>null</literal> value is returned.
+        </para>
+        
+        <para>
+			Aggregation functions are not allowed within expressions of the <literal>define</literal> clause. However <literal>define</literal>-clause expressions can utilize enumeration methods.
+        </para>
+
+		<sect2 xml:id="match-recognize-define-prev">
+			<title>The <literal>Prev</literal> Operator</title>
+        
+			<para>
+				The <literal>prev</literal> function may be used in a <literal>define</literal> expression to access columns of the previous row of a variable name. If there is no previous row, the null value is returned. 
+			</para>
+
+			<para>
+				The <literal>prev</literal> function can accept an optional non-negative integer argument indicating the offset to the previous rows. That argument must be a constant. In this case, the engine returns the property from the
+N-th row preceding the current row, and if the row doesn’t exist, it returns <literal>null</literal>.
+			</para>
+
+			<para>
+				This function can access variables currently defined, for example:				
+			</para>			
+			<programlisting><![CDATA[Y as Y.price < prev(Y.price, 2)]]></programlisting>
+
+			<para>
+				It is not legal to use <literal>prev</literal> with another variable then the one being defined:
+			</para>
+			<programlisting><![CDATA[// not allowed
+Y as Y.price < prev(X.price, 2)]]></programlisting>
+
+			<para>
+				The <literal>prev</literal> function returns properties of events in the same partition. Also, it returns properties of events according to event order-of-arrival. When using data windows or deleting events from a named window, the remove stream does not remove events from the <literal>prev</literal> function.
+			</para>
+
+			<para>
+				The pattern looks for an event in which the temperature is greater or equal 100 and that, relative to that event, has an event preceding it by 2 events that also had a temperature greater or equal 100:
+			</para>
+
+			<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+  partition by device
+  measures A.id as a_id
+  pattern (A)
+  define 
+	A as A.temp > 100 and prev(A.temp, 2) > 100)]]></programlisting>
+		
+			<para>
+				An example sequence of events that matches the pattern above is:
+			</para>
+	
+			<table frame="topbot">
+				<title>Example</title>
+				<tgroup cols="3">
+					<colspec colwidth="0.25*"/>
+					<colspec colwidth="0.5*"/>
+					<colspec colwidth="0.75*"/>
+					<thead>
+						<row>
+							<entry>Arrival Time</entry>
+							<entry>Tuple</entry>
+							<entry>Output Event (if any)</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>1000</entry>
+							<entry>id=E1, device=1, temp=98</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>2000</entry>
+							<entry>id=E2, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>3000</entry>
+							<entry>id=E3, device=1, temp=101</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>4000</entry>
+							<entry>id=E4, device=1, temp=99</entry>
+							<entry></entry>
+						</row>
+						<row>
+							<entry>5000</entry>
+							<entry>id=E5, device=1, temp=101</entry>
+							<entry>a_id=E5</entry>
+						</row>
+					</tbody>
+				</tgroup>								
+			</table>	
+
+		</sect2>
+	</sect1>
+
+    <sect1 xml:id="match-recognize-measure">
+        <title><literal>Measure</literal> Clause</title>
+        
+        <para>
+			The <literal>measures</literal> clause defines exported columns that contain expressions over the pattern variables. The expressions can reference partition columns, singleton variables and
+			any aggregation functions including <literal>last</literal> and <literal>first</literal> on the group variables. 
+        </para>
+
+        <para>
+			Expressions in the <literal>measures</literal> clause must use the <literal>as</literal> keyword to assign a column name.
+        </para>
+
+        <para>
+			If a variable is a singleton variable then only individual columns may be referenced, not aggregates. If the variable is not matched by an event, a <literal>null</literal> value is returned.
+        </para>
+
+        <para>
+			If a variable is a group variable and used in an aggregate, then the aggregate is performed over all  rows that have matched the variable. If a group variable is not in an aggregate function, its variable name must be post-fixed with an index. 
+			See <xref linkend="match-recognize-patternops-singletonvars"/> for more information.
+        </para>        
+    </sect1>
+
+    <sect1 xml:id="match-recognize-datawindow">
+        <title>Datawindow-Bound</title>
+        
+        <para>
+			When using match recognize with a named window or stream bound by a data window, all events removed from the named window or data window also removed the match-in-progress that includes the event(s) removed.
+        </para>
+
+		<para>
+			The next example looks for four sensor events from the same device immediately following each other and indicating a rising temperature, but only events that arrived in the last 10 seconds are considered:
+		</para>
+		<programlisting><![CDATA[select * from TemperatureSensorEvent.win:time(10 sec)
+match_recognize (
+partition by device
+measures A.id as a_id
+pattern (A B C D)
+define 
+B as B.temp > A.temp,
+C as C.temp > B.temp,
+D as D.temp > C.temp)]]></programlisting>
+
+		<para>
+			An example sequence of events that matches the pattern above is:
+		</para>
+
+		<table frame="topbot">
+			<title>Example</title>
+			<tgroup cols="3">
+				<colspec colwidth="0.25*"/>
+				<colspec colwidth="0.5*"/>
+				<colspec colwidth="0.75*"/>
+				<thead>
+					<row>
+						<entry>Arrival Time</entry>
+						<entry>Tuple</entry>
+						<entry>Output Event (if any)</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>1000</entry>
+						<entry>id=E1, device=1, temp=80</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>2000</entry>
+						<entry>id=E2, device=1, temp=81</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>3000</entry>
+						<entry>id=E3, device=1, temp=82</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>4000</entry>
+						<entry>id=E4, device=1, temp=81</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>7000</entry>
+						<entry>id=E5, device=1, temp=82</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>9000</entry>
+						<entry>id=E6, device=1, temp=83</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>13000</entry>
+						<entry>id=E7, device=1, temp=84</entry>
+						<entry>a_id=E4, a_id=E5, a_id=E6, a_id=E7</entry>
+					</row>
+					<row>
+						<entry>15000</entry>
+						<entry>id=E8, device=1, temp=84</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>20000</entry>
+						<entry>id=E9, device=1, temp=85</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>21000</entry>
+						<entry>id=E10, device=1, temp=86</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>26000</entry>
+						<entry>id=E11, device=1, temp=87</entry>
+						<entry></entry>
+					</row>
+				</tbody>
+			</tgroup>		
+		</table>	
+
+		<para>
+			Note that E8, E9, E10 and E11 doe not constitute a match since E8 leaves the data window at 25000.
+		</para>						
+    </sect1>
+
+    <sect1 xml:id="match-recognize-interval">
+        <title>Interval</title>
+        
+        <para>
+			With the optional <literal>interval</literal> keyword and time period you can control how long the engine should wait for further events to arrive that may be part of a matching event sequence, before indicating a match (or matches). This is not applicable to on-demand pattern matching.
+		</para>
+
+        <para>
+			The interval timer starts are the arrival of the first event matching a sequence for a partition. When the time interval passes and an event sequence matches, duplicate matches are eliminated and output occurs. 
+        </para>
+
+		<para>
+			The next example looks for sensor events indicating a temperature of over 100 waiting for any number of additional events with a temperature of over 100 for 5 seconds before indicating a match:
+		</para>
+		
+		<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+partition by device
+measures A.id as a_id, count(B.id) as count_b, first(B.id) as first_b, last(B.id) as last_b
+pattern (A B*)
+interval 5 seconds
+define 
+  A as A.temp > 100,
+  B as B.temp > 100)]]></programlisting>
+
+		<para>
+			An example sequence of events that matches the pattern above is:
+		</para>
+
+		<table frame="topbot">
+			<title>Example</title>
+			<tgroup cols="3">
+				<colspec colwidth="0.25*"/>
+				<colspec colwidth="0.5*"/>
+				<colspec colwidth="0.75*"/>
+				<thead>
+					<row>
+						<entry>Arrival Time</entry>
+						<entry>Tuple</entry>
+						<entry>Output Event (if any)</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>1000</entry>
+						<entry>id=E1, device=1, temp=98</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>2000</entry>
+						<entry>id=E2, device=1, temp=101</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>3000</entry>
+						<entry>id=E3, device=1, temp=102</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>4000</entry>
+						<entry>id=E4, device=1, temp=104</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>5000</entry>
+						<entry>id=E5, device=1, temp=104</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>7000</entry>
+						<entry></entry>
+						<entry>a_id=E2, count_b=3, first_b=E3, last_b=E5</entry>
+					</row>
+				</tbody>
+			</tgroup>								
+		</table>	
+		
+		<para>
+			Notice that the engine waits 5 seconds (5000 milliseconds) after the arrival time of the first event E2 of the match at 2000, to indicate the match at 7000.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="match-recognize-intervalorterminated">
+        <title>Interval-Or-Terminated</title>
+        
+        <para>
+			The <literal>interval</literal> keyword and time period can be followed by <literal>or terminated</literal> keywords. When or-terminated is specified, the engine detects when a pattern state cannot match further and outputs matching event sequences collected so far that are otherwise only output at the end of the interval. This is not applicable to on-demand pattern matching.
+		</para>
+
+        <para>
+			Same as for <literal>interval</literal> alone, the interval timer starts are the arrival of the first event matching a sequence for a partition. 
+			Event arrival can terminate the interval and lead to immediate output as follows:
+        </para>
+
+        <itemizedlist>
+			<ns:listitem>
+				When an event arrives in the sequence that causes pattern state to terminate because no further match is possible, the event sequence matches, duplicate matches are eliminated and output occurs
+			immediately (and not at the end of the interval), for the affected event sequence(s).
+			</ns:listitem>
+			<ns:listitem>
+			Otherwise, when the time interval passes and an event sequence matches, duplicate matches are eliminated and output occurs. 				
+			</ns:listitem>
+		</itemizedlist>
+
+		<para>
+			The next example looks for sensor events indicating a temperature of over 100, waiting for any number of additional events with a temperature of over 100 for 5 seconds 
+			or when the temperature falls to equal or below 100, whichever happens first:
+		</para>
+		
+		<programlisting><![CDATA[select * from TemperatureSensorEvent
+match_recognize (
+partition by device
+measures A.id as a_id, count(B.id) as count_b, first(B.id) as first_b, last(B.id) as last_b
+pattern (A B*)
+interval 5 seconds or terminated
+define 
+  A as A.temp > 100,
+  B as B.temp > 100)]]></programlisting>
+
+		<para>
+			An example sequence of events that matches the pattern above is:
+		</para>
+
+		<table frame="topbot">
+			<title>Example</title>
+			<tgroup cols="3">
+				<colspec colwidth="0.25*"/>
+				<colspec colwidth="0.5*"/>
+				<colspec colwidth="0.75*"/>
+				<thead>
+					<row>
+						<entry>Arrival Time</entry>
+						<entry>Tuple</entry>
+						<entry>Output Event (if any)</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>1000</entry>
+						<entry>id=E1, device=1, temp=98</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>2000</entry>
+						<entry>id=E2, device=1, temp=101</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>3000</entry>
+						<entry>id=E3, device=1, temp=102</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>4000</entry>
+						<entry>id=E4, device=1, temp=101</entry>
+						<entry></entry>
+					</row>
+					<row>
+						<entry>5000</entry>
+						<entry>id=E5, device=1, temp=100</entry>
+						<entry>a_id=E2, count_b=2, first_b=E3, last_b=E4</entry>
+					</row>
+					<row>
+						<entry>7000</entry>
+						<entry></entry>
+						<entry>(no further output)</entry>
+					</row>
+				</tbody>
+			</tgroup>								
+		</table>			
+		
+		<note>
+			<para>
+				<literal>Interval</literal> and <literal>Interval</literal> with <literal>or terminated</literal> make most sense for open-ended patterns such as, 
+				for example, <literal>pattern (A B*)</literal> or <literal>pattern (A B C+)</literal>.
+			</para>
+			<para>
+				For patterns that terminate when a given event arrives, for example, <literal>pattern (A B)</literal>, an <literal>Interval</literal> in combination with <literal>or terminated</literal> should not be specified
+				and if specified have no effect on matching.
+			</para>
+		</note>
+    </sect1>
+
+    <sect1 xml:id="match-recognize-variant">
+        <title>Use with Different Event Types</title>
+        
+        <para>
+			You may match different types of events using match-recognize by following any of these strategies:
+		</para>
+
+		<orderedlist>
+			<listitem>
+				<para>
+                    Declare a variant stream.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Declare a supertype for your event types in the <literal>create schema</literal> syntax.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Have you event classes implement a common interface or extend a common base class. 
+                </para>
+			</listitem>
+		</orderedlist>
+
+        <para>
+			 A short example that demonstrates variant streams and match-recognize is listed below:
+		</para>
+
+		<programlisting><![CDATA[// Declare one sample type
+create schema S0 as (col string)]]></programlisting>
+		<programlisting><![CDATA[// Declare second sample type
+create schema S1 as (col string)]]></programlisting>
+		<programlisting><![CDATA[// Declare variant stream holding either type
+create variant schema MyVariantStream as S0, S1]]></programlisting>
+
+		<programlisting><![CDATA[// Populate variant stream
+insert into MyVariantStream select * from S0]]></programlisting>
+		<programlisting><![CDATA[// Populate variant stream
+insert into MyVariantStream select * from S1]]></programlisting>
+
+		<programlisting><![CDATA[// Simple pattern to match S0 S1 pairs
+select * from MyVariantType.win:time(1 min)
+match_recognize (
+  measures A.id? as a, B.id? as b
+  pattern (A B)
+  define
+    A as typeof(A) = 'S0',
+    B as typeof(B) = 'S1'
+)]]></programlisting>
+
+    </sect1>
+
+    <sect1 xml:id="match-recognize-limitations">
+        <title>Limitations</title>
+        
+        <para>
+			Please note the following limitations:
+		</para>
+
+		<orderedlist spacing="compact">
+			<listitem>
+				<para>
+					Subqueries are not allowed in expressions within <literal>match_recognize</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Joins and outer joins are not allowed in the same statement as <literal>match_recognize</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>match_recognize</literal> may not be used within <literal>on-select</literal> or <literal>on-insert</literal> statements.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					When using <literal>match_recognize</literal> on unbound streams (no data window provided) the <literal>iterator</literal> pull API returns no rows.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					A Statement Object Model API for <literal>match_recognize</literal> is not yet available.
+				</para>
+			</listitem>
+		</orderedlist>
+		
+	</sect1>
+	
+</chapter>

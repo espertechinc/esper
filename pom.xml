@@ -1,0 +1,28 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Esper</name>
+  <groupId>com.espertech</groupId>
+  <version>5.2.0</version>
+  <artifactId>esperdist</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>esper</module>
+    <module>esperio-amqp</module>
+    <module>esperio-csv</module>
+    <module>esperio-db</module>
+    <module>esperio-http</module>
+    <module>esperio-socket</module>
+    <module>esperio-springjms</module>
+    <module>esperio-stax</module>
+    <module>examples</module>
+  </modules>
+  <build>
+	<extensions>
+		  <extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav</artifactId>
+				<version>1.0-beta-1</version>
+		  </extension>
+	</extensions>
+  </build>
+</project>

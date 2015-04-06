@@ -1,0 +1,24 @@
+// Single line comment
+
+/**
+ Multi-line.
+*/
+
+module abc.def.hij
+
+;
+
+// Single line
+//
+/** **/
+/**
+  **/
+uses def.hik
+
+;
+uses jlk.aja;
+// Note 4 white spaces after * and before from
+select * from A;select * from B;select *    
+    from C;
+
+

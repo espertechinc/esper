@@ -1,0 +1,61 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<name>Esper Examples TerminalSvc - EAR</name>
+	<artifactId>example-terminalsvc-ear</artifactId>
+	<groupId>com.espertech</groupId>
+	<version>1.0</version>
+	<packaging>ear</packaging>
+	<description>Esper TerminalSvc example - EAR</description>
+	<repositories>
+		<repository>
+			<id>local-repository</id>
+			<url>~/.m2/repository</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>com.espertech</groupId>
+			<artifactId>example-terminalsvc-mdb</artifactId>
+			<version>1.0</version>
+     		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+			  	<configuration>
+				  <archive>
+				    <manifestEntries>
+				      <Built-By>EsperTech</Built-By>
+				    </manifestEntries>
+				  </archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+    		<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+				  <execution>
+					<phase>deploy</phase>
+					<configuration>
+					  <tasks>
+						<copy file="${basedir}/target/example-terminalsvc-ear-1.0.ear" todir="${env.JBOSS_HOME}/server/default/deploy"/>
+					  </tasks>
+					</configuration>
+					<goals>
+					  <goal>run</goal>
+					</goals>
+				  </execution>
+				</executions>
+			  </plugin>
+      </plugins>
+	</build>
+</project>

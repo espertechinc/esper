@@ -1,0 +1,1536 @@
+<chapter xml:id="context" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>Context and Context Partitions</title>
+
+    <sect1 xml:id="context_intro" revision="1">
+        <title>Introduction</title>
+        
+        <para>
+			This section discusses the notion of context and its role in the Esper event processing language (EPL).
+        </para>
+        
+        <para>
+           When you look up the word <emphasis>context</emphasis> in a dictionary, you may find: Context is the set of circumstances or facts that surround a particular event, situation, etc.. 
+        </para>
+        
+        <para>
+          Context-dependent event processing occurs frequently: For example, consider a requirement that monitors banking transactions. For different customers your analysis considers customer-specific aggregations, patterns or data windows. In this example the context of detection is the customer. For a given customer you may want to analyze the banking transactions of that customer by using aggregations, data windows, patterns including other EPL constructs.
+        </para>
+        
+        <para>
+          In a second example, consider traffic monitoring to detect speed violations. Assume the speed limit must be enforced only between 9 am and 5 pm. The context of detection is of temporal nature.
+        </para>
+        
+        <para>
+           A context takes a cloud of events and classifies them into one or more sets. These sets are called <emphasis>context partitions</emphasis>. An event processing operation that is associated with a context operates on each of these context partitions independently. (Credit: Taken from the book "Event Processing in Action" by Opher Etzion and Peter Niblett.)
+        </para>
+
+        <para>
+          A context is a declaration of dimension and may thus result in one or more context partitions. In the banking transaction example there the context dimension is the customer and a context partition exists per customer. In the traffic monitoring example there is a single context partition that exists only between 9 am and 5 pm and does not exist outside of that daily time period.
+        </para>
+        
+        <para>
+          In an event processing glossary you may find the term <emphasis>event processing agent</emphasis>. An EPL statement is an <emphasis>event processing agent</emphasis>.  An alternative term for context partition is <emphasis>event processing agent instance</emphasis>. 
+        </para>
+
+		<para>
+          Esper EPL allows you to declare contexts explicitly, offering the following benefits:
+		</para>
+		
+		<orderedlist>
+			<listitem>
+				<para>
+                    Context can apply to multiple statements thereby eliminating the need to duplicate context dimensional information between statements.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Context partitions can be temporally overlapping.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Context partitions provide a fine-grained lifecycle that is independent of the lifecycle of statement lifecycle.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Fine-grained lock granularity: The engine locks on the level of context partitions thereby allowing very high concurrency, with a maximum (theoretical) degree of parallelism at 2^31-1 (2,147,483,647) parallel threads working to process a single EPL statement under a hash segmented context.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    EPL can become easier to read as common predicate expressions can be factored out into a context.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    You may specify a nested context that is composed from two or more contexts. In particular a temporal context type is frequently used in combination with a segmentation-oriented context.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Using contexts your application can aggregate events over time periods (overlapping or non-overlapping) without retaining any events in memory.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Using contexts your application can coordinate time boundaries for multiple statements.
+                </para>
+			</listitem>
+		</orderedlist>		
+		
+		<para>
+          Esper EPL allows you to declare a context explicitly via the <literal>create context</literal> syntax introduced below.
+		</para>
+		
+		<para>
+		  After you have declared a context, one or more EPL statements can refer to that context by specifying <literal>context </literal><emphasis>name</emphasis>.
+		  When an EPL statement refers to a context, all EPL-statement related state such as aggregations, patterns or data windows etc. exists once per context partition.
+		</para>
+		
+		<para>
+		  If an EPL statement does not declare a context, it implicitly has a single context partition. The single context partition lives as long as the EPL statement is started and ends when the EPL statement is stopped.
+		</para>
+				
+		<para>
+		   For more information on locking and threading please see <xref linkend="api-threading"/>. For performance related information please refer to <xref linkend="performance"/>.
+		</para>		
+	</sect1>
+	
+    <sect1 xml:id="context_decl" revision="1">
+        <title>Context Declaration</title>
+                
+		<para>
+			The <literal>create context</literal> statement declares a context by specifying a context name and context dimension information.
+		</para>
+
+		<para>
+			A context declaration by itself does not consume any resources or perform any logic until your application starts at least one statement that refers to that context. Until then the context is inactive and not in use.
+		</para>
+
+		<para>
+			When your application creates or starts the first statement that refers to the context, the engine activates the context.
+		</para>
+
+		<para>
+			As soon as your application stops or destroys all statements that refer to the context, the context becomes inactive again.
+		</para>
+
+		<para>
+		   When your application stops or destroys a statement that refers to a context, the context partitions associated to that statement also end (context partitions associated to other started statements live on).
+		</para>
+
+		<para>
+		   When your application stops or destroys the statement that declared the context and does not also stop or destroy any statements that refer to the context, the context partitions associated to each such statement do not end.
+		</para>
+
+		<para>
+			When your application destroys the statement that declared the context and destroys all statements that refer to that context then the engine removes the context declaration entirely.
+		</para>
+		
+		<para>
+			The <literal>create context</literal> statement posts no output events to listeners or subscribers and does not return any rows when iterated.
+		</para>
+		
+		<sect2 xml:id="context_decl_props" revision="1">
+			<title>Context-Provided Properties</title>
+			<para>
+			   Each of the context declarations makes available a set of built-in context properties as well as initiating event or pattern properties, as applicable. You may select these context properties for output or use them in any of the statement expressions.
+			</para>
+	
+			<para>
+			   Refer to built-in context properties as <literal>context.</literal><emphasis>property_name</emphasis>, wherein <emphasis>property_name</emphasis> refers to the name of the built-in context property.
+			</para>
+	
+			<para>
+			   Refer to initiating event or pattern match event properties as <literal>context.</literal><emphasis>stream_name</emphasis>.<emphasis>property_name</emphasis>, wherein <emphasis>stream_name</emphasis> refers to the name assigned to the event or the tag name specified in a pattern and <emphasis>property_name</emphasis> refers to the name of the initiating event or pattern match event property.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="context_def_keyed" revision="1">
+			<title>Keyed Segmented Context</title>
+			
+			<para>
+				  This context assigns events to context partitions based on the values of one or more event properties, using the value of these property(s) as a key that picks a unique context partition directly. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one set of key values.
+			</para>
+
+			<para>
+				The syntax for creating a keyed segmented context is as follows: 
+			</para>
+			<synopsis>create context <emphasis>context_name</emphasis> partition [by]
+  <emphasis>event_property</emphasis> [and <emphasis>event_property</emphasis> [and ...]] from <emphasis>stream_def</emphasis>
+  [, <emphasis>event_property</emphasis> [...] from <emphasis>stream_def</emphasis>]
+  [, ...]</synopsis>
+						
+			<para>
+				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+			</para>
+				
+			<para>
+				Following the context name is one or more lists of event properties and a stream definition for each entry, separated by comma (<literal>,</literal>).
+			</para>
+
+			<para>
+				The <emphasis>event_property</emphasis> is the name(s) of the event properties that provide the value(s) to pick a unique partition. Multiple event property names are separated by the <literal>and</literal> keyword.
+			</para>
+				
+			<para>
+				The <emphasis>stream_def</emphasis> is a stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions. If providing filter expressions, only events matching the provided filter expressions for that event type are considered by context partitions. The name of a named window or table is not allowed.
+			</para>
+
+			<para>				
+				You may list multiple event properties for each stream definition. You may list multiple stream definitions. Please refer to usage guidelines below when specifying multiple event properties and/or multiple stream definitions.
+			</para>
+			
+			<para>
+				The next statement creates a context <literal>SegmentedByCustomer</literal> that considers the value of the <literal>custId</literal> property of the <literal>BankTxn</literal> event type to pick the context partition to assign events to:
+			</para>
+			<programlisting><![CDATA[create context SegmentedByCustomer partition by custId from BankTxn]]></programlisting>
+			
+			<para>
+			    The following statement refers to the context created as above to compute a total withdrawal amount per account for each customer:
+			</para>
+			<programlisting><![CDATA[context SegmentedByCustomer
+select custId, account, sum(amount) from BankTxn group by account]]></programlisting>
+			
+			<para>
+			    The following statement refers to the context created as above and detects a withdrawal of more then 400 followed by a second withdrawal of more then 400 that occur within 10 minutes of the first withdrawal, all for the same customer:
+			</para>
+			<programlisting><![CDATA[context SegmentedByCustomer
+select * from pattern [
+  every a=BankTxn(amount > 400) -> b=BankTxn(amount > 400) where timer:within(10 minutes)
+]]]></programlisting>
+
+			<para>
+				The EPL statement that refers to a keyed segmented context must have at least one filter expression, at any place within the EPL statement that looks for events of any of the event types listed in the context declaration.
+			</para>
+
+			<para>
+			    For example, the following is not valid:
+			</para>
+			<programlisting><![CDATA[// Neither LoginEvent nor LogoutEvent are listed in the context declaration
+context SegmentedByCustomer
+select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10 minutes)]]]></programlisting>
+			
+			<sect3 xml:id="context_def_keyed_multitype" revision="1">
+				<title>Multiple Stream Definitions</title>
+				<para>				
+					If the context declaration lists multiple streams, each event type must be unrelated: You may not list the same event type twice and you may not list a sub- or super-type of any event type already listed.
+				</para>
+				
+				<para>
+					The following is not a valid declaration since the <literal>BankTxn</literal> event type is listed twice:
+				</para>
+				<programlisting><![CDATA[// Not valid
+create context SegmentedByCustomer partition by custId from BankTxn, account from BankTxn]]></programlisting>
+
+				<para>
+					If the context declaration lists multiple streams, the number of event properties provided for each event type must also be the same. The value type returned by event properties of each event type must match within the respective position it is listed in, i.e. the first property listed for each event type must have the same type, the second property listed for each event type must have the same type, and so on.
+				</para>
+	
+				<para>
+					The following is not a valid declaration since the customer id of <literal>BankTxn</literal> and login time of <literal>LoginEvent</literal> is not the same type:
+				</para>
+				<programlisting><![CDATA[// Invalid: Type mismatch between properties
+create context SegmentedByCustomer partition by custId from BankTxn, loginTime from LoginEvent]]></programlisting>
+
+				<para>
+					The next statement creates a context <literal>SegmentedByCustomer</literal> that also considers <literal>LoginEvent</literal> and <literal>LogoutEvent</literal>:
+				</para>
+				<programlisting><![CDATA[create context SegmentedByCustomer partition by 
+  custId from BankTxn, loginId from LoginEvent, loginId from LogoutEvent]]></programlisting>
+
+				<para>
+				  As you may have noticed, the above example refers to <literal>loginId</literal> as the event property name for <literal>LoginEvent</literal> and <literal>LogoutEvent</literal> events. The assumption is that the <literal>loginId</literal> event property of the login and logout events has the same type and carries the same exact value as the <literal>custId</literal> of bank transaction events, thereby allowing all events of the three event types to apply to the same customer-specific context partition.
+				</para>
+			</sect3>
+				
+			<sect3 xml:id="context_def_keyed_filter" revision="1">
+				<title>Filters</title>
+				
+				<para>
+				  You may add a filter expression to each of the event types listed. The engine applies the filter expression to the EPL statement that refers to the context and to the same event type.
+				</para>
+				
+				<para>
+					The next statement creates a context <literal>SegmentedByCustomer</literal> that does not consider login events that indicate that the login failed.
+				</para>
+				<programlisting><![CDATA[create context SegmentedByCustomer partition by 
+  custId from BankTxn, loginId from LoginEvent(failed=false)]]></programlisting>
+			</sect3>
+			
+			<sect3 xml:id="context_def_keyed_multiprop" revision="1">
+				<title>Multiple Properties Per Event Type</title>
+
+				<para>
+					You may assign events to context partitions based on the values of two or more event properties. The engine thus uses the combination of values of these properties to pick a context partition.
+				</para>
+
+				<para>
+					An example context declaration follows:
+				</para>
+				<programlisting><![CDATA[create context ByCustomerAndAccount partition by custId and account from BankTxn]]></programlisting>
+
+				<para>
+					The next statement refers to the context and computes a total withdrawal amount, per account and customer:
+				</para>
+				<programlisting><![CDATA[context ByCustomerAndAccount select custId, account, sum(amount) from BankTxn]]></programlisting>
+
+				<para>
+				  As you can see, the above statement does not need to specify <literal>group by</literal> clause to aggregate per customer and account, since events of each unique combination of customer id and account are assigned to separate context partitions.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="context_def_keyed_builtin" revision="1">
+				<title>Built-In Context Properties</title>
+				  
+				<para>
+				  The following context properties are available in your EPL statement when it refers to a keyed segmented context:
+				</para>
+
+				<table frame="topbot">
+					<title>Keyed Segmented Context Properties</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.20*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Name</entry>
+								<entry>Description</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>name</literal></entry>
+								<entry>The string-type context name.</entry>
+							</row>
+							<row>
+								<entry><literal>id</literal></entry>
+								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+							</row>
+							<row>
+								<entry><literal>key1</literal></entry>
+								<entry>The event property value for the first key.</entry>
+							</row>
+							<row>
+								<entry><literal>key</literal><emphasis>N</emphasis></entry>
+								<entry>The event property value for the Nth key.</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+		
+				<para>
+					Assume the keyed segmented context is declared as follows:
+				</para>
+				<programlisting><![CDATA[create context ByCustomerAndAccount partition by custId and account from BankTxn]]></programlisting>
+
+				<para>
+					You may, for example, select the context properties as follows:
+				</para>
+				<programlisting><![CDATA[context ByCustomerAndAccount
+  select context.name, context.id, context.key1, context.key2 from BankTxn]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="context_def_keyed_additional" revision="1">
+				<title>Examples of Joins</title>
+				
+				<para>
+				  This section discusses the impact of contexts on joins to provide further samples of use and deepen the understanding of context partitions.
+				</para>
+
+				<para>
+				    Consider a context declared as follows:
+				</para>
+				<programlisting><![CDATA[create context ByCust partition by custId from BankTxn]]></programlisting>
+								
+				<para>
+				  The following statement matches, within the same customer id, the current event with the last 30 minutes of events to determine those events that match amounts:
+				</para>
+				<programlisting><![CDATA[context ByCust 
+  select * from BankTxn as t1 unidirectional, BankTxn.win:time(30) t2 
+  where t1.amount = t2.amount]]></programlisting>
+
+				<para>
+				  Note that the <literal>where</literal>-clause in the join above does not mention customer id. Since each <literal>BankTxn</literal> applies to a specific context partition the join evaluates within that single context partition.
+				</para>
+				
+				<para>
+				  Consider the next statement that matches a security event with the last 30 minutes of transaction events for each customer:
+				</para>
+				<programlisting><![CDATA[context ByCust
+  select * from SecurityEvent as t1 unidirectional, BankTxn.win:time(30) t2 
+  where t1.customerName = t2.customerName]]></programlisting>  
+  
+				  <para>
+				    When a security event comes in, it applies to all context partitions and not any specific context partition, since the <literal>SecurityEvent</literal> event type is not part of the context declaration.
+				  </para>
+			</sect3>			
+		</sect2>
+
+		<sect2 xml:id="context_def_hashed" revision="1">
+			<title>Hash Segmented Context</title>
+			
+			<para>
+				  This context assigns events to context partitions based on result of a hash function and modulo operation. Each event thus belongs to exactly one context partition or zero context partitions if the event does not match the optional filter predicate expression(s). Each context partition handles exactly one result of hash value modulo granularity. 
+			</para>
+			
+			<para>
+				The syntax for creating a hashed segmented context is as follows: 
+			</para>
+			<synopsis>create context <emphasis>context_name</emphasis> coalesce [by] 
+  <emphasis>hash_func_name</emphasis>(<emphasis>hash_func_param</emphasis>) from <emphasis>stream_def</emphasis>
+  [, <emphasis>hash_func_name</emphasis>(<emphasis>hash_func_param</emphasis>) from <emphasis>stream_def</emphasis> ]
+  [, ...]
+  granularity <emphasis>granularity_value</emphasis>
+  [preallocate]</synopsis>
+						
+			<para>
+				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+			</para>
+				
+			<para>
+				Following the context name is one or more lists of hash function name and parameters pairs and a stream definition for each entry, separated by comma (<literal>,</literal>).
+			</para>
+				
+			<para>
+				The <emphasis>hash_func_name</emphasis> can either be <literal>consistent_hash_crc32</literal> or <literal>hash_code</literal> or a plug-in single-row function. The <emphasis>hash_func_param</emphasis> is a list of parameter expressions.
+			</para>
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						If you specify <literal>consistent_hash_crc32</literal> the engine computes a consistent hash code using the CRC-32 algorithm. 
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						If you specify <literal>hash_code</literal> the engine uses the Java object hash code. 
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						If you specify the name of a plug-in single-row function your function must return an integer value that is the hash code. You may use the wildcard <literal>(*)</literal> character among the parameters to pass the underlying event to the single-row function.
+					</para>
+				</listitem>
+			</itemizedlist>
+
+			<para>
+				The <emphasis>stream_def</emphasis> is a stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions. If providing filter expressions, only events matching the provided filter expressions for that event type are considered by context partitions. The name of a named window or table is not allowed.
+			</para>
+
+			<para>				
+				You may list multiple stream definitions. Please refer to usage guidelines below when specifying multiple stream definitions.
+			</para>
+			
+			<para>
+			  The <literal>granularity</literal> is required and is an integer number that defines the maximum number of context partitions. The engine computes hash code modulo granularity <literal>hash(</literal><emphasis>params</emphasis><literal>) mod </literal><emphasis>granularity</emphasis> to determine the context partition. When you specify the <literal>hash_code</literal> function the engine uses the object hash code and the computation is <emphasis>params.</emphasis><literal>hashCode() %</literal><emphasis>granularity</emphasis>.
+			</para>
+			
+			<para>
+			  Since the engine locks on the level of context partition to protect state, the granularity defines the maximum degree of parallelism. For example, a granularity of 1024 means that 1024 context partitions handle events and thus a maximum 1024 threads can process each assigned statement concurrently.
+			</para>
+			
+			<para>
+			  The optional <literal>preallocate</literal> keyword instructs the engine to allocate all context partitions at once at the time a statement refers to the context. This is beneficial for performance as the engine does not need to determine whether a context partition exists and dynamically allocate, but may require more memory. 
+			</para>
+
+			<para>
+				The next statement creates a context <literal>SegmentedByCustomerHash</literal> that considers the CRC-32 hash code of the <literal>custId</literal> property of the <literal>BankTxn</literal> event type to pick the context partition to assign events to, with up to 16 different context partitions that are preallocated:
+			</para>
+			<programlisting><![CDATA[create context SegmentedByCustomerHash
+  coalesce by consistent_hash_crc32(custId) from BankTxn granularity 16 preallocate]]></programlisting>
+			
+			<para>
+			    The following statement refers to the context created as above to compute a total withdrawal amount per account for each customer:
+			</para>
+			<programlisting><![CDATA[context SegmentedByCustomerHash
+select custId, account, sum(amount) from BankTxn group by custId, account]]></programlisting>
+			
+			<para>
+			  Note that the statement above groups by <literal>custId</literal>: Since the events for different customer ids can be assigned to the same context partition, it is necessary that the EPL statement also groups by customer id.
+			</para>
+
+			<para>
+				The context declaration shown next assumes that the application provides a <literal>computeHash</literal> single-row function that accepts BankTxn as a parameter, wherein the result of this function must be an integer value that returns the context partition id for each event:
+			</para>
+			<programlisting><![CDATA[create context MyHashContext
+  coalesce by computeHash(*) from BankTxn granularity 16 preallocate]]></programlisting>
+
+			<para>
+				The EPL statement that refers to a hash segmented context must have at least one filter expression, at any place within the EPL statement that looks for events of any of the event types listed in the context declaration.
+			</para>
+			
+			<para>
+			    For example, the following is not valid:
+			</para>
+			<programlisting><![CDATA[// Neither LoginEvent nor LogoutEvent are listed in the context declaration
+context SegmentedByCustomerHash
+select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10 minutes)]]]></programlisting>
+
+			<sect3 xml:id="context_def_hashed_multitype" revision="1">
+				<title>Multiple Stream Definitions</title>
+				<para>				
+					If the context declaration lists multiple streams, each event type must be unrelated: You may not list the same event type twice and you may not list a sub- or super-type of any event type already listed.
+				</para>
+				
+				<para>
+					If the context declaration lists multiple streams, the hash code function should return the same hash code for the related keys of all streams.
+				</para>
+	
+				<para>
+					The next statement creates a context <literal>HashedByCustomer</literal> that also considers <literal>LoginEvent</literal> and <literal>LogoutEvent</literal>:
+				</para>
+				<programlisting><![CDATA[create context HashedByCustomer as coalesce
+  consistent_hash_crc32(custId) from BankTxn,
+  consistent_hash_crc32(loginId) from LoginEvent, 
+  consistent_hash_crc32(loginId) from LogoutEvent
+  granularity 32 preallocate]]></programlisting>
+
+			</sect3>
+				
+			<sect3 xml:id="context_def_hashed_filter" revision="1">
+				<title>Filters</title>
+				
+				<para>
+				  You may add a filter expression to each of the event types listed. The engine applies the filter expression to the EPL statement that refers to the context and to the same event type.
+				</para>
+				
+				<para>
+					The next statement creates a context <literal>HashedByCustomer </literal> that does not consider login events that indicate that the login failed.
+				</para>
+				<programlisting><![CDATA[create context HashedByCustomer 
+  coalesce consistent_hash_crc32(loginId) from LoginEvent(failed = false) 
+  granularity 1024 preallocate]]></programlisting>
+			</sect3>
+			
+			<sect3 xml:id="context_def_hashed_builtin" revision="1">
+				<title>Built-In Context Properties</title>
+				  
+				<para>
+				  The following context properties are available in your EPL statement when it refers to a keyed segmented context:
+				</para>
+
+				<table frame="topbot">
+					<title>Keyed Segmented Context Properties</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.20*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Name</entry>
+								<entry>Description</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>name</literal></entry>
+								<entry>The string-type context name.</entry>
+							</row>
+							<row>
+								<entry><literal>id</literal></entry>
+								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+		
+				<para>
+					Assume the hashed segmented context is declared as follows:
+				</para>
+				<programlisting><![CDATA[create context ByCustomerHash coalesce consistent_hash_crc32(custId) from BankTxn granularity 1024]]></programlisting>
+
+				<para>
+					You may, for example, select the context properties as follows:
+				</para>
+				<programlisting><![CDATA[context ByCustomerHash
+  select context.name, context.id from BankTxn]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="context_def_hashed_perf" revision="1">
+				<title>Performance Considerations</title>
+				
+				<para>
+				  The <literal>hash_code</literal> function based on the Java object hash code is generally faster then the CRC32 algorithm. The CRC32 algorithm, when used with a non-String parameter or with multiple parameters, requires the engine to serialize all expression results to a byte array to compute the CRC32 hash code.
+				</para>
+
+				<para>
+				  We recommend keeping the granularity small (1k and under) when using <literal>preallocate</literal>.
+				</para>
+
+				<para>
+				  When specifying a granularity greater then <literal>65536</literal> (64k) the engine switches to a Map-based lookup of context partition state which can slow down statement processing.
+				</para>
+			</sect3>
+
+		</sect2>
+
+		<sect2 xml:id="context_def_category" revision="1">
+			<title>Category Segmented Context</title>
+			
+			<para>
+				  This context assigns events to context partitions based on the values of one or more event properties, using a predicate expression(s) to define context partition membership. Each event can thus belong to zero, one or many context partitions depending on the outcome of the predicate expression(s).
+			</para>
+
+			<para>
+				The syntax for creating a category segmented context is as follows: 
+			</para>
+			<synopsis>create context <emphasis>context_name</emphasis>
+  group [by] <emphasis>group_expression</emphasis> as <emphasis>category_label</emphasis>
+  [, group [by] <emphasis>group_expression</emphasis> as <emphasis>category_label</emphasis>]
+  [, ...]
+  from <emphasis>stream_def</emphasis></synopsis>
+						
+			<para>
+				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+			</para>
+				
+			<para>
+				Following the context name is a list of groups separated by the <literal>group</literal> keyword. The list of group is followed by the <literal>from</literal> keyword and a stream definition.
+			</para>
+				
+			<para>
+				The <emphasis>group_expression</emphasis> is an expression that categorizes events. Each group expression must be followed by the <literal>as</literal> keyword and a category label which can be any identifier.
+			</para>
+
+			<para>
+				Group expressions are predicate expression and must return a Boolean true or false when applied to an event. For a given event, any number of the group expressions may return true thus categories can be overlapping.
+			</para>
+
+			<para>
+				The <emphasis>stream_def</emphasis> is a stream definition which consists of an event type name optionally followed by parenthesis that contains filter expressions. If providing filter expressions, only events matching the provided filter expressions for that event type are considered by context partitions.
+			</para>
+			
+			<para>
+				The next statement creates a context <literal>CategoryByTemp</literal> that consider the value of the <literal>temperature</literal> property of the <literal>SensorEvent</literal> event type to pick context partitions to assign events to:
+			</para>
+			<programlisting><![CDATA[create context CategoryByTemp
+  group temp < 65 as cold,
+  group temp between 65 and 85 as normal,
+  group temp > 85 as large
+  from SensorEvent]]></programlisting>
+
+			<para>
+				The following statement simply counts, for each category, the number of events and outputs the category label and count:
+			</para>
+			<programlisting><![CDATA[context CategoryByTemp select context.label, count(*) from SensorEvent]]></programlisting>
+
+			<sect3 xml:id="context_def_category_builtin" revision="1">
+				<title>Built-In Context Properties</title>
+				  
+				<para>
+				  The following context properties are available in your EPL statement when it refers to a category segmented context:
+				</para>
+
+				<table frame="topbot">
+					<title>Category Segmented Context Properties</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.20*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Name</entry>
+								<entry>Description</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>name</literal></entry>
+								<entry>The string-type context name.</entry>
+							</row>
+							<row>
+								<entry><literal>id</literal></entry>
+								<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+							</row>
+							<row>
+								<entry><literal>label</literal></entry>
+								<entry>The category label is the string identifier value after the <literal>as</literal> keyword that is specified for each group.</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+		
+				<para>
+					You may, for example, select the context properties as follows:
+				</para>
+				<programlisting><![CDATA[context CategoryByTemp
+  select context.name, context.id, context.label from SensorEvent]]></programlisting>
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="context_def_nonoverlapping" revision="1">
+			<title>Non-Overlapping Context</title>
+			
+			<para>
+				  You may declare a non-overlapping context that exists once or that repeats in a regular fashion as controlled by start and end conditions. The number of context partitions is always either one or zero: Context partitions do not overlap.
+			</para>
+			
+			<para>
+				The syntax for creating a non-overlapping context is as follows: 
+			</para>
+			<synopsis>create context <emphasis>context_name</emphasis>
+  start (@now | <emphasis>start_condition</emphasis>) 
+  end <emphasis>end_condition</emphasis></synopsis>
+						
+			<para>
+				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+			</para>
+				
+			<para>
+				Following the context name is the <literal>start</literal> keyword, either <literal>@now</literal> or a <emphasis>start_condition</emphasis>, the <literal>end</literal> keyword and an <emphasis>end_condition</emphasis>.
+			</para>
+			
+			<para>
+			  Both the start (if specified) and end condition can be an event filter, a pattern, a crontab or a time period. The syntax of start and end conditions is described in <xref linkend="context_def_condition"/>.
+			</para>
+			
+			<para>
+			  Once the start condition occurs, the engine no longer observes the start condition and begins observing the end condition. Once the end condition occurs, the engine observes the start condition again.
+			  If you specified <literal>@now</literal> instead of a start condition, the engine begins observing the end condition instead.
+			</para>
+						
+			<para>
+			    If you specified an event filter as the start condition, then the event also counts towards the statement(s) that refer to that context. If you specified a pattern as the start condition, then the events that may constitute the pattern match can also count towards the statement(s) that refer to the context provided that <literal>@inclusive</literal> and event tags are both specified (see below).
+			</para>
+
+			<para>
+			  At the time of context activation when your application creates a statement that utilizes the context, the engine checks whether the start and end condition are crontab expressions. The engine evaluates the start and end crontab expressions and determines whether the current time is a time between start and end. If the current time
+			  is between start and end times, the engine allocates the context partition and waits for observing the end time. Otherwise the engine waits to observe the start time and does not allocate a context partition.
+			</para>
+			
+			<para>
+				The built-in context properties that are available are the same as described in <xref linkend="context_def_overlapping_builtin"/>.
+			</para>
+
+			<para>
+  				The next statement creates a context <literal>NineToFive</literal> that declares a daily time period that starts at 9 am and ends at 5 pm: 
+  			</para>
+  			<programlisting><![CDATA[create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
+  			
+  			<para>
+  				The following statement outputs speed violations between 9 am and 5 pm, considering a speed of 100 or greater as a violation:
+  			</para>
+  			<programlisting><![CDATA[context NineToFive select * from TrafficEvent(speed >= 100)]]></programlisting>
+  			
+			<para>
+			  The example that follows demonstrates the use of an event filter as the start condition and a pattern as the end condition.
+			</para>
+  			
+			<para>
+  				The next statement creates a context <literal>PowerOutage</literal> that starts when the first <literal>PowerOutageEvent</literal> event arrives and that ends 5 seconds after a subsequent <literal>PowerOnEvent</literal> arrives:
+  			</para>
+  			<programlisting><![CDATA[create context PowerOutage start PowerOutageEvent end pattern [PowerOnEvent -> timer:interval(5)]]]></programlisting>
+  			
+  			<para>
+  				The following statement outputs the temperature during a power outage and for 5 seconds after the power comes on:
+  			</para>
+  			<programlisting><![CDATA[context PowerOutage select * from TemperatureEvent]]></programlisting>
+
+			<para>
+			  To output only the last value when a context partition ends (terminates, expires), please read on to the description of output rate limiting.
+			</para>
+			
+			<para>
+  				The next statement creates a context <literal>Every15Minutes</literal> that starts immediately and lasts for 15 minutes, repeatedly allocating a new context partition at the end of 15 minute intervals:
+  			</para>
+  			<programlisting><![CDATA[create context Every15Minutes start @now end after 15 minutes]]></programlisting>
+  			
+  			<tip>
+				A non-overlapping context with <literal>@now</literal> is always-on: A context partition is always allocated at any given point in time. Only if <literal>@now</literal> is specified
+				will a context partition always exist at any point in time.
+			</tip>
+
+			<note>
+				<para>
+					If you specified an event filter or pattern as the end condition for a context partition, and statements that refer to the context specify an event filter or pattern that matches the same conditions,
+					use @Priority to instruct the engine whether the context management or the statement evaluation takes priority (see below for configuring prioritized execution).
+				</para>
+				<para>
+					For example, if your context declaration looks like this:
+				</para>
+				<programlisting><![CDATA[create context MyCtx start MyStartEvent end MyEndEvent]]></programlisting>
+				<para>
+					And a statement managed by the context is this:
+				</para>
+				<synopsis>context MyCtx select count(*) as cnt from MyEndEvent output when terminated</synopsis>
+				<para> 
+					By using <literal>@Priority(1)</literal> for create-context and <literal>@Priority(0)</literal> for the counting statement the counting statement does not count the last <literal>MyEndEvent</literal>
+					since context partition management takes priority.
+				</para>
+				<para> 
+					By using <literal>@Priority(0)</literal> for create-context and <literal>@Priority(1)</literal> for the counting statement the counting statement will count the last <literal>MyEndEvent</literal>
+					since the statement evaluation takes priority.
+				</para>
+			</note>
+		</sect2>
+
+		<sect2 xml:id="context_def_overlapping" revision="1">
+			<title>Overlapping Context</title>
+			
+			<para>
+				  This context initiates a new context partition when an initiating condition occurs, and terminates one or more context partitions when the terminating condition occurs. The engine maintains as many context partitions as the initiating condition fired, and discards context partitions that terminate when the termination condition fires.
+			</para>
+			
+			<para>
+				The syntax for creating an overlapping context is as follows: 
+			</para>
+			<synopsis>create context <emphasis>context_name</emphasis>
+  initiated [by] [distinct (<emphasis>distinct_value_expr [,...]</emphasis>)] [@now and] <emphasis>initiating_condition</emphasis>
+  terminated [by] <emphasis>terminating_condition</emphasis></synopsis>
+						
+			<para>
+				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+			</para>
+								
+			<para>
+				Following the context name is the <literal>initiated</literal> keyword.
+				After the <literal>initiated</literal> keyword you can optionally specify the <literal>distinct</literal> keyword and, within parenthesis, list one or more distinct value expressions.
+				After the <literal>initiated</literal> keyword you can also specify <literal>@now and</literal> as explained below.
+			</para>
+
+			<para>
+				After the <literal>initiated</literal> keyword you must specify the initiating condition. 
+				It follows the <literal>terminated</literal> keyword followed by the terminating condition.
+			</para>
+
+			<para>
+			  Both the initiating and terminating condition can be an event filter, a pattern, a crontab or a time period. The syntax of initiating and terminating conditions is described in <xref linkend="context_def_condition"/>.
+			</para>
+			
+			<para>
+				If you specified <literal>@now and</literal> before the initiating condition then the engine initiates a new context partition immediately. The <literal>@now</literal> is only allowed in conjunction with initiation conditions that specify a pattern, crontab or time period and not with event filters.
+			</para>
+			
+			<para>
+			    If you specified an event filter for the initiating condition, then the event that initiates a new context partition also counts towards the statement(s) that refer to that context. If you specified a pattern to initiate a new context partition, then the events that may constitute the pattern match can also count towards the statement(s) that refer to the context provided that <literal>@inclusive</literal> and event tags are both specified (see below).
+			</para>
+
+			<para>
+				The next statement creates a context <literal>CtxTrainEnter</literal> that allocates a new context partition when a train enters a station, and that terminates each context partition 5 minutes after the time the context partition was allocated:
+			</para>
+			<programlisting><![CDATA[create context CtxTrainEnter
+  initiated by TrainEnterEvent as te
+  terminated after 5 minutes]]></programlisting>
+
+			<para>
+				The context declared above assigns the stream name <literal>te</literal>. Thereby the initiating event's properties can be accessed, for example, by specifying <literal>context.te.trainId</literal>.
+			</para>
+
+			<para>
+				The following statement detects when a train enters a station as indicated by a <literal>TrainEnterEvent</literal>, but does not leave the station within 5 minutes as would be indicated by a matching <literal>TrainLeaveEvent</literal>:
+			</para>
+			<programlisting><![CDATA[context CtxTrainEnter
+select t1 from pattern [
+  t1=TrainEnterEvent -> timer:interval(5 min) and not TrainLeaveEvent(trainId = context.te.trainId)
+  ]]]></programlisting>
+
+			<para>
+			  Since the <literal>TrainEnterEvent</literal> that initiates a new context partition also counts towards the statement, the first part of the pattern (the <literal>t1=TrainEnterEvent</literal>) is satisfied by that initiating event.
+			</para>
+
+			<para>
+				The next statement creates a context <literal>CtxEachMinute</literal> that allocates a new context partition immediately and every 1 minute, and that terminates each context partition 1 minute after the time the context partition was allocated:
+			</para>
+			<programlisting><![CDATA[create context CtxEachMinute
+  initiated @now and pattern [every timer:interval(1 minute)]
+  terminated after 1 minutes]]></programlisting>
+  
+			<para>
+				The statement above specifies <literal>@now</literal> to instruct the engine to allocate a new context partition immediately as well as when the pattern fires.
+				Without the <literal>@now</literal> the engine would only allocate a new context partition when the pattern fires after 1 minute and every minute thereafter.
+			</para>
+
+			<para>
+				The following statement averages the temperature, starting anew every 1 minute and outputs the aggregate value continuously:
+			</para>
+			<programlisting><![CDATA[context CtxEachMinute select avg(temp) from SensorEvent]]></programlisting>
+			
+			<para>
+			  To output only the last value when a context partition ends (terminates, expires), please read on to the description of output rate limiting.
+			</para>
+			
+			<note>
+				<para>
+					If you specified an event filter or pattern as the termination condition for a context partition, and statements that refer to the context specify an event filter or pattern that matches the same conditions,
+					use @Priority to instruct the engine whether the context management or the statement evaluation takes priority (see below for configuring prioritized execution). See the note above for more information.
+				</para>
+			</note>
+
+			<sect3 xml:id="context_def_overlapping_distinct" revision="1">
+				<title>Distinct Events for the Initiating Condition</title>
+				
+				<para>
+					If your initiating condition is a filter context condition, you may specify the <literal>distinct</literal> keyword followed by one or more distinct-value expressions.
+				</para>
+				
+				<para>
+					The following sample EPL specifies a context that initiates a context partition for distinct order id values, remembering that order id until the time the context partition terminates:
+				</para>
+				
+				<programlisting><![CDATA[create context OrderContext
+  initiated by distinct(orderId) NewOrderEvent as newOrder 
+  terminated by CloseOrderEvent(closeOrderId = newOrder.orderId)]]></programlisting>
+
+				<para>
+					The engine allocates a new context partition only when a context partition does not already exist for a given <literal>orderId</literal> value of <literal>NewOrderEvent</literal>.					
+					When the context partition terminates at the time a <literal>CloseOrderEvent</literal> arrives, the engine forgets about the <literal>orderId</literal>,
+					allowing the next <literal>NewOrderEvent</literal> event for the same <literal>orderId</literal> to allocate a new context partition.
+				</para>
+				
+				<para>
+					Please note the following limitations:
+				</para>
+
+				<itemizedlist>
+					<listitem>
+					  The <literal>distinct</literal> keyword requires the initiating condition to be an event stream (and not a crontab or pattern, for example) and a stream name must be 
+					  assigned using the <literal>as</literal> keyword.
+					</listitem>
+					<listitem>
+					  Subqueries, aggregations and the special <literal>prev</literal> and <literal>prior</literal> functions are not allowed among the distinct-value expressions.
+					</listitem>
+				</itemizedlist>				
+			</sect3>
+
+			<sect3 xml:id="context_def_overlapping_builtin" revision="1">
+				<title>Built-In Context Properties</title>
+				  
+				<para>
+				  The following context properties are available in your EPL statement when it refers to a context:
+				</para>
+	
+				<table frame="topbot">
+					<title>Context Properties</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.20*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Name</entry>
+								<entry>Description</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>name</literal></entry>
+								<entry>The string-type context name.</entry>
+							</row>
+							<row>
+								<entry><literal>startTime</literal></entry>
+								<entry>The start time of the context partition.</entry>
+							</row>
+							<row>
+								<entry><literal>endTime</literal></entry>
+								<entry>The end time of the context partition. This field is only available in the case that it can be computed from the crontab or time period expression that is provided.
+								</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+		
+				<para>
+					You may, for example, select the context properties as follows:
+				</para>
+				<programlisting><![CDATA[context NineToFive 
+select context.name, context.startTime, context.endTime from TrafficEvent(speed >= 100)]]></programlisting>
+
+				<para>
+					The following statement looks for the next train leave event for the same train id and selects a few of the context properties: 
+				</para>
+				<programlisting><![CDATA[context CtxTrainEnter
+select *, context.te.trainId, context.id, context.name
+from TrainLeaveEvent(trainId = context.te.trainId)]]></programlisting>
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="context_def_condition" revision="1">
+			<title>Context Conditions</title>
+			
+			<para>
+			  Context start/initiating and end/terminating conditions are for use with overlapping and non-overlapping contexts. Any combination of conditions may be specified.
+			</para>
+
+			<sect3 xml:id="context_def_condition_filter" revision="1">
+				<title>Filter Context Condition</title>
+
+				<para>
+					Use the syntax described here to define the stream that starts/initiates a context partition or that ends/terminates a context partition.
+				</para>				
+
+				<para>
+					The syntax is: 
+				</para>
+				<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [as <emphasis>stream_name</emphasis>]</synopsis>
+						
+				<para>
+				  The <emphasis>event_stream_name</emphasis> is either the name of an event type or name of an event stream populated by an insert into statement. The <emphasis>filter_criteria</emphasis> is optional and consists of a list of expressions filtering the events of the event stream, within
+parenthesis after the event stream name.
+				</para>
+				
+				<para>
+				  Two examples are:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context that starts when MyStartEvent arrives and ends when MyEndEvent arrives
+create context MyContext start MyStartEvent end MyEndEvent]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context where each MyEvent with level greater zero 
+// initiates a new context partition that terminates after 10 seconds
+create context MyContext initiated MyEvent(level > 0) terminated after 10 seconds]]></programlisting>
+
+				<para>
+				  You may correlate the start/initiating and end/terminating streams by providing a stream name following the <literal>as</literal> keyword, and by referring to that stream name in the filter criteria of the end condition.
+				</para>
+				
+				<para>
+				  Two examples that correlate the start/initiating and end/terminating condition are:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context that starts when MyEvent arrives
+// and ends when a matching MyEvent arrives (same id)
+create context MyContext 
+start MyEvent as myevent
+end MyEvent(id=myevent.id)]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context where each MyInitEvent initiates a new context partition 
+// that terminates when a matching MyTermEvent arrives 
+create context MyContext 
+initiated by MyInitEvent as e1 
+terminated by MyTermEvent(id=e1.id, level <> e1.level)]]></programlisting>
+			</sect3>
+			
+			<sect3 xml:id="context_def_condition_pattern" revision="1">
+				<title>Pattern Context Condition</title>
+
+				<para>
+					You can define a pattern that starts/initiates a context partition or that ends/terminates a context partition.
+				</para>				
+
+				<para>
+					The syntax is: 
+				</para>
+				<synopsis>pattern [<emphasis>pattern_expression</emphasis>] [@inclusive]</synopsis>
+						
+				<para>
+				  The <emphasis>pattern_expression</emphasis> is a pattern at <xref linkend="event_patterns"/>.
+				</para>
+				
+				<para>
+				  Specify <literal>@inclusive</literal> after the pattern to have those same events that constitute the pattern match also count towards any statements that are associated to the context.
+				  You must also provide a tag for each event in a pattern that should be included.
+				</para>
+
+				<para>
+				  Examples are:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context that starts when either StartEventOne or StartEventTwo arrive
+// and that ends after 5 seconds.
+// Here neither StartEventOne or StartEventTwo count towards any statements
+// that are referring to the context.
+create context MyContext 
+  start pattern [StartEventOne or StartEventTwo] 
+  end after 5 seconds]]></programlisting>
+
+				<programlisting><![CDATA[// Same as above. 
+// Here both StartEventOne or StartEventTwo do count towards any statements
+// that are referring to the context.
+create context MyContext 
+  start pattern [a=StartEventOne or b=StartEventTwo] @inclusive 
+  end after 5 seconds]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context where each distinct MyInitEvent initiates a new context 
+// and each context partition terminates after 20 seconds
+// We use @inclusive to say that the same MyInitEvent that fires the pattern
+// also applies to statements that are associated to the context.
+create context MyContext
+  initiated by pattern [every-distinct(a.id, 20 sec) a=MyInitEvent]@inclusive
+  terminated after 20 sec]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context where each pattern match initiates a new context 
+// and all context partitions terminate when MyTermEvent arrives.
+// The MyInitEvent and MyOtherEvent that trigger the pattern are themselves not included 
+// in any statements that are associated to the context.
+create context MyContext
+  initiated by pattern [every MyInitEvent -> MyOtherEvent where timer:within(5)]
+  terminated by MyTermEvent]]></programlisting>
+
+				<para>
+				  You may correlate the start and end streams by providing tags as part of the pattern, and by referring to the tag name(s) in the filter criteria of the end condition.
+				</para>
+				
+				<para>
+				  An example that correlates the start and end condition is:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context that starts when either StartEventOne or StartEventTwo arrive
+// and that ends when either a matching EndEventOne or EndEventTwo arrive
+create context MyContext 
+  start pattern [a=StartEventOne or b=StartEventTwo]@inclusive
+  end pattern [EndEventOne(id=a.id) or EndEventTwo(id=b.id)]]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="context_def_condition_crontab" revision="1">
+				<title>Crontab Context Condition</title>
+
+				<para>
+					 Crontab expression are described in <xref linkend="pattern-timer-at"/>.
+				</para>				
+						
+				<para>
+				  Examples are:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context started daily between 9 am to 5 pm
+// and not started outside of these hours:
+create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context where crontab initiates a new context every 1 minute
+// and each context partition terminates after 10 seconds:
+create context MyContext initiated (*, *, *, *, *) terminated after 10 seconds]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="context_def_condition_after" revision="1">
+				<title>Time Period Context Condition</title>
+
+				<para>
+					You may specify a time period that the engine observes before the condition fires. Time period expressions are described in <xref linkend="epl-syntax-time-periods"/>.
+				</para>				
+
+				<para>
+					The syntax is: 
+				</para>
+				<synopsis>after <emphasis>time_period_expression</emphasis></synopsis>
+						
+				<para>
+				  Examples are:
+				</para>
+				<programlisting><![CDATA[// A non-overlapping context started after 10 seconds 
+// that ends 1 minute after it starts and that again starts 10 seconds thereafter.
+create context NonOverlap10SecFor1Min start after 10 seconds end after 1 minute]]></programlisting>
+
+				<programlisting><![CDATA[// An overlapping context that starts a new context partition every 5 seconds
+// and each context partition lasts 1 minute
+create context Overlap5SecFor1Min initiated after 5 seconds terminated after 1 minute]]></programlisting>
+			</sect3>
+		</sect2>
+     </sect1>
+
+    <sect1 xml:id="context_nesting" revision="1">
+        <title>Context Nesting</title>
+        
+		<para>
+		  A nested context is a context that is composed from two or more contexts.
+		</para>
+		
+		<para>
+			The syntax for creating a nested context is as follows: 
+		</para>
+		<synopsis>create context <emphasis>context_name</emphasis>
+  context <emphasis>nested_context_name</emphasis> [as] <emphasis>nested_context_definition</emphasis> ,
+  context <emphasis>nested_context_name</emphasis> [as] <emphasis>nested_context_definition</emphasis> [, ...]</synopsis>
+						
+		<para>
+			The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
+		</para>
+			
+		<para>
+			Following the context name is a comma-separated list of nested contexts. For each nested context specify the <literal>context</literal> keyword followed a nested context name and the nested context declaration. Any of the context declarations as outlined in <xref linkend="context_decl"/> are allowed for nested contexts.
+			The order of nested context declarations matters as outlined below. The nested context names have meaning only in respect to built-in properties and statements may not be assigned to nested context names.
+		</para>
+		
+		<para>
+			The next statement creates a nested context <literal>NineToFiveSegmented</literal> that, between 9 am and 5 pm, allocates a new context partition for each customer id:
+		</para>
+		<programlisting><![CDATA[create context NineToFiveSegmented
+  context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *),
+  context SegmentedByCustomer partition by custId from BankTxn]]></programlisting>
+        
+		<para>
+			The following statement refers to the nested context to compute a total withdrawal amount per account for each customer but only between 9 am and 5 pm:
+		</para>
+		<programlisting><![CDATA[context NineToFiveSegmented
+select custId, account, sum(amount) from BankTxn group by account]]></programlisting>
+
+		<para>
+		    Esper implements nested contexts as a context tree: The context declared first controls the lifecycle of the context(s) declared thereafter. Thereby, in the above example, outside of the 9am-to-5pm time the engine has no memory and consumes no resources in relationship to bank transactions or customer ids.
+		</para>
+
+		<para>
+		    When combining segmented contexts, the set of context partitions for the nested context effectively is the Cartesian product of the partition sets of the nested segmented contexts.
+		</para>
+
+		<para>
+		    When combining temporal contexts with other contexts, since temporal contexts may overlap and may terminate, it is important to understand that temporal contexts control the lifecycle of sub-contexts (contexts declared thereafter). The order of declaration of contexts in a nested context 
+		    can thereby change resource usage and output result.
+		</para>
+
+		<para>
+			The next statement creates a context that allocates context partition only when a train enters a station and then for each hash of the tag id of a passenger as indicated by PassengerScanEvent events, and terminates all context partitions after 5 minutes:
+		</para>
+		<programlisting><![CDATA[create context CtxNestedTrainEnter
+  context InitCtx initiated by TrainEnterEvent as te terminated after 5 minutes,
+  context HashCtx coalesce by consistent_hash_crc32(tagId) from PassengerScanEvent
+    granularity 16 preallocate]]></programlisting>
+        
+		<para>
+		   In the example above the engine does not start tracking PassengerScanEvent events or hash codes or allocate context partitions until a TrainEnterEvent arrives.
+		</para>
+        
+		<sect2 xml:id="context_nesting_builtin" revision="1">
+			<title>Built-In Nested Context Properties</title>
+			  
+			<para>
+			  Context properties of all nested contexts are available for use. Specify <literal>context.</literal><emphasis>nested_context_name</emphasis><literal>.</literal><emphasis>property_name</emphasis> or if nested context declaration provided stream names or tags for patterns then <literal>context.</literal><emphasis>nested_context_name</emphasis><literal>.</literal><emphasis>stream_name</emphasis><literal>.</literal><emphasis>property_name</emphasis>.
+			</para>
+
+			<para>
+			  For example, consider the <literal>CtxNestedTrainEnter</literal> context declared earlier. The following statement selects a few of the context properties:
+			</para>		
+			<programlisting><![CDATA[context CtxNestedTrainEnter
+select context.InitCtx.te.trainId, context.HashCtx.id,
+  tagId, count(*) from PassengerScanEvent group by tagId]]></programlisting>
+
+			<para>
+			  In a second example, consider the <literal>NineToFiveSegmented</literal> context declared earlier. The following statement selects a few of the context properties:
+			</para>		
+			<programlisting><![CDATA[context NineToFiveSegmented
+select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankTxn]]></programlisting>
+
+			<para>
+			  The following context properties are available in your EPL statement when it refers to a nested context:
+			</para>
+
+			<table frame="topbot">
+				<title>Nested Context Properties</title>
+				<tgroup cols="2">
+					<colspec colwidth="0.20*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>name</literal></entry>
+							<entry>The string-type context name.</entry>
+						</row>
+						<row>
+							<entry><literal>id</literal></entry>
+							<entry>The integer-type internal context id that the engine assigns to the context partition.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+
+			<para>
+			  This example selects the nested context name and context partition id:
+			</para>		
+			<programlisting><![CDATA[context NineToFiveSegmented select context.name, context.id from BankTxn]]></programlisting>
+		</sect2>
+     </sect1>
+
+    <sect1 xml:id="context_other" revision="1">
+        <title>Partitioning Without Context Declaration</title>
+        
+		<para>
+		  You do not need to declare a context to partition data windows, aggregation values or patterns themselves individually. You may mix-and-match partitioning as needed.
+		</para>
+		
+		<para>
+		  The table below outlines other partitioning syntax supported by EPL:
+		</para>
+
+		<table frame="topbot">
+			<title>Partition in EPL without the use of Context Declaration</title>
+			<tgroup cols="3">
+				<colspec colwidth="0.30*"/>
+				<colspec colwidth="0.8*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Partition Type</entry>
+						<entry>Description</entry>
+						<entry>Example</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>Grouped Data Window</entry>
+						<entry><para>Partitions at the level of data window, only applies to appended data window(s).</para><para>Syntax: <literal>std:groupby(...)</literal></para></entry>
+						<entry><programlisting><![CDATA[// Length window of 2 events per customer
+select * from
+  BankTxn.std:groupwin(custId).win:length(2)]]></programlisting></entry>
+					</row>
+					<row>
+						<entry>Grouped Aggregation</entry>
+						<entry><para>Partitions at the level of aggregation, only applies to any aggregations.</para><para>Syntax: <literal>group by ....</literal></para></entry>
+						<entry><programlisting><![CDATA[select avg(price), window(*)
+  from BankTxn group by custId]]></programlisting></entry>
+					</row>
+					<row>
+						<entry>Pattern</entry>
+						<entry><para>Partitions pattern subexpressions.</para><para>Syntax: <literal>every</literal> or <literal>every-distinct</literal></para></entry>
+						<entry><programlisting><![CDATA[select * from pattern [
+  every a=BankTxn -> BankTxn(custId = a.custId)...]]]></programlisting></entry>
+					</row>
+					<row>
+						<entry>Match-Recognize</entry>
+						<entry><para>Partitions match-recognize patterns.</para><para>Syntax: <literal>partition by</literal></para></entry>
+						<entry><programlisting><![CDATA[select * from match_recognize 
+  ... partition by custId]]></programlisting></entry>
+					</row>
+					<row>
+						<entry>Join and Subquery</entry>
+						<entry><para>Partitions join and subqueries.</para><para>Syntax: <literal>where ...</literal></para></entry>
+						<entry><programlisting><![CDATA[select * from ... where a.custId = b.custId]]></programlisting></entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+	</sect1>
+     
+    <sect1 xml:id="context_outputterminated" revision="1">
+        <title>Output When Context Partition Ends</title>
+        
+        <para>
+          You may use output rate limiting to trigger output when a context partition ends, as further described in <xref linkend="epl-output-rate"/>.
+        </para>
+        
+        <para>
+          Consider the fixed temporal context:  A new context partition gets allocated at the designated start time and the current context partition ends at the designated end time. To trigger output when the context partition ends and before it gets removed, read on.
+        </para>
+        
+        <para>
+          The same is true for the initiated temporal context:  That context starts a new context partition when trigger events arrive or when a pattern matches. Each context partition expires (ends, terminates) after the specified time period passed. To trigger output at the time the context partition expires, read on.
+        </para>
+
+		<para>
+		  You may use the <literal>when terminated</literal> syntax with output rate limiting to trigger output when a context partition ends. The following example demonstrates the idea by declaring an initiated temporal context.
+		</para>
+
+		<para>
+			The next statement creates a context <literal>CtxEachMinute</literal> that initiates a new context partition every 1 minute, and that expires each context partition after 5 minutes:
+		</para>
+		<programlisting><![CDATA[create context CtxEachMinute
+initiated by pattern [every timer:interval(1 min)]
+terminated after 5 minutes]]></programlisting>
+
+		<para>
+			The following statement computes an ongoing average temperature however only outputs the last value of the average temperature after 5 minutes when a context partition ends:
+		</para>
+		<programlisting><![CDATA[context CtxEachMinute
+select context.id, avg(temp) from SensorEvent output snapshot when terminated]]></programlisting>
+
+		<para>
+			The <literal>when terminated</literal> syntax can be combined with other output rates.
+		</para>
+
+		<para>
+			The next example outputs every 1 minute and also when the context partition ends:
+		</para>
+		<programlisting><![CDATA[context CtxEachMinute
+select context.id, avg(temp) from SensorEvent output snapshot every 1 minute and when terminated]]></programlisting>
+
+		<para>
+			In the case that the end/terminating condition of the context partition is an event or pattern, the context properties contain the information of the tagged events in the pattern or the single event that ended/terminated the context partition. 
+		</para>
+		
+		<para>
+			For example, consider the following context wherein the engine initializes a new context partition for each arriving <literal>MyStartEvent</literal> event and that terminates a context partition when a matching <literal>MyEndEvent</literal> arrives:
+		</para>
+		<programlisting><![CDATA[create context CtxSample
+initiated by MyStartEvent as startevent
+terminated by MyEndEvent(id = startevent.id) as endevent]]></programlisting>
+
+		<para>
+			The following statement outputs the id property of the initiating and terminating event and only outputs when a context partition ends:
+		</para>
+
+		<programlisting><![CDATA[context CtxSample 
+select context.startevent.id, context.endevent.id, count(*) from MyEvent
+output snapshot when terminated]]></programlisting>
+
+		<para>
+			You may in addition specify a termination expression that the engine evaluates when a context partition terminates. Only when the terminaton expression evaluates to true does output occur. The expression may refer to built-in properties as described in <xref linkend="epl-output-expression"/>. The syntax is as follows:
+		</para>	
+		<synopsis>...output when terminated and <emphasis>termination_expression</emphasis></synopsis>
+
+		<para>
+			The next example statement outputs when a context partition ends but only if at least two events are available for output:
+		</para>
+		<programlisting><![CDATA[context CtxEachMinute
+select * from SensorEvent output when terminated and count_insert >= 2]]></programlisting>
+
+		<para>
+			The final example EPL outputs when a context partition ends and sets the variable <literal>myvar</literal> to a new value:
+		</para>
+		<programlisting><![CDATA[context CtxEachMinute
+select * from SensorEvent output when terminated then set myvar=3]]></programlisting>
+	</sect1>
+
+    <sect1 xml:id="context_named_windows" revision="1">
+        <title>Context and Named Window</title>
+                
+		<para>
+			Named windows are globally-visible data window that may be referred to by multiple statements. You may refer to named windows in statements that declare a context without any special considerations.
+		</para>
+		
+		<para>
+			You may also create a named window and declare a context for the named window. In this case the engine in effect manages separate named windows, one for each context partition. Limitations apply in this case that we discuss herein.
+		</para>
+		
+		<para>
+		  For example, consider the 9 am to 5 pm fixed temoral context as shown earlier:
+		</para>
+		<programlisting><![CDATA[create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
+
+		<para>
+		  You may create a named window that only exists between 9 am and 5 pm:
+		</para>
+		<programlisting><![CDATA[context NineToFive create window SpeedingEvents1Hour.win:time(30 min) as TrafficEvent]]></programlisting>
+
+		<para>
+		  You can insert into the named window:
+		</para>
+		<programlisting><![CDATA[insert into SpeedingEvents1Hour select * from TrafficEvent(speed > 100)]]></programlisting>
+
+		<para>
+		  Any on-merge, on-select, on-update and on-delete statements must however declare the same context.
+		</para>
+		
+		<para>
+		  The following is not a valid statement as it does not declare the same context that was used to declare the named window:
+		</para>
+		<programlisting><![CDATA[// You must declare the same context for on-trigger statements
+on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
+
+		<para>
+		  The following is valid:
+		</para>
+		<programlisting><![CDATA[context NineToFive on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
+		
+		<para>
+		  For context declarations that require specifying event types, such as the hash segmented context and keyed segmented context, please provide the named window underlying event type.
+		</para>
+
+		<para>
+		  The following sample EPL statements define a type for the named window, declare a context and associate the named window to the context:
+		</para>
+		<programlisting><![CDATA[create schema ScoreCycle (userId string, keyword string, productId string, score long)]]></programlisting>
+		<programlisting><![CDATA[create context HashByUserCtx as 
+  coalesce by consistent_hash_crc32(userId) from ScoreCycle granularity 64]]></programlisting>
+		<programlisting><![CDATA[context HashByUserCtx create window ScoreCycleWindow.std:unique(productId, keyword) as ScoreCycle]]></programlisting>
+
+	</sect1>
+
+    <sect1 xml:id="context_tables" revision="1">
+        <title>Context and Tables</title>
+                
+		<para>
+			Tables are globally-visible data structures that hold rows organized by primary key(s) and that may be referred to by multiple statements. 			
+		</para>
+		
+		<para>
+			You may also create a table and declare a context for the table. In this case the engine in effect manages separate tables, one for each context partition. 
+			Limitations apply in this case that we discuss herein.
+		</para>
+		
+		<para>
+		  For example, consider the 9 am to 5 pm fixed temoral context as shown earlier:
+		</para>
+		<programlisting><![CDATA[create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)]]></programlisting>
+
+		<para>
+		  You may create a table that only exists between 9 am and 5 pm:
+		</para>
+		<programlisting><![CDATA[context NineToFive create table AverageSpeedTable (
+  carId string primary key, 
+  avgSpeed avg(double))]]></programlisting>
+
+		<para>
+		  You can aggregate-into the table only if the aggregating statement declares the same context:
+		</para>
+		<programlisting><![CDATA[// declare the same context as for the table
+context NineToFive into table AverageSpeedTable
+select avg(speed) as avgSpeed
+from TrafficEvent
+group by carId]]></programlisting>
+
+		<para>
+		  When you declare a context for a table, any select, on-merge, on-select, on-update and on-delete statements as well as statements that subquery the table must declare the same context.
+		</para>
+		
+		<para>
+		  For example, this EPL truncates the AverageSpeedTable:
+		</para>
+		<programlisting><![CDATA[context NineToFive on TruncateEvent delete from AverageSpeedTable]]></programlisting>
+	</sect1>
+
+    <sect1 xml:id="context_variables" revision="1">
+        <title>Context and Variables</title>
+                
+		<para>
+			A variable is a scalar, object or event value that is available for use in all statements. Variables can be either global variables or context variables.
+		</para>
+		
+		<para>
+		  The value of a global variable is the same for all context partitions. The next example declares a global threshold variable:
+		</para>
+		<programlisting><![CDATA[create variable integer var_global_threshold = 100]]></programlisting>
+
+		<para>
+		  For context variables, there is a variable value per context partition. The next example declares a context and a context variable:
+		</para>
+		<programlisting><![CDATA[create context ParkingLotContext initiated by CarArrivalEvent as cae terminated by CarDepartureEvent(lot = cae.lot)]]></programlisting>
+		<programlisting><![CDATA[context ParkingLotContext create variable integer var_parkinglot_threshold = 100]]></programlisting>
+
+		<para>
+			The variable <literal>var_parkinglot_threshold</literal> is a context variable. Each context partition can have its own value for the variable. 
+		</para>
+
+		<para>
+			For more information on variables, please refer to <xref linkend="variables_overview"/>.
+		</para>
+		
+		<para>
+			Context variables can only be used in statements that associated to the same context.
+		</para>
+	</sect1>
+
+    <sect1 xml:id="context_selection" revision="1">
+        <title>Operations on Specific Context Partitions</title>
+        
+        <para>
+			  Selecting specific context partitions and interrogating context partitions is useful for:
+        </para>
+
+		<orderedlist spacing="compact">
+			<listitem>
+				<para>
+				  Iterating a specific context partition or a specific set of context partitions. Iterating a statement is described in <xref linkend="api-admin-iterators"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+				 Executing an on-demand (fire-and-forget) query against specific context partition(s). On-demand queries are described in <xref linkend="api-ondemand"/>.
+				</para>
+			</listitem>
+		</orderedlist>
+
+        <para>
+			  Esper provides APIs to identify, filter and select context partitions for statement iteration and on-demand queries. The APIs are described in detail at <xref linkend="api-contextpartitionselection"/>.
+        </para>
+        
+        <para>
+             For statement iteration, your application can provide context selector objects to the <literal>iterate</literal> and <literal>safeIterate</literal> methods on <literal>EPStatement</literal>. If your code does not provide context selectors
+             the iteration considers all context partitions. At the time of iteration, the engine obtains the current set of context partitions and iterates each independently. If your statement has an order-by clause, the order-by clause orders within the context partition and does not order across context partitions.
+        </para>
+
+        <para>
+             For on-demand queries, your application can provide context selector objects to the <literal>executeQuery</literal> method on <literal>EPRuntime</literal> and to the <literal>execute</literal> method on <literal>EPOnDemandPreparedQuery</literal>. If your code does not provide context selectors the on-demand query considers all context partitions. At the time of on-demand query execution, the engine obtains the current set of context partitions and queries each independently. If the on-demand query has an order-by clause, the order-by clause orders within the context partition and does not order across context partitions.
+        </para>        
+	</sect1>
+	
+</chapter>

@@ -1,0 +1,6 @@
+- PDF title page could have Esper logo
+- PDF one could remove these empty separator pages
+- PDF "Table of Contents" header missing
+- PDF bottom footer could have copyright and version
+- PDF opens in expanded-chapter TOC
+- Could add Note/Important/Warning admonitions

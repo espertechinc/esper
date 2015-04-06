@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nsone="samples:schemas:testNSOne" xmlns:nstwo="samples:schemas:testNSTwo"  targetNamespace="samples:schemas:testNSOne" elementFormDefault="qualified" attributeFormDefault="qualified">
+	<xs:import schemaLocation="namespaceTestSchemaTwo.xsd"/>
+	<xs:element name="namespaceEvent">
+		<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="nsone:myname" minOccurs="0" maxOccurs="1"/>
+					<xs:element ref="nstwo:myname" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="myname">
+		<xs:complexType>
+			<xs:attribute name="val" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="nstwo:myname">
+		<xs:complexType>
+			<xs:attribute name="val" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

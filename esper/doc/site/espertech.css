@@ -1,0 +1,213 @@
+/*
+	StyleSheet by David Herreman
+	http://www.free-css-templates.com		
+*/
+
+body { 
+	padding: 0; 
+	margin: 0; 
+	font: .74em Arial, sans-serif; 
+	line-height: 1.5em; 
+	color: #454545; 
+	}
+	
+a {
+	color: #000099;
+	background: inherit;
+}
+a:hover {
+	text-decoration: underline;
+	color: #A00;
+	background: inherit;
+}
+p {	margin: 5px 0; }
+h1 {	font: bold 1.8em Arial, Sans-Serif; padding: 8px 0 4px 0; margin: 0; letter-spacing: -1px; }
+h2 { font: bold 1.6em Arial, Sans-Serif; letter-spacing: -1px; }
+h3 { padding: 4px 0; margin:  0; }
+ul { margin: 0; padding : 0; list-style: none; }
+img { border: 0; }
+hr { height: 1px; border-style: none; color: #d0d0d0; background-color: #C0C0C0; margin: 10px 0; }
+
+/* maven apt source snip */
+pre {font-size: 1.2em; font-weight: bold; color:#000099;}
+.source { width: 640px; overflow: scroll; border: solid 1px #000099; padding: 10px;}
+
+/* 800 , 212 , 560 */ 
+.content { margin: 0px auto; width: 900px; }
+
+/* Top part */
+#top { padding-top: 0px; background: #F6F6F6; height: 71px;}
+	#top h1 { font: bold 1.8em Arial, Sans-Serif; padding: 8px 0 4px 0; margin: 0; letter-spacing: 1px; color: #FFF }
+	#top h2 { font: 1.4em Arial, Sans-Serif; letter-spacing: 0px; color: #868686; margin:0; padding: 0 }
+	#top #icons { float: right; margin:20px 0; padding:0 }
+	#top #icons img { padding-right: 2px; border: 0 }
+	
+/* DMenu dropdown
+#000099
+#F6F6F6
+	border-color: #ccc #888 #555 #bbb;
+*/
+/**************** menu coding *****************/
+	#dmenu {
+	width: 100%;
+	float: left;
+	margin: 1px;
+	line-height: 16px;
+	}
+
+	#dmenu ul {
+	list-style: none;
+	padding: 0;
+	float: left;
+	line-height: 7px;
+	}
+
+	#dmenu h2 {
+	font: 14px/16px arial, helvetica, sans-serif;
+	margin: 2px;
+	padding: 2px 3px;
+	text-transform: uppercase;
+	}
+
+	#dmenu a {
+	text-decoration: none;
+	}
+
+	#dmenu a:hover {
+	text-decoration: underline;
+	color: #A00;
+	}
+
+	//#dmenu li {position: relative;}
+
+	#dmenu ul ul {
+	margin-top: -3px;
+	background: #E0E0E0;
+	width: 190px;
+	white-space: nowrap;
+	position: absolute;
+	z-index: 500;
+	padding: 5px 15px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #A00;
+	line-height: 20px;
+	}
+	
+	#dmenu ul ul ul {
+	position: absolute;
+	top: 0;
+	left: 100%;
+	}
+
+	div#dmenu ul ul,
+	div#dmenu ul li:hover ul ul,
+	div#dmenu ul ul li:hover ul ul
+	{display: none;}
+
+	div#dmenu ul li:hover ul,
+	div#dmenu ul ul li:hover ul,
+	div#dmenu ul ul ul li:hover ul
+	{display: block;}
+		
+
+/* Second part was height: 190px; overflow: hidden; */
+#prec { 	height: 44px; margin:0; padding: 0px; background: #F6F6F6; border-bottom: 1px solid #DCDCDC; margin-bottom: 10px }
+#precHOME { 	height: 140px; margin:0; padding: 0px; background: #F6F6F6; border-bottom: 1px solid #DCDCDC; margin-bottom: 0px }
+	#wrap { margin: 0 auto; width: 900px; }
+		#wrap #pic { margin: 10px; float: left; height: 100px; width: 900px; overflow: hidden;
+		border-width: 1px 0px 0px 0px;
+		border-style: solid;
+		border-color: #ccc #888 #555 #bbb;
+		}
+			#wrap #pic #slogan { float: right; padding: 5px 140px 0px 30px; text-align: left; color: #000099; font: 1.4em Arial, Sans-Serif;}
+			#wrap #pic #slogan h1 { font: bold 1.5em Arial, Sans-Serif; color: #000099; letter-spacing: 1px; margin:0 }
+			#wrap #pic #slogan h2 { font:  1.5em Arial, Sans-Serif; color: #000099; letter-spacing: 0px; margin:0; padding: 0px 0}
+			#wrap #pic #slogan a { color: #A00; text-decoration: none; font: bold 2.0em}
+			#wrap #pic #slogan a:hover { color: #A00; text-decoration: underline;}
+			
+		#wrap #menu { padding: 0; margin:0; background: inherit; }
+		#wrap #menu a { padding-left: 25px; font:  0.9em Arial, Sans-Serif; text-decoration: none; background: #F6F6F6 url(/images/lm-li.gif) no-repeat left;  }
+		#wrap #menu ul { padding: 0px 0 }
+		#wrap #menu li { line-height: 26px; background: #F6F6F6 url(/images/li-line.gif) no-repeat bottom left; list-style: none }
+		
+		#wrap #menu2 {background: inherit;}
+		/* float: right; width: 200; padding-right: 450px; margin-top: 27px; */
+		#wrap #menu2 a { padding-left: 25px; font:  0.9em Arial, Sans-Serif; text-decoration: none; background: #F6F6F6 url(/images/lm-li.gif) no-repeat left;  }
+		#wrap #menu2 ul { padding: 0px 0 }
+		#wrap #menu2 li { line-height: 26px; background: #F6F6F6 url(/images/li-line.gif) no-repeat bottom left; list-style: none }
+
+/*  Advertising #FFF url(/images/download.jpg) no-repeat left; min-height: 80px;*/
+#ad { background: #FFF; padding-left: 0px; margin-bottom: 15px;}
+#ad a, #left_side a { background: #FFF; text-decoration: none }
+#ad a:hover, #left_side a:hover { color: #A00; text-decoration: underline; }
+		
+/* main area */
+#main { }
+	#right_side {
+	float: right;
+	width: 212px;
+	background: #F6F6F6;
+	padding: 5px 10px 5px 10px;
+	margin-bottom: 10px;
+	min-height: 700px;
+	height: auto;
+}
+		#right_side ul { padding: 3px 0 8px 0 } 
+		#right_side li { line-height: 18px; color: #000099; background: #F6F6F6 url(/images/cat-li.gif) no-repeat left; list-style: none; padding-left: 20px; }
+		#right_side a { background: #F6F6F6; text-decoration:  none }
+		#right_side a:hover { text-decoration: underline; }
+		#right_side h3 { color: #404040; font:  bold 1.2em Arial, Sans-Serif; }
+		#right_side p { background: #F6F6F6; color: #000099; padding: 3px 0px 8px 0px; }
+	
+	#left_side {
+	background: #FFF;
+	margin-bottom: 10px;
+	width: 660px;
+}
+		#left_side h3 { background: #FFF url(/images/hbg.gif) repeat-x; height:30px; padding: 5px 0 0 0px; margin: 0px; font:  bold 1.2em Arial, Sans-Serif; }
+		#left_side h3 span { background: url(/images/h-art.gif) no-repeat left; padding: 1px 10px 0 23px;  line-height: 22px; margin: 0}
+		#left_side p { color: #454545; padding: 0 15px 0 5px; text-align: justify; margin-bottom: 10px; }
+		#left_side img { float: left; padding: 0 10px 5px 0 }
+		#left_side blockquote {
+	padding-left: 10px;
+	border-left: 2px solid #000099;
+	margin: 10px 0 10px 25px;
+}
+		.date { border-bottom: 1px dotted #ccc; padding: 0px 0; margin: 0px 0 5px 0; text-align: left }		
+		#left_side .rs { float: right; margin: 0 10px; border: 1px solid #ddd; padding: 5px; background: #f5f5f5  }
+		#left_side ul { list-style-position: inside; margin-left: 2px; background: inherit}
+		#left_side ul li { list-style-type: square; margin-left: 15px; background: inherit }
+		#left_side ul li a { text-decoration: none; background: inherit  }
+		#left_side ul ul li { list-style: none; margin-left: 10px; list-style-type: disc; list-style-position: inside }
+	
+/* The footer */
+#footer { clear: both; border-top: 1px solid #DCDCDC; margin: 0 0 3em 0; color: #777;  background: #fff }
+#footer .right  { float: right; text-align: right; background: #FFF; }
+#footer a { text-decoration: none; background: #FFF }
+	
+/* Table */
+table.wBorder {
+	text-align: center;
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 1px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	border-collapse: collapse;
+	background-color: white;
+}
+table.wBorder th {
+	border-width: 1px 1px 1px 1px;
+	padding: 3px 3px 3px 3px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.wBorder td {
+	border-width: 1px 1px 1px 1px;
+	padding: 3px 3px 3px 3px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	-moz-border-radius: 0px 0px 0px 0px;
+}

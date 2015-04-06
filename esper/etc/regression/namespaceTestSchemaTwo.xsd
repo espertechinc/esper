@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nstwo="samples:schemas:testNSTwo"  targetNamespace="samples:schemas:testNSTwo" elementFormDefault="qualified" attributeFormDefault="qualified">
+	<xs:import schemaLocation="namespaceTestSchemaTwo.xsd"/>
+	<xs:element name="myname">
+		<xs:complexType>
+			<xs:attribute name="val" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

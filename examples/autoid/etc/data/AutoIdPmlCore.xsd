@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="urn:autoid:specification:interchange:PMLCore:xml:schema:1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:autoid="http://www.autoidcenter.org/2003/xml" xmlns:pmlcore="urn:autoid:specification:interchange:PMLCore:xml:schema:1" xmlns:pmluid="urn:autoid:specification:universal:Identifier:xml:schema:1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+	<import namespace="urn:autoid:specification:universal:Identifier:xml:schema:1" schemaLocation="./AutoIdIdentifier.xsd"/>
+	<annotation>
+		<documentation>
+			<autoid:copyright>Copyright ©2003 Auto-ID Center, All Rights Reserved.</autoid:copyright>
+			<autoid:disclaimer>Auto-ID Center, its members, officers, directors, employees, or agents shall not be
+liable for any injury, loss, damages, financial or otherwise, arising from, related to, or caused by the use of this
+document. The use of said document shall constitute your express consent to the foregoing
+exculpation.</autoid:disclaimer>
+			<autoid:program>Auto-ID version 1.0</autoid:program>
+			<autoid:purpose>PML Core Specification version 1.0</autoid:purpose>
+		</documentation>
+	</annotation>
+	<element name="Sensor" type="pmlcore:SensorType"/>
+	<complexType name="AnyXMLContentType">
+		<annotation>
+			<documentation>
+				<autoid:definition>The AnyXMLContentType provides localized openess </autoid:definition>
+			</documentation>
+		</annotation>
+		<sequence>
+			<any namespace="##any" processContents="skip">
+				<annotation>
+					<documentation>
+						<autoid:definition>Any content</autoid:definition>
+					</documentation>
+				</annotation>
+			</any>
+		</sequence>
+	</complexType>
+	<complexType name="DataType">
+		<annotation>
+			<documentation>
+				<autoid:definition>The Data element holds text, binary or XML data.</autoid:definition>
+			</documentation>
+		</annotation>
+		<choice>
+			<element name="Text" type="string">
+				<annotation>
+					<documentation>
+						<autoid:definition>Text value</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Binary" type="hexBinary">
+				<annotation>
+					<documentation>
+						<autoid:definition>Binary value</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="XML" type="pmlcore:AnyXMLContentType">
+				<annotation>
+					<documentation>
+						<autoid:definition>The XML element holds any XML elements the instance author would
+like to include. It is provided to enable localized openness and to allow instance document authors to create
+instance documents containing elements above and beyond what is specified by the PML CORE
+schema</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+		</choice>
+	</complexType>
+	<complexType name="ObservationType">
+		<annotation>
+			<documentation>
+				<autoid:definition>Information related to an observation/measurement by a sensor in the EPC
+Network. Observations represent measurements by the sensor. They associate the actual observed data with the
+sensor.</autoid:definition>
+			</documentation>
+		</annotation>
+		<sequence>
+			<element ref="pmluid:ID" minOccurs="0">
+				<annotation>
+					<documentation>
+						<autoid:definition>The observation ID element is a number assigned to this specific
+observation.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DateTime" type="dateTime">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Observation DateTime element denotes the date and time stamp
+when the observation was made.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Command" type="string" minOccurs="0">
+				<annotation>
+					<documentation>
+						<autoid:definition>The observation command element denotes the command was issued
+to the sensor to trigger the observation.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Tag" type="pmlcore:TagType" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Observation Tag element denotes tags observed by a sensor as
+part of the observation.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Data" type="pmlcore:DataType" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Observation Data element denotes any data captured by the
+sensors as part of the observation.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="SensorType">
+		<annotation>
+			<documentation>
+				<autoid:definition>Information related to a sensor in the EPC Network. A sensor is any device that
+is capable of making measurements e.g. RFID readers, temperature sensors, humidity sensors.</autoid:definition>
+			</documentation>
+		</annotation>
+		<sequence>
+			<element ref="pmluid:ID">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Sensor ID element is the number assigned to this particular sensor
+in the EPC network. It is by default an EPC. If a different identification scheme is to be used, the identifiation
+scheme must be specified using the attributes of the identifier type.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Observation" type="pmlcore:ObservationType" maxOccurs="unbounded">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Sensor Observation element denotes observations/measurements
+made by this particular sensor.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="TagType">
+		<annotation>
+			<documentation>
+				<autoid:definition>Information related to a tag in the EPC Network. A tag is any electronic or nonelectronic
+device that carries at least an identifier.</autoid:definition>
+			</documentation>
+		</annotation>
+		<sequence>
+			<element ref="pmluid:ID">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Tag ID element is a unique number assigned to the
+tag.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element name="Data" type="pmlcore:DataType" minOccurs="0">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Tag Data element contains any data stored on the
+tag.</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+			<element ref="pmlcore:Sensor" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>
+						<autoid:definition>The Tag Sensor element denotes any sensor that is mounted on the
+tag</autoid:definition>
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+</schema>

@@ -1,0 +1,156 @@
+<chapter xml:id="technology_overview" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>Technology Overview</title>
+
+    <sect1 xml:id="technology_overview_intro_cep" revision="1">
+        <title>Introduction to CEP and event series analysis</title>
+        
+        <para>
+			The Esper engine has been developed to address the requirements of applications that analyze and react to events. Some typical examples of applications are:
+        </para>
+        
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Business process management and automation (process monitoring, BAM, reporting exceptions) 
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Finance (algorithmic trading, fraud detection, risk management)
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Network and application monitoring (intrusion detection, SLA monitoring)
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Sensor network applications (RFID reading, scheduling and control of fabrication lines, air traffic) 
+				</para>
+			</listitem>
+		</itemizedlist>
+
+        <para>
+			What these applications have in common is the requirement to process events (or messages) in real-time or near real-time. This is sometimes referred to as complex event processing (CEP) and event series analysis. Key considerations for these types of applications are throughput, latency and the complexity of the logic required.
+        </para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					High throughput - applications that process large volumes of messages (between 1,000 to 100k messages per second)
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Low latency - applications that react in real-time to conditions that occur (from a few milliseconds to a few seconds)
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Complex computations - applications that detect patterns among events (event correlation), filter events, aggregate time or length windows of events, join event series, trigger based on absence of events etc.
+				</para>
+			</listitem>
+		</itemizedlist>
+
+        <para>
+			The Esper engine was designed to make it easier to build and extend CEP applications. 
+        </para>
+    </sect1>
+    
+    <sect1 xml:id="cep_and_relational" revision="1">
+        <title>CEP and relational databases</title>
+        
+        <para>
+			Relational databases and the standard query language (SQL) are designed for applications in which most data is fairly static and complex queries are less frequent. Also, most databases store all data on disks (except for in-memory databases) and are therefore optimized for disk access.
+        </para>
+        
+        <para>
+			To retrieve data from a database an application must issue a query. If an application need the data 10 times per second it must fire the query 10 times per second. This does not scale well to hundreds or thousands of queries per second. 
+        </para>
+
+        <para>
+			Database triggers can be used to fire in response to database update events. However database triggers tend to be slow and often cannot easily perform complex condition checking and implement logic to react.  
+        </para>
+
+        <para>
+			In-memory databases may be better suited to CEP applications than traditional relational database as they generally have good query performance. Yet they are not optimized to provide immediate, real-time query results required for CEP and event series analysis. 
+        </para>
+
+    </sect1>
+
+    <sect1 xml:id="cep_with_esper" revision="1">
+        <title>The Esper engine for CEP</title>
+        
+        <para>
+			The Esper engine works a bit like a database turned upside-down. Instead of storing the data and running queries against stored data, the Esper engine allows applications to store queries and run the data through. Response from the Esper engine is real-time when conditions occur that match queries. The execution model is thus continuous rather than only when a query is submitted.
+        </para>
+
+        <para>
+			Esper provides two principal methods or mechanisms to process events: event patterns and event stream queries. 
+        </para>
+
+		<para>
+			Esper offers an event pattern language to specify expression-based event pattern matching. Underlying the pattern matching engine is a state machine implementation. This method of event processing matches expected sequences of presence or absence of events or combinations of events. It includes time-based correlation of events.
+		</para>
+		
+		<para>
+			Esper also offers event series queries that address the event series analysis requirements of CEP applications. Event series queries provide the windows, aggregation, joining and analysis functions for use with streams of events. These queries are following the EPL syntax. EPL has been designed for similarity with the SQL query language but differs from SQL in its use of views rather than tables. Views represent the different operations needed to structure data in an event series and to derive data from an event series.
+		</para>
+
+        <para>
+			Esper provides these two methods as alternatives through the same API.
+        </para>
+    </sect1>
+    
+	<sect1 xml:id="required_3rd_party" revision="1">
+        <title>Required 3rd Party Libraries</title>
+        
+        <para>
+            Esper requires the following 3rd-party libraries at runtime:
+        </para>
+        
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					ANTLR is the parser generator used for parsing and parse tree walking of the pattern and EPL syntax. Credit goes to Terence Parr at http://www.antlr.org. The ANTLR license is in the lib directory. The library is required for compile-time only.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					CGLIB is the code generation library for fast method calls. This open source software is under the Apache license. The Apache 2.0 license is in the lib directory.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Apache commons logging is a logging API that works together with LOG4J and other logging APIs. While Apache commons logging is required, the LOG4J log component is not required and can be replaced with SLF4J or other loggers. This open source software is under the Apache license. The Apache 2.0 license is in the lib directory.
+				</para>
+			</listitem>
+		</itemizedlist>
+
+        <para>
+            Esper requires the following 3rd-party libraries at compile-time and for running the test suite:
+        </para>
+        
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					JUnit is a great unit testing framework. Its license has also been placed in the lib directory. The library is required for build-time only.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					MySQL connector library is used for testing SQL integration and is required for running the automated test suite.
+				</para>
+			</listitem>
+		</itemizedlist>
+
+    </sect1>
+
+</chapter>
+

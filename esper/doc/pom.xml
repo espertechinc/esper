@@ -1,0 +1,13 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Esper Documentation</name>
+  <groupId>com.espertech</groupId>
+  <version>5.2.0</version>
+  <artifactId>esper-docs</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>esper-jdocbook-xslt</module>
+    <module>esper-jdocbook-style</module>
+    <module>reference</module>
+  </modules>
+</project>

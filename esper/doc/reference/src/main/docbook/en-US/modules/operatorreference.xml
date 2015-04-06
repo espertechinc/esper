@@ -1,0 +1,763 @@
+<chapter xml:id="epl-operator" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+         
+    <title>EPL Reference: Operators</title>
+        		
+		<para>
+			Esper arithmetic and logical operator precedence follows Java standard arithmetic and logical operator precedence.
+		</para>
+
+		<sect1 xml:id="epl-operator-ref-arithmetic">
+			<title>Arithmetic Operators</title>
+
+			<indexterm><primary>arithmetic operators</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>arithmetic</secondary></indexterm>
+			<para>
+				The below table outlines the arithmetic operators available.
+			</para>
+	
+			<table frame="topbot" xml:id="epl-arith-operators" revision="2">
+				<title>Syntax and results of arithmetic operators</title>
+				<tgroup cols="2">
+					<colspec colwidth="2.0*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Operator</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>+, -</entry>
+							<entry>
+								<para>As unary operators they denote a positive or negative expression. As binary operators they add or subtract.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>*, /</entry>
+							<entry>
+								<para>Multiplication and division are binary operators.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>%</entry>
+							<entry>
+								<para>Modulo binary operator.</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</sect1>		
+		
+		<sect1 xml:id="epl-operator-ref-logical">
+			<title>Logical And Comparison Operators</title>
+
+			<indexterm><primary>logical and comparison operators</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>logical and comparison</secondary></indexterm>
+			<para>
+				The below table outlines the logical and comparison operators available.
+			</para>
+	
+			<table frame="topbot" xml:id="epl-log-operators" revision="2">
+				<title>Syntax and results of logical and comparison operators</title>
+				<tgroup cols="2">
+					<colspec colwidth="2.0*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Operator</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>NOT</entry>
+							<entry>
+								<para>Returns true if the following condition is false, returns false if it is true.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>OR</entry>
+							<entry>
+								<para>Returns true if either component condition is true, returns false if both are false.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>AND</entry>
+							<entry>
+								<para>Returns true if both component conditions are true, returns false if either is false.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>=, !=, &lt;, &gt; &lt;=, &gt;=, is, is not</entry>
+							<entry>
+								<para>Comparison.</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+			<sect2 xml:id="epl-operator-ref-logical-null">
+				<title>Null-Value Comparison Operators</title>
+				
+				<para>
+					The <literal>null</literal> value is a special value, see <link xlink:href="http://en.wikipedia.org/wiki/Null_%28SQL%29">http://en.wikipedia.org/wiki/Null_(SQL)</link> (source:Wikipedia) for more information.
+				</para>
+				
+				<para>
+				  Thereby the following expressions all return <literal>null</literal>:
+				</para>
+				<programlisting><![CDATA[2 != null]]></programlisting>
+				<programlisting><![CDATA[null = null]]></programlisting>
+				<programlisting><![CDATA[2 != null or 1 = 2]]></programlisting>
+				<programlisting><![CDATA[2 != null and 2 = 2]]></programlisting>
+				
+				<para>
+				  Use the <literal>is</literal> and <literal>is not</literal> operators for comparing values that can be null.
+				</para>
+
+				<para>
+				  The following expressions all return <literal>true</literal>:
+				</para>
+				<programlisting><![CDATA[2 is not null]]></programlisting>
+				<programlisting><![CDATA[null is not 2]]></programlisting>
+				<programlisting><![CDATA[null is null]]></programlisting>
+				<programlisting><![CDATA[2 is 2]]></programlisting>
+				
+				<para>
+					The engine allows <literal>is</literal> and <literal>is not</literal> with any expression, not only in connection with the <literal>null</literal> constant.
+				</para>
+			</sect2>
+		</sect1>		
+		
+		<sect1 xml:id="epl-operator-ref-string">
+			<title>Concatenation Operators</title>
+
+			<indexterm><primary>concatenation operators</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>concatenation</secondary></indexterm>
+			<para>
+				The below table outlines the concatenation operators available.
+			</para>
+	
+			<table frame="topbot" xml:id="epl-concat-operators" revision="2">
+				<title>Syntax and results of concatenation operators</title>
+				<tgroup cols="2">
+					<colspec colwidth="2.0*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Operator</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>||</entry>
+							<entry>
+								<para>Concatenates character strings</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-binary">
+			<title>Binary Operators</title>
+
+			<indexterm><primary>binary operators</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>binary</secondary></indexterm>
+			<para>
+				The below table outlines the binary operators available.
+			</para>
+	
+			<table frame="topbot" xml:id="epl-binary-operators" revision="2">
+				<title>Syntax and results of binary operators</title>
+				<tgroup cols="2">
+					<colspec colwidth="2.0*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Operator</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>&amp;</entry>
+							<entry>
+								<para>Bitwise AND if both operands are numbers; conditional AND if both operands are boolean.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>|</entry>
+							<entry>
+								<para>Bitwise OR if both operands are numbers; conditional OR if both operands are boolean.</para>
+							</entry>
+						</row>
+						<row>
+							<entry>^</entry>
+							<entry>
+								<para>Bitwise exclusive OR (XOR).</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-array">
+			<title>Array Definition Operator</title>
+
+			<indexterm><primary>array definition operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>array definition</secondary></indexterm>
+			<para>
+				The <literal>{</literal> and <literal>}</literal> curly braces are array definition operators following the Java array initialization syntax. Arrays can be useful to pass to user-defined functions or to select array data in a select clause.
+			</para>
+
+			<para>
+				Array definitions consist of zero or more expressions within curly braces. Any type of expression is allowed within array definitions including constants, arithmetic expressions or event properties. This is the syntax of an array definition:
+			</para>
+			<synopsis><emphasis>{</emphasis> [<emphasis>expression</emphasis> [,<emphasis>expression</emphasis>...]] }</synopsis>
+
+			<para>
+				Consider the next statement that returns an event property named <literal>actions</literal>. The engine populates the <literal>actions</literal> property as an array of <literal>java.lang.String</literal> values with a length of 2 elements. The first element of the array contains the <literal>observation</literal> property value and the second element the <literal>command</literal> property value of <literal>RFIDEvent</literal> events.
+			</para>
+			<programlisting><![CDATA[select {observation, command} as actions from RFIDEvent]]></programlisting>
+
+			<para>
+				The engine determines the array type based on the types returned by the expressions in the array definiton. For example, if all expressions in the array definition return integer values then the type of the array is <literal>java.lang.Integer[]</literal>. If the types returned by all expressions are compatible number types, such as integer and double values, the engine coerces the array element values and returns a suitable type, <literal>java.lang.Double[]</literal> in this example.
+				The type of the array returned is <literal>Object[]</literal> if the types of expressions cannot be coerced or return object values. Null values can also be used in an array definition.
+			</para>
+
+			<para>
+				Arrays can come in handy for use as parameters to user-defined functions:
+			</para>
+			<programlisting><![CDATA[select * from RFIDEvent where Filter.myFilter(zone, {1,2,3})]]></programlisting>
+		</sect1>
+
+		<sect1 xml:id="epl-operator-ref-dot">
+			<title>Dot Operator</title>
+			
+			<indexterm><primary>dot operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>dot (period)</secondary></indexterm>
+			<indexterm><primary>duck typing</primary></indexterm>
+			<para>
+				You can use the dot operator to invoke a method on the result of an expression. The dot operator uses the dot (<literal>.</literal>) or period character.
+			</para>
+			
+			<para>
+				The dot-operator is relevant with enumeration methods: Enumeration methods perform tasks such as transformation, filtering, aggregation, sequence-matching, sorting and others on subquery results, named windows, tables, event properties or inputs that are or can be projected to a collection of events, scalar values or objects. See <xref linkend="enumerationreference"/>
+			</para>
+
+			<para>
+				Further the dot-operator is relevant to date-time methods. Date-time methods work on date-time values to add or subtract time periods, set or round calendar fields or query fields, among other tasks. See <xref linkend="datetimereference"/>.
+			</para>
+			
+			<para>
+				This section only describes the dot-operator in relation to property instance methods, the special <literal>get</literal> and <literal>size</literal> indexed-property methods and duck typing.
+			</para>
+
+			<para>
+				The synopsis for the dot operator is as follows
+			</para>
+			<synopsis><emphasis>expression</emphasis>.<emphasis>method</emphasis>([<emphasis>parameter</emphasis> [,...]])[.<emphasis>method</emphasis>(...)][...]</synopsis>
+
+			<para>
+				The expression to evaluate by the dot operator is in parenthesis. After the dot character follows the method name and method parameters in parenthesis.
+			</para>
+
+			<para>
+				You may use the dot operator when your expression returns an object that you want to invoke a method on. The dot operator allows duck typing and convenient array and collection access methods.
+			</para>
+			
+			<para>
+				This example statement invokes the <literal>getZones</literal> method of the RFID event class by referring to the stream name assigned in the <literal>from</literal>-clause:
+			</para>
+			<programlisting><![CDATA[select rfid.getZones() from RFIDEvent as rfid]]></programlisting>
+
+			<para>
+				The <literal>size()</literal> method can be used to return the array length or collection size. Use the <literal>get</literal> method to return the value at a given index for an array or collection.
+			</para>
+			
+			<para>
+			  The next statement selects array size and returns the last array element:
+			</para>
+			<programlisting><![CDATA[select arrayproperty.size() as arraySize, 
+  arrayproperty.get((arrayproperty).size - 1) as lastInArray 
+  from ProductEvent]]></programlisting>
+			
+			<sect2 xml:id="epl-operator-ref-dot-duck">
+				<title>Duck Typing</title>
+				
+				<para>
+				   Duck typing is when the engine checks at runtime for the existence of a method regardless of object class inheritance hierarchies. This can be useful, for example, when a dynamic property returns an object which may or may not provide a method to return the desired value.
+				</para>
+				
+				<para>
+				  Duck typing is disabled in the default configuration to consistently enforce strong typing. Please enable duck typing via engine expression settings as described in <xref linkend="config-engine-expression"/>.
+				</para>
+				
+				<para>
+				  The statement below selects a dynamic property by name <literal>productDesc</literal> and invokes the <literal>getCounter()</literal> method if that method exists on the property value, or returns the null value if the method does not exist for the dynamic property value of if the dynamic property value itself is null:
+				</para>
+				<programlisting><![CDATA[select (productDesc?).getCounter() as arraySize from ProductEvent]]></programlisting>
+			</sect2>
+
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-keyword-in">
+			<title>The '<literal>in</literal>' Keyword</title>
+
+			<indexterm><primary><literal>in</literal> set operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary><literal>in</literal></secondary></indexterm>
+			<para>
+				The <literal>in</literal> keyword determines if a given value matches any value in a list. The syntax of the keyword is:	
+			</para>
+			
+			<synopsis><emphasis>test_expression</emphasis> [not] in (<emphasis>expression</emphasis> [,<emphasis>expression</emphasis>...] )</synopsis>
+	
+			<para>
+				The <emphasis>test_expression</emphasis> is any valid expression. The keyword is followed by a list of expressions to test for a match. The optional <literal>not</literal> keyword specifies that the result of the predicate be negated.
+			</para>
+				
+			<para>
+				The result of an <literal>in</literal> expression is of type <literal>Boolean</literal>. If the value of <emphasis>test_expression</emphasis> is equal to any expression from the comma-separated list, the result value is <literal>true</literal>. Otherwise, the result value is <literal>false</literal>. 
+			</para>
+
+			<para>
+				The next example shows how the <literal>in</literal> keyword can be applied to select certain command types of RFID events:
+			</para>
+			<programlisting><![CDATA[select * from RFIDEvent where command in ('OBSERVATION', 'SIGNAL')]]></programlisting>
+			<para>
+				The statement is equivalent to:
+			</para>
+			<programlisting><![CDATA[select * from RFIDEvent where command = 'OBSERVATION' or command = 'SIGNAL']]></programlisting>
+
+			<para>
+				<emphasis>Expression</emphasis> may also return an array, a <literal>java.util.Collection</literal> or a <literal>java.util.Map</literal>. Thus event properties that are lists, sets or maps may provide values to compare against <emphasis>test_expression</emphasis>.
+			</para>
+
+			<para>
+				All expressions must be of the same type or a compatible type to <emphasis>test_expression</emphasis>. The <literal>in</literal> keyword may coerce number values to compatible types. If <emphasis>expression</emphasis> returns an array, then the component type of the array must be compatible, unless the component type of the array is <literal>Object</literal>.
+			</para>
+
+			<para>
+				If <emphasis>expression</emphasis> returns an array of component type <literal>Object</literal>, the operation compares each element of the array, applying <literal>equals</literal> semantics.
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Collection</literal>, the operation determines if the collection contains the value returned by <emphasis>test_expression</emphasis>,  applying <literal>contains</literal> semantics. 
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Map</literal>, the operation determines if the map contains the key value returned by <emphasis>test_expression</emphasis>, applying <literal>containsKey</literal> semantics.
+			</para>
+
+			<para>
+				 Constants, arrays, <literal>Collection</literal> and <literal>Map</literal> expressions or event properties can be used combined.
+			</para>
+			<para>
+				 For example, and assuming a property named 'mySpecialCmdList'  exists that contains a list of command strings:
+			</para>
+			<programlisting><![CDATA[select * from RFIDEvent where command in ( 'OBSERVATION', 'SIGNAL', mySpecialCmdList)]]></programlisting>
+
+			<para>
+				 When using prepared statements and substitution parameters with the <literal>in</literal> keyword, make sure to retain the parenthesis. Substitution values may also be arrays, <literal>Collection</literal> and <literal>Map</literal> values:
+			</para>
+			<synopsis><emphasis>test_expression</emphasis> [not] in (? [,?...] )</synopsis>
+
+			<para>
+				Note that if there are no successes and at least one right-hand row yields null for the operator's result, the result of the any construct will be null, not false. This is in accordance with SQL's normal rules for Boolean combinations of null values.
+			</para>
+
+			<sect2 xml:id="epl-operator-ref-keyword-in-range">
+				<title>'<literal>in</literal>' for Range Selection</title>
+				
+				<para>
+					The <literal>in</literal> keyword can be used to specify ranges, including open, half-closed, half-open and inverted ranges.
+				</para>
+
+				<para>
+					Ranges come in the following 4 varieties. The round <literal>()</literal> or square <literal>[]</literal> bracket indicate whether an endpoint is included or excluded. The low point and the high-point of the range are separated by the colon <literal>:</literal> character.
+				 </para>
+	
+				<itemizedlist spacing="compact">
+					<listitem>
+						<para>
+							Open ranges that contain neither endpoint <literal>(low:high)</literal>
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Closed ranges that contain both endpoints <literal>[low:high]</literal>. The equivalent 'between' keyword also defines a closed range.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Half-open ranges that contain the low endpoint but not the high endpoint <literal>[low:high)</literal>
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Half-closed ranges that contain the high endpoint but not the low endpoint <literal>(low:high]</literal>
+						</para>
+					</listitem>
+				</itemizedlist>
+				
+				<para>
+					The following statement two statements are equivalent: Both statements select orders where the price is in the range of zero and 10000 (endpoints inclusive):
+				</para>
+				<programlisting><![CDATA[select * from OrderEvent where price in [0:10000]]]></programlisting>
+				<programlisting><![CDATA[select * from OrderEvent where price between 0 and 10000]]></programlisting>
+
+				<para>
+					The next statement selects order events where the price is greater then 100 and less-or-equal to 2000:
+				</para>
+				<programlisting><![CDATA[select * from OrderEvent where price in (100:2000]]]></programlisting>
+
+				<para>
+					Use the <literal>not in</literal> keywords to specify an inverted range.
+				</para>
+				
+				<para>
+					The following statement selects an inverted range by selecting all order events where the price is less then zero or the price is greater or equal to 10000:
+				</para>
+				<programlisting><![CDATA[select * from OrderEvent where price not in (0:10000]]]></programlisting>
+				
+				<para>
+					In case the value of low endpoint is less then the value of high endpoint the <literal>in</literal> operator reverses the range.
+				</para>
+				<para>
+					The following two statements are also equivalent:
+				</para>
+				<programlisting><![CDATA[select * from OrderEvent where price in [10000:0]]]></programlisting>
+				<programlisting><![CDATA[select * from OrderEvent where price >= 0 and price <= 1000]]></programlisting>
+			</sect2>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-keyword-between">
+			<title>The '<literal>between</literal>' Keyword</title>
+
+			<indexterm><primary><literal>between</literal> operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary><literal>between</literal></secondary></indexterm>
+			<para>
+				The <literal>between</literal> keyword specifies a range to test. The syntax of the keyword is:	
+			</para>
+			
+			<synopsis><emphasis>test_expression</emphasis> [not] between <emphasis>begin_expression</emphasis> and <emphasis>end_expression</emphasis></synopsis>
+	
+			<para>
+				The <emphasis>test_expression</emphasis> is any valid expression and is the expression to test for in the range defined by <emphasis>begin_expression</emphasis> and <emphasis>end_expression</emphasis>. The <literal>not</literal> keyword specifies that the result of the predicate be negated. 
+			</para>
+				
+			<para>
+				The result of a <literal>between</literal> expression is of type <literal>Boolean</literal>. If the value of <emphasis>test_expression</emphasis> is greater then or equal to the value of <emphasis>begin_expression</emphasis> and less than or equal to the value of <emphasis>end_expression</emphasis>, the result is <literal>true</literal>. 
+			</para>
+
+			<para>
+				The next example shows how the <literal>between</literal> keyword can be used to select events with a price between 55 and 60 (endpoints inclusive).
+			</para>
+			<programlisting><![CDATA[select * from StockTickEvent where price between 55 and 60]]></programlisting>
+			<para>
+				The equivalent expression without <literal>between</literal> is:
+			</para>
+			<programlisting><![CDATA[select * from StockTickEvent where price >= 55 and price <= 60]]></programlisting>
+			<para>
+				And also equivalent to:
+			</para>
+			<programlisting><![CDATA[]]>select * from StockTickEvent where price between 60 and 55</programlisting>
+			
+			<para>
+				While the <literal>between</literal> keyword always includes the endpoints of the range, the <literal>in</literal> operator allows finer control of endpoint inclusion.
+			</para>
+
+			<para>
+				In case the value of <emphasis>begin_expression</emphasis> is less then the value of <emphasis>end_expression</emphasis> the <literal>between</literal> operator reverses the range.
+			</para>
+			<para>
+				The following two statements are also equivalent:
+			</para>
+			<programlisting><![CDATA[select * from StockTickEvent where price between 60 and 55]]></programlisting>
+			<programlisting><![CDATA[select * from StockTickEvent where price >= 55 and price <= 60]]></programlisting>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-keyword-like">
+			<title>The '<literal>like</literal>' Keyword</title>
+
+			<indexterm><primary><literal>like</literal> operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary><literal>like</literal></secondary></indexterm>
+			<para>
+				The <literal>like</literal> keyword provides standard SQL pattern matching. SQL pattern matching allows you to use <literal>'_'</literal> to match any single character and <literal>'%'</literal> to match an arbitrary number of characters (including zero characters). In Esper, SQL patterns are case-sensitive by default. The syntax of <literal>like</literal> is:	
+			</para>
+			
+			<synopsis><emphasis>test_expression</emphasis> [not] like <emphasis>pattern_expression</emphasis> [escape <emphasis>string_literal</emphasis>]</synopsis>
+	
+			<para>
+				The <emphasis>test_expression</emphasis> is any valid expression yielding a String-type or a numeric result. The optional <literal>not</literal> keyword specifies that the result of the predicate be negated. The <literal>like</literal> keyword is followed by any valid standard SQL <emphasis>pattern_expression</emphasis> yielding a String-typed result. The optional <literal>escape</literal> keyword signals the escape character to escape <literal>'_'</literal> and <literal>'%'</literal> values in the pattern.
+			</para>
+				
+			<para>
+				The result of a <literal>like</literal> expression is of type <literal>Boolean</literal>. If the value of <emphasis>test_expression</emphasis> matches the <emphasis>pattern_expression</emphasis>, the result value is <literal>true</literal>. Otherwise, the result value is <literal>false</literal>.
+			</para>
+
+			<para>
+				An example for the <literal>like</literal> keyword is below.
+			</para>
+			<programlisting><![CDATA[select * from PersonLocationEvent where name like '%Jack%']]></programlisting>
+
+			<para>
+				The escape character can be defined as follows. In this example the where-clause matches events where the suffix property is a single <literal>'_'</literal> character.
+			</para>
+			<programlisting><![CDATA[select * from PersonLocationEvent where suffix like '!_' escape '!']]></programlisting>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-ref-keyword-regexp">
+			<title>The '<literal>regexp</literal>' Keyword</title>
+
+			<indexterm><primary><literal>regexp</literal> operator</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary><literal>regexp</literal></secondary></indexterm>
+			<para>
+				The <literal>regexp</literal> keyword is a form of pattern matching based on regular expressions implemented through the Java <literal>java.util.regex</literal> package. The syntax of <literal>regexp</literal> is:	
+			</para>
+			
+			<synopsis><emphasis>test_expression</emphasis> [not] regexp <emphasis>pattern_expression</emphasis></synopsis>
+	
+			<para>
+				The <emphasis>test_expression</emphasis> is any valid expression yielding a String-type or a numeric result. The optional <literal>not</literal> keyword specifies that the result of the predicate be negated. The <literal>regexp</literal> keyword is followed by any valid regular expression <emphasis>pattern_expression</emphasis> yielding a String-typed result.
+			</para>
+				
+			<para>
+				The result of a <literal>regexp</literal> expression is of type <literal>Boolean</literal>. If the value of <emphasis>test_expression</emphasis> matches the regular expression <emphasis>pattern_expression</emphasis>, the result value is <literal>true</literal>. Otherwise, the result value is <literal>false</literal>.
+			</para>
+
+			<para>
+				An example for the <literal>regexp</literal> keyword is below.
+			</para>
+			<programlisting><![CDATA[select * from PersonLocationEvent where name regexp '.*Jack.*']]></programlisting>
+			
+			<para>
+			  The <literal>rexexp</literal> function matches the entire region against the pattern via <literal>java.util.regex.Matcher.matches()</literal> method. Please consult the Java API documentation for more information or refer to <ulink url="http://www.regular-expressions.info/refflavors.html">Regular Expression Flavors</ulink>.
+			 </para>
+		</sect1>		
+
+		<sect1 xml:id="epl-operator-anysome">
+			<title>The '<literal>any</literal>' and '<literal>some</literal>' Keywords</title>
+			
+			<para>
+				The <literal>any</literal> operator is true if the expression returns true for one or more of the values returned by a list of expressions including array, <literal>Collection</literal> and <literal>Map</literal> values.
+			</para>
+
+			<para>
+				The synopsis for the <literal>any</literal> keyword is as follows:
+			</para>
+			<synopsis><emphasis>expression</emphasis> <emphasis>operator</emphasis> any (<emphasis>expression</emphasis> [,<emphasis>expression</emphasis>...] )</synopsis>
+
+			<para>
+				The left-hand expression is evaluated and compared to each expression result using the given operator, which must yield a Boolean result. The result of <literal>any</literal> is "true" if any true result is obtained. The result is "false" if no true result is found (including the special case where the expressions are collections that return no rows). 
+			</para>
+
+			<para>
+				The <emphasis>operator</emphasis> can be any of the following values: <literal>=, !=, &lt;&gt;, &lt;, &lt;=, &gt;, &gt;=</literal>.
+			</para>
+
+			<para>
+				The <literal>some</literal> keyword is a synonym for <literal>any</literal>. The <literal>in</literal> construct is equivalent to <literal>= any</literal>.
+			</para>
+		
+			<para>
+				<emphasis>Expression</emphasis> may also return an array, a <literal>java.util.Collection</literal> or a <literal>java.util.Map</literal>. Thus event properties that are lists, sets or maps may provide values to compare against.
+			</para>
+
+			<para>
+				All expressions must be of the same type or a compatible type. The <literal>any</literal> keyword coerces number values to compatible types. If <emphasis>expression</emphasis> returns an array, then the component type of the array must be compatible, unless the component type of the array is <literal>Object</literal>.
+			</para>
+
+			<para>
+				If <emphasis>expression</emphasis> returns an array, the operation compares each element of the array.
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Collection</literal>, the operation determines if the collection contains the value returned by the left-hand expression,  applying <literal>contains</literal> semantics. 
+				When using relationship operators <literal>&lt;, &lt;=, &gt;, &gt;=</literal> the operator applies to each element in the collection, and non-numeric elements are ignored.
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Map</literal>, the operation determines if the map contains the key value returned by the left-hand expression, applying <literal>containsKey</literal> semantics.
+				When using relationship operators <literal>&lt;, &lt;=, &gt;, &gt;=</literal> the operator applies to each key in the map, and non-numeric map keys are ignored.
+			</para>
+
+			<para>
+				 Constants, arrays, <literal>Collection</literal> and <literal>Map</literal> expressions or event properties can be used combined.
+			</para>
+			<para>
+				The next statement demonstrates the use of the <literal>any</literal> operator: 
+			</para>
+
+			<programlisting><![CDATA[select * from ProductOrder where category != any (categoryArray)]]></programlisting>
+
+			<para>
+				The above query selects ProductOrder event that have a category field and a category array, and returns only those events in which the category value is not in the array.
+			</para>
+
+			<para>
+				Note that if there are no successes and at least one right-hand row yields null for the operator's result, the result of the <literal>any</literal> construct will be null, not false. This is in accordance with SQL's normal rules for Boolean combinations of null values. 
+			</para>
+		</sect1>
+
+		<sect1 xml:id="epl-operator-all">
+			<title>The '<literal>all</literal>' Keyword</title>
+			
+			<para>
+				The <literal>all</literal> operator is true if the expression returns true for all of the values returned by a list of expressions including array, <literal>Collection</literal> and <literal>Map</literal> values.
+			</para>
+
+			<para>
+				The synopsis for the <literal>all</literal> keyword is as follows:
+			</para>
+			<synopsis><emphasis>expression</emphasis> <emphasis>operator</emphasis> all (<emphasis>expression</emphasis> [,<emphasis>expression</emphasis>...] )</synopsis>
+
+			<para>
+				The left-hand expression is evaluated and compared to each expression result using the given operator, which must yield a Boolean result. The result of <literal>all</literal> is "true" if all rows yield true (including the special case where the expressions are collections that returns no rows). The result is "false" if any false result is found. The result is <literal>null</literal> if the comparison does not return false for any row, and it returns <literal>null</literal> for at least one row.
+			</para>
+
+			<para>
+				The <emphasis>operator</emphasis> can be any of the following values: <literal>=, !=, &lt;&gt;, &lt;, &lt;=, &gt;, &gt;=</literal>.
+			</para>
+
+			<para>
+				The <literal>not in</literal> construct is equivalent to <literal>!= all</literal>.
+			</para>
+		
+			<para>
+				<emphasis>Expression</emphasis> may also return an array, a <literal>java.util.Collection</literal> or a <literal>java.util.Map</literal>. Thus event properties that are lists, sets or maps may provide values to compare against.
+			</para>
+
+			<para>
+				All expressions must be of the same type or a compatible type. The <literal>all</literal> keyword coerces number values to compatible types. If <emphasis>expression</emphasis> returns an array, then the component type of the array must be compatible, unless the component type of the array is <literal>Object</literal>.
+			</para>
+
+			<para>
+				If <emphasis>expression</emphasis> returns an array, the operation compares each element of the array.
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Collection</literal>, the operation determines if the collection contains the value returned by the left-hand expression,  applying <literal>contains</literal> semantics. 
+				When using relationship operators <literal>&lt;, &lt;=, &gt;, &gt;=</literal> the operator applies to each element in the collection, and non-numeric elements are ignored.
+			</para>
+			<para>
+				If <emphasis>expression</emphasis> returns a <literal>Map</literal>, the operation determines if the map contains the key value returned by the left-hand expression, applying <literal>containsKey</literal> semantics.
+				When using relationship operators <literal>&lt;, &lt;=, &gt;, &gt;=</literal> the operator applies to each key in the map, and non-numeric map keys are ignored.
+			</para>
+
+			<para>
+				 Constants, arrays, <literal>Collection</literal> and <literal>Map</literal> expressions or event properties can be used combined.
+			</para>
+
+			<para>
+				The next statement demonstrates the use of the <literal>all</literal> operator: 
+			</para>
+
+			<programlisting><![CDATA[select * from ProductOrder where category = all (categoryArray)]]></programlisting>
+
+			<para>
+				The above query selects ProductOrder event that have a category field and a category array, and returns only those events in which the category value matches all values in the array.
+			</para>
+		</sect1>
+
+		<sect1 xml:id="epl-operator-new">
+			<title>The '<literal>new</literal>' Keyword</title>
+			<indexterm><primary>new</primary></indexterm>
+			<indexterm><primary>operators</primary><secondary>new</secondary></indexterm>
+			
+			<para>
+				The <literal>new</literal> has two uses:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>
+						Populate a new data structure by evaluating column names and assignment expressions.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Instantiate an object of a given class by its constructor.
+					</para>
+				</listitem>
+			</orderedlist>
+			
+			<sect2 xml:id="epl-operator-new-datastructure">
+				<title>Using '<literal>new</literal>' To Populate A Data Structure</title>
+			
+				<para>
+					The <literal>new</literal> data structure operator populates a new data structure by evaluating column names and assignment expressions. This is useful when an expression should return multiple results, for performing a transformation or inside enumeration method lambda expressions. 
+				</para>
+	
+				<para>
+					The synopsis is as follows:
+				</para>
+				<synopsis>new { <emphasis>column_name</emphasis> = [<emphasis>assignment_expression</emphasis>] [,<emphasis>column_name</emphasis>...] }</synopsis>
+	
+				<para>
+					The result of the new-operator is a map data structure that contains <emphasis>column_name</emphasis> keys and values. If an assignment expression is provided for a column, the operator evaluates the expression and assigns the result to the column name. If no assignment expression is provided, the column name is assumed to be an event property name and the value is the event property value.
+				</para>
+	
+				<para>
+					The next statement demonstrates the use of the <literal>new</literal> operator: 
+				</para>
+				<programlisting><![CDATA[select new {category, price = 2*price} as priceInfo from ProductOrder]]></programlisting>
+	
+				<para>
+					The above query returns a single property <literal>priceInfo</literal> for each arriving ProductOrder event. The property value is itself a map that contains two entries: For the key name <literal>category</literal> the value of the category property and for the key name <literal>price</literal> the value of the price property multiplied by two. 
+				</para>
+				
+				<para>
+					The next EPL is an example of the <literal>new</literal> operator within an expression definition and a <literal>case</literal>-statement (one EPL statement not multiple):
+				</para>
+				<programlisting><![CDATA[expression calcPrice {
+  productOrder => case
+    when category = 'fish' then new { sterialize = 'XRAY', priceFactor = 1.01 }
+    when category = 'meat' then new { sterialize = 'UVL', priceFactor = 1 }
+  end
+}  
+
+select calcPrice(po) as priceDetail from ProductOrder po]]></programlisting>
+
+				<para>
+					In above example the expression <literal>calcPrice</literal> returns both a <literal>sterialize</literal> string value and a <literal>priceFactor</literal> double value. The expression is evaluated as part of the <literal>select</literal>-clause and the map-type result placed in the <literal>priceDetail</literal> property of output events.
+				</para>
+				
+				<para>
+					When used within the <literal>case</literal> operator, the operator validates that the data structure is compatible between each case-when result in terms of column names and types. The default value for <literal>else</literal> in <literal>case</literal> is <literal>null</literal>.
+				</para>
+		</sect2>
+		
+		<sect2 xml:id="epl-operator-new-instance">
+			<title>Using '<literal>new</literal>' To Instantiate An Object</title>
+		
+			<para>
+				The <literal>new</literal> instantiation operator can instantiate an object of the given class. 
+			</para>
+
+			<para>
+				The synopsis is as follows:
+			</para>
+			<synopsis>new <emphasis>class-name</emphasis>([<emphasis>parameter</emphasis> [, <emphasis>parameter</emphasis> [,...]]])</synopsis>
+
+			<para>
+				The <emphasis>class-name</emphasis> is the name of the class to instantiate an object for. The classname can either be fully-qualified or you can add the package or classname to the 
+				engine imports.
+			</para>
+
+			<para>
+				After the classname follow parenthesis and any number of parameter expressions. The engine expects that the class declares a public constructor 
+				matching the number and return types of parameter expressions. 
+			</para>
+
+			<para>
+				Assuming that <literal>OrderHolder</literal> is an imported class, the next statement demonstrates the use of the <literal>new</literal> operator: 
+			</para>
+			<programlisting><![CDATA[select new OrderHolder(po) as orderHolder from ProductOrder as po]]></programlisting>
+		</sect2>
+	</sect1>
+</chapter>

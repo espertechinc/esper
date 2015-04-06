@@ -1,0 +1,96 @@
+/**************************************************************************************
+ * Copyright (C) 2006-2015 EsperTech Inc. All rights reserved.                        *
+ * http://www.espertech.com/esper                                                          *
+ * http://www.espertech.com                                                           *
+ * ---------------------------------------------------------------------------------- *
+ * The software in this package is published under the terms of the GPL license       *
+ * a copy of which has been included with this distribution in the license.txt file.  *
+ **************************************************************************************/
+package com.espertech.esper.view.window;
+
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
+import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
+import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.StreamTypeServiceImpl;
+import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.view.*;
+
+import java.util.*;
+
+/**
+ * Base factory for expression-based window and batch view.
+ */
+public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory, DataWindowViewWithPrevious
+{
+    private EventType eventType;
+    protected ExprNode expiryExpression;
+    protected Set<String> variableNames;
+    protected AggregationServiceFactoryDesc aggregationServiceFactoryDesc;
+    protected EventType builtinMapType;
+
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
+    {
+        this.eventType = parentEventType;
+
+        // define built-in fields
+        Map<String, Object> builtinTypeDef = ExpressionViewOAFieldEnum.asMapOfTypes(eventType);
+        builtinMapType = statementContext.getEventAdapterService().createAnonymousObjectArrayType(statementContext.getStatementId() + "_exprview", builtinTypeDef);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {eventType, builtinMapType}, new String[2], new boolean[2], statementContext.getEngineURI(), false);
+
+        // validate expression
+        expiryExpression = ViewFactorySupport.validateExpr(getViewName(), statementContext, expiryExpression, streamTypeService, 0);
+
+        ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
+        expiryExpression.accept(summaryVisitor);
+        if (summaryVisitor.isHasSubselect() || summaryVisitor.isHasStreamSelect() || summaryVisitor.isHasPreviousPrior()) {
+            throw new ViewParameterException("Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context");
+        }
+
+        Class returnType = expiryExpression.getExprEvaluator().getType();
+        if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
+            throw new ViewParameterException("Invalid return value for expiry expression, expected a boolean return value but received " + JavaClassHelper.getParameterAsString(returnType));
+        }
+
+        // determine variables used, if any
+        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor();
+        expiryExpression.accept(visitor);
+        variableNames = visitor.getVariableNames();
+
+        // determine aggregation nodes, if any
+        List<ExprAggregateNode> aggregateNodes = new ArrayList<ExprAggregateNode>();
+        ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
+        if (!aggregateNodes.isEmpty()) {
+            try {
+                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY, streamTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementContext.getContextName(), null, null);
+            }
+            catch (ExprValidationException ex) {
+                throw new ViewParameterException(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    public EventType getEventType()
+    {
+        return eventType;
+    }
+
+    public boolean canReuse(View view)
+    {
+        return false;
+    }
+
+    public EventType getBuiltinMapType() {
+        return builtinMapType;
+    }
+}

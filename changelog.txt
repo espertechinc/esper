@@ -1,0 +1,1229 @@
+Esper Changelog
+===================
+
+Changes in version 5.2.0
+------------------------
+  - Support for aggregation functions to specify the level of grouping in the parameter list, removing the need for separate subqueries for many use cases
+  - Support for aggregation rollup in conjunction with tables
+  - Support for a new pattern observer "timer:schedule" that supports the ISO8601 standard for scheduling
+  - Support for match-recognize to have patterns that specify repetition (exact, N-or-more, between-N-and-M, between-0-and-M)
+  - Support for match-recognize to have patterns that specify permutation, i.e. for A and B to become "A B" or "B A"
+  - Support for the "new" expression to instantiate a given class
+  - Support for substitution parameter to be given names so that they are available by name and not just by numeric position
+  - Support for filter expressions that use "or" and "typeof" to optimize filter tree use for reverse index sharing
+  - Support for "create schema" to specify "null" as a property type
+  - Many smaller enhancements, optimizations, documentation updates
+
+Bug fixes and other improvements
+  - Fixed issue ESPER-802 EsperIO CSV and CurrentTimeEvent issue
+  - Fixed issue ESPER-803 outer join with historical stream and on-clause in addition to where-clause causes incorrect result
+  - Fixed issue ESPER-804 Allow Subscriber methods other than "update"
+  - Fixed issue ESPER-805 toEPL() generates badly formatted EPL for contained event selections
+  - Fixed issue ESPER-806 The type checking rejects the child types for non-bean types and insert
+  - Fixed issue ESPER-807 Outer join with context partitions thread safety issue
+  - Fixed issue ESPER-808 Accessing Data via Method Invocation on injected Objects
+  - Fixed issue ESPER-809 ExprBetweenCompBigDecimal.isLowIncluded/isHighIncluded shouldn't use equals
+  - Fixed issue ESPER-810 Context partitioned by key throws NPE with partition key property in pattern filter expression
+  - Fixed issue QQY-321-19355 non-overlapping context started by filter for same event as statements can miss an event under threading
+  - Fixed issue AHK-632-44071 ArrayIndexOutOfBoundsEx on non-fully-aggregated query with stream select
+
+Changes in version 5.1.0
+------------------------
+  - Support for tables. Tables introduce a number of new capabilities, allowing for more expressive EPL.
+    - Tables allow multiple statements to aggregate into the same state (we call this co-aggregation) 
+    - Tables allow statements to co-locate aggregation state, update-in-place data and event data conveniently
+    - Tables can be accessed using a convenient key-based expression, as well as in joins, subqueries etc. comparably to named windows
+  - Support for the Count–min sketch (or CM sketch) probabilistic sub-linear space streaming algorithm and approximate streaming Top-K
+  - Support for the new "countever" aggregation function that returns a count of events ever regardless of data windows
+  - Additional API to query context partition instance count
+  - Audit logging for context partitions
+  - The match-recognize "define" clause is now optional
+  - Support for loosely-scoped expressions using expression alias
+  - CSV adapter now uses time-spans to advance time
+  - Socket adapter CSV format now supports a property-ordered string without field names
+  - Many smaller enhancements and bug fixes, with the most important ones listed here
+
+Bug fixes and other improvements
+  - Fixed issue ESPER-782 "interval" keyword in match-recognize does not allow uppercase
+  - Fixed issue ESPER-783 ArithmeticException big decimal divide
+  - Fixed issue ESPER-784 EsperIO Socket Adapter causes configuration loss when calling "initialize"
+  - Fixed issue ESPER-788 Exception on uppercase MIN/MAX
+  - Fixed issue ESPER-791 "Route" API call with outbound threading enabled does not work
+  - Fixed issue ESPER-792 Dataflow is not initializing in correct order with ~16+ operators
+  - Fixed issue ESPER-793 QualityOfService example main uses wrong provider URI
+  - Fixed issue ESPER-794 OSGi Manifest does not contain com.espertech.esper.epl.agg.aggregator package
+  - Fixed issue ESPER-795 Multidrectional join between two unique-window named windows join throws errors and returns spurious results.
+  - Fixed issue ESPER-796 EventType Configuration Exception compiling Pojo with Collections
+  - Fixed issue ESPER-799 Escaping comma character error while using socket adapter
+  - Fixed issue ESPER-800 Custom aggregation function with multiple parameters receives WildcardParameter instead of event
+  - Fixed issue ESPER-801 Json renderer escape in a wrong way    
+  - Fixed issue ADQ-943-19260 context-partitioned named window with create index causes NPE  
+  - Fixed issue HXB-611-44301 get method called needlessly when using output snapshot
+  - Fixed issue UJI-364-58495 CPE repeatedly stopping and starting statement with aggregation and grouped window
+  - Fixed issue TJJ-530-49640 Transpose function causes type incompatibility message when transposing into an existing type
+
+Changes in version 5.0.0
+------------------------
+  - The following dependent jar files are upgraded:
+       - ANTLR runtime library version is now 4.1 (antlr-runtime-4.1.jar) (previously antlr-runtime-3.2.jar)
+       - CGLIB version is now 3.1 (cglib-nodep-3.1.jar) (previously cglib-nodep-2.2.jar)
+       - Commons-logging version is now 1.1.3 (commons-logging-1.1.3.jar) (previously commons-logging-1.1.1.jar)
+       - (optionally) Log4j version is now 1.2.17 (log4j-1.2.17.jar) (previously log4j-1.2.16.jar)
+  - Support for rollup and cube aggregation output. Support for SQL standard output and SQL keywords namely "rollup", "cube", "grouping sets", "grouping", "grouping_id".
+  - Support for fire-and-forget insert-into queries using the "values" keyword i.e. "insert into ... values (...)"
+  - Support for Java 8-style lambda syntax using the "->" operator the same way as "=>" as equivalent syntax
+  - Support for context partitioned variables. Use "context ... create variable ..." to create a contex partitioned variable.
+  - Support for method invocation joins to receive object-array events from application code
+  - Support for query planner expression analysis hints that provide additional control over query planning
+  - Support for the query planner for joins, subqueries, fire-and-forget and on-action queries to consider in-keyword expressions and "or"
+  - Support for filter execution planning to consider "or"
+  - Statements on unbound streams by default no longer retain the last event for use with the iterator API, and instead an application can specify @IterableUnbound or provide an engine configuration to have statements retain the last event
+  - Statement names are now always trimmed
+  - Applications that use isolated service providers must now set an engine-wide configuration flag to enable this feature
+  - The "as" keyword in the select-clause is now optional 
+  - Improved rendering of expressions by rendering parenthesis according to precedence and by removing white space in expressions. 
+    This may affect statements where the select-clause does not name columns using "as" since they may receive a different column name compared to version 4.
+  - We have changed time period expression month and year interval computation to become relative to the current time. This change disallows float-type values for year and month in a time interval.
+  - Improved formatting and content of validation messages
+  - Many performance related enhancements
+  - Removed version 4 deprecated APIs
+
+ 
+Changes in version 4.11.0
+------------------------
+  - Support for patterns to suppress and discard overlapping matches
+  - Support for match-recognize define-clause and measures-clause to use enumeration methods and array-index access for grouped variables
+  - Support for match-recognize matching upon pattern state termination when used with interval
+  - Support for overlapping context to specify "distinct"
+  - Support for group-by clause in subqueries
+  - Support for subqueries that select multiple columns to provide input to enumeration methods
+  - Support for built-in annotations to be case-insensitive
+
+Minor EPL changes
+  - When in a select-clause the "as" column name is surrounded with backticks (e.g. "select name as `somename` ...") the property name of the output event does no longer carry backticks (i.e. is "somename").
+
+Minor API changes
+  - SODA class PatternMatchUntilExpr now requires to set single-bounds as a separate expression
+
+Bug fixes and other improvements
+  - Fixed issue XIN-243-46130 Window(*) returning scalars throws NPE when used with null values
+  - Fixed issue FOT-686-75760 Context partition using for-clause with keyed-segmented context when for-clause utilizes the same key the for-clause is not grouping
+  - Fixed issue NUO-642-65913 When JMS unmarshaller receives an exception log error and continue
+  - Fixed issue LTU-232-62589 Map/oa type with nested pojo with generic-typed list not producing type fragments
+  - Fixed issue ZXU-154-59144 Context partitioned join against virtual data window throws NPE
+  - Fixed issue IOO-666-18256 EPL module with script that has brackets and semicolon throws exception on deployment
+  - Fixed issue UHA-316-24638 Fully-aggregated subquery without filter throws NPE; subquery against context-partitioned VDW throws NPE
+  - Fixed issue ESPER-754 Class that extends class triggers two events when named window declared for both child and parent class
+  - Fixed issue ESPER-756 NPE during destroy() when using inbound thread pool and when not waiting for pool to empty
+  - Fixed issue ESPER-757 VDW callback on consuming rstream events
+  - Fixed issue ESPER-758 Thread safety issue with contained-event selection
+  - Fixed issue ESPER-759 Pattern with not-operator controlled by repeat ([n]) does not turn repeat to false
+  - Fixed issue ESPER-761 On-Demand query inserting row into named window that contains an enumeration throws NPE
+  - Fixed issue ESPER-762 Keyed segmented context with match recognize and "prev" in define-clause causes first event to not evaluate
+  - Fixed issue ESPER-763 Allow on-merge assignment of event-typed property
+  - Fixed issue ESPER-765 Context declaration with @Priority causes first event to arrive twice
+  - Fixed issue ESPER-766 Allow enumeration method in pattern filter to use pattern tagged events as input
+  - Fixed issue ESPER-767 Support for tick-escape in select-clause column name
+  - Fixed issue ESPER-768 Improve standard deviation to use Knuth's
+  - Fixed issue ESPER-769 Issue evaluating nested enumeration
+  - Fixed issue ESPER-770 Improve compatibility checking when named window event gets inserted into stream of same-as type (Map and ObjectArray only)
+  - Fixed issue ESPER-771 Allow subqueries that select a single column that it itself an event to provide enumerable events and insert-into compatible prop
+  - Fixed issue ESPER-772 ClassCastException for method invocation on a property that is itself an event
+
+Changes in version 4.10.0
+------------------------
+Major API or EPL changes
+  - Support for context declarations to perform initiate or start immediately
+  - Support for mutation expressions for merge and update
+  - Support for parameterized fire-and-forget queries
+  - Support for fire-and-forget queries to consider the "in" opertator for index lookup
+  - Support for having-clause to have subquery
+  - Support for explicitly selecting eventbean instances of expressions (ESPER-732)
+  - Support for fire-and-forget queries that insert-into a named window
+
+Bug fixes
+  - Fixed Issue ESPER-733 Passing aggregate scalars to global script
+  - Fixed Issue ESPER-734 Unclear exception for invalid match_recognize
+  - Fixed Issue ESPER-735 Esper 4.9.0 OSGi bundle execution environment restricted to J2SE 1.6
+  - Fixed Issue ESPER-737 NullPointerException with grouped data window intersecting time window and last/first event
+  - Fixed Issue ESPER-738 Performance issue with 8 threads, keyed context partitioned, synchronized listener, event sequence for same partition
+  - Fixed Issue ESPER-739 All calls methods named "get" assumed to be Date-Time method
+  - Fixed Issue ESPER-740 POJO event populated by selectclause and via POJO constructor and select clause selects same type twice is created using wrong parameters
+  - Fixed Issue ESPER-741 Named window on-action with relational operator (<, <=) where-clause incorrect behavior when reversing comparison
+  - Fixed Issue ESPER-742 Static method lookup selects incorrect classstatic method lookup
+  - Fixed Issue ESPER-743 Join accross ObjectArrayEvent and MapEvent leaks data from MapEvent
+  - Fixed Issue ESPER-744 parse error in prepared statement for count(*,filter_expr)
+  - Fixed Issue ESPER-746 Self-Join between derived value streams provides incorrect result
+  - Fixed Issue ESPER-747 Cron timer is skipping months
+  - Fixed Issue ESPER-748 create schema fails with fully qualified property type name
+  - Fixed Issue ESPER-749 split stream with "output all" not working with prepared statement
+  - Fixed Issue ESPER-750 @audit miscounts pattern instances with "not"
+  - Fixed Issue ESPER-751 StackOverflow when routing new event during high volume processing
+  - Fixed Issue ESPER-752 @Drop annotation with context: First event not dropped
+  - Fixed Issue KPH-656-86796 EPL module with javascript incorrectly parsed
+  - Fixed Issue PJM-181-84952 Possible deadlock for patterns that have filters that have subqueries
+  - Fixed Issue IGC-717-55951 efficiency of group reclaim with grouped data windows
+  - Fixed Issue TBC-634-19891 use thread context class loader for default deserialize
+
+Changes in version 4.9.0
+------------------------
+Major API or EPL changes
+  - Support for new minby, maxby and sorted aggregation functions
+  - Support for context partition administration through a new API 
+  - Support for specifying a timezone as part of crontab schedules
+  - Support for instance method invocation on enumeration values
+  - Support for fire-and-forget (on-demand) queries that delete and update named windows
+  - Support for passing EventBean and collection of EventBean to EPL-to-code method invocations
+  - Support for an optional context object passed in EPL-to-code method invocations
+  - Support for the expression window and expression batch window to the oldest and newest event so that expiry policies are easier to specify that compare event properties
+  - New extension API for aggregation functions termed aggregation multi-function 
+  - Performance improvements, overall, and related to patterns and self-joins
+  - Reduced memory utilization
+
+Bug fixes
+  - Fixed Issue MWI-774-78809 ArrayIndexOutOfBoundsException upon statement stop context partitioned statement with aggregation
+  - Fixed Issue QIH-288-93588 ArrayIndexOutOFBoundsException starting a context-partitioned split-stream statement with subquery
+  - Fixed Issue FLQ-115172 NullPointerException with context partitioned statement and split-stream statement
+  - Fixed Issue QXU-776433 Populate map event type using "new" operator not working
+  - Fixed Issue ESPER-726 Aggregation function avg based on BigDecimal with scale defined throws Non-terminating decimal expansion 
+  - Fixed Issue ESPER-727 Thread safety issue with enumeration method in stateless select 
+  - Fixed Issue ESPER-728 Filter improvement for expressions in relationship to other filter ops 
+  - Fixed Issue ESPER-730 Statement Object Model for "is null" 
+
+
+Changes in version 4.8.0
+------------------------
+Major API or EPL changes
+  - Support for "create expression" to declare an independent expression or script for use in other statements
+  - Support for an externally-timed batch window (win:ext_timed_batch)
+  - Support for array variables
+  - Support for enumeration methods to operate on collections of scalar values (ESPER-717)
+  - Support for on-select-delete: On-select can now also delete the selected rows
+  - Support for insert-into clause to use "irstream" keyword to produce the insert as well as the remove stream
+  - Support for a new "istream" function that returns true if the event is part of the insert stream and false if the event is part of the remove stream
+  - Support for marking an index as a unique index
+  - Many optimizations around query planning, execution-time reduced memory use and performance
+  - Dependency updates for esperio-springjms adapter and J2EE terminal example
+  - Minor change to virtual data window API to allow a virtual data window to indicate unique key property names
+
+Bug fixes
+  - Fixed Issue ESPER-703 Stateless statement with output rate limiting only outputs same event multiple times under inbound threading
+  - Fixed Issue ESPER-705 Esper tests build fails on platform with default encoding other than ISO-8859-2
+  - Fixed Issue ESPER-706 Query plan output for on-select not comprehensive and Join does not list key field names
+  - Fixed Issue ESPER-708 Allow configuration for static methods/UDF to trigger exception handler upon exception
+  - Fixed Issue ESPER-709 esperio AMQPSink ignores exchange property
+  - Fixed Issue ESPER-712 Contained-event misbehaves in join and subquery when used with named window
+  - Fixed Issue ESPER-713 Transaction example probabilistic event skipping won't ever skip for event type B
+  - Fixed Issue ESPER-714 NPE in enumeration method with join
+  - Fixed Issue ESPER-718 Debug-level logging triggers ClassCastException in dataflow Select operator when using XML underlying
+  - Fixed Issue ESPER-719 Exception using variable in "after" endpoint context declaration
+  - Fixed Issue ESPER-720 Thread safety issue with enumeration method in stream-level filter
+  - Fixed Issue ESPER-721 NPE on count() in combination with order by
+  - Fixed Issue ESPER-722 Partitioned full outer join selecting remove stream with time windows fails with NullPointerException
+  - Fixed Issue ESPER-725 Object-array event type not enforcing single supertype
+  - additional bug fixes
+
+Changes in version 4.7.0
+------------------------
+Major API or EPL changes
+  - Many performance-related changes and also related to support of the new EsperHA release.
+
+Bug fixes
+  - Fixed issue ESPER-544 Prefer more specific update method over less specific update method in subscriber
+  - Fixed issue ESPER-662 Custom aggregation function that receives wildcard ("*") receives instance of com.espertech.esper.type.WildcardParameter and not event
+  - Fixed issue ESPER-663 Keyed Segmented Context with multiple properties not working
+  - Fixed issue ESPER-664 ValueCache.DISABLED in single row function configuration does not disable UDF cache
+  - Fixed issue ESPER-666 StatementAgentInstanceFactoryCreateWindow.newContext() throws NPE if other named window does not exist in insert case
+  - Fixed issue ESPER-668 CharSequence and String type not compatible
+  - Fixed issue ESPER-669 Enumeration method not working on bean-array that is property of Map
+  - Fixed issue ESPER-670 Event that ends/terminates context partition
+  - Fixed issue ESPER-671 Unexpected exception occurs when applying a basic arithmetic operation to short/byte properties
+  - Fixed issue ESPER-673 Aggregated row-per-event and grouped query with unidirectional join produces incorrect aggregation value
+  - Fixed issue ESPER-676 Exception using @Audit with create-context and terminated-by filter
+  - Fixed issue ESPER-679 Improve performance of CSVInputAdapter
+  - Fixed issue ESPER-683 Firstunique window and firstevent window handling updates
+  - Fixed issue ESPER-684 Object Array Event Types in Isolated Services
+  - Fixed issue ESPER-685 "Very likely memory leak" warning in Tomcat 6
+  - Fixed issue ESPER-687 Named Window and Fire-And-Forget query incorrectly passes null comparison operator
+  - Fixed issue ESPER-688 ArrayOOB exception with expression def in where-clause of on-select
+  - Fixed issue ESPER-689 ClassCastException with "stream.*" syntax and insert-into and context
+  - Fixed issue ESPER-693 Unit test fails with JDK 1.7_07
+  - Fixed issue ESPER-695 Pattern with named window events when used in partitioned context, not allowing named window
+  - Fixed issue ESPER-697 EsperIOSocketAdapter hides a critical exception
+  - Fixed issue ESPER-698 Update-istream with sub-select has thread-safety issue
+  - Fixed issue ESPER-699 Variable not recognized in output-rate-limiting when using deployment API (default compile option)
+  - Fixed issue ESPER-701 Nested context with partitioned context managing a non-overlapping context produces incorrect results
+  - Fixed issue ESPER-702 Distinct count in correlated subselect returns invalid result
+
+
+Changes in version 4.6.0
+------------------------
+Major API or EPL changes
+  - Support for object-array event types; An application can now send Object[] rows as events and can receive Object[] rows as output.
+  - This release introduces a syntax and API for declarative data flow execution.
+  - Support for XML and JSON event renderers to take a custom property value renderer.
+  - Support for a new "ranked" data window that retains the events according to rank and uniqueness criteria.
+  - Many internal changes related to increasing performance and reducing memory use.
+  - For class and package imports through configuration or API, the default imports are no longer removed when the first import is added. Imports can be removed explicitly instead.
+  - The CSV adapter no longer has a dependency on Commons Beanutils (commons-beanutils-1.8.3.jar).
+  - The documentation has a new look and feel.
+
+Bug fixes
+  - Fixed issue ESPER-648 NullPointerException with "utput Every" & "for discrete_delivery" when no output is available
+  - Fixed issue ESPER-641 Add SupportSubscriber and SupportSubscriberMRD to Public Test Framework
+  - Fixed issue ESPER-642 Log destination for @Audit logs moved to "com.espertech.esper.util.AuditPath" but should be "com.espertech.esper.audit"
+  - Fixed issue ESPER-643 Use expression as mapped-property key or indexed-property index
+  - Fixed issue ESPER-644 Infinite loop when restarting a statement
+  - Fixed issue ESPER-652 regexp matches whole pattern
+  - Fixed issue ESPER-653 ExprDotNode.validate does not handle empty array returned by validationContext.getStreamTypeService().getEventTypes()
+  - Fixed issue ESPER-654 Allow backtick notation for any identifier
+  - Fixed issue ESPER-655 Copy method for bean-backed events should prefered configured method over Serializable
+  - Fixed issue ESPER-656 Variant stream of type ANY when inserting columns and the underlying event in combination the result is not carrying the inserted columns
+  - Fixed issue ESPER-658 context with "start after 0 seconds" starts only after next time tick
+  - Fixed issue ESPER-659 Inherit timestamp properties from event super types
+  - Fixed issue ESPER-660 Allow fragment event type to perform datetime methods
+  - Fixed issue ESPER-661 EPStatementException in on-select with virtual data window and where-clause using greater-than (less-than) operator
+
+
+Changes in version 4.5.0
+------------------------
+Major API or EPL changes
+  - We have made a change to the behavior of intersection data windows (multiple data windows in intersection) when one of the data windows is a batch window.
+    The engine now provides batching behavior, when one of the data windows is a batch window, and not continuous stream behavior.
+  - Support for declaring a hashed context that uses a consistent-hash algorithm to target context partitions for declarative parallelism in statement execution
+  - Support for declaring nested contexts allowing combined context policies
+  - Support for a new API to that provides context partition targeting for on-demand queries and statement iteration
+  - Support for context initiation by event or patterns and termination by a correlated event or pattern
+  - Support for context initiation by patterns to include those event(s) that match a pattern in the statement associated to the context
+  - Support for MVEL and JSR-223 scripting engine i.e. JavaScript and others
+  - Support for contained-event syntax; one can now specify any expression for returning contained events
+  - Support for constants: Variables that are constant values and cannot be assigned. Useful for the engine to perform optimizations knowing variable values can't change.
+  - Support for a new expression batch window that also allows aggregation functions as part of the expiry expression
+  - Support for aggregation functions in the expiry expression of the expression data window
+  - Support for iterating statements that have unbound streams (no data window) and have fully-grouped aggregation
+  - Support for outer joins with streams that don't provide properties (i.e. pattern timer)
+  - Support for updating mapped and indexed property values of events via update-istream, on-merge or on-update
+  - Support for when-terminated in output rate limiting to also provide an expression and set-assignments; Support for a new count-total built-in property
+  - Support for defining an output pattern for audit logs
+  - Added test framework API for event processing unit or regression testing
+  - For plug-in aggregation functions we added support for an AggregationFunctionFactory and deprecated AggregationSupport
+  - Optimization to detect when a statement is stateless and thereby operate lock-free
+
+Bug fixes or other changes
+  - Fixed issue ESPER-613 Plug-in aggregation functions can't retain context built from validate method
+  - Fixed issue ESPER-614 Allow named window name to prefix properties in on-merge update set-clause
+  - Fixed issue ESPER-615 DeploymentActionException when commenting-out block of statements in deployment via deployment admin
+  - Fixed issue ESPER-616 Allow create-schema and create-window type definition syntax to refer to event type name of POJO-event type
+  - Fixed issue ESPER-618 Output-When not executing the "then"-part when triggered by output events
+  - Fixed issue ESPER-622 NullPointerException creating a statement selecting from a filled named window that also subqueries
+  - Fixed issue ESPER-623 NullPointerException in NamedWindowServiceImpl.processHandle when context-dependent and under prioritized execution
+  - Fixed issue ESPER-624 ConcurrentModificationException using a subquery against a named window within the stream filter criteria
+  - Fixed issue ESPER-625 Intersection between length-batch window and unique data window produces incorrect aggregation values
+  - Fixed issue ESPER-627 Evaluation order of subquery against the same named window that triggers the evaluation
+  - Fixed issue ESPER-629 Declared expression not recognized by split-stream syntax when used in second or later stream insert
+  - Fixed issue ESPER-631 ClassCastException with variant stream using single-column conversion to insert into named window
+  - Fixed issue ESPER-632 No @Audit output for stream category for statement that selects from a named window via select star
+  - Fixed issue ESPER-633 Undeployment not removing event type for on-merge with insert into new stream
+  - Fixed issue ESPER-634 ClassCastException in pattern with unbound repeat until and interval observer
+  - Fixed issue ESPER-635 Property is ambiguous exception for a pattern that features multiple repeats and followed by
+  - Fixed issue ESPER-637 Update of Map event type not causing derived type to update its event property information
+  - Fixed issue ESPER-639 NullPointerException with Subscriber and Context and Aggregation
+
+
+Changes in version 4.4.0
+------------------------
+Major API or EPL changes
+  - Support for context declarations: Temporal context for interval-based context partitions; Keyed and category segmented contexts; Initiated contexts
+  - Support for fine-grained locking per context partition for high concurrency
+  - Support for a new 'between' date-time method
+  - Support for a new @NoLock annotation that disables context-partition-level locking
+  - Support for configuring an engine-wide maximum limit of number of sub-expressions for followed-by and for monitoring the number of sub-expressions
+  - Support for the "create schema" syntax to copy type information from one or more types
+  - Support for wildcard (*) parameter to derived-value views (stat:uni etc.) to indicate all properties of input type are available in output
+  - Support for subscribers with a no-parameter "update" method 
+  - Support for configuring the behavior of the value cache for plug-in single-row functions
+  - Reduced overhead for named windows based on POJOs
+
+Minor changes
+  - Few minor changes to extension APIs to support context partitions.
+  - Fixed issue ESPER-587 groupwin EPStatementException text
+  - Fixed issue ESPER-590 Allow configuration of fair locking for administrative functions excluding event processing
+  - Fixed issue ESPER-591 Exception "Attempting to remove key from map that wasn't added" in RefCountedSet.
+  - Fixed issue ESPER-592 Statements are not able to get GCed when using Force Update
+  - Fixed issue ESPER-594 Exception starting statement with @Audit and groupwin
+  - Fixed issue ESPER-595 Two statements with identical stream and "prev" function not delivering expected events
+  - Fixed issue ESPER-597 example code error in documentation
+  - Fixed issue ESPER-599 Aggregation functions 'first' and 'last' with index are represented incorrectly when converted back to EPL
+  - Fixed issue ESPER-600 Memory leak with "group by", "order by" and a lot of different group by keys
+  - Fixed issue ESPER-601 Deadlock when an UnmatchedListener creates a new statement
+  - Fixed issue ESPER-602 Reduce memory use when large number of threads send events - ThreadLocal use
+  - Fixed issue ESPER-603 NPE in match-recognize when reg-ex pattern event is optional and doesn't have a definition
+  - Fixed issue ESPER-604 epl_clauses.xml documentation patch
+  - Fixed issue ESPER-606 Memory leak if creating a large numbers of different event types and using "remove" operation in runtime configuration operations
+  - Fixed issue ESPER-608 Prepared statement referring to variable that is a class (nested property syntax) not working
+  - Fixed issue ESPER-609 Distinct causing null pointer exception on time batch query
+  - Fixed issue ESPER-610 IllegalStateException for prepared statement with "select * from pattern[[?] Event]"
+  - Fixed issue ESPER-611 ExprValidationException when create from statement object model with SQL join using variable
+  - Fixed issue ESPER-612 support for providing a deployment id to the deployment admin rather then using a system-generated deployment id
+
+
+Changes in version 4.3.0
+------------------------
+Major API or EPL changes
+  - We have made a change to NULL-value comparison, to closely follow SQL standards, as follows: In version 4.3, the expression "property = NULL" always returns null, use "property is NULL" instead. Version 4.2 and earlier returned true/false.
+    For more information, please see ESPER-569
+  - Support for filter expressions as part of aggregation functions, for example "select count(*, color='black'), count(*) as percentBlack from Marbels"  
+  - Support for interval algebra methods, e.g. before, after, coincides, during, includes, meets etc.
+  - Support for a new expression-driven data window "win:expr". Use for dynamically shrinking and expanding time or length windows, or for custom expiry logic based on work days, for example.    
+  - Support for specifying a consumption policy on pattern filters. Useful when a pattern references the same filter multiple times and the application requires a filter to consume or prioritize one filter over another.  
+  - Support for the transpose(...) function. For use in the select-clause to transpose an expression result object to a stream.  
+  - Support for {} array operator to provide input to enumeration methods.  
+  - Support for subqueries that return multiple result columns to be used in an expression definition.    
+  - Support for @Audit to output nested expression results.
+  - New example "Trivia Geeks Club".
+  
+Minor changes
+  - Fixed issue ESPER-569 Null-value comparison for "not/equals"-operator (!=, =) not fully consistent with SQL standard
+  - Fixed issue ESPER-570 3-way inner join and using outer-join notation not working when where-clause added
+  - Fixed issue ESPER-571 NPE for fully-aggregated and ungrouped query with having clause that selects a non-aggregated property
+  - Fixed issue ESPER-572 Short-circuit evaluation not always performed for filters
+  - Fixed issue ESPER-573 Improve statement checking for on-merge "not matched" clause to not allow access to named window properties when subquery
+  - Fixed issue ESPER-574 Timer:interval pattern observer when a subquery is the parameter throws NPE
+  - Fixed issue ESPER-576 Expose API to dynamically register new views
+  - Fixed issue ESPER-577 Allow chained method invocation on cast() result
+  - Fixed issue ESPER-578 Allowing transposing the result of an aggregation function to a stream
+  - Fixed issue ESPER-579 Memory leak if creating and removing a large numbers of different event types
+  - Fixed issue ESPER-582 Error parsing reserved keyword "last" inside a function call
+  - Fixed issue ESPER-583 Support for filtering aggregation functions
+  - Fixed issue ESPER-584 Filter expression with relational op and constant not matching
+  - Fixed issue ESPER-585 On-merge not dispatching if input stream is also from named window
+  - Fixed issue ESPER-586 Crontab-schedule when use with list-parameter and zero give incorrect results
+
+
+Changes in version 4.2.0
+------------------------
+Major API or EPL changes
+  - Support for enumeration methods, which work with lambda expressions to perform common tasks on subquery results, named windows, event properties or inputs that are or can be projected to a collection of events, scalar values or objects.
+  - Support for date-time methods for date and time manipulation and querying, such as for adding or subtracting time periods, setting or rounding calendar fields and querying fields.
+  - Support for @Audit annotation which instructs the engine to output detailed debug-level information about the statements processing, such as pattern instance counts, expression result values, property values and more.
+  - Support for Virtual Data Window, an extension point for (large) external data stores to become accessible same as a named window.
+  - Support for the 'new' operator, which populates a new data structure by evaluating column names and assignment expressions, useful when an expression should return multiple results, for performing a transformation or inside enumeration method lambda expressions.
+  - Support for constructor injection for event objects populated by insert into.
+  - Support for the on-merge clause to allow multiple actions (multiple then-clauses), to allow insert-into a stream other then the currently-merged named window and adding support for an optional where-clause for each action.
+  - Support for mapped and indexed properties to allow an expression as a map key or index.
+  - Support for expression declarations. Expressions that are common to multiple places in an EPL statement can be moved to a named expression declaration and reused within the statement without duplicating the expression itself.
+  - Improvement for query planning and indexing for joins, subqueries, on-merge/select/update/delete, fire-and-forget queries and create-index to support btree indexes for use with ranges, inverted ranges and relational operator (>, <, >=, <=) queries. 
+  - Improvements to statement metrics reporting in regards to event counts and reporting for named windows.
+  - Improvements to query plan output.
+  - Reduced memory use for hash indexes on single columns.
+
+Minor changes
+  - Fixed issue ESPER-549 NullPointerException upon failing to resolve UDF and when configuring a non-default auto-import
+  - Fixed issue ESPER-550 Where-clause expression validation not taking expression return type into account
+  - Fixed issue ESPER-551 Custom exception handler that rethrows runtime exceptions may cause wrong callback for next event
+  - Fixed issue ESPER-552 NPE logged delivering null-value results to Subscriber update method
+  - Fixed issue ESPER-555 Improve error message for UDF functions and subscribers that expect primitive typed parameters and receive null
+  - Fixed issue ESPER-556 Method-invocation-join when not unidirectional in combination with max/min aggregation function produces warning
+  - Fixed issue ESPER-557 On-merge statement creation throws StringIndexOutOfBoundsException when using alias for named window but not for property
+  - Fixed issue ESPER-558 Incorrect having-clause validation "non-aggregated properties in the 'having' clause must occur in the 'group-by' clause"
+  - Fixed issue ESPER-559 Output-first With Having-Clause not honoring output interval reliably
+  - Fixed issue ESPER-560 Updated (or deleted) event in a Named Window is not delivered to a consuming statement
+  - Fixed issue ESPER-561 Invoking instance method of an object returned by static method invocation returns cache of static method
+  - Fixed issue ESPER-562 On-select with aggregation and group-by not releasing memory after completion of a triggering event
+  - Fixed issue ESPER-563 Small memory leak creating large number of failed-validation statements
+  - Fixed issue ESPER-564 Subquery of identical event stream does not include most recent event in window aggregate
+  - Fixed issue ESPER-566 First Aggregation Function Returns Wrong (Growing) Result When Used in Correlated Subquery
+  - Fixed issue ESPER-568 Duplicate remove stream events posted from intersection-data window when used with on-update (named window only)
+
+
+Changes in version 4.1.0
+------------------------
+Major API or EPL changes
+  - Support for on-merge which provides an atomic update-insert-delete (aka. upsert or merge) operation for use with named windows
+  - Support for subqueries against named windows to share existing indexes on the named window (both implicitly-created or via create-index)
+  - Support for configuration option to enable output of query plan to log destination (aka. explain-plan)
+  - Support for a new 'typeof' function that returns the event type name, for use with variant streams and event type super-types (POJO extends and implements, map super-types)
+  - Support for XML event type update at runtime via ConfigurationOperations
+  - Support for an extended time interval grammar that now supports 'weeks', 'months' and 'years' keywords
+  - Support for additional means to control external time
+  - Support for loading an XML schema from a string
+  - Support for a new form of the followed-by (->) operator: The form "-[max]> allows specifying an upper limit on the number of pattern instances
+  - We refactored the pattern engine to reduce memory use of pattern instances significantly
+
+Minor changes
+  - Fixed issue ESPER-502 NullPointerException in OutputProcessViewDistinctOrAfter.process() and update() methods
+  - Fixed issue ESPER-503 Incorrect warning logged using @Hint('reclaim_group_aged=2') with std:groupwin grouped data windows
+  - Fixed issue ESPER-505 Reference Documation 4.0.0; Table 6.5; duplicety of operator
+  - Fixed issue ESPER-506 NullPointerException on an inner join of named window with aggregation and group-by
+  - Fixed issue ESPER-509 Documentation bug in subscriber use: "start" and "end" are "updateStart" and "updateEnd"
+  - Fixed issue ESPER-510 Support for event array for event objects populated by insert into
+  - Fixed issue ESPER-511 Make CurrentTimeEvent and TimerControlEvent Serializable
+  - Fixed issue ESPER-512 EventBean getUnderlying method when both subscriber and listener are used returns Class and not the underlying object
+  - Fixed issue ESPER-513 On-Update set Error starting statement: Property 'u.v2' is not available for write access [on com.espertech.esper.support.bean.SupportBean update MyWindow as u set v1=string, u.v2=string]
+  - Fixed issue ESPER-516 Insert into stream defined by a schema created as a map schema with property type being an event type not compiling
+  - Fixed issue ESPER-517 Error message "IllegalStateException: Event named ''a' not found in event pattern result set" is inaccurate
+  - Fixed issue ESPER-518 NPE in fire-and-forget query against two named windows with group-by and aggregations when named windows are empty
+  - Fixed issue ESPER-519 Fire-and-Forget join on 2 named windows with where-clause filtering on one window's rows returns incorrect result
+  - Fixed issue ESPER-520 Possible memory leak using @Hint('reclaim_group_aged=xxx') with time windows
+  - Fixed issue ESPER-521 Insert into stream defined by a schema created as a map schema with property type being an event type not populating when inserted from a map schema stream
+  - Fixed issue ESPER-522 Provide time control event for advancing the system clock by a batch of ticks
+  - Fixed issue ESPER-523 Scheduling service SPI to provide nearest time and statement info
+  - Fixed issue ESPER-526 Unidirectional inner join between two named windows when started late (named windows have data) produces too many rows for first result delivery
+  - Fixed issue ESPER-527 memory leak is possible for unbound/unlimited keys used with every-distinct
+  - Fixed issue ESPER-528 Unidirectional left outer join between same streams (self join) when used with staggered time-window and grouped view causes out of memory
+  - Fixed issue ESPER-529 create-schema to allow dot characters in property names
+  - Fixed issue ESPER-533 NullpointerException in Pattern And-state with timer:interval and "not"
+  - Fixed issue ESPER-535 "Previous" function when used under single-row plug-in function or user-defined function not compiling in match-recognize  
+  - Fixed issue ESPER-536 NPE using Output Limiting clause with an EPStatementObjectModel - ExprTimePeriod
+  - Fixed issue ESPER-537 NullpointerException in Create-Window with Model-after Syntax when a nested property does not exist
+  - Fixed issue ESPER-538 Support for auto-event name in insert-into (populate underlying event)
+  - Fixed issue ESPER-539 Support for insert-into to specifiy the fully-qualified class name
+  - Fixed issue ESPER-543 Multiple engine instances same thread sending and receiving problem
+  - Fixed issue ESPER-546 "Last" aggregation function with on-select returns inconsistent results
+  
+
+Changes in version 4.0.0
+------------------------
+Major API or EPL changes
+  - Requires a Java 6 runtime (JDK6 or JRE6)
+  - The following dependent jar files are upgraded:
+       Required: ANTLR version upgrade from 3.1.1 to 3.2
+       Optional: LOG4J upgrade from 1.2.15 to 1.2.16
+       
+  - The bound-repeat syntax in the repeat-until pattern operator changed syntax:
+    The old syntax of separating range value by dots "[low .. high]" is no longer supported. Use the colon ":" character instead of "..".
+    
+  - The meaning of the index paramater to the "nth" aggregation function has changed:
+    To be consistent with "prev" and "last" functions an index of zero now returns the current row. 
+    For Example: "nth(value, 0)" returns the current row and "nth(value, 1)" returns the previous-row value.
+    
+  - The semantics for "output first" have changed: For statements that have a "group-by" clause the "output first" now outputs the first events per group.
+  
+  - The "first" aggregation function has been renamed to "firstever".
+  - The "last" aggregation function has been renamed to "lastever". This makes a difference as data window deletes are reflected by the new "last" aggregation function and are not reflected by "lastever".
+  - We introduced new aggregation functions that track the data window : "first", "last" and "window" with a convenient syntax for access to all attributes.
+  - We introduced new single-row function for data window access: "prevtail", "prevwindow" and "prevcount" functions.
+  
+  - The data window "std:groupby" for grouped data windows has been renamed to "std:groupwin" to avoid confusion with the group-by clause.
+
+  - Support for registering an exception handler that is called when any continous-query statement exception occurs.
+  - Support for all statistics views and the size view to accept additional expressions as parameters for returning values pertaining to the last-applied event.
+  - Support for chained method invocations on events in streams, library static methods and single-row functions.
+  - Support for registering single-row functions by function name.
+  - Support for dot-syntax in the form of "(expression).method(...).method(...)" which includes support for duck typing, obtaining array size and calling get(index) on an array or collection.
+  - Support for subqueries to select multiple columns.
+  - Support for correlated aggregation in subqueries.
+  - Support for selecting multiple columns in a subquery.
+  - Support for contained-event syntax on events selected from a named window.
+  - Support for expressions in the [] bound repeat in patterns.
+  - Support for grouped data windows to remove groups that haven't changed for a given time period, as specified via hint.
+
+  - To be congruent to the JDBC 4 specification, the SQL query metadata now uses the value returned by the JDBC driver result set metadata for "getColumnLabel" as the column name or if that is null the value returned by "getColumnName".
+  - For plug-in aggregation functions, the parameter to the "validate" method has changed and is now a validation context that provides additional information. The "validateMultiParameter" method has been removed.
+  - We added a new example demonstrating runtime configuration.
+
+Minor changes  
+  - Fixed issue ESPER-471 Static method called 'join' (reserved keyword) not allowed
+  - Fixed issue ESPER-481 Create-Window with explicit column-types does not support column types that are an event type (documentation bug/improvement)
+  - Fixed issue ESPER-489 Plug-in loader destroy order should be reverse of creation order
+  - Fixed issue ESPER-493 "IllegalStateException" for an aggregation query without group-by and without aggregations in the select clause
+  - Fixed issue ESPER-455 Aggregation when used with "prev" in where clause may return an incorrect result.
+  - Fixed issue ESPER-466 First-length and first-unique combined to intersection (multiple data windows) to reduce insert stream
+  - Fixed issue ESPER-495 Support XPath attribute node list result casted to string array
+  - Fixed issue ESPER-487 Custom aggregation functions - pass indicator whether running windowed and allow access to child expressions
+  - Fixed issue ESPER-496 On-select with stream wildcard and aggregation produces event-per-group and not event-per-row
+
+Changes in version 3.5.0
+------------------------
+Major API changes
+  - None
+  
+New Features
+  - Support for EPL modules and deployment services.
+  - Support for "create schema": Declare an event type via EPL statement.
+  - Support for "for delivery" option: Grouped-delivery means any listeners/subscribers receive one invocation per group, discrete delivery an invocation per event.
+  - Support for expressions in parameters to SQL statements.
+  - Preemptive processing of events inserted into named windows. This helps to make behavior of queries with named windows more intuitive.
+  - Support for a new pattern guard "timer:withinmax". It takes a time period and maximum-count and ends the pattern subexpression when either the stopwatch or counter match.
+  - Support for a new pattern guard post-fix operator "while": Similar to a while loop, ends the pattern subexpression when an expression turns false.
+
+Minor changes  
+  - Fixed issue ESPER-388 Provide option to auto-remove event type when all statements referencing a type are destroyed
+  - Fixed issue ESPER-392 Nested properties with keywords can not be escaped with ticks
+  - Fixed issue ESPER-460 Added ResultSet to context provided to SQLOutputRowConversion and SQLColumnTypeConversion
+  - Fixed issue ESPER-463 Nested properties can not be escaped with ticks
+  - Fixed issue ESPER-464 Add an engine-level configuration parameter for default AccessorStyle
+  - Fixed issue ESPER-468 IllegalArgumentException while parsing "B until not B" pattern
+  - Fixed issue ESPER-469 Using java.sql.Date with renderer returns PropertyAccessException
+  - Fixed issue ESPER-470 Spring JMS input adapter ack's message before unmarshal
+  - Fixed issue ESPER-472 ClassCastException while sending TimeControlEvent into isolated runtime
+  - Fixed issue ESPER-473 Custom marshaller for Spring JMS adapter that returns DOM object results in an unrecognized event
+  - Many other documentation and performance improvements
+
+
+Changes in version 3.4.0
+------------------------
+Major API changes
+  - None
+  
+New Features
+  - Support for variables of type Object (any type), class or EventType
+  - Support for creating an explicit index on a named window for best on-demand query performance (aka. fire-and-forget queries)
+  - New socket input adapter
+  - New HTTP input and output adapter
+  - New database output adapter for queueable insert, update, delete (DML) and upsert keyed-insert/update 
+
+Minor changes  
+  - Minor change to the SODA object model API to strictly follow the JavaBean standard
+  - For the PluginLoader API the "init" method now takes a context object that contains initialization parameters
+  - Fixed issue ESPER-445 Improve performance of match-recognize when large number of intermediate events
+  - Fixed issue ESPER-451 Memory leak in pattern with or-operator and permanently false subexpressions
+  - Fixed issue ESPER-430 PlugInProjectionExpression should allow more than one expression
+  - Fixed issue ESPER-453 Repeated Max and Min on Named Window Aggregations
+  - Fixed issue ESPER-457 ClassCastException when using subscriber to join statement with wildcard-select and distinct
+  - Fixed issue ESPER-446 Benchmark throws exception for weighted average sample
+  - Fixed issue ESPER-449 Create window fails for syntax providing column names and types explicitly and multiple data windows
+  - Fixed issue ESPER-450 Row-based and/or column-based conversion function for SQL query results
+  - Fixed issue ESPER-403 First-unique data window used with named window causes on-delete to misbehave
+  - Fixed issue ESPER-429 Replace "childNodeType" with "parameterType" in section 12.2.3
+  - Reorganized EsperIO to individual jar files; Deprecated opentick adapter
+  - Many other documentation and performance improvements
+
+
+Changes in version 3.3.0
+------------------------
+
+Major API changes
+  - None
+  
+New Features
+  - Support for subqueries to occur in filter expressions (stream or pattern)
+  - Support for subqueries in split-stream and on-set and on-select
+  - Support for on-update
+  - New aggregation functions: rate, last, first, nth, leaving
+  - The "prev" and "prior" functions now accept a stream name 
+  - Optimization of min and max aggregation function for use with or without data window
+  - Support for annotations in statement object model
+  - Variables that are created via "create variable" and that are no longer referenced are removed
+
+Minor changes  
+  - Fixed issue ESPER-389 startAllStatements() starts rules in unpredictable order
+  - Fixed issue ESPER-393 Stream name alias not available for use in where-clause
+  - Fixed issue ESPER-396 Unbound stream and aggregating/grouping by unlimited key (i.e. timestamp) configurable state drop
+  - Fixed issue ESPER-398 Escape syntax for quote and double quote not working
+  - Fixed issue ESPER-402 Pattern with two NOT-operators connected by AND-operator throws ConcurrentModificationException (1 thread)
+  - Fixed issue ESPER-404 Statement resources not cleaned up after statement destroy keeping last event
+  - Fixed issue ESPER-405 Equals operator on object types in expressions should support inheritance
+  - Fixed issue ESPER-406 OutOfMemory : StatementMetrics not cleaned up after statement destroyed
+  - Fixed issue ESPER-409 Order-by clause not applied when pattern delivers multiple result rows for single incoming event
+  - Fixed issue ESPER-411 Operands of expression passed the wrong way round in patterns
+  - Fixed issue ESPER-414 In some scenario, createEPL fails with IllegalStateException vs EPException
+  - Fixed issue ESPER-415 statement object model fails on every-distinct
+  - Fixed issue ESPER-416 statement name provided by API does not overrides annotation provided name
+  - Fixed issue ESPER-432 Dangling meta character in regexp hangs the engine
+  - Fixed issue ESPER-418 Statement fails to compile if the statement only has a where-clause and uses an alias
+  - Fixed issue ESPER-419 Group-by with "output last" output rate limiting and wildcard select outputs last event and not last event per group
+  - Fixed issue ESPER-420 Group-by with wildcard-select may present wrong value for non-aggregated and non-grouped properties
+  - Fixed issue ESPER-421 Case-when throws NullPointerException when condition returns null
+  - Fixed issue ESPER-424 Self-join and order-by incorrect order
+  - Fixed issue ESPER-431 20-stream join hangs query optimizer
+
+
+Changes in version 3.2.0
+------------------------
+
+Major API changes
+  - None
+  
+New Features
+  - Support to the proposed SQL standard "match_recognize", a regular expression-based event pattern matching language
+  - Support for isolated service providers, which allow to control event visibility and time-related behavior on a statement level, i.e. suspend, preload or catch-up statements
+  - Support for "update istream" which allows declarative modification of event properties of events entering a stream.
+  - Support for "distinct" in the select clause
+  - Support for	"output after" syntax to discard of events until time period passed
+  - Support for "limit" clause for on-select and on-insert
+
+Minor changes  
+  - Fixed issue ESPER-386 "Output when" with variables fails when multiple statements refer to same variable
+  - Fixed issue ESPER-385 NPE thrown on removeAllListeners for destroyed statement
+  - Fixed issue ESPER-382 ConcurrentModificationException for named window select/insert/delete
+  - Fixed issue ESPER-376 Restriction in element not parsing to right type for XSD-backed event type
+  - Fixed issue ESPER-375 Contained event selection for certain XML creates ClassCastException
+  - Fixed issue ESPER-373 NPE in output rate limiting using SODA
+  - Fixed issue ESPER-371 Using Esper 3.1.1, a POJO type of float isn't supported in the statements
+  - Fixed issue ESPER-370 Exception compiling pattern with repeat operator and filter using repeated property within the repeat operator itself
+  - Fixed issue ESPER-368 XML schema property plus XPath with the same property name produce incorrect result if schema and XPath typing don't match
+  - Fixed issue ESPER-367 OutOfMemory issue when a group-by expression returns an unlimited number of values
+  - Fixed issue ESPER-366 Missing export of package com.espertech.esper.event.property
+  - Fixed issue ESPER-365 Import EPL built in annotation by default
+  - Fixed issue ESPER-362 Error "Iteration over a unidirectional join is not supported" at statement start in a stream to window join
+  - Documentation and performance improvements
+
+
+Changes in version 3.1.0
+------------------------
+
+Major API changes
+  - The behavior of "timer:within" when used within an "every" in a pattern has changed: The sub-expression qualified by "timer-within" upon expiry 
+    of the timer now evaluates to permanently false, while previously it simple stopped. This allows the "every" operator to restart such sub-expression.
+    For example, the expression:
+      every(A -> (B where timer:within(5 sec)))
+    ... When no B event arrives after an A event, the "every" restarts the subexpression looking for the next A followed by B within 5 sec.
+  - The PluginLoader interface for writing adapters has a new required method that must be implemented to allow plugins to initialize after complete Esper engine initialization.
+  - The provider URI of the default engine instance is now "default" instead of null.
+    This is for consistency with the default engine qualifier for optional use in stream and property name qualification, which is also "default".
+    Therefore EPServiceProviderManager.getDefaultProvider().getURI() returns "default", and passing null to the EPServiceProviderManager still returns the default instance.
+
+New Features
+  - A new "every-distinct" operator has been introduced to the pattern language. Very similar to the "every" operator, this operator
+    suppresses duplicate results received from sub-expressions based on a set of expressions returning distinct-values.
+  - The EPL language now understands annotations following the annotation syntax standard.
+    An annotation is an addition made to information in a statement. Esper provides certain built-in annotations for
+    defining statement name (@Name), adding a statement description (@Description) or for tagging statements.
+    Applications can provide their own annotation classes that the EPL compiler can populate.
+  - The engine now provides a way to prioritize and preempt processing of an event when multiple statements must process the event,
+    via the @Priority and @Drop annotations.
+  - The insert-into clause can now directly populate an underlying event object from a select clause.
+  - We have extended the on-insert syntax by a new split-stream syntax. This allows to list multiple insert-into, select clauses and where-clauses
+    thereby making it easy to split or duplicate an event stream into multiple further event streams.
+
+Minor changes  
+  - Fixed Issue ESPER-350 Timer-Within should evaluate to permanently false allowing every to restart the expression
+  - Fixed Issue ESPER-349 Exception barrier to lock taken missing from filter processing potentially causing deadlock after an exception occurs
+  - Fixed Issue ESPER-348 XML event type fails to be configured with XSD on Java 6
+  - Fixed Issue ESPER-347 NullPointer with time_batch and START_EAGER with named window
+  - Fixed Issue ESPER-346 NullPointerException in on-select with aggregation and empty window
+  - Fixed Issue ESPER-345 NPE is thrown when evaluating statement with 'OR' in its having-clause.
+  - Fixed Issue ESPER-344 Pattern cleanup incomplete causing memory leaks
+  - Fixed Issue ESPER-343 Esper shouldn't log ExprValidationException
+  - Fixed Issue ESPER-341 Variable used with XML no-schema event in same statement creates ambigous property exception
+  - Fixed Issue ESPER-340 Lost of precision using BigDecimal for arithematic operation
+  - Fixed Issue ESPER-339 Parse error when using "every" in combination with repeat
+  - Fixed Issue ESPER-336 pluginloader stop not properly called - issue with EPserviceProviderManager.getProvider("existing")
+  - Fixed Issue ESPER-335 pluginloader stop called after engine runtime destroy
+  - Fixed Issue ESPER-334 PluginLoader reentrancy on Configuration
+  - Fixed Issue ESPER-333 Pattern followed-by expression to detect when no subexpressions are alive and indicate permanently false so "every" can restart
+  - Fixed Issue ESPER-332 NullPointerException in on-select with having clause for timer excution
+  - Fixed Issue ESPER-331 Runtime exception barrier for listener and subscriber
+  - Fixed Issue ESPER-328 Aggregation function nested created NPE in Timer thread
+  
+
+Changes in version 3.0.0
+------------------------
+
+Major API changes
+  - The summary of changes are:
+    - Upgraded version of dependent jar files 
+    - Moved EventType, EventBean and related exception classes from package com.espertech.esper.event to com.espertech.esper.client
+    - Several minor rename of methods in the Configuration API related to event type name retiring "alias" as a word in method names
+    - EPL division expressions yield double-type results
+    - EPL view and pattern parameters strongly distinquish between string constant and property name
+    - EPL join statements for certain stream types now require a data window declaration
+    - EPL when using multiple data windows defaults to intersection semantics
+    - Extension API for views, pattern objects and event representations have additional or slighly changed signatures
+    
+New Features
+  - The view parameters and pattern object parameters are now expressions. Thereby they gain certain new features: 
+    - Variables may be used to parameterize views or pattern objects; 
+    - Prepared statements may use substitution parameters to parameterize views and pattern objects;
+    - Pattern objects may be parameterized by prior events;
+    - The syntax for views namespace.name('property') is no longer supported.
+  - New syntax to support contained-event selection, for use with coarse-grained events that contain finer-grained events or rows.
+    This allows convenient extraction and analysis of information from business-level composite events.    
+  - Added XML and JSON renderers for output events
+  - When using multiple data windows for the same stream in EPL, the default policy is intersection of data windows, and a union-policy is also available via keyword. 
+    This allows concise declaration and combination of multiple expiry policies and well-defined semantics.
+  - We have made substantial internal enhancements to the type system to simplify and support transposing from any type of stream to an event property in a further stream.
+  - Enhanced the XML DOM event to support: The changes gained features to transposing XPath expression results between statements and including arrays,
+    as well as transposing property expression results. The changes also correct a problem in which an expression "index[1]" accessed the firs element in a collection and not the second.
+  - Added a new method for statements to add a listener with replay in one transaction, by name "addListenerWithReplay".
+  - The EPL now returns a double-type result for division expressions where both operands to a division were non-FP types, such as "1/2", i.e. double 0.5. 
+    This follows SQL standards and makes EPL easier to read and use. Esper 2.x returned an integer value following Java standards (i.e. zero).
+  - The EPL does no longer assume keep-all semantics if no data window is specified for a filter-based or pattern-based stream in a join. 
+    EPL now requires a data window to be explicitly defined to applicable streams.   
+  - Added support for SQL-standard ANY, SOME and ALL keywords in group comparison.  
+  - Added advanced threading options to configuration for use with inbound, outbound and execution threading at engine-level.  
+  - Improved support for Java-object event representation with parameterized types (Java generics), List and Iterable properties.  
+  - Added support for escaping property names and event type names in case an overlap occurs with keywords.
+  - New configuration options to change the caching behavior for UDF invocations.
+
+Minor changes	    		
+  - Removed "stat:cube" view.
+  - Removed "indicator.jmx" package.
+  - Removed "emit" method from EPRuntime and EmittedListener.
+  - Removed examples LinearRoad, RSI and ATM.
+  - The Maven build no longer compiles the grammar. The grammar is now compiled via "esper/grammar/antlrtool.bat" or "antlrtool.sh". The resulting parser is
+    part of the source code base.
+  - Added new examples for named window and OHLC; We restructured the examples directory structure and added Eclipse projects.
+  - Fixed issue ESPER-326 Prepared On-Demand Query on named window returns incorrect count(*) 
+  - Fixed issue ESPER-324 EPServiceStateListener exposes EPServiceProviderImpl
+  - Fixed issue ESPER-323 Timer thread caught unhandled exception: null
+  - Fixed issue ESPER-321 stat:linest has more derived properties than what documented
+  - Fixed issue ESPER-320 Pass explicit null value to user-defined function fails to start statement
+  - Fixed issue ESPER-318 Replace the term "alias" for event types with the term "name"
+  - Fixed issue ESPER-317 current_timestamp does not behave properly when accessed from getter API
+  - Fixed issue ESPER-316 XML DOM-backed events transpose properties that are DOM-subtrees to a new stream
+  - Fixed issue ESPER-314 Esper XML represented events - need clarification
+  - Fixed issue ESPER-313 using last | snapshot in output...when statement causes parsing error
+  - Fixed issue ESPER-312 NullPointerException in group-by query with only a count(*) in the having-clause and no other agg functions
+  - Fixed issue ESPER-311 Publish current statement results to listener upon listener-add and atomically
+  - Fixed issue ESPER-310 Safe iterator on unidirectional join not releasing lock
+  - Fixed issue ESPER-309 Named window model-after for Map-event types incompatible with insert of Map type
+  - Fixed issue ESPER-305 escape char parsing
+  - Fixed issue ESPER-304 impossible to get properties of events when a listener and a subscriber are added to a statement
+  - Fixed issue ESPER-303 Pooled DB connection obtained and returned even on cache hit
+  - Fixed issue ESPER-276 NullPointerException reported when enabling metrics reporting but still working
+  - Fixed issue ESPER-251 Named window with underlying event as a property and insert-into from pattern requires self-property in select clause
+  
+
+Changes in version 2.3
+------------------------
+
+Major API changes
+  - Added API for on-demand queries
+ 
+New Features
+  - Support for array-type properties in Maps; Support for map type name as a property type
+  - Listener API for receiving callbacks upon statement creation and state change as well as service state
+  - Allow event types to be removed at runtime; Allow detection of which statements reference types
+  - Added OSGi manifest to jar files
+  - Support for language-locale dependent sorting of String value
+  - Event type name added to EventType interface
+  - Added route methods for other event representations
+  - Added user object support to EPStatement
+  
+Minor changes
+  - Fixed issue ESPER-270 Property name order not always reflecting select clause order for getPropertyNames
+  - Fixed issue ESPER-274 Strange exception using median collection
+  - Fixed issue ESPER-275 Identifiers that are scientific notation numbers don't cause a parser error
+  - Fixed issue ESPER-276 NullPointerException reported when enabling metrics reporting but still working
+  - Fixed issue ESPER-280 isVariantStreamExists throws nptr
+  - Fixed issue ESPER-281 On-Select with Insert-Into throws NPE if no data selected from named window
+  - Fixed issue ESPER-282 Memory leak in grouped data window when combined with weighted-avg view
+  - Fixed issue ESPER-285 Correlation and Linest stats view within groupby problem
+  - Fixed issue ESPER-286 Map inheritance event type processes first derived event only for queries against supertype events
+  - Fixed issue ESPER-287 Improve startup performance for large numbers of statements with the same filter property
+  - Fixed issue ESPER-288 Write-only property of POJO event shows up in property name list
+  - Fixed issue ESPER-290 FIX adapter not documented
+  - Fixed issue ESPER-291 Delivery to observer failes with NPE if custom view posts null insert and remove stream
+  - Fixed issue ESPER-292 esper_reference.pdf : Figure 3.4. is incorrect
+  - Fixed issue ESPER-294 Pattern problem in 'every' operator not restarting a false sub-expression.
+  - Fixed issue ESPER-295 Time window onto a unique window not working
+  - Fixed issue ESPER-296 EPL 'not like' expressions in prepared statements lose negation
+  - Fixed issue ESPER-297 Detect dead database connection and retry
+  - Fixed issue ESPER-299 Need to pass context classloader to CGLib
+  - Fixed issue ESPER-300 IndexOutOfBoundsException in TimeBatchViewFactory
+  - Fixed issue ESPER-301 Time batch view documentation incorrectly shows reference point as optional with flow control keywords
+
+
+Changes in version 2.2.0
+------------------------
+
+Major API changes
+ - Two new reserved keywords: LIMIT and OFFSET; Added for support of the SQL-standard row limit clause.
+ - Bug fix for ESPER-264 that impacts joins that utilize the "unidirectional" keyword and that perform aggregation
+ 
+New Features
+  - Support for repeat and repeat-until in pattern matching
+  - Enhancements for the create-syntax for named windows:
+      - Allows an additional SQL table-like definition syntax
+      - Allows constants in the model-after syntax
+      - Allows the window to be modelled after another named window, and populated from another named window at creation time
+      - Changed "as" to become an optional keyword
+  - Added support for BigDecimal and BigInteger in all aspects of EPL
+  - Added metrics reporting: Instrumentation to provide key engine and statement-level performance indicators as event streams
+  - Added support for row limiting
+  - Added four new data window views for for first-event type expiry policies: std:firstevent, std:firstunique, win:firstlength, win:firsttime
+  - Enhanced output limit clause to support crontab-like schedule
+  - Enhanced output limit clause to support output when an variable or expression turns true
+  - Enhanced plug-in aggregation functions to accept multiple parameters
+  - Support for the "inner" keyword for use in outer joins
+  - Support for variables to be parameters to an SQL join and method join
+  - Support for polling via iterator from a statement that contains only SQL queries or method invocations (alone or in a join, aka. no-stream pull API)
+  - Removed limitation on the number of historical streams (SQL and method) in joins, now supporting an unlimited number of historical streams, full iterator support
+  - Support for Map inheritance: map event types may now be declared to inherit from one or more Map supertypes
+  - Support for changing Map event types at runtime by adding properties to an existing type
+  - Optimization for certain filter-only statements to more efficiently process
+  - Added JMS text message marshaller and unmarshallers for Fix (Fix is a standard financial interchange format)
+  
+Minor changes
+  - Fixed issue ESPER-270 Property name order not always reflecting select clause order for getPropertyNames
+  - Fixed issue ESPER-269 User-define method with dot in parameter generates property not found 	
+  - Fixed issue ESPER-268 User-defined function reports runtime errors through the stack 	
+  - Fixed issue ESPER-264 Unidirectional keyword with aggregation posts lifetime-cumulative results rather then join-current cumulative results 	
+  - Fixed issue ESPER-263 Add boolean ConfigurationOperations.isVariantStreamExists(String variantStreamName) 	
+  - Fixed issue ESPER-258 Extension points for esperio 	
+  - Fixed issue ESPER-257 Esperio beans input to support subset of beans properties in input CSV 	
+  - Fixed issue ESPER-256 It would be really useful for CSVInputAdapter to have a row count so we can tell how many rows it has processed 	
+  - Fixed issue ESPER-254 Iterating over joins that join by polling execution (database or method joins) 	
+  - Fixed issue ESPER-250 Custom aggregation function provided by static inner class not possible 	
+  - Fixed issue ESPER-249 Enhance TimeBatchView with FORCE_UPDATE, START_EAGER keywords 	
+  - Fixed issue ESPER-247 Cast function for String to Int conversion returns null 	
+  - Fixed issue ESPER-246 Unique-view incorrectly posts remove stream data for shared state under view sharing conditions 	
+  - Fixed issue ESPER-243 Swallowing InterruptedException in EPServiceProviderImpl 	
+  - Fixed issue ESPER-241 Predefined variant types not supporting dynamic event types 	
+  - Fixed issue ESPER-239 Esperio - memory leak in AdapterCoordinatorImpl 	
+
+
+Changes in version 2.1.0
+------------------------
+
+Major API changes
+  - New API to plug-in of a custom event type
+  - Added additional sendEvent method that accepts alias name and event object, plus EventSender instance to skip type lookup 	
+    
+New Features
+  - Added support for variant event streams, into which events of disparate event types can be inserted and treated as the same type
+  - Added support for update events (aka. version or revision events)
+  - Added support for streaming XML using Apache Axiom
+  - Added support for EsperIO CSV adapter to send bean events
+  - Allowed normalization of subevents into resultant stream 	
+  - Allowed DOM-type property of XML events transpose into new stream for use with XPath and nested syntax 	
+
+Minor changes	    		
+  - Properties can now be prefixed by the engine URI and the event type alias used in the from-clause; Event streams can be prefixed by the engine URI (SQL compatibility)
+  - Added full support for nano/microsecond resolution
+  - Allowed access to statement's XPathFactory instance to supply XPathFunctionResolver, etc. 	
+  - Added support for an escape syntax for event property names that contain dots
+  - Allowed esperio to use external timer
+  - Added support to specify a time period in output rate limiting 	
+  - Added support for the "in" operator to accept array properties, collection (set, list) property or map property for contains-value semantics 	
+  - Now uses thread ClassLoader for compatilibility with OSGi
+  - Provide additional XPath return value types to cast to 	
+  - Allow certain keywords to be used as column alias, such as "select count(*) as count from foo"
+  - Fixed issue ESPER-197 EsperIO/CSV reported to be slow 	
+  - Fixed issue ESPER-208 Esperio runs out of stack space when processing largeCSV file and not using engine thread 	
+  - Fixed issue ESPER-209 Stop of consumer statements of named windows may not entirely deregister consumer 	
+  - Fixed issue ESPER-213 ConcurrentModificationException creating consuming statements to a single named window under threading 	
+  - Fixed issue ESPER-214 ClassCastException in named window dispatch for timer thread when multiple insert-into 	
+  - Fixed issue ESPER-219 Documentation for plug-in views not specifying implicit contract towards object references 	
+  - Fixed issue ESPER-220 TimeBatchView.computeWaitMSec can give incorrect results for low "interval" 	
+  - Fixed issue ESPER-221 Named window with batch expiry policy causes late consumers to post incorrect data or throw IllegalArgumentException
+  - Fixed issue ESPER-227 No documentation on time-batch view parameter for reference point
+  - Fixed issue ESPER-228 PDF document page number not showing
+
+
+Changes in version 2.0.0
+------------------------
+
+Major API changes
+  - All package names have changed from "net.esper" to "com.espertech.esper"
+  - We have renamed EQL to EPL: All method names and other references to EQL have been renamed to EPL, i.e. createEQL to createEPL
+  - We have made changes to engine output to make the output more useful and consistent between different types of queries, 
+    and to make the engine more performant.
+  - We have upgraded 3rd party library dependencies to new versions
+  - We have switched the schema to 2.0, made it namespace-aware and available online
+
+New Features
+  - New strongly-typed and fast output event delivery to subscriber objects via method call
+  - Performance improvement: statements without listeners or subscriber (iterator or output-snapshot statements that use insert-into) now compute much faster
+  - We have upgraded to ANTLR Version 3 to gain excellent error handling, incremental parsing, easy-to-read grammar and a smaller runtime jar
+  - We have changed view parameter syntax such that event properties do no longer need to appear in quotes
+  - Added support for nano/microsecond timer resolution (ESPER-191)
+  - Added API for setting variable values (ESPER-181)
+  - Added support for map return types in from-clause method invocations
+  - Added support for a "unidirectional" keyword in joins/outer join to control join direction
+  - Added support for multiple event properties in unique view (std:unique)
+  - Added support for use of aggregation functions in subselect
+  - Fixed issue ESPER-136 Improve error messages when encountering reserved keywords
+  - Fixed issue ESPER-138 Allow Map event type to contain nested Map values
+  - Fixed issue ESPER-145 Ignore start or stop commands on already started or stopped EPStatements.
+  - Fixed issue ESPER-178 Problem selecting "sum" as a property of event posted by stat:uni view
+  - Fixed issue ESPER-179 Iterator on select statement selecting from a named window may return incomplete results  
+  - Fixed issue ESPER-180 Null aggregation results outer joining a named window on filled named window
+  - Fixed issue ESPER-183 Replace LinkedLists with ArrayDeque where possible
+  - Fixed issue ESPER-184 NPE when using regexp or like on null pojo properties
+  - Fixed issue ESPER-185 Remove limitation whereas grouped-by properties cannot also occur within aggregation functions  
+  - Fixed issue ESPER-186 Iterator not honoring order by clause for grouped join query with output-rate clause
+  - Fixed issue ESPER-187 Join of two or more named windows on late start may not return correct aggregation state on iterate
+  - Fixed issue ESPER-188 Output snapshot buffers events until output condition is reached
+  - Fixed issue ESPER-188 Output snapshot buffers events until output condition is reached
+  - Fixed issue ESPER-192 Support non-String type auto-discovery in EsperIO
+  - Fixed issue ESPER-194 Nullpointer when using Jcl104-over-slf4j
+  - Fixed issue ESPER-195 Not considering having-clause in un-aggregated and un-grouped query (no-join only)
+ 
+Minor API Changes:
+  - Changes to configuration classes:
+    Moved the classes ExpiryTimeCacheDesc, LRUCacheDesc, DataCacheDesc, CacheReferenceType out inner classes of ConfigurationDBRef to 
+    ConfigurationExpiryTimeCache, ConfigurationLRUCache, ConfigurationDataCache, ConfigurationCacheReferenceType
+    since the classes were applicable elsewhere
+  - Renamed method addJavaSqlTypesBinding on ConfigurationDBRef to addSqlTypesBinding
+  - Minor change to SelectClause in the SODA API
+
+Changes in version 1.12.0
+------------------------
+
+* New feature: Named window
+  - Allows to share data windows between statements
+  - New create-window syntax to create named windows
+  - Define entry criteria via insert-into
+  - Define exit criteria via the new on-delete syntax
+  - Perform on-demand queries using the new on-select syntax
+* New feature: Variable
+  - New create-variable syntax declares a variable
+  - Variables can occur in any expression
+  - A variable can occur in an output-rate limit to dynamically control output rate
+  - Update variables via the new on-set syntax
+  - The engine makes consistency and atomicity guarantees
+* New multi-policy tumbling window (ESPER-165)
+* New time-ordering window for more flexibility in handling out-of-order events (ESPER-147)
+* New accumulating time-based data window (ESPER-166)
+* New 'snapshot' keyword for the output rate limiting clause for outputting full statement state
+* New safe iterator to provide a concurrent-safe pull API (ESPER-172)
+* Support for method invocations in the from-clause; For example to query a distributed, object database or web service
+* Support for iterator and safe iterator to iterate over joins and outer joins (ESPER-173)
+* Support for stream-wildcard "stream.*" selections for more flexibility selecting from joins and patterns (ESPER-174)
+* Support for the stream name or pattern tag name as a valid property in expressions, returning the underlying event for the stream
+* Support for instance method calls on stream or pattern events that are Java objects
+* Support for indexing of cached result sets of SQL poll queries and method invocations
+* Support for expiry time cache backed by soft-reference Map and hard-reference map (ESPER-167)
+* Support for an unmatched event listener that receives a callback if an event matches no statement (ESPER-160)
+* Support for JDK5 enum classes natively (ESPER-13)
+* Support for constants (public static final fields) in expressions
+* Fixed issue ESPER-125 IllegalStateException in a self-joining statement without join condition using sorted window
+* Fixed issue ESPER-177 Deadlock in EPRuntimeImpl.sendEvent
+* Fixed issue ESPER-176 NullPointerException for grouped-by length view and previous operator
+* Fixed issue ESPER-175 ArrayIndexOutOfBoundsException when no event posted 
+* Fixed issue ESPER-171 AutoID example in Sun JDK6 fails with Invalid schema error (a JDK6 compatibility issue)
+* New example: Java Messaging Service (JMS) server shell 
+  - demonstrates a multi-threaded JMS server 
+  - with dynamic statement management using Java Management Extensions (JMX)
+* API change: AggregationSupport now requires an implementation of the clear() method
+* documentation improvements
+* performance improvements: rewritten insert-into and listener thread blocking techniques for reliable ordered delivery, other changes
+
+
+Changes in version 1.11.0
+------------------------
+
+* Support for statement object model (ESPER-108)
+  - allows to build, change or interrogate an object-oriented representation of a statement
+  - round-trip between EQL and object model
+* Support for precompiled statements and substitution parameters (ESPER-50, ESPER-31)
+* Support for dynamic (unchecked) properties; Support for instanceof and cast (ESPER-135)
+* Support for the StatementStopCallback to deliver events raised by plug-in views (ESPER-158)
+* Support for automatic bean aliases by specifying imported packages (ESPER-149)
+* New "current_timestamp" reserved keyword returns the current engine time (ESPER-144)
+* API provides timestamp with last state change in EPStatement (ESPER-144)
+* Fixed issue ESPER-129 "DOM expects a Document, no error checking if not"
+* Fixed issue ESPER-131 "Namespace problem using XML events and XPath properties"
+* Fixed issue ESPER-134 "EPException using std:groupby without child view"
+* Fixed issue ESPER-142 "Relational Database Access does not work with Oracle JDBC"
+* Fixed issue ESPER-159 "Two patterns with similar filters cause duplicates reported by one pattern"
+* Fixed issue ESPER-155 "BeanEventType fails on write only property"
+
+Changes in version 1.10.0
+------------------------
+* Support for a new statement-aware listener interface (ESPER-113)
+* Support for case-insensitive Java-class event property names (ESPER-103)
+* Fixed issue ESPER-112 "Pattern problem in 'every' operator not restarting a permanently false sub-expression"
+* Fixed issue ESPER-114 "Allow equals operator on object types in expressions"
+* Fixed issue ESPER-115 "NullPointerException using iterator on pattern without window"
+* Fixed issue ESPER-118 "NullPointerException when select * and additional fields"
+* Fixed issue ESPER-121 "Filter expression not evaluating correctly after optimization and using multiple pattern subexpression results"
+* Fixed issue ESPER-122 "IllegalArgumentException in a join statement between same-typed map-underlying events"
+* Fixed issue ESPER-124 "IllegalStateException in a grouped time window using the prior function"
+* Fixed issue ESPER-126 "Allow null statement name for createPattern"
+* Documentation improvements
+* Performance improvement when running engine without log4j configuration
+
+
+Changes in version 1.9.0
+------------------------
+* Improvements to multi-threaded processing:
+   - Deliver events to listeners in a predictable order
+   - Deterministic in processing events between statements that consume other statement's events via insert-into
+* Support for last-day-of-month and weekday for timer:at crontab functions (ESPER-84)
+* Support for subqueries to return the event object itself (ESPER-105)
+* Additional documentation on grouping and aggregation (output model chapter)
+* Additional documentation on threading and concurrency (API chapter)
+* New example out of the RFID domain featuring a Swing GUI and a simulator
+* Fixed issue ESPER-98 "NullPointerException for Joins involving Map event types"
+* Fixed issue ESPER-99 "IllegalStateException combining a time window with min/max and group-by and output every"
+* Fixed issue ESPER-101 "ArrayIndexOutOfBounds with 'output last' and group by"
+* Fixed issue ESPER-107 "Memory leak using previous function and length window under a group"
+* Fixed issue ESPER-109 "NPE while fetching events from statements"
+* Fixed issue ESPER-110 "Iterator not honoring filter, aggregation, group-by and having clause"
+
+
+Changes in version 1.8.0
+------------------------
+* Support for subqueries including the exists and subquery-in syntax (ESPER-22 support for subqueries)
+* Support for plug-in user-defined aggregation methods, and plug-in pattern observer and pattern guard objects (ESPER-40)
+* Fixed issue ESPER-93 "Improve error handling parsing too large Integer numbers and remove L suffix requirement for Long"
+* Fixed issue ESPER-96 "Cache result of user-defined functions when parameter set is constants"
+* Fixed issue ESPER-94 "Performance degradation for certain statement between 1.4 and 1.5 of 25%"
+* Significant performance improvements in statement event output and lock management
+
+
+Changes in version 1.7.0
+------------------------
+* Support for free-form filter expressions (User-defined filter functions ESPER-77, Pattern Filter - null value support ESPER-17, ESPER-91)
+* New JMS input and output adapter based on Spring JMS templates (ESPER-4, ESPER-8, ESPER-7)
+* Support for adding new event type aliases and Map and DOM event types during runtime (ESPER-87)
+* New statement management API (ESPER-90)
+  Note: Starting this release the engine remembers stopped statements however a stopped statement takes very little memory.
+  Destroy a statement to eliminate any resources held by an engine for a statement.
+* Allow literal keywords to be case insensitive (ESPER-89)
+* More helpful error messages when invalid syntax (ESPER-82)
+* Support for plugging-in a custom-developed view (ESPER-41)
+* Fixed issue ESPER-86 "selecting first element via prev and count(*)"
+* Fixed issue ESPER-92 "String with parantheses not parsing in static method arg"
+
+
+Changes in version 1.6.0
+------------------------
+* Added support for group-by and previous (ESPER-80 Prev function to consider grouped windows)
+* Added length window batch (ESPER-27 jumping/tumbling window)
+* Added support for array definition (Enhancement Request ESPER-76 Java array initialization syntax for constants)
+* Removed dependency on Apache Common BeanUtils library (commons-beanutils-1.7.0)
+* Fixed issue ESPER-78 "Insert-into streams not using correct event type when same-typed streams"
+* Docs: Output model illustrations for time windows and event model; Extensive description of built-in views
+
+
+Changes in version 1.5.0
+------------------------
+* Multithread-safety for all operations provided by the administrative and runtime API. 
+  Client applications can perform multithreaded sends of events into the engine as well as create, start and stop statements during operation, while retaining full control over threading and efficiently sharing resources between statements (Enhancement Request ESPER-48 Multithread-safety)
+* Documentation - new chapter explaining the output model
+* fixed issue ESPER-75 "PropertyAccessException selecting individual fields from a group-by with sub-ordinate length window"
+
+
+Changes in version 1.4.0
+------------------------
+* New Esper Input Adapter API (EsperIO) for reading CSV (comma-separated value format) files and running event simulations from timestamped CSV files (ESPER-6 Input Adapter for reading CSV files)
+* (EQL) Support for 'prior' and 'prev' (previous) operator (Enhancement request ESPER-25)
+* (EQL) Support for 'in' and 'not in' list-of-value matching in filter expressions, 
+        and for 'between' and 'not between' keywords, and 'not in' ranges (Enhancement request ESPER-66)
+* (EQL) Support for modifying events in a stream, i.e. wildcard and expressions combined in a select-clause and insert into (Enhancement request ESPER-67)
+* Various documentation enhancements and performance tuning changes
+* Fixed issue ESPER-69 "Pull throws UnsupportedOperationException for statement not selecting wildcard"
+* Fixed issue ESPER-68 "Followed-by operator not releasing memory for dead sub-expressions"
+
+
+Changes in version 1.3.0
+------------------------
+* (EQL) Added support for SQL queries within EQL (Enhancement request ESPER-30)
+* (EQL) Added support for regular expressions (regexp) and SQL 'like' (Enhancement request ESPER-65)
+
+
+Changes in version 1.2.0
+------------------------
+* (EQL) Added support for 'in' and 'between' standard SQL keywords
+* (EQL) Fixed: EQL windows take seconds parameter while patterns take milliseconds parameter (Issue ESPER-52)
+	NOTE: The following functions now take seconds (not milliseconds) as a parameter: timer:within, timer:interval, win:ext_time
+	New syntax for specifying time periods introduced: example: timer:within(1 min 5 sec) equivalent to timer:within(65)
+* (EQL and Pattern) Mechanism to support EventType Adaptors for legacy Java classes (Enhancement request ESPER-55)
+* (EQL and Pattern) Support for != (not equals) in filter expressions (Enhancement request ESPER-63)
+* (EQL) Support for select-clause istream and rstream keywords (Enhancement request ESPER-54)
+* fixed issue ESPER-58 "IllegalMonitorStateException logged by engine"
+* (Doc) Add J2EE example (Enhancement request ESPER-64)
+* (Doc) How does one use emit (Enhancement request ESPER-62)
+
+
+Changes in version 1.1.0
+------------------------
+* (EQL) Added support for pattern expressions in EQL statements (Enhancement request ESPER-53 Consuming pattern-generated events in EQL)
+* (EQL) Added 'case' control flow function
+* (EQL) Added 'coalesce' comparison function
+* fixed issue ESPER-56 "count(*) always returns 0"
+* fixed issue ESPER-59 "Internal Threading Bugs Found"
+* fixed issue ESPER-57 "Initialize not resetting types declared via 'insert into'"
+* fixed issue ESPER-61 "Having clause not applied in query without group-by and without aggregation functions"
+* documentation enhancements
+
+ 
+Changes in version 1.0.5
+------------------------
+* (EQL) Added support for the "first" keyword in output rate limiting for outputting only the first matching event for an interval
+* (EQL and Pattern) Added support for XML events represented by a document object model (DOM) instances of org.w3c.dom.Node
+* (EQL and Pattern) Added support for Map events represented by a java.util.Map including object values
+* (Docs and Examples) New AutoId RFID example for XML event processing, includes simulator for running from the command line 
+* (Docs and Examples) New chapter on Event Representations
+
+
+Changes in version 1.0.0
+------------------------
+* (EQL) Added support for invoking Java library static methods, invoking user-defined static methods, and defining an auto-import list
+* (EQL) Sort view ext:sort now also allowing multiple columns to sort on
+* (EQL) Added NOT, modulo (%) and SQL string concatention operator (||)
+* (EQL) New example 'Market Feed Monitor' which showcases rate calculation and fall-off detection. With a simulator that 
+can be run from command line. 
+* (build) Build scripts now build Linux tarball; Shell scripts for compiling and running examples reworked.
+
+
+Changes in version 0.9.5
+------------------------
+* (EQL) Capability added to sort output using an "order-by" clause
+* (EQL) Support for bit-wise AND (&), OR (|) and XOR(^) operators
+* (EQL) Bug fix for allowing boolean expression in select clauses, such as "select a and b from MyEvent..."
+* (EQL) Added support for "insert into" thus allowing chains of EQL statements, and merging of event streams
+* (Docs and Examples) New 10-minute tutorial; Transaction example simplified
+
+Changes in version 0.9.1
+------------------------
+* (EQL) Bug fix for statements that contain only aggregation functions in the select clause such as 
+"select sum(volume) from StockTick". The engine was incorrectly posting an event per event posted 
+by the stream's window, rather then a single aggregate event.
+* (EQL) Bug fix for group-by without output rate limiting. This problem occured using a group-by clause
+without output rate limit and resulted in multiple events posted that include prior groups for each event posted 
+by the window.
+* (EQL) New example 'Transaction 3-event challenge' which shows EQL in use for detecting missing events and
+computing latency totals overall and grouped. Added scripts for compiling and executing the example.
+
+
+Changes in version 0.9.0
+------------------------------------
+* (EQL) Now supporting outer joins for an unlimited number of event streams
+* (EQL) Support for output rate limiting based on number of events and time-based, and choice of last or all events
+* (EQL) Renamed view "std:last" to "std:lastevent"
+* (EQL) New reserved keywords: last, events, output, seconds, minutes
+
+
+Changes in version 0.8.5
+------------------------
+* (EQL) Added support for the group-by clause and the having-clause
+* (EQL) Added support for aggregation functions in the select and having-clauses; The list of aggregation functions is: 
+max, min, sum, avg, count, median, stddev, avedev; The "distinct" keyword is also supported for each; The "count(*)" syntax is supported.
+* (EQL) Group-by view has been renamed from "std:group" to "std:groupby" since group is a reserved keyword
+* (EQL) The univariate statistics view "stat:uni" changed the name of derived event properties to "stddev" and "stddevpa" from formerly 
+"stdev" and "stdevpa" to stay consistent with the aggregate functions of the same name
+
+
+Changes in version 0.8.0
+------------------------
+* (EQL and Event Pattern) Event inheritance and interface implementation support; Added support for interfaces, 
+abstract classes, superclasses. E.g. select * from IMyEvent  (where IMyEvent) is an interface or superclass, and event classes that 
+implement this interface or extend the superclass match the criteria.
+* (EQL and Event Pattern) Added support for simple, mapped, indexed, nested and any combination of these anywhere where
+and event property name is expected. E.g. subordinate[3].address(home).city
+* (EQL and Event Pattern) Refined exception texts to better indicate syntax errors or messages in validating pattern and EQL statements
+during statement creation. Added EPStatementSyntaxException and EPStatementException.
+
+
+Changes in version 0.7.5
+------------------------
+* (API) A configuration can now optionally be supplied to an engine instance via the Configuration parameter to EPServiceProviderManager.
+This enabled event patterns and EQL to use short event names not requiring making the fully-qualified Java class name optional
+* (EQL) Outer joins: left, right and full join on 2 streams
+* (EQL) IS NULL, = NULL, IS NOT NULL, <> and != now supported in where clause
+* (EQL) New built-in function MAX(a, b,...), MIN(a, b,...)
+* (Event Pattern) Use of results in filters, such as "every A=X -> every B=X(objectID=A.objectID)"
+* (Event Pattern) improved removal of permanently false patterns (e.g. B arrives in 'A and not B')
+* (EQL and Event Pattern) Removed requirement that event names have () postfix, e.g. 'every A=X' equivalent to 'every A=X()'
+* (Documentation) new section on builtin functions
+* (Examples) Sample ATM added to show simple join
+
+
+version 0.7.0
+-------------
+Initial alpha version
+
+
+
+
+
+
+
+
+

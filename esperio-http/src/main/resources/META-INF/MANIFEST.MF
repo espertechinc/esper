@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Export-Package: com.espertech.esperio,
+ com.espertech.esperio.http
+Bundle-Name: Esper CEP engine for Java - Input Output Adapters
+Bundle-RequiredExecutionEnvironment: J2SE-1.6, J2SE-1.7
+Bundle-Vendor: EsperTech
+Built-By: EsperTech
+Build-Jdk: 1.6.0_23
+Bundle-Version: 4.9.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.espertech.esperio-http
+Eclipse-BuddyPolicy: dependent
+Import-Package: com.espertech.esper.client,
+ com.espertech.esper.client.time,
+ com.espertech.esper.adapter,
+ com.espertech.esper.core,
+ com.espertech.esper.epl.metric,
+ com.espertech.esper.event,
+ com.espertech.esper.event.xml,
+ com.espertech.esper.filter,
+ com.espertech.esper.pattern,
+ com.espertech.esper.plugin,
+ com.espertech.esper.schedule,
+ com.espertech.esper.util,
+ javax.jms,
+ javax.xml.namespace,
+ javax.xml.parsers,
+ javax.xml.xpath,
+ net.sf.cglib.reflect,
+ org.apache.commons.beanutils,
+ org.apache.commons.logging

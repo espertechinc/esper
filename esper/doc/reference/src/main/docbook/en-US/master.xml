@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+  <info>
+    <title>Esper Reference</title>
+    <releaseinfo>Version &project.version;</releaseinfo>
+    <authorgroup>
+      <author>
+        <orgname><link xlink:href="http://www.espertech.com">EsperTech Inc.</link></orgname>
+      </author>
+    </authorgroup>
+
+    <cover>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/esper_logo.png" />
+        </imageobject>
+      </mediaobject>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/espertech_logo.png" />
+        </imageobject>
+      </mediaobject>
+    </cover>
+	<copyright>
+		<year>2015</year>
+		<holder>EsperTech Inc.</holder>
+	</copyright>
+  </info>
+
+	<toc/>
+	<preface xml:id="preface" revision="1">
+		<title>Preface</title>
+		<para>
+			Analyzing and reacting to information in real-time oftentimes requires the development of custom applications.
+			Typically these applications must obtain the data to analyze, filter data, derive information and then indicate 
+			this information through some form of presentation or communication. Data may arrive with high frequency
+			requiring high throughput processing. And applications may need to be flexible and react to changes in requirements 
+			while the data is processed. Esper is an event stream processor that aims to enable a short development cycle from inception to production 
+			for these types of applications.
+        </para>
+        
+        <para>
+			This document is a resource for software developers who develop event driven applications. It also contains information that is useful for business analysts and system architects who are evaluating Esper.
+        </para>
+
+        <para>
+			It is assumed that the reader is familiar with the Java programming language.
+        </para>
+
+        <para>
+			This document is relevant in all phases of your software development project: from design to deployment and support.
+        </para>
+
+		<para>
+			If you are new to Esper, please follow these steps:
+		</para>
+			
+		<orderedlist>
+			<listitem>
+				<para>
+                    Read the tutorials, case studies and solution patterns available on the Esper public web site at <literal>http://www.espertech.com/esper</literal>
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="technology_overview_intro_cep"/> if you are new to CEP and ESP (complex event processing, event stream processing)
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="event_representation"/> that explains the different ways of representing events to Esper
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="processingmodel"/> to gain insight into EPL continuous query results
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="epl-intro"/> for an introduction to event stream processing via EPL
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="event-pattern-intro"/> for an overview over event patterns
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Read <xref linkend="match-recognize-intro"/> for an overview over event patterns using the match recognize syntax.
+                </para>
+			</listitem>
+			<listitem>
+				<para>
+                    Then glance over the examples <xref linkend="examples-overview"/>
+                </para>
+			</listitem>
+            <listitem>
+                <para>
+                    Finally to test drive Esper performance, read <xref linkend="performance"/>
+                </para>
+            </listitem>
+		</orderedlist>
+	</preface>
+
+    <xi:include href="modules/technology_overview.xml" />
+
+    <xi:include href="modules/event_representation.xml" />
+
+    <xi:include href="modules/processingmodel.xml" />
+
+    <xi:include href="modules/context.xml" />
+
+    <xi:include href="modules/epl_clauses.xml" />
+
+    <xi:include href="modules/namedwindowandtable.xml" />
+
+    <xi:include href="modules/event_pattern.xml" />
+
+    <xi:include href="modules/match_recognize.xml" />
+
+    <xi:include href="modules/operatorreference.xml" />
+
+    <xi:include href="modules/functionreference.xml" />
+
+    <xi:include href="modules/enumerationreference.xml" />
+
+    <xi:include href="modules/datetimereference.xml" />
+
+    <xi:include href="modules/viewreference.xml" />
+
+    <xi:include href="modules/dataflow.xml" />
+
+    <xi:include href="modules/api.xml" />
+
+    <xi:include href="modules/configuration.xml" />
+
+    <xi:include href="modules/devlifecycle.xml" />
+
+    <xi:include href="modules/extension.xml" />
+
+    <xi:include href="modules/script.xml" />
+
+    <xi:include href="modules/examples.xml" />
+
+    <xi:include href="modules/performance.xml" />
+    
+    <xi:include href="modules/references.xml" />
+    
+    <xi:include href="modules/appendix_outputspec.xml" />
+
+    <xi:include href="modules/appendix_keywords.xml" />
+
+    <index/>
+</book>

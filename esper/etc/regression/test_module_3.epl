@@ -1,0 +1,3 @@
+create window ABC;
+
+select * from ABC;

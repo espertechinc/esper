@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ss="samples:schemas:simpleSchema" targetNamespace="samples:schemas:simpleSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="typesEvent">
+		<xs:complexType>
+			<xs:attribute name="attrNonPositiveInteger" type="xs:nonPositiveInteger" use="required"/>
+			<xs:attribute name="attrNonNegativeInteger" type="xs:nonNegativeInteger" use="required"/>
+			<xs:attribute name="attrNegativeInteger" type="xs:negativeInteger" use="required"/>
+			<xs:attribute name="attrPositiveInteger" type="xs:positiveInteger" use="required"/>
+			<xs:attribute name="attrLong" type="xs:long" use="required"/>
+			<xs:attribute name="attrUnsignedLong" type="xs:unsignedLong" use="required"/>
+			<xs:attribute name="attrInt" type="xs:int" use="required"/>
+			<xs:attribute name="attrUnsignedInt" type="xs:unsignedInt" use="required"/>
+			<xs:attribute name="attrDecimal" type="xs:decimal" use="required"/>
+			<xs:attribute name="attrInteger" type="xs:integer" use="required"/>
+			<xs:attribute name="attrFloat" type="xs:float" use="required"/>
+			<xs:attribute name="attrDouble" type="xs:double" use="required"/>
+			<xs:attribute name="attrString" type="xs:string" use="required"/>
+			<xs:attribute name="attrShort" type="xs:short" use="required"/>
+			<xs:attribute name="attrUnsignedShort" type="xs:unsignedShort" use="required"/>
+			<xs:attribute name="attrByte" type="xs:byte" use="required"/>
+			<xs:attribute name="attrUnsignedByte" type="xs:unsignedByte" use="required"/>
+			<xs:attribute name="attrBoolean" type="xs:boolean" use="required"/>
+			<xs:attribute name="attrDateTime" type="xs:dateTime" use="required"/>
+			<xs:attribute name="attrDate" type="xs:date" use="required"/>
+			<xs:attribute name="attrTime" type="xs:time" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

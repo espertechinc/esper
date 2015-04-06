@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmlcore:Sensor 
+  xmlns="urn:autoid:specification:interchange:PMLCore:xml:schema:1" 
+  xmlns:pmlcore="urn:autoid:specification:interchange:PMLCore:xml:schema:1" 
+  xmlns:autoid="http://www.autoidcenter.org/2003/xml" 
+  xmlns:pmluid="urn:autoid:specification:universal:Identifier:xml:schema:1" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="urn:autoid:specification:interchange:PMLCore:xml:schema:1 AutoIdPmlCore.xsd">
+	<pmluid:ID>urn:epc:1:4.16.36</pmluid:ID>
+	<pmlcore:Observation>
+		<pmluid:ID>00000001</pmluid:ID>
+		<pmlcore:DateTime>2002-11-06T13:04:34-06:00</pmlcore:DateTime>
+		<pmlcore:Command>READ_PALLET_TAGS_ONLY</pmlcore:Command>
+		<pmlcore:Tag>
+			<pmluid:ID>urn:epc:1:2.24.400</pmluid:ID>
+		</pmlcore:Tag>
+		<pmlcore:Tag>
+			<pmluid:ID>urn:epc:1:2.24.401</pmluid:ID>
+		</pmlcore:Tag>
+		<pmlcore:Tag>
+			<pmluid:ID>urn:epc:1:2.24.402</pmluid:ID>
+		</pmlcore:Tag>
+		<pmlcore:Tag>
+			<pmluid:ID>urn:epc:1:2.24.403</pmluid:ID>
+		</pmlcore:Tag>
+		<pmlcore:Tag>
+			<pmluid:ID>urn:epc:1:2.24.404</pmluid:ID>
+		</pmlcore:Tag>
+	</pmlcore:Observation>
+</pmlcore:Sensor>

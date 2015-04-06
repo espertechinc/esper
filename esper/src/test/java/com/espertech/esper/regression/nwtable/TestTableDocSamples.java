@@ -1,0 +1,151 @@
+/*
+ * *************************************************************************************
+ *  Copyright (C) 2006-2015 EsperTech, Inc. All rights reserved.                       *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ * *************************************************************************************
+ */
+
+package com.espertech.esper.regression.nwtable;
+
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.bean.SupportBean_S0;
+import com.espertech.esper.support.bean.SupportBean_S1;
+import com.espertech.esper.support.client.SupportConfigFactory;
+import junit.framework.TestCase;
+
+public class TestTableDocSamples extends TestCase {
+
+    private EPServiceProvider epService;
+
+    public void setUp() {
+        epService = EPServiceProviderManager.getDefaultProvider(SupportConfigFactory.getConfiguration());
+        epService.initialize();
+        for (Class clazz : new Class[] {SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
+                TrafficEvent.class, IntrusionEvent.class, MyEvent.class}) {
+            epService.getEPAdministrator().getConfiguration().addEventType(clazz);
+        }
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
+    }
+
+    public void tearDown() {
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    public void testDoc() {
+        epService.getEPAdministrator().createEPL("create table agg_srcdst as (key0 string primary key, key1 string primary key, cnt count(*))");
+        epService.getEPAdministrator().createEPL("create schema IPAddressFirewallAlert(ip_src string, ip_dst string)");
+        epService.getEPAdministrator().createEPL("select agg_srcdst[ip_src, ip_dst].cnt from IPAddressFirewallAlert");
+        epService.getEPAdministrator().createEPL("create schema PortScanEvent(ip_src string, ip_dst string)");
+        epService.getEPAdministrator().createEPL("into table agg_srcdst select count(*) as cnt from PortScanEvent group by ip_src, ip_dst");
+
+        epService.getEPAdministrator().createEPL("create table MyStats (\n" +
+                "  myKey string primary key,\n" +
+                "  myAvedev avedev(int), // column holds a mean deviation of int-typed values\n" +
+                "  myAvg avg(double), // column holds a average of double-typed values\n" +
+                "  myCount count(*), // column holds a number of values\n" +
+                "  myMax max(int), // column holds a highest int-typed value\n" +
+                "  myMedian median(float), // column holds the median of float-typed values\n" +
+                "  myStddev stddev(java.math.BigDecimal), // column holds a standard deviation for BigDecimal values\n" +
+                "  mySum sum(long), // column holds a sum of long values\n" +
+                "  myFirstEver firstever(string), // column holds the first ever string value\n" +
+                "  myCountEver countever(*) // column holds the count-ever\n" +
+                ")");
+        epService.getEPAdministrator().createEPL("create table MyStatsMore (\n" +
+                "  myKey string primary key,\n" +
+                "  myAvgFiltered avg(double, boolean), // column holds a average of double-typed values\n" +
+                "                      // and filtered by a boolean expression to be provided\n" +
+                "  myAvgDistinct avg(distinct double) // column holds a average of distinct double-typed values\n" +
+                ")");
+        epService.getEPAdministrator().getConfiguration().addEventType(MyEvent.class);
+        epService.getEPAdministrator().createEPL("create table MyEventAggregationTable (\n" +
+                "  myKey string primary key,\n" +
+                "  myWindow window(*) @type(MyEvent), // column holds a window of MyEvent events\n" +
+                "  mySorted sorted(mySortValue) @type(MyEvent), // column holds MyEvent events sorted by mySortValue\n" +
+                "  myMaxByEver maxbyever(mySortValue) @type(MyEvent) // column holds the single MyEvent event that \n" +
+                "        // provided the highest value of mySortValue ever\n" +
+                ")");
+
+        epService.getEPAdministrator().createEPL("create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)");
+        epService.getEPAdministrator().createEPL("context NineToFive create table AverageSpeedTable (carId string primary key, avgSpeed avg(double))");
+        epService.getEPAdministrator().createEPL("context NineToFive into table AverageSpeedTable select avg(speed) as avgSpeed from TrafficEvent group by carId");
+
+        epService.getEPAdministrator().createEPL("create table IntrusionCountTable (\n" +
+                "  fromAddress string primary key,\n" +
+                "  toAddress string primary key,\n" +
+                "  countIntrusion10Sec count(*),\n" +
+                "  countIntrusion60Sec count(*)," +
+                "  active boolean\n" +
+                ")");
+        epService.getEPAdministrator().createEPL("into table IntrusionCountTable\n" +
+                "select count(*) as countIntrusion10Sec\n" +
+                "from IntrusionEvent.win:time(10)\n" +
+                "group by fromAddress, toAddress");
+        epService.getEPAdministrator().createEPL("into table IntrusionCountTable\n" +
+                "select count(*) as countIntrusion60Sec\n" +
+                "from IntrusionEvent.win:time(60)\n" +
+                "group by fromAddress, toAddress");
+
+        epService.getEPAdministrator().createEPL("create table TotalIntrusionCountTable (totalIntrusions count(*))");
+        epService.getEPAdministrator().createEPL("into table TotalIntrusionCountTable select count(*) as totalIntrusions from IntrusionEvent");
+        epService.getEPAdministrator().createEPL("expression alias totalIntrusions {count(*)}\n" +
+                "select totalIntrusions from IntrusionEvent");
+        epService.getEPAdministrator().createEPL("select TotalIntrusionCountTable.totalIntrusions from pattern[every timer:interval(60 sec)]");
+
+        epService.getEPAdministrator().createEPL("create table MyTable (\n" +
+                "theWindow window(*) @type(MyEvent),\n" +
+                "theSorted sorted(mySortValue) @type(MyEvent)\n" +
+                ")");
+        epService.getEPAdministrator().createEPL("select MyTable.theWindow.first(), MyTable.theSorted.maxBy() from SupportBean");
+
+        epService.getEPAdministrator().createEPL("select\n" +
+                "  (select * from IntrusionCountTable as intr\n" +
+                "   where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAddress) \n" +
+                "from IntrusionEvent as firewall");
+        epService.getEPAdministrator().createEPL("select * from IntrusionCountTable as intr, IntrusionEvent as firewall\n" +
+                "where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAddress");
+
+        epService.getEPAdministrator().createEPL("create table MyWindowTable (theWindow window(*) @type(MyEvent))");
+        epService.getEPAdministrator().createEPL("select theWindow.first(), theWindow.last(), theWindow.window() from MyEvent, MyWindowTable");
+    }
+
+    private static class MyEvent {
+        private int mySortValue;
+
+        public int getMySortValue() {
+            return mySortValue;
+        }
+    }
+
+    private static class TrafficEvent {
+        private String carId;
+        private double speed;
+
+        public String getCarId() {
+            return carId;
+        }
+
+        public double getSpeed() {
+            return speed;
+        }
+    }
+
+    private static class IntrusionEvent {
+        private String fromAddress;
+        private String toAddress;
+
+        public String getFromAddress() {
+            return fromAddress;
+        }
+
+        public String getToAddress() {
+            return toAddress;
+        }
+    }
+}

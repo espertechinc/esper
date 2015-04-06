@@ -1,0 +1,110 @@
+/*
+ * *************************************************************************************
+ *  Copyright (C) 2006-2015 EsperTech, Inc. All rights reserved.                       *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ * *************************************************************************************
+ */
+
+package com.espertech.esper.event.bean;
+
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.event.bean.PropertyHelper;
+import com.espertech.esper.event.bean.InternalEventPropDescriptor;
+import com.espertech.esper.support.bean.SupportBeanPropertyNames;
+import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventPropertyGetter;
+import net.sf.cglib.reflect.FastClass;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+
+import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class TestPropertyHelper extends TestCase
+{
+    public void testAddMappedProperties()
+    {
+    	List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+        PropertyHelper.addMappedProperties(SupportBeanPropertyNames.class, result);
+        assertEquals(6, result.size());
+
+        List<String> propertyNames = new ArrayList<String>();
+        for (InternalEventPropDescriptor desc : result) {
+            log.debug("desc=" + desc.getPropertyName());
+            propertyNames.add(desc.getPropertyName());
+        }
+        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"a", "AB", "ABC", "ab", "abc", "fooBah"}, propertyNames.toArray());
+    }
+
+    public void testAddIntrospectProperties() throws Exception
+    {
+    	List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+        PropertyHelper.addIntrospectProperties(SupportBeanPropertyNames.class, result);
+
+        for (InternalEventPropDescriptor desc : result)
+        {
+            log.debug("desc=" + desc.getPropertyName());
+        }
+
+        assertEquals(9, result.size()); // for "class" is also in there
+        assertEquals("indexed", result.get(8).getPropertyName());
+        assertNotNull(result.get(8).getReadMethod());
+    }
+
+    public void testRemoveDuplicateProperties()
+    {
+        List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+        result.add(new InternalEventPropDescriptor("x", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("x", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("y", (Method) null, null));
+
+        PropertyHelper.removeDuplicateProperties(result);
+
+        assertEquals(2, result.size());
+        assertEquals("x", result.get(0).getPropertyName());
+        assertEquals("y", result.get(1).getPropertyName());
+    }
+
+    public void testRemoveJavaProperties()
+    {
+        List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+        result.add(new InternalEventPropDescriptor("x", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("class", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("hashCode", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("toString", (Method) null, null));
+        result.add(new InternalEventPropDescriptor("getClass", (Method) null, null));
+
+        PropertyHelper.removeJavaProperties(result);
+
+        assertEquals(1, result.size());
+        assertEquals("x", result.get(0).getPropertyName());
+    }
+
+    public void testIntrospect()
+    {
+        PropertyDescriptor desc[] = PropertyHelper.introspect(SupportBeanPropertyNames.class);
+        assertTrue(desc.length > 5);
+    }
+
+    public void testGetGetter() throws Exception
+    {
+        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), SupportBeanPropertyNames.class);
+        EventBean bean = SupportEventBeanFactory.createObject(new SupportBeanPropertyNames());
+        Method method = SupportBeanPropertyNames.class.getMethod("getA", new Class[0]);
+        EventPropertyGetter getter = PropertyHelper.getGetter(method, fastClass, SupportEventAdapterService.getService());
+        assertEquals("", getter.get(bean));
+    }
+
+    private static final Log log = LogFactory.getLog(TestPropertyHelper.class);
+}

@@ -1,0 +1,3 @@
+uses ;
+
+select * from A;

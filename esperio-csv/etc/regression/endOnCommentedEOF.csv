@@ -1,0 +1,9 @@
+# a comment
+
+# another comment
+
+"first line", 1
+# third comment
+"second line", 2
+
+# a comment that ends the file without a newline

@@ -1,0 +1,90 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<name>Esper Examples</name>
+	<groupId>com.espertech</groupId>
+	<artifactId>esper_examples</artifactId>
+	<version>5.2.0</version>
+	<packaging>pom</packaging>
+	<description>Esper CEP ESP engine for Java examples</description>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<layout>default</layout>
+			<url>http://repo1.maven.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<!-- Java.Net legacy maven 1 repo for javax.jms -->
+		<repository>
+          <id>maven2-repository.dev.java.net</id>
+          <name>Java.net Repository for Maven</name>
+          <url>https://maven-repository.dev.java.net/nonav/repository</url>
+          <layout>legacy</layout>
+        </repository>		
+	</repositories>	
+	<modules>
+		<module>autoid</module>
+		<module>benchmark</module>
+		<module>cycledetect</module>
+		<module>marketdatafeed</module>
+		<module>matchmaker</module>
+		<module>namedwinquery</module>
+		<module>ohlcpluginview</module>
+		<module>qos_sla</module>
+		<module>rfidassetzone</module>
+		<module>runtimeconfig</module>
+		<module>servershell</module>
+		<module>stockticker</module>
+		<module>terminalsvc</module>
+		<module>terminalsvc-jse</module>
+		<module>transaction</module>		
+		<module>trivia</module>		
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.espertech</groupId>
+				<artifactId>esper</artifactId>
+				<version>5.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.17</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.jms</groupId>
+						<artifactId>jms</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.jdmk</groupId>
+						<artifactId>jmxtools</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.jmx</groupId>
+						<artifactId>jmxri</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.1.3</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- for javax.jms 1.1 dependency -->
+			<dependency>
+				<groupId>javaee</groupId>
+				<artifactId>javaee-api</artifactId>
+				<version>5</version>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
+</project>

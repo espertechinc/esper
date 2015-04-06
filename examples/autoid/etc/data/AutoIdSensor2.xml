@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmlcore:Sensor xmlns="urn:autoid:specification:interchange:PMLCore:xml:schema:1" xmlns:pmlcore="urn:autoid:specification:interchange:PMLCore:xml:schema:1" xmlns:autoid="http://www.autoidcenter.org/2003/xml" xmlns:pmluid="urn:autoid:specification:universal:Identifier:xml:schema:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:autoid:specification:interchange:PMLCore:xml:schema:1
+AutoIdPmlCore.xsd">
+	<pmluid:ID>urn:epc:1:4.16.36</pmluid:ID>
+	<pmlcore:Observation>
+		<pmluid:ID>00000001</pmluid:ID>
+		<pmlcore:DateTime>2002-11-06T13:04:34-06:00</pmlcore:DateTime>
+		<pmlcore:Tag>
+			<pmluid:ID>210000A8900016F000169DC1</pmluid:ID>
+			<pmlcore:Data>
+				<pmlcore:XML>
+					<EEPROM xmlns="http://sensor.example.org/">
+						<FamilyCode>12</FamilyCode>
+						<ApplicationIdentifier>123</ApplicationIdentifier>
+						<Block1>FFA0456F</Block1>
+						<Block2>00000000</Block2>
+					</EEPROM>
+				</pmlcore:XML>
+			</pmlcore:Data>
+		</pmlcore:Tag>
+	</pmlcore:Observation>
+</pmlcore:Sensor>

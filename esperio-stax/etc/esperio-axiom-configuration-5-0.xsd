@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.espertech.com/schema/esper" xmlns:esperio="http://www.espertech.com/schema/esper" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="xml-axiom">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element ref="esperio:namespace-prefix" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:xpath-property" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="root-element-name" type="xs:string" use="required"/>
+			<xs:attribute name="root-element-namespace" type="xs:string" use="optional"/>
+			<xs:attribute name="default-namespace" type="xs:string" use="optional"/>
+			<xs:attribute name="resolve-properties-absolute" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="namespace-prefix">
+		<xs:complexType>
+			<xs:attribute name="prefix" type="xs:string" use="required"/>
+			<xs:attribute name="namespace" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="xpath-property">
+		<xs:complexType>
+			<xs:attribute name="property-name" type="xs:string" use="required"/>
+			<xs:attribute name="xpath" type="xs:string" use="required"/>
+			<xs:attribute name="type" type="esperio:xpath-type" use="required"/>
+			<xs:attribute name="cast" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="xpath-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="number"/>
+			<xs:enumeration value="string"/>
+			<xs:enumeration value="boolean"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

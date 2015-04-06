@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ss="samples:schemas:simpleSchema" targetNamespace="samples:schemas:simpleSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="simpleEvent">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="nested1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="prop1" type="xs:string"/>
+							<xs:element name="prop2" type="xs:boolean"/>
+							<xs:element name="nested2">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="prop3" type="xs:int" maxOccurs="unbounded"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="attr1" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="prop4">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute form="qualified" name="attr2" type="xs:boolean" use="optional"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="nested3">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="nested4" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="prop5" type="xs:string" maxOccurs="unbounded"/>
+									</xs:sequence>
+									<xs:attribute name="id" type="xs:ID" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

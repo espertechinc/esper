@@ -1,0 +1,2293 @@
+<chapter xml:id="nwtable" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>EPL Reference: Named Windows And Tables</title>
+        
+    <sect1 xml:id="nwtable-overview">
+        <title>Overview</title>
+		<indexterm><primary>named windows</primary><secondary>overview</secondary></indexterm>
+		<indexterm><primary>tables</primary><secondary>overview</secondary></indexterm>
+		
+		<para>
+			A <emphasis>named window</emphasis> is a globally-visible data window. A <emphasis>table</emphasis> is a globally-visible data structure organized by primary key or keys.
+		</para>
+		
+		<para>
+			Named windows and tables both offer a way to share state between statements. Named windows and tables have differing capabilities and semantics. 
+		</para>
+
+		<para>
+			To query a named window or table, simply use the named window name or table name in the <literal>from</literal> clause of your statement, 
+			including statements that contain subqueries, joins and outer-joins.
+		</para>	
+			
+		<para>
+			Certain clauses operate on either a named window or a table, namely the 
+			<literal>on-merge</literal>, <literal>on-update</literal>, <literal>on-delete</literal> and <literal>on-select</literal> clauses. 
+			The fire-and-forget queries also operate on both named windows and tables.
+		</para>
+		
+		<para>
+			Both named windows and tables can have columns that hold events as column values, as further described in <xref linkend="named-eventasproperty"/>.
+		</para>
+		
+		<sect2 xml:id="nwtable-overview-namedwindow">
+			<title>Named Window Overview</title>
+			
+			<indexterm><primary>named window</primary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary></indexterm>
+
+			<para>
+				A <emphasis>named window</emphasis> is a global data window that can take part in many statement queries, and that can be inserted-into and deleted-from by multiple statements. A named window holds events of the same type or supertype, unless used with a variant stream. 
+			</para>
+			
+			<para>
+				The <literal>create window</literal> clause declares a new named window. The named window starts up empty unless populated from an existing named window at time of creation. Events must be inserted into the named window using the <literal>insert into</literal> clause. Events can also be deleted from a named window via the <literal>on delete</literal> clause. 
+			</para>	
+				
+			<para>
+				Events enter the named window by means of <literal>insert into</literal> clause of a <literal>select</literal> statement. Events leave a named window either because the expiry policy of the declared data window removes events from the named window, or through statements that use the <literal>on delete</literal> clause to explicitly delete from a named window.
+			</para>	
+			
+			<para>
+				A named window may also decorate an event to preserve original events as described in <xref linkend="insert-into-decorated"/> and <xref linkend="named-insertinto-decorated"/>.
+			</para>
+	
+			<para>
+				To tune subquery performance when the subquery selects from a named window, consider the hints discussed in <xref linkend="epl-subqueries-hints"/>.
+			</para>	
+		</sect2>
+		
+		<sect2 xml:id="nwtable-overview-table">
+			<title>Table Overview</title>
+
+			<indexterm><primary>table</primary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>table</secondary></indexterm>
+
+			<para>
+				A <emphasis>table</emphasis> is a data structure that is globally visible and that holds state. 
+			</para>
+			
+			<para>
+				The columns of a table can store aggregation state, allowing for co-location of event data with aggregation state. 
+				Other statements can directly create and update the shared aggregation state. Statements can also query the aggregation state conveniently.
+				Aggregation state can include comprehensive state such as for example a large matrix of long-type values for use in a Count-min sketch approximation.
+				Common aggregation state can be updated by multiple statements.
+			</para>
+			
+			<para>
+				Use the <literal>create table</literal> clause to declare a new table.
+			</para>
+			
+			<para>
+				The atomicity guarantees under multi-threaded evaluation are as follows. For a given statement, a table row or rows either exists or do not exist, consistently, 
+				for the duration of the evaluation of an event or timer against a context partition of a statement. The same is true for updates in that for a given context partition of a statement, 
+				each table row is either completely updated or not updated at all for the duration of an evaluation. Stream-level filter expressions against tables are not part of statement evaluation
+				and the same atomicity applies to stream-level filter expressions.
+			</para>
+			
+		</sect2>
+		
+		<sect2 xml:id="nwtable-overview-compare">
+			<title>Comparing Named Windows And Tables</title>
+			
+			<para>
+			  As a general rule-of-thumb, if you need to share a data window between statements, the named window is the right approach. 
+			  If however rows are organized by primary key or hold aggregation state, a table may be preferable. EPL statements allow the combined use of both.
+			</para>
+			
+			<sect3 xml:id="nwtable-overview-compare-1">
+				<title>Nature of Data</title>
+				<para>
+					One important difference between named windows and tables is in the data that a row holds: While named windows hold events, tables can hold additional derived state.
+				</para>
+				
+				<para>
+					For example, a table column can hold rich derived state such as a distinct values set and rich aggregation state such as the state of a Count-min sketch approximation aggregation (a large matrix of long-type values).
+				</para>				
+				<programlisting><![CDATA[// Declare a table to hold a Count-min sketch approximate count per feed
+create table AppoximateCountPerWord (feed string, approx countMinSketch())]]></programlisting>
+			</sect3>
+	
+			<sect3 xml:id="nwtable-overview-compare-2">
+				<title>Data Organization</title>
+				<para>
+					A second difference between named windows and tables is the organization of rows. For named windows, the organization of rows follows the data window declaration. 
+					Tables, on the other hand, can be organized by a primary key or by multiple primary keys that make up a compound key.
+				</para>
+				
+				<para>
+					For example, if your declaration specifies a sliding time window to hold 10 seconds of stock tick events then the rows are held in a sliding time window, i.e. a list or queue according to arrival order. 
+				</para>
+				
+				<programlisting><![CDATA[// Declare a named window to hold 10 seconds of stock tick events
+create window TenSecOfTicksWindow.win:time(10 sec) as StockTickEvent]]></programlisting>
+
+				<para>
+					An iterator for a named window returns rows in the order as provided by the data window(s) declared for the named window.
+					An iterator for a table returns rows in an unpredictable order.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="nwtable-overview-compare-3">
+				<title>Insert and Remove Stream</title>
+				<para>
+					Only named windows provide an insert and remove stream to other statements. Tables do not provide an insert and remove stream.
+				</para>
+
+				<para>
+					For example, considering the <literal>TenSecOfTicksWindow</literal> named window declared above, 
+					the following statement outputs the current count each time events enter or leave the named window.
+				</para>				
+				<programlisting><![CDATA[select count(*) from TenSecOfTicksWindow]]></programlisting>
+				
+				<para>
+					Also for example, considering the <literal>AppoximateCountPerWord</literal> table declared above, the following EPL does not output any rows
+					when table rows gets inserted, updated or deleted and only outputs rows when the statement is iterated:
+				</para>				
+				<programlisting><![CDATA[// does not continously output for table changes
+select * from AppoximateCountPerWord]]></programlisting>
+			</sect3>
+	
+			<sect3 xml:id="nwtable-overview-compare-4">
+				<title>Immutability and Copy-On-Write</title>
+
+				<para>
+					As named windows hold events and events are immutable, when an update statement updates events held in a named window, the engine performs a logical copy operation (copy-on-write, as configured for the type) of each updated event, and only modifies the newly created event, preserving the immutable original event.
+				</para>
+
+				<para>
+					Data in tables are updated in-place. There is no copy operation for table rows.
+				</para>				
+			</sect3>			
+
+			<sect3 xml:id="nwtable-overview-compare-5">
+				<title>Removal of Rows</title>
+				
+				<para>
+					For named windows, the data window declared for the named window instructs the engine to expire and remove events from the named window. 
+					Events can also be removed via <literal>on-merge</literal>, <literal>on-delete</literal> and fire-and-forget <literal>delete</literal>.
+				</para>
+				
+				<para>
+					For tables, row can only be removed via <literal>on-merge</literal>, <literal>on-delete</literal>, <literal>on-select-and-delete</literal> and fire-and-forget <literal>delete</literal>.
+				</para>
+			</sect3>			
+		</sect2>		
+	</sect1>	
+	
+	<!--
+		Named-window specific
+     -->
+	<sect1 xml:id="nwtable-namedwindow" revision="1">
+        <title>Named Window Usage</title>
+
+		<sect2 xml:id="named_create" revision="1">
+			<title>Creating Named Windows: the <literal>Create Window</literal> clause</title>
+			
+			<para>
+				The <literal>create window</literal> statement creates a named window by specifying a window name and one or more data window views, as well as the type of event to hold in the named window.
+			</para>
+		
+			<para>
+				There are two syntaxes for creating a named window: The first syntax allows modeling a named window after an existing event type or an existing named window. The second syntax is similar to the SQL create-table syntax and provides a list of column names and column types. 
+			</para>
+		
+			<para>
+				A new named window starts up empty. It must be explicitly inserted into by one or more statements, as discussed below. A named window can also be populated at time of creation from an existing named window.
+			</para>
+		
+			<para>
+				If your application stops or destroys the statement that creates the named window, any consuming statements no longer receive insert or remove stream events. The named window can also not be deleted from after it was stopped or destroyed.
+			</para>
+		
+			<para>
+				The <literal>create window</literal> statement posts to listeners any events that are inserted into the named window as new data. The statement posts all deleted events or events that expire out of the data window to listeners as the remove stream (old data). The named window contents can also be iterated on via the pull API to obtain the current contents of a named window.
+			</para>
+		
+			<sect3 xml:id="named_create_modelafter" revision="1">
+				<title>Creation by Modeling after an Existing Type</title>
+		
+				<para>
+					The benefit of modeling a named window after an existing event type is that event properties can be nested, indexed, mapped or other types that your event objects may provide as properties, including the type of the underlying event itself. Also, using the wildcard (*) operator means your EPL does not need to list each individual property explicitly.
+				</para>
+		
+				<para>
+					The syntax for creating a named window by modeling the named window after an existing event type, is as follows: 
+				</para>
+				<synopsis>[context <emphasis>context_name</emphasis>] 
+		create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</emphasis> 
+		[as] [select <emphasis>list_of_properties</emphasis> from] <emphasis>event_type_or_windowname</emphasis>
+		[insert [where <emphasis>filter_expression</emphasis>]]</synopsis>
+							
+				<para>
+					The <emphasis>window_name</emphasis> you assign to the named window can be any identifier. The name should not already be in use as an event type or stream name or table name.
+				</para>
+					
+				<para>
+					The <emphasis>view_specifications</emphasis> are one or more data window views that define the expiry policy for removing events from the data window. Named windows must explicitly declare a data window view. This is required to ensure that the policy for retaining events in the data window is well defined. To keep all events, use the keep-all view: It indicates that the named window should keep all events and only remove events from the named window that are deleted via the <literal>on delete</literal> clause. The view specification can only list data window views, derived-value views are not allowed since these don't represent an expiry policy. Data window views are listed in <xref linkend="epl-views"/>. View parameterization and staggering are described in <xref linkend="epl-from-clause-view-spec"/>.
+				</para>
+					
+				<para>				
+					The <literal>select</literal> clause and <emphasis>list_of_properties</emphasis> are optional. If present, they specify the column names and, implicitly by definition of the event type, the column types of events held by the named window. Expressions other than column names are not allowed in the <literal>select</literal> list of properties. Wildcards (*) and wildcards with additional properties can also be used.
+				</para>
+		
+				<para>				
+					The <emphasis>event_type_or_windowname</emphasis> is required if using the model-after syntax. It provides the name of the event type of events held in the data window, unless column names and types have been explicitly selected via <literal>select</literal>. The name of an (existing) other named window is also allowed here. Please find more details in <xref linkend="named_populate_named"/>.
+				</para>
+		
+				<para>				
+					Finally, the <literal>insert</literal> clause and optional <emphasis>filter_expression</emphasis> are used if the new named window is modelled after an existing named window, and the data of the new named window is to be populated from the existing named window upon creation. The optional <emphasis>filter_expression</emphasis> can be used to exclude events.
+				</para>
+		
+				<para>
+				   You may refer to a context by specifying the <literal>context</literal> keyword followed by a context name. Contexts are described in more detail at <xref linkend="context"/>. The effect of referring to a context is that your named window operates according to the context dimensional information as declared for the context. For usage and limitations please see the respective chapter.
+				</para>
+		
+				<para>
+					The next statement creates a named window <literal>OrdersNamedWindow</literal> for which the expiry policy is simply to keep all events. Assume that the event type 'OrderMapEventType' has been configured. The named window is to hold events of type 'OrderMapEventType':
+				</para>
+				<programlisting><![CDATA[create window OrdersNamedWindow.win:keepall() as OrderMapEventType]]></programlisting>
+		
+				<para>
+					The below sample statement demonstrates the <literal>select</literal> syntax. It defines a named window in which each row has the three properties 'symbol', 'volume' and 'price'. This named window actively removes events from the window that are older than 30 seconds.
+				</para>
+				<programlisting><![CDATA[create window OrdersTimeWindow.win:time(30 sec) as 
+		select symbol, volume, price from OrderEvent]]></programlisting>
+		
+				<para>
+					In an alternate form, the <literal>as</literal> keyword can be used to rename columns, and constants may occur in the select-clause as well:
+				</para>
+				<programlisting><![CDATA[create window OrdersTimeWindow.win:time(30 sec) as 
+  select symbol as sym, volume as vol, price, 1 as alertId from OrderEvent]]></programlisting>
+	
+			</sect3>
+			
+			<sect3 xml:id="named_create_explicit" revision="1">
+				<title>Creation By Defining Columns Names and Types</title>
+	
+				<para>
+					The second syntax for creating a named window is by supplying column names and types: 
+				</para>
+				<synopsis>[context <emphasis>context_name</emphasis>] 
+create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</emphasis> [as] (<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> 
+  [,<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> [,...])</synopsis>
+
+				<para>				
+					The <emphasis>column_name</emphasis> is an identifier providing the event property name. The <emphasis>column_type</emphasis> is also required for each column. Valid column types are listed in <xref linkend="variable_create"/>
+					and are the same as for variable types.
+				</para>
+				
+				<para>
+					For attributes that are array-type append <literal>[]</literal> (left and right brackets). 
+				</para>
+		
+				<para>
+					The next statement creates a named window:
+				</para>
+				<programlisting><![CDATA[create window SecurityEvent.win:time(30 sec) 
+(ipAddress string, userId String, numAttempts int, properties String[])]]></programlisting>	
+
+				<para>
+					Named window columns can hold events by declaring the column type as the event type name. Array-type in combination with event-type is also supported.
+				</para>
+		
+				<para>
+					The next two statements declare an event type and create a named window with a column of the defined event type:
+				</para>
+				<programlisting><![CDATA[create schema SecurityData (name String, roles String[])]]></programlisting>	
+				<programlisting><![CDATA[create window SecurityEvent.win:time(30 sec) 
+    (ipAddress string, userId String, secData SecurityData, historySecData SecurityData[])]]></programlisting>
+    
+				<para>
+				  Whether the named window uses a Map or Object-array event representation for the rows can be specified as follows. If the create-window statement provides the <literal>@EventRepresentation(array=true)</literal> annotation the engine maintains named window rows as object array. If the statement provides the <literal>@EventRepresentation(array=false)</literal> annotation the engine maintains named window rows using Map objects. If neither annotation is provided, the engine uses the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
+				</para>
+	
+				 <para>
+					The following EPL statement instructs the engine to represent FooWindow rows as object arrays:
+				 </para>
+				 <programlisting><![CDATA[@EventRepresentation(array=true) create window FooWindow.win:time(5 sec) as (string prop1)]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="named_create_drop" revision="1">
+				<title>Dropping or Removing Named Windows</title>
+	
+				<para>
+					There is no syntax to drop or remove a named window.
+				</para>
+	
+				<para>
+					The <literal>destroy</literal> method on the <literal>EPStatement</literal> that created the named window removes the named window. However the implicit event type associated with the named window remains active since further statements may continue to use that type. Therefore a named window of the same name can only be created again if the type information matches the prior declaration for a named window.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="named_populate_named" revision="1">
+				<title>Populating a Named Window from an Existing Named Window</title>
+				
+				<indexterm><primary>create window, insert</primary></indexterm>
+				<indexterm><primary>named window</primary><secondary>populating from a named window</secondary></indexterm>
+				<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>populating from a named window</tertiary></indexterm>
+				<para>
+					Your EPL statement may specify the name of an existing named window when creating a new named window, and may use the <literal>insert</literal> keyword to indicate that the new named window is to be populated from 
+					the events currently held by the existing named window.
+				</para>
+		
+				<para>
+					For example, and assuming the named window <literal>OrdersNamedWindow</literal> already exists, this statement creates a new named window <literal>ScratchOrders</literal> and populates all orders in <literal>OrdersNamedWindow</literal> into the new named window:
+				</para>
+				<programlisting>create window ScratchOrders.win:keepall() as OrdersNamedWindow insert</programlisting>
+		
+				<para>
+					The <literal>where</literal> keyword is also available to perform filtering, for example:
+				</para>
+				<programlisting>create window ScratchBuyOrders.win:time(10) as OrdersNamedWindow insert where side = 'buy'</programlisting>	
+			</sect3> 
+		</sect2>
+	
+		<sect2 xml:id="named_inserting" revision="1">
+			<title>Inserting Into Named Windows</title>
+				
+			<indexterm><primary>named window</primary><secondary>inserting into</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>inserting into</tertiary></indexterm>
+	
+			<para>
+				The <literal>insert into</literal> clause inserts events into named windows. Your application must ensure that the column names and types match the declared column names and types of the named window to be inserted into.
+			</para>
+			
+			<para>
+				  For inserting into a named window and for simultaneously checking if the inserted row already exists in the named window or for atomic update-insert operation on a named window, consider using <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
+				  is similar to the SQL <literal>merge</literal> clause and provides what is known as an "Upsert" operation: Update existing events or if no existing event(s) are found then insert a new event, all in one atomic operation provided by a single EPL statement.
+			</para>
+	
+			<para>
+				In this example we first create a named window using some of the columns of an OrderEvent event type:
+			</para>
+			<programlisting><![CDATA[create window OrdersWindow.win:keepall() as select symbol, volume, price from OrderEvent]]></programlisting>
+			
+			<para>
+				The insert into the named window selects individual columns to be inserted:
+			</para>
+			<programlisting><![CDATA[insert into OrdersWindow(symbol, volume, price) select name, count, price from FXOrderEvent]]></programlisting>
+			<para>
+			  An alternative form is shown next:
+			</para>
+			<programlisting><![CDATA[insert into OrdersWindow select name as symbol, vol as volume, price from FXOrderEvent]]></programlisting>
+	
+			<para>
+				Following above statement, the engine enters every FXOrderEvent arriving into the engine into the named window 'OrdersWindow'.
+			</para>
+	
+			<para>
+				The following EPL statements create a named window for an event type backed by a Java class and insert into the window any 'OrderEvent' where the symbol value is IBM:
+			</para>
+			<programlisting><![CDATA[create window OrdersWindow.win:time(30) as com.mycompany.OrderEvent]]></programlisting>
+			<programlisting><![CDATA[insert into OrdersWindow select * from com.mycompany.OrderEvent(symbol='IBM')]]></programlisting>
+	
+			<para>
+				The last example adds one column named 'derivedPrice' to the 'OrderEvent' type by specifying a wildcard, and uses a user-defined function to populate the column:
+			</para>
+			<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select *, price as derivedPrice from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[insert into OrdersWindow select *, MyFunc.func(price, percent) as derivedPrice from OrderEvent]]></programlisting>
+	
+			<para>
+				Event representations based on Java base classes or interfaces, and subclasses or implementing classes, are compatible as these statements show:
+			</para>
+			<programlisting><![CDATA[// create a named window for the base class
+create window OrdersWindow.std:unique(name) as select * from ProductBaseEvent]]></programlisting>
+
+			<programlisting><![CDATA[// The ServiceProductEvent class subclasses the ProductBaseEvent class
+insert into OrdersWindow select * from ServiceProductEvent]]></programlisting>
+
+			<programlisting><![CDATA[// The MerchandiseProductEvent class subclasses the ProductBaseEvent class
+insert into OrdersWindow select * from MerchandiseProductEvent]]></programlisting>
+
+			<para>
+				To avoid duplicate events inserted in a named window and atomically check if a row already exists, use <literal>on-merge</literal> as outlined in <xref linkend="named_upsert"/>. An example:
+			</para>
+			<programlisting><![CDATA[on ServiceProductEvent as spe merge OrdersWindow as win
+where win.id = spe.id when not matched then insert select *]]></programlisting>
+
+			<sect3 xml:id="named-insertinto-decorated" revision="1">
+				<title>Named Windows Holding Decorated Events</title>
+				<para>
+					Decorated events hold an underlying event and add additional properties to the underlying event, as described further in <xref linkend="insert-into-decorated"/>.
+				</para>
+	
+				<para>
+					Here we create a named window that decorates OrderEvent events by adding an additional property named <literal>priceTotal</literal> to each OrderEvent. A matching <literal>insert into</literal> statement is also part of the sample:
+				</para>
+				<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select *, price as priceTotal from OrderEvent]]></programlisting>
+				<programlisting><![CDATA[insert into OrdersWindow select *, price * unit as priceTotal from ServiceOrderEvent]]></programlisting>
+	
+				<para>
+					The property type of the additional <literal>priceTotal</literal> column is the property type of the existing <literal>price</literal> property of OrderEvent.
+				</para>
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="named_selecting" revision="1">
+			<title>Selecting From Named Windows</title>
+			
+			<indexterm><primary>named window</primary><secondary>selecting from</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>selecting from</tertiary></indexterm>
+	
+			<para>
+				A named window can be referred to by any statement in the <literal>from</literal> clause of the statement. Filter criteria can also be specified. Additional views may be used onto named windows however such views cannot include data window views.
+			</para>
+			
+			<para>
+				A statement selecting all events from a named window <literal>OrdersNamedWindow</literal> is shown next. The named window must first be created via the <literal>create window</literal> clause before use.
+			</para>
+			<programlisting><![CDATA[select * from OrdersNamedWindow]]></programlisting>
+			
+			<para>
+				The statement as above simply receives the unfiltered insert stream of the named window and reports that stream to its listeners. The <literal>iterator</literal> method returns all events in the named window, if any.
+			</para>
+	
+			<para>
+				If your application desires to obtain the events removed from the named window, use the <literal>rstream</literal> keyword as this statement shows:
+			</para>
+			<programlisting><![CDATA[select rstream * from OrdersNamedWindow]]></programlisting>
+				
+			<para>
+				The next statement derives an average price per symbol for the events held by the named window: 
+			</para>
+			<programlisting><![CDATA[select symbol, avg(price) from OrdersNamedWindow group by symbol]]></programlisting>
+			
+			<para>
+				A statement that consumes from a named window, like the one above, 
+				receives the insert and remove stream of the named window. The insert stream represents the events inserted into the named window. The remove stream represents the events expired from 
+				the named window data window and the events explicitly deleted via <literal>on-delete</literal> for on-demand (fire-and-forget) <literal>delete</literal>.				 
+			</para>
+	
+			<para>
+				Your application may create a consuming statement such as above on an empty named window, or your application may create the above statement on an already filled named window. The engine provides correct results in either case: 
+				At the time of statement creation the Esper engine internally initializes the consuming statement from the current named window, also taking your declared filters into consideration. Thus, your statement deriving data from a named window does not start empty if the named window already holds one or more events. A consuming statement also sees the remove stream of an already populated named window, if any.
+			</para>
+	
+			<para>
+				If you require a subset of the data in the named window, you can specify one or more filter expressions onto the named window as shown here:
+			</para>
+			<programlisting><![CDATA[select symbol, avg(price) from OrdersNamedWindow(sector='energy') group by symbol]]></programlisting>
+			
+			<para>
+				By adding a filter to the named window, the aggregation and grouping as well as any views that may be declared onto to the named window receive a filtered insert and remove stream. The above statement thus outputs, continuously, the average price per symbol for all orders in the named window that belong to a certain sector.
+			</para>
+	
+			<para>
+				A side note on variables in filters filtering events from named windows: The engine initializes consuming statements at statement creation time and changes aggregation state continuously as events arrive. If the filter criteria contain variables and variable values changes, then the engine does not re-evaluate or re-build aggregation state. In such a case you may want to place variables in the <literal>having</literal> clause which evaluates on already-built aggregation state.
+			</para>
+	
+			<para>
+				The following example further declares a view into the named window. Such a view can be a plug-in view or one of the built-in views, but cannot be a data window view (with the exception of the <literal>std:groupwin</literal> grouped-window view which is allowed).
+			</para>
+			<programlisting><![CDATA[select * from OrdersNamedWindow(volume>0, price>0).mycompany:mypluginview()]]></programlisting>
+			
+			<para>
+				Data window views cannot be used onto named windows since named windows post insert and remove streams for the events entering and leaving the named window, thus the expiry policy and batch behavior are well defined by the data window declared for the named window. For example, the following is not allowed and fails at time of statement creation:
+			</para>
+			<programlisting><![CDATA[// not a valid statement
+	select * from OrdersNamedWindow.win:time(30 sec)]]></programlisting>
+		</sect2>		
+	</sect1>
+
+	<!--
+		Table-specific
+     -->
+	<sect1 xml:id="nwtable-table" revision="1">
+        <title>Table Usage</title>
+
+		<sect2 xml:id="table_create" revision="1">
+			<title>Creating Tables: The <literal>Create Table</literal> clause</title>			
+			<para>
+				The <literal>create table</literal> statement creates a table.
+			</para>
+			
+			<para>
+				A new table starts up empty. It must be explicitly aggregated-into using <literal>into table</literal>, or populated by an <literal>on-merge</literal> statement, or populated by <literal>insert into</literal>.
+			</para>
+								
+			<para>
+				The syntax for creating a table provides the table name, lists column names and types and designates primary key columns: 
+			</para>
+			<synopsis>[context <emphasis>context_name</emphasis>] 
+create table <emphasis>table_name</emphasis> [as] (<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> [<literal>primary key</literal>]
+  [,<emphasis>column_name</emphasis> <emphasis>column_type</emphasis> [<literal>primary key</literal>] [,...]])</synopsis>
+
+			<para>
+				The <emphasis>table_name</emphasis> you assign to the table can be any identifier. The name should not already be in use as an event type or named window name.
+			</para>
+													
+			<para>
+			   You may refer to a context by specifying the <literal>context</literal> keyword followed by a context name. Contexts are described in more detail at <xref linkend="context"/>. The effect of referring to a context is that your table operates according to the context dimensional information as declared for the context. For usage and limitations please see the respective chapter.
+			</para>
+					
+			<para>				
+				The <emphasis>column_name</emphasis> is an identifier providing the column name.
+			</para>
+			
+			<para>				
+				The <emphasis>column_type</emphasis> is required for each column. There are two categories of column types:
+			</para>
+			
+			<orderedlist spacing="compact">
+				<listitem>
+					<para>
+						Non-aggregating column types: Valid column types are listed in <xref linkend="variable_create"/> and are the same as for variable types.
+						For attributes that are array-type append <literal>[]</literal> (left and right brackets). 
+				        Table columns can hold events by declaring the column type as the event type name. Array-type in combination with event-type is also supported.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Aggregation column types: These instruct the engine to retain aggregation state. 
+					</para>
+				</listitem>
+			</orderedlist>
+			
+			<para>
+				After each column type you may add the <literal>primary key</literal> keywords. This keyword designates the column as a primary key. 
+				When multiple columns are designated as primary key columns the combination of column values builds a compound primary key.
+				The order in which the primary key columns are listed is important.
+			</para>
+	
+			<para>
+				The next statement creates a table to hold a <literal>numAttempts</literal> count aggregation state and a column named <literal>active</literal> of type boolean, per <literal>ipAddress</literal> and <literal>userId</literal>:
+			</para>
+			<programlisting><![CDATA[create table SecuritySummaryTable (
+  ipAddress string primary key,
+  userId String primary key, 
+  numAttempts count(*),
+  active boolean)]]></programlisting>	
+			
+			<para>
+				The example above specifies <literal>ipAddress</literal> and <literal>userId</literal> as primary keys. This instructs the engine that the table holds a single row
+				for each distinct combination of <literal>ipAddress</literal> and <literal>userId</literal>. The two values make up the compound key and there is a single row per compound key value.
+			</para>
+			
+			<para>
+				If you do not designate any columns of the table as a primary key column, the table holds only one row (or no rows).
+			</para>
+			
+			<para>
+				The create table statement does not provide output to its listeners. The table contents can be iterated on via the pull API to obtain the current contents of a table. 
+			</para>
+	    
+			<sect3 xml:id="nwtable-table-aggtypessql" revision="1">
+				<title>Column Types for Aggregation Functions</title>
+				<para>
+					All aggregation functions can be used as column types for tables. Please simply list the aggregation function name as the column type
+					and provide type information, when required.
+					See <xref linkend="epl-function-aggregation-std"/> for a list of the functions and required parameter expressions for which you must provide type information.
+				</para>
+		
+				<para>
+					Consider the next example that declares a table with columns for different aggregation functions (not a comprehensive example of all possible aggregation functions):
+				</para>
+				<programlisting><![CDATA[create table MyStats (
+  myKey string primary key,
+  myAvedev avedev(int), // column holds a mean deviation of int-typed values
+  myAvg avg(double), // column holds an average of double-typed values
+  myCount count(*), // column holds a count
+  myMax max(int), // column holds a highest int-typed value
+  myMedian median(float), // column holds the median of float-typed values
+  myStddev stddev(java.math.BigDecimal), // column holds a standard deviation of BigDecimal values
+  mySum sum(long), // column holds a sum of long values
+  myFirstEver firstever(string), // column holds a first-ever value of type string
+  myCountEver countever(*) // column holds the count-ever (regardless of data windows)
+)]]></programlisting>
+
+				<para>
+					Additional keywords such as <literal>distinct</literal> can be used as well. If your aggregation will be associated with a filter expression, you must add <literal>boolean</literal> to 
+					the parameters in the column type declaration.
+				</para>			
+
+				<para>
+					For example, the next EPL declares a table with aggregation-type columns that hold an average of filtered double-typed values and an average of distinct double-typed values:
+				</para>
+				<programlisting><![CDATA[create table MyStatsMore (
+  myKey string primary key,
+  myAvgFiltered avg(double, boolean), // column holds an average of double-typed values
+                      // and filtered by a boolean expression to be provided
+  myAvgDistinct avg(distinct double) // column holds an average of distinct double-typed values
+)]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="nwtable-table-aggtypesother" revision="1">
+				<title>Column Types for Event Aggregation Functions</title>
+				
+				<para>
+					The event aggregation functions can be used as column types for tables. 
+					For event aggregation functions you must specify the event type using the <literal>@type(</literal><emphasis>name</emphasis><literal>)</literal> annotation.
+				</para>
+				
+				<para>
+					The <literal>window</literal> event aggregation function requires the <literal>*</literal> wildcard. 
+					The <literal>first</literal> and <literal>last</literal> cannot be used in a declaration, please use <literal>window</literal> instead and access 
+					as described in <xref linkend="table_keyedaccess_aggregation"/>.
+				</para>
+		
+				<para>
+					The <literal>sorted</literal>, <literal>maxbyever</literal> and <literal>minbyever</literal> event aggregation functions require the criteria expression as a parameter. 
+					The criteria expression must only use properties of the provided event type. 
+					The <literal>maxby</literal> and <literal>minby</literal> cannot be used in a declaration, please use <literal>sorted</literal> instead and access 
+					as described in <xref linkend="table_keyedaccess_aggregation"/>.
+				</para>
+
+				<para>
+					In this example the table declares sample event aggregations (not a comprehensive example of all possible aggregations):
+				</para>
+				<programlisting><![CDATA[create table MyEventAggregationTable (
+  myKey string primary key,
+  myWindow window(*) @type(MyEvent), // column holds a window of MyEvent events
+  mySorted sorted(mySortValue) @type(MyEvent), // column holds MyEvent events sorted by mySortValue
+  myMaxByEver maxbyever(mySortValue) @type(MyEvent) // column holds the single MyEvent event that 
+        // provided the highest value of mySortValue ever
+)]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="nwtable-table-aggtypesplugin" revision="1">
+				<title>Column Types for Plug-In Custom Aggregation Functions</title>
+				<para>
+					Any custom single-function and multi-function aggregation can be used as a table column type. If the aggregation has multiple different return values and aggregations share common state, the multi-function aggregation is the preferred API.
+				</para>
+				
+				<para>
+					For example, the next EPL declares a table with a single column that holds the state of the aggregation function <literal>myAggregation</literal>:
+				</para>
+				<programlisting><![CDATA[create table MyStatsCustom (myCustom myAggregation('some code', 100))]]></programlisting>
+  
+				 <para>
+					The above example passes the values <literal>some code</literal> and <literal>100</literal> to show how to pass constants to your custom aggregation function at declaration time.
+				 </para>
+			</sect3>
+
+			<sect3 xml:id="nwtable-table-drop" revision="1">
+				<title>Dropping or Removing Tables</title>
+	
+				<para>
+					There is no syntax to drop or remove a table.
+				</para>
+	
+				<para>
+					The <literal>destroy</literal> method on the <literal>EPStatement</literal> that created the table removes the table unless it is used by another statement. 
+					If your application destroys the statement that creates the table and also destroys all statements referring to the table, the engine removes the table.
+					The table contents can be iterated on, by iterating over the statement that creates the table, to obtain the current contents of a table.
+				</para>
+
+				<para>
+					The <literal>stop</literal> method on the <literal>EPStatement</literal> that created the table has no effect. 
+				</para>
+			</sect3>
+		</sect2>
+	
+		<sect2 xml:id="table_agginto" revision="1">
+			<title>Aggregating Into Table Rows: The <literal>Into Table</literal> clause</title>
+			
+			<para>
+				Use the <literal>into table</literal> keywords to instruct the engine to aggregate into table columns. A given statement can only aggregate into a single table.
+			</para>
+			
+			<para>
+				For example, consider a table that holds the count of intrusion events keyed by the combination of from-address and to-address:
+			</para>
+			<programlisting><![CDATA[create table IntrusionCountTable (
+  fromAddress string primary key,
+  toAddress string primary key,
+  countIntrusion10Sec count(*),
+  countIntrusion60Sec count(*)
+)]]></programlisting>
+
+			<para>
+				The next sample statement updates the count considering the last 10 seconds of events:
+			</para>
+			<programlisting><![CDATA[into table IntrusionCountTable
+select count(*) as countIntrusion10Sec
+from IntrusionEvent.win:time(10)
+group by fromAddress, toAddress]]></programlisting>
+
+			<para>
+				Multiple statements can aggregate into the same table columns or different table columns. 
+				The co-aggregating ability allows you to co-locate aggregation state conveniently.
+			</para>
+			
+			<para>
+				The sample shown below is very similar to the previous statement except that it updates the count considering the last 60 seconds of events:
+			</para>
+			<programlisting><![CDATA[into table IntrusionCountTable
+select count(*) as countIntrusion60Sec
+from IntrusionEvent.win:time(60)
+group by fromAddress, toAddress]]></programlisting>		
+
+			<para> 
+				Considering the example above, when an intrusion event arrives and a row for the group-by key values (from and to-address) does not exists, 
+				the engine creates a new row and updates the aggregation-type columns.
+				If the row for the group-by key values exists, the engine updates the aggregation-type columns of the existing row.
+			</para>
+
+			<para>
+				Tables can have no primary key columns. In this case a table either has a single row or is empty.
+			</para>
+
+			<para>
+				The next two EPL statements demonstrate table use without a primary key column:
+			</para>
+			<programlisting><![CDATA[create table TotalIntrusionCountTable (totalIntrusions count(*))]]></programlisting>
+			<programlisting><![CDATA[into table TotalIntrusionCountTable select count(*) as totalIntrusions from IntrusionEvent]]></programlisting>
+			
+			<para>
+				In conjunction with <literal>into table</literal> the <literal>unidirectional</literal> keyword is not supported.
+			</para>
+
+			<sect3 xml:id="table_agginto_requiregroupby" revision="1">
+				<title>Group-By Clause Requirements</title>
+			
+				<para>
+					The use of the <literal>into table</literal> clause requires that the <literal>group by</literal> clause must list group-by expressions 
+					that match the table's primary key declarations in terms of the number, return type and order of group-by expressions.
+					It is not necessary that table column names match group-by expression texts.
+				</para>
+				
+				<para>
+					For example consider a table with a single long-type primary key column:
+				</para>
+				<programlisting><![CDATA[create table MyTable (theKey long primary key, theCount count(*))]]></programlisting>
+
+				<para>
+					The following EPL are all not valid:
+				</para>
+				<programlisting><![CDATA[// Invalid: No group-by clause however the table declares a primary key
+into table MyTable select count(*) as theCount from MyEvent]]></programlisting>
+				<programlisting><![CDATA[// Invalid: Two expressions in the group-by clause however the table declares a single primary key
+into table MyTable select count(*) as theCount from MyEvent group by longPropertyOne, longPropertyTwo]]></programlisting>
+				<programlisting><![CDATA[// Invalid: The group-by clause expression returns a string-typed value however the table expects a long-type primary key
+into table MyTable select count(*) as theCount from MyEvent group by stringProperty]]></programlisting>
+
+				<para>
+					You may use the <literal>rollup</literal>, <literal>cube</literal> and <literal>grouping sets</literal> keywords in conjunction with tables.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="table_agginto_requireaggcomplete" revision="1">
+				<title>Aggregation State Requirements</title>
+			
+				<para>
+					The use of the <literal>into table</literal> clause requires that all aggregation state of the EPL statement resides in table columns.
+				</para>
+				
+				<para>
+					For example consider a simple table as follows:
+				</para>
+				<programlisting><![CDATA[create table MyTable (theKey long primary key, theCount count(*))]]></programlisting>
+
+				<para>
+					The following EPL is not valid:
+				</para>
+				<programlisting><![CDATA[// Invalid: the sum aggregation state is not available in a table column
+into table MyTable select count(*) as theCount, sum(intProperty) from MyEvent group by longProperty]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="table_agginto_requireaggfunc" revision="1">
+				<title>Aggregation Function Requirements</title>
+			
+				<para>
+					The use of the <literal>into table</literal> clause requires that all aggregation functions that are listed in the statement are compatible with table column types,
+					and that the statement has at least one aggregation function.
+				</para>
+				
+				<para>
+					For example consider a simple table as follows:
+				</para>
+				<programlisting><![CDATA[create table MyTable (theKey long primary key, theCount count(*))]]></programlisting>
+
+				<para>
+					The following EPL is not valid:
+				</para>
+				<programlisting><![CDATA[// Invalid: the sum aggregation state is not compatible with count(*) that was declared for the table column's type
+into table MyTable select sum(intProperty) as theCount from MyEvent group by longProperty]]></programlisting>
+
+				<para>
+					If declared, the <literal>distinct</literal> keyword and filter expressions must also match. The event type information must match for event aggregation functions.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="table_agginto_requirecolname" revision="1">
+				<title>Column Naming Requirements</title>
+			
+				<para>
+					The use of the <literal>into table</literal> clause requires that the aggregation functions are named.
+					You can name an expression two ways. 
+				</para>
+				
+				<orderedlist spacing="compact">
+					<listitem>
+						<para>
+						  First, you can name the aggregation function expression by adding it to the select-clause and by providing the <literal>as</literal>-keyword
+						  followed by the table column name. The examples earlier use this technique.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Second, you can name the aggregation function by placing it into a declared expression that carries the same name as the table column.
+						</para>
+					</listitem>
+				</orderedlist>
+				
+				<para>
+					This example demonstrates the second method of naming an aggregation function:
+				</para>
+				<programlisting><![CDATA[expression alias totalIntrusions {count(*)}
+select totalIntrusions from IntrusionEvent]]></programlisting>
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="table_keyedaccess" revision="1">
+			<title>Table Column Keyed-Access Expressions</title>
+			
+			<para>
+				For accessing table columns by primary key, EPL provides a convenient syntax that allows you to read table column values simply by providing the table name, primary key value expressions (if required by the table) and the column name.
+			</para>
+			
+			<para>
+				The synopsis for table-column access expressions is:
+			</para>
+			<synopsis><emphasis>table-name</emphasis>[<emphasis>primary_key_expr</emphasis> [, <emphasis>primary_key_expr</emphasis>] [,...]][.<emphasis>column-name]</emphasis></synopsis>
+
+			<para>
+				The expression starts with the table name.
+				If the table declares primary keys you must provide the <emphasis>primary_key_expr</emphasis> value expressions for each primary key within square brackets.
+				To access a specific column, add the (<literal>.</literal>) dot character and the column name.
+			</para>
+
+			<para>
+				For example, consider a table that holds the count of intrusion events keyed by the combination of from-address and to-address:
+			</para>
+			<programlisting><![CDATA[create table IntrusionCountTable (
+  fromAddress string primary key,
+  toAddress string primary key,
+  countIntrusion10Sec count(*)
+)]]></programlisting>
+
+			<para>
+				Assuming that a <literal>FireWallEvent</literal> has string-type properties named <literal>from</literal> and <literal>to</literal>, the next EPL
+				statement outputs the current 10-second intrusion count as held by the <literal>IntrusionCountTable</literal> row for the matching combination of keys:
+			</para>
+			<programlisting><![CDATA[select IntrusionCountTable[from, to].countIntrusion10Sec from FirewallEvent]]></programlisting>
+
+			<para>
+				The number of primary key expressions, the return type of the primary key expressions and the order in which they are provided must match
+				the primary key columns that were declared for the table.
+				If the table does not have any primary keys declared, you cannot provide any primary key expressions.
+			</para>
+			
+			<para>
+				If a row for the primary key (or compound key) cannot be found, the engine returns a <literal>null</literal> value.
+			</para>
+
+			<para>
+				An example table without primary key columns is shown next:
+			</para>
+			<programlisting><![CDATA[create table TotalIntrusionCountTable (totalIntrusions count(*))]]></programlisting>
+
+			<para>
+				A sample statement that outputs the current total count every 60 seconds is:
+			</para>
+			<programlisting><![CDATA[select TotalIntrusionCountTable.totalIntrusions from pattern[every timer:interval(60 sec)]]]></programlisting>
+
+			<para>
+				Table access expressions can be used anywhere in statements except as parameter expressions for data windows, the <literal>update istream</literal>,
+				context declarations, output limit expressions, pattern observer and guard parameters, pattern every-distinct, pattern match-until bounds, pattern followed-by max
+				and <literal>create window</literal> insert or select expression and as a <literal>create variable</literal> assignment expression.
+			</para>
+
+			<sect3 xml:id="table_keyedaccess_allcolumns" revision="1">
+				<title>Reading All Column Values</title>
+			
+				<para>
+					If your keyed-access expression emits the column name, the engine returns all current column values.
+				</para>
+				
+				<para>
+					An example EPL:
+				</para>
+				<programlisting><![CDATA[select IntrusionCountTable[from, to] from FirewallEvent]]></programlisting>
+				
+				<para>
+					The engine returns each column value, or null if no row is found. For aggregation-type columns it returns the current aggregation value.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="table_keyedaccess_aggregation" revision="1">
+				<title>Accessing Aggregation State With The Dot Operator</title>
+			
+				<para>
+					Certain aggregation functions allow accessing aggregation state using the (<literal>.</literal>) dot operator.
+					This includes the <literal>window</literal> and the <literal>sorted</literal> aggregation function as well as all other custom multi-function aggregation function.
+				</para>
+				
+				<para>
+					The <literal>first</literal> and <literal>last</literal> aggregation functions can be used with table columns that declare <literal>window</literal>.
+				</para>
+
+				<para>
+					The <literal>maxby</literal> and <literal>minby</literal> aggregation functions can be used with table columns that declare <literal>sorted</literal>.
+				</para>
+
+				<para>
+					The EPL shown below declares a table that keeps an unsorted set of events and a sorted set of events. This sample table has no primary key columns:
+				</para>
+				<programlisting><![CDATA[create table MyTable (
+  theWindow window(*) @type(MyEvent),
+  theSorted sorted(mySortValue) @type(MyEvent)
+)]]></programlisting>
+				
+				<para>
+					The EPL to read the <literal>first</literal> and the <literal>maxBy</literal> value is:
+				</para>
+				<programlisting><![CDATA[select MyTable.theWindow.first(), MyTable.theSorted.maxBy() from SomeOtherEvent]]></programlisting>
+
+				<para>
+					Plug-in custom multi-function aggregations can be used the same way.
+				</para>
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="nwtable-insert" revision="1">
+			<title>Inserting Into Tables</title>
+				
+			<indexterm><primary>table</primary><secondary>inserting into</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>table</secondary><tertiary>inserting into</tertiary></indexterm>
+	
+			<para>
+				The <literal>insert into</literal> clause inserts rows into a table. 
+				Your application must ensure that the column names and types match the declared column names and types of the table to be inserted into, when provided.
+			</para>
+			
+			<para>
+				  For inserting into a table and for simultaneously checking if the inserted row already exists in the table or for atomic update-insert operation on a table, 
+				  consider using <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. On-merge
+				  is similar to the SQL <literal>merge</literal> clause and provides what is known as an "Upsert" operation: Update existing rows or if no existing rows(s) are found then insert a new row, 
+				  all in one atomic operation provided by a single EPL statement.
+			</para>
+	
+			<para>
+				The following statement populates the example table declared earlier:
+			</para>
+			<programlisting><![CDATA[insert into IntrusionCountTable select fromAddress, toAddress from FirewallEvent]]></programlisting>			
+			
+			<para>
+				Note that when a row with the same primary key values already exists, your statement may encounter a unique index violation at runtime.
+				If the inserted-into table does not have primary key columns, the table holds a maximum of one row and your statement may also encounter a unique index violation upon
+				attempting to insert a second row.
+				Use <literal>on-merge</literal> to prevent inserts of duplicate rows.
+			</para>
+			
+			<para>
+				Table columns that are aggregation functions cannot be inserted-into and must be updated using <literal>into table</literal> instead.
+			</para>
+
+			<para>
+				You may also explicitly list column names as discussed earlier in <xref linkend="named_inserting"/>.
+				For <literal>insert-into</literal>, the context name must be the same context name as declared for the <literal>create table</literal> statement or the context name must be absent for both.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="nwtable-table-selecting" revision="1">
+			<title>Selecting From Tables</title>
+			
+			<indexterm><primary>table</primary><secondary>selecting from</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>table</secondary><tertiary>selecting from</tertiary></indexterm>
+	
+			<para>
+				A table can be referred to by any statement in the <literal>from</literal>-clause of the statement.
+			</para>
+
+			<para>
+				Tables do not provide an insert and remove stream. When a table appears alone in the <literal>from</literal>-clause (other than as part of a subquery), 
+				the statement produces output only when iterated (see pull API) or when executing an on-demand (fire-and-forget) query.
+			</para>
+			
+			<para>
+				Assuming you have declared a table by name <literal>IntrusionCountTable</literal> as shown earlier,
+				the following statement only returns rows when iterated or when executing the EPL as an on-demand query or when adding an <literal>output snapshot</literal>:
+			</para>
+			<programlisting><![CDATA[select * from IntrusionCountTable]]></programlisting>
+			
+			<para>
+				For tables, the contained-event syntax and the declaration of views is not supported.
+				In a join, a table in the <literal>from</literal>-clause cannot be marked as <literal>unidirectional</literal>. You may not specify any of the retain-flags.
+				Tables cannot be used in the <literal>from</literal>-clause of match-recognize statements, in context declarations, in pattern filter atoms and <literal>update istream</literal>.
+			</para>
+			
+			<para>
+			    The following are examples of invalid statements:
+			</para>
+			<programlisting><![CDATA[// invalid statement examples
+select * from IntrusionCountTable.win:time(30 sec)   // views not allowed
+select * from IntrusionCountTable unidirectional, MyEvent   // tables cannot be marked as unidirectional]]></programlisting>
+
+			<para>
+				Tables can be used in subqueries and joins.
+			</para>
+
+			<para>
+				It follows a sample subselect and join against the table:
+			</para>
+			<programlisting><![CDATA[select
+  (select * from IntrusionCountTable as intr
+   where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAddress) 
+from IntrusionEvent as firewall]]></programlisting>
+
+			<programlisting><![CDATA[select * from IntrusionCountTable as intr, IntrusionEvent as firewall
+where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAddress]]></programlisting>
+
+			<para>
+				If the subselect or join specifies all of a table's primary key columns, please consider using the table-access expression instead. It offers a more concise syntax.
+			</para>
+			
+			<para>
+				Note that for a subquery against a table that may return multiple rows, the information about subquery multi-row selection applies. For subselects, consider using <literal>@eventbean</literal>
+				to preserve table type information in the output event.
+			</para>
+
+			<para>
+				Note that for joins against tables the engine does not allow specifying table filter expressions in parenthesis, in the <literal>from</literal> clause. 
+				Filter expressions must instead be placed into the <literal>where</literal>-clause.
+			</para>
+
+			<para>
+				You may access aggregation state the same way as in table-access expressions, using the dot (<literal>.</literal>) operator.
+			</para>
+
+			<para>
+				The EPL shown below declares a table that keeps a set of events, and shows a join that selects window aggregation state:
+			</para>
+			<programlisting><![CDATA[create table MyWindowTable (theWindow window(*) @type(MyEvent))]]></programlisting>
+			<programlisting><![CDATA[select theWindow.first(), theWindow.last(), theWindow.window() from MyEvent, MyWindowTable]]></programlisting>
+		</sect2>		
+	</sect1>
+	
+	<sect1 xml:id="named_querying" revision="1">
+		<title>Triggered Select: the <literal>On Select</literal> clause</title>
+		
+		<indexterm><primary>on-select</primary></indexterm>
+		<indexterm><primary>named window</primary><secondary>triggered select using On Select</secondary></indexterm>
+		<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>triggered select using On Select</tertiary></indexterm>
+
+		<para>
+			The <literal>on select</literal> clause performs a one-time, non-continuous query on a named window or table every time a triggering event arrives or a triggering pattern matches. The query can consider all rows, or only rows that match certain criteria, or rows that correlate with an arriving event or a pattern of arriving events.
+		</para>
+		
+		<para>
+			The syntax for the <literal>on select</literal> clause is as follows: 
+		</para>
+		<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+[insert into <emphasis>insert_into_def</emphasis>]
+select <emphasis>select_list</emphasis>
+from <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+[where <emphasis>criteria_expression</emphasis>]
+[group by <emphasis>grouping_expression_list</emphasis>]
+[having <emphasis>grouping_search_conditions</emphasis>]
+[order by <emphasis>order_by_expression_list</emphasis>]
+</synopsis>
+				
+		<para>
+			The <emphasis>event_type</emphasis> is the name of the type of events that trigger the query against the named window or table. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a stream name. Patterns or named windows can also be specified in the <literal>on</literal> clause, see the samples in <xref linkend="named_delete_pattern"/> (for a named window as a trigger only insert stream events trigger actions) (tables cannot be triggers).
+		</para>
+			
+		<para>
+			The <emphasis>insert into</emphasis> clause works as described in <xref linkend="epl-insert-into"/>. The <emphasis>select</emphasis> clause is described in <xref linkend="epl-select-list"/>. For all clauses the semantics are equivalent to a join operation: The properties of the triggering event or events are available in the <literal>select</literal> clause and all other clauses.
+		</para>
+
+		<para>
+			The <emphasis>window_or_table_name</emphasis> in the <literal>from</literal> clause is the name of the named window or table to select rows from. The <literal>as</literal> keyword is also available to assign a stream name to the table or named window. The <literal>as</literal> keyword is helpful in conjunction with wildcard in the <literal>select</literal> clause to select rows via the syntax <literal>select streamname.* </literal>.
+		</para>
+			
+		<para>
+			The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be considered from the table or named window. The <emphasis>criteria_expression</emphasis> may also simply filter for rows to be considered by the query.
+		</para>
+
+		<para>
+			The <literal>group by</literal> clause, the <literal>having</literal> clause and the <literal>order by</literal> clause are all optional and work as described in earlier chapters.
+		</para>
+		
+		<para>
+			Queries against tables and named windows work the same. The examples herein use the <literal>OrdersNamedWindow</literal> named window and the <literal>SecuritySummaryTable</literal> table to provide examples for each.
+		</para>
+
+		<para>
+			The sample statement below outputs, when a query event arrives, the count of all rows held by the <literal>SecuritySummaryTable</literal> table:
+		</para>
+		<programlisting><![CDATA[on QueryEvent select count(*) from SecuritySummaryTable]]></programlisting>
+
+		<para>
+			This sample query outputs the total volume per symbol ordered by symbol ascending and only non-zero volumes of all rows held by the <literal>OrdersNamedWindow</literal> named window:
+		</para>
+		<programlisting><![CDATA[on QueryEvent
+select symbol, sum(volume) from OrdersNamedWindow
+group by symbol having volume > 0 order by symbol]]></programlisting>
+			
+		<para>
+			 When using wildcard (*) to select from streams in an on-select clause, each stream, that is the triggering stream and the selected-upon table or named window, are selected, similar to a join. 
+			 Therefore your wildcard select returns two columns: the triggering event and the selection result row, for each row.
+		</para>
+		<programlisting><![CDATA[on QueryEvent as queryEvent
+select * from OrdersNamedWindow as win]]></programlisting>
+		
+		<para>
+			 The query above returns a <literal>queryEvent</literal> column and a <literal>win</literal> column for each event. 
+			 If only a single stream's event is desired in the result, use <literal>select win.*</literal> instead.
+		 </para>
+		 
+		 <para>				
+			Upon arrival of a QueryEvent event, this statement selects all rows in the <literal>OrdersNamedWindow</literal> named window:
+		</para>
+		<programlisting><![CDATA[on QueryEvent select win.* from OrdersNamedWindow as win]]></programlisting>
+		
+		<para>
+			 The engine executes the query on arrival of a triggering event, in this case a QueryEvent. It posts the query results to any listeners to the statement, in a single invocation, as the new data array.
+		 </para>
+
+		<para>
+			The <literal>where</literal> clause filters and correlates rows in the table or named window with the triggering event, as shown next: 
+		</para>
+		<programlisting><![CDATA[on QueryEvent(volume>0) as query
+select query.symbol, query.volume, win.symbol  from OrdersNamedWindow as win
+where win.symbol = query.symbol]]></programlisting>
+		
+		<para>
+			 Upon arrival of a QueryEvent, if that event has a value for the volume property that is greater than zero, the engine executes the query. The query considers all events currently held by the <literal>OrdersNamedWindow</literal> that match the symbol property value of the triggering QueryEvent event.
+		 </para>
+
+		<sect2 xml:id="named_querying_namedwin" revision="1">
+			<title>Notes on On-Select With Named Windows</title>
+
+			<para>
+				For correlated queries that correlate triggering events with rows held by a named window, Esper internally creates efficient indexes to enable high performance querying of rows. 
+				It analyzes the <literal>where</literal> clause to build one or more indexes for fast lookup in the named window based on the properties of the triggering event.
+			</para>			
+			
+			<para>
+				 To trigger an on-select when an update to the selected named window occurs or when the triggering event is the same event that is being inserted into the named window, 
+				 specify the named window name as the event type.
+			</para>
+			
+			<para>
+				The next query fires the select for every change to the named window OrdersNamedWindow:
+			</para>
+			<programlisting><![CDATA[on OrdersNamedWindow as trig 
+select onw.symbol, sum(onw.volume) 
+from OrdersNamedWindow as onw 
+where onw.symbol = trig.symbol]]></programlisting>
+
+			<para>
+				For named windows, the <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on select</literal> clause returns the last batch of selected events in response to the last triggering event, or null if the last triggering event did not select any rows.
+			</para>
+			
+			 <para>
+				An <literal>on-select</literal> statement executes under a shareable named window context partition lock.				
+			 </para>
+		</sect2>
+
+		<sect2 xml:id="named_querying_table" revision="1">
+			<title>Notes on On-Select With Tables</title>
+
+			<para>
+				For tables, the <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on select</literal> clause returns no events.
+			</para>
+			
+			<para>
+				For correlated queries that correlate triggering events with rows held by a table, the engine utilizes either primary key columns or
+				secondary explicitly-created indexes to enable high performance querying of rows, based on an analysis of the <literal>where</literal> clause.
+			</para>			
+		</sect2>
+
+		<sect2 xml:id="named_query" revision="1">
+			<title>On-Select Compared To Join</title>
+			
+			<para>
+				The similarities and differences between an <literal>on select</literal> clause and a regular or outer join (and not unidirectional) are as follows: 
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>
+						A join is evaluated when any of the streams participating in the join have new events (insert stream) or events leaving data windows (remove stream).  A join is therefore bi-directional or multi-directional. However, the <literal>on select</literal> statement has one triggering event or pattern that causes the query to be evaluated and is thus uni-directional.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The query within the <literal>on select</literal> statement is not continuous: It executes only when a triggering event or pattern occurs. Aggregation and groups are computed anew considering the contents of the table or named window at the time the triggering event arrives.
+					</para>
+				</listitem>
+			</orderedlist>
+
+			<para> 
+			  <literal>On-select</literal> and the unidirectional join can be compared as follows.
+			</para>
+
+			<para> 
+			  <literal>On-select</literal>, <literal>on-merge</literal>, <literal>on-insert</literal>, <literal>on-delete</literal>, <literal>on-update</literal> and <literal>on-select-and-delete</literal>
+			  operate only on named windows or tables. Unidirectional joins however can operate on any stream. 
+			  If the unidirectional join is between a single named window or table and a triggering event or pattern and that triggering event or pattern is marked unidirectional, the unidirectional join is equivalent to <literal>on-select</literal>.
+			</para>
+			
+			<para>
+				A unidirectional join does not execute under a named window context partition lock and instead is a consumer relationship to the named window.
+			</para>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="named_selectdelete" revision="1">
+		<title>Triggered Select+Delete: the <literal>On Select Delete</literal> clause</title>
+		
+		<indexterm><primary>on-select-delete</primary></indexterm>
+		<indexterm><primary>named window</primary><secondary>triggered select and delete using On Select Delete</secondary></indexterm>
+		<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>triggered select and delete using On Select Delete</tertiary></indexterm>
+
+		<para>
+			The <literal>on select delete</literal> clause performs a one-time, non-continuous query on a table or named window every time a triggering event arrives or a triggering pattern matches, similar to <literal>on-select</literal> as described in the previous section. In addition, any selected rows are also deleted.
+		</para>
+		
+		<para>
+			The syntax for the <literal>on select delete</literal> clause is as follows: 
+		</para>
+		<synopsis>on <emphasis>trigger</emphasis>
+select [and] delete <emphasis>select_list</emphasis>...
+... (please see on-select for <literal>insert into, from, group by, having, order by</literal>)...</synopsis>
+			
+		<para>
+			The syntax follows the syntax of <literal>on-select</literal> as described earlier. The <literal>select</literal> clause follows the optional <literal>and</literal> keyword and the <literal>delete</literal> keyword. The <literal>from</literal>-clause can list either a table or a named window.
+		</para>
+			
+		<para>				
+			The example statement below selects and deletes all rows from <literal>OrdersNamedWindow</literal> named window when a QueryEvent arrives:
+		</para>
+		<programlisting><![CDATA[on QueryEvent select and delete window(win.*) as rows from OrdersNamedWindow as win]]></programlisting>			
+
+		<para>				
+			The sample EPL above also shows the use of the <literal>window</literal> aggregation function. It specifies the <literal>window</literal> aggregation function 
+			to instruct the engine to output a single event, regardless of the number of rows in the named window, and that contains a column <literal>rows</literal> that contains a collection of the selected event's underlying objects.
+		</para>
+	</sect1>
+
+	<sect1 xml:id="named_update" revision="1">
+		<title>Updating Data: the <literal>On Update</literal> clause</title>
+		
+		<indexterm><primary>on-update</primary></indexterm>
+		<indexterm><primary>named window</primary><secondary>updating</secondary></indexterm>
+		<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>updating</tertiary></indexterm>
+
+		<para>
+			An <literal>on update</literal> clause updates rows held by a table or named window. The clause can be used to update all rows, or only rows that match certain criteria, or rows that correlate with an arriving event or a pattern of arriving events.
+		</para>
+
+		<para>
+			For updating a table or named window and for simultaneously checking if the updated row exists or for atomic update-insert operation on a named window or table, consider using <literal>on-merge</literal> as described in <xref linkend="named_upsert"/>. 
+			On-merge is similar to the SQL <literal>merge</literal> clause and provides what is known as an "Upsert" operation: 
+			Update existing events or if no existing event(s) are found then insert a new event, all in one atomic operation provided by a single EPL statement.
+		</para>
+
+		<para>
+			The syntax for the <literal>on update</literal> clause is as follows: 
+		</para>
+		<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+update <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+set <emphasis>mutation_expression</emphasis> [, <emphasis>mutation_expression</emphasis> [,...]]
+[where <emphasis>criteria_expression</emphasis>]</synopsis>
+			
+		<para>
+			The <emphasis>event_type</emphasis> is the name of the type of events that trigger an update of rows in a named window. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in expressions and the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause.
+		</para>
+			
+		<para>
+			The <emphasis>window_or_table_name</emphasis> is the name of the table or named window to update rows. 
+			The <literal>as</literal> keyword is also available to assign a name to the named window or table.
+		</para>
+			
+		<para>
+			After the <literal>set</literal> keyword follows a list of comma-separated <emphasis>mutation_expression</emphasis> expressions. A mutation expression is any valid EPL expression. 
+			Subqueries may by part of expressions however aggregation functions and the <literal>prev</literal> or <literal>prior</literal> function may not be used in expressions.
+		</para>
+		
+		<para>
+			The below table shows some typical mutation expessions:
+		</para>
+
+		<table frame="topbot">
+			<title>Mutation Expressions in Update And Merge</title>
+			<tgroup cols="2">
+				<colspec colwidth="1*"/>
+				<colspec colwidth="0.75*"/>
+				<thead>
+					<row>
+						<entry>Description</entry>
+						<entry>Syntax and Examples</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>Assignment</entry>
+						<entry>
+						  <synopsis><emphasis>property_name</emphasis> = <emphasis>value_expression</emphasis></synopsis>
+						  <programlisting>price = 10, side = 'BUY'</programlisting>
+						</entry>
+					</row>
+					<row>
+						<entry>Event Method Invocation (not available for tables)</entry>
+						<entry>
+							<synopsis><emphasis>alias_or_windowname</emphasis>.<emphasis>methodname</emphasis>(...)</synopsis>
+						   <programlisting>orderWindow.clear()</programlisting>
+						</entry>
+					</row>
+					<row>
+						<entry>Property Method Invocation</entry>
+						<entry>
+							<synopsis><emphasis>property_name</emphasis>.<emphasis>methodname</emphasis>(...)</synopsis>
+						   <programlisting>accountMap.clear()</programlisting>
+						</entry>
+					</row>
+					<row>
+						<entry>User-Defined Function Call</entry>
+						<entry>
+							<synopsis><emphasis>functionname</emphasis>(...)</synopsis>
+						   <programlisting>clearQuantities(orderRow)</programlisting>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+
+		<para>
+			The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be updated in the table or named window. The <emphasis>criteria_expression</emphasis> may also simply filter for rows to be updated.
+		</para>
+
+		<para>
+			Queries against tables and named windows work the same. We use the term property and column interchangeably. The examples herein use the <literal>OrdersNamedWindow</literal> named window and the <literal>SecuritySummaryTable</literal> table to provide examples for each. Let's look at a couple of examples.
+		</para>
+
+		<para>				
+			In the simplest form, this statement updates all rows in the named window <literal>OrdersNamedWindow</literal> when any <literal>UpdateOrderEvent</literal> event arrives, setting the price property to zero for all rows currently held by the named window:
+		</para>
+		<programlisting><![CDATA[on UpdateOrderEvent update OrdersNamedWindow set price = 0]]></programlisting>
+
+		<para>
+			This example demonstrates the use of a <literal>where</literal> clause and updates the <literal>SecuritySummaryTable</literal> table. 
+			Upon arrival of a triggering <literal>ResetEvent</literal> it updates the <literal>active</literal> column value to false for all table rows that have an <literal>active</literal> column value of true:
+		</para>
+		<programlisting><![CDATA[on ResetEvent update SecuritySummaryTable set active = false where active = true]]></programlisting>
+
+		<para>				
+			The next example shows a more complete use of the syntax, and correlates the triggering event with rows held by the <literal>OrdersNamedWindow</literal> named window:
+		</para>
+		<programlisting><![CDATA[on NewOrderEvent(volume>0) as myNewOrders
+update OrdersNamedWindow as myNamedWindow 
+set price = myNewOrders.price
+where myNamedWindow.symbol = myNewOrders.symbol]]></programlisting>
+
+		<para>				
+			In the above sample statement, only if a <literal>NewOrderEvent</literal> event with a volume greater then zero arrives does the statement trigger. Upon triggering, all rows in the named window that have the same value for the symbol property as the triggering <literal>NewOrderEvent</literal> event are then updated (their price property is set to that of the arriving event). The statement also showcases the <literal>as</literal> keyword to assign a name for use in the <literal>where</literal> expression.
+		</para>
+
+		<para>
+			Your application can subscribe a listener to your <literal>on update</literal> statements to determine update events. The statement post any rows that are updated to all listeners attached to the statement as new data, and the events prior to the update as old data.
+		</para>
+
+		<para>
+			The following example shows the use of tags and a pattern. It sets the price value of orders to that of either a <literal>FlushOrderEvent</literal> or <literal>OrderUpdateEvent</literal> depending on which arrived:
+		</para>
+		<programlisting><![CDATA[on pattern [every ord=OrderUpdateEvent(volume>0) or every flush=FlushOrderEvent] 
+update OrdersNamedWindow as win
+set price = case when ord.price is null then flush.price else ord.price end
+where ord.id = win.id or flush.id = win.id]]></programlisting>
+
+		<para>
+			When updating indexed properties use the syntax <emphasis>propertyName</emphasis><literal>[</literal><emphasis>index</emphasis><literal>] = </literal><emphasis>value</emphasis> with the index value being an integer number. 
+			When updating mapped properties use the syntax <emphasis>propertyName</emphasis><literal>(</literal><emphasis>key</emphasis><literal>) = </literal><emphasis>value</emphasis> with the key being a string value.
+		</para>
+
+		<para>
+		  The engine executes assignments in the order they are listed. When performing multiple assignments, the engine takes the most recent column value according to the last assignment, if any. To instruct the engine to use the initial value before update, prefix the column name with the literal <literal>initial</literal>.
+		</para>
+		
+		<para>
+		  The following statement illustrates:
+		</para>
+		<programlisting><![CDATA[on UpdateEvent as upd
+update MyWindow as win
+set field_a = 1, 
+  field_b = win.field_a, // assigns the value 1 
+  field_c = initial.field_a // assigns the field_a original value before update]]></programlisting>
+  
+		 <para>
+		   The next example assumes that your application provides a user-defined function <literal>copyFields</literal> that receives 3 parameters:
+		   The update event, the new row and the initial state before-update row.
+		 </para>
+		<programlisting><![CDATA[on UpdateEvent as upd update MyWindow as win set copyFields(win, upd, initial)]]></programlisting>
+
+		 <para>
+		   You may invoke a method on a value object, for those properties that hold value objects, as follows:
+		 </para>
+		<programlisting><![CDATA[on UpdateEvent update MyWindow as win set someproperty.clear()]]></programlisting>
+
+		 <para>
+		   For named windows only, you may also invoke a method on the named window event type.
+		 </para>
+
+		 <para>
+		    The following example assumes that your event type provides a method by name <literal>populateFrom</literal> that receives the update event as a parameter:
+		 </para>
+		  <programlisting><![CDATA[on UpdateEvent as upd update MyWindow as win set win.populateFrom(upd)]]></programlisting>
+
+		<para>
+			The following restrictions apply:
+		</para>
+		<orderedlist spacing="compact">
+			<listitem>
+				Each property to be updated via assignment must be writable. For tables, all columns are always writable.
+			</listitem>
+			<listitem>
+					For underlying event representations that are Java objects, a event object class must implement the java.io.Serializable interface as discussed in <xref linkend="epl-update-object"/> and must provide setter methods for updated properties.
+			</listitem>
+			<listitem>
+					When using an XML underlying event type, event properties in the XML document representation are not available for update.
+			</listitem>
+			<listitem>
+					Nested properties are not supported for update. Revision event types and variant streams may also not be updated.						
+			</listitem>
+		</orderedlist>
+
+		<sect2 xml:id="named_update_namedwin" revision="1">
+			<title>Notes on On-Update With Named Windows</title>
+
+			<para>
+				Statements that reference the named window receive the new event in the insert stream and the event prior to the update in the remove stream. 
+			</para>
+
+			<para>				
+				For correlated queries (as above) that correlate triggering events with events held by a named window, Esper internally creates efficient indexes to enable high performance update of events.
+			</para>
+
+			<para>
+				The <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on update</literal> clause can also be helpful: It returns the last batch of updated events in response to the last triggering event, in any order, or null if the last triggering event did not update any rows.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="named_update_table" revision="1">
+			<title>Notes on On-Update With Tables</title>
+
+			<para>
+				On-Update may not update primary key columns.
+			</para>
+
+			<para>
+				For correlated queries that correlate triggering events with rows held by a table, the engine utilizes either primary key columns or
+				secondary explicitly-created indexes to enable high performance querying of rows, based on an analysis of the <literal>where</literal> clause.
+			</para>			
+
+			<para>
+				The <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on update</literal> clause does not return any rows.
+			</para>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="named_delete" revision="1">
+		<title>Deleting Data: the <literal>On Delete</literal> clause</title>
+		
+		<indexterm><primary>on-delete</primary></indexterm>
+		<indexterm><primary>named window</primary><secondary>deleting from</secondary></indexterm>
+		<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>deleting from</tertiary></indexterm>
+
+		<para>
+			An <literal>on delete</literal> clause removes rows from a named window or table. The clause can be used to remove all rows, or only rows that match certain criteria, or rows that correlate with an arriving event or a pattern of arriving events.
+		</para>
+
+		<para>
+			The syntax for the <literal>on delete</literal> clause is as follows: 
+		</para>
+		<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+delete from <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+[where <emphasis>criteria_expression</emphasis>]</synopsis>
+			
+		<para>
+			The <emphasis>event_type</emphasis> is the name of the type of events that trigger removal from the table or named window. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause as described in the next section.
+		</para>
+			
+		<para>
+			The <emphasis>window_or_table_name</emphasis> is the name of the named window or table to delete rows from. 
+			The <literal>as</literal> keyword is also available to assign a name to the table or named window.
+		</para>
+			
+		<para>
+			The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be removed. The <emphasis>criteria_expression</emphasis> may also simply filter for rows without correlating.
+		</para>
+
+		<para>
+			On-delete can be used against tables and named windows. The examples herein use the <literal>OrdersNamedWindow</literal> named window and the <literal>SecuritySummaryTable</literal> table to provide examples for each.
+		</para>
+
+		<para>				
+			In the simplest form, this statement deletes all rows from the <literal>SecuritySummaryTable</literal> table when any <literal>ClearEvent</literal> arrives:
+		</para>
+		<programlisting><![CDATA[on ClearEvent delete from SecuritySummaryTable]]></programlisting>
+
+		<para>				
+			The next example shows a more complete use of the syntax, and correlates the triggering event with events held by the <literal>OrdersNamedWindow</literal> named window:
+		</para>
+		<programlisting><![CDATA[on NewOrderEvent(volume>0) as myNewOrders
+delete from OrdersNamedWindow as myNamedWindow 
+where myNamedWindow.symbol = myNewOrders.symbol]]></programlisting>
+
+		<para>				
+			In the above sample statement, only if a <literal>NewOrderEvent</literal> event with a volume greater then zero arrives does the statement trigger. Upon triggering, all rows in the named window that have the same value for the symbol property as the triggering <literal>NewOrderEvent</literal> event are removed. The statement also showcases the <literal>as</literal> keyword to assign a name for use in the <literal>where</literal> expression.
+		</para>
+
+		<sect2 xml:id="named_delete_pattern" >
+		   <title>Using Patterns in the <literal>On Delete</literal> Clause</title>
+
+			<para>
+				By means of patterns the <literal>on delete</literal> clause and <literal>on select</literal> clause (described below) can look for more complex conditions to occur, possibly involving multiple events or the passing of time. The syntax for <literal>on delete</literal> with a pattern expression is show next:
+			</para>
+			<synopsis>on pattern [<emphasis>pattern_expression</emphasis>] [as <emphasis>stream_name</emphasis>]
+delete from <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+[where <emphasis>criteria_expression</emphasis>]</synopsis>
+				
+			<para>
+				The <emphasis>pattern_expression</emphasis> is any pattern that matches zero or more arriving events. Tags can be used to name events in the pattern and can occur in the optional <literal>where</literal> clause to correlate to events to be removed from a named window.
+			</para>
+				
+			<para>
+				In the next example the triggering pattern fires every 10 seconds. The effect is that every 10 seconds the statement removes all rows from the <literal>SecuritySummaryTable</literal> table:
+			</para>
+			<programlisting><![CDATA[on pattern [every timer:interval(10 sec)] delete from SecuritySummaryTable]]></programlisting>
+
+			<para>
+				The following example shows the use of tags in a pattern and executes against the <literal>OrdersNamedWindow</literal> named window instead: 
+			</para>
+			<programlisting><![CDATA[on pattern [every ord=OrderEvent(volume>0) or every flush=FlushOrderEvent] 
+delete from OrdersNamedWindow as win
+where ord.id = win.id or flush.id = win.id]]></programlisting>
+
+			<para>
+				The pattern above looks for OrderEvent events with a volume value greater then zero and tags such events as 'ord'. 
+				The pattern also looks for FlushOrderEvent events and tags such events as 'flush'. The <literal>where</literal> clause deletes from the <literal>OrdersNamedWindow</literal> named window any rows that match in the value of the 'id' property either of the arriving events.
+			</para>
+
+		</sect2>
+
+		<sect2 xml:id="named_delete_namedwin" revision="1">
+			<title>Notes on On-Delete With Named Windows</title>
+
+			<para>
+				Statements that reference the named window receive the deleted event as part of the remove stream. 
+			</para>
+
+			<para>				
+				For correlated queries (as above) that correlate triggering events with rows held by a named window, Esper internally creates efficient indexes to enable high performance deletion of rows.
+			</para>
+
+			<para>
+				The <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on update</literal> clause can also be helpful: It returns the last batch of deleted rows in response to the last triggering event, in any order, or null if the last triggering event did not update any rows.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="named_delete_table" revision="1">
+			<title>Notes on On-Update With Tables</title>
+
+			<para>
+				For correlated queries that correlate triggering events with rows held by a table, the engine utilizes either primary key columns or
+				secondary explicitly-created indexes to enable high performance querying of rows, based on an analysis of the <literal>where</literal> clause.
+			</para>			
+
+			<para>
+				The <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on delete</literal> clause does not return any rows.
+			</para>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="named_upsert" revision="1">
+		<title>Triggered Upsert using the <literal>On-Merge</literal> Clause</title>
+		
+		<indexterm><primary>upsert</primary></indexterm>
+		<indexterm><primary>merge</primary></indexterm>
+		<indexterm><primary>named window</primary><secondary>upsert</secondary></indexterm>
+		<indexterm><primary>named window</primary><secondary>merge</secondary></indexterm>
+		<indexterm><primary>table</primary><secondary>upsert</secondary></indexterm>
+		<indexterm><primary>table</primary><secondary>merge</secondary></indexterm>
+
+		<para>
+			The <literal>on merge</literal> clause is similar to the SQL <literal>merge</literal> clause. It provides what is known as an "Upsert" operation: Update existing rows or if no existing row(s) are found then insert a new row, all in an atomic operation provided by a single EPL statement.
+		</para>
+
+		<para>
+			The syntax for the <literal>on merge</literal> clause is as follows: 
+		</para>
+		<synopsis>on <emphasis>event_type</emphasis>[<emphasis>(filter_criteria)</emphasis>] [as <emphasis>stream_name</emphasis>]
+merge [into] <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+[where <emphasis>criteria_expression</emphasis>]
+  when [not] matched [and <emphasis>search_condition</emphasis>]
+    then [
+      insert [into <emphasis>streamname</emphasis>]
+          [ (<emphasis>property_name</emphasis> [, property_name] [,...]) ] 
+          select <emphasis>select_expression</emphasis> [, <emphasis>select_expression</emphasis>[,...]]
+          [where <emphasis>filter_expression</emphasis>]
+      |
+      update set <emphasis>mutation_expression</emphasis> [, <emphasis>mutation_expression</emphasis> [,...]]
+          [where <emphasis>filter_expression</emphasis>]
+      |
+      delete
+          [where <emphasis>filter_expression</emphasis>]
+    ]
+    [then [insert|update|delete]] [,then ...]
+  [when ...  then ... [...]] 
+</synopsis>
+				
+		<para>
+			The <emphasis>event_type</emphasis> is the name of the type of events that trigger the merge. It is optionally followed by <emphasis>filter_criteria</emphasis> which are filter expressions to apply to arriving events. The optional <literal>as</literal> keyword can be used to assign a name for use in the <literal>where</literal> clause. Patterns and named windows can also be specified in the <literal>on</literal> clause as described in prior sections.
+		</para>
+			
+		<para>
+			The <emphasis>window_or_table_name</emphasis> is the name of the named window or table to insert, update or delete rows. 
+			The <literal>as</literal> keyword is also available to assign a name to the named window or table.
+		</para>
+			
+		<para>
+			The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that correlates the arriving (triggering) event to the rows to be considered of the table or named window.
+			We recommend specifying a criteria expression that is as specific as possible.
+		</para>
+		
+		<para>
+			Following the <literal>where</literal> clause is one or more <literal>when matched</literal> or <literal>when not matched</literal> clauses in any order. Each may have an additional search condition associated.
+		</para>
+
+		<para>
+			After each <literal>when [not] matched</literal> follow one or more <literal>then</literal> clauses that each contains the action to take: Either an <literal>insert</literal>, <literal>update</literal> or <literal>delete</literal> keyword. 
+		</para>
+
+		<para>
+			After <literal>when not matched</literal> only <literal>insert</literal> action(s) are available. After <literal>when matched</literal> any <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> action(s) are available.
+		</para>
+
+		<para>
+			After <literal>insert</literal> follows, optionally, the <literal>into</literal> keyword followed by the stream name or named window to insert-into. If no <literal>into</literal> and stream name is specified, the insert applies to the current table or named window. It follows an optional list of columns inserted. It follows the required <literal>select</literal> keyword and one or more select-clause expressions. The wildcard (<literal>*</literal>) is available in the select-clause as well. It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
+		</para>
+
+		<para>
+			 After <literal>update</literal> follows the <literal>set</literal> keyword and one or more mutation expressions. For mutation expressions please see <xref linkend="named_update"/>.
+			 It follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 			     
+		</para>
+
+		<para>
+			 After <literal>delete</literal> follows an optional where-clause that may return Boolean false to indicate that the action should not be applied. 
+		</para>
+
+		<para>
+		  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds no rows in the named window or table that match the condition, the engine evaluates each <emphasis>when not matched</emphasis> clause. If the optional search condition returns true or no search condition was provided then the engine performs all of the actions listed after each <literal>then</literal>.
+		</para>
+		
+		<para>
+		  When according to the where-clause <emphasis>criteria_expression</emphasis> the engine finds one or more rows in the named window or table that match the condition, the engine evaluates each <emphasis>when matched</emphasis> clause. If the optional search condition returns true or no search condition was provided the engine performs all of the actions listed after each <literal>then</literal>.
+		</para>
+
+		<para>
+			The engine executes <literal>when matched</literal> and <literal>when not matched</literal> in the order specified. If the optional search condition returns true or no search condition was specified then the engine takes the associated action (or multiple actions for multiple <literal>then</literal> keywords). When the block of actions completed the engine proceeds to the next matching row, if any. After completing all matching rows the engine continues to the next triggering event if any.
+		</para>
+				
+		<para>
+			On-merge can be used with tables and named windows. The examples herein declare a <literal>ProductWindow</literal> named window and also use the <literal>SecuritySummaryTable</literal> table to provide examples for each.
+		</para>
+		
+		<para>
+			This example statement updates the <literal>SecuritySummaryTable</literal> table when a <literal>ResetEvent</literal> arrives setting the <literal>active</literal> column's value to false:
+		</para>
+		<programlisting><![CDATA[on ResetEvent merge SecuritySummaryTable
+when matched and active = true then update set active = false]]></programlisting>
+
+		<para>
+			A longer example utilizing a named window follows. We start by declaring a schema that provides a product id and that holds a total price:
+		</para>
+		<programlisting><![CDATA[create schema ProductTotalRec as (productId string, totalPrice double)]]></programlisting>
+
+		<para>
+			We create a named window that holds a row for each unique product:
+		</para>
+		<programlisting><![CDATA[create window ProductWindow.std:unique(productId) as ProductTotalRec]]></programlisting>
+
+		<para>
+			The events for this example are order events that hold an order id, product id, price, quantity and deleted-flag declared by the next schema:
+		</para>
+		<programlisting><![CDATA[create schema OrderEvent as (orderId string, productId string, price double, 
+    quantity int, deletedFlag boolean)]]></programlisting>
+
+		<para>				
+			The following EPL statement utilizes <literal>on-merge</literal> to total up the price for each product based on arriving order events:
+		</para>
+		<programlisting><![CDATA[on OrderEvent oe
+  merge ProductWindow pw
+  where pw.productId = oe.productId
+  when matched
+    then update set totalPrice = totalPrice + oe.price
+  when not matched 
+    then insert select productId, price as totalPrice]]></programlisting>
+    
+		<para>
+			In the above example, when an order event arrives, the engine looks up in the product named window the matching row or rows for the same product id as the arriving event. In this example the engine always finds no row or one row as the product named window is declared with a unique data window based on product id. 
+			If the engine finds a row in the named window, it performs the update action adding up the price as defined under <literal>when matched</literal>. If the engine does not find a row in the named window it performs the insert action as defined under <literal>when not matched</literal>, inserting a new row.
+		</para>
+
+		<para>
+			The <literal>insert</literal> keyword may be followed by a list of columns as shown in this EPL snippet:
+		</para>
+		<programlisting><![CDATA[// equivalent to the insert shown in the last 2 lines in above EPL
+...when not matched 
+    then insert(productId, totalPrice) select productId, price]]></programlisting>
+
+		<para>
+			The second example demonstrates the use of a select-clause with wildcard, a search condition and the <literal>delete</literal> keyword. It creates a named window that holds order events and employs on-merge to insert order events for which no corresponding order id was found, update quantity to the quantity provided by the last arriving event and delete order events that are marked as deleted:
+		</para>
+		
+		<programlisting><![CDATA[create window OrderWindow.win:keepall() as OrderEvent]]></programlisting>
+		<programlisting><![CDATA[on OrderEvent oe
+  merge OrderWindow pw
+  where pw.orderId = oe.orderId
+  when not matched 
+    then insert select *
+  when matched and oe.deletedFlag=true
+    then delete
+  when matched
+    then update set pw.quantity = oe.quantity, pw.price = oe.price]]></programlisting>
+
+		<para>
+			In the above example the <literal>oe.deletedFlag=true</literal> search condition instructs the engine to take the delete action only if the deleted-flag is set.
+		</para>
+
+		<para>
+			You may specify multiple actions by providing multiple <literal>then</literal> keywords each followed by an action. Each of the <literal>insert</literal>, <literal>update</literal> and <literal>delete</literal> actions can itself have a where-clause as well.
+			If a where-clause exists for an action, the engine evaluates the where-clause and applies the action only if the where-clause returns Boolean true.
+		</para>
+		
+		<para>
+			This example specifies two update actions and uses the where-clause to trigger different update behavior depending on whether the order event price is less than zero.
+			This example assumes that the host application defined a <literal>clearorder</literal> user-defined function, to demonstrate calling a user-defined function as part of the update mutation expressions: 
+		</para>
+		<programlisting><![CDATA[on OrderEvent oe
+  merge OrderWindow pw
+  where pw.orderId = oe.orderId
+  when matched
+    then update set clearorder(pw) where oe.price < 0
+    then update set pw.quantity = oe.quantity, pw.price = oe.price where oe.price >= 0]]></programlisting>
+
+		<para>
+			To insert events into another stream and not the named window, use <literal>insert</literal> <literal>into</literal> <emphasis>streamname</emphasis>.
+		</para>
+		
+		<para>
+			In the next example each matched-clause contains two actions, one action to insert a log event and a second action to insert, delete or update:
+		</para>
+		
+		<programlisting><![CDATA[on OrderEvent oe
+  merge OrderWindow pw
+  where pw.orderId = oe.orderId
+  when not matched 
+    then insert into LogEvent select 'this is an insert' as name
+    then insert select *
+  when matched and oe.deletedFlag=true
+    then insert into LogEvent select 'this is a delete' as name
+    then delete
+  when matched
+    then insert into LogEvent select 'this is a update' as name
+    then update set pw.quantity = oe.quantity, pw.price = oe.price]]></programlisting>
+    
+		<para>
+			While the engine evaluates and executes all actions listed under the same matched-clause in order, you may not rely on updated field values of an earlier action to trigger the where-clause of a later action. Similarly you should avoid simultaneous update and delete actions for the same match: the engine does not guarantee whether the update or the delete take final affect.
+		</para>
+
+		<para>
+			Your application can subscribe a listener to <literal>on merge</literal> statements to determine inserted, updated and removed events. Statements post any events that are inserted to, updated or deleted from a named window to all listeners attached to the statement as new data and removed data. 
+		</para>
+		
+		<para>
+		  The following limitations apply to on-merge statements:
+		</para>	
+		<orderedlist spacing="compact">
+			<listitem>
+				<para>
+					Aggregation functions and the <literal>prev</literal> and <literal>prior</literal> operators are not available in conditions and the <literal>select</literal>-clause.
+				</para>
+			</listitem>
+		</orderedlist>
+
+		<sect2 xml:id="named_merge_namedwin" revision="1">
+			<title>Notes on On-Merge With Named Windows</title>
+
+			<para>
+				Statements that reference the named window receive an insert and remove stream represening the insertions, changes and deletions to named window rows.
+			</para>
+
+			<para>				
+			For correlated queries (as above) that correlate triggering events with rows held by a named window, Esper internally creates efficient indexes to enable high performance update and removal of events especially from named windows that hold large numbers of events.
+			</para>
+
+			<para>
+				Upon iteration, the statement provides the last inserted events, if any.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="named_merge_table" revision="1">
+			<title>Notes on On-Merge With Tables</title>
+
+			<para>
+				On-Merge may not update primary key columns.
+			</para>
+
+			<para>
+				For correlated queries that correlate triggering events with rows held by a table, the engine utilizes either primary key columns or
+				secondary explicitly-created indexes to enable high performance querying of rows, based on an analysis of the <literal>where</literal> clause.
+			</para>			
+
+			<para>
+				The <literal>iterator</literal> of the <literal>EPStatement</literal> object representing the <literal>on merge</literal> clause does not return any rows.
+			</para>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="named_explicit_index" revision="1">
+		<title>Explicitly Indexing Named Windows and Tables</title>
+		
+		<indexterm><primary>table</primary><secondary>index</secondary></indexterm>
+		<indexterm><primary>table</primary><secondary>create index</secondary></indexterm>
+		<indexterm><primary>named window</primary><secondary>index</secondary></indexterm>
+		<indexterm><primary>named window</primary><secondary>create index</secondary></indexterm>
+		<indexterm><primary>create index</primary></indexterm>
+
+		<para>
+			You may explicitly create an index on a table or a named window. 
+			The engine considers explicitly-created as well as implicitly-allocated indexes (named windows only) in query planning and execution of the following
+			types of usages of tables and named windows:
+		</para>
+		
+		<orderedlist>
+		  <listitem>
+				  On-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.
+		  </listitem>
+		  <listitem>
+			  <para>
+				  <literal>On-select</literal>, <literal>on-merge</literal>, <literal>on-update</literal>, <literal>on-delete</literal> and <literal>on-insert</literal>.
+			  </para>
+		  </listitem>
+		  <listitem>
+			  <para>
+				  Subqueries against tables and named windows.
+			  </para>
+		  </listitem>
+		  <listitem>
+			  <para>
+				  For joins (including outer joins) with named windows the engine considers the filter criteria listed in parenthesis using the syntax <synopsis><emphasis>name_window_name</emphasis>(<emphasis>filter_criteria</emphasis>)</synopsis> for index access.
+			  </para>
+		  </listitem>
+		  <listitem>
+			  <para>
+				  For joins with tables the engine considers the primary key columns (if any) as well as any table indexes.
+			  </para>
+		  </listitem>
+		</orderedlist>
+
+		<para>
+			Please use the following syntax to create an explicit index on a named window or table:
+		</para>
+		<synopsis>create [<literal>unique</literal>] index <emphasis>index_name</emphasis> on <emphasis>window_or_table_name</emphasis> (<emphasis>property</emphasis> [hash|btree] 
+    [, property] [hash|btree] [,...] )</synopsis>
+			
+		<para>
+			The optional <emphasis>unique</emphasis> keyboard indicates that the property or properties uniquely identify rows. If <emphasis>unique</emphasis> is not specified
+			the index allows duplicate rows.
+		</para>
+
+		<para>
+			The <emphasis>index_name</emphasis> is the name assigned to the index. The name uniquely identifies the index and is used in engine query plan logging.
+		</para>
+
+		<para>
+			The <emphasis>window_or_table_name</emphasis> is the name of an existing table or named window. If the named window or table has rows already, the engine builds an index for the rows.
+		</para>
+
+		<para>
+			The list of <emphasis>property</emphasis> names are the properties of rows to include in the index (we use the term property and column interchangeably).
+			Following each property name you may specify the optional <literal>hash</literal> or <literal>btree</literal> keyword.
+		</para>
+		
+		<para>
+			If you specify no keyword or the <literal>hash</literal> keyword for a property, the index will be a hash-based (unsorted) index in respect to that property. If you specify the <literal>btree</literal> keyword, the index will be a binary-tree-based sorted index in respect to that property.
+			You may combine <literal>hash</literal> and <literal>btree</literal> properties for the same index.
+			Specify <literal>btree</literal> for a property if you expect to perform numerical or string comparison using relational operators (&lt;, &gt;, &gt;=, &lt;=), the <literal>between</literal> or the <literal>in</literal> keyword for ranges and inverted ranges. Use <literal>hash</literal> (the default) instead of <literal>btree</literal> if you expect to perform exact comparison using <literal>=</literal>.
+		</para>
+
+		<para>
+			The <literal>create table</literal> syntax is the same for tables and named windows. The examples herein create a new <literal>UserProfileWindow</literal> named window and also use the <literal>SecuritySummaryTable</literal> table.
+		</para>
+
+		<para>
+			This sample EPL creates an non-unique index on the <literal>active</literal> column of table <literal>SecuritySummaryTable</literal>:
+		</para>
+		<programlisting><![CDATA[create index MyIndex on SecuritySummaryTable(active)]]></programlisting>
+
+		<para>
+			We list a few example EPL statements next that create a named window and create a single index:
+		</para>
+		<programlisting><![CDATA[// create a named window
+create window UserProfileWindow.win:time(1 hour) select * from UserProfile]]></programlisting>
+		<programlisting><![CDATA[// create a non-unique index (duplicates allowed) for the user id property only
+create index UserProfileIndex on UserProfileWindow(userId)]]></programlisting>
+
+		<para>
+			Next, execute an on-demand fire-and-forget query as shown below, herein we use the prepared version to demonstrate:
+		</para>
+		<programlisting><![CDATA[String query = "select * from UserProfileWindow where userId='Joe'";
+EPOnDemandPreparedQuery prepared = epRuntime.prepareQuery(query);
+// query performance excellent in the face of large number of rows
+EPOnDemandQueryResult result = prepared.execute();
+// ...later ...
+prepared.execute();	// execute a second time]]></programlisting>
+
+		<para>
+		  A unique index is generally preferable over non-unique indexes. For named windows, if your data window declares a unique data window (<literal>std:unique</literal>, <literal>std:firstunique</literal>, including intersections and grouped unique data windows) it is not necessary to create a unique index unless index sharing is enabled, since the engine considers the unique data window declaration in query planning. 
+		</para>
+		
+		<para>
+		  The engine enforces uniqueness (e.g. unique constraint) for unique indexes. If your application inserts a duplicate row the engine raises a runtime exception when processing the statement and discards the row. The default error handler logs such an exception and continues.
+		</para>
+
+		<para>
+			For example, if the user id together with the profile id uniquely identifies an entry into the named window, your application can create a unique index as shown below:
+		</para>
+		<programlisting><![CDATA[// create a unique index on user id and profile id
+create unique index UserProfileIndex on UserProfileWindow(userId, profileId)]]></programlisting>
+
+		<para>
+			By default, the engine builds a hash code -based index useful for direct comparison via equals (=). Filter expressions that look for ranges or use <literal>in, between </literal> do not benefit from the hash-based index and should use the <literal>btree</literal> keyword. For direct comparison via equals (=) then engine does not use <literal>btree</literal> indexes.
+		</para>			
+
+		<para>
+			The next example creates a composite index over two fields <literal>symbol</literal> and <literal>buyPrice</literal>:
+		</para>
+
+		<programlisting><![CDATA[// create a named window
+create window TickEventWindow.win:time(1 hour) as (symbol string, buyPrice double)]]></programlisting>
+		<programlisting><![CDATA[// create a non-unique index 
+create index idx1 on TickEventWindow(symbol hash, buyPrice btree)]]></programlisting>
+
+		<para>
+			A sample fire-and-forget query is shown below (this time the API calls are not shown):
+		</para>
+		<programlisting><![CDATA[// query performance excellent in the face of large number of rows
+select * from TickEventWindow where symbol='GE' and buyPrice between 10 and 20]]></programlisting>
+
+		<note>
+			A table that does not declare one or more primary key columns cannot have a secondary index, as the table holds a maximum of one row.
+		</note>
+	</sect1>
+	
+	<!--
+		Fire-And-Forget-specific
+     -->
+	<sect1 xml:id="nwtable-faf" revision="1">
+        <title>Using Fire-And-Forget Queries with Named Windows and Tables</title>
+
+		<para>
+			Fire-and-Forget queries can be run against both tables and named windows. We use the term <emphasis>property</emphasis> and <emphasis>column</emphasis> interchangeably.
+		</para>
+		
+		<para>
+			For selecting from named windows and tables, please see the examples in <xref linkend="api-ondemand"/>.
+		</para>
+
+		<para>
+			For data manipulation (insert, update, delete) queries, the on-demand query API returns the inserted, updated or deleted rows when the query executes against a named window. 
+		</para>
+
+		<sect2 xml:id="named_insertfaf" revision="1">
+			<title>Inserting Data</title>
+				
+			<indexterm><primary>insert</primary></indexterm>
+			<indexterm><primary>named window</primary><secondary>inserting into</secondary></indexterm>
+			<indexterm><primary>table</primary><secondary>inserting into</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>inserting into</tertiary></indexterm>
+	
+			<para>
+				Your application can insert rows into a table or named window using on-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.
+			</para>
+	
+			<para>
+				The engine allows the standard SQL syntax and <literal>values</literal> keyword and also supports using <literal>select</literal> to provide values.
+			</para>
+			
+			<para>
+				The syntax using the <literal>values</literal> keyword is:
+			</para>
+	
+			<synopsis>insert into <emphasis>window_or_table_name</emphasis> [(<emphasis>property_names</emphasis>)]
+values (<emphasis>value_expressions</emphasis>)</synopsis>
+
+			<para>
+				The syntax using <literal>select</literal> is as follows: 
+			</para>
+			<synopsis>insert into <emphasis>window_or_table_name</emphasis> [(<emphasis>property_names</emphasis>)]
+select <emphasis>value_expressions</emphasis></synopsis>
+				
+			<para>
+				The <emphasis>window_or_table_name</emphasis> is the name of the table or named window to insert rows into.
+			</para>
+			
+			<para>
+				After the named window or table name you can optionally provide a comma-separated list of property names. 
+			</para>
+				
+			<para>
+				When providing property names, the order of value expressions in the values list or select clause must match the order of property names specified. Column names provided in the select-clause, if specified, are ignored.
+			</para>
+	
+			<para>
+				When not providing property names and when specifying the <literal>values</literal> keyword, the order of values must match the order of properties
+				declared for the named window or table.
+				When not providing property names and when specifying the select-clause, expressions must name the properties to be inserted into 
+				by assigning a column name using the <literal>as</literal> keyword.
+			</para>
+	
+			<para>
+				The example code snippet inserts a new order row into the <literal>OrdersWindow</literal> named window:
+			</para>
+			<programlisting><![CDATA[String query = 
+  "insert into OrdersWindow(orderId, symbol, price) values ('001', 'GE', 100)";
+epService.getEPRuntime().executeQuery(query);]]></programlisting>
+
+			<para>
+				Instead of the <literal>values</literal> keyword you may specify a select-clause as this example shows:
+			</para>
+			<programlisting><![CDATA[String query = 
+  "insert into OrdersWindow(orderId, symbol, price) select '001', 'GE', 100";
+epService.getEPRuntime().executeQuery(query);]]></programlisting>
+
+			<para>
+				The following EPL inserts the same values as above but specifies property names as part of the select-clause expressions:
+			</para>
+			<programlisting><![CDATA[insert into OrdersWindow
+select '001' as orderId, 'GE' as symbol, 100 as price]]></programlisting>
+
+			<para>
+				The next EPL inserts the same values as above and does not specify property names thereby 
+				populating the first 3 properties of the type of the named window:
+			</para>
+			<programlisting><![CDATA[insert into OrdersWindow values ('001', 'GE', 100)]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="named_update_faf" revision="1">
+			<title>Updating Data</title>
+			
+			<indexterm><primary>update</primary></indexterm>
+			<indexterm><primary>named window</primary><secondary>updating</secondary></indexterm>
+			<indexterm><primary>table</primary><secondary>updating</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>updating</tertiary></indexterm>
+	
+			<para>
+				Your application can update table and named window rows using on-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.
+			</para>
+	
+			<para>
+				The syntax for the <literal>update</literal> clause is as follows: 
+			</para>
+			<synopsis>update <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+set <emphasis>mutation_expression</emphasis> [, <emphasis>mutation_expression</emphasis> [,...]]
+[where <emphasis>criteria_expression</emphasis>]</synopsis>
+				
+			<para>
+				The <emphasis>window_or_table_name</emphasis> is the name of the table or named window to remove rows from. 
+				The <literal>as</literal> keyword is also available to assign a name to the table or named window.
+			</para>
+				
+			<para>
+				After the <literal>set</literal> keyword follows a comma-separated list of mutation expressions. For fire-and-forget queries the following restriction applies: Subqueries, aggregation functions and the <literal>prev</literal> or <literal>prior</literal> function may not be used in expressions. Mutation expressions are detailed in <xref linkend="named_update"/>.
+			</para>
+	
+			<para>
+				The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that identifies rows to be updated.
+			</para>
+	
+			<para>				
+				The example code snippet updates those rows of the named window that have a negative value for volume:
+			</para>
+			<programlisting><![CDATA[String query = "update OrdersNamedWindow set volume = 0 where volumne = 0";
+epService.getEPRuntime().executeQuery(query);]]></programlisting>
+	
+			<para>
+			  To instruct the engine to use the initial property value before update, prefix the property name with the literal <literal>initial</literal>. 
+			</para>
+		</sect2>
+
+		<sect2 xml:id="named_delete_faf" revision="1">
+			<title>Deleting Data</title>
+			
+			<indexterm><primary>delete</primary></indexterm>
+			<indexterm><primary>named window</primary><secondary>deleting from</secondary></indexterm>
+			<indexterm><primary>table</primary><secondary>deleting from</secondary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>named window</secondary><tertiary>deleting from</tertiary></indexterm>
+	
+			<para>
+				Your application can delete rows from a named window or table using on-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.
+			</para>
+	
+			<para>
+				The syntax for the <literal>delete</literal> clause is as follows: 
+			</para>
+			<synopsis>delete from <emphasis>window_or_table_name</emphasis> [as <emphasis>stream_name</emphasis>]
+	[where <emphasis>criteria_expression</emphasis>]</synopsis>
+				
+			<para>
+				The <emphasis>window_or_table_name</emphasis> is the name of the named window or table to delete rows from. 
+				The <literal>as</literal> keyword is also available to assign a name to the named window or table.
+			</para>
+				
+			<para>
+				The optional <literal>where</literal> clause contains a <emphasis>criteria_expression</emphasis> that identifies rows to be removed from the named window or table.
+			</para>
+	
+			<para>				
+				The example code snippet deletes from a named window all rows that have a negative value for volume:
+			</para>
+			<programlisting><![CDATA[String query = "delete from OrdersNamedWindow where volume <= 0";
+epService.getEPRuntime().executeQuery(query);]]></programlisting>
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="named_versioning" revision="1">
+		<title>Versioning and Revision Event Type Use with Named Windows</title>
+		
+		<indexterm><primary>named window</primary><secondary>versioning events</secondary></indexterm>
+
+		<para>
+			As outlined in <xref linkend="eventrep-update"/>, revision event types process updates or new versions of events held by a named window.
+		</para>
+
+		<para>
+			A revision event type is simply one or more existing pre-configured event types whose events are related, as configured by static configuration, by event properties that provide same key values. The purpose of key values is to 
+			indicate that arriving events are related: An event amends, updates or adds properties to an earlier event that shares the same key values. No additional EPL is needed when using revision event types for merging event data.
+		</para>
+
+		<para>
+			Revision event types can be useful in these situations:
+		</para>
+		<orderedlist spacing="compact">
+			<listitem>
+				<para>
+					Some of your events carry only partial information that is related to a prior event and must be merged together.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Events arrive that add additional properties or change existing properties of prior events.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Events may carry properties that have null values or properties that do no exist (for example events backed by Map or XML), and for such properties the earlier value must be used instead.
+				</para>
+			</listitem>
+		</orderedlist>
+
+		<para>
+			To better illustrate, consider a revision event type that represents events for creation and updates to user profiles. Let's assume the user profile creation events carry the user id and a full profile. The profile update events indicate only the user id and the individual properties that actually changed. The user id property shall serve as a key value relating profile creation events and update events.
+		</para>
+
+		<para>
+			A revision event type must be configured to instruct the engine which event types participate and what their key properties are. Configuration is described in <xref linkend="config-revisionevent"/> and is not shown here.
+		</para>
+		
+		<para>				
+			Assume that an event type <literal>UserProfileRevisions</literal> has been configured to hold profile events, i.e. creation and update events related by user id. This statement creates a named window to hold the last 1 hour of current profiles per user id:
+		</para>
+		<programlisting><![CDATA[create window UserProfileWindow.win:time(1 hour) select * from UserProfileRevisions]]></programlisting>
+		<programlisting><![CDATA[insert into UserProfileWindow select * from UserProfileCreation]]></programlisting>
+		<programlisting><![CDATA[insert into UserProfileWindow select * from UserProfileUpdate]]></programlisting>
+
+		<para>				
+			In revision event types, the term <emphasis>base</emphasis> event is used to describe events that are subject to update. Events that update, amend or add additional properties to base events are termed <emphasis>delta</emphasis> events. 
+			In the example, base events are profile creation events and delta events are profile update events. 
+		</para>
+
+		<para>				
+			Base events are expected to arrive before delta events. In the case where a delta event arrives and is not related by key value to a base event or a revision of the base event currently held by the named window the engine ignores the delta event. Thus, considering the example, profile update events for a user id that does not have an existing profile in the named window are not applied.
+		</para>
+
+		<para>
+			When a base or delta event arrives, the insert and remove stream output by the named window are the current and the prior version of the event. Let's come back to the example. As creation events arrive that are followed by update events or more creation events for the same user id, the engine posts the current version of the profile as insert stream (new data) and the prior version of the profile as remove stream (old data).
+		</para>
+
+		<para>				
+			Base events are also implicitly delta events. That is, if multiple base events of the same key property values arrive, then each base event provides a new version. In the example, if multiple profile creation events arrive for the same user id then new versions of the current profile for that user id are output by the engine for each base event, as it does for delta events.
+		</para>
+
+		<para>				
+			The expiry policy as specified by view definitions applies to each distinct key value, or multiple distinct key values for composite keys. An expiry policy re-evaluates when new versions arrive. In the example, user profile events expire from the time window when no creation or update event for a given user id has been received for 1 hour.
+		</para>
+
+		<tip>				
+			It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>std:unique</literal>) or unique data window in intersection with other data windows
+			instead (i.e. <literal>std:unique(field).win:time(1 hour)</literal>).
+		</tip>
+
+		<para>				
+			Several strategies are available for merging or overlaying events as the configuration chapter describes in greater detail.
+		</para>
+
+		<para>				
+			Any of the Map, XML and JavaBean event representations as well as plug-in event representations may participate in a revision event type. For example, profile creation events could be JavaBean events, while profile update events could be <literal>java.util.Map</literal> events.
+		</para>
+
+		<para>				
+			Delta events may also add properties to the revision event type. For example, one could add a new event type with security information to the revision event type and such security-related properties become available on the resulting revision event type.
+		</para>
+
+		<para>
+			The following restrictions apply to revision event types:
+		</para>        
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Nested properties are only supported for the JavaBean event representation. Nested properties are not individually versioned; they are instead versioned by the containing property.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Dynamic, indexed and mapped properties are only supported for nested properties and not as properties of the revision event type itself.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</sect1>
+		
+	<sect1 xml:id="named-eventasproperty" revision="1">
+		<title>Events As Property</title>
+		<para>
+			Columns in a named window and table may also hold an event or multiple events. More information on the <literal>insert into</literal> clause providing event columns is in <xref linkend="insert-into-eventasproperty"/>.
+		</para>
+		
+		<para>
+			A sample declaration for a named window and a table is:
+		</para>
+		<programlisting><![CDATA[create schema InnerData (value string)]]></programlisting>
+		<programlisting><![CDATA[create table ContainerTable (innerdata InnerData)]]></programlisting>
+		<programlisting><![CDATA[create window ContainerWindow.win:time(30) as (innerdataArray InnerData[]) // array of events]]></programlisting>
+
+		<para>
+			The second sample creates a named window that specifies two columns: A column that holds an OrderEvent, and a column by name <literal>priceTotal</literal>. A matching <literal>insert into</literal> statement is also part of the sample:
+		</para>
+		<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select this, price as priceTotal from OrderEvent]]></programlisting>
+		<programlisting><![CDATA[insert into OrdersWindow select order, price * unit as priceTotal  
+from ServiceOrderEvent as order]]></programlisting>
+
+		<para>
+			Note that the <literal>this</literal> proprerty must exist on the event and must return the event class itself (JavaBean events only). The property type of the additional <literal>priceTotal</literal> column is the property type of the existing <literal>price</literal> property.
+		</para>
+	</sect1>
+
+</chapter>

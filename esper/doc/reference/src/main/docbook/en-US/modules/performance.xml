@@ -1,0 +1,1845 @@
+<chapter xml:id="performance" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>Performance</title>
+
+    <para>
+        Esper has been highly optimized to handle very high throughput streams with very little latency between event receipt and output result posting.
+        It is also possible to use Esper on a soft-real-time or hard-real-time JVM to maximize predictability even
+        further.
+    </para>
+
+    <para>
+        This section describes performance best practices and explains how to assess Esper performance by using our
+        provided performance kit.
+    </para>
+
+    <sect1 xml:id="performance-results" revision="1">
+        <title>Performance Results</title>
+
+        <para>
+            For a complete understanding of those results, consult the next sections.
+        </para>
+
+        <para>
+            <programlisting>Esper exceeds over 500 000 event/s on a dual CPU 2GHz Intel based hardware,
+with engine latency below 3 microseconds average (below 10us with more than 
+99% predictability) on a VWAP benchmark with 1000 statements registered in the system 
+- this tops at 70 Mbit/s at 85% CPU usage.
+
+Esper also demonstrates linear scalability from 100 000 to 500 000 event/s on this 
+hardware, with consistent results accross different statements.
+
+Other tests demonstrate equivalent performance results
+(straight through processing, match all, match none, no statement registered,
+VWAP with time based window or length based windows).
+                
+Tests on a laptop demonstrated about 5x time less performance - that is 
+between 70 000 event/s and 200 000 event/s - which still gives room for easy 
+testing on small configuration.</programlisting>
+        </para>
+
+    </sect1>
+
+    <sect1 xml:id="performance-tips" revision="1">
+        <title>Performance Tips</title>
+
+		<sect2 xml:id="perf-tips-1">
+			<title>Understand how to tune your Java virtual machine</title>
+	
+			<para>
+				Esper runs on a JVM and you need to be familiar with JVM tuning.
+				Key parameters to consider include minimum and maximum heap memory and nursery heap sizes.
+				Statements with time-based or length-based data windows can consume large amounts of memory as their size or length can be large.
+			</para>
+
+			<para>
+				For time-based data windows, one needs to be aware that the memory consumed depends on the actual event stream input
+				throughput. Event pattern instances also consume memory, especially when using the "every"
+				keyword in patterns to repeat pattern sub-expressions - which again will depend on the actual event stream input throughput.
+			</para>
+		</sect2>
+	
+
+		<sect2 xml:id="perf-tips-3">
+			<title>Input and Output Bottlenecks</title>
+			<para>
+				Your application receives output events from Esper statements through the <literal>UpdateListener</literal> interface or via the strongly-typed subscriber POJO object. Such output events are delivered by the application or timer thread(s) that sends an input event into the engine instance.
+			</para>
+			<para>
+				The processing of output events that your listener or subscriber performs temporarily blocks the thread until the processing completes, and may thus reduce throughput. It can therefore be beneficial for your application to process output events asynchronously and not block the Esper engine while an output event is being processed by your listener, especially if your listener code performs blocking IO operations.
+			</para>
+			<para>
+				For example, your application may want to send output events to a JMS destination or write output event data to a relational database. For optimal throughput, consider performing such blocking operations in a separate thread.
+			</para>
+			<para>
+				Additionally, when reading input events from a store or network in a performance test, you may find that Esper processes events faster then you are able to feed events into Esper. In such case you may want to consider an in-memory driver for use in performance testing. Also consider decoupling your read operation from the event processing operation (sendEvent method) by having multiple readers or by pre-fetching your data from the store.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-3-a">
+			<title>Theading</title>
+
+			<para>
+				We recommend using multiple threads to send events into Esper. We provide a test class below. 
+				Our test class does not use a blocking queue and thread pool so as to avoid a point of contention.
+			</para>
+			
+			<para>
+				A sample code for testing performance with multiple threads is provided:
+			</para>
+			<programlisting><![CDATA[public class SampleClassThreading {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        int numEvents = 1000000;
+        int numThreads = 3;
+
+        Configuration config = new Configuration();
+        config.getEngineDefaults().getThreading()
+          .setListenerDispatchPreserveOrder(false);
+        config.getEngineDefaults().getThreading()
+          .setInternalTimerEnabled(false);   // remove thread that handles time advancing
+        EPServiceProvider engine = EPServiceProviderManager
+          .getDefaultProvider(config);
+        engine.getEPAdministrator().getConfiguration().addEventType(MyEvent.class);
+
+        engine.getEPAdministrator().createEPL(
+          "create context MyContext coalesce by consistent_hash_crc32(id) " +
+          "from MyEvent granularity 64 preallocate");
+        String epl = "context MyContext select count(*) from MyEvent group by id";
+        EPStatement stmt = engine.getEPAdministrator().createEPL(epl);
+        stmt.setSubscriber(new MySubscriber());
+
+        Thread[] threads = new Thread[numThreads];
+        CountDownLatch latch = new CountDownLatch(numThreads);
+
+        int eventsPerThreads = numEvents / numThreads;
+        for (int i = 0; i < numThreads; i++) {
+            threads[i] = new Thread(
+              new MyRunnable(latch, eventsPerThreads, engine.getEPRuntime()));
+        }
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < numThreads; i++) {
+            threads[i].start();
+        }
+
+        latch.await(10, TimeUnit.MINUTES);
+        if (latch.getCount() > 0) {
+            throw new RuntimeException("Failed to complete in 10 minute");
+        }
+        long delta = System.currentTimeMillis() - startTime;
+        System.out.println("Took " + delta + " millis");
+    }
+
+    public static class MySubscriber {
+        public void update(Object[] args) {
+        }
+    }
+
+    public static class MyRunnable implements Runnable {
+        private final CountDownLatch latch;
+        private final int numEvents;
+        private final EPRuntime runtime;
+
+        public MyRunnable(CountDownLatch latch, int numEvents, EPRuntime runtime) {
+            this.latch = latch;
+            this.numEvents = numEvents;
+            this.runtime = runtime;
+        }
+
+        public void run() {
+            Random r = new Random();
+            for (int i = 0; i < numEvents; i++) {
+                runtime.sendEvent(new MyEvent(r.nextInt(512)));
+            }
+            latch.countDown();
+        }
+    }
+
+    public static class MyEvent {
+        private final int id;
+
+        public MyEvent(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+}]]></programlisting>
+						
+			<para>
+				We recommend using Java threads as above, or a blocking queue and thread pool with <literal>sendEvent()</literal> or alternatively we recommend configuring inbound threading if your application does not already employ threading.
+				Esper provides the configuration option to use engine-level queues and threadpools for inbound, outbound and internal executions. See <xref linkend="api-threading-advanced"/> for more information.
+			</para>
+			<para>
+				We recommend the outbound threading if your listeners are blocking. For outbound threading also see the section below on tuning and disabling listener delivery guarantees.
+			</para>
+			<para>
+				If enabling advanced threading options keep in mind that the engine will maintain a queue and thread pool. There is additional overhead associated with entering work units into the queue, maintaining the queue and the hand-off between threads. The Java blocking queues are not necessarily fast on all JVM. 
+				It is not necessarily true that your application will perform better with any of the advanced threading options. 
+			</para>
+			<para>
+			  We found scalability better on Linux systems and running Java with <literal>-server</literal> and pinning threads to exclusive CPUs and after making sure CPUs are available on your system.
+			</para>
+			<para>
+				We recommend looking at LMAX Disruptor, an inter-thread messaging library, for setting up processing stages. Disruptor, however, is reportedly less suitable for setting up a worker pool.				
+			</para>
+
+			<sect3 xml:id="perf-tips-4-threadpoolpattern">
+				<title>Thead Pool Pattern</title>
+				<para>
+					The sample code below may help you get started setting up a thread pool of workers with back pressure and consideration for IO threads and clean shutdown.
+				</para>
+				
+				<para>
+					The sample code starts by setting up a thread factory:
+				</para>
+				<programlisting><![CDATA[private static class EngineThreadFactory implements ThreadFactory {
+  private AtomicInteger id = new AtomicInteger(0);
+
+  public Thread newThread(Runnable r) {
+    Thread t = new Thread(r, "Event Engine Thread #" + id.incrementAndGet());
+    t.setDaemon(true);
+    t.setPriority(Thread.NORM_PRIORITY);
+    return t;
+  }
+}]]></programlisting>
+
+				<para>
+					The sample uses a fixed-size array blocking queue. To handle the situation where the queue is full and accepts no more messages,
+					we use a rejection handler that counts the number of rejections and retries:
+				</para>
+				<programlisting><![CDATA[private class EngineRejectionHandler implements RejectedExecutionHandler {
+  private volatile long spinCount = 0;
+  
+  public long getSpinCount() {
+    return spinCount;
+  }
+
+  public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+    ++spinCount;
+
+    try {
+      boolean isAccepted = false;
+      while (!isAccepted) {
+        isAccepted = executorQueue.offer(r, 120, TimeUnit.MICROSECONDS);
+      }
+    }
+    catch (InterruptedException e) {
+      log.warn("could not queue work entry");
+    }
+  }
+}]]></programlisting>
+
+				<para>
+					The Runnable that submits an event for processing could look like this:
+				</para>
+				<programlisting><![CDATA[class Holder implements Runnable {
+  public void run() {
+    // do any stuff needed to "prepare" event which doesn't involve IO
+    esperService.sendEvent(lm);
+  }
+}]]></programlisting>
+
+				<para>
+					Initialize the queue and worker pool as follows:
+				</para>
+				<programlisting><![CDATA[  private final static int CAPACITY = 10000;
+  private final static int THREAD_COUNT = 4;
+
+  private static EPRuntime esperService;
+  private ThreadFactory threadFactory = new EngineThreadFactory();
+  private EngineRejectionHandler rejectionHandler = new EngineRejectionHandler();
+  private BlockingQueue<Runnable> executorQueue;
+  private ThreadPoolExecutor executor;
+
+  public void start() {
+    executorQueue = new ArrayBlockingQueue<Runnable>(CAPACITY);
+    executor = new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT, 0, TimeUnit.SECONDS,
+    executorQueue, threadFactory, rejectionHandler);
+    executor.allowCoreThreadTimeOut(false);
+    while (executor.getPoolSize() < executor.getCorePoolSize()) {
+      executor.prestartCoreThread();
+    }
+  }]]></programlisting>
+
+				<para>
+					To shut down cleanly, and before destroying the Esper engine instance, the sample code is:
+				</para>
+				<programlisting><![CDATA[  executor.shutdown();
+  while (!executor.isTerminated()) {
+    Thread.sleep(100);
+  }]]></programlisting>
+
+				<para>
+					The next sample code goes into the IO or input thread(s) such as NIO mapped file, file channel, socket channel, or zmq / nanomsg etc., and submits a work unit to the queue:
+				</para>
+				<programlisting><![CDATA[  while (programAlive) {
+    // deserialize event to POJO, Map, Array, etc.,
+    // pass along an event type name when needed
+    executor.execute(new Holder(myeventobject));
+  }]]></programlisting>
+  
+				  <para>
+				  You could periodically dump the <literal>spinCount</literal> variable to get an idea of queue depth.
+					You can tune the size of the Executor's pool, and the size of the TimeUnit's of sleep used inside the rejectedExecution method, until you get 1) stable performance at highest level (determined by optimal number of threads in pool, 2) avoid wasting CPU in IO thread(s) (determined by optimal sleeping time between each attempt to re-queue rejected events to the thread pool).
+				  </para>
+
+			</sect3>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-4">
+			<title>Select the underlying event rather than individual fields</title>
+			
+			<para>
+				By selecting the underlying event in the select-clause we can reduce load on the engine, since the 
+				engine does not need to generate a new output event for each input event.
+			</para>
+	
+			<para>
+				For example, the following statement returns the underlying event to update listeners:
+			</para>
+	
+<programlisting><![CDATA[// Better performance
+select * from RFIDEvent]]></programlisting>
+
+			<para>
+				In comparison, the next statement selects individual properties. This statement requires the engine to generate an output event that 
+				contains exactly the required properties:
+			</para>
+
+<programlisting><![CDATA[// Less good performance
+select assetId, zone, xlocation, ylocation from RFIDEvent ]]></programlisting>
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-5">
+			<title>Prefer stream-level filtering over where-clause filtering</title>
+
+			<para>
+				Esper stream-level filtering is very well optimized, while filtering via the where-clause post any data windows is not optimized. 				
+			</para>
+	
+			<para>
+				The same is true for named windows. If your application is only interested in a subset of named window data and such filters
+				are not correlated to arriving events, place the filters into parenthesis after the named window name.
+			</para>
+			
+			<sect3 xml:id="perf-tips-5-nonnamedwindowexample">
+				<title>Examples without named windows</title>
+			
+				<para>
+					Consider the example below, which performs stream-level filtering:
+				</para>
+
+				<programlisting><![CDATA[// Better performance : stream-level filtering
+select * from MarketData(ticker = 'GOOG')]]></programlisting>
+
+				<para>
+					The example below is the equivalent (same semantics) statement and performs post-data-window filtering without a data window.
+					The engine does not optimize statements that filter in the where-clause for the reason that data window views are generally present.
+				</para>
+
+				<programlisting><![CDATA[// Less good performance : post-data-window filtering
+select * from Market where ticker = 'GOOG']]></programlisting>
+
+				<para>
+					Thus this optimization technique applies to statements without any data window. 
+				</para>
+	
+				<para>
+					When a data window is used, the semantics change. Let's look at an example to better understand the difference:
+					In the next statement only GOOG market events enter the length window:
+				</para>
+
+				<programlisting><![CDATA[select avg(price) from MarketData(ticker = 'GOOG').win:length(100)]]></programlisting>
+
+				<para>
+					The above statement computes the average price of GOOG market data events for the last 100 GOOG market data events. 
+				</para>
+				
+				<para>
+					Compare the filter position to a filter in the where clause. 
+					The following statement is NOT equivalent as all events enter the data window (not just GOOG events):
+				</para>
+		
+				<programlisting><![CDATA[select avg(price) from Market.win:length(100) where ticker = 'GOOG']]></programlisting>
+
+				<para>
+					The statement above computes the average price of all market data events for the last 100 market data events, and outputs results only for GOOG.
+				</para>
+			</sect3>
+			
+			<sect3 xml:id="perf-tips-5-namedwindowexample">
+				<title>Examples using named windows</title>
+			
+				<para>
+					The next two example EPL queries put the account number filter criteria directly into parenthesis following the named window name:
+				</para>
+
+				<programlisting><![CDATA[// Better performance : stream-level filtering
+select * from WithdrawalNamedWindow(accountNumber = '123')]]></programlisting>
+
+				<programlisting><![CDATA[// Better performance : example with subquery
+select *, (select * from LoginSucceededWindow(accountNumber = '123'))
+from WithdrawalNamedWindow(accountNumber = '123')]]></programlisting>
+
+			</sect3>
+
+			<sect3 xml:id="perf-tips-5-whereclausecomputations">
+				<title>Common computations in where-clauses</title>
+			
+				<para>
+					If you have a number of queries performing a given computation on incoming events, consider moving the computation from the where-clause to a 
+					plug-in user-defined function that is listed as part of stream-level filter criteria.
+					The engine optimizes evaluation of user-defined functions in filters such that an incoming event can undergo the computation just once even in the presence of N queries.
+				</para>
+
+				<programlisting><![CDATA[// Prefer stream-level filtering with a user-defined function
+select * from MarketData(vstCompare(*))]]></programlisting>
+
+				<programlisting><![CDATA[// Less preferable when there are N similar queries: 
+// Move the computation in the where-clause to the "vstCompare" function.
+select * from MarketData where (VST * RT) – (VST / RT) > 1]]></programlisting>
+			</sect3>
+
+		</sect2>
+	
+		<sect2 xml:id="perf-tips-6">
+			<title>Reduce the use of arithmetic in expressions</title>
+
+			<para>
+				Esper does not yet attempt to pre-evaluate arithmetic expressions that produce constant results.
+			</para>
+	
+			<para>
+				Therefore, a filter expression as below is optimized:
+			</para>
+<programlisting><![CDATA[// Better performance : no arithmetic
+select * from MarketData(price>40) ]]></programlisting>
+
+			<para>
+				While the engine cannot currently optimize this expression:
+			</para>
+
+<programlisting><![CDATA[// Less good performance : with arithmetic
+select * from MarketData(price+10>50) ]]></programlisting>
+
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-6a">
+			<title>Remove Unneccessary Constructs</title>
+
+			<para>
+				If your statement uses <literal>order by</literal> to order output events, consider removing <literal>order by</literal> unless your application does indeed require the events it receives to be ordered.
+			</para>
+
+			<para>
+				If your statement specifies <literal>group by</literal> but does not use aggregation functions, consider removing <literal>group by</literal>.
+			</para>
+
+			<para>
+				If your statement specifies <literal>group by</literal> but the filter criteria only allows one group, consider removing <literal>group by</literal>:
+			</para>
+<programlisting><![CDATA[// Prefer:
+select * from MarketData(symbol = 'GE') having sum(price) > 1000
+
+// Don't use this since the filter specifies a single symbol:
+select * from MarketData(symbol = 'GE') group by symbol having sum(price) > 1000]]></programlisting>
+
+			<para>
+				If your statement specifies the grouped data window <literal>std:groupwin</literal> but the window being grouped retains the same set of events regardless of grouping, 
+				remove <literal>std:groupwin</literal>:
+			</para>
+<programlisting><![CDATA[// Prefer:
+create window MarketDataWindow.win:keepall() as MarketDataEventType
+
+// Don't use this, since keeping all events 
+// or keeping all events per symbol is the same thing:
+create window MarketDataWindow.std:groupwin(symbol).win:keepall() as MarketDataEventType
+
+// Don't use this, since keeping the last 1-minute of events 
+// or keeping 1-minute of events per symbol is the same thing:
+create window MarketDataWindow.std:groupwin(symbol).win:time(1 min) as MarketDataEventType]]></programlisting>
+
+			<para>
+				It is not necessary to specify a data window for each stream.
+			</para>
+<programlisting><![CDATA[// Prefer:
+select * from MarketDataWindow
+
+// Don't have a data window if just listening to events, prefer the above
+select * from MarketDataWindow.std:lastevent()]]></programlisting>
+
+			<para>
+				If your statement specifies unique data window but the filter criteria only allows one unique criteria, consider removing the unique data window:
+			</para>
+<programlisting><![CDATA[// Prefer:
+select * from MarketDataWindow(symbol = 'GE').std:lastevent()
+
+// Don't have a unique-key data window if your filter specifies a single value
+select * from MarketDataWindow(symbol = 'GE').std:unique(symbol)]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-6b">
+			<title>End Pattern Sub-Expressions</title>
+
+			<para>
+				In patterns, the <literal>every</literal> keyword in conjunction with followed by (<literal>-></literal>) starts a new sub-expression per match. 				
+			</para>
+			<para>
+				For example, the following pattern starts a sub-expression looking for a B event for every A event that arrives.
+			</para>
+			<programlisting><![CDATA[every A -> B]]></programlisting>
+
+			<para>
+				Determine under what conditions a subexpression should end so the engine can stop looking for a B event. Here are a few generic examples:
+			</para>
+			<programlisting><![CDATA[every A -> (B and not C)
+every A -> B where timer:within(1 sec)]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-7">
+			<title>Consider using EventPropertyGetter for fast access to event properties</title>
+
+			<para>
+				The EventPropertyGetter interface is useful for obtaining an event property value without property name table lookup 
+				given an EventBean instance that is of the same event type that the property getter was obtained from.
+			</para>
+
+			<para>
+				When compiling a statement, the EPStatement instance lets us know the EventType via the getEventType() method.
+				From the EventType we can obtain EventPropertyGetter instances for named event properties.
+			</para>
+
+			<para>
+				To demonstrate, consider the following simple statement:
+			</para>
+	
+			<programlisting><![CDATA[select symbol, avg(price) from Market group by symbol]]></programlisting>
+
+			<para>
+				After compiling the statement, obtain the EventType and pass the type to the listener:
+			</para>
+	
+<programlisting><![CDATA[EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+MyGetterUpdateListener listener = new MyGetterUpdateListener(stmt.getEventType());]]></programlisting>
+
+			<para>
+				The listener can use the type to obtain fast getters for property values of events for the same type:
+			</para>
+
+<programlisting><![CDATA[public class MyGetterUpdateListener implements StatementAwareUpdateListener {
+    private final EventPropertyGetter symbolGetter;
+    private final EventPropertyGetter avgPriceGetter;
+
+    public MyGetterUpdateListener(EventType eventType) {
+        symbolGetter = eventType.getGetter("symbol");
+        avgPriceGetter = eventType.getGetter("avg(price)");
+    }]]></programlisting>
+
+			<para>
+				Last, the update method can invoke the getters to obtain event property values:
+			</para>
+	
+	<programlisting><![CDATA[    public void update(EventBean[] eventBeans, EventBean[] oldBeans, EPStatement epStatement, EPServiceProvider epServiceProvider) {
+        String symbol = (String) symbolGetter.get(eventBeans[0]);
+        long volume = (Long) volumeGetter.get(eventBeans[0]);
+        // some more logic here
+    }]]></programlisting>
+		</sect2>
+			
+		<sect2 xml:id="perf-tips-8">
+			<title>Consider casting the underlying event</title>
+
+			<para>
+				When an application requires the value of most or all event properties, it can often be best to simply select the underlying event via wildcard
+				and cast the received events.
+			</para>
+
+			<para>
+				Let's look at the sample statement:
+			</para>
+	
+			<programlisting><![CDATA[select * from MarketData(symbol regexp 'E[a-z]')]]></programlisting>
+
+			<para>
+				An update listener to the statement may want to cast the received events to the expected underlying event class:
+			</para>
+	
+<programlisting><![CDATA[    public void update(EventBean[] eventBeans, EventBean[] eventBeans) {
+        MarketData md = (MarketData) eventBeans[0].getUnderlying();
+        // some more logic here
+    }]]></programlisting>
+
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-9">
+			<title>Turn off logging and audit</title>
+
+			<para>
+	Since Esper 1.10, even if you don't have a log4j configuration file in place, Esper will make sure to minimize execution path logging overhead.
+	For prior versions, and to reduce logging overhead overall, we recommend the "WARN" log level or the "INFO" log level.
+			</para>
+
+			<para>
+	Please see the log4j configuration file in "etc/infoonly_log4j.xml" for example log4j settings.
+			</para>
+			
+			<para>
+				Esper provides the <literal>@Audit</literal> annotation for statements. For performance testing and production deployment, we recommend removing <literal>@Audit</literal>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-10">
+			<title>Disable view sharing</title>
+
+			<para>
+				By default, Esper compares streams and views in use with existing statement's streams and views, and then reuses views to efficiently share resources between statements. The benefit is reduced resources usage, however the potential cost is that in multithreaded applications a shared view may mean excessive locking of multiple processing threads.
+			</para>
+	
+			<para>
+				Consider disabling view sharing for better threading performance if your application overall uses fewer statements and statements have very similar streams, filters and views. 
+			</para>
+
+			<para>
+				View sharing can be disabled via XML configuration or API, and the next code snippet shows how, using the API:
+			</para>
+<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getViewResources().setShareViews(false);]]></programlisting>
+
+		</sect2>
+
+		<sect2 xml:id="perf-tips-11">
+			<title>Tune or disable delivery order guarantees</title>
+
+			<para>
+				If your application is not a multithreaded application, or you application is not sensitive to the order of delivery of result events to your application listeners, then consider disabling the delivery order guarantees the engine makes towards ordered delivery of results to listeners:
+			</para>
+<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getThreading().setListenerDispatchPreserveOrder(false);]]></programlisting>
+	
+			<para>
+				If your application is not a multithreaded application, or your application uses the <literal>insert into</literal> clause to make results of one statement available for further consuming statements but does not require ordered delivery of results from producing statements to consuming statements, you may disable delivery order guarantees between statements: 
+			</para>
+
+<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getThreading().setInsertIntoDispatchPreserveOrder(false);]]></programlisting>
+
+			<para>
+				Additional configuration options are available and described in the configuration section that specify timeout values and spin or thread context switching.
+			</para>
+
+			<para>
+				Esper logging will log the following informational message when guaranteed delivery order to listeners is enabled and spin lock times exceed the default or configured timeout : <literal>Spin wait timeout exceeded in listener dispatch</literal>.
+				The respective message for delivery from <literal>insert into</literal> statements to consuming statements is <literal>Spin wait timeout exceeded in insert-into dispatch</literal>.
+			</para>
+
+			<para>
+				If your application sees messages that spin lock times are exceeded, your application has several options: First, disabling preserve order is an option. Second, ensure your listener does not perform (long-running) blocking operations before returning, for example by performing output event processing in a separate thread. Third, change the timeout value to a larger number to block longer without logging the message.
+			</para>
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-12">
+			<title>Use a Subscriber Object to Receive Events</title>
+
+			<para>
+				The subscriber object is a technique to receive result data that has performance advantages over the <literal>UpdateListener</literal> interface. Please refer to <xref linkend="api-admin-subscriber"/>.
+			</para>
+
+		</sect2>
+
+		<sect2 id="perf-tips-12b">
+			<title>Consider Data Flows</title>
+			<para>
+				Data flows offer a high-performance means to execute EPL select statements and use other built-in data flow operators. The data flow <literal>Emitter</literal> operator allows sending underlying event objects directly into a data flow. Thereby the engine does not need to wrap each underlying event into a <literal>EventBean</literal> instance and the engine does not need to match events to statements. Instead, the underling event directly applies to only that data flow instance that your application submits the event to, and no other continuous query statements or data flows see the same event.
+			</para>
+			
+			<para>
+			  Data flows are described in <xref linkend="dataflow"/>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13">
+			<title>High-Arrival-Rate Streams and Single Statements</title>
+
+			<para>
+				A context partition is associated with certain context partition state that consists of current aggregation values, partial pattern matches, data windows or other view state depending on whether your statement uses such constructs. When an engine receives events it updates context partition state under locking such that context partition state remains consistent under concurrent multi-threaded access.
+			</para>
+			
+			<para>
+				For high-volume streams, the locking required to protected context partition state may slow down or introduce blocking for very high arrival rates of events that apply to the very same context partition and its state.
+			</para>
+
+			<para>
+				Your first choice should be to utilize a context that allows for multiple context partitions, such as the hash segmented context. The hash segmented context usually performs better
+				compared to the keyed segmented context since in the keyed segmented context the engine must check whether a partition exists or must be created for a given key.
+			</para>
+
+			<para>
+				Your second choice is to split the statement into multiple statements that each perform part of the intended function or that each look for a certain subset of the high-arrival-rate stream. There is very little cost in terms of memory or CPU resources per statement, the engine can handle larger number of statements usually as efficiently as single statements.
+			</para>
+
+			<para>
+				For example, consider the following statement:
+			</para>
+			<programlisting><![CDATA[// less effective in a highly threaded environment 
+select venue, ccyPair, side, sum(qty)
+from CumulativePrice
+where side='O'
+group by venue, ccyPair, side]]></programlisting>
+
+			<para>
+				The engine protects state of each context partition by a separate lock for each context partition, as discussed in the API section. In highly threaded applications threads may block on a specific context partition. You would therefore want to use multiple context partitions.
+			</para>
+
+			<para>
+				Consider creating a keyed segmented context, for example:
+			</para>
+			<programlisting><![CDATA[create context MyContext partition by venue, ccyPair, side from CumulativePrice(side='O')]]></programlisting>
+
+			<para>
+				The keyed segmented context instructs the engine to employ a context partition per <literal>venue, ccyPair, side</literal> key combination. As locking is on the level of context partition, the locks taken by the engine are very fine grained allowing for highly concurrent processing.
+			</para>
+			
+			<para>
+				The new statement that refers to the context as created above is:
+			</para>
+			<programlisting><![CDATA[context MyContext select venue, ccyPair, side, sum(qty) from CumulativePrice]]></programlisting>
+
+			<para>
+			  For testing purposes or if your application controls concurrency, you may disable context partition locking, see <xref linkend="config-engine-execution-disablelock"/>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13a">
+			<title>Subqueries versus Joins And Where-clause And Data Windows</title>
+
+			<para>
+				When joining streams the engine builds a product of the joined data windows based on the <literal>where</literal> clause. It analyzes the <literal>where</literal> clause at time of statement compilation and
+				builds the appropriate indexes and query strategy. Avoid using expressions in the join <literal>where</literal> clause that require evaluation, such as user-defined functions or arithmatic expressions.
+			</para>
+
+			<para>
+				When joining streams and not providing a <literal>where</literal> clause, consider using the <literal>std:unique</literal> data window or <literal>std:lastevent</literal> data window to join only the last event or the last event per unique key(s) of each stream. 
+			</para>
+
+			<para>
+				The sample query below can produce up to 5,000 rows when both data windows are filled and an event arrives for either stream:
+			</para>
+
+<programlisting><![CDATA[// Avoid joins between streams with data windows without where-clause
+select * from StreamA.win:length(100), StreamB.win:length(50)]]></programlisting>
+
+			<para>
+				Consider using a subquery, consider using separate statements with insert-into and consider providing a <literal>where</literal> clause to limit the product of rows.
+			</para>
+
+			<para>
+				Below examples show different approaches, that are not semantically equivalent, assuming that an <literal>MyEvent</literal> is defined with the properties symbol and value:
+			</para>
+
+<programlisting><![CDATA[// Replace the following statement as it may not perform well
+select a.symbol, avg(a.value), avg(b.value) 
+from MyEvent.win:length(100) a, MyEvent.win:length(50) b
+
+// Join with where-clause
+select a.symbol, avg(a.value), avg(b.value) 
+from MyEvent.win:length(100) a, MyEvent.win:length(50) b 
+where a.symbol = b.symbol
+
+// Unidirectional join with where-clause
+select a.symbol, avg(b.value) 
+from MyEvent unidirectional, MyEvent.win:length(50) b 
+where a.symbol = b.symbol
+
+// Subquery
+select 
+  (select avg(value) from MyEvent.win:length(100)) as avgA, 
+  (select avg(value) from MyEvent.win:length(50)) as avgB,
+  a.symbol
+from MyEvent
+
+// Since streams cost almost nothing, use insert-into to populate and a unidirectional join 
+insert into StreamAvgA select symbol, avg(value) as avgA from MyEvent.win:length(100)
+insert into StreamAvgB select symbol, avg(value) as avgB from MyEvent.win:length(50)
+select a.symbol, avgA, avgB from StreamAvgA unidirectional, StreamAvgB.std:unique(symbol) b
+where a.symbol = b.symbol]]></programlisting>
+
+			<para>
+				A join is multidirectionally evaluated: When an event of any of the streams participating in the join arrive, the join gets evaluated, unless using the unidirectional keyword.
+				Consider using a subquery instead when evaluation only needs to take place when a certain event arrives:
+			</para>
+<programlisting><![CDATA[// Rewrite this join since we don't need to join when a LoginSucceededWindow arrives
+// Also rewrite because the account number always is the value 123.
+select * from LoginSucceededWindow as l, WithdrawalWindow as w
+where w.accountNumber = '123' and w.accountNumber = l.accountNumber
+
+// Rewritten as a subquery, 
+select *, (select * from LoginSucceededWindow where accountNumber=’123’) 
+from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>			
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13b">
+			<title>Patterns and Pattern Sub-Expression Instances</title>
+
+			<para>
+				The <literal>every</literal> and repeat operators in patterns control the number of sub-expressions that are active. Each sub-expression can consume memory as it may retain, depending on the use of tags in the pattern,
+				the matching events. A large number of active sub-expressions can reduce performance or lead to out-of-memory errors. 
+			</para>
+
+			<para>
+				During the design of the pattern statement consider the use of <literal>timer:within</literal> to reduce the amount of time a sub-expression lives, or consider the <literal>not</literal> operator to end a sub-expression.
+			</para>
+
+			<para>
+				The examples herein assume an <literal>AEvent</literal> and a <literal>BEvent</literal> event type that have an <literal>id</literal> property that may correlate between arriving events of the two event types.
+			</para>
+
+			<para>
+				In the following sample pattern the engine starts, for each arriving AEvent, a new pattern sub-expression looking for a matching BEvent. Since the AEvent is tagged with <literal>a</literal> the engine retains
+				each AEvent until a match is found for delivery to listeners or subscribers:
+			</para>
+
+<programlisting><![CDATA[every a=AEvent -> b=BEvent(b.id = a.id)]]></programlisting>
+
+			<para>
+				One way to end a sub-expression is to attach a time how long it may be active.
+			</para>
+
+			<para>
+				The next statement ends sub-expressions looking for a matching BEvent 10 seconds after arrival of the AEvent event that started the sub-expression:
+			</para>
+<programlisting><![CDATA[every a=AEvent -> (b=BEvent(b.id = a.id) where timer:within(10 sec))]]></programlisting>
+
+			<para>
+				A second way to end a sub-expression is to use the <literal>not</literal> operator. You can use the <literal>not</literal> operator together with the <literal>and</literal> operator to end a sub-expression when a certain event arrives.
+			</para>
+				
+			<para>
+				The next statement ends sub-expressions looking for a matching BEvent when, in the order of arrival, the next BEvent that arrives after the AEvent event that started the sub-expression does not match the id of the AEvent:
+			</para>
+<programlisting><![CDATA[every a=AEvent -> (b=BEvent(b.id = a.id) and not BEvent(b.id != a.id))]]></programlisting>
+
+			<para>
+				The <literal>every-distinct</literal> operator can be used to keep one sub-expression alive per one or more keys. The next pattern demonstrates an alternative to <literal>every-distinct</literal>. It ends sub-expressions looking for a matching BEvent when an AEvent arrives that matches the id of the AEvent that started the sub-expression:
+			</para>
+<programlisting><![CDATA[every a=AEvent -> (b=BEvent(b.id = a.id) and not AEvent(b.id = a.id))]]></programlisting>
+
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13b2">
+			<title>Pattern Sub-Expression Instance Versus Data Window Use</title>
+
+			<para>
+			  For some use cases you can either specify one or more data windows as the solution, or you can specify a pattern that also solves your use case.
+			</para>
+			
+			<para>
+			  For patterns, you should understand that the engine employs a dynamic state machine. For data windows, the engine employs a delta network and collections. Generally you may find patterns that require a large number of sub-expression instances to consume more memory and more CPU then data windows.
+			</para>
+			
+			<para>
+			  For example, consider the following EPL statement that filters out duplicate transaction ids that occur within 20 seconds of each other:
+			</para>
+			<programlisting><![CDATA[select * from TxnEvent.std:firstunique(transactionId).win:time(20 sec)]]></programlisting>
+			
+			<para>
+			  You could also address this solution using a pattern:
+			</para>
+			<programlisting><![CDATA[select * from pattern [every-distinct(a.transactionId) a=TxnEvent where timer:within(20 sec)]]]></programlisting>
+
+			<para>
+			  If you have a fairly large number of different transaction ids to track, you may find the pattern to perform less well then the data window solution as the pattern asks the engine to manage a pattern sub-expression per transaction id. The data window solution
+			  asks the engine to manage expiry, which can give better performance in many cases.
+			</para>
+
+			<para>
+			  Similar to this, it is generally preferable to use EPL join syntax over a pattern that cardinally detects relationships i.e. <literal>pattern [every-distinct(...) ... -> every-distinct(...) ...]</literal>. Join query planning is a powerful Esper feature that implements fast relational joins.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13c">
+			<title>The Keep-All Data Window</title>
+
+			<para>
+				The <literal>std:keepall</literal> data window is a data window that retains all arriving events. The data window can be useful during the development phase and to implement a custom expiry policy using <literal>on-delete</literal> and named windows. Care should be taken to timely remove from the keep-all data window however. Use <literal>on-select</literal> or on-demand queries to count the number of rows currently held by a named window with keep-all expiry policy.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-13d">
+			<title>Statement Design for Reduced Memory Consumption - Diagnosing OutOfMemoryError</title>
+
+			<para>
+			  This section describes common sources of out-of-memory problems.
+			</para>
+			
+			<para>
+				If using the keep-all data window please consider the information above. If using pattern statements please consider pattern sub-expression instantiation and lifetime as discussed prior to this section.
+			</para>
+			
+			<para>
+			  When using the <literal>group-by</literal> clause or <literal>std:groupwin</literal> grouped data windows please consider the hints as described below. Make sure your grouping criteria are fields that don't have an unlimited number of possible values or specify hints otherwise.
+			</para>
+			
+			<para>
+				The <literal>std:unique</literal> unique data window can also be a source for error. If your uniqueness criteria include a field which is never unique the memory use of the data window can grow, unless your application deletes events.
+			</para>
+			
+			<para>
+			  When using the <literal>every-distinct</literal> pattern construct parameterized by distinct value expressions that generate an unlimited number of distinct values, consider specifying a time period as part of the parameters to indicate to the pattern engine how long a distinct value should be considered.
+			</para>
+			
+			<para>
+			  In a match-recognize pattern consider limiting the number of optional events if optional events are part of the data reported in the <literal>measures</literal> clause. Also when using the partition clause, if your partitioning criteria include a field which is never unique the memory use of the match-recognize pattern engine can grow.
+			</para>
+			
+			<para>
+				A further source of memory use is when your application creates new statements but fails to destroy created statements when they are no longer needed.
+			</para>
+			
+			<para>
+				In your application design you may also want to be conscious when the application listener or subscriber objects retain output data.
+			</para>
+			
+			<para>
+			    An engine instance, uniquely identified by an <literal>engine URI</literal> is a relatively heavyweight object. Optimally your application allocates only one or a few engine instances per JVM.
+			    A statement instance is associated to one engine instance, is uniquely identified by a statement name and is a medium weight object. We have seen applications allocate 100,000 statements easily.
+			    A statement's context partition instance is associated to one statement, is uniquely identified by a context partition id and is a light weight object. We have seen applications allocate 5000 context partitions for 100 statements easily, i.e. 5,000,000 context partitions.
+			    An aggregation row, data window row, pattern etc. is associated to a statement context partition and is a very lightweight object itself. 
+			</para>
+			
+			<para>
+			  The <literal>prev</literal>, <literal>prevwindow</literal> and <literal>prevtail</literal> functions access a data window directly. The engine does not need to maintain a separate data structure and grouping is based on the use of the <literal>std:groupwin</literal> grouped data window. 
+			  Compare this to the use of event aggregation functions such as <literal>first</literal>, <literal>window</literal> and <literal>last</literal> which group according to the <literal>group by</literal> clause. If your statement utilizes both together consider reformulating to use <literal>prev</literal> instead.
+			</para>
+			
+		</sect2>
+
+		<sect2 xml:id="perf-tips-14">
+
+			<title>Performance, JVM, OS and hardware</title>
+
+			<para>
+				Performance will also depend on your JVM (Sun HotSpot, BEA JRockit, IBM J9), your operating system and your hardware.
+				A JVM performance index such as specJBB at <link xlink:href="http://www.spec.org">spec.org</link> can be used. For memory intensive statement, you may want
+				to consider 64bit architecture that can address more than 2GB or 3GB of memory, although a 64bit JVM usually comes with a slow performance penalty due to
+				more complex pointer address management.
+			</para>
+			<para>
+				The choice of JVM, OS and hardware depends on a number of factors and therefore a definite suggestion is hard to make.
+				The choice depends on the number of statements, and number of threads.
+				A larger number of threads would benefit of more CPU and cores. If you have very low latency requirements, you should consider
+				getting more GHz per core, and possibly soft real-time JVM to enforce GC determinism at the JVM level, or even consider dedicated hardware such as Azul.
+				If your statements utilize large data windows, more RAM and heap space will be utilized hence you should clearly plan and account for that and possibly consider 64bit architectures or consider
+				<link xlink:href="http://www.espertech.com/products/">EsperHA</link>.
+			</para>
+
+			<para>
+				The number and type of statements is a factor that cannot be generically accounted for.
+				The benchmark kit can help test out some requirements and establish baselines, and for more complex use cases
+				a simulation or proof of concept would certainly works best.
+				<link xlink:href="http://www.espertech.com/support/services.php">EsperTech' experts</link> can be available to help write interfaces in a consulting relationship.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-15">
+			<title>Consider using Hints</title>
+
+			<para>
+				The @Hint annotation provides a single keyword or a comma-separated list of keywords that provide instructions to the engine towards statement execution
+				that affect runtime performance and memory-use of statements. Also see <xref linkend="epl-syntax-annotation-hint"/>.
+			</para>
+
+			<para>
+			  The query planning in general is described in <xref linkend="perf-tips-24"/>.
+			</para>
+
+			<para>
+			  The hint for influencing query planning expression analysis is described at <xref linkend="perf-tips-25a"/>.
+			</para>
+
+			<para>
+			  The hint for influencing query planning index choice is described at <xref linkend="perf-tips-25b"/>.
+			</para>
+
+			<para>
+				Further hints, also related to query planning, for use with joins, outer joins, unidirectional joins, relational and non-relational joins are described in <xref linkend="epl-join-hints"/>.
+			</para>
+
+			<para>
+				The hint for use with <literal>group by</literal> to specify how state for groups is reclaimed is described in <xref linkend="epl-groupby-hints"/> and <xref linkend="view-std-groupwin"/>.
+			</para>
+
+			<para>
+				The hint for use with <literal>group by</literal> to specify aggregation state reclaim for unbound streams and timestamp groups is described in <xref linkend="epl-groupby-hints"/>.
+			</para>
+
+			<para>
+				The hint for use with <literal>match_recognize</literal> to specify iterate-only is described in <xref linkend="match-recognize-patternops-iterator"/>.
+			</para>
+			
+			<para>
+				To tune subquery performance when your subquery selects from a named window, consider the hints discussed in <xref linkend="epl-subqueries-hints"/>.
+			</para>
+
+			<para>
+				The <literal>@NoLock</literal> hint to remove context partition locking (also read caution note) is described at <xref linkend="api-threading"/>.
+			</para>			
+
+			<para>
+				The hint to control expansion of filter expressions, further described at <xref linkend="config-engine-execution-filterservicemaxfilterwidth"/>.
+			</para>			
+		</sect2>
+
+		<sect2 xml:id="perf-tips-16">
+			<title>Optimizing Stream Filter Expressions</title>
+
+			<para>
+				Assume your EPL statement invokes a static method in the stream filter as the below statement shows as an example:
+			</para>
+			<programlisting><![CDATA[select * from MyEvent(MyHelperLibrary.filter(field1, field2, field3, field4*field5))]]></programlisting>
+
+			<para>
+				As a result of starting above statement, the engine must evaluate each MyEvent event invoking the <literal>MyHelperLibrary.filter</literal> method and passing certain event properties. The same applies to pattern filters that 
+				specify functions to evaluate.
+			</para>
+			
+			<para>
+				If possible, consider moving some of the checking performed by the function back into the filter or consider splitting the function into a two parts separated by <literal>and</literal> conjunction. In general for all expressions, the engine evaluates expressions left of the <literal>and</literal> first and can skip evaluation of the 
+				further expressions in the conjunction in the case when the first expression returns false. In addition the engine can build a reverse index for fields provided in stream or pattern filters.
+			</para>
+
+			<para>
+				For example, the below statement could be faster to evaluate:
+			</para>
+			<programlisting><![CDATA[select * from MyEvent(field1="value" and 
+  MyHelperLibrary.filter(field1, field2, field3, field4*field5))]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-17">
+				<title>Statement and Engine Metric Reporting</title>
+				<para>
+					You can use statement and engine metric reporting as described in <xref linkend="api-instrumentation"/> to monitor performance or identify slow statements.
+				</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-18">
+			<title>Expression Evaluation Order and Early Exit</title>
+
+			<para>
+				The term "early exit" or "short-circuit evaluation" refers to when the engine can evaluate an expression without a complete evaluation of all sub-expressions.
+			</para>
+
+			<para>
+				Consider an expression such as follows:
+			</para>
+			<programlisting><![CDATA[where expr1 and expr2 and expr3]]></programlisting>
+
+			<para>
+				If expr1 is false the engine does not need to evaluate expr2 and expr3. Therefore when using the <literal>AND</literal> logical operator consider reordering expressions placing the most-selective expression first and less selective expressions thereafter.
+			</para>
+
+			<para>
+				The same is true for the <literal>OR</literal> logical operator: If expr1 is true the engine does not need to evaluate expr2 and expr3. Therefore when using the <literal>OR</literal> logical operator consider reordering expressions placing the least-selective expression first and more selective expressions thereafter. 
+			</para>
+
+			<para>
+				The order of expressions (here: expr1, expr2 and expr3) does not make a difference for the join and subquery query planner.
+			</para>
+			
+			<para>
+				Note that the engine does not guarantee short-circuit evaluation in all cases. The engine may rewrite the where-clause or filter conditions into another order of evaluation so that it can perform index or reverse index lookups.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-19">
+				<title>Large Number of Threads</title>
+				<para>
+					When using a large number of threads with the engine, such as more then 100 threads, we provide a setting in the configuration that instructs the engine to reduce the use of thread-local variables. Please see  <xref linkend="config-engine-execution"/> for more information.
+				</para>
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-19a">
+				<title>Filter Evaluation Tuning</title>
+				<para>
+					We offer a switch for tuning evaluation of incoming events against filters. Please see  <xref linkend="config-engine-execution"/> for more information.
+				</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-20">
+				<title>Context Partition Related Information</title>
+				<para>
+					As the engine locks on the level of context partition, high concurrency under threading can be achieved by using context partitions.
+				</para>
+				<para>
+					Generally context partitions require more memory then the more fine-grained grouping that can be achieved by <literal>group by</literal> or <literal>std:groupwin</literal>.
+				</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-21">
+			<title>Prefer Constant Variables over Non-Constant Variables</title>
+			<para>
+				The create-variable syntax as well as the APIs can identify a variable as a constant value. When a variable's value is not intended to change it is best to declare the variable as constant.
+			</para>
+			
+			<para>
+				For example, consider the following two EPL statements that each declares a variable. The first statement declares a constant variable and the second statement declares a non-constant variable:
+			</para>
+			<programlisting><![CDATA[// declare a constant variable
+create constant variable CONST_DEPARTMENT = 'PURCHASING']]></programlisting>
+			<programlisting><![CDATA[// declare a non-constant variable
+create variable VAR_DEPARTMENT = 'SALES']]></programlisting>
+
+			<para>
+				When your application creates a statement that has filters for events according to variable values, the engine internally inspects such expressions and performs filter optimizations for constant variables that are more effective in evaluation.
+			</para>
+			
+			<para>
+				For example, consider the following two EPL statements that each look for events related to persons that belong to a given department:
+			</para>
+			<programlisting><![CDATA[// perfer the constant
+select * from PersonEvent(department=CONST_DEPARTMENT)]]></programlisting>
+			<programlisting><![CDATA[// less efficient
+select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
+
+			<para>
+				The engine can more efficiently evaluate the expression using a variable declared as constant. The same observation can be made for subquery and join query planning.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-22">
+			<title>Prefer Object-array Events</title>
+			<para>
+				Object-array events offer the best read access performance for access to event property values. In addition, object-array events use much less memory then Map-type events. They also offer the best write access performance. 
+			</para>
+			
+			<para>
+			  A comparison of different event representations is in <xref linkend="eventrep_comparing"/>.
+			</para>
+
+			<para>
+			    First, we recommend that your application sends object-array events into the engine, instead of Map-type events. See <xref linkend="eventrep-objectarray"/> for more information.
+			</para>
+			
+			<para>
+			    Second, we recommend that your application sets the engine-wide configuration of the default event representation to object array, as described in <xref linkend="config-engine-eventmeta-representation"/>. Alternatively you can use the <literal>@EventRepresentation(array=true)</literal> annotation with individual statements.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-23">
+				<title>Composite or Compound Keys</title>
+				<para>
+					If your uniqueness, grouping, sorting or partitioning keys are composite keys or compound keys, this section may apply. A composite key is a key that consists of 2 or more properties or expressions.
+				</para>
+				<para>
+					In the example below the <literal>firstName</literal> and <literal>lastName</literal> expressions are part of a composite key: 
+				</para>
+				 <programlisting><![CDATA[... group by firstName, lastName
+...std:unique(firstName, lastName)...
+...order by firstName, lastName]]></programlisting>
+
+				<note>
+				  The example above is not a comprehensive discussion where composite or compound keys may be used in EPL. Other places where composite keys may apply are
+				  patterns, partitioned contexts and grouped data windows (we may have missed one).
+				</note>
+
+				<para>
+					You application could change the EPL to instead refer to a single value <literal>fullName</literal>:
+				</para>
+				<programlisting><![CDATA[... group by fullName
+...std:unique(fullName)...
+...order by fullName]]></programlisting>
+
+				<para>
+					The advantage in using a single expression as the uniqueness, grouping and sorting key is that the engine does not need to compute multiple expressions 
+					and retain a separate data structure in memory that represents the composite key, resulting in reduced memory use and increased throughput.
+				</para>
+		</sect2>
+		<sect2 xml:id="perf-tips-24">
+				<title>Notes on Query Planning</title>
+				<para>
+				  Query planning takes place for subqueries, joins (any type), named window and table on-actions (on-select, on-merge, on-insert, on-update, on-select) and fire-and-forget queries. Query planning
+				  affects query execution speed. Enable query plan logging to output query plan information.
+				</para>
+				<para>
+				  For query planning, the engine draws information from:
+				</para>
+				<orderedlist>
+					<listitem>
+						<para>
+							The <literal>where</literal>-clauses, if any are specified. <literal>Where</literal>-clauses correlate streams, patterns, named windows, tables etc. with more streams, patterns, tables and named windows and are thus the main source of information for query planning.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							The data window(s) declared on streams and named windows. 
+							The <literal>std:unique</literal> and the <literal>std:firstunique</literal> data window instruct the engine to retain the last event per unique criteria.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							For named windows and tables, the explicit indexes created via <literal>create unique index</literal> or <literal>create index</literal>.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							For named windows (and not tables), the previously created implicit indexes. The engine can create implicit indexes automatically if explicit indexes do not match correlation requirements.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Any hints specified for the statement in question and including hints specified during the creation of named windows with <literal>create window</literal>.
+						</para>
+					</listitem>
+				</orderedlist>
+				
+				<para>
+				   The engine prefers unique indexes over non-unique indexes.
+				</para>
+
+				<para>
+				   The engine prefers hash-based lookups (equals) and combination hash-btree lookups (equals and relational-operator or range) over btree lookups (relational-operator or range)
+				   over in-keyword (single and multi-index) lookup plans. This behavior can be controlled by hints that we discuss next.
+				</para>
+		</sect2>
+		
+		<sect2 xml:id="perf-tips-25a">
+				<title>Query Planning Expression Analysis Hints</title>
+				
+				<para>
+					The expression analysis hints impact query planning for any statement and fire-and-forget query that performs a join or subquery. They also impact named window and table on-action statements.					
+				</para>
+				
+				<para>
+					This hint instructs the engine which expressions, operators or streams should be excluded and therefore not considered for query planning. 
+					The hint applies to the <literal>where</literal>-clause and, for outer joins, to the <literal>on</literal>-clause when present.
+				</para>
+				
+				<para>
+					The hint takes a single expression as its sole parameter, which is placed in parenthesis. The expression must return a boolean value.
+				</para>
+				
+				<para>
+					When the provided expression returns true for a given combination, that combination will not be considered for the query plan. 
+					A combination consists of a from-stream (name or number), a to-stream (name or number), an operator (i.e. equals, relational, in-keyword) and a set of expressions.					
+				</para>
+
+			   <table frame="topbot">
+					<title>Built-in Properties of the Expression Analysis Hint</title>
+					<tgroup cols="3">
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="3*"/>
+						<thead>
+							<row>
+								<entry>Name</entry>
+								<entry>Type</entry>
+								<entry>Description</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry>exprs</entry>
+								<entry>string-array (<literal>String[]</literal>)</entry>
+								<entry>Expression texts with minified whitespace.</entry>
+							</row>
+							<row>
+								<entry>from_streamname</entry>
+								<entry>string</entry>
+								<entry>The stream name of the stream providing lookup values as provided by the <literal>as</literal> keyword.</entry>
+							</row>
+							<row>
+								<entry>from_streamnum</entry>
+								<entry>int</entry>
+								<entry>The integer ordinal number of the stream providing lookup values as listed in the from-clause.</entry>
+							</row>
+							<row>
+								<entry>opname</entry>
+								<entry>string</entry>
+								<entry>The operator name. Valid values are <literal>equals</literal>, <literal>relop</literal> (relational operators and ranges) and <literal>inkw</literal> (<literal>in</literal>-keyword).</entry>
+							</row>
+							<row>
+								<entry>to_streamname</entry>
+								<entry>string</entry>
+								<entry>The stream name of the stream providing indexable values as provided by the <literal>as</literal> keyword.</entry>
+							</row>
+							<row>
+								<entry>to_streamnum</entry>
+								<entry>int</entry>
+								<entry>The integer ordinal number of the stream providing indexable values as listed in the from-clause.</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table> 
+				
+				<para>
+					Consider two event types A and B. Event type A has a property <literal>aprop</literal> and 
+					event type B has a property <literal>bprop</literal>. Let's assume A and B are related by <literal>aprop</literal> and <literal>bprop</literal>.
+				</para>
+
+				<para>
+					An inner join of all A and B events might look like this:
+				</para>
+				<programlisting><![CDATA[select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]></programlisting>
+				
+				<para>
+					In the default query plan, when an A event comes in, the engine obtains the value of <literal>aprop</literal> and performs an index lookup against <literal>bprop</literal>
+					values to obtain matching B events. Vice versa, when a B event comes in, the engine obtains the value of <literal>bprop</literal> and performs an index lookup against <literal>aprop</literal> values to obtain matching A events.
+				</para>
+				
+				<para>
+					The engine evaluates the hint expression for each combination. The table below outlines the two rows provided to the hint expression:
+				</para>
+
+			   <table frame="topbot">
+					<title>Built-in Properties of the Expression Analysis Hint</title>
+					<tgroup cols="6">
+						<colspec colwidth="2.0*"/>
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<thead>
+							<row>
+								<entry>exprs</entry>
+								<entry>from_streamname</entry>
+								<entry>from_streamnum</entry>
+								<entry>opname</entry>
+								<entry>to_streamname</entry>
+								<entry>to_streamnum</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>["aprop", "bprop"]</literal></entry>
+								<entry><literal>a</literal></entry>
+								<entry><literal>0</literal></entry>
+								<entry><literal>equals</literal></entry>
+								<entry><literal>b</literal></entry>
+								<entry><literal>1</literal></entry>
+							</row>
+							<row>
+								<entry><literal>["bprop", "aprop"]</literal></entry>
+								<entry><literal>b</literal></entry>
+								<entry><literal>1</literal></entry>
+								<entry><literal>equals</literal></entry>
+								<entry><literal>a</literal></entry>
+								<entry><literal>0</literal></entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+				
+				<para>
+					The following EPL statement with hint causes the analyzer to exclude all combinations since the expression passed in always returns true,
+					in effect causing the query planner to always execute the statement as a full table scan.
+				</para>
+				<programlisting><![CDATA[@hint('exclude_plan(true)')
+select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]></programlisting>
+
+				<para>
+					This hint instructs the engine to ignore all equals-operators for query planning:
+				</para>
+				<programlisting><![CDATA[@hint('exclude_plan(opname="equals")') select ....]]></programlisting>
+
+				<para>
+					The next hint instructs the engine to ignore the equals-operator for the direction of lookup from A to B:
+				</para>
+				<programlisting><![CDATA[@hint('exclude_plan(opname="equals" and from_streamname="a")') select ....]]></programlisting>
+
+				<para>
+					Conversely, this hint instructs the engine to ignore the equals-operator for the direction of lookup from B to A:
+				</para>
+				<programlisting><![CDATA[@hint('exclude_plan(opname="equals" and from_streamname="b")') select ....]]></programlisting>
+				
+				<para>
+					Use the <literal>exprs</literal> array of expression texts to exclude specific expressions:
+				</para>
+				<programlisting><![CDATA[@hint('exclude_plan(exprs[0]="aprop")') select ....]]></programlisting>
+				
+				<para>
+					For subqueries the stream number zero is the subquery from-clause itself and 1 to N are the enclosing statement's from-clause streams.
+					For named window and table on-action statements the stream number zero is the named window or table and stream number 1 refers to the triggering pattern or event.
+				</para>
+				
+				<para>
+					To specify multiple expressions, please specify multiple hints. The engine excludes a specific combination when any of the hint expressions returns true.
+				</para>
+				
+				<para>
+					To inspect values passed to the hint expression, please enable query plan logging. To inspect expression evaluation, please use <literal>@Audit</literal>.
+				</para>
+		</sect2>
+
+		<sect2 xml:id="perf-tips-25b">
+				<title>Query Planning Index Hints</title>
+				
+				<para>
+				  Currently index hints are only supported for the following types of statements:
+				</para>
+				<orderedlist>
+					<listitem>
+						<para>
+							Named window and table on-action statements (on-select, on-merge, on-insert, on-update, on-select).
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Statements that have subselects against named windows that have index sharing enabled (the default is disabled).
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Statements that have subselects against tables.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Fire-and-forget queries.
+						</para>
+					</listitem>
+				</orderedlist>
+				<para>
+				  For the above statements, you may dictate to the engine which explicit index (created via <literal>create index</literal> syntax) to use.
+				</para>
+				
+				<para>
+				  Specify the name of the explicit index in parentheses following <literal>@Hint</literal> and the <literal>index</literal> literal.
+				</para>
+				
+				<para>
+				  The following example instructs the engine to use the <literal>UserProfileIndex</literal> if possible:
+				</para>
+				<programlisting><![CDATA[@Hint('index(UserProfileIndex)')]]></programlisting>
+
+				<para>
+				  Add the literal <literal>bust</literal> to instruct the engine to use the index, or if the engine cannot use the index fail query planning with an exception and therefore fail statement creation.
+				</para>
+
+				<para>
+				  The following example instructs the engine to use the <literal>UserProfileIndex</literal> if possible or fail with an exception if the index cannot be used:
+				</para>
+				<programlisting><![CDATA[@Hint('index(UserProfileIndex, bust)')]]></programlisting>
+
+				<para>
+				  Multiple indexes can be listed separated by comma (<literal>,</literal>). 
+				</para>
+
+				<para>
+				  The next example instructs the engine to consider the <literal>UserProfileIndex</literal> and the <literal>SessionIndex</literal> or fail with an exception if either index cannot be used:
+				</para>
+				<programlisting><![CDATA[@Hint('index(UserProfileIndex, SessionIndex, bust)')]]></programlisting>
+				
+				<para>
+				  The literal <literal>explicit</literal> can be added to instruct the engine to use only explicitly created indexes.
+				</para>
+				
+				<para>
+				  The final example instructs the engine to consider any explicitly create index or fail with an exception if any of the explicitly created indexes cannot be used:
+				</para>
+				<programlisting><![CDATA[@Hint('index(explicit, bust)')]]></programlisting>
+		</sect2>
+		<sect2 xml:id="perf-tips-26">
+				<title>Measuring Throughput</title>
+				
+				<para>
+					We recommend using <literal>System.nanoTime()</literal> to measure elapsed time when processing a batch of, for example, 1000 events.
+				</para>
+				
+				<para>
+					Note that <literal>System.nanoTime()</literal> provides nanosecond precision, but not necessarily nanosecond resolution.  
+				</para>
+
+				<para>
+					Therefore don't try to measure the time spent by the engine processing a single event: The resolution of <literal>System.nanoTime()</literal> is not sufficient. 
+					Also, there are reports that <literal>System.nanoTime()</literal> can be actually go "backwards" and may not always behave as expected under threading. 
+					Please check your JVM platform documentation.
+				</para>
+				
+				<para>
+				  In the default configuration, the best way to measure performance is to take nano time, send a large number of events, for example 10.000 events, and take nano time again reporting on the difference between the two numbers.
+				</para>
+
+				<para>
+				  If your configuration has inbound threading or other threading options set, you should either monitor the queue depth to determine performance, or disable 
+				  threading options when measuring performance, or have your application use multiple threads to send events instead.
+				</para>
+		</sect2>
+		<sect2 xml:id="perf-tips-27">
+				<title>Do not create the same EPL Statement X times</title>
+				
+				<para>
+					It is vastly more efficient to create an EPL statement once and attach multiple listeners, then to create the same EPL statement X times.
+				</para>
+
+				<para>
+					Since your goal will be to make all test code as realistic, real-world and production-like as possible, we recommend against production code or test code creating 
+					the same EPL statement multiple times. Instead consider creating the same EPL statement once and attaching multiple listeners.
+					Certain important optimizations that the engine can perform when EPL statements realistically differ, may not take place. 
+					The engine also does not try to detect duplicate EPL statements, since that can easily be done by your application using public APIs. 
+				</para>
+		</sect2>
+		<sect2 xml:id="perf-tips-28">
+				<title>Comparing Single-Threaded and Multi-Threaded Performance</title>
+				
+				<para>
+					The Java Virtual Machine optimizes locks such that the time to obtain a read lock, for example, differs widely between single-threaded and multi-threaded applications.
+					 We compared code that obtains an unfair <literal>ReentrantReadWriteLock</literal> read lock 100 million times, without any writer. 
+					 We measured 3 seconds for a single-threaded application and 15 seconds for an application with 2 threads.
+					 It can therefore not be expected that scaling from single-threaded to 2 threads will always double performance. There is a base cost for multiple threads to coordinate.
+				</para>
+		</sect2>
+		<sect2 xml:id="perf-tips-29">
+				<title>Incremental Versus Recomputed Aggregation for Named Window Events</title>
+
+				<para>
+				  Whether aggregations of named window rows are computed incrementally or are recomputed from scratch depends on the type of query.
+				</para>
+
+				<para>
+				  When the engine computes aggregation values incrementally, meaning it continuously updates the aggregation value as events enter and leave a named window,
+				  it means that the engine internally subscribes to named window updates and applies these updates as they occur. For some applications this is the desired behavior.
+				</para>
+				
+				<para>
+				  For some applications re-computing aggregation values from scratch when a certain condition occurs, for example when a triggering event arrives or time passes, is beneficial. Re-computing an aggregation
+				  can be less expensive if the number of rows to consider is small and/or when the triggering event or time condition triggers infrequently.
+				</para>
+				
+				<para>
+				  The next paragraph assumes that a named window has been created to hold some historical financial data per symbol and minute:
+				</para>
+				<programlisting><![CDATA[create window HistoricalWindow.win:keepall() as (symbol string, int minute, double price)]]></programlisting>
+				<programlisting><![CDATA[insert into HistoricalWindow select symbol, minute, price from HistoricalTick]]></programlisting>
+
+				<para>
+				  For statements that simply select from a named window (excludes on-select) the engine computes aggregation values incrementally, continuously updating the aggregation, as events enter and leave the named window.
+				</para>
+
+				<para>
+				  For example, the below statement updates the total price incrementally as events enter and leave the named window. If events in the named window already 
+				  exist at the time the statement gets created, the total price gets pre-computed once when the statement gets created and incrementally updated when events enter and leave the named window:
+				</para>
+				<programlisting><![CDATA[select sum(price) from HistoricalWindow(symbol='GE')]]></programlisting>
+
+				<para>
+				  The same is true for uncorrelated subqueries. 
+				  For statements that sub-select from a named window, the engine computes aggregation values incrementally, continuously updating the aggregation, as events enter and leave the named window.
+				  This is only true for uncorrelated subqueries that don't have a where-clause.
+				</para>
+
+				<para>
+				  For example, the below statement updates the total price incrementally as events enter and leave the named window. If events in the named window already 
+				  exist at the time the statement gets created, the total price gets pre-computed once when the statement gets created and incrementally updated when events enter and leave the named window:
+				</para>
+				<programlisting><![CDATA[// Output GE symbol total price, incrementally computed
+// Outputs every 15 minutes on the hour.
+select (sum(price) from HistoricalWindow(symbol='GE')) 
+from pattern [every timer:at(0, 15, 30, 45), *, *, *, *, 0)]]]></programlisting>
+
+				<para>
+				  If instead your application uses <literal>on-select</literal> or a correlated subquery, the engine recomputes aggregation values from scratch every time the triggering event fires.
+				</para>
+
+				<para>
+				  For example, the below statement does not incrementally compute the total price (use a plain select or subselect as above instead). 
+				  Instead the engine computes the total price from scratch based on the where-clause and matching rows:
+				</para>
+				<programlisting><![CDATA[// Output GE symbol total price (recomputed from scratch) every 15 minutes on the hour
+on pattern [every timer:at(0, 15, 30, 45), *, *, *, *, 0)]
+select sum(price) from HistoricalWindow where symbol='GE']]></programlisting>
+
+				<para>
+				  Unidirectional joins against named windows also do not incrementally compute aggregation values.
+				</para>
+
+				<para>
+				  Joins and outer joins, that are not unidirectional, compute aggregation values incrementally.
+				</para>
+		</sect2>
+		<sect2 xml:id="perf-tips-30">
+				<title>When Does Memory Get Released</title>
+				
+				<para> 
+					Java Virtual Machines (JVMs) release memory only when a garbage collection occurs. Depending on your JVM settings a garbage collection can occur frequently or
+					infrequently and may consider all or only parts of heap memory.
+				</para>
+				
+				<para>
+				  Esper is optimized towards latency and throughput. Esper does not force garbage collection or interfere with garbage collection. 
+				  For performance-sensitive code areas, Esper utilizes thread-local buffers such as arrays or ringbuffers that can retain small amounts of recently processed state. 
+				  Esper does not try to clean such buffers after every event for performance reasons. It does clean such buffers when destroying the engine and stopping or destroying statements.
+				  It is therefore normal to see a small non-increasing amount of memory to be retained after processing events that the garbage collector may not free immediately.
+				</para>				
+		</sect2>
+		<sect2 xml:id="perf-tips-31">
+				<title>Measure throughput of non-matches as well as matches</title>
+				
+				<para> 
+					When an event comes in and the event does not match any query or pattern, the engine can discard that event since the event is a non-match.
+					When measuring throughput, we suggest including non-matching events. The fact that the engine can discard non-matching events extremely fast is an important aspect of processing.
+				</para>
+
+				<para> 
+					Many use cases look for a needle-in-a-haystack situation or rarely occurring pattern. For example, a use case looking for security breaches may analyze 10 million events
+					and find only a single situation consisting, for example, of 5 correlated events of the 10 million input events. We'd recommend your benchmark to closely mimic or to play back
+					production data and watch the expected ratio of input and output events. Reducing the number of output events generally increases performance.
+				</para>
+
+				<para> 
+					For example, assume you have 10 queries:
+				</para>
+				<programlisting><![CDATA[select * from pattern[A -> B(id = 1)];
+select * from pattern[A -> B(id = 2)];
+.....
+select * from pattern[A -> B(id = 10)];]]></programlisting>
+				
+				<para>
+					The above patterns each match once when an A event comes in followed by a B event with a given id between 1 and 10.					
+				</para>
+
+				<para>
+					We recommend to measure throughput by sending in B events that have a value of minus one (-1) for id, for example, to determine how fast such events are discarded.
+				</para>
+		</sect2>
+    </sect1>
+
+    <sect1 xml:id="performance-kit" revision="1">
+        <title>Using the performance kit</title>
+
+        <sect2 xml:id="how-to-kit" revision="1">
+            <title>How to use the performance kit</title>
+
+        <para>
+            The benchmark application is basically an Esper event server build with Esper that listens to remote clients
+            over TCP.
+            Remote clients send MarketData(ticker, price, volume) streams to the event server.
+            The Esper event server is started with 1000 statements of one single kind (unless otherwise written),
+            with one statement per ticker symbol, unless the statement kind does not depend on the symbol.
+            The statement prototype is provided along the results with a '$' instead of the actual ticker symbol value.
+            The Esper event server is entirely multithreaded and can leverage the full power of 32bit or 64bit
+            underlying hardware multi-processor multi-core architecture.
+        </para>
+
+            <para>
+                The kit also prints out when starting up the event size and the theoretical maximal throughput you can get on a
+                100 Mbit/s and 1 Gbit/s network. Keep in mind a 100 Mbit/s network will be overloaded at about 400 000 event/s when using our kit despite
+                the small size of events.
+            </para>
+
+        <para>
+            Results are posted on our Wiki page at <link xlink:href="http://www.espertech.com/esper">Performance Wiki</link>.
+            Reported results do not represent best ever obtained results. Reported results may help you better compare
+            Esper to other solutions (for latency, throughput and CPU utilization) and also assess your target hardware and JVMs.
+        </para>
+
+            <para>
+                The Esper event server, client and statement prototypes are provided in the source repository
+                <literal>esper/trunk/examples/benchmark/</literal>. 
+                Refer to <link xlink:href="http://www.espertech.com/esper">http://www.espertech.com/esper</link>
+                for source access.
+            </para>
+
+            <para>
+                If you use the kit you should:
+            </para>
+
+            <orderedlist>
+                <listitem>
+                    <para>
+                        Choose the statement you want to benchmark, add it to
+                        <literal>etc/statements.properties</literal>
+                        under
+                        your own KEY and use the
+                        <literal>-mode KEY</literal>
+                        when you start the Esper event server.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Prepare your runServer.sh/runServer.cmd and runClient.sh/runclient.cmd scripts. You'll need to
+                        drop required
+                        jar libraries in
+                        <literal>lib/</literal>
+                        , make sure the classpath is configured in those script to include
+                        <literal>build</literal>
+                        and
+                        <literal>etc</literal>
+                        . The required libraries are Esper (any compatible version, we have tested started with Esper
+                        1.7.0)
+                        and its dependencies as in the sample below (with Esper 2.1) :
+                        <programlisting><![CDATA[# classpath on Unix/Linux (on one single line)
+etc:build:lib/esper-5.2.0.jar:lib/commons-logging-1.1.3.jar:lib/cglib-nodep-3.1.jar
+   :lib/antlr-runtime-4.1.jar:lib/log4j-1.2.17.jar
+@rem  classpath on Windows (on one single line)
+etc;build;lib\esper-5.2.0.jar;lib\commons-logging-1.1.3.jar;lib\cglib-nodep-3.1.jar
+   ;lib\antlr-runtime-4.1.jar;lib\log4j-1.2.17.jar]]></programlisting>
+                        Note that <literal>./etc</literal> and <literal>./build</literal> have to be in the classpath.
+                        At that stage you should also start to set min and max JVM heap. A good start is 1GB as in
+                        <literal>-Xms1g -Xmx1g</literal>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Write the statement you want to benchmark given that client will send a stream MarketData(String
+                        ticker, int volume, double price), add it to
+                        <literal>etc/statements.properties</literal>
+                        under
+                        your own KEY and use the
+                        <literal>-mode KEY</literal>
+                        when you start the Esper event server.
+                        Use <literal>'$'</literal> in the statement to create a prototype. For every symbol, a statement
+                        will get registered with all <literal>'$'</literal> replaced by the actual symbol value (f.e. <literal>'GOOG'</literal>)
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Ensure client and server are using the same
+                        <literal>-Desper.benchmark.symbol=1000</literal> value.
+                        This sets the number of symbol to use (thus may set the number of statement if you are using
+                        a statement prototype, and governs how MarketData event are represented over the network.
+                        Basically all events will have the same size over the network to ensure predictability and will be ranging
+                        between <literal>S0AA</literal> and <literal>S999A</literal> if you use 1000 as a value here (prefix with S and padded with A up to
+                        a fixed length string. Volume and price attributes will be randomized.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        By default the benchmark registers a subscriber to the statement(s). Use <literal>-Desper.benchmark.ul</literal> to use
+                        an UpdateListener instead. Note that the subscriber contains suitable update(..) methods for the default
+                        proposed statement in the <literal>etc/statements.properties</literal> file but might not be suitable if you change statements due
+                        to the strong binding with statement results. Refer to <xref linkend="api-receive-results"/>.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Establish a performance baseline in simulation mode (without clients). Use the
+                        <literal>-rate 1x5000</literal>
+                        option
+                        to simulate one client (one thread) sending 5000 evt/s. You can ramp up both the number of client simulated
+                        thread and their emission rate to maximize CPU
+                        utilization.
+                        The right number should mimic the client emission rate you will use in the client/server benchmark
+                        and should thus be
+                        consistent with what your client machine and network will be able to send.
+                        On small hardware, having a lot of thread with slow rate will not help getting high throughput in this
+                        simulation mode.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Do performance runs with client/server mode. Remove the
+                        <literal>-rate NxM</literal>
+                        option from the runServer script or Ant task.
+                        Start the server with
+                        <literal>-help</literal>
+                        to display the possible server options (listen port, statistics, fan out options etc).
+                        On the remote machine, start one or more client. Use
+                        <literal>-help</literal>
+                        to display the possible client options (remote port, host,
+                        emission rate). The client will output the actual number of event it is sending to the server.
+                        If the server gets overloaded (or if you turned on
+                        <literal>-queue</literal>
+                        options on the server) the client will likely
+                        not be able to reach its target rate.
+                    </para>
+                    <para>
+                        Usually you will get better performance by using server side <literal>-queue -1</literal> option so as to have
+                        each client connection handled by a single thread pipeline. If you change to 0 or more, there will be
+                        intermediate structures to pass the event stream in an asynchronous fashion. This will increase context
+                        switching, although if you are using many clients, or are using the <literal>-sleep xxx</literal> (xxx in
+                        milliseconds) to simulate a listener delay you may get better performance.
+                    </para>
+                    <para>
+                        The most important server side option is <literal>-stat xxx</literal> (xxx in seconds) to print out
+                        throughput and latency statistics aggregated over the last xxx seconds (and reset every time).
+                        It will produce both internal Esper latency (in nanosecond) and also end to end latency (in millisecond, including network time).
+                        If you are measuring end to end latency you should make sure your server and client machine(s) are having the same time
+                        with f.e. ntpd with a good enough precision.
+                        The stat format is like:
+                     </para>
+                      <programlisting><![CDATA[---Stats - engine (unit: ns)
+  Avg: 2528 #4101107
+        0 <    5000:  97.01%  97.01% #3978672
+     5000 <   10000:   2.60%  99.62% #106669
+    10000 <   15000:   0.35%  99.97% #14337
+    15000 <   20000:   0.02%  99.99% #971
+    20000 <   25000:   0.00%  99.99% #177
+    25000 <   50000:   0.00% 100.00% #89
+    50000 <  100000:   0.00% 100.00% #41
+   100000 <  500000:   0.00% 100.00% #120
+   500000 < 1000000:   0.00% 100.00% #2
+  1000000 < 2500000:   0.00% 100.00% #7
+  2500000 < 5000000:   0.00% 100.00% #5
+  5000000 <    more:   0.00% 100.00% #18
+---Stats - endToEnd (unit: ms)
+  Avg: -2704829444341073400 #4101609
+        0 <       1:  75.01%  75.01% #3076609
+        1 <       5:   0.00%  75.01% #0
+        5 <      10:   0.00%  75.01% #0
+       10 <      50:   0.00%  75.01% #0
+       50 <     100:   0.00%  75.01% #0
+      100 <     250:   0.00%  75.01% #0
+      250 <     500:   0.00%  75.01% #0
+      500 <    1000:   0.00%  75.01% #0
+     1000 <    more:  24.99% 100.00% #1025000
+Throughput 412503 (active 0 pending 0 cnx 4)]]></programlisting>
+						<para>
+                          This one reads as:
+						</para>
+<programlisting>"Throughput is 412 503 event/s with 4 client connected. No -queue options 
+was used thus no event is pending at the time the statistics are printed. 
+Esper latency average is at 2528 ns (that is 2.5 us) for 4 101 107 events 
+(which means we have 10 seconds stats here). Less than 10us latency 
+was achieved for 106 669 events that is 99.62%. Latency between 5us 
+and 10us was achieved for those 2.60% of all the events in the interval."
+
+"End to end latency was ... in this case likely due to client clock difference
+we ended up with unusable end to end statistics."</programlisting>
+
+	<para>
+		Consider the second output paragraph on end-to-end latency:
+	</para>
+                        
+      <programlisting><![CDATA[---Stats - endToEnd (unit: ms)
+  Avg: 15 #863396
+        0 <       1:   0.75%   0.75% #6434
+        1 <       5:   0.99%   1.74% #8552
+        5 <      10:   2.12%   3.85% #18269
+       10 <      50:  91.27%  95.13% #788062
+       50 <     100:   0.10%  95.22% #827
+      100 <     250:   4.36%  99.58% #37634
+      250 <     500:   0.42% 100.00% #3618
+      500 <    1000:   0.00% 100.00% #0
+     1000 <    more:   0.00% 100.00% #0]]></programlisting>
+     
+     <para>
+		 This would read:
+     </para>
+                        
+<programlisting>"End to end latency average is at 15 milliseconds for the 863 396 events 
+considered for this statistic report. 95.13% ie 788 062 events were handled 
+(end to end) below 50ms, and 91.27% were handled between 10ms and 50ms."</programlisting>
+
+                </listitem>
+            </orderedlist>
+        </sect2>
+
+        <sect2 xml:id="how-we-kit" revision="1">
+            <title>How we use the performance kit</title>
+
+            <para>
+                We use the performance kit to track performance progress across Esper versions, as well as to implement
+                optimizations.
+            </para>
+
+        </sect2>
+    </sect1>
+</chapter>

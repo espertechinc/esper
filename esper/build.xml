@@ -1,0 +1,86 @@
+<project name="esper" default="info" basedir=".">
+
+	<!-- Name of project and version, used to create filenames -->
+	<property name="Name" value="Esper"/>
+	<property name="name" value="esper"/>
+	<property name="version" value="5.2.0"/>
+	<property name="patchlevel" value=""/>
+	<property name="fullversion" value="${version}${patchlevel}"/>
+	<property name="fullname" value="${name}-${fullversion}"/>
+
+	<property name="dist.dir" value=".."/>
+	<property name="lib.dir" value="lib"/>
+	<property name="src.dir" value="src/main/java"/>
+	<property name="doc.dir" value="doc"/>
+	<property name="doc.api.dir" value="${doc.dir}/api"/>
+	<property name="dist.api.dir" value="doc/javadoc/api"/>
+	<property name="javadoc_link" value="http://java.sun.com/j2se/1.6.0/docs/api"/>
+	<property name="checkstyle_home" value="../../../../../software/checkstyle-4.3"/>
+
+	<target name="info" description="The master build is done my Maven">
+		<echo message="Please use Maven 2 to build Esper and related components. Maven build instructions are available on the website." />
+	</target>
+
+	<path id="lib.class.path">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<target name="clean">
+        <delete>
+        	<fileset dir="${dist.api.dir}" includes="**/*.*" />
+        </delete>
+    </target>
+
+	<target name="javadoc" description="Generate JavaDoc - Maven Plug-in not working yet" depends="clean">
+			<javadoc
+			classpathref="lib.class.path"
+			destdir="${dist.api.dir}"
+			use="true"
+			protected="true"
+			version="true"
+			windowtitle="${Name} API Documentation"
+			Overview="${doc.api.dir}/package.html"
+			stylesheetfile="${doc.api.dir}/jdstyle.css"
+			doctitle="${Name} ${version} API Documentation"
+			maxmemory="1024M">
+			<link href="${javadoc_link}"/>
+			<footer>
+				<![CDATA[
+				<small><b>&copy; 2006-2015 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='http://www.espertech.com' target=3_blank'>espertech.com</a></b></small>
+				<script type='text/javascript'>				
+				var gaJsHost = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.');
+ 				document.write(unescape('%3Cscript src=\'' + gaJsHost + 'google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E'));
+				</script>
+				<script type='text/javascript'>
+				var pageTracker = _gat._getTracker('UA-1261295-1');
+				pageTracker._trackPageview();
+				</script>
+				]]>
+			</footer>
+			<packageset dir="${src.dir}" defaultexcludes="yes">
+				<include name="com/espertech/esper/**"/>
+			</packageset>
+
+			<group title="Core API"
+				packages="com.espertech.esper.client,com.espertech.esper.client.time,com.espertech.esper.client.soda,com.espertech.esper.client.metric,com.espertech.esper.client.util,com.espertech.esper.client.deploy,com.espertech.esper.client.scopetest,com.espertech.esper.client.context,com.espertech.esper.client.dataflow,com.espertech.esper.client.annotation,com.espertech.esper.client.hook,com.espertech.esper.plugin,com.espertech.esper.client.dataflow.io"/>
+						
+		</javadoc>
+		<copy file="${doc.api.dir}/package.html" todir="${dist.api.dir}"/>
+	</target>
+	
+	
+	<target name="checkstyle" description="Generates a report of code convention violations.">
+	  <taskdef resource="checkstyletask.properties" classpath="${checkstyle_home}/checkstyle-all-4.3.jar"/>
+	  <checkstyle config="${checkstyle_home}/sun_checks.xml"
+				  failureProperty="checkstyle.failure"
+				  failOnViolation="false">
+		<formatter type="xml" tofile="target/checkstyle_report.xml"/>
+		<fileset dir="src/main/java" includes="**/*.java"/>
+	  </checkstyle>
+
+	  <style in="target/checkstyle_report.xml" out="target/checkstyle_report.html" style="${checkstyle_home}/contrib/checkstyle-simple.xsl"/>
+	</target>
+	
+</project>

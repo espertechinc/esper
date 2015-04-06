@@ -1,0 +1,516 @@
+<chapter xml:id="processingmodel" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>Processing Model</title>
+
+    <sect1 xml:id="processingmodel_intro" revision="1">
+        <title>Introduction</title>
+        
+        <para>
+			The Esper processing model is continuous:  Update listeners and/or subscribers to statements receive updated data as soon as the engine processes events for that statement, according to the statement's choice of event streams, views, filters and output rates.
+        </para>
+			
+        <para>
+			As outlined in <xref linkend="api"/> the interface for listeners is <literal>com.espertech.esper.client.UpdateListener</literal>. Implementations must provide a single <literal>update</literal> method that the engine invokes when results become available:
+        </para>
+        
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="images/refdoc_outputmodel_updatelistener.gif" format="GIF" align="center"/>
+			</imageobject>
+		</mediaobject>
+
+		<para>
+		  A second, strongly-typed and native, highly-performant method of result delivery is provided: A subscriber object is a direct binding of query results to a Java object. The object, a POJO, receives statement
+results via method invocation. The subscriber class need not implement an interface or extend a superclass. Please see <xref linkend="api-admin-subscriber"/>. 
+		</para>
+
+		<indexterm><primary>EventBean interface</primary></indexterm>
+        <para>
+			The engine provides statement results to update listeners by placing results in <literal>com.espertech.esper.client.EventBean</literal> instances. A typical listener implementation queries the <literal>EventBean</literal> instances via getter methods to obtain the statement-generated results. 
+        </para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="images/refdoc_outputmodel_eventbean.gif" format="GIF" align="center"/>
+			</imageobject>
+		</mediaobject>
+
+        <para>
+			The <literal>get</literal> method on the <literal>EventBean</literal> interface can be used to retrieve result columns by name. The property name supplied to the <literal>get</literal> method can also be used to query nested, indexed or array properties of object graphs as discussed in more detail in <xref linkend="event_representation"/> and <xref linkend="api-event"/>
+        </para>
+
+        <para>
+			The <literal>getUnderlying</literal> method on the <literal>EventBean</literal> interface allows update listeners to obtain the underlying event object. For wildcard selects, the underlying event is the event object that was sent into the engine via the <literal>sendEvent</literal> method. 
+			For joins and select clauses with expressions, the underlying object implements <literal>java.util.Map</literal>.
+        </para>
+
+	</sect1>
+	
+    <sect1 xml:id="processingmodel_nowindow" revision="1">
+        <title>Insert Stream</title>
+
+		<indexterm><primary>insert stream</primary></indexterm>
+        <para>
+			In this section we look at the output of a very simple EPL statement. The statement selects an event stream without using a data window and without applying any filtering, as follows:
+        </para>
+        
+        <programlisting><![CDATA[select * from Withdrawal]]></programlisting>
+
+        <para>
+			This statement selects all <literal>Withdrawal</literal> events. Every time the engine processes an event of type <literal>Withdrawal</literal> or any sub-type of <literal>Withdrawal</literal>, it invokes all update listeners, handing the new event to each of the statement's listeners.
+        </para>
+        
+        <para>
+			The term <emphasis>insert stream</emphasis> denotes the new events arriving, and entering a data window or aggregation. The insert stream in this example is the stream of arriving Withdrawal events, and is posted to listeners as new events.
+        </para>
+        
+        <para>
+			The diagram below shows a series of Withdrawal events 1 to 6 arriving over time. The number in parenthesis is the withdrawal amount, an event property that is used in the examples that discuss filtering. 
+        </para>
+
+        <figure xml:id="processingmodel_nowindow_flow">
+			<title>Output  example for a simple statement</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/refdoc_outputmodel_nowindow.gif" format="GIF" align="center"/>
+				</imageobject>
+			</mediaobject>
+        </figure>
+
+        <para>
+			The example statement above results in only new events and no old events posted by the engine to the statement's listeners.
+        </para>
+    </sect1>
+
+    <sect1 xml:id="processingmodel_lengthwindow" revision="1">
+        <title>Insert and Remove Stream</title>
+
+		<indexterm><primary>remove stream</primary></indexterm>
+        <para>
+			A length window instructs the engine to only keep the last N events for a stream. The next statement applies a length window onto the Withdrawal event stream. The statement serves to illustrate the concept of data window and events entering and leaving a data window:
+        </para>
+        
+        <programlisting><![CDATA[select * from Withdrawal.win:length(5)]]></programlisting>
+
+        <para>
+			The size of this statement's length window is five events. The engine enters all arriving Withdrawal events into the length window. When the length window is full, the oldest Withdrawal event is pushed out the window. The engine indicates to listeners all events entering the window as new events, and all events leaving the window as old events. 
+        </para>
+
+        <para>
+			While the term <emphasis>insert stream</emphasis> denotes new events arriving, the term <emphasis>remove stream</emphasis> denotes events leaving a data window, or changing aggregation values. In this example, the remove stream is the stream of Withdrawal events that leave the length window, and such events are posted to listeners as old events. 
+        </para>
+
+        <para>
+			The next diagram illustrates how the length window contents change as events arrive and shows the events posted to an update listener.
+        </para>
+
+        <figure xml:id="processingmodel_lengthwindow_flow">
+			<title>Output  example for a length window</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/refdoc_outputmodel_lengthwindow.gif" format="GIF" align="center"/>
+				</imageobject>
+			</mediaobject>
+        </figure>
+
+        <para>
+			As before, all arriving events are posted as new events to listeners. In addition, when event W<subscript>1</subscript> leaves the length window on arrival of event W<subscript>6</subscript>, it is posted as an old event to listeners.
+        </para>
+
+        <para>
+			Similar to a length window, a time window also keeps the most recent events up to a given time period. A time window of 5 seconds, for example, keeps the last 5 seconds of events. As seconds pass, the time window actively pushes the oldest events out of the window resulting in one or more old events posted to update listeners.
+        </para>
+
+        <note>
+			Note: By default the engine only delivers the insert stream to listeners and observers. EPL supports optional <literal>istream</literal>, <literal>irstream</literal> and <literal>rstream</literal> keywords on select-clauses and on insert-into clauses to control which stream to deliver, see <xref linkend="epl-select-using-istream-rstream"/>. There is also a related, engine-wide configuration setting described in <xref linkend="config-engine-stream-selection"/>.		
+        </note>
+
+    </sect1>
+
+    <sect1 xml:id="processingmodel_filter" revision="1">
+        <title>Filters and Where-clauses</title>
+        <para>
+			Filters to event streams allow filtering events out of a given stream before events enter a data window (if there are data windows defined in your query). The statement below shows a filter that selects Withdrawal events with an amount value of 200 or more.
+        </para>
+        
+        <programlisting><![CDATA[select * from Withdrawal(amount>=200).win:length(5)]]></programlisting>
+
+        <para>
+			With the filter, any Withdrawal events that have an amount of less then 200 do not enter the length window and are therefore not passed to update listeners. Filters are discussed in more detail in <xref linkend="epl-from-clause-filter"/> and <xref linkend="pattern-filter"/>.
+        </para>
+
+        <figure xml:id="processingmodel_filter_flow">
+			<title>Output example for a statement with an event stream filter</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/refdoc_outputmodel_filter.gif" format="GIF" align="center"/>
+				</imageobject>
+			</mediaobject>
+        </figure>
+        
+        <para>
+			The where-clause and having-clause in statements eliminate potential result rows at a later stage in processing, after events have been processed into a statement's data window or other views.
+        </para>
+
+        <para>
+			The next statement applies a where-clause to Withdrawal events. Where-clauses are discussed in more detail in <xref linkend="epl-where-clause"/>.
+        </para>
+
+        <programlisting><![CDATA[select * from Withdrawal.win:length(5) where amount >= 200]]></programlisting>
+
+        <para>
+			The where-clause applies to both new events and old events. As the diagram below shows, arriving events enter the window however only events that pass the where-clause are handed to update listeners. Also,
+			as events leave the data window, only those events that pass the conditions in the where-clause are posted to listeners as old events.
+        </para>
+
+        <figure xml:id="processingmodel_where">
+			<title>Output example for a statement with where-clause</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/refdoc_outputmodel_where.gif" format="GIF" align="center"/>
+				</imageobject>
+			</mediaobject>
+        </figure>
+
+        <para>
+			The where-clause can contain complex conditions while event stream filters are more restrictive in the type of filters that can be specified. The next statement's where-clause applies the <literal>ceil</literal> function of the <literal>java.lang.Math</literal> Java library class in the where clause. The insert-into clause makes the results of the first statement available to the second statement:
+        </para>
+        <programlisting><![CDATA[insert into WithdrawalFiltered select * from Withdrawal where Math.ceil(amount) >= 200]]></programlisting>
+        <programlisting><![CDATA[select * from WithdrawalFiltered]]></programlisting>
+    </sect1>
+    
+    <sect1 xml:id="processingmodel_time_window" revision="1">
+        <title>Time Windows</title>
+        
+        <para>
+			In this section we explain the output model of statements employing a time window view and a time batch view.
+        </para>
+
+		<sect2 xml:id="processingmodel_time_window_1" revision="1">
+			<title>Time Window</title>
+
+			<indexterm><primary>time window</primary></indexterm>
+			<para>
+				A time window is a moving window extending to the specified time interval into the past based on the system time. Time windows enable us to limit the number of events considered by a query, as do length windows. 
+			</para>
+			
+			<para>
+				As a practical example, consider the need to determine all accounts where the average withdrawal amount per account for the last 4 seconds of withdrawals is greater then 1000. The statement to solve this problem is shown below.
+			</para>
+
+			<programlisting><![CDATA[select account, avg(amount) 
+from Withdrawal.win:time(4 sec) 
+group by account
+having amount > 1000]]></programlisting>
+	
+			<para>
+				The next diagram serves to illustrate the functioning of a time window. For the diagram, we assume a query that simply selects the event itself and does not group or filter events.
+			</para>
+
+			<programlisting><![CDATA[select * from Withdrawal.win:time(4 sec)]]></programlisting>
+
+			<para>
+				The diagram starts at a given time <literal>t</literal> and displays the contents of the time window at <literal>t + 4</literal> and <literal>t + 5 seconds</literal> and so on.
+			</para>
+
+			<figure xml:id="processingmodel_timewindow_flow">
+				<title>Output example for a statement with a time window</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/refdoc_outputmodel_timewindow.gif" format="GIF" align="center"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+	
+			<para>
+				The activity as illustrated by the diagram:
+			</para>
+			
+			<orderedlist>
+				<listitem>
+					<para>
+						At time <literal>t + 4 seconds</literal> an event <literal>W<subscript>1</subscript></literal> arrives and enters the time window. The engine reports the new event to update listeners.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 5 seconds</literal> an event <literal>W<subscript>2</subscript></literal> arrives and enters the time window. The engine reports the new event to update listeners.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 6.5 seconds</literal> an event <literal>W<subscript>3</subscript></literal> arrives and enters the time window. The engine reports the new event to update listeners.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 8 seconds</literal> event <literal>W<subscript>1</subscript></literal> leaves the time window. The engine reports the event as an old event to update listeners.
+					</para>
+				</listitem>
+			</orderedlist>
+
+		</sect2>
+        
+		<sect2 xml:id="processingmodel_time_batch_1" revision="1">
+			<title>Time Batch</title>
+
+			<indexterm><primary>time batch window</primary></indexterm>
+			<para>
+				The time batch view buffers events and releases them every specified time interval in one update. Time windows control the evaluation of events, as does the length batch window. 
+			</para>
+			
+			<para>
+				The next diagram serves to illustrate the functioning of a time batch view. For the diagram, we assume a simple query as below:
+			</para>
+
+			<programlisting><![CDATA[select * from Withdrawal.win:time_batch(4 sec)]]></programlisting>
+
+			<para>
+				The diagram starts at a given time <literal>t</literal> and displays the contents of the time window at <literal>t + 4</literal> and <literal>t + 5 seconds</literal> and so on.
+			</para>
+
+			<figure xml:id="processingmodel_timebatch_flow">
+				<title>Output example for a statement with a time batch view</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/refdoc_outputmodel_timebatch.gif" format="GIF" align="center"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+	
+			<para>
+				The activity as illustrated by the diagram:
+			</para>
+			
+			<orderedlist>
+				<listitem>
+					<para>
+						At time <literal>t + 1 seconds</literal> an event <literal>W<subscript>1</subscript></literal> arrives and enters the batch. No call to inform update listeners occurs.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 3 seconds</literal> an event <literal>W<subscript>2</subscript></literal> arrives and enters the batch. No call to inform update listeners occurs.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 4 seconds</literal> the engine processes the batched events and a starts a new batch. The engine reports events <literal>W<subscript>1</subscript></literal> and <literal>W<subscript>2</subscript></literal> to update listeners.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 6.5 seconds</literal> an event <literal>W<subscript>3</subscript></literal> arrives and enters the batch. No call to inform update listeners occurs.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						At time <literal>t + 8 seconds</literal> the engine processes the batched events and a starts a new batch. The engine reports the event <literal>W<subscript>3</subscript></literal> as new data to update listeners. The engine reports the events <literal>W<subscript>1</subscript></literal> and <literal>W<subscript>2</subscript></literal> as old data (prior batch) to update listeners.
+					</para>
+				</listitem>
+			</orderedlist>
+
+		</sect2>
+
+    </sect1>
+
+	<sect1 xml:id="processingmodel_batch" revision="1">
+		<title>Batch Windows</title>
+
+		<indexterm><primary>views</primary><secondary>batch window processing</secondary></indexterm>		
+		<para>
+			The built-in data windows that act on batches of events are the <literal>win:time_batch</literal> and the <literal>win:length_batch</literal> views, among others. The <literal>win:time_batch</literal> data window collects events arriving during a given time interval and posts collected events as a batch to listeners at the end of the time interval. The <literal>win:length_batch</literal> data window collects a given number of events and posts collected events as a batch to listeners when the given number of events has collected.
+		</para>
+		
+		<para>
+		   Related to batch data windows is output rate limiting. While batch data windows retain events the <literal>output</literal> clause offered by output rate limiting can control or stabilize the rate at which events are output, see <xref linkend="epl-output-rate"/>.
+		</para>
+
+		<para>
+			Let's look at how a time batch window may be used:
+		</para>
+		<programlisting><![CDATA[select account, amount from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+
+		<para>
+			The above statement collects events arriving during a one-second interval, at the end of which the engine posts the collected events as new events (insert stream) to each listener. The engine posts the events collected during the prior batch as old events (remove stream). The engine starts posting events to listeners one second after it receives the first event and thereon.
+		</para>
+
+		<para>
+			For statements containing aggregation functions and/or a <literal>group by</literal> clause, the engine posts consolidated aggregation results for an event batch. For example, consider the following statement:
+		</para>
+		<programlisting><![CDATA[select sum(amount) as mysum from Withdrawal.win:time_batch(1 sec)]]></programlisting>				
+
+		<para>
+			Note that output rate limiting also generates batches of events following the output model as discussed here.
+		</para>
+	</sect1>
+
+    <sect1 xml:id="processingmodel_aggregation" revision="1">
+        <title>Aggregation and Grouping</title>
+        
+		<sect2 xml:id="processingmodel_aggregation_irstream" revision="1">
+			<title>Insert and Remove Stream</title>
+			<para>
+				Statements that aggregate events via aggregation functions also post remove stream events as aggregated values change.
+			</para>
+	
+			<para>
+				Consider the following statement that alerts when 2 Withdrawal events have been received:
+			</para>
+			
+			<programlisting><![CDATA[select count(*) as mycount from Withdrawal having count(*) = 2]]></programlisting>
+	
+			<para>
+				When the engine encounters the second withdrawal event, the engine posts a new event to update listeners. The value of the "mycount" property on that new event is 2.
+				Additionally, when the engine encounters the third Withdrawal event, it posts an old event to update listeners containing the prior value of the count, if specifing the <literal>rstream</literal> keyword in the select clause to select the remove stream. The value of the "mycount" property on that old event is also 2.
+			</para>
+			
+			<para>
+				Note the statement above does not specify a data window and thereby counts all arriving events since statement start. The statement above retains no events and its memory allocation is only the aggregation state, i.e. a single long value to represent <literal>count(*)</literal>. 
+			</para>
+	
+			<para>
+				The <literal>istream</literal> or <literal>rstream</literal> keyword can be used to eliminate either new events or old events posted to listeners. The next statement uses the <literal>istream</literal> keyword causing the engine to call the listener only once when the second Withdrawal event is received:
+			</para>
+			<programlisting><![CDATA[select istream count(*) as mycount from Withdrawal having count(*) = 2]]></programlisting>
+		</sect2>
+		
+		<sect2 xml:id="processingmodel_aggregation_output" revision="1">
+			<title>Output for Aggregation and Group-By</title>
+
+			<para>
+				Following SQL (Standard Query Language) standards for queries against relational databases, the presence or absence of aggregation functions and the presence or absence of the <literal>group by</literal> clause and <literal>group_by</literal> named parameters for aggregation functions dictates the number of rows posted by the engine to listeners. The next sections outline the output model for batched events under aggregation and grouping. The examples also apply to data windows that don't batch events and post results continously as events arrive or leave data windows. The examples also apply to patterns providing events when a complete pattern matches.
+			</para>
+
+			<para>
+				In summary, as in SQL, if your query only selects aggregation values, the engine provides one row of aggregated values. It provides that row every time the aggregation is updated (insert stream), which is when events arrive or a batch of events gets processed, and when the events leave a data window or a new batch of events arrives. The remove stream then consists of prior aggregation values.
+			</para>
+
+			<para>
+				Also as in SQL, if your query selects non-aggregated values along with aggregation values in the select clause, the engine provides a row per event. The insert stream then consists of the aggregation values at the time the event arrives, while the remove stream is the aggregation value at the time the event leaves a data window, if any is defined in your query.
+			</para>
+
+			<para>
+				EPL allows each aggregation function to specify its own grouping criteria. Please find further information in <xref linkend="epl-grouping-agglocal"/>.
+			</para>
+
+			<para>
+				The documentation provides output examples for query types in <xref linkend="appendix_outputspec"/>, and the next sections outlines each query type.
+			</para>
+
+			<sect3 xml:id="processingmodel_aggregation_batch_unagg" revision="1">
+				<title>Un-aggregated and Un-grouped</title>
+
+				<para>
+					An example statement for the un-aggregated and un-grouped case is as follows:
+				</para>
+				<programlisting><![CDATA[select * from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+				<para>
+					At the end of a time interval, the engine posts to listeners one row for each event arriving during the time interval.
+				</para>
+				
+				<para>
+					The appendix provides a complete example including input and output events over time at <xref linkend="outputspec-simple"/>.
+				</para>				
+			</sect3>
+
+			<sect3 xml:id="processingmodel_aggregation_batch_full_agg" revision="1">
+				<title>Fully Aggregated and Un-grouped</title>
+
+				<para>
+					If your statement only selects aggregation values and does not group, your statement may look as the example below:
+				</para>
+				<programlisting><![CDATA[select sum(amount) 
+from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+				<para>
+					At the end of a time interval, the engine posts to listeners a single row indicating the aggregation result. The aggregation result aggregates all events collected during the time interval.
+				</para>
+				<para>
+					The appendix provides a complete example including input and output events over time at <xref linkend="outputspec-rowforall"/>.
+				</para>				
+				<para>
+					If any aggregation functions specify the <literal>group_by</literal> parameter and a dimension, for example <literal>sum(amount, group_by:account)</literal>, 
+					the query executes as an aggregated and grouped query instead.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="processingmodel_aggregation_batch_event_agg" revision="1">
+				<title>Aggregated and Un-Grouped</title>
+
+				<para>
+					If your statement selects non-aggregated properties and aggregation values, and does not group, your statement may be similar to this statement:
+				</para>
+				<programlisting><![CDATA[select account, sum(amount) 
+from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+				<para>
+					At the end of a time interval, the engine posts to listeners one row per event. The aggregation result aggregates all events collected during the time interval.
+				</para>
+				<para>
+					The appendix provides a complete example including input and output events over time at <xref linkend="outputspec-aggregateall"/>.
+				</para>				
+			</sect3>
+
+			<sect3 xml:id="processingmodel_aggregation_batch_group_agg" revision="1">
+				<title>Fully Aggregated and Grouped</title>
+
+				<para>
+					If your statement selects aggregation values and all non-aggregated properties in the <literal>select</literal> clause are listed in the <literal>group by</literal> clause, then your statement may look similar to this example:
+				</para>
+				<programlisting><![CDATA[select account, sum(amount) 
+from Withdrawal.win:time_batch(1 sec) 
+group by account]]></programlisting>
+				<para>
+					At the end of a time interval, the engine posts to listeners one row per unique account number. The aggregation result aggregates per unique account.
+				</para>
+				<para>
+					The appendix provides a complete example including input and output events over time at <xref linkend="outputspec-groupedrowpergroup"/>.
+				</para>				
+				<para>
+					If any aggregation functions specify the <literal>group_by</literal> parameter and a dimension other than <literal>group by</literal> dimension(s), 
+					for example <literal>sum(amount, group_by:accountCategory)</literal>, the query executes as an aggregated and grouped query instead.
+				</para>
+			</sect3>
+
+			<sect3 xml:id="processingmodel_aggregation_batch_event_agg_group" revision="1">
+				<title>Aggregated and Grouped</title>
+
+				<para>
+					If your statement selects non-aggregated properties and aggregation values, and groups only some properties using the <literal>group by</literal> clause,  your statement may look as below:
+				</para>
+				<programlisting><![CDATA[select account, accountName, sum(amount) 
+from Withdrawal.win:time_batch(1 sec) 
+group by account]]></programlisting>
+				<para>
+					At the end of a time interval, the engine posts to listeners one row per event. The aggregation result aggregates per unique account.
+				</para>
+				<para>
+					The appendix provides a complete example including input and output events over time at <xref linkend="outputspec-aggregategrouped"/>.
+				</para>				
+			</sect3>
+
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="processingmodel_eventvisibilitytime" revision="1">
+		<title>Event Visibility and Current Time</title>
+		
+		<para>
+			An event sent by your application or generated by statements is visible to all other statements in the same engine instance. Similarly, current time (the time horizon) moves forward for all statements in the same engine instance. Please see the 
+			<xref linkend="api"/> chapter for how to send events and how time moves forward through system time or via simulated time, and the possible threading models.
+		</para>
+		
+		<para>
+			Within an Esper engine instance you can additionally control event visibility and current time on a statement level, under the term <emphasis>isolated service</emphasis> as described in <xref linkend="api-isolatedservice"/>.
+		</para>
+
+		<para>
+			An isolated service provides a dedicated execution environment for one or more statements. Events sent to an isolated service are visible only within that isolated service. In the isolated service you can move time forward at the pace and resolution desired 
+			without impacting other statements that reside in the engine runtime or other isolated services. You can move statements between the engine and an isolated service.				
+		</para>
+	</sect1>
+
+</chapter>

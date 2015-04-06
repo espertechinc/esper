@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.espertech.com/schema/esperio-db" elementFormDefault="qualified" xmlns:esperio="http://www.espertech.com/schema/esperio-db" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="esperio-db-configuration">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element ref="esperio:jdbc-connection" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:dml" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:upsert" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:executors" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="jdbc-connection">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element ref="esperio:datasource-connection" minOccurs="0"/>
+					<xs:element ref="esperio:datasourcefactory-connection" minOccurs="0"/>
+					<xs:element ref="esperio:drivermanager-connection" minOccurs="0"/>
+					<xs:element ref="esperio:connection-settings" minOccurs="0"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="executors">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:executor" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="executor">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="threads" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="config-param">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="datasource-connection">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:env-property" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="context-lookup-name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="datasourcefactory-connection">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:env-property" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="class-name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="connection-properties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:env-property" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="connection-cache-properties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:env-property" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="env-property">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="drivermanager-connection">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="esperio:connection-arg" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="class-name" type="xs:string" use="required"/>
+			<xs:attribute name="url" type="xs:string" use="required"/>
+			<xs:attribute name="user" type="xs:string" use="optional"/>
+			<xs:attribute name="password" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="connection-settings">
+		<xs:complexType>
+			<xs:attribute name="auto-commit" type="xs:boolean" use="optional"/>
+			<xs:attribute name="catalog" type="xs:string" use="optional"/>
+			<xs:attribute name="read-only" type="xs:boolean" use="optional"/>
+			<xs:attribute name="transaction-isolation" type="xs:int" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="connection-arg">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="config-xml">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:any minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="dml">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element name="sql" type="xs:string" minOccurs="1" maxOccurs="1"/>
+					<xs:element ref="esperio:bindings" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="connection" type="xs:string" use="optional"/>
+			<xs:attribute name="stream" type="xs:string" use="required"/>
+			<xs:attribute name="name" type="xs:string" use="optional"/>
+			<xs:attribute name="executor-name" type="xs:string" use="optional"/>
+			<xs:attribute name="retry" type="xs:int" use="optional"/>
+			<xs:attribute name="retry-interval-sec" type="xs:double" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="upsert">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice>
+					<xs:element ref="esperio:keys" minOccurs="1" maxOccurs="unbounded"/>
+					<xs:element ref="esperio:values" minOccurs="1" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="connection" type="xs:string" use="optional"/>
+			<xs:attribute name="stream" type="xs:string" use="required"/>
+			<xs:attribute name="name" type="xs:string" use="optional"/>
+			<xs:attribute name="table-name" type="xs:string" use="required"/>
+			<xs:attribute name="executor-name" type="xs:string" use="optional"/>
+			<xs:attribute name="retry" type="xs:int" use="optional"/>
+			<xs:attribute name="retry-interval-sec" type="xs:double" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="sql">
+		<xs:complexType>
+			<xs:sequence>			
+				<xs:element name="query" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="bindings">
+		<xs:complexType>
+			<xs:sequence>			
+				<xs:element ref="esperio:parameter" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="initial-value">
+		<xs:complexType>
+			<xs:sequence>			
+				<xs:element ref="esperio:value" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="keys">
+		<xs:complexType>
+			<xs:sequence>			
+				<xs:element ref="esperio:column" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="values">
+		<xs:complexType>
+			<xs:sequence>			
+				<xs:element ref="esperio:column" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="value">
+		<xs:complexType>
+			<xs:attribute name="pos" type="xs:int" use="required"/>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="parameter">
+		<xs:complexType>
+			<xs:attribute name="pos" type="xs:int" use="required"/>
+			<xs:attribute name="property" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="column">
+		<xs:complexType>
+			<xs:attribute name="property" type="xs:string" use="required"/>
+			<xs:attribute name="column" type="xs:string" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediaorder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="mediaOrderSchema.xsd">
+  <orderId>PO200901</orderId>
+  <items>
+    <item>
+      <itemId>200001</itemId>
+      <productId>B006</productId>
+      <amount>7</amount>
+      <price>7.45</price>
+    </item>
+    <item>
+      <itemId>200002</itemId>
+      <productId>B005</productId>
+      <amount>1</amount>
+      <price>67.99</price>
+    </item>
+    <item>
+      <itemId>200003</itemId>
+      <productId>B007</productId>
+      <amount>0</amount>
+      <price>0</price>
+    </item>
+    <item>
+      <itemId>200004</itemId>
+      <productId>B005</productId>
+      <amount>2</amount>
+      <price>63.99</price>
+    </item>
+  </items>
+  <books>
+    <book>
+      <bookId>B005</bookId>
+      <author>Heinlein</author>
+      <review>
+        <reviewId>1</reviewId>
+        <comment>best book ever</comment>
+      </review>
+      <review>
+        <reviewId>2</reviewId>
+        <comment>would recommend</comment>
+      </review>
+    </book>
+    <book>
+      <bookId>B006</bookId>
+      <author>Isaac Asimov</author>
+    </book>
+    <book>
+      <bookId>B008</bookId>
+      <author>Ian M Banks</author>
+    </book>
+  </books>
+</mediaorder>

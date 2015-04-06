@@ -1,0 +1,15 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Esper Examples TerminalSvc</name>
+  <groupId>com.espertech</groupId>
+  <version>1.0</version>
+  <artifactId>esper-terminalsvc</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>terminalsvc-common</module>
+    <module>terminalsvc-receiver</module>
+    <module>terminalsvc-sender</module>
+    <module>terminalsvc-mdb</module>
+    <module>terminalsvc-ear</module>
+  </modules>
+</project>

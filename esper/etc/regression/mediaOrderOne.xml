@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediaorder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="mediaOrderSchema.xsd">
+  <orderId>PO200901</orderId>
+  <items>
+    <item>
+      <itemId>100001</itemId>
+      <productId>B001</productId>
+      <amount>10</amount>
+      <price>11.95</price>
+    </item>
+  </items>
+  <books>
+    <book>
+      <bookId>B001</bookId>
+      <author>Orson Scott Card</author>
+      <review>
+        <reviewId>1</reviewId>
+        <comment>best book ever</comment>
+      </review>
+    </book>
+    <book>
+      <bookId>B002</bookId>
+      <author>Isaac Asimov</author>
+    </book>
+  </books>
+</mediaorder>

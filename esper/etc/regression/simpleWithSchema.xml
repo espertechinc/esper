@@ -1,0 +1,35 @@
+<!--
+Schema provided, can access atribute values. Element and attribute types
+are resolved well. 
+If use with a namespace-aware parser, then SimpleXMLEventType cannot handle it 
+(not know the nampespace of each node/attribute) and MUST be done through a SchemaXMLEventType
+-->
+
+<simpleEvent xmlns="samples:schemas:simpleSchema" 
+  xmlns:ss="samples:schemas:simpleSchema" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="samples:schemas:simpleSchema simpleSchema.xsd">
+	<nested1 attr1="SAMPLE_ATTR1">
+		<prop1>SAMPLE_V1</prop1>
+		<prop2>true</prop2>
+		<nested2>
+			<prop3>3</prop3>
+			<prop3>4</prop3>
+			<prop3>5</prop3>
+		</nested2>
+	</nested1>
+	<prop4 ss:attr2="true">SAMPLE_V6</prop4>
+	<nested3>
+		<nested4 id="a">
+			<prop5>SAMPLE_V7</prop5>
+			<prop5>SAMPLE_V8</prop5>
+		</nested4>
+		<nested4 id="b">
+			<prop5>SAMPLE_V9</prop5>
+		</nested4>
+		<nested4 id="c">
+			<prop5>SAMPLE_V10</prop5>
+			<prop5>SAMPLE_V11</prop5>
+		</nested4>
+	</nested3>
+</simpleEvent>

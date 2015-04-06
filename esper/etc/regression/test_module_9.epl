@@ -1,0 +1,8 @@
+module abd.def;
+
+@Name("StmtOne")
+create schema MyEvent(id String, val1 int, val2 int);
+
+@Name("StmtTwo")
+select * from MyEvent;
+

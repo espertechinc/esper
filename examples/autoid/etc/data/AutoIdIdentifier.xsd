@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="urn:autoid:specification:universal:Identifier:xml:schema:1"
+xmlns:pmluid="urn:autoid:specification:universal:Identifier:xml:schema:1"
+xmlns:autoid="http://www.autoidcenter.org/2003/xml" xmlns="http://www.w3.org/2001/XMLSchema"
+elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+<annotation>
+<documentation>
+<documentation>
+<autoid:copyright>Copyright ©2003 Auto-ID Center, All Rights Reserved.</autoid:copyright>
+<autoid:disclaimer>Auto-ID Center, its members, officers, directors, employees, or agents shall not
+be liable for any injury, loss, damages, financial or otherwise, arising from, related to, or caused by the use of this
+document. The use of said document shall constitute your express consent to the foregoing
+exculpation.</autoid:disclaimer>
+<autoid:program>Auto-ID version 1.0</autoid:program>
+<autoid:purpose>PML Core Specification version 1.0</autoid:purpose>
+</documentation>
+</documentation>
+</annotation>
+<element name="ID" type="pmluid:IdentifierType"/>
+<annotation>
+<documentation>
+<autoid:definition>A reusable element of type 'IdentifierType'</autoid:definition>
+</documentation>
+</annotation>
+<complexType name="IdentifierType">
+<annotation>
+<documentation>
+<autoid:definition>A character string to identify and distinguish uniquely, one instance of an object
+in an identification scheme from all other objects within the same scheme</autoid:definition>
+</documentation>
+</annotation>
+<simpleContent>
+<extension base="token">
+<attribute name="schemeID" type="token" use="optional">
+<annotation>
+<documentation>
+<autoid:definition>The identifier of the identification scheme</autoid:definition>
+</documentation>
+</annotation>
+</attribute>
+<attribute name="schemeAgencyID" type="token" use="optional">
+<annotation>
+<documentation>
+<autoid:definition>The identifier of the agency that maintains the identification
+scheme</autoid:definition>
+</documentation>
+</annotation>
+</attribute>
+<attribute name="schemeVersionID" type="token" use="optional">
+<annotation>
+<documentation>
+<autoid:definition>The version of the identification scheme</autoid:definition>
+</documentation>
+</annotation>
+</attribute>
+<attribute name="schemeURI" type="anyURI" use="optional">
+<annotation>
+<documentation>
+<autoid:definition>The Uniform Resource Identifier that identifies where the
+Identification Scheme is located</autoid:definition>
+</documentation>
+</annotation>
+</attribute>
+</extension>
+</simpleContent>
+</complexType>
+</schema>

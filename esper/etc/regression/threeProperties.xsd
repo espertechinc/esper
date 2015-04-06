@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ss="samples:schemas:simpleSchema" targetNamespace="samples:schemas:simpleSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="rootelement">
+		<xs:complexType>
+			<xs:attribute name="myDouble" type="xs:double" use="required"/>
+			<xs:attribute name="myInt" type="xs:int" use="required"/>
+			<xs:attribute name="myString" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
