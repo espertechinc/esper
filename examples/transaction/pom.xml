@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.espertech</groupId>
 		<artifactId>esper_examples</artifactId>
-		<version>5.2.0</version>
+		<version>5.3.0</version>
 	</parent>
 	<name>Esper Examples - Transaction</name>
 	<groupId>com.espertech</groupId>

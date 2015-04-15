@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.filter.FilterHandleCallback;
 import com.espertech.esper.filter.FilterService;
+import com.espertech.esper.filter.FilterServiceEntry;
 import com.espertech.esper.filter.FilterValueSet;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import org.apache.commons.logging.Log;
@@ -28,6 +29,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
 
     protected boolean isStarted;
     protected EPStatementHandleCallback handle;
+    protected FilterServiceEntry filterServiceEntry;
     protected MatchedEventMap beginState;
 
     /**
@@ -183,7 +185,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         FilterService filterService = evalFilterNode.getContext().getPatternContext().getFilterService();
         handle = new EPStatementHandleCallback(evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
         FilterValueSet filterValues = evalFilterNode.getFactoryNode().getFilterSpec().getValueSet(beginState, evalFilterNode.getContext().getAgentInstanceContext(), evalFilterNode.getAddendumFilters());
-        filterService.add(filterValues, handle);
+        filterServiceEntry = filterService.add(filterValues, handle);
         long filtersVersion = filterService.getFiltersVersion();
         evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
@@ -192,9 +194,10 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
     {
         PatternContext context = evalFilterNode.getContext().getPatternContext();
         if (handle != null) {
-            context.getFilterService().remove(handle);
+            context.getFilterService().remove(handle, filterServiceEntry);
         }
         handle = null;
+        filterServiceEntry = null;
         isStarted = false;
         long filtersVersion = context.getFilterService().getFiltersVersion();
         evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);

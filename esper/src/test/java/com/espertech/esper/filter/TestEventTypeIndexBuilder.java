@@ -38,7 +38,7 @@ public class TestEventTypeIndexBuilder extends TestCase
     public void setUp()
     {
         eventTypeIndex = new EventTypeIndex(lockFactory);
-        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex);
+        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, true);
 
         typeOne = SupportEventTypeFactory.createBeanType(SupportBean.class);
         typeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);
@@ -55,24 +55,14 @@ public class TestEventTypeIndexBuilder extends TestCase
         assertNull(eventTypeIndex.get(typeOne));
         assertNull(eventTypeIndex.get(typeTwo));
 
-        indexBuilder.add(valueSetOne, callbackOne, lockFactory);
+        FilterServiceEntry entryOne = indexBuilder.add(valueSetOne, callbackOne, lockFactory);
         indexBuilder.add(valueSetTwo, callbackTwo, lockFactory);
 
         assertTrue(eventTypeIndex.get(typeOne) != null);
         assertTrue(eventTypeIndex.get(typeTwo) != null);
 
-        try
-        {
-            indexBuilder.add(valueSetOne, callbackOne, lockFactory);
-            assertTrue(false);
-        }
-        catch (IllegalStateException ex)
-        {
-            // Expected exception
-        }
-
-        indexBuilder.remove(callbackOne);
-        indexBuilder.add(valueSetOne, callbackOne, lockFactory);
-        indexBuilder.remove(callbackOne);
+        indexBuilder.remove(callbackOne, entryOne);
+        entryOne = indexBuilder.add(valueSetOne, callbackOne, lockFactory);
+        indexBuilder.remove(callbackOne, entryOne);
     }
 }

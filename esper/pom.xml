@@ -3,7 +3,7 @@
 	<name>Esper</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper</artifactId>
-	<version>5.2.0</version>
+	<version>5.3.0</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2005</inceptionYear>
 	<url>http://www.espertech.com/esper</url>

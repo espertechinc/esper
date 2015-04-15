@@ -27,26 +27,26 @@ public class SupportFilterParamIndex extends FilterParamIndexLookupableBase
         super(FilterOperator.EQUAL, lookupable);
     }
 
-    protected EventEvaluator get(Object expressionValue)
+    public EventEvaluator get(Object expressionValue)
     {
         return null;
     }
 
-    protected void put(Object expressionValue, EventEvaluator evaluator)
+    public void put(Object expressionValue, EventEvaluator evaluator)
     {
     }
 
-    protected boolean remove(Object expressionValue)
+    public boolean remove(Object expressionValue)
     {
         return true;
     }
 
-    protected int size()
+    public int size()
     {
         return 0;
     }
 
-    protected ReadWriteLock getReadWriteLock()
+    public ReadWriteLock getReadWriteLock()
     {
         return null;
     }

@@ -12,21 +12,24 @@
 package com.espertech.esper.core.context.activator;
 
 import com.espertech.esper.core.service.EPStatementHandleCallback;
+import com.espertech.esper.filter.FilterServiceEntry;
 import com.espertech.esper.util.StopCallback;
 
 public class ViewableActivatorFilterProxyStopCallback implements StopCallback {
 
     private final ViewableActivatorFilterProxy parent;
     private EPStatementHandleCallback filterHandle;
+    private FilterServiceEntry filterServiceEntry;
 
-    public ViewableActivatorFilterProxyStopCallback(ViewableActivatorFilterProxy parent, EPStatementHandleCallback filterHandle) {
+    public ViewableActivatorFilterProxyStopCallback(ViewableActivatorFilterProxy parent, EPStatementHandleCallback filterHandle, FilterServiceEntry filterServiceEntry) {
         this.parent = parent;
         this.filterHandle = filterHandle;
+        this.filterServiceEntry = filterServiceEntry;
     }
 
     public synchronized void stop() {
         if (filterHandle != null) {
-            parent.getServices().getFilterService().remove(filterHandle);
+            parent.getServices().getFilterService().remove(filterHandle, filterServiceEntry);
         }
         filterHandle = null;
     }

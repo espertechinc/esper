@@ -556,6 +556,10 @@ public class EPStatementImpl implements EPStatementSPI
         return nameProvided;
     }
 
+    public UpdateDispatchViewBase getDispatchChildView() {
+        return dispatchChildView;
+    }
+
     private UnsupportedOperationException getUnsupportedNonContextIterator() {
         return new UnsupportedOperationException("Iterator with context selector is only supported for statements under context");
     }

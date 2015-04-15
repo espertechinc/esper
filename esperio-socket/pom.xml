@@ -3,7 +3,7 @@
 	<name>EsperIO-Socket</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esperio-socket</artifactId>
-	<version>5.2.0</version>
+	<version>5.3.0</version>
 	<packaging>jar</packaging>
 	<description>EsperIO Socket</description>
 	<inceptionYear>2005</inceptionYear>
@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>esper</artifactId>
-			<version>5.2.0</version>
+			<version>5.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>

@@ -169,6 +169,4 @@ public class EventTypeIndex implements EventEvaluator
 
         rootNode.matchEvent(eventBean, matches);
     }
-
-    private static final Log log = LogFactory.getLog(EventTypeIndex.class);
 }

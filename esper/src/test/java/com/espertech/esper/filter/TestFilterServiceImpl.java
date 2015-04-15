@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TestFilterServiceImpl extends TestCase
 {
@@ -40,7 +41,7 @@ public class TestFilterServiceImpl extends TestCase
 
     public void setUp()
     {
-        filterService = new FilterServiceLockCoarse();
+        filterService = new FilterServiceLockCoarse(false);
 
         eventTypeOne = SupportEventTypeFactory.createBeanType(SupportBean.class);
         eventTypeTwo = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);
@@ -131,19 +132,6 @@ public class TestFilterServiceImpl extends TestCase
         }
     }
 
-    public void testReusedCallback()
-    {
-        try
-        {
-            filterService.add(filterSpecs.get(0), filterCallbacks.get(0));
-            assertTrue(false);
-        }
-        catch (IllegalStateException ex)
-        {
-            // Expected exception
-        }
-    }
-
     /**
      * Test for removing a callback that is waiting to occur,
      * ie. a callback is removed which was a result of an evaluation and it
@@ -155,6 +143,7 @@ public class TestFilterServiceImpl extends TestCase
         final SupportFilterHandle callbackTwo = new SupportFilterHandle();
 
         // callback that removes another matching filter spec callback
+        final AtomicReference<FilterServiceEntry> filterServiceEntryOne = new AtomicReference<FilterServiceEntry>();
         FilterHandleCallback callbackOne = new FilterHandleCallback()
         {
             public String getStatementId()
@@ -165,7 +154,7 @@ public class TestFilterServiceImpl extends TestCase
             public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
             {
                 log.debug(".matchFound Removing callbackTwo");
-                filterService.remove(callbackTwo);
+                filterService.remove(callbackTwo, filterServiceEntryOne.get());
             }
 
             public boolean isSubSelect()
@@ -174,7 +163,8 @@ public class TestFilterServiceImpl extends TestCase
             }
         };
 
-        filterService.add(spec, callbackOne);
+        FilterServiceEntry filterServiceEntry = filterService.add(spec, callbackOne);
+        filterServiceEntryOne.set(filterServiceEntry);
         filterService.add(spec, callbackTwo);
 
         // send event

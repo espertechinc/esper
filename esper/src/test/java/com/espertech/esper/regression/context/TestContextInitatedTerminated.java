@@ -45,6 +45,7 @@ public class TestContextInitatedTerminated extends TestCase {
         configuration.addEventType("SupportBean", SupportBean.class);
         configuration.addEventType("SupportBean_S0", SupportBean_S0.class);
         configuration.addEventType("SupportBean_S1", SupportBean_S1.class);
+        configuration.getEngineDefaults().getExecution().setAllowIsolatedService(true);
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         spi = (EPServiceProviderSPI) epService;

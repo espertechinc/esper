@@ -72,19 +72,19 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
     private static final Log log = LogFactory.getLog(StatementAgentInstanceFactorySelect.class);
 
-    private final int numStreams;
-    private final ViewableActivator[] eventStreamParentViewableActivators;
-    private final StatementContext statementContext;
-    private final StatementSpecCompiled statementSpec;
-    private final EPServicesContext services;
-    private final StreamTypeService typeService;
-    private final ViewFactoryChain[] unmaterializedViewChain;
-    private final ResultSetProcessorFactoryDesc resultSetProcessorFactoryDesc;
-    private final StreamJoinAnalysisResult joinAnalysisResult;
-    private final JoinSetComposerPrototype joinSetComposerPrototype;
-    private final SubSelectStrategyCollection subSelectStrategyCollection;
-    private final ViewResourceDelegateVerified viewResourceDelegate;
-    private final OutputProcessViewFactory outputProcessViewFactory;
+    protected final int numStreams;
+    protected final ViewableActivator[] eventStreamParentViewableActivators;
+    protected final StatementContext statementContext;
+    protected final StatementSpecCompiled statementSpec;
+    protected final EPServicesContext services;
+    protected final StreamTypeService typeService;
+    protected final ViewFactoryChain[] unmaterializedViewChain;
+    protected final ResultSetProcessorFactoryDesc resultSetProcessorFactoryDesc;
+    protected final StreamJoinAnalysisResult joinAnalysisResult;
+    protected final JoinSetComposerPrototype joinSetComposerPrototype;
+    protected final SubSelectStrategyCollection subSelectStrategyCollection;
+    protected final ViewResourceDelegateVerified viewResourceDelegate;
+    protected final OutputProcessViewFactory outputProcessViewFactory;
 
     public StatementAgentInstanceFactorySelect(int numStreams, ViewableActivator[] eventStreamParentViewableActivators, StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, StreamTypeService typeService, ViewFactoryChain[] unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorFactoryDesc, StreamJoinAnalysisResult joinAnalysisResult, boolean recoveringResilient, JoinSetComposerPrototype joinSetComposerPrototype, SubSelectStrategyCollection subSelectStrategyCollection, ViewResourceDelegateVerified viewResourceDelegate, OutputProcessViewFactory outputProcessViewFactory) {
         super(statementSpec.getAnnotations());

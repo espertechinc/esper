@@ -9,6 +9,7 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
@@ -83,6 +84,7 @@ public final class EPServicesContext
     private SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory;
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private TableService tableService;
+    private StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -162,7 +164,8 @@ public final class EPServicesContext
                              SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory,
                              PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
                              DataFlowService dataFlowService,
-                             ExprDeclaredService exprDeclaredService)
+                             ExprDeclaredService exprDeclaredService,
+                             StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -206,6 +209,7 @@ public final class EPServicesContext
         this.dataFlowService = dataFlowService;
         this.exprDeclaredService = exprDeclaredService;
         this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
+        this.stmtAgentInstanceFactoryFactorySvc = stmtAgentInstanceFactoryFactorySvc;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -663,5 +667,9 @@ public final class EPServicesContext
 
     public TableService getTableService() {
         return tableService;
+    }
+
+    public StatementAgentInstanceFactoryFactorySvc getStmtAgentInstanceFactoryFactorySvc() {
+        return stmtAgentInstanceFactoryFactorySvc;
     }
 }

@@ -163,12 +163,12 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             tableAccessStrategyInstances = resultOfStart.getTableAccessEvalStrategies();
             preloadList = resultOfStart.getPreloadList();
 
-            EventRowRegexNFAViewService matchRecognize = EventRowRegexHelper.recursiveFindRegexService(resultOfStart.getTopViews()[0]);
-            if (matchRecognize != null) {
-                matchRecognizePrevEvalStrategy = matchRecognize.getPreviousEvaluationStrategy();
-            }
-            else {
-                matchRecognizePrevEvalStrategy = null;
+            matchRecognizePrevEvalStrategy = null;
+            if (resultOfStart.getTopViews().length > 0) {
+                EventRowRegexNFAViewService matchRecognize = EventRowRegexHelper.recursiveFindRegexService(resultOfStart.getTopViews()[0]);
+                if (matchRecognize != null) {
+                    matchRecognizePrevEvalStrategy = matchRecognize.getPreviousEvaluationStrategy();
+                }
             }
 
             if (statementContext.getExtensionServicesContext() != null && statementContext.getExtensionServicesContext().getStmtResources() != null) {

@@ -44,6 +44,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         config.addEventType(SupportBean.class);
         config.addEventType(SupportBean_IntAlphabetic.class);
         config.addEventType(SupportBean_StringAlphabetic.class);
+        config.getEngineDefaults().getExecution().setAllowIsolatedService(true);
 
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();

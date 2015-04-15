@@ -14,6 +14,7 @@ package com.espertech.esper.support.filter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.filter.FilterHandle;
+import com.espertech.esper.filter.FilterServiceEntry;
 import com.espertech.esper.filter.FilterValueSet;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.Pair;
@@ -37,12 +38,13 @@ public class SupportFilterServiceImpl implements FilterService
         throw new UnsupportedOperationException();
     }
 
-    public void add(FilterValueSet filterValueSet, FilterHandle callback)
+    public FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle callback)
     {
         added.add(new Pair<FilterValueSet, FilterHandle>(filterValueSet, callback));
+        return null;
     }
 
-    public void remove(FilterHandle callback)
+    public void remove(FilterHandle callback, FilterServiceEntry filterServiceEntry)
     {
         removed.add(callback);
     }

@@ -18,6 +18,7 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.epl.spec.ContextDetailConditionFilter;
 import com.espertech.esper.filter.FilterHandleCallback;
+import com.espertech.esper.filter.FilterServiceEntry;
 import com.espertech.esper.filter.FilterValueSet;
 import com.espertech.esper.filter.FilterValueSetParam;
 import com.espertech.esper.pattern.MatchedEventMap;
@@ -35,6 +36,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
     private final ContextInternalFilterAddendum filterAddendum;
 
     private EPStatementHandleCallback filterHandle;
+    private FilterServiceEntry filterServiceEntry;
 
     public ContextControllerConditionFilter(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, ContextDetailConditionFilter endpointFilterSpec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.servicesContext = servicesContext;
@@ -67,7 +69,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
 
         filterHandle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
         FilterValueSet filterValueSet = endpointFilterSpec.getFilterSpecCompiled().getValueSet(null, null, addendum);
-        servicesContext.getFilterService().add(filterValueSet, filterHandle);
+        filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
 
@@ -90,8 +92,9 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
 
     public void deactivate() {
         if (filterHandle != null) {
-            servicesContext.getFilterService().remove(filterHandle);
+            servicesContext.getFilterService().remove(filterHandle, filterServiceEntry);
             filterHandle = null;
+            filterServiceEntry = null;
             long filtersVersion = agentInstanceContext.getStatementContext().getFilterService().getFiltersVersion();
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
         }

@@ -27,8 +27,8 @@ import java.util.concurrent.*;
 public class TestFilterServiceMT extends TestCase
 {
     public void testFilterService() throws Exception {
-        runAssertionAddRemoveFilter(new FilterServiceLockCoarse());
-        runAssertionAddRemoveFilter(new FilterServiceLockFine());
+        runAssertionAddRemoveFilter(new FilterServiceLockCoarse(false));
+        runAssertionAddRemoveFilter(new FilterServiceLockFine(false));
     }
 
     private void runAssertionAddRemoveFilter(final FilterService service) throws Exception
@@ -47,8 +47,8 @@ public class TestFilterServiceMT extends TestCase
                     SupportFilterHandle handle = new SupportFilterHandle();
                     for (int i = 0; i < 10000; i++)
                     {
-                        service.add(filterValues, handle);
-                        service.remove(handle);
+                        FilterServiceEntry entry = service.add(filterValues, handle);
+                        service.remove(handle, entry);
                     }
                     return true;
                 }

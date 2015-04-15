@@ -352,7 +352,7 @@ public class EPStatementStartMethodSelectUtil
         OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService());
 
         // Factory for statement-context instances
-        StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(
+        StatementAgentInstanceFactorySelect factory = services.getStmtAgentInstanceFactoryFactorySvc().makeFactorySelect(
                 numStreams, eventStreamParentViewableActivators,
                 statementContext, statementSpec, services,
                 typeService, unmaterializedViewChain, resultSetProcessorPrototypeDesc, joinAnalysisResult, recoveringResilient,
