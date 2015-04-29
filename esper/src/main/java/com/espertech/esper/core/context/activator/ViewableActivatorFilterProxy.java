@@ -120,4 +120,8 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
     public EPServicesContext getServices() {
         return services;
     }
+
+    public FilterSpecCompiled getFilterSpec() {
+        return filterSpec;
+    }
 }
