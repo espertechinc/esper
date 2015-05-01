@@ -44,7 +44,7 @@ public class EPStatementImpl implements EPStatementSPI
     private EventType eventType;
     private StatementMetadata statementMetadata;
     private Object userObject;
-    private StatementContext statementContext;
+    protected StatementContext statementContext;
     private String serviceIsolated;
 
     /**

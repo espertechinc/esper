@@ -83,24 +83,6 @@ public class ContextControllerFactoryHelper {
     }
 
     private static ContextControllerFactory buildContextFactory(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) throws ExprValidationException {
-
-        ContextControllerFactory factory;
-        if (detail instanceof ContextDetailInitiatedTerminated) {
-            factory = new ContextControllerInitTermFactory(factoryContext, (ContextDetailInitiatedTerminated) detail, contextStateCache);
-        }
-        else if (detail instanceof ContextDetailPartitioned) {
-            factory = new ContextControllerPartitionedFactory(factoryContext, (ContextDetailPartitioned) detail, optFiltersNested, contextStateCache);
-        }
-        else if (detail instanceof ContextDetailCategory) {
-            factory = new ContextControllerCategoryFactory(factoryContext, (ContextDetailCategory) detail, optFiltersNested, contextStateCache);
-        }
-        else if (detail instanceof ContextDetailHash) {
-            factory = new ContextControllerHashFactory(factoryContext, (ContextDetailHash) detail, optFiltersNested, contextStateCache);
-        }
-        else {
-            throw new UnsupportedOperationException("Context detail " + detail + " is not yet supported in a nested context");
-        }
-
-        return factory;
+        return factoryContext.getServicesContext().getContextControllerFactoryFactorySvc().make(factoryContext, detail, optFiltersNested, contextStateCache);
     }
 }
