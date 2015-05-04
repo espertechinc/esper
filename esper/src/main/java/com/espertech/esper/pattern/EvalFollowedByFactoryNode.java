@@ -33,12 +33,12 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
         this.hasEngineWidePatternCount = hasEngineWidePatternCount;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
         if (opType == null) {
             initOpType();
         }
 
-        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext);
+        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalFollowedByNode(agentInstanceContext, this, children);
     }
 

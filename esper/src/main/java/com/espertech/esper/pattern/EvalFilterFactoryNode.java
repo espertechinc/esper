@@ -44,7 +44,7 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
         this.consumptionLevel = consumptionLevel;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
         return new EvalFilterNode(agentInstanceContext, this);
     }
 

@@ -35,8 +35,8 @@ public class EvalGuardFactoryNode extends EvalNodeFactoryBase
         this.patternGuardSpec = patternGuardSpec;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalGuardNode(agentInstanceContext, this, child);
     }
 

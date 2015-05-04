@@ -23,8 +23,8 @@ public class EvalNotFactoryNode extends EvalNodeFactoryBase
     protected EvalNotFactoryNode() {
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalNotNode(agentInstanceContext, this, child);
     }
 

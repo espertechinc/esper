@@ -33,7 +33,7 @@ public interface EvalFactoryNode
 
     public void addChildNodes(Collection<EvalFactoryNode> childNodes);
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode);
 
     public boolean isFilterChildNonQuitting();
 

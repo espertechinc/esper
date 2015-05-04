@@ -20,8 +20,8 @@ public class EvalOrFactoryNode extends EvalNodeFactoryBase
     protected EvalOrFactoryNode() {
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalOrNode(agentInstanceContext, this, children);
     }
 
