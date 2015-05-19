@@ -13,6 +13,8 @@ package com.espertech.esper.regression.pattern;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -193,5 +195,26 @@ public class TestAndOperator extends TestCase implements SupportBeanConstants
         engine.getEPRuntime().sendEvent(new SupportBean_C("C1"));
         assertTrue(listener.isInvoked());
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    public void testAndWithEveryAndTerminationOptimization() {
+        // When all other sub-expressions to an AND are gone,
+        // then there is no need to retain events of the subexpression still active
+        EPServiceProvider engine = EPServiceProviderManager.getDefaultProvider(SupportConfigFactory.getConfiguration());
+        engine.getEPAdministrator().getConfiguration().addEventType(SupportBean_A.class);
+        engine.getEPAdministrator().getConfiguration().addEventType(SupportBean_B.class);
+
+        String epl = "select * from pattern [a=SupportBean_A and every b=SupportBean_B]";
+        EPStatement stmt = engine.getEPAdministrator().createEPL(epl);
+
+        engine.getEPRuntime().sendEvent(new SupportBean_A("A1"));
+        for (int i = 0; i < 1000; i++) {
+            engine.getEPRuntime().sendEvent(new SupportBean_B("B" + i));
+        }
+
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+        engine.getEPRuntime().sendEvent(new SupportBean_B("B_last"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "a.id,b.id".split(","), new Object[] {"A1", "B_last"});
     }
 }
