@@ -208,7 +208,7 @@ public class TestAndOperator extends TestCase implements SupportBeanConstants
         EPStatement stmt = engine.getEPAdministrator().createEPL(epl);
 
         engine.getEPRuntime().sendEvent(new SupportBean_A("A1"));
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
             engine.getEPRuntime().sendEvent(new SupportBean_B("B" + i));
         }
 
