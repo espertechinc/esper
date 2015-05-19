@@ -566,8 +566,11 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         // Configure services to use the new runtime
         services.getTimerService().setCallback(timerCallback);
 
-        // Statement lifycycle init
+        // Statement lifecycle init
         services.getStatementLifecycleSvc().init();
+
+        // Filter service init
+        services.getFilterService().init();
 
         // New admin
         ConfigurationOperations configOps = new ConfigurationOperationsImpl(services.getEventAdapterService(), services.getEventTypeIdGenerator(), services.getEngineImportService(), services.getVariableService(), services.getEngineSettingsService(), services.getValueAddEventService(), services.getMetricsReportingService(), services.getStatementEventTypeRefService(), services.getStatementVariableRefService(), services.getPlugInViews(), services.getFilterService(), services.getPatternSubexpressionPoolSvc(), services.getTableService());

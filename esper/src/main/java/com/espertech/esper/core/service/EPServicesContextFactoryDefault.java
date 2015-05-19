@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFac
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvcImpl;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
+import com.espertech.esper.core.context.mgr.ContextManagerFactoryServiceImpl;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
@@ -188,7 +189,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
                 new ExprDeclaredServiceImpl(), new StatementAgentInstanceFactoryFactorySvcDefault(),
-                new ContextControllerFactoryFactorySvcImpl(), new EPStatementFactoryDefault() {
+                new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(), new EPStatementFactoryDefault() {
         });
 
         // Engine services subset available to statements

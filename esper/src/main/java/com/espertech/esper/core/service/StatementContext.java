@@ -498,4 +498,8 @@ public final class StatementContext
     public Object getStatementUserObject() {
         return statementUserObject;
     }
+
+    public ExtensionServicesContext getEngineExtensionServicesContext() {
+        return stmtEngineServices.getExtensionServicesContext();
+    }
 }

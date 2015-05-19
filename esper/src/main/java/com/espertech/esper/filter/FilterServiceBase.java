@@ -161,6 +161,10 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         return eventTypeIndex.size();
     }
 
+    public void init() {
+        // no initialization required
+    }
+
     protected void removeTypeInternal(EventType type) {
         eventTypeIndex.removeType(type);
     }

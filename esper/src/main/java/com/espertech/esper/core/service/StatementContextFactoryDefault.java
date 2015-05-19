@@ -89,7 +89,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getExceptionHandlingService(),
                 services.getExpressionResultCacheSharable(),
                 services.getStatementEventTypeRefService(),
-                services.getTableService().getTableExprEvaluatorContext()
+                services.getTableService().getTableExprEvaluatorContext(),
+                services.getExtensionServicesContext()
                 );
     }
 

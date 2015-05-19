@@ -12,6 +12,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
+import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.thread.ThreadingService;
@@ -88,6 +89,7 @@ public final class EPServicesContext
     private StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc;
     private ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc;
     private EPStatementFactory epStatementFactory;
+    private ContextManagerFactoryService contextManagerFactoryService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -170,6 +172,7 @@ public final class EPServicesContext
                              ExprDeclaredService exprDeclaredService,
                              StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc,
                              ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc,
+                             ContextManagerFactoryService contextManagerFactoryService,
                              EPStatementFactory epStatementFactory)
     {
         this.engineURI = engineURI;
@@ -216,6 +219,7 @@ public final class EPServicesContext
         this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
         this.stmtAgentInstanceFactoryFactorySvc = stmtAgentInstanceFactoryFactorySvc;
         this.contextControllerFactoryFactorySvc = contextControllerFactoryFactorySvc;
+        this.contextManagerFactoryService = contextManagerFactoryService;
         this.epStatementFactory = epStatementFactory;
     }
 
@@ -682,6 +686,10 @@ public final class EPServicesContext
 
     public ContextControllerFactoryFactorySvc getContextControllerFactoryFactorySvc() {
         return contextControllerFactoryFactorySvc;
+    }
+
+    public ContextManagerFactoryService getContextManagerFactoryService() {
+        return contextManagerFactoryService;
     }
 
     public EPStatementFactory getEpStatementFactory() {
