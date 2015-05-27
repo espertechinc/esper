@@ -83,7 +83,7 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
         }
     }
 
-    protected ScheduleSpec computeSpec(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public ScheduleSpec computeSpec(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (spec != null) {
             return spec;
         }

@@ -11,6 +11,7 @@ package com.espertech.esper.pattern;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -29,18 +30,16 @@ public class PatternExpressionUtil
 {
     private static Log log = LogFactory.getLog(PatternExpressionUtil.class);
 
-    public static Object getKeys(MatchedEventMap currentState, EvalEveryDistinctNode everyDistinctNode)
-    {
-        EventBean[] eventsPerStream = everyDistinctNode.getFactoryNode().getConvertor().convert(currentState);
-        ExprEvaluator[] expressions = everyDistinctNode.getFactoryNode().getDistinctExpressionsArray();
+    public static Object getKeys(MatchedEventMap matchEvent, MatchedEventConvertor convertor, ExprEvaluator[] expressions, AgentInstanceContext agentInstanceContext) {
+        EventBean[] eventsPerStream = convertor.convert(matchEvent);
         if (expressions.length == 1) {
-            return expressions[0].evaluate(eventsPerStream, true, everyDistinctNode.getContext().getAgentInstanceContext());
+            return expressions[0].evaluate(eventsPerStream, true, agentInstanceContext);
         }
 
         Object[] keys = new Object[expressions.length];
         for (int i = 0; i < keys.length; i++)
         {
-            keys[i] = expressions[i].evaluate(eventsPerStream, true, everyDistinctNode.getContext().getAgentInstanceContext());
+            keys[i] = expressions[i].evaluate(eventsPerStream, true, agentInstanceContext);
         }
         return new MultiKeyUntyped(keys);
     }

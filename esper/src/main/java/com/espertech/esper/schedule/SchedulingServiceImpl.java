@@ -168,6 +168,10 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         }
     }
 
+    public void init() {
+        // no action required
+    }
+
     private void addTrigger(ScheduleSlot slot, ScheduleHandle handle, long triggerTime)
     {
         SortedMap<ScheduleSlot, ScheduleHandle> handleSet = timeHandleMap.get(triggerTime);

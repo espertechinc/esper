@@ -106,6 +106,10 @@ public class SchedulingServiceAudit implements SchedulingServiceSPI {
         return spi.getTime();
     }
 
+    public void init() {
+        // no action required
+    }
+
     private void printHandle(StringWriter message, ScheduleHandle handle) {
         if (handle instanceof EPStatementHandleCallback) {
             EPStatementHandleCallback callback = (EPStatementHandleCallback) handle;

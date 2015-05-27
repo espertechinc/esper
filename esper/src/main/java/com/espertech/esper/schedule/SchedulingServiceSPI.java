@@ -34,4 +34,9 @@ public interface SchedulingServiceSPI extends SchedulingService
     public Long getNearestTimeHandle();
 
     public void visitSchedules(ScheduleVisitor visitor);
+
+    /**
+     * Initialization is optional and provides a chance to preload things after statements are available.
+     */
+    public void init();
 }

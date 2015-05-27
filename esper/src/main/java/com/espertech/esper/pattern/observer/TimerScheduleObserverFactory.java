@@ -122,7 +122,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
         return true;
     }
 
-    protected TimerScheduleSpec computeSpecDynamic(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public TimerScheduleSpec computeSpecDynamic(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (spec != null) {
             return spec;
         }
