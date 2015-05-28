@@ -17,8 +17,8 @@ public class ExprNodeAdapterMultiStreamStmtLock extends ExprNodeAdapterMultiStre
 {
     public static final long LOCK_BACKOFF_MSEC = 10;
 
-    public ExprNodeAdapterMultiStreamStmtLock(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
-        super(statementName, exprNode, evaluatorContext, variableService, prototype);
+    public ExprNodeAdapterMultiStreamStmtLock(ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
+        super(exprNode, evaluatorContext, variableService, prototype);
     }
 
     @Override

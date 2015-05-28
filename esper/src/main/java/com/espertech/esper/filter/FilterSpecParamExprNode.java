@@ -14,10 +14,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.ExprEvaluatorContextWTableAccess;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.pattern.MatchedEventMap;
@@ -30,7 +30,6 @@ import java.util.Map;
  */
 public final class FilterSpecParamExprNode extends FilterSpecParam
 {
-    private final String statementName;
     private final ExprNode exprNode;
     private final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
@@ -80,7 +79,6 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         this.tableService = tableService;
         this.eventAdapterService = eventAdapterService;
         this.useLargeThreadingProfile = configurationInformation.getEngineDefaults().getExecution().getThreadingProfile() == ConfigurationEngineDefaults.ThreadingProfile.LARGE;
-        this.statementName = statementName;
         this.hasFilterStreamSubquery = hasSubquery;
         this.hasTableAccess = hasTableAccess;
 
@@ -150,15 +148,15 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
 
             // if a subquery is present in a filter stream acquire the agent instance lock
             if (hasFilterStreamSubquery) {
-                adapter = new ExprNodeAdapterBaseStmtLock(statementName, exprNode, exprEvaluatorContext, variableService);
+                adapter = new ExprNodeAdapterBaseStmtLock(exprNode, exprEvaluatorContext, variableService);
             }
             // no-variable no-prior event evaluation
             else if (!hasVariable) {
-                adapter = new ExprNodeAdapterBase(statementName, exprNode, exprEvaluatorContext);
+                adapter = new ExprNodeAdapterBase(exprNode, exprEvaluatorContext);
             }
             else {
                 // with-variable no-prior event evaluation
-                adapter = new ExprNodeAdapterBaseVariables(statementName, exprNode, exprEvaluatorContext, variableService);
+                adapter = new ExprNodeAdapterBaseVariables(exprNode, exprEvaluatorContext, variableService);
             }
         }
         else {
@@ -168,19 +166,19 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
                 // no-threadlocal evaluation
                 // if a subquery is present in a pattern filter acquire the agent instance lock
                 if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamNoTLStmtLock(statementName, exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamNoTLStmtLock(exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
                 else {
-                    adapter = new ExprNodeAdapterMultiStreamNoTL(statementName, exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamNoTL(exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
             }
             else {
                 if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamStmtLock(statementName, exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamStmtLock(exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
                 else {
                     // evaluation with threadlocal cache
-                    adapter = new ExprNodeAdapterMultiStream(statementName, exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStream(exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
             }
         }
@@ -190,7 +188,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         }
 
         // handle table
-        return new ExprNodeAdapterBaseWTableAccess(statementName, exprNode, exprEvaluatorContext, adapter, tableService);
+        return new ExprNodeAdapterBaseWTableAccess(exprNode, exprEvaluatorContext, adapter, tableService);
     }
 
     public final String toString()

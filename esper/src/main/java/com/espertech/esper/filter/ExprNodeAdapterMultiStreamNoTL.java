@@ -15,8 +15,8 @@ import com.espertech.esper.epl.variable.VariableService;
 
 public class ExprNodeAdapterMultiStreamNoTL extends ExprNodeAdapterMultiStream
 {
-    public ExprNodeAdapterMultiStreamNoTL(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
-        super(statementName, exprNode, evaluatorContext, variableService, prototype);
+    public ExprNodeAdapterMultiStreamNoTL(ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
+        super(exprNode, evaluatorContext, variableService, prototype);
     }
 
     @Override
