@@ -17,8 +17,8 @@ public class ExprNodeAdapterBaseStmtLock extends ExprNodeAdapterBase
 {
     protected final VariableService variableService;
 
-    public ExprNodeAdapterBaseStmtLock(ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
-        super(exprNode, evaluatorContext);
+    public ExprNodeAdapterBaseStmtLock(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext);
         this.variableService = variableService;
     }
 

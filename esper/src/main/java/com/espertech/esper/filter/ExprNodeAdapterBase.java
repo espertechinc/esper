@@ -20,6 +20,8 @@ public class ExprNodeAdapterBase
 {
     private static final Log log = LogFactory.getLog(ExprNodeAdapterBase.class);
 
+    private final int filterSpecId;
+    private final int filterSpecParamPathNum;
     protected final ExprNode exprNode;
     protected final ExprEvaluator exprNodeEval;
     protected final ExprEvaluatorContext evaluatorContext;
@@ -28,8 +30,10 @@ public class ExprNodeAdapterBase
      * Ctor.
      * @param exprNode is the boolean expression
      */
-    public ExprNodeAdapterBase(ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
+    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
     {
+        this.filterSpecId = filterSpecId;
+        this.filterSpecParamPathNum = filterSpecParamPathNum;
         this.exprNode = exprNode;
         this.exprNodeEval = exprNode.getExprEvaluator();
         this.evaluatorContext = evaluatorContext;
@@ -65,7 +69,19 @@ public class ExprNodeAdapterBase
         return evaluatorContext.getStatementName();
     }
 
+    public String getStatementId() {
+        return evaluatorContext.getStatementId();
+    }
+
     public ExprNode getExprNode() {
         return exprNode;
+    }
+
+    public int getFilterSpecId() {
+        return filterSpecId;
+    }
+
+    public int getFilterSpecParamPathNum() {
+        return filterSpecParamPathNum;
     }
 }

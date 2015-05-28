@@ -40,6 +40,10 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
     private final boolean useLargeThreadingProfile;
     private final boolean hasFilterStreamSubquery;
     private final boolean hasTableAccess;
+
+    private int filterSpecId;
+    private int filterSpecParamPathNum;
+
     private static final long serialVersionUID = 2298436088557677833L;
 
     /**
@@ -148,15 +152,15 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
 
             // if a subquery is present in a filter stream acquire the agent instance lock
             if (hasFilterStreamSubquery) {
-                adapter = new ExprNodeAdapterBaseStmtLock(exprNode, exprEvaluatorContext, variableService);
+                adapter = new ExprNodeAdapterBaseStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService);
             }
             // no-variable no-prior event evaluation
             else if (!hasVariable) {
-                adapter = new ExprNodeAdapterBase(exprNode, exprEvaluatorContext);
+                adapter = new ExprNodeAdapterBase(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext);
             }
             else {
                 // with-variable no-prior event evaluation
-                adapter = new ExprNodeAdapterBaseVariables(exprNode, exprEvaluatorContext, variableService);
+                adapter = new ExprNodeAdapterBaseVariables(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService);
             }
         }
         else {
@@ -166,19 +170,19 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
                 // no-threadlocal evaluation
                 // if a subquery is present in a pattern filter acquire the agent instance lock
                 if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamNoTLStmtLock(exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamNoTLStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
                 else {
-                    adapter = new ExprNodeAdapterMultiStreamNoTL(exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
             }
             else {
                 if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamStmtLock(exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStreamStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
                 else {
                     // evaluation with threadlocal cache
-                    adapter = new ExprNodeAdapterMultiStream(exprNode, exprEvaluatorContext, variableServiceToUse, events);
+                    adapter = new ExprNodeAdapterMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
             }
         }
@@ -188,7 +192,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         }
 
         // handle table
-        return new ExprNodeAdapterBaseWTableAccess(exprNode, exprEvaluatorContext, adapter, tableService);
+        return new ExprNodeAdapterBaseWTableAccess(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, adapter, tableService);
     }
 
     public final String toString()
@@ -227,5 +231,21 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         int result = super.hashCode();
         result = 31 * result + exprNode.hashCode();
         return result;
+    }
+
+    public int getFilterSpecId() {
+        return filterSpecId;
+    }
+
+    public void setFilterSpecId(int filterSpecId) {
+        this.filterSpecId = filterSpecId;
+    }
+
+    public int getFilterSpecParamPathNum() {
+        return filterSpecParamPathNum;
+    }
+
+    public void setFilterSpecParamPathNum(int filterSpecParamPathNum) {
+        this.filterSpecParamPathNum = filterSpecParamPathNum;
     }
 }

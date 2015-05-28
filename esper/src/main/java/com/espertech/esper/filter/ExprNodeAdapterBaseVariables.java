@@ -19,8 +19,8 @@ public class ExprNodeAdapterBaseVariables extends ExprNodeAdapterBase
 {
     protected final VariableService variableService;
 
-    public ExprNodeAdapterBaseVariables(ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
-        super(exprNode, evaluatorContext);
+    public ExprNodeAdapterBaseVariables(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext);
         this.variableService = variableService;
     }
 

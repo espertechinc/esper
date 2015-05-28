@@ -18,8 +18,8 @@ public class ExprNodeAdapterBaseWTableAccess extends ExprNodeAdapterBase
     private final ExprNodeAdapterBase evalBase;
     private final TableService tableService;
 
-    public ExprNodeAdapterBaseWTableAccess(ExprNode exprNode, ExprEvaluatorContext evaluatorContext, ExprNodeAdapterBase evalBase, TableService tableService) {
-        super(exprNode, evaluatorContext);
+    public ExprNodeAdapterBaseWTableAccess(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, ExprNodeAdapterBase evalBase, TableService tableService) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext);
         this.evalBase = evalBase;
         this.tableService = tableService;
     }
