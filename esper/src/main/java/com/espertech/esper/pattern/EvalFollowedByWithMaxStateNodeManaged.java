@@ -12,8 +12,6 @@ package com.espertech.esper.pattern;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.ConditionPatternSubexpressionMax;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +77,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
                 }
                 if (evalFollowedByNode.isTrackWithPool()) {
                     PatternSubexpressionPoolStmtSvc poolSvc = evalFollowedByNode.getContext().getStatementContext().getPatternSubexpressionPoolSvc();
-                    poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode);
+                    poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode, evalFollowedByNode.getContext().getAgentInstanceContext());
                     poolSvc.getStmtHandler().decreaseCount();
                 }
             }
@@ -119,7 +117,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
 
             if (evalFollowedByNode.isTrackWithPool()) {
                 PatternSubexpressionPoolStmtSvc poolSvc = evalFollowedByNode.getContext().getStatementContext().getPatternSubexpressionPoolSvc();
-                boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(evalFollowedByNode);
+                boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(evalFollowedByNode, evalFollowedByNode.getContext().getAgentInstanceContext());
                 if (!allow) {
                     return;
                 }
@@ -147,7 +145,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
             }
             if (evalFollowedByNode.isTrackWithPool()) {
                 PatternSubexpressionPoolStmtSvc poolSvc = evalFollowedByNode.getContext().getStatementContext().getPatternSubexpressionPoolSvc();
-                poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode);
+                poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode, evalFollowedByNode.getContext().getAgentInstanceContext());
                 poolSvc.getStmtHandler().decreaseCount();
             }
         }
@@ -183,7 +181,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
             if (evalFollowedByNode.isTrackWithPool()) {
                 if (entry.getValue() > 0) {
                     PatternSubexpressionPoolStmtSvc poolSvc = evalFollowedByNode.getContext().getStatementContext().getPatternSubexpressionPoolSvc();
-                    poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode);
+                    poolSvc.getEngineSvc().decreaseCount(evalFollowedByNode, evalFollowedByNode.getContext().getAgentInstanceContext());
                     poolSvc.getStmtHandler().decreaseCount();
                 }
             }
@@ -202,6 +200,4 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
     {
         return "EvalFollowedByStateNode nodes=" + nodes.size();
     }
-
-    private static final Log log = LogFactory.getLog(EvalFollowedByWithMaxStateNodeManaged.class);
 }
