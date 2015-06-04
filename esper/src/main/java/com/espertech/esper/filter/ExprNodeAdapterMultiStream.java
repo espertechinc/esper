@@ -49,4 +49,8 @@ public class ExprNodeAdapterMultiStream extends ExprNodeAdapterBaseVariables
         eventsPerStream[0] = theEvent;
         return evaluatePerStream(eventsPerStream);
     }
+
+    public EventBean[] getPrototypeArray() {
+        return prototypeArray;
+    }
 }

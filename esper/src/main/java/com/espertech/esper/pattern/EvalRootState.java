@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Interface for a root state node accepting a callback to use to indicate pattern results.
  */
-public interface EvalRootState extends PatternStopCallback
+public interface EvalRootState extends PatternStopCallback, EvalRootMatchRemover
 {
     /**
      * Accept callback to indicate pattern results.
@@ -26,6 +26,4 @@ public interface EvalRootState extends PatternStopCallback
     public void startRecoverable(boolean startRecoverable, MatchedEventMap beginState);
 
     public void accept(EvalStateNodeVisitor visitor);
-
-    public void removeMatch(Set<EventBean> matchEvent);
 }

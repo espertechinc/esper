@@ -71,4 +71,20 @@ public class ViewableActivatorPattern implements ViewableActivator {
     public EventType getEventType() {
         return eventType;
     }
+
+    public boolean isHasConsumingFilter() {
+        return hasConsumingFilter;
+    }
+
+    public boolean isSuppressSameEventMatches() {
+        return suppressSameEventMatches;
+    }
+
+    public boolean isDiscardPartialsOnMatch() {
+        return discardPartialsOnMatch;
+    }
+
+    public boolean isCanIterate() {
+        return isCanIterate;
+    }
 }
