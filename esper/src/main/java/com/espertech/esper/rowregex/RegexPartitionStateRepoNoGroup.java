@@ -58,7 +58,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
     {
         if (isEmpty)
         {
-            singletonState.getCurrentStates().clear();
+            singletonState.clearCurrentStates();
         }
         else
         {

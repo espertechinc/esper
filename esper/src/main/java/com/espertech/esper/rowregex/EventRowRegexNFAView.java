@@ -39,8 +39,6 @@ import com.espertech.esper.view.ViewSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -223,7 +221,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
         if (log.isDebugEnabled() || IS_DEBUG)
         {
-            log.info("NFA tree:\n" + print(startStates));
+            log.info("NFA tree:\n" + EventRowRegexNFAViewUtil.print(startStates));
         }
 
         // create evaluators
@@ -340,28 +338,17 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
         
         List<RegexNFAStateEntry> endStates = new ArrayList<RegexNFAStateEntry>();
-        List<RegexNFAStateEntry> nextStates = new ArrayList<RegexNFAStateEntry>();
         List<RegexNFAStateEntry> terminationStatesAll = null;
 
         for (EventBean newEvent : newData)
         {
+            List<RegexNFAStateEntry> nextStates = new ArrayList<RegexNFAStateEntry>(2);
             eventSequenceNumber++;
 
             // get state holder for this event
             RegexPartitionState partitionState = regexPartitionStateRepo.getState(newEvent, true);
-            List<RegexNFAStateEntry> currentStates = partitionState.getCurrentStates();
+            Iterator<RegexNFAStateEntry> currentStatesIterator = partitionState.getCurrentStatesIterator();
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegEx(newEvent, partitionState);}
-
-            // add start states for each new event
-            for (RegexNFAState startState : startStates)
-            {
-                long time = 0;
-                if (matchRecognizeSpec.getInterval() != null)
-                {
-                    time = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-                }
-                currentStates.add(new RegexNFAStateEntry(eventSequenceNumber, time, startState, new EventBean[numEventsEventsPerStreamDefine], new int[allStates.length], null, partitionState.getOptionalKeys()));
-            }
 
             if (partitionState.getRandomAccess() != null)
             {
@@ -371,16 +358,16 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
                 log.info("Evaluating event " + newEvent.getUnderlying() + "\n" +
-                    "current : " + printStates(currentStates));
+                    "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
-            List<RegexNFAStateEntry> terminationStates = step(currentStates, newEvent, nextStates, endStates, !isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
+            List<RegexNFAStateEntry> terminationStates = step(startStates, currentStatesIterator, newEvent, nextStates, endStates, !isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
                 log.info("Evaluated event " + newEvent.getUnderlying() + "\n" +
-                    "next : " + printStates(nextStates) + "\n" +
-                    "end : " + printStates(endStates));
+                    "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, streamsVariables, variableStreams, multimatchStreamNumToVariable) + "\n" +
+                    "end : " + EventRowRegexNFAViewUtil.printStates(endStates, streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
             // add termination states, for use with interval and "or terminated"
@@ -394,8 +381,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             }
 
             partitionState.setCurrentStates(nextStates);
-            nextStates = currentStates;
-            nextStates.clear();
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegEx(partitionState, endStates, terminationStates);}
         }
 
@@ -511,7 +496,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     continue;
                 }
 
-                Iterator<RegexNFAStateEntry> stateIter = partitionState.getCurrentStates().iterator();
+                Iterator<RegexNFAStateEntry> stateIter = partitionState.getCurrentStatesIterator();
                 for (;stateIter.hasNext();)
                 {
                     RegexNFAStateEntry currentState = stateIter.next();
@@ -535,7 +520,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     continue;
                 }
 
-                Iterator<RegexNFAStateEntry> stateIter = partitionState.getCurrentStates().iterator();
+                Iterator<RegexNFAStateEntry> stateIter = partitionState.getCurrentStatesIterator();
                 for (;stateIter.hasNext();)
                 {
                     RegexNFAStateEntry currentState = stateIter.next();
@@ -559,7 +544,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             // check partition state - if empty delete (no states and no random access)
             if (endState.getPartitionKey() != null) {
                 RegexPartitionState state = regexPartitionStateRepo.getState(endState.getPartitionKey());
-                if (state.getCurrentStates().isEmpty() && state.getRandomAccess() == null) {
+                if (state.isEmptyCurrentState() && state.getRandomAccess() == null) {
                     regexPartitionStateRepo.removeState(endState.getPartitionKey());
                 }
             }
@@ -658,29 +643,18 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                                                      RegexPartitionStateRepo regexPartitionStateRepo)
     {
         List<RegexNFAStateEntry> endStates = new ArrayList<RegexNFAStateEntry>();
-        List<RegexNFAStateEntry> nextStates = new ArrayList<RegexNFAStateEntry>();
-        List<RegexNFAStateEntry> currentStates;
+        Iterator<RegexNFAStateEntry> currentStates;
         int eventSequenceNumber = 0;
 
         EventBean theEvent;
         for (;events.hasNext();)
         {
+            List<RegexNFAStateEntry> nextStates = new ArrayList<RegexNFAStateEntry>(2);
             theEvent = events.next();
             eventSequenceNumber++;
 
             RegexPartitionState partitionState = regexPartitionStateRepo.getState(theEvent, false);
-            currentStates = partitionState.getCurrentStates();
-
-            // add start states for each new event
-            for (RegexNFAState startState : startStates)
-            {
-                long time = 0;
-                if (matchRecognizeSpec.getInterval() != null)
-                {
-                    time = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-                }
-                currentStates.add(new RegexNFAStateEntry(eventSequenceNumber, time, startState, new EventBean[numEventsEventsPerStreamDefine], new int[allStates.length], null, partitionState.getOptionalKeys()));
-            }
+            currentStates = partitionState.getCurrentStatesIterator();
 
             if (partitionState.getRandomAccess() != null)
             {
@@ -690,21 +664,19 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
                 log.info("Evaluating event " + theEvent.getUnderlying() + "\n" +
-                    "current : " + printStates(currentStates));
+                    "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
-            step(currentStates, theEvent, nextStates, endStates, false, eventSequenceNumber, partitionState.getOptionalKeys());
+            step(startStates, currentStates, theEvent, nextStates, endStates, false, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
                 log.info("Evaluating event " + theEvent.getUnderlying() + "\n" +
-                    "next : " + printStates(nextStates) + "\n" +
-                    "end : " + printStates(endStates));
+                    "next : " + EventRowRegexNFAViewUtil.printStates(nextStates, streamsVariables, variableStreams, multimatchStreamNumToVariable) + "\n" +
+                    "end : " + EventRowRegexNFAViewUtil.printStates(endStates, streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
             partitionState.setCurrentStates(nextStates);
-            nextStates = currentStates;
-            nextStates.clear();
         }
 
         return new EventRowRegexIteratorResult(endStates, eventSequenceNumber);
@@ -931,18 +903,79 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
     }
 
-    private List<RegexNFAStateEntry> step(List<RegexNFAStateEntry> currentStates,
-                      EventBean theEvent,
-                      List<RegexNFAStateEntry> nextStates,
-                      List<RegexNFAStateEntry> endStates,
-                      boolean isRetainEventSet,
-                      int currentEventSequenceNumber,
-                      Object partitionKey)
+    private List<RegexNFAStateEntry> step(RegexNFAState[] startStates,
+                                          Iterator<RegexNFAStateEntry> currentStatesIterator,
+                                          EventBean theEvent,
+                                          List<RegexNFAStateEntry> nextStates,
+                                          List<RegexNFAStateEntry> endStates,
+                                          boolean isRetainEventSet,
+                                          int currentEventSequenceNumber,
+                                          Object partitionKey)
     {
         List<RegexNFAStateEntry> terminationStates = null;  // always null or a list of entries (no singleton list)
 
-        for (RegexNFAStateEntry currentState : currentStates)
+        // handle start states for the event
+        for (RegexNFAState startState : startStates)
         {
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExStateStart(variableStreams, multimatchStreamNumToVariable);}
+
+            EventBean[] eventsPerStream = new EventBean[numEventsEventsPerStreamDefine];
+            int currentStateStreamNum = startState.getStreamNum();
+            eventsPerStream[currentStateStreamNum] = theEvent;
+
+            if (startState.matches(eventsPerStream, agentInstanceContext)) {
+                if (isRetainEventSet) {
+                    this.windowMatchedEventset.add(theEvent);
+                }
+                List<RegexNFAState> nextStatesFromHere = startState.getNextStates();
+
+                // save state for each next state
+                boolean copy = nextStatesFromHere.size() > 1;
+                for (RegexNFAState next : nextStatesFromHere) {
+                    EventBean[] eventsForState = eventsPerStream;
+                    MultimatchState[] multimatches = isCollectMultimatches ? new MultimatchState[multimatchVariablesArray.length] : null;
+                    int[] greedyCounts = new int[allStates.length];
+
+                    if (copy) {
+                        eventsForState = new EventBean[eventsForState.length];
+                        System.arraycopy(eventsPerStream, 0, eventsForState, 0, eventsForState.length);
+
+                        int[] greedyCountsCopy = new int[greedyCounts.length];
+                        System.arraycopy(greedyCounts, 0, greedyCountsCopy, 0, greedyCounts.length);
+                        greedyCounts = greedyCountsCopy;
+                    }
+
+                    if ((isCollectMultimatches) && (startState.isMultiple())) {
+                        multimatches = addTag(startState.getStreamNum(), theEvent, multimatches);
+                    }
+
+                    if ((startState.isGreedy() != null) && (startState.isGreedy())) {
+                        greedyCounts[startState.getNodeNumFlat()]++;
+                    }
+
+                    long time = 0;
+                    if (matchRecognizeSpec.getInterval() != null) {
+                        time = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+                    }
+
+                    RegexNFAStateEntry entry = new RegexNFAStateEntry(currentEventSequenceNumber, time, startState, eventsForState, greedyCounts, multimatches, partitionKey);
+                    if (next instanceof RegexNFAStateEnd) {
+                        entry.setMatchEndEventSeqNo(currentEventSequenceNumber);
+                        endStates.add(entry);
+                    } else {
+                        entry.setState(next);
+                        nextStates.add(entry);
+                    }
+                }
+            }
+
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExStateStart(nextStates, variableStreams, multimatchStreamNumToVariable);}
+        }
+
+        // handle current state matching
+        for (;currentStatesIterator.hasNext();)
+        {
+            RegexNFAStateEntry currentState  = currentStatesIterator.next();
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExState(currentState, variableStreams, multimatchStreamNumToVariable);}
 
             EventBean[] eventsPerStream = currentState.getEventsPerStream();
@@ -1086,123 +1119,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         return multimatches;
     }
 
-    private String printStates(List<RegexNFAStateEntry> states) {
-        StringBuilder buf = new StringBuilder();
-        String delimiter = "";
-        for (RegexNFAStateEntry state : states)
-        {
-            buf.append(delimiter);
-            buf.append(state.getState().getNodeNumNested());
-
-            buf.append("{");
-            EventBean[] eventsPerStream = state.getEventsPerStream();
-            if (eventsPerStream == null)
-            {
-                buf.append("null");
-            }
-            else
-            {
-                String eventDelimiter = "";
-                for (Map.Entry<Integer, String> streamVariable : streamsVariables.entrySet())
-                {
-                    buf.append(eventDelimiter);
-                    buf.append(streamVariable.getValue());
-                    buf.append('=');
-                    boolean single = !variableStreams.get(streamVariable.getValue()).getSecond();
-                    if (single)
-                    {
-                        if (eventsPerStream[streamVariable.getKey()] == null)
-                        {
-                            buf.append("null");
-                        }
-                        else
-                        {
-                            buf.append(eventsPerStream[streamVariable.getKey()].getUnderlying());
-                        }
-                    }
-                    else
-                    {
-                        int streamNum = state.getState().getStreamNum();
-                        int index = multimatchStreamNumToVariable[streamNum];
-                        if (state.getOptionalMultiMatches() == null) {
-                            buf.append("null-mm");
-                        }
-                        else if (state.getOptionalMultiMatches()[index] == null) {
-                            buf.append("no-entry");
-                        }
-                        else
-                        {
-                            buf.append("{");
-                            String arrayEventDelimiter = "";
-                            EventBean[] multiMatch = state.getOptionalMultiMatches()[index].getBuffer();
-                            int count = state.getOptionalMultiMatches()[index].getCount();
-                            for (int i = 0; i < count; i++)
-                            {
-                                buf.append(arrayEventDelimiter);
-                                buf.append(multiMatch[i].getUnderlying());
-                                arrayEventDelimiter = ", ";
-                            }
-                            buf.append("}");
-                        }
-                    }
-                    eventDelimiter = ", ";
-                }
-            }
-            buf.append("}");
-
-            delimiter = ", ";
-        }
-        return buf.toString();
-    }
-
-    private String print(RegexNFAState[] states) {
-        StringWriter writer = new StringWriter();
-        PrintWriter buf = new PrintWriter(writer);
-        Stack<RegexNFAState> currentStack = new Stack<RegexNFAState>();
-        print(Arrays.asList(states), buf, 0, currentStack);
-        return writer.toString();
-    }
-
-    private void print(List<RegexNFAState> states, PrintWriter writer, int indent, Stack<RegexNFAState> currentStack) {
-
-        for (RegexNFAState state : states)
-        {
-            indent(writer, indent);
-            if (currentStack.contains(state))
-            {
-                writer.println("(self)");
-            }
-            else
-            {
-                writer.println(printState(state));
-
-                currentStack.push(state);
-                print(state.getNextStates(), writer, indent + 4, currentStack);
-                currentStack.pop();
-            }
-        }
-    }
-
-    private String printState(RegexNFAState state)
-    {
-        if (state instanceof RegexNFAStateEnd)
-        {
-            return "#" + state.getNodeNumNested();
-        }
-        else
-        {
-            return "#" + state.getNodeNumNested() + " " + state.getVariableName() + " s" + state.getStreamNum() + " defined as " + state;
-        }
-    }
-
-    private void indent(PrintWriter writer, int indent)
-    {
-        for (int i = 0; i < indent; i++)
-        {
-            writer.append(' ');
-        }
-    }
-    
     private EventBean generateOutputRow(RegexNFAStateEntry entry)
     {
         Object[] rowDataRaw = compositeEventBean.getProperties();

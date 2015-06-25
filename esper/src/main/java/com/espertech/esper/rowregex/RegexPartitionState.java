@@ -14,6 +14,7 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EventBean;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -75,8 +76,8 @@ public class RegexPartitionState
      * Returns partial matches.
      * @return state
      */
-    public List<RegexNFAStateEntry> getCurrentStates() {
-        return currentStates;
+    public Iterator<RegexNFAStateEntry> getCurrentStatesIterator() {
+        return currentStates.iterator();
     }
 
     /**
@@ -169,8 +170,20 @@ public class RegexPartitionState
         currentStates = keepList;
         return keepList.isEmpty();
     }
+
     public int getNumStates() {
         return currentStates.size();
     }
 
+    public void clearCurrentStates() {
+        currentStates.clear();
+    }
+
+    public List<RegexNFAStateEntry> getCurrentStatesForPrint() {
+        return currentStates;
+    }
+
+    public boolean isEmptyCurrentState() {
+        return currentStates.isEmpty();
+    }
 }

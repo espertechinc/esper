@@ -78,7 +78,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             {
                 for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
                 {
-                    entry.getValue().getCurrentStates().clear();
+                    entry.getValue().clearCurrentStates();
                 }
             }
 
@@ -140,7 +140,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             List<Object> removeList = new ArrayList<Object>();
             for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
             {
-                if ((entry.getValue().getCurrentStates().isEmpty()) &&
+                if ((entry.getValue().isEmptyCurrentState()) &&
                     (entry.getValue().getRandomAccess() == null || entry.getValue().getRandomAccess().isEmpty()))
                 {
                     removeList.add(entry.getKey());
