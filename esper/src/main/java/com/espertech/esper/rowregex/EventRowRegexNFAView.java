@@ -241,7 +241,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         if (this.matchRecognizeSpec.getPartitionByExpressions().isEmpty())
         {
             stateRepoGroupMeta = null;
-            regexPartitionStateRepo = new RegexPartitionStateRepoNoGroup(prevGetter, matchRecognizeSpec.getInterval() != null);
+            regexPartitionStateRepo = new RegexPartitionStateRepoNoGroup(prevGetter);
         }
         else
         {

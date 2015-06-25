@@ -60,7 +60,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta);
         for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
         {
-            copy.states.put(entry.getKey(), new RegexPartitionState(entry.getValue().getRandomAccess(), entry.getKey(), meta.isHasInterval()));
+            copy.states.put(entry.getKey(), new RegexPartitionState(entry.getValue().getRandomAccess(), entry.getKey()));
         }
         return copy;
     }
@@ -167,7 +167,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             return state;
         }
 
-        state = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>(), key, meta.isHasInterval());
+        state = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>(), key);
         states.put(key, state);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExPartition(false, state); }

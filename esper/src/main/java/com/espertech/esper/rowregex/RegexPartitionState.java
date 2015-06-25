@@ -24,36 +24,26 @@ public class RegexPartitionState
     private RegexPartitionStateRandomAccessImpl randomAccess;
     private List<RegexNFAStateEntry> currentStates = new ArrayList<RegexNFAStateEntry>();
     private Object optionalKeys;
-    private List<RegexNFAStateEntry> intervalCallbackItems;
-    private boolean isCallbackScheduled;
 
     /**
      * Ctor.
      * @param randomAccess for handling "prev" functions, if any
      * @param optionalKeys keys for "partition", if any
-     * @param hasInterval true if an interval is provided
      */
-    public RegexPartitionState(RegexPartitionStateRandomAccessImpl randomAccess, Object optionalKeys, boolean hasInterval)
+    public RegexPartitionState(RegexPartitionStateRandomAccessImpl randomAccess, Object optionalKeys)
     {
         this.randomAccess = randomAccess;
         this.optionalKeys = optionalKeys;
-
-        if (hasInterval)
-        {
-            intervalCallbackItems = new ArrayList<RegexNFAStateEntry>();
-        }
     }
 
     /**
      * Ctor.
      * @param getter for "prev" access
      * @param currentStates existing state
-     * @param hasInterval true for interval
      */
     public RegexPartitionState(RegexPartitionStateRandomAccessGetter getter,
-                               List<RegexNFAStateEntry> currentStates,
-                               boolean hasInterval) {
-        this(getter, currentStates, null, hasInterval);
+                               List<RegexNFAStateEntry> currentStates) {
+        this(getter, currentStates, null);
     }
 
     /**
@@ -61,23 +51,16 @@ public class RegexPartitionState
      * @param getter for "prev" access
      * @param currentStates existing state
      * @param optionalKeys partition keys if any
-     * @param hasInterval true for interval
      */
     public RegexPartitionState(RegexPartitionStateRandomAccessGetter getter,
                                List<RegexNFAStateEntry> currentStates,
-                               Object optionalKeys,
-                               boolean hasInterval) {
+                               Object optionalKeys) {
         if (getter != null)
         {
             randomAccess = new RegexPartitionStateRandomAccessImpl(getter);
         }
         this.currentStates = currentStates;
         this.optionalKeys = optionalKeys;
-
-        if (hasInterval)
-        {
-            intervalCallbackItems = new ArrayList<RegexNFAStateEntry>();
-        }
     }
 
     /**
@@ -186,48 +169,8 @@ public class RegexPartitionState
         currentStates = keepList;
         return keepList.isEmpty();
     }
-
-    /**
-     * Returns the interval states, if any.
-     * @return interval states
-     */
-    public List<RegexNFAStateEntry> getCallbackItems()
-    {
-        return intervalCallbackItems;
-    }
-
-    /**
-     * Returns indicator if callback is schedule.
-     * @return scheduled indicator
-     */
-    public boolean isCallbackScheduled()
-    {
-        return isCallbackScheduled;
-    }
-
-    /**
-     * Returns indicator if callback is schedule.
-     * @param callbackScheduled true if scheduled
-     */
-    public void setCallbackScheduled(boolean callbackScheduled)
-    {
-        isCallbackScheduled = callbackScheduled;
-    }
-
-    /**
-     * Add a callback item for intervals.
-     * @param endState to add
-     */
-    public void addCallbackItem(RegexNFAStateEntry endState)
-    {
-        intervalCallbackItems.add(endState);
-    }
-
     public int getNumStates() {
         return currentStates.size();
     }
 
-    public Integer getNumIntervalCallbackItems() {
-        return intervalCallbackItems == null ? null : intervalCallbackItems.size();
-    }
 }
