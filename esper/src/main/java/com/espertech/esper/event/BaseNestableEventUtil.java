@@ -25,6 +25,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
