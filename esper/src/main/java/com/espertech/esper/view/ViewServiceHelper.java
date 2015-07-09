@@ -170,7 +170,7 @@ public class ViewServiceHelper
      * @param viewFactories - is the view factories to use to make each view, or reuse and existing view
      * @return chain of views instantiated
      */
-    protected static List<View> instantiateChain(Viewable parentViewable,
+    public static List<View> instantiateChain(Viewable parentViewable,
                                                  List<ViewFactory> viewFactories,
                                                  AgentInstanceViewFactoryChainContext viewFactoryChainContext)
     {

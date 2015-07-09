@@ -26,6 +26,7 @@ import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.pattern.PatternContextFactory;
 import com.espertech.esper.pattern.PatternObjectResolutionService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.ScheduleAdjustmentService;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
@@ -501,5 +502,9 @@ public final class StatementContext
 
     public ExtensionServicesContext getEngineExtensionServicesContext() {
         return stmtEngineServices.getExtensionServicesContext();
+    }
+
+    public RegexHandlerFactory getRegexPartitionStateRepoFactory() {
+        return stmtEngineServices.getRegexHandlerFactory();
     }
 }

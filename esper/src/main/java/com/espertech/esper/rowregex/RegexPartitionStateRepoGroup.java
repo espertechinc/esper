@@ -60,7 +60,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta);
         for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
         {
-            copy.states.put(entry.getKey(), new RegexPartitionState(entry.getValue().getRandomAccess(), entry.getKey()));
+            copy.states.put(entry.getKey(), new RegexPartitionStateImpl(entry.getValue().getRandomAccess(), entry.getKey()));
         }
         return copy;
     }
@@ -158,7 +158,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             }
         }
 
-        Object key = getKeys(theEvent);
+        Object key = getKeys(theEvent, meta);
         
         RegexPartitionState state = states.get(key);
         if (state != null)
@@ -167,7 +167,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             return state;
         }
 
-        state = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>(), key);
+        state = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>(), key);
         states.put(key, state);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExPartition(false, state); }
@@ -182,7 +182,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         return true;
     }
 
-    private Object getKeys(EventBean theEvent)
+    public static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
     {
         EventBean[] eventsPerStream = meta.getEventsPerStream();
         eventsPerStream[0] = theEvent;

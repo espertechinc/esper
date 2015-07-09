@@ -34,6 +34,7 @@ import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.SchedulingMgmtService;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
 import com.espertech.esper.timer.TimeSourceService;
@@ -90,6 +91,7 @@ public final class EPServicesContext
     private ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc;
     private EPStatementFactory epStatementFactory;
     private ContextManagerFactoryService contextManagerFactoryService;
+    private RegexHandlerFactory regexHandlerFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -173,7 +175,8 @@ public final class EPServicesContext
                              StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc,
                              ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc,
                              ContextManagerFactoryService contextManagerFactoryService,
-                             EPStatementFactory epStatementFactory)
+                             EPStatementFactory epStatementFactory,
+                             RegexHandlerFactory regexHandlerFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -221,6 +224,7 @@ public final class EPServicesContext
         this.contextControllerFactoryFactorySvc = contextControllerFactoryFactorySvc;
         this.contextManagerFactoryService = contextManagerFactoryService;
         this.epStatementFactory = epStatementFactory;
+        this.regexHandlerFactory = regexHandlerFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -694,5 +698,9 @@ public final class EPServicesContext
 
     public EPStatementFactory getEpStatementFactory() {
         return epStatementFactory;
+    }
+
+    public RegexHandlerFactory getRegexHandlerFactory() {
+        return regexHandlerFactory;
     }
 }

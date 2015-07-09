@@ -37,7 +37,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
      */
     public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter)
     {
-        singletonState = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>());
+        singletonState = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>());
     }
 
     public void removeState(Object partitionKey) {
@@ -50,7 +50,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
      */
     public RegexPartitionStateRepo copyForIterate()
     {
-        RegexPartitionState state = new RegexPartitionState(singletonState.getRandomAccess(), null);
+        RegexPartitionState state = new RegexPartitionStateImpl(singletonState.getRandomAccess(), null);
         return new RegexPartitionStateRepoNoGroup(state);
     }
 

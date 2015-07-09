@@ -17,7 +17,6 @@ import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerSubqueryPreevalNoDedup;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.MethodResolutionService;
@@ -90,7 +89,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getExpressionResultCacheSharable(),
                 services.getStatementEventTypeRefService(),
                 services.getTableService().getTableExprEvaluatorContext(),
-                services.getExtensionServicesContext()
+                services.getExtensionServicesContext(),
+                services.getRegexHandlerFactory()
                 );
     }
 

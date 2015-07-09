@@ -51,6 +51,7 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
+import com.espertech.esper.rowregex.RegexHandlerFactoryDefault;
 import com.espertech.esper.schedule.*;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -189,7 +190,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
                 new ExprDeclaredServiceImpl(), new StatementAgentInstanceFactoryFactorySvcDefault(),
-                new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(), new EPStatementFactoryDefault() {
+                new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
+                new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault() {
         });
 
         // Engine services subset available to statements

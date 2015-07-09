@@ -70,18 +70,16 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private final String[] columnNames;
 
     private final RegexNFAState[] startStates;
-    private final RegexNFAState[] allStates;
+    protected final RegexNFAState[] allStates;
 
     private final String[] multimatchVariablesArray;
     private final int[] multimatchStreamNumToVariable;
     private final int[] multimatchVariableToStreamNum;
     private final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     private final Map<Integer, String> streamsVariables;
-    private final int numEventsEventsPerStreamDefine;
+    protected final int numEventsEventsPerStreamDefine;
     private final boolean isDefineAsksMultimatches;
     private final ObjectArrayBackedEventBean defineMultimatchEventBean;
-    private final RegexPartitionStateRepoGroupMeta stateRepoGroupMeta;
-    private final RowRegexExprNode expandedPatternNode;
 
     private final RegexPartitionStateRandomAccessGetter prevGetter;
     private final ObjectArrayBackedEventBean compositeEventBean;
@@ -128,7 +126,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         this.compositeEventBean = new ObjectArrayEventBean(new Object[variableStreams.size()], compositeEventType);
         this.rowEventType = rowEventType;
         this.variableStreams = variableStreams;
-        this.expandedPatternNode = expandedPatternNode;
 
         // determine names of multimatching variables
         if (variablesSingle.size() == variableStreams.size()) {
@@ -236,17 +233,17 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
 
         // create state repository
+        RegexHandlerFactory repoFactory = agentInstanceContext.getStatementContext().getRegexPartitionStateRepoFactory();
         if (this.matchRecognizeSpec.getPartitionByExpressions().isEmpty())
         {
-            stateRepoGroupMeta = null;
-            regexPartitionStateRepo = new RegexPartitionStateRepoNoGroup(prevGetter);
+            regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this);
         }
         else
         {
-            stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(matchRecognizeSpec.getInterval() != null,
+            RegexPartitionStateRepoGroupMeta stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(matchRecognizeSpec.getInterval() != null,
                 ExprNodeUtility.toArray(matchRecognizeSpec.getPartitionByExpressions()),
                 ExprNodeUtility.getEvaluators(matchRecognizeSpec.getPartitionByExpressions()), agentInstanceContext);
-            regexPartitionStateRepo = new RegexPartitionStateRepoGroup(prevGetter, stateRepoGroupMeta);
+            regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this);
         }
     }
 

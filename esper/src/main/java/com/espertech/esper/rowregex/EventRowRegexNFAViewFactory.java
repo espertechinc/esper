@@ -49,22 +49,22 @@ import java.util.*;
  */
 public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 {
-    private final MatchRecognizeSpec matchRecognizeSpec;
-    private final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
-    private final Map<Integer, String> streamVariables;
-    private final Set<String> variablesSingle;
-    private final ObjectArrayEventType compositeEventType;
-    private final EventType rowEventType;
-    private final AggregationServiceMatchRecognize aggregationService;
-    private final List<AggregationServiceAggExpressionDesc> aggregationExpressions;
-    private final TreeMap<Integer, List<ExprPreviousMatchRecognizeNode>> callbacksPerIndex = new TreeMap<Integer, List<ExprPreviousMatchRecognizeNode>>();
-    private final boolean isUnbound;
-    private final boolean isIterateOnly;
-    private final boolean isCollectMultimatches;
-    private final boolean isDefineAsksMultimatches;
-    private final ObjectArrayBackedEventBean defineMultimatchEventBean;
-    private final boolean[] isExprRequiresMultimatchState;
-    private final RowRegexExprNode expandedPatternNode;
+    protected final MatchRecognizeSpec matchRecognizeSpec;
+    protected final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
+    protected final Map<Integer, String> streamVariables;
+    protected final Set<String> variablesSingle;
+    protected final ObjectArrayEventType compositeEventType;
+    protected final EventType rowEventType;
+    protected final AggregationServiceMatchRecognize aggregationService;
+    protected final List<AggregationServiceAggExpressionDesc> aggregationExpressions;
+    protected final TreeMap<Integer, List<ExprPreviousMatchRecognizeNode>> callbacksPerIndex = new TreeMap<Integer, List<ExprPreviousMatchRecognizeNode>>();
+    protected final boolean isUnbound;
+    protected final boolean isIterateOnly;
+    protected final boolean isCollectMultimatches;
+    protected final boolean isDefineAsksMultimatches;
+    protected final ObjectArrayBackedEventBean defineMultimatchEventBean;
+    protected final boolean[] isExprRequiresMultimatchState;
+    protected final RowRegexExprNode expandedPatternNode;
 
     /**
      * Ctor.

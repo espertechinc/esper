@@ -272,7 +272,7 @@ public class EPStatementStartMethodSelectUtil
                 throw new ExprValidationException("Tables cannot be used with match-recognize");
             }
             boolean isUnbound = (unmaterializedViewChain[0].getViewFactoryChain().isEmpty()) && (!(statementSpec.getStreamSpecs()[0] instanceof NamedWindowConsumerStreamSpec));
-            EventRowRegexNFAViewFactory factory = new EventRowRegexNFAViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations());
+            EventRowRegexNFAViewFactory factory = services.getRegexHandlerFactory().makeViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations());
             unmaterializedViewChain[0].getViewFactoryChain().add(factory);
 
             EPStatementStartMethodHelperAssignExpr.assignAggregations(factory.getAggregationService(), factory.getAggregationExpressions());
