@@ -127,16 +127,42 @@ public class RegexPartitionStateImpl implements RegexPartitionState
      */
     public boolean removeEventFromState(EventBean oldEvent)
     {
-        List<RegexNFAStateEntry> keepList = new ArrayList<RegexNFAStateEntry>();
+        List<RegexNFAStateEntry> keepList = removeEventFromState(oldEvent, currentStates.iterator());
+        if (randomAccess != null) {
+            randomAccess.remove(oldEvent);
+        }
+        currentStates = keepList;
+        return keepList.isEmpty();
+    }
 
-        for (RegexNFAStateEntry entry : currentStates)
+    public int getNumStates() {
+        return currentStates.size();
+    }
+
+    public void clearCurrentStates() {
+        currentStates.clear();
+    }
+
+    public List<RegexNFAStateEntry> getCurrentStatesForPrint() {
+        return currentStates;
+    }
+
+    public boolean isEmptyCurrentState() {
+        return currentStates.isEmpty();
+    }
+
+    public static List<RegexNFAStateEntry> removeEventFromState(EventBean oldEvent, Iterator<RegexNFAStateEntry> states)
+    {
+        List<RegexNFAStateEntry> keepList = new ArrayList<RegexNFAStateEntry>();
+        for (;states.hasNext();)
         {
+            RegexNFAStateEntry entry = states.next();
             boolean keep = true;
 
             EventBean[] state = entry.getEventsPerStream();
             for (EventBean aState : state)
             {
-                if (aState == oldEvent)
+                if (aState != null && aState.equals(oldEvent))
                 {
                     keep = false;
                     break;
@@ -161,29 +187,6 @@ public class RegexPartitionStateImpl implements RegexPartitionState
                 keepList.add(entry);
             }
         }
-
-        if (randomAccess != null)
-        {
-            randomAccess.remove(oldEvent);
-        }
-
-        currentStates = keepList;
-        return keepList.isEmpty();
-    }
-
-    public int getNumStates() {
-        return currentStates.size();
-    }
-
-    public void clearCurrentStates() {
-        currentStates.clear();
-    }
-
-    public List<RegexNFAStateEntry> getCurrentStatesForPrint() {
-        return currentStates;
-    }
-
-    public boolean isEmptyCurrentState() {
-        return currentStates.isEmpty();
+        return keepList;
     }
 }

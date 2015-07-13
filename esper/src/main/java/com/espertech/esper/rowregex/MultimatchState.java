@@ -88,7 +88,7 @@ public class MultimatchState {
     {
         for (int i = 0; i < count; i++)
         {
-            if (events[i] == theEvent)
+            if (events[i].equals(theEvent))
             {
                 return true;
             }
