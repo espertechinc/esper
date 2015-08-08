@@ -30,7 +30,7 @@ public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializab
     private final List<EvalFactoryNode> childNodes;
     private short factoryNodeId;
 
-    public abstract EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext);
+    public abstract EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode);
     public abstract void toPrecedenceFreeEPL(StringWriter writer);
 
     /**

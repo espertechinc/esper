@@ -19,13 +19,13 @@ public final class FilterServiceProvider
      * Creates an implementation of the FilterEvaluationService interface.
      * @return implementation
      */
-    public static FilterServiceSPI newService(ConfigurationEngineDefaults.FilterServiceProfile filterServiceProfile)
+    public static FilterServiceSPI newService(ConfigurationEngineDefaults.FilterServiceProfile filterServiceProfile, boolean allowIsolation)
     {
         if (filterServiceProfile == ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY) {
-            return new FilterServiceLockCoarse();
+            return new FilterServiceLockCoarse(allowIsolation);
         }
         else {
-            return new FilterServiceLockFine();
+            return new FilterServiceLockFine(allowIsolation);
         }
     }
 }

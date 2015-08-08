@@ -41,11 +41,11 @@ public abstract class FilterServiceBase implements FilterServiceSPI
     /**
      * Constructor.
      */
-    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory)
+    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, boolean allowIsolation)
     {
         this.lockFactory = lockFactory;
         eventTypeIndex = new EventTypeIndex(lockFactory);
-        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex);
+        indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, allowIsolation);
         filterServiceListeners = new CopyOnWriteArraySet<FilterServiceListener>();
     }
 
@@ -60,15 +60,16 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         indexBuilder.destroy();
     }
 
-    protected void addInternal(FilterValueSet filterValueSet, FilterHandle filterCallback)
+    protected FilterServiceEntry addInternal(FilterValueSet filterValueSet, FilterHandle filterCallback)
     {
-        indexBuilder.add(filterValueSet, filterCallback, lockFactory);
+        FilterServiceEntry entry = indexBuilder.add(filterValueSet, filterCallback, lockFactory);
         filtersVersion++;
+        return entry;
     }
 
-    protected void removeInternal(FilterHandle filterCallback)
+    protected void removeInternal(FilterHandle filterCallback, FilterServiceEntry filterServiceEntry)
     {
-        indexBuilder.remove(filterCallback);
+        indexBuilder.remove(filterCallback, filterServiceEntry);
         filtersVersion++;
     }
 
@@ -158,6 +159,10 @@ public abstract class FilterServiceBase implements FilterServiceSPI
     @JmxGetter(name="NumEventTypes", description = "Number of event types considered")
     public int getCountTypes() {
         return eventTypeIndex.size();
+    }
+
+    public void init() {
+        // no initialization required
     }
 
     protected void removeTypeInternal(EventType type) {

@@ -13,6 +13,7 @@ package com.espertech.esper.core.service.resource;
 
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
+import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
@@ -22,7 +23,7 @@ import com.espertech.esper.view.Viewable;
 import java.util.Map;
 
 public class StatementResourceHolder {
-    private final StatementAgentInstanceLock agentInstanceLock;
+    private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
     private final Viewable[] topViewables;
     private final Viewable[] eventStreamViewables;
     private final EvalRootState[] patternRoots;
@@ -30,8 +31,8 @@ public class StatementResourceHolder {
     private final Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
     private final StatementAgentInstancePostLoad postLoad;
 
-    public StatementResourceHolder(StatementAgentInstanceLock agentInstanceLock, Viewable[] topViewables, Viewable[] eventStreamViewables, EvalRootState[] patternRoots, AggregationService aggegationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies, StatementAgentInstancePostLoad postLoad) {
-        this.agentInstanceLock = agentInstanceLock;
+    public StatementResourceHolder(EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, Viewable[] topViewables, Viewable[] eventStreamViewables, EvalRootState[] patternRoots, AggregationService aggegationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies, StatementAgentInstancePostLoad postLoad) {
+        this.epStatementAgentInstanceHandle = epStatementAgentInstanceHandle;
         this.topViewables = topViewables;
         this.eventStreamViewables = eventStreamViewables;
         this.patternRoots = patternRoots;
@@ -40,8 +41,8 @@ public class StatementResourceHolder {
         this.postLoad = postLoad;
     }
 
-    public StatementAgentInstanceLock getAgentInstanceLock() {
-        return agentInstanceLock;
+    public EPStatementAgentInstanceHandle getEpStatementAgentInstanceHandle() {
+        return epStatementAgentInstanceHandle;
     }
 
     public Viewable[] getTopViewables() {

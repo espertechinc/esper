@@ -30,8 +30,8 @@ public class EvalAuditFactoryNode extends EvalNodeFactoryBase
         this.filterChildNonQuitting = filterChildNonQuitting;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalAuditNode(agentInstanceContext, this, child);
     }
 

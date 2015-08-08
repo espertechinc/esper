@@ -46,14 +46,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
 
         ContextControllerFactoryServiceContext factoryServiceContext = new ContextControllerFactoryServiceContext(contextDesc.getContextName(), servicesContext, contextDesc.getContextDetail(), agentInstanceContext, isRecoveringResilient);
-        ContextManager contextManager;
-        if (contextDesc.getContextDetail() instanceof ContextDetailNested) {
-            contextManager = new ContextManagerNested(factoryServiceContext);
-        }
-        else {
-            contextManager = new ContextManagerImpl(factoryServiceContext);
-        }
-
+        ContextManager contextManager = servicesContext.getContextManagerFactoryService().make(contextDesc.getContextDetail(), factoryServiceContext);
         factoryServiceContext.getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().setFilterFaultHandler(contextManager);
 
         contexts.put(contextDesc.getContextName(), new ContextManagerEntry(contextManager));

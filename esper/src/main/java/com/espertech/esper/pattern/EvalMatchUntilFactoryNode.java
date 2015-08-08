@@ -40,8 +40,8 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
         this.singleBound = singleBound;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode[] children = EvalNodeUtil.makeEvalNodeChildren(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalMatchUntilNode(agentInstanceContext, this, children[0], children.length == 1 ? null : children[1]);
     }
 

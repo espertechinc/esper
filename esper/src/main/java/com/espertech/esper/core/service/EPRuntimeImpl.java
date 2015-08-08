@@ -67,21 +67,21 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerCallback, InternalEventRouteDest
 {
-    private EPServicesContext services;
-    private boolean isLatchStatementInsertStream;
-    private boolean isUsingExternalClocking;
-    private boolean isPrioritized;
-    private volatile UnmatchedListener unmatchedListener;
-    private AtomicLong routedInternal;
-    private AtomicLong routedExternal;
-    private EventRenderer eventRenderer;
-    private InternalEventRouter internalEventRouter;
-    private ExprEvaluatorContext engineFilterAndDispatchTimeContext;
-    private ThreadWorkQueue threadWorkQueue;
-    private ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> matchesPerStmtThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
+    protected EPServicesContext services;
+    protected boolean isLatchStatementInsertStream;
+    protected boolean isUsingExternalClocking;
+    protected boolean isPrioritized;
+    protected volatile UnmatchedListener unmatchedListener;
+    protected AtomicLong routedInternal;
+    protected AtomicLong routedExternal;
+    protected EventRenderer eventRenderer;
+    protected InternalEventRouter internalEventRouter;
+    protected ExprEvaluatorContext engineFilterAndDispatchTimeContext;
+    protected ThreadWorkQueue threadWorkQueue;
+    protected ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
+    protected ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> matchesPerStmtThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
 
     /**
      * Constructor.
@@ -664,7 +664,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         }
     }
 
-    private void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
+    public void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
     {
         if (ThreadLogUtil.ENABLED_TRACE)
         {
@@ -947,7 +947,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         dispatch();
     }
 
-    private void processMatches(EventBean theEvent)
+    protected void processMatches(EventBean theEvent)
     {
         // get matching filters
         ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
@@ -1261,7 +1261,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         }
     }
 
-    private void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent) {
+    protected void handleFilterFault(EPStatementAgentInstanceHandle faultingHandle, EventBean theEvent) {
         ArrayDeque<FilterHandle> callbacksForStatement = new ArrayDeque<FilterHandle>();
         long version = services.getFilterService().evaluate(theEvent, callbacksForStatement, faultingHandle.getStatementId());
 
@@ -1851,5 +1851,5 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         }
     }
 
-    private static final Log log = LogFactory.getLog(EPRuntimeImpl.class);
+    protected static final Log log = LogFactory.getLog(EPRuntimeImpl.class);
 }

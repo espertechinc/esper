@@ -17,12 +17,10 @@ import org.apache.commons.logging.LogFactory;
 
 public class ExprNodeAdapterBaseVariables extends ExprNodeAdapterBase
 {
-    private static final Log log = LogFactory.getLog(ExprNodeAdapterBaseVariables.class);
-
     protected final VariableService variableService;
 
-    public ExprNodeAdapterBaseVariables(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
-        super(statementName, exprNode, evaluatorContext);
+    public ExprNodeAdapterBaseVariables(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext);
         this.variableService = variableService;
     }
 

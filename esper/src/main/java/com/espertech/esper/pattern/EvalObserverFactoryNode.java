@@ -37,7 +37,7 @@ public class EvalObserverFactoryNode extends EvalNodeFactoryBase
         this.patternObserverSpec = patternObserverSpec;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
         return new EvalObserverNode(agentInstanceContext, this);
     }
 

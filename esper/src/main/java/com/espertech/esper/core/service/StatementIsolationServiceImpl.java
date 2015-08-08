@@ -60,7 +60,7 @@ public class StatementIsolationServiceImpl implements StatementIsolationService
             return serviceProviderIsolated;
         }
 
-        FilterServiceSPI filterService = FilterServiceProvider.newService(epServicesContext.getConfigSnapshot().getEngineDefaults().getExecution().getFilterServiceProfile());
+        FilterServiceSPI filterService = FilterServiceProvider.newService(epServicesContext.getConfigSnapshot().getEngineDefaults().getExecution().getFilterServiceProfile(), true);
         SchedulingServiceSPI scheduleService = new SchedulingServiceImpl(epServicesContext.getTimeSource());
         EPIsolationUnitServices services = new EPIsolationUnitServices(name, currentUnitId, filterService, scheduleService);
         serviceProviderIsolated = new EPServiceProviderIsolatedImpl(name, services, epServicesContext, isolatedProviders);

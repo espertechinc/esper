@@ -11,8 +11,11 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvcDefault;
+import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvcImpl;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
+import com.espertech.esper.core.context.mgr.ContextManagerFactoryServiceImpl;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
@@ -48,6 +51,7 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
+import com.espertech.esper.rowregex.RegexHandlerFactoryDefault;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.schedule.*;
 import com.espertech.esper.timer.TimeSourceService;
@@ -140,7 +144,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 
         StatementLockFactory statementLockFactory = new StatementLockFactoryImpl(configSnapshot.getEngineDefaults().getExecution().isFairlock(), configSnapshot.getEngineDefaults().getExecution().isDisableLocking());
         StreamFactoryService streamFactoryService = StreamFactoryServiceProvider.newService(epServiceProvider.getURI(), configSnapshot.getEngineDefaults().getViewResources().isShareViews());
-        FilterServiceSPI filterService = FilterServiceProvider.newService(configSnapshot.getEngineDefaults().getExecution().getFilterServiceProfile());
+        FilterServiceSPI filterService = FilterServiceProvider.newService(configSnapshot.getEngineDefaults().getExecution().getFilterServiceProfile(), configSnapshot.getEngineDefaults().getExecution().isAllowIsolatedService());
         MetricReportingServiceImpl metricsReporting = new MetricReportingServiceImpl(configSnapshot.getEngineDefaults().getMetricsReporting(), epServiceProvider.getURI());
         NamedWindowService namedWindowService = new NamedWindowServiceImpl(schedulingService, variableService, tableService, engineSettingsService.getEngineSettings().getExecution().isPrioritized(), eventProcessingRWLock, exceptionHandlingService, configSnapshot.getEngineDefaults().getLogging().isEnableQueryPlan(), metricsReporting);
 
@@ -192,7 +196,9 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
                 contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
-                new ExprDeclaredServiceImpl() {
+                new ExprDeclaredServiceImpl(), new StatementAgentInstanceFactoryFactorySvcDefault(),
+                new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
+                new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault() {
         });
 
         // Engine services subset available to statements

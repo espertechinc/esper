@@ -24,12 +24,8 @@ public class EvalRootFactoryNode extends EvalNodeFactoryBase
     public EvalRootFactoryNode() {
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
-        return makeEvalNodeRoot(agentInstanceContext);
-    }
-
-    public EvalRootNode makeEvalNodeRoot(PatternAgentInstanceContext agentInstanceContext) {
-        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext);
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalRootNode(agentInstanceContext, this, child);
     }
 

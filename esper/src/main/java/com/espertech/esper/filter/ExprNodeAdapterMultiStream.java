@@ -23,8 +23,8 @@ public class ExprNodeAdapterMultiStream extends ExprNodeAdapterBaseVariables
     protected final EventBean[] prototypeArray;
     private final ThreadLocal<EventBean[]> arrayPerThread;
 
-    public ExprNodeAdapterMultiStream(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
-        super(statementName, exprNode, evaluatorContext, variableService);
+    public ExprNodeAdapterMultiStream(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService);
         this.prototypeArray = prototype;
 
         arrayPerThread = new ThreadLocal<EventBean[]>()
@@ -48,5 +48,9 @@ public class ExprNodeAdapterMultiStream extends ExprNodeAdapterBaseVariables
         EventBean[] eventsPerStream = arrayPerThread.get();
         eventsPerStream[0] = theEvent;
         return evaluatePerStream(eventsPerStream);
+    }
+
+    public EventBean[] getPrototypeArray() {
+        return prototypeArray;
     }
 }

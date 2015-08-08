@@ -14,35 +14,31 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EventBean;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * State for when no partitions (single partition) is required.
  */
 public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 {
-    private final RegexPartitionState singletonState;
-    private final boolean hasInterval;
+    private final RegexPartitionStateImpl singletonState;
 
     /**
      * Ctor.
      * @param singletonState state
-     * @param hasInterval true for interval
      */
-    public RegexPartitionStateRepoNoGroup(RegexPartitionState singletonState, boolean hasInterval)
+    public RegexPartitionStateRepoNoGroup(RegexPartitionStateImpl singletonState)
     {
         this.singletonState = singletonState;
-        this.hasInterval = hasInterval;
     }
 
     /**
      * Ctor.
      * @param getter "prev" getter
-     * @param hasInterval true for interval
      */
-    public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter, boolean hasInterval)
+    public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter)
     {
-        singletonState = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>(), hasInterval);
-        this.hasInterval = hasInterval;
+        singletonState = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>());
     }
 
     public void removeState(Object partitionKey) {
@@ -55,8 +51,8 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
      */
     public RegexPartitionStateRepo copyForIterate()
     {
-        RegexPartitionState state = new RegexPartitionState(singletonState.getRandomAccess(), null, hasInterval);
-        return new RegexPartitionStateRepoNoGroup(state, hasInterval);
+        RegexPartitionStateImpl state = new RegexPartitionStateImpl(singletonState.getRandomAccess(), null);
+        return new RegexPartitionStateRepoNoGroup(state);
     }
 
     public int removeOld(EventBean[] oldEvents, boolean isEmpty, boolean[] found)
@@ -64,8 +60,8 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         int countRemoved = 0;
         if (isEmpty)
         {
-            countRemoved = singletonState.getCurrentStates().size();
-            singletonState.getCurrentStates().clear();
+            countRemoved = singletonState.getNumStates();
+            singletonState.setCurrentStates(Collections.<RegexNFAStateEntry>emptyList());
         }
         else
         {
@@ -96,6 +92,6 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
     }
 
     public int getStateCount() {
-        return singletonState.getCurrentStates().size();
+        return singletonState.getNumStates();
     }
 }

@@ -64,4 +64,8 @@ public class ViewableActivatorStreamReuseView implements ViewableActivator, Stop
     public void stop() {
         services.getStreamService().dropStream(filterStreamSpec.getFilterSpec(), statementContext.getFilterService(), join, statementSpec.getOrderByList().length > 0, filterSubselectSameStream, statementContext.isStatelessSelect());
     }
+
+    public FilterStreamSpecCompiled getFilterStreamSpec() {
+        return filterStreamSpec;
+    }
 }

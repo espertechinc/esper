@@ -20,7 +20,8 @@ public class ExprNodeAdapterBase
 {
     private static final Log log = LogFactory.getLog(ExprNodeAdapterBase.class);
 
-    protected final String statementName;
+    private final int filterSpecId;
+    private final int filterSpecParamPathNum;
     protected final ExprNode exprNode;
     protected final ExprEvaluator exprNodeEval;
     protected final ExprEvaluatorContext evaluatorContext;
@@ -29,9 +30,10 @@ public class ExprNodeAdapterBase
      * Ctor.
      * @param exprNode is the boolean expression
      */
-    public ExprNodeAdapterBase(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
+    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
     {
-        this.statementName = statementName;
+        this.filterSpecId = filterSpecId;
+        this.filterSpecParamPathNum = filterSpecParamPathNum;
         this.exprNode = exprNode;
         this.exprNodeEval = exprNode.getExprEvaluator();
         this.evaluatorContext = evaluatorContext;
@@ -58,16 +60,28 @@ public class ExprNodeAdapterBase
             return result;
         }
         catch (RuntimeException ex) {
-            log.error("Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + statementName + "': " + ex.getMessage(), ex);
+            log.error("Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage(), ex);
             return false;
         }
     }
 
     public String getStatementName() {
-        return statementName;
+        return evaluatorContext.getStatementName();
+    }
+
+    public String getStatementId() {
+        return evaluatorContext.getStatementId();
     }
 
     public ExprNode getExprNode() {
         return exprNode;
+    }
+
+    public int getFilterSpecId() {
+        return filterSpecId;
+    }
+
+    public int getFilterSpecParamPathNum() {
+        return filterSpecParamPathNum;
     }
 }

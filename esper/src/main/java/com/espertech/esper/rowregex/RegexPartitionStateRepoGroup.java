@@ -17,10 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Partition-by implementation for partition state.
@@ -34,7 +31,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
 
     private final RegexPartitionStateRepoGroupMeta meta;
     private final RegexPartitionStateRandomAccessGetter getter;
-    private final Map<Object, RegexPartitionState> states;
+    private final Map<Object, RegexPartitionStateImpl> states;
 
     private int currentCollectionSize = INITIAL_COLLECTION_MIN;
 
@@ -48,7 +45,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     {
         this.getter = getter;
         this.meta = meta;
-        this.states = new HashMap<Object, RegexPartitionState>();
+        this.states = new HashMap<Object, RegexPartitionStateImpl>();
     }
 
     public void removeState(Object partitionKey) {
@@ -58,9 +55,9 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     public RegexPartitionStateRepo copyForIterate()
     {
         RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta);
-        for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
+        for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
         {
-            copy.states.put(entry.getKey(), new RegexPartitionState(entry.getValue().getRandomAccess(), entry.getKey(), meta.isHasInterval()));
+            copy.states.put(entry.getKey(), new RegexPartitionStateImpl(entry.getValue().getRandomAccess(), entry.getKey()));
         }
         return copy;
     }
@@ -79,10 +76,10 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             else
             {
                 countRemoved = 0;
-                for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
+                for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
                 {
-                    countRemoved += entry.getValue().getCurrentStates().size();
-                    entry.getValue().getCurrentStates().clear();
+                    countRemoved += entry.getValue().getNumStates();
+                    entry.getValue().setCurrentStates(Collections.<RegexNFAStateEntry>emptyList());
                 }
             }
 
@@ -92,7 +89,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
                 // we will need to remove event-by-event
                 for (int i = 0; i < oldData.length; i++)
                 {
-                    RegexPartitionState partitionState = getState(oldData[i], true);
+                    RegexPartitionStateImpl partitionState = getState(oldData[i], true);
                     if (partitionState == null)
                     {
                         continue;
@@ -108,7 +105,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         int countRemoved = 0;
         for (int i = 0; i < oldData.length; i++)
         {
-            RegexPartitionState partitionState = getState(oldData[i], true);
+            RegexPartitionStateImpl partitionState = getState(oldData[i], true);
             if (partitionState == null)
             {
                 continue;
@@ -117,7 +114,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             if (found[i])
             {
                 countRemoved += partitionState.removeEventFromState(oldData[i]);
-                boolean cleared = partitionState.isEmpty();
+                boolean cleared = partitionState.getNumStates() == 0;
                 if (cleared)
                 {
                     if (getter == null)
@@ -137,7 +134,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         return states.get(key);
     }
 
-    public RegexPartitionState getState(EventBean theEvent, boolean isCollect)
+    public RegexPartitionStateImpl getState(EventBean theEvent, boolean isCollect)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExPartition(meta.getPartitionExpressionNodes()); }
 
@@ -145,9 +142,9 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         if ((isCollect) && (states.size() >= currentCollectionSize))
         {
             List<Object> removeList = new ArrayList<Object>();
-            for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet())
+            for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
             {
-                if ((entry.getValue().getCurrentStates().isEmpty()) &&
+                if ((entry.getValue().isEmptyCurrentState()) &&
                     (entry.getValue().getRandomAccess() == null || entry.getValue().getRandomAccess().isEmpty()))
                 {
                     removeList.add(entry.getKey());
@@ -165,16 +162,16 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
             }
         }
 
-        Object key = getKeys(theEvent);
+        Object key = getKeys(theEvent, meta);
         
-        RegexPartitionState state = states.get(key);
+        RegexPartitionStateImpl state = states.get(key);
         if (state != null)
         {
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExPartition(true, state); }
             return state;
         }
 
-        state = new RegexPartitionState(getter, new ArrayList<RegexNFAStateEntry>(), key, meta.isHasInterval());
+        state = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>(), key);
         states.put(key, state);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExPartition(false, state); }
@@ -182,22 +179,26 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     }
 
     public void accept(EventRowRegexNFAViewServiceVisitor visitor) {
-        visitor.visitPartitioned(states);
+        visitor.visitPartitioned((Map) states);
     }
 
     public boolean isPartitioned() {
         return true;
     }
 
+    public Map<Object, RegexPartitionStateImpl> getStates() {
+        return states;
+    }
+
     public int getStateCount() {
         int total = 0;
-        for (Map.Entry<Object, RegexPartitionState> entry : states.entrySet()) {
+        for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet()) {
             total += entry.getValue().getNumStates();
         }
         return total;
     }
 
-    private Object getKeys(EventBean theEvent)
+    private static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
     {
         EventBean[] eventsPerStream = meta.getEventsPerStream();
         eventsPerStream[0] = theEvent;

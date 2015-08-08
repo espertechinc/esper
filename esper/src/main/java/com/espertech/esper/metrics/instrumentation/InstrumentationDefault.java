@@ -147,6 +147,14 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
+    public void qRegExStateStart(LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
+
+    }
+
+    public void aRegExStateStart(List<RegexNFAStateEntry> nextStates, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
+
+    }
+
     public void qRegExPartition(ExprNode[] partitionExpressionNodes) {
 
     }

@@ -13,7 +13,7 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.FlushedEventBuffer;
 import com.espertech.esper.core.service.EPStatementDispatch;
-import com.espertech.esper.pattern.EvalRootState;
+import com.espertech.esper.pattern.EvalRootMatchRemover;
 import com.espertech.esper.view.ViewSupport;
 
 import java.util.*;
@@ -23,15 +23,15 @@ import java.util.*;
  */
 public final class PatternRemoveDispatchView extends ViewSupport implements EPStatementDispatch
 {
-    private final EvalRootState patternRoot;
+    private final EvalRootMatchRemover matchRemoveCallback;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
 
     private boolean hasData = false;
     private FlushedEventBuffer newDataBuffer = new FlushedEventBuffer();
 
-    public PatternRemoveDispatchView(EvalRootState patternRoot, boolean suppressSameEventMatches, boolean discardPartialsOnMatch) {
-        this.patternRoot = patternRoot;
+    public PatternRemoveDispatchView(EvalRootMatchRemover matchRemoveCallback, boolean suppressSameEventMatches, boolean discardPartialsOnMatch) {
+        this.matchRemoveCallback = matchRemoveCallback;
         this.suppressSameEventMatches = suppressSameEventMatches;
         this.discardPartialsOnMatch = discardPartialsOnMatch;
     }
@@ -65,7 +65,7 @@ public final class PatternRemoveDispatchView extends ViewSupport implements EPSt
                     addEventsFromMatch(match, events);
                 }
                 if (events.size() > 0) {
-                    patternRoot.removeMatch(events);
+                    matchRemoveCallback.removeMatch(events);
                 }
             }
 

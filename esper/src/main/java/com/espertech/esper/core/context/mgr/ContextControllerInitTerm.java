@@ -94,7 +94,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 endEndpoint.activate(optionalTriggeringEvent, null, 0, factory.getFactoryContext().isRecoveringResilient());
                 long startTime = factory.getSchedulingService().getTime();
                 Long endTime = endEndpoint.getExpectedEndTime();
-                Map<String, Object> builtinProps = getBuiltinProperties(factory, startTime, endTime, Collections.<String, Object>emptyMap());
+                Map<String, Object> builtinProps = getBuiltinProperties(factory.getFactoryContext().getContextName(), startTime, endTime, Collections.<String, Object>emptyMap());
                 ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, optionalTriggeringPattern, null, builtinProps, controllerState, filterAddendum, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
                 endConditions.put(endEndpoint, new ContextControllerInitTermInstance(instanceHandle, null, startTime, endTime, currentSubpathId));
 
@@ -242,7 +242,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 endEndpoint.activate(null, matchedEventMap, 0, false);
                 long startTime = factory.getSchedulingService().getTime();
                 Long endTime = endEndpoint.getExpectedEndTime();
-                Map<String, Object> builtinProps = getBuiltinProperties(factory, startTime, endTime, builtinProperties);
+                Map<String, Object> builtinProps = getBuiltinProperties(factory.getFactoryContext().getContextName(), startTime, endTime, builtinProperties);
                 ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, optionalTriggeringPattern, new ContextControllerInitTermState(factory.getSchedulingService().getTime(), matchedEventMap.getMatchingEventsAsMap()), builtinProps, null, filterAddendum, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
                 endConditions.put(endEndpoint, new ContextControllerInitTermInstance(instanceHandle, builtinProperties, startTime, endTime, currentSubpathId));
 
@@ -343,9 +343,9 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
         factory.getStateCache().removeContextParentPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId);
     }
 
-    protected static Map<String, Object> getBuiltinProperties(ContextControllerInitTermFactory factory, long startTime, Long endTime, Map<String, Object> startEndpointData) {
+    public static Map<String, Object> getBuiltinProperties(String contextName, long startTime, Long endTime, Map<String, Object> startEndpointData) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(ContextPropertyEventType.PROP_CTX_NAME, factory.getFactoryContext().getContextName());
+        props.put(ContextPropertyEventType.PROP_CTX_NAME, contextName);
         props.put(ContextPropertyEventType.PROP_CTX_STARTTIME, startTime);
         props.put(ContextPropertyEventType.PROP_CTX_ENDTIME, endTime);
         props.putAll(startEndpointData);
@@ -397,7 +397,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
             endEndpoint.activate(optionalTriggeringEvent, null, timeOffset, factory.getFactoryContext().isRecoveringResilient());
             long startTime = state.getStartTime();
             Long endTime = endEndpoint.getExpectedEndTime();
-            Map<String, Object> builtinProps = getBuiltinProperties(factory, startTime, endTime, state.getPatternData());
+            Map<String, Object> builtinProps = getBuiltinProperties(factory.getFactoryContext().getContextName(), startTime, endTime, state.getPatternData());
             int contextPartitionId = entry.getValue().getOptionalContextPartitionId();
 
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;

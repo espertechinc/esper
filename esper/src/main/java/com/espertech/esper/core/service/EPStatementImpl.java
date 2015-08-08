@@ -44,7 +44,7 @@ public class EPStatementImpl implements EPStatementSPI
     private EventType eventType;
     private StatementMetadata statementMetadata;
     private Object userObject;
-    private StatementContext statementContext;
+    protected StatementContext statementContext;
     private String serviceIsolated;
 
     /**
@@ -554,6 +554,10 @@ public class EPStatementImpl implements EPStatementSPI
     public boolean isNameProvided()
     {
         return nameProvided;
+    }
+
+    public UpdateDispatchViewBase getDispatchChildView() {
+        return dispatchChildView;
     }
 
     private UnsupportedOperationException getUnsupportedNonContextIterator() {

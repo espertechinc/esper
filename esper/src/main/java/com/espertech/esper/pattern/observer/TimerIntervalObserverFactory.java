@@ -58,7 +58,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
         this.convertor = convertor;
     }
 
-    protected long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (parameter instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
             return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());

@@ -62,7 +62,7 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
         this.convertor = convertor;
     }
 
-    protected long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (millisecondsExpr instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) millisecondsExpr;
             return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
@@ -77,7 +77,7 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
         }
     }
 
-    protected int computeNumCountTo(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public int computeNumCountTo(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         Object numCountToVal = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, numCountToExpr, convertor,context.getAgentInstanceContext());
         if (null == numCountToVal) {
             throw new EPException("Timer-within-or-max second parameter evaluated to a null-value");

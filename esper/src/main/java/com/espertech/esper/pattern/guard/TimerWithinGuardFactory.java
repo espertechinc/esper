@@ -52,7 +52,7 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
         this.millisecondsExpr = parameters.get(0);
     }
 
-    protected long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (millisecondsExpr instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) millisecondsExpr;
             return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());

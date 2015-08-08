@@ -37,7 +37,7 @@ public class EPStatementStartMethodHelperAssignExpr
 {
     public static void assignExpressionStrategies(EPStatementStartMethodSelectDesc selectDesc, AggregationService aggregationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategyInstances, Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategyInstances, Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousStrategyInstances, Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy matchRecognizePrevEvalStrategy, Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> tableAccessStrategyInstances) {
         // initialize aggregation expression nodes
-        if (selectDesc.getResultSetProcessorPrototypeDesc().getAggregationServiceFactoryDesc() != null) {
+        if (selectDesc.getResultSetProcessorPrototypeDesc().getAggregationServiceFactoryDesc() != null && aggregationService != null) {
             EPStatementStartMethodHelperAssignExpr.assignAggregations(aggregationService, selectDesc.getResultSetProcessorPrototypeDesc().getAggregationServiceFactoryDesc().getExpressions());
         }
 
@@ -63,7 +63,7 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
-    private static void assignMatchRecognizePreviousStrategies(Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy strategy) {
+    public static void assignMatchRecognizePreviousStrategies(Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy strategy) {
         if (matchRecognizeNodes != null && strategy != null) {
             for (ExprPreviousMatchRecognizeNode node : matchRecognizeNodes) {
                 node.setStrategy(strategy);

@@ -9,14 +9,16 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvc;
+import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
+import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.dataflow.core.DataFlowService;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.DispatchServiceProvider;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.db.DatabaseConfigService;
@@ -24,6 +26,7 @@ import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowService;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
@@ -31,6 +34,7 @@ import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.schedule.SchedulingMgmtService;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
@@ -85,6 +89,11 @@ public final class EPServicesContext
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private TableService tableService;
+    private StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc;
+    private ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc;
+    private EPStatementFactory epStatementFactory;
+    private ContextManagerFactoryService contextManagerFactoryService;
+    private RegexHandlerFactory regexHandlerFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -165,7 +174,12 @@ public final class EPServicesContext
                              PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
                              MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                              DataFlowService dataFlowService,
-                             ExprDeclaredService exprDeclaredService)
+                             ExprDeclaredService exprDeclaredService,
+                             StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc,
+                             ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc,
+                             ContextManagerFactoryService contextManagerFactoryService,
+                             EPStatementFactory epStatementFactory,
+                             RegexHandlerFactory regexHandlerFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -210,6 +224,11 @@ public final class EPServicesContext
         this.dataFlowService = dataFlowService;
         this.exprDeclaredService = exprDeclaredService;
         this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
+        this.stmtAgentInstanceFactoryFactorySvc = stmtAgentInstanceFactoryFactorySvc;
+        this.contextControllerFactoryFactorySvc = contextControllerFactoryFactorySvc;
+        this.contextManagerFactoryService = contextManagerFactoryService;
+        this.epStatementFactory = epStatementFactory;
+        this.regexHandlerFactory = regexHandlerFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -671,5 +690,25 @@ public final class EPServicesContext
 
     public TableService getTableService() {
         return tableService;
+    }
+
+    public StatementAgentInstanceFactoryFactorySvc getStmtAgentInstanceFactoryFactorySvc() {
+        return stmtAgentInstanceFactoryFactorySvc;
+    }
+
+    public ContextControllerFactoryFactorySvc getContextControllerFactoryFactorySvc() {
+        return contextControllerFactoryFactorySvc;
+    }
+
+    public ContextManagerFactoryService getContextManagerFactoryService() {
+        return contextManagerFactoryService;
+    }
+
+    public EPStatementFactory getEpStatementFactory() {
+        return epStatementFactory;
+    }
+
+    public RegexHandlerFactory getRegexHandlerFactory() {
+        return regexHandlerFactory;
     }
 }

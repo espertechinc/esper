@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class EventTypeIndexBuilder
 {
-    private final Map<FilterHandle, EventTypeIndexBuilderValueIndexesPair> callbacks;
+    private final Map<FilterHandle, EventTypeIndexBuilderValueIndexesPair> isolatableCallbacks;
     private final Lock callbacksLock;
     private final EventTypeIndex eventTypeIndex;
 
@@ -30,12 +31,17 @@ public class EventTypeIndexBuilder
      * Constructor - takes the event type index to manipulate as its parameter.
      * @param eventTypeIndex - index to manipulate
      */
-    public EventTypeIndexBuilder(EventTypeIndex eventTypeIndex)
+    public EventTypeIndexBuilder(EventTypeIndex eventTypeIndex, boolean allowIsolation)
     {
         this.eventTypeIndex = eventTypeIndex;
-
-        this.callbacks = new HashMap<FilterHandle, EventTypeIndexBuilderValueIndexesPair>();
         this.callbacksLock = new ReentrantLock();
+
+        if (allowIsolation) {
+            this.isolatableCallbacks = new HashMap<FilterHandle, EventTypeIndexBuilderValueIndexesPair>();
+        }
+        else {
+            this.isolatableCallbacks = null;
+        }
     }
 
     /**
@@ -43,7 +49,10 @@ public class EventTypeIndexBuilder
      */
     public void destroy()
     {
-        callbacks.clear();
+        eventTypeIndex.destroy();
+        if (isolatableCallbacks != null) {
+            isolatableCallbacks.clear();
+        }
     }
 
     /**
@@ -52,7 +61,7 @@ public class EventTypeIndexBuilder
      * @param filterValueSet is the filter information
      * @param filterCallback is the callback
      */
-    public final void add(FilterValueSet filterValueSet, FilterHandle filterCallback, FilterServiceGranularLockFactory lockFactory)
+    public final FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle filterCallback, FilterServiceGranularLockFactory lockFactory)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterAdd(filterValueSet, filterCallback);}
         EventType eventType = filterValueSet.getEventType();
@@ -79,20 +88,6 @@ public class EventTypeIndexBuilder
             }
         }
 
-        // Make sure the filter callback doesn't already exist
-        callbacksLock.lock();
-        try
-        {
-            if (callbacks.containsKey(filterCallback))
-            {
-                throw new IllegalStateException("Callback for filter specification already exists in collection");
-            }
-        }
-        finally
-        {
-            callbacksLock.unlock();
-        }
-
         // Now add to tree
         ArrayDeque<EventTypeIndexBuilderIndexLookupablePair>[] path = IndexTreeBuilder.add(filterValueSet, filterCallback, rootNode, lockFactory);
         EventTypeIndexBuilderIndexLookupablePair[][] pathArray = new EventTypeIndexBuilderIndexLookupablePair[path.length][];
@@ -101,41 +96,49 @@ public class EventTypeIndexBuilder
         }
         EventTypeIndexBuilderValueIndexesPair pair = new EventTypeIndexBuilderValueIndexesPair(filterValueSet, pathArray);
 
-        callbacksLock.lock();
-        try
-        {
-            callbacks.put(filterCallback, pair);
+        // for non-isolatable callbacks the consumer keeps track of tree location
+        if (isolatableCallbacks == null) {
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterAdd(); }
+            return pair;
         }
-        finally
-        {
+
+        // for isolatable callbacks this class is keeping track of tree location
+        callbacksLock.lock();
+        try {
+            isolatableCallbacks.put(filterCallback, pair);
+        }
+        finally {
             callbacksLock.unlock();
         }
+
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterAdd();}
+        return null;
     }
 
     /**
      * Remove a filter callback from the given index node.
      * @param filterCallback is the callback to remove
      */
-    public final void remove(FilterHandle filterCallback)
+    public final void remove(FilterHandle filterCallback, FilterServiceEntry filterServiceEntry)
     {
-        EventTypeIndexBuilderValueIndexesPair pair = null;
-        callbacksLock.lock();
-        try
-        {
-            pair = callbacks.get(filterCallback);
+        EventTypeIndexBuilderValueIndexesPair pair;
+        if (isolatableCallbacks != null) {
+            callbacksLock.lock();
+            try {
+                pair = isolatableCallbacks.remove(filterCallback);
+            }
+            finally {
+                callbacksLock.unlock();
+            }
+            if (pair == null) {
+                return;
+            }
         }
-        finally
-        {
-            callbacksLock.unlock();
+        else {
+            pair = (EventTypeIndexBuilderValueIndexesPair) filterServiceEntry;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterRemove(filterCallback, pair);}
 
-        if (pair == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterRemove();}
-            return;
-        }
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterRemove(filterCallback, pair);}
 
         EventType eventType = pair.getFilterValueSet().getEventType();
         FilterHandleSetNode rootNode = eventTypeIndex.get(eventType);
@@ -147,16 +150,6 @@ public class EventTypeIndexBuilder
             }
         }
 
-        // Remove from callbacks list
-        callbacksLock.lock();
-        try
-        {
-            callbacks.remove(filterCallback);
-        }
-        finally
-        {
-            callbacksLock.unlock();
-        }
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterRemove();}
     }
 
@@ -167,11 +160,15 @@ public class EventTypeIndexBuilder
      */
     public final FilterSet take(Set<String> statementIds)
     {
+        if (isolatableCallbacks == null) {
+            throw new EPException("Operation not supported, please enable isolation in the engine configuration");
+        }
+
         List<FilterSetEntry> list = new ArrayList<FilterSetEntry>();
         callbacksLock.lock();
         try
         {
-            for (Map.Entry<FilterHandle, EventTypeIndexBuilderValueIndexesPair> entry : callbacks.entrySet())
+            for (Map.Entry<FilterHandle, EventTypeIndexBuilderValueIndexesPair> entry : isolatableCallbacks.entrySet())
             {
                 EventTypeIndexBuilderValueIndexesPair pair = entry.getValue();
                 if (statementIds.contains(entry.getKey().getStatementId()))
@@ -190,7 +187,7 @@ public class EventTypeIndexBuilder
             
             for (FilterSetEntry removed : list)
             {
-                callbacks.remove(removed.getHandle());
+                isolatableCallbacks.remove(removed.getHandle());
             }
         }
         finally
@@ -207,8 +204,7 @@ public class EventTypeIndexBuilder
      */
     public void apply(FilterSet filterSet, FilterServiceGranularLockFactory lockFactory)
     {
-        for (FilterSetEntry entry : filterSet.getFilters())
-        {
+        for (FilterSetEntry entry : filterSet.getFilters()) {
             add(entry.getFilterValueSet(), entry.getHandle(), lockFactory);
         }
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.core.service.resource;
 
 import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.mgr.ContextStatePathKey;
+import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.view.Viewable;
@@ -54,13 +55,13 @@ public class StatementResourceService {
 
     public void startContextPartition(StatementAgentInstanceFactoryResult startResult, int agentInstanceId) {
 
-        StatementAgentInstanceLock lock = startResult.getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();
+        EPStatementAgentInstanceHandle handle = startResult.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
         StatementResourceHolder recoveryResources = null;
 
         if (startResult instanceof StatementAgentInstanceFactorySelectResult) {
             StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) startResult;
             recoveryResources = new StatementResourceHolder(
-                    lock,
+                    handle,
                     selectResult.getTopViews(),
                     selectResult.getEventStreamViewables(),
                     selectResult.getPatternRoots(),
@@ -71,19 +72,19 @@ public class StatementResourceService {
 
         if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
             StatementAgentInstanceFactoryCreateWindowResult createResult = (StatementAgentInstanceFactoryCreateWindowResult) startResult;
-            recoveryResources = new StatementResourceHolder(lock,new Viewable[] {createResult.getTopView()}, null,
+            recoveryResources = new StatementResourceHolder(handle,new Viewable[] {createResult.getTopView()}, null,
                     null, null, null, createResult.getPostLoad());
         }
 
         if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
             StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
-            recoveryResources = new StatementResourceHolder(lock,new Viewable[] {createResult.getFinalView()}, null,
+            recoveryResources = new StatementResourceHolder(handle,new Viewable[] {createResult.getFinalView()}, null,
                     null, createResult.getOptionalAggegationService(), null, null);
         }
 
         if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
             StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
-            recoveryResources = new StatementResourceHolder(lock, null, null,
+            recoveryResources = new StatementResourceHolder(handle, null, null,
                     new EvalRootState[] {onTriggerResult.getOptPatternRoot()},
                     onTriggerResult.getOptionalAggegationService(), onTriggerResult.getSubselectStrategies(), null);
         }

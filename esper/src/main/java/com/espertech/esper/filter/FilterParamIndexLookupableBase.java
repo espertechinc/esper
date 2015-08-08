@@ -42,7 +42,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * @param filterConstant is the constant supplied in the event filter parameter
      * @return event evaluator stored for the filter constant, or null if not found
      */
-    protected abstract EventEvaluator get(Object filterConstant);
+    public abstract EventEvaluator get(Object filterConstant);
 
     /**
      * Store the event evaluation instance for the given constant. Can override an existing value
@@ -52,7 +52,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * @param filterConstant is the constant supplied in the filter parameter
      * @param evaluator to be stored for the constant
      */
-    protected abstract void put(Object filterConstant, EventEvaluator evaluator);
+    public abstract void put(Object filterConstant, EventEvaluator evaluator);
 
     /**
      * Remove the event evaluation instance for the given constant. Returns true if
@@ -62,7 +62,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * @param filterConstant is the value supplied in the filter paremeter
      * @return true if found and removed, false if not found
      */
-    protected abstract boolean remove(Object filterConstant);
+    public abstract boolean remove(Object filterConstant);
 
     /**
      * Return the number of distinct filter parameter constants stored.
@@ -70,13 +70,13 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
      * @return Number of entries in index
      */
-    protected abstract int size();
+    public abstract int size();
 
     /**
      * Supplies the lock for protected access.
      * @return lock
      */
-    protected abstract ReadWriteLock getReadWriteLock();
+    public abstract ReadWriteLock getReadWriteLock();
 
     public final String toString()
     {

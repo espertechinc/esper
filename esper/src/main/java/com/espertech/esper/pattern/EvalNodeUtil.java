@@ -75,17 +75,17 @@ public class EvalNodeUtil
     }
 
     public static EvalRootNode makeRootNodeFromFactory(EvalRootFactoryNode rootFactoryNode, PatternAgentInstanceContext patternAgentInstanceContext) {
-        return (EvalRootNode) rootFactoryNode.makeEvalNode(patternAgentInstanceContext);
+        return (EvalRootNode) rootFactoryNode.makeEvalNode(patternAgentInstanceContext, null);
     }
 
-    public static EvalNode makeEvalNodeSingleChild(List<EvalFactoryNode> childNodes, PatternAgentInstanceContext agentInstanceContext) {
-        return childNodes.get(0).makeEvalNode(agentInstanceContext);
+    public static EvalNode makeEvalNodeSingleChild(List<EvalFactoryNode> childNodes, PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
+        return childNodes.get(0).makeEvalNode(agentInstanceContext, parentNode);
     }
 
-    public static EvalNode[] makeEvalNodeChildren(List<EvalFactoryNode> childNodes, PatternAgentInstanceContext agentInstanceContext) {
+    public static EvalNode[] makeEvalNodeChildren(List<EvalFactoryNode> childNodes, PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
         EvalNode[] children = new EvalNode[childNodes.size()];
         for (int i = 0; i < childNodes.size(); i++) {
-            children[i] = childNodes.get(i).makeEvalNode(agentInstanceContext);
+            children[i] = childNodes.get(i).makeEvalNode(agentInstanceContext, parentNode);
         }
         return children;
     }

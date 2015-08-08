@@ -120,7 +120,7 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryDistinctEvaluateTrue(everyDistinctNode, matchEvent);}
 
         // determine if this evaluation has been seen before from the same node
-        Object matchEventKey = PatternExpressionUtil.getKeys(matchEvent, everyDistinctNode);
+        Object matchEventKey = PatternExpressionUtil.getKeys(matchEvent, everyDistinctNode.getFactoryNode().getConvertor(), everyDistinctNode.getFactoryNode().getDistinctExpressionsArray(), everyDistinctNode.getContext().getAgentInstanceContext());
         boolean haveSeenThis = false;
         Set<Object> keysFromNode = spawnedNodes.get(fromNode);
         if (keysFromNode != null)

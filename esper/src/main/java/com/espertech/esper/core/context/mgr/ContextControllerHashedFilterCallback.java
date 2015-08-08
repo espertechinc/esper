@@ -17,10 +17,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.epl.spec.ContextDetailHashItem;
-import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.filter.FilterService;
-import com.espertech.esper.filter.FilterValueSet;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filter.*;
 
 import java.util.Collection;
 
@@ -30,6 +27,7 @@ public class ContextControllerHashedFilterCallback implements FilterHandleCallba
     private final EventPropertyGetter getter;
     private final ContextControllerHashedInstanceCallback callback;
     private final EPStatementHandleCallback filterHandle;
+    private final FilterServiceEntry filterServiceEntry;
 
     public ContextControllerHashedFilterCallback(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreateContext, ContextDetailHashItem hashItem, ContextControllerHashedInstanceCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.agentInstanceContextCreateContext = agentInstanceContextCreateContext;
@@ -40,7 +38,7 @@ public class ContextControllerHashedFilterCallback implements FilterHandleCallba
 
         FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(hashItem.getFilterSpecCompiled()) : null;
         FilterValueSet filterValueSet = hashItem.getFilterSpecCompiled().getValueSet(null, null, addendum);
-        servicesContext.getFilterService().add(filterValueSet, filterHandle);
+        filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
@@ -59,7 +57,7 @@ public class ContextControllerHashedFilterCallback implements FilterHandleCallba
     }
 
     public void destroy(FilterService filterService) {
-        filterService.remove(filterHandle);
+        filterService.remove(filterHandle, filterServiceEntry);
         long filtersVersion = agentInstanceContextCreateContext.getStatementContext().getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }

@@ -15,8 +15,8 @@ import com.espertech.esper.epl.variable.VariableService;
 
 public class ExprNodeAdapterMultiStreamNoTLStmtLock extends ExprNodeAdapterMultiStreamNoTL
 {
-    public ExprNodeAdapterMultiStreamNoTLStmtLock(String statementName, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
-        super(statementName, exprNode, evaluatorContext, variableService, prototype);
+    public ExprNodeAdapterMultiStreamNoTLStmtLock(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
+        super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService, prototype);
     }
 
     @Override

@@ -16,10 +16,7 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.filter.FilterService;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterValueSet;
+import com.espertech.esper.filter.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.EventStream;
 import com.espertech.esper.view.ZeroDepthStreamIterable;
@@ -60,10 +57,10 @@ public class StreamFactorySvcImpl implements StreamFactoryService
 
     // Using identify hash map - ignoring the equals semantics on filter specs
     // Thus two filter specs objects are always separate entries in the map
-    private final IdentityHashMap<Object, Pair<EventStream, EPStatementHandleCallback>> eventStreamsIdentity;
+    private final IdentityHashMap<Object, StreamEntry> eventStreamsIdentity;
 
     // Using a reference-counted map for non-join statements
-    private final RefCountedMap<FilterSpecCompiled, Pair<EventStream, EPStatementHandleCallback>> eventStreamsRefCounted;
+    private final RefCountedMap<FilterSpecCompiled, StreamEntry> eventStreamsRefCounted;
 
     private final String engineURI;
     private final boolean isReuseViews;
@@ -75,8 +72,8 @@ public class StreamFactorySvcImpl implements StreamFactoryService
     public StreamFactorySvcImpl(String engineURI, boolean isReuseViews)
     {
         this.engineURI = engineURI;
-        this.eventStreamsRefCounted = new RefCountedMap<FilterSpecCompiled, Pair<EventStream, EPStatementHandleCallback>>();
-        this.eventStreamsIdentity = new IdentityHashMap<Object, Pair<EventStream, EPStatementHandleCallback>>();
+        this.eventStreamsRefCounted = new RefCountedMap<FilterSpecCompiled, StreamEntry>();
+        this.eventStreamsIdentity = new IdentityHashMap<Object, StreamEntry>();
         this.isReuseViews = isReuseViews;
     }
 
@@ -114,19 +111,19 @@ public class StreamFactorySvcImpl implements StreamFactoryService
         }
 
         // Check if a stream for this filter already exists
-        Pair<EventStream, EPStatementHandleCallback> pair;
+        StreamEntry entry;
         boolean forceNewStream = isJoin || (!isReuseViews) || hasOrderBy || filterWithSameTypeSubselect || stateless;
         if (forceNewStream)
         {
-            pair = eventStreamsIdentity.get(filterSpec);
+            entry = eventStreamsIdentity.get(filterSpec);
         }
         else
         {
-            pair = eventStreamsRefCounted.get(filterSpec);
+            entry = eventStreamsRefCounted.get(filterSpec);
         }
 
         // If pair exists, either reference count or illegal state
-        if (pair != null)
+        if (entry != null)
         {
             if (forceNewStream)
             {
@@ -138,10 +135,10 @@ public class StreamFactorySvcImpl implements StreamFactoryService
                 eventStreamsRefCounted.reference(filterSpec);
 
                 // audit proxy
-                EventStream eventStream = EventStreamProxy.getAuditProxy(engineURI, epStatementAgentInstanceHandle.getStatementHandle().getStatementName(), annotations, filterSpec, pair.getFirst());
+                EventStream eventStream = EventStreamProxy.getAuditProxy(engineURI, epStatementAgentInstanceHandle.getStatementHandle().getStatementName(), annotations, filterSpec, entry.getEventStream());
 
                 // We return the lock of the statement first establishing the stream to use that as the new statement's lock
-                return new Pair<EventStream, StatementAgentInstanceLock>(eventStream, pair.getSecond().getAgentInstanceHandle().getStatementAgentInstanceLock());
+                return new Pair<EventStream, StatementAgentInstanceLock>(eventStream, entry.getCallback().getAgentInstanceHandle().getStatementAgentInstanceLock());
             }
         }
 
@@ -207,19 +204,20 @@ public class StreamFactorySvcImpl implements StreamFactoryService
         EPStatementHandleCallback handle = new EPStatementHandleCallback(epStatementAgentInstanceHandle, filterCallback);
 
         // Store stream for reuse
-        pair = new Pair<EventStream, EPStatementHandleCallback>(eventStream, handle);
+        entry = new StreamEntry(eventStream, handle);
         if (forceNewStream)
         {
-            eventStreamsIdentity.put(filterSpec, pair);
+            eventStreamsIdentity.put(filterSpec, entry);
         }
         else
         {
-            eventStreamsRefCounted.put(filterSpec, pair);
+            eventStreamsRefCounted.put(filterSpec, entry);
         }
 
         // Activate filter
         FilterValueSet filterValues = filterSpec.getValueSet(null, exprEvaluatorContext, null);
-        filterService.add(filterValues, handle);
+        FilterServiceEntry filterServiceEntry = filterService.add(filterValues, handle);
+        entry.setFilterServiceEntry(filterServiceEntry);
 
         return new Pair<EventStream, StatementAgentInstanceLock>(inputStream, null);
     }
@@ -230,27 +228,54 @@ public class StreamFactorySvcImpl implements StreamFactoryService
      */
     public void dropStream(FilterSpecCompiled filterSpec, FilterService filterService, boolean isJoin, boolean hasOrderBy, boolean filterWithSameTypeSubselect, boolean stateless)
     {
-        Pair<EventStream, EPStatementHandleCallback> pair;
+        StreamEntry entry;
         boolean forceNewStream = isJoin || (!isReuseViews) || hasOrderBy || filterWithSameTypeSubselect || stateless;
 
         if (forceNewStream)
         {
-            pair = eventStreamsIdentity.get(filterSpec);
-            if (pair == null)
+            entry = eventStreamsIdentity.get(filterSpec);
+            if (entry == null)
             {
                 throw new IllegalStateException("Filter spec object not in collection");
             }
             eventStreamsIdentity.remove(filterSpec);
-            filterService.remove(pair.getSecond());
+            filterService.remove(entry.getCallback(), entry.getFilterServiceEntry());
         }
         else
         {
-            pair = eventStreamsRefCounted.get(filterSpec);
+            entry = eventStreamsRefCounted.get(filterSpec);
             boolean isLast = eventStreamsRefCounted.dereference(filterSpec);
             if (isLast)
             {
-                filterService.remove(pair.getSecond());
+                filterService.remove(entry.getCallback(), entry.getFilterServiceEntry());
             }
+        }
+    }
+
+    private final static class StreamEntry {
+        private final EventStream eventStream;
+        private final EPStatementHandleCallback callback;
+        private FilterServiceEntry filterServiceEntry;
+
+        public StreamEntry(EventStream eventStream, EPStatementHandleCallback callback) {
+            this.eventStream = eventStream;
+            this.callback = callback;
+        }
+
+        public EventStream getEventStream() {
+            return eventStream;
+        }
+
+        public EPStatementHandleCallback getCallback() {
+            return callback;
+        }
+
+        public void setFilterServiceEntry(FilterServiceEntry filterServiceEntry) {
+            this.filterServiceEntry = filterServiceEntry;
+        }
+
+        public FilterServiceEntry getFilterServiceEntry() {
+            return filterServiceEntry;
         }
     }
 }

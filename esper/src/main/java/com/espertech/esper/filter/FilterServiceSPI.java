@@ -46,4 +46,9 @@ public interface FilterServiceSPI extends FilterService
 
     public void acquireWriteLock();
     public void releaseWriteLock();
+
+    /**
+     * Initialization is optional and provides a chance to preload things after statements are available.
+     */
+    public void init();
 }

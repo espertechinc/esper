@@ -19,8 +19,8 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
 {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public FilterServiceLockCoarse() {
-        super(new FilterServiceGranularLockFactoryNone());
+    public FilterServiceLockCoarse(boolean allowIsolation) {
+        super(new FilterServiceGranularLockFactoryNone(), allowIsolation);
     }
 
     public void acquireWriteLock() {
@@ -71,20 +71,20 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         }
     }
 
-    public void add(FilterValueSet filterValueSet, FilterHandle callback) {
+    public FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle callback) {
         lock.writeLock().lock();
         try {
-            super.addInternal(filterValueSet, callback);
+            return super.addInternal(filterValueSet, callback);
         }
         finally {
             lock.writeLock().unlock();
         }
     }
 
-    public void remove(FilterHandle callback) {
+    public void remove(FilterHandle callback, FilterServiceEntry filterServiceEntry) {
         lock.writeLock().lock();
         try {
-            super.removeInternal(callback);
+            super.removeInternal(callback, filterServiceEntry);
         }
         finally {
             lock.writeLock().unlock();

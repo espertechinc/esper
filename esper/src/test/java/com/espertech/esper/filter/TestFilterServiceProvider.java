@@ -18,8 +18,8 @@ public class TestFilterServiceProvider extends TestCase
 {
     public void testGetService()
     {
-        FilterService serviceOne = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY);
-        FilterService serviceTwo = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY);
+        FilterService serviceOne = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, false);
+        FilterService serviceTwo = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, false);
 
         assertTrue(serviceOne != null);
         assertTrue(serviceOne != serviceTwo);

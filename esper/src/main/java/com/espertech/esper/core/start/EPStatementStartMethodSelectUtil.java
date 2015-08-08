@@ -271,7 +271,7 @@ public class EPStatementStartMethodSelectUtil
                 throw new ExprValidationException("Tables cannot be used with match-recognize");
             }
             boolean isUnbound = (unmaterializedViewChain[0].getViewFactoryChain().isEmpty()) && (!(statementSpec.getStreamSpecs()[0] instanceof NamedWindowConsumerStreamSpec));
-            EventRowRegexNFAViewFactory factory = new EventRowRegexNFAViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations(), services.getConfigSnapshot().getEngineDefaults().getMatchRecognize());
+            EventRowRegexNFAViewFactory factory = services.getRegexHandlerFactory().makeViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations(), services.getConfigSnapshot().getEngineDefaults().getMatchRecognize());
             unmaterializedViewChain[0].getViewFactoryChain().add(factory);
 
             EPStatementStartMethodHelperAssignExpr.assignAggregations(factory.getAggregationService(), factory.getAggregationExpressions());
@@ -351,7 +351,7 @@ public class EPStatementStartMethodSelectUtil
         OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService());
 
         // Factory for statement-context instances
-        StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(
+        StatementAgentInstanceFactorySelect factory = services.getStmtAgentInstanceFactoryFactorySvc().makeFactorySelect(
                 numStreams, eventStreamParentViewableActivators,
                 statementContext, statementSpec, services,
                 typeService, unmaterializedViewChain, resultSetProcessorPrototypeDesc, joinAnalysisResult, recoveringResilient,

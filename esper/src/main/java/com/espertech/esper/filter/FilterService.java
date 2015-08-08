@@ -51,13 +51,13 @@ public interface FilterService
      * event type information, event property values and operators
      * @param callback is the callback to be invoked when the filter matches an event
      */
-    public void add(FilterValueSet filterValueSet, FilterHandle callback);
+    public FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle callback);
 
     /**
      * Remove a filter callback.
      * @param callback is the callback to be removed
      */
-    public void remove(FilterHandle callback);
+    public void remove(FilterHandle callback, FilterServiceEntry filterServiceEntry);
 
     /**
      * Return a count of the number of events evaluated by this service.

@@ -27,10 +27,7 @@ import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiler;
-import com.espertech.esper.filter.FilterValueSet;
+import com.espertech.esper.filter.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +50,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
     private EventType eventType;
     private AgentInstanceContext agentInstanceContext;
     private EPStatementHandleCallback callbackHandle;
+    private FilterServiceEntry filterServiceEntry;
     private LinkedBlockingDeque<Object> emittables = new LinkedBlockingDeque<Object>();
     private boolean submitEventBean;
 
@@ -131,13 +129,14 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
 
         EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getAgentInstanceLock(), 0, new StatementAgentInstanceFilterVersion());
         callbackHandle = new EPStatementHandleCallback(handle, this);
-        agentInstanceContext.getStatementContext().getFilterService().add(valueSet, callbackHandle);
+        filterServiceEntry = agentInstanceContext.getStatementContext().getFilterService().add(valueSet, callbackHandle);
     }
 
     public synchronized void close(DataFlowOpCloseContext openContext) {
         if (callbackHandle != null) {
-            agentInstanceContext.getStatementContext().getFilterService().remove(callbackHandle);
+            agentInstanceContext.getStatementContext().getFilterService().remove(callbackHandle, filterServiceEntry);
             callbackHandle = null;
+            filterServiceEntry = null;
         }
     }
 }

@@ -8,10 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
-import com.espertech.esper.core.context.mgr.ContextStatePathKey;
 import com.espertech.esper.core.service.resource.StatementResourceService;
-import com.espertech.esper.pattern.EvalRootState;
 
 /**
  * Statement-level extension services.

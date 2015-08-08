@@ -9,14 +9,15 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.view.ViewService;
 
 import java.net.URI;
@@ -37,8 +38,10 @@ public final class StatementContextEngineServices
     private final ExpressionResultCacheService expressionResultCacheService;
     private final StatementEventTypeRef statementEventTypeRef;
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
+    private final ExtensionServicesContext extensionServicesContext;
+    private final RegexHandlerFactory regexHandlerFactory;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowService namedWindowService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowService namedWindowService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, ExtensionServicesContext extensionServicesContext, RegexHandlerFactory regexHandlerFactory) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowService = namedWindowService;
@@ -53,6 +56,8 @@ public final class StatementContextEngineServices
         this.expressionResultCacheService = expressionResultCacheService;
         this.statementEventTypeRef = statementEventTypeRef;
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
+        this.extensionServicesContext = extensionServicesContext;
+        this.regexHandlerFactory = regexHandlerFactory;
     }
 
     public String getEngineURI() {
@@ -109,5 +114,13 @@ public final class StatementContextEngineServices
 
     public TableExprEvaluatorContext getTableExprEvaluatorContext() {
         return tableExprEvaluatorContext;
+    }
+
+    public ExtensionServicesContext getExtensionServicesContext() {
+        return extensionServicesContext;
+    }
+
+    public RegexHandlerFactory getRegexHandlerFactory() {
+        return regexHandlerFactory;
     }
 }

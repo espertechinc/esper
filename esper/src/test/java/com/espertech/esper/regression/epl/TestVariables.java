@@ -44,6 +44,7 @@ public class TestVariables extends TestCase
         Configuration config = SupportConfigFactory.getConfiguration();
         config.getEngineDefaults().getViewResources().setIterableUnbound(true);
         config.addVariable("MYCONST_THREE", "boolean", true, true);
+        config.getEngineDefaults().getExecution().setAllowIsolatedService(true);
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}

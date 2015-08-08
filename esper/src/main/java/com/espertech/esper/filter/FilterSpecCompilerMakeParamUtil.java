@@ -179,6 +179,9 @@ public final class FilterSpecCompilerMakeParamUtil
         {
             ExprConstantNode node = (ExprConstantNode) endpoint;
             Object value = node.getConstantValue(exprEvaluatorContext);
+            if (value == null) {
+                return null;
+            }
             if (value instanceof String) {
                 return new RangeValueString((String)value);
             }

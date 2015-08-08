@@ -40,11 +40,11 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
         this.expressions = expressions;
     }
 
-    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext) {
+    public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
         if (distinctExpressionsArray == null) {
             distinctExpressionsArray = ExprNodeUtility.getEvaluators(distinctExpressions);
         }
-        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext);
+        EvalNode child = EvalNodeUtil.makeEvalNodeSingleChild(this.getChildNodes(), agentInstanceContext, parentNode);
         return new EvalEveryDistinctNode(this, child, agentInstanceContext);
     }
 

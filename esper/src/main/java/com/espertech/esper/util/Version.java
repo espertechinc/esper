@@ -12,5 +12,5 @@
 package com.espertech.esper.util;
 
 public class Version {
-    public static final String VERSION = "5.2.0";
+    public static final String VERSION = "5.3.0";
 }

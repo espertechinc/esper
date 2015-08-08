@@ -86,6 +86,8 @@ public interface Instrumentation {
     void aRegEx(RegexPartitionState partitionState, List<RegexNFAStateEntry> endStates, List<RegexNFAStateEntry> terminationStates);
     void qRegExState(RegexNFAStateEntry currentState, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
     void aRegExState(List<RegexNFAStateEntry> next, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
+    void qRegExStateStart(LinkedHashMap<String, Pair<Integer,Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
+    void aRegExStateStart(List<RegexNFAStateEntry> nextStates, LinkedHashMap<String, Pair<Integer,Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
     void qRegExPartition(ExprNode[] partitionExpressionNodes);
     void aRegExPartition(boolean exists, RegexPartitionState state);
     void qRegIntervalValue(ExprNode exprNode);

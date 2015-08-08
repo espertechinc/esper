@@ -43,7 +43,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * code.
      * @return true if there are neither indizes nor filter callbacks stored, false if either exist.
      */
-    protected boolean isEmpty()
+    public boolean isEmpty()
     {
         return callbackSet.isEmpty() && indizes.isEmpty();
     }
@@ -54,7 +54,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * code.
      * @return number of filter callbacks stored
      */
-    protected int getFilterCallbackCount()
+    public int getFilterCallbackCount()
     {
         return callbackSet.size();
     }
@@ -63,7 +63,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Returns to lock to use for making changes to the filter callback or inzides collections stored by this node.
      * @return lock to use in multithreaded environment
      */
-    protected final ReadWriteLock getNodeRWLock()
+    public final ReadWriteLock getNodeRWLock()
     {
         return nodeRWLock;
     }
@@ -129,7 +129,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * @param filterCallback is the filter callback to check for
      * @return true if callback found, false if not
      */
-    protected boolean contains(FilterHandle filterCallback)
+    public boolean contains(FilterHandle filterCallback)
     {
         return callbackSet.contains(filterCallback);
     }
@@ -140,7 +140,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * code.
      * @param index - index to add
      */
-    protected final void add(FilterParamIndexBase index)
+    public final void add(FilterParamIndexBase index)
     {
         indizes.add(index);
     }
@@ -152,7 +152,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * @param index is the index to remove
      * @return true if found, false if not existing
      */
-    protected final boolean remove(FilterParamIndexBase index)
+    public final boolean remove(FilterParamIndexBase index)
     {
         return indizes.remove(index);
     }
@@ -164,7 +164,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * code.
      * @param filterCallback is the callback to add
      */
-    protected final void add(FilterHandle filterCallback)
+    public final void add(FilterHandle filterCallback)
     {
         callbackSet.add(filterCallback);
     }
@@ -176,7 +176,7 @@ public final class FilterHandleSetNode implements EventEvaluator
      * @param filterCallback is the callback to remove
      * @return true if found, false if not existing
      */
-    protected final boolean remove(FilterHandle filterCallback)
+    public final boolean remove(FilterHandle filterCallback)
     {
         return callbackSet.remove(filterCallback);
     }

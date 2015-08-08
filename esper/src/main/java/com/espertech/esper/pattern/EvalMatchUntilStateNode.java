@@ -209,7 +209,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternMatchUntilEvaluateTrue(stateMatcher == null && stateUntil == null);}
     }
 
-    private static MatchedEventMap consolidate(MatchedEventMap beginState, ArrayList<EventBean>[] matchedEventList, int[] tagsArrayed)
+    public static MatchedEventMap consolidate(MatchedEventMap beginState, ArrayList<EventBean>[] matchedEventList, int[] tagsArrayed)
     {
         if (tagsArrayed == null)
         {

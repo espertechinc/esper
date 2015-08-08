@@ -18,10 +18,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
-import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.filter.FilterService;
-import com.espertech.esper.filter.FilterValueSet;
-import com.espertech.esper.filter.FilterValueSetParam;
+import com.espertech.esper.filter.*;
 
 import java.util.Collection;
 
@@ -31,6 +28,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
     private final EventPropertyGetter[] getters;
     private final ContextControllerPartitionedInstanceCreateCallback callback;
     private final EPStatementHandleCallback filterHandle;
+    private final FilterServiceEntry filterServiceEntry;
 
     public ContextControllerPartitionedFilterCallback(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreateContext, ContextDetailPartitionItem partitionItem, ContextControllerPartitionedInstanceCreateCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.agentInstanceContextCreateContext = agentInstanceContextCreateContext;
@@ -47,7 +45,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
 
         FilterValueSetParam[][] addendum = filterAddendum != null ? filterAddendum.getFilterAddendum(partitionItem.getFilterSpecCompiled()) : null;
         FilterValueSet filterValueSet = partitionItem.getFilterSpecCompiled().getValueSet(null, null, addendum);
-        servicesContext.getFilterService().add(filterValueSet, filterHandle);
+        filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
@@ -77,7 +75,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
     }
 
     public void destroy(FilterService filterService) {
-        filterService.remove(filterHandle);
+        filterService.remove(filterHandle, filterServiceEntry);
         long filtersVersion = agentInstanceContextCreateContext.getStatementContext().getFilterService().getFiltersVersion();
         agentInstanceContextCreateContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }

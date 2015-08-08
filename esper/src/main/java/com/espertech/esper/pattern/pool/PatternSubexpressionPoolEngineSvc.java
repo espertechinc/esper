@@ -12,7 +12,8 @@
 package com.espertech.esper.pattern.pool;
 
 import com.espertech.esper.client.hook.ConditionPatternEngineSubexpressionMax;
-import com.espertech.esper.pattern.EvalFollowedByNode;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.pattern.EvalNode;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,17 +59,17 @@ public class PatternSubexpressionPoolEngineSvc {
         patternContexts.removeAll(removed);
     }
 
-    public boolean tryIncreaseCount(EvalFollowedByNode evalFollowedByNode) {
+    public boolean tryIncreaseCount(EvalNode evalNode, AgentInstanceContext agentInstanceContext) {
 
         // test pool max
         long newMax = poolCount.incrementAndGet();
         if (newMax > maxPoolCountConfigured && maxPoolCountConfigured >= 0) {
             Map<String, Long> counts = getCounts();
-            evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getExceptionHandlingService().handleCondition(new ConditionPatternEngineSubexpressionMax(maxPoolCountConfigured, counts), evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getEpStatementHandle());
+            agentInstanceContext.getStatementContext().getExceptionHandlingService().handleCondition(new ConditionPatternEngineSubexpressionMax(maxPoolCountConfigured, counts), agentInstanceContext.getStatementContext().getEpStatementHandle());
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled)))
             {
-                PatternSubexpressionPoolStmtHandler stmtHandler = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
-                String stmtName = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getStatementName();
+                PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
+                String stmtName = agentInstanceContext.getStatementContext().getStatementName();
                 log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count overflow at " + newMax + " statement count was " + stmtHandler.getCount() + " preventStart=" + preventStart);
             }
 
@@ -82,31 +83,31 @@ public class PatternSubexpressionPoolEngineSvc {
         }
         if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
         {
-            PatternSubexpressionPoolStmtHandler stmtHandler = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
-            String stmtName = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getStatementName();
+            PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
+            String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count increases to " + newMax + " statement count was " + stmtHandler.getCount());
         }
         return true;
     }
 
     // Relevant for recovery of state
-    public void forceIncreaseCount(EvalFollowedByNode evalFollowedByNode) {
+    public void forceIncreaseCount(EvalNode evalNode, AgentInstanceContext agentInstanceContext) {
 
         long newMax = poolCount.incrementAndGet();
         if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
         {
-            PatternSubexpressionPoolStmtHandler stmtHandler = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
-            String stmtName = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getStatementName();
+            PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
+            String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".forceIncreaseCount For statement '" + stmtName + "' pool count increases to " + newMax + " statement count was " + stmtHandler.getCount());
         }
     }
 
-    public void decreaseCount(EvalFollowedByNode evalFollowedByNode) {
+    public void decreaseCount(EvalNode evalNode, AgentInstanceContext agentInstanceContext) {
         long newMax = poolCount.decrementAndGet();
         if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
         {
-            PatternSubexpressionPoolStmtHandler stmtHandler = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
-            String stmtName = evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getStatementName();
+            PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
+            String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".decreaseCount For statement '" + stmtName + "' pool count decreases to " + newMax + " statement count was " + stmtHandler.getCount());
         }
     }

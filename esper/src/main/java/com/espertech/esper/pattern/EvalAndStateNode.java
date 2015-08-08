@@ -137,33 +137,41 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
             return;
         }
 
-        // Add the event received to the list of events per child
-        addMatchEvent(eventsPerChild, indexFrom, matchEvent);
-
         // If all nodes have events received, the AND expression turns true
-        boolean allHaveEvents = true;
+        boolean allHaveEventsExcludingFromChild = true;
         for (int i = 0; i < eventsPerChild.length; i++) {
-            if (eventsPerChild[i] == null) {
-                allHaveEvents = false;
+            if (indexFrom != i && eventsPerChild[i] == null) {
+                allHaveEventsExcludingFromChild = false;
                 break;
             }
         }
-        if (!allHaveEvents)
-        {
+
+        // if we don't have events from all child nodes, add event and done
+        if (!allHaveEventsExcludingFromChild) {
+            addMatchEvent(eventsPerChild, indexFrom, matchEvent);
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndEvaluateTrue(false);}
             return;
         }
 
-        // For each combination in eventsPerChild for all other state nodes generate an event to the parent
-        List<MatchedEventMap> result = generateMatchEvents(matchEvent, eventsPerChild, indexFrom);
-
+        // if all other nodes have quit other then the from-node, don't retain matching event
+        boolean allOtherNodesQuit = true;
         boolean hasActive = false;
-        for (int i = 0 ; i < activeChildNodes.length; i++) {
+        for (int i = 0; i < eventsPerChild.length; i++) {
             if (activeChildNodes[i] != null) {
                 hasActive = true;
-                break;
+                if (i != indexFrom) {
+                    allOtherNodesQuit = false;
+                }
             }
         }
+
+        // if not all other nodes have quit, add event to received list
+        if (!allOtherNodesQuit) {
+            addMatchEvent(eventsPerChild, indexFrom, matchEvent);
+        }
+
+        // For each combination in eventsPerChild for all other state nodes generate an event to the parent
+        List<MatchedEventMap> result = generateMatchEvents(matchEvent, eventsPerChild, indexFrom);
 
         // Check if this is quitting
         boolean quitted = true;
