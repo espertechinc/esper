@@ -342,7 +342,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             }
             else {
                 // remove old events from repository - and let the repository know there are no interesting events left
-                regexPartitionStateRepo.removeOld(oldData, windowMatchedEventset.isEmpty(), found);
                 int numRemoved = regexPartitionStateRepo.removeOld(oldData, windowMatchedEventset.isEmpty(), found);
 
                 if (isTrackMaxStates) {
@@ -1002,7 +1001,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
                     else
                     {
-                        if (isTrackMaxStates) {
+                        if (isTrackMaxStates && !skipTrackMaxState) {
                             MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
                             boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(agentInstanceContext);
                             if (allow) {

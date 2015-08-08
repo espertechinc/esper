@@ -198,7 +198,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         return total;
     }
 
-    private static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
+    public static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
     {
         EventBean[] eventsPerStream = meta.getEventsPerStream();
         eventsPerStream[0] = theEvent;
