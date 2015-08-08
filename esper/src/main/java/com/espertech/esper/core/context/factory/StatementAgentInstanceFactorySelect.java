@@ -210,6 +210,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             EventRowRegexNFAViewService matchRecognize = EventRowRegexHelper.recursiveFindRegexService(topViews[0]);
             if (matchRecognize != null) {
                 regexExprPreviousEvalStrategy = matchRecognize.getPreviousEvaluationStrategy();
+                stopCallbacks.add(matchRecognize);
             }
 
             // start subselects

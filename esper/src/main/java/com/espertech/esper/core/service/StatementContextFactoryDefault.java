@@ -17,7 +17,6 @@ import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerSubqueryPreevalNoDedup;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.MethodResolutionService;
@@ -31,6 +30,8 @@ import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtHandler;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtHandler;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
 import com.espertech.esper.util.JavaClassHelper;
@@ -197,6 +198,14 @@ public class StatementContextFactoryDefault implements StatementContextFactory
             engineServices.getPatternSubexpressionPoolSvc().addPatternContext(statementName, stmtCounter);
         }
 
+        boolean countMatchRecogStates = engineServices.getConfigSnapshot().getEngineDefaults().getMatchRecognize().getMaxStates() != null;
+        MatchRecognizeStatePoolStmtSvc matchRecognizeStatePoolStmtSvc = null;
+        if (countMatchRecogStates && statementSpecRaw.getMatchRecognizeSpec() != null) {
+            MatchRecognizeStatePoolStmtHandler stmtCounter = new MatchRecognizeStatePoolStmtHandler();
+            matchRecognizeStatePoolStmtSvc = new MatchRecognizeStatePoolStmtSvc(engineServices.getMatchRecognizeStatePoolEngineSvc(), stmtCounter);
+            engineServices.getMatchRecognizeStatePoolEngineSvc().addPatternContext(statementName, stmtCounter);
+        }
+
         AgentInstanceScriptContext defaultAgentInstanceScriptContext = null;
         if (statementSpecRaw.getScriptExpressions() != null && !statementSpecRaw.getScriptExpressions().isEmpty()) {
             defaultAgentInstanceScriptContext = new AgentInstanceScriptContext();
@@ -233,6 +242,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 defaultStatementAgentInstanceLock,
                 contextDescriptor,
                 patternSubexpressionPoolStmtSvc,
+                matchRecognizeStatePoolStmtSvc,
                 stateless,
                 contextControllerFactoryService,
                 defaultAgentInstanceScriptContext,

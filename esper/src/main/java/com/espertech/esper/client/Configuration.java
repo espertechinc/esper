@@ -903,6 +903,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         this.getEngineDefaults().getPatterns().setMaxSubexpressions(maxSubexpressions);
     }
 
+    public void setMatchRecognizeMaxStates(Long maxStates) {
+        this.getEngineDefaults().getMatchRecognize().setMaxStates(maxStates);
+    }
+
     /**
 	 * Use the configuration specified in an application
 	 * resource named <tt>esper.cfg.xml</tt>.

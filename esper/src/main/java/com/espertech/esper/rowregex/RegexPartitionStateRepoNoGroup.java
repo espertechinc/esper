@@ -59,20 +59,22 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         return new RegexPartitionStateRepoNoGroup(state, hasInterval);
     }
 
-    public void removeOld(EventBean[] oldEvents, boolean isEmpty, boolean[] found)
+    public int removeOld(EventBean[] oldEvents, boolean isEmpty, boolean[] found)
     {
+        int countRemoved = 0;
         if (isEmpty)
         {
+            countRemoved = singletonState.getCurrentStates().size();
             singletonState.getCurrentStates().clear();
         }
         else
         {
-            for (EventBean oldEvent : oldEvents)
-            {
-                singletonState.removeEventFromState(oldEvent);
+            for (EventBean oldEvent : oldEvents) {
+                countRemoved += singletonState.removeEventFromState(oldEvent);
             }
         }
         singletonState.removeEventFromPrev(oldEvents);
+        return countRemoved;
     }
 
     public RegexPartitionState getState(EventBean theEvent, boolean collect)
@@ -91,5 +93,9 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 
     public boolean isPartitioned() {
         return false;
+    }
+
+    public int getStateCount() {
+        return singletonState.getCurrentStates().size();
     }
 }

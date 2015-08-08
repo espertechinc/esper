@@ -40,7 +40,7 @@ public interface RegexPartitionStateRepo
      * @param isEmpty indicator if there are not matches
      * @param found indicator if any partial matches exist to be deleted
      */
-    public void removeOld(EventBean[] events, boolean isEmpty, boolean found[]);
+    public int removeOld(EventBean[] events, boolean isEmpty, boolean found[]);
 
     /**
      * Copy state for iteration.
@@ -53,4 +53,6 @@ public interface RegexPartitionStateRepo
     public void accept(EventRowRegexNFAViewServiceVisitor visitor);
 
     public boolean isPartitioned();
+
+    public int getStateCount();
 }

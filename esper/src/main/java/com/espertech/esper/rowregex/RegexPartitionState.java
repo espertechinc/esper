@@ -141,7 +141,7 @@ public class RegexPartitionState
      * @param oldEvent to remove
      * @return true for removed, false for not found
      */
-    public boolean removeEventFromState(EventBean oldEvent)
+    public int removeEventFromState(EventBean oldEvent)
     {
         List<RegexNFAStateEntry> keepList = new ArrayList<RegexNFAStateEntry>();
 
@@ -183,8 +183,9 @@ public class RegexPartitionState
             randomAccess.remove(oldEvent);
         }
 
+        int removed = currentStates.size() - keepList.size();
         currentStates = keepList;
-        return keepList.isEmpty();
+        return removed;
     }
 
     /**
@@ -229,5 +230,9 @@ public class RegexPartitionState
 
     public Integer getNumIntervalCallbackItems() {
         return intervalCallbackItems == null ? null : intervalCallbackItems.size();
+    }
+
+    public boolean isEmpty() {
+        return currentStates.isEmpty();
     }
 }

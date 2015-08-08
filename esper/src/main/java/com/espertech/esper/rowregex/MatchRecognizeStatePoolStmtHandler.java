@@ -11,17 +11,29 @@
 
 package com.espertech.esper.rowregex;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.util.StopCallback;
+public class MatchRecognizeStatePoolStmtHandler {
 
-/**
- * Service interface for match recognize.
- */
-public interface EventRowRegexNFAViewService extends StopCallback
-{
-    public void init(EventBean[] newEvents);
+    private int count;
 
-    public RegexExprPreviousEvalStrategy getPreviousEvaluationStrategy();
+    public int getCount() {
+        return count;
+    }
 
-    public void accept(EventRowRegexNFAViewServiceVisitor visitor);
+    public void decreaseCount() {
+        count--;
+        if (count < 0) {
+            count = 0;
+        }
+    }
+
+    public void decreaseCount(int num) {
+        count-=num;
+        if (count < 0) {
+            count = 0;
+        }
+    }
+
+    public void increaseCount() {
+        count++;
+    }
 }

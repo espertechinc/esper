@@ -566,10 +566,18 @@ public interface ConfigurationOperations
     /**
      * Set the current maximum pattern sub-expression count.
      * <p>
-     * Use null to indicate that there is not current maximum.
+     * Use null to indicate that there is no current maximum.
      * @param maxSubexpressions to set
      */
     public void setPatternMaxSubexpressions(Long maxSubexpressions);
+
+    /**
+     * Set the current maximum match-recognize state count.
+     * <p>
+     * Use null to indicate that there is no current maximum.
+     * @param maxStates to set
+     */
+    public void setMatchRecognizeMaxStates(Long maxStates);
 
     /**
      * Updates an existing Object-array event type with additional properties.
