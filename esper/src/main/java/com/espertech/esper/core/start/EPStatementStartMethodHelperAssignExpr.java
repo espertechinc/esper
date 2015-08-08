@@ -63,7 +63,7 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
-    private static void assignMatchRecognizePreviousStrategies(Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy strategy) {
+    public static void assignMatchRecognizePreviousStrategies(Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy strategy) {
         if (matchRecognizeNodes != null && strategy != null) {
             for (ExprPreviousMatchRecognizeNode node : matchRecognizeNodes) {
                 node.setStrategy(strategy);

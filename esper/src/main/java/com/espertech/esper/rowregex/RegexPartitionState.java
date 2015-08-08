@@ -11,9 +11,6 @@
 
 package com.espertech.esper.rowregex;
 
-import com.espertech.esper.client.EventBean;
-
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,11 +20,7 @@ public interface RegexPartitionState
     public Iterator<RegexNFAStateEntry> getCurrentStatesIterator();
     public void setCurrentStates(List<RegexNFAStateEntry> currentStates);
     public Object getOptionalKeys();
-    public void removeEventFromPrev(EventBean[] oldEvents);
-    public void removeEventFromPrev(EventBean oldEvent);
-    public boolean removeEventFromState(EventBean oldEvent);
     public int getNumStates();
-    public void clearCurrentStates();
     public List<RegexNFAStateEntry> getCurrentStatesForPrint();
     public boolean isEmptyCurrentState();
 }

@@ -20,13 +20,13 @@ import java.util.ArrayList;
  */
 public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 {
-    private final RegexPartitionState singletonState;
+    private final RegexPartitionStateImpl singletonState;
 
     /**
      * Ctor.
      * @param singletonState state
      */
-    public RegexPartitionStateRepoNoGroup(RegexPartitionState singletonState)
+    public RegexPartitionStateRepoNoGroup(RegexPartitionStateImpl singletonState)
     {
         this.singletonState = singletonState;
     }
@@ -50,7 +50,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
      */
     public RegexPartitionStateRepo copyForIterate()
     {
-        RegexPartitionState state = new RegexPartitionStateImpl(singletonState.getRandomAccess(), null);
+        RegexPartitionStateImpl state = new RegexPartitionStateImpl(singletonState.getRandomAccess(), null);
         return new RegexPartitionStateRepoNoGroup(state);
     }
 
