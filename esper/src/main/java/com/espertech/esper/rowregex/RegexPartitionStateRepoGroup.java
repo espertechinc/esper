@@ -17,10 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Partition-by implementation for partition state.
@@ -65,20 +62,24 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         return copy;
     }
 
-    public void removeOld(EventBean[] oldData, boolean isEmpty, boolean[] found)
+    public int removeOld(EventBean[] oldData, boolean isEmpty, boolean[] found)
     {
         if (isEmpty)
         {
+            int countRemoved;
             if (getter == null)
             {
                 // no "prev" used, clear all state
+                countRemoved = getStateCount();
                 states.clear();
             }
             else
             {
+                countRemoved = 0;
                 for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
                 {
-                    entry.getValue().clearCurrentStates();
+                    countRemoved += entry.getValue().getNumStates();
+                    entry.getValue().setCurrentStates(Collections.<RegexNFAStateEntry>emptyList());
                 }
             }
 
@@ -97,10 +98,11 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
                 }
             }
 
-            return;
+            return countRemoved;
         }
 
         // we will need to remove event-by-event
+        int countRemoved = 0;
         for (int i = 0; i < oldData.length; i++)
         {
             RegexPartitionStateImpl partitionState = getState(oldData[i], true);
@@ -111,7 +113,8 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
 
             if (found[i])
             {
-                boolean cleared = partitionState.removeEventFromState(oldData[i]);
+                countRemoved += partitionState.removeEventFromState(oldData[i]);
+                boolean cleared = partitionState.getNumStates() == 0;
                 if (cleared)
                 {
                     if (getter == null)
@@ -123,6 +126,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
 
             partitionState.removeEventFromPrev(oldData[i]);
         }
+        return countRemoved;
     }
    
     public RegexPartitionState getState(Object key)
@@ -186,7 +190,15 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         return states;
     }
 
-    public static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
+    public int getStateCount() {
+        int total = 0;
+        for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet()) {
+            total += entry.getValue().getNumStates();
+        }
+        return total;
+    }
+
+    private static Object getKeys(EventBean theEvent, RegexPartitionStateRepoGroupMeta meta)
     {
         EventBean[] eventsPerStream = meta.getEventsPerStream();
         eventsPerStream[0] = theEvent;

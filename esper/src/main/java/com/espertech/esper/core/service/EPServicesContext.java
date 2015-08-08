@@ -35,6 +35,7 @@ import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.schedule.SchedulingMgmtService;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
 import com.espertech.esper.timer.TimeSourceService;
@@ -86,6 +87,7 @@ public final class EPServicesContext
     private ContextManagementService contextManagementService;
     private SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory;
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
+    private MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private TableService tableService;
     private StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc;
     private ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc;
@@ -170,6 +172,7 @@ public final class EPServicesContext
                              ContextManagementService contextManagementService,
                              SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory,
                              PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
+                             MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                              DataFlowService dataFlowService,
                              ExprDeclaredService exprDeclaredService,
                              StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc,
@@ -217,6 +220,7 @@ public final class EPServicesContext
         this.contextManagementService = contextManagementService;
         this.schedulableAgentInstanceDirectory = schedulableAgentInstanceDirectory;
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
+        this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.dataFlowService = dataFlowService;
         this.exprDeclaredService = exprDeclaredService;
         this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
@@ -666,6 +670,10 @@ public final class EPServicesContext
 
     public PatternSubexpressionPoolEngineSvc getPatternSubexpressionPoolSvc() {
         return patternSubexpressionPoolSvc;
+    }
+
+    public MatchRecognizeStatePoolEngineSvc getMatchRecognizeStatePoolEngineSvc() {
+        return matchRecognizeStatePoolEngineSvc;
     }
 
     public DataFlowService getDataFlowService() {

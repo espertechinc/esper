@@ -1012,6 +1012,10 @@ class ConfigurationParser {
             {
                 handleDefaultsPatterns(configuration, subElement);
             }
+            if (subElement.getNodeName().equals("match-recognize"))
+            {
+                handleDefaultsMatchRecognize(configuration, subElement);
+            }
             if (subElement.getNodeName().equals("stream-selection"))
             {
                 handleDefaultsStreamSelection(configuration, subElement);
@@ -1256,6 +1260,26 @@ class ConfigurationParser {
                 String preventText = getOptionalAttribute(subElement, "prevent-start");
                 if (preventText != null) {
                     configuration.getEngineDefaults().getPatterns().setMaxSubexpressionPreventStart(Boolean.parseBoolean(preventText));
+                }
+            }
+        }
+    }
+
+    private static void handleDefaultsMatchRecognize(Configuration configuration, Element parentElement)
+    {
+        DOMElementIterator nodeIterator = new DOMElementIterator(parentElement.getChildNodes());
+        while (nodeIterator.hasNext())
+        {
+            Element subElement = nodeIterator.next();
+            if (subElement.getNodeName().equals("max-state"))
+            {
+                String valueText = getRequiredAttribute(subElement, "value");
+                Long value = Long.parseLong(valueText);
+                configuration.getEngineDefaults().getMatchRecognize().setMaxStates(value);
+
+                String preventText = getOptionalAttribute(subElement, "prevent-start");
+                if (preventText != null) {
+                    configuration.getEngineDefaults().getMatchRecognize().setMaxStatesPreventStart(Boolean.parseBoolean(preventText));
                 }
             }
         }

@@ -52,6 +52,7 @@ import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
 import com.espertech.esper.rowregex.RegexHandlerFactoryDefault;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.schedule.*;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -179,6 +180,12 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                     configSnapshot.getEngineDefaults().getPatterns().isMaxSubexpressionPreventStart());
         }
 
+        MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc = null;
+        if (configSnapshot.getEngineDefaults().getMatchRecognize().getMaxStates() != null) {
+            matchRecognizeStatePoolEngineSvc = new MatchRecognizeStatePoolEngineSvc(configSnapshot.getEngineDefaults().getMatchRecognize().getMaxStates(),
+                    configSnapshot.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
+        }
+
         // New services context
         EPServicesContext services = new EPServicesContext(epServiceProvider.getURI(), schedulingService,
                 eventAdapterService, engineImportService, engineSettingsService, databaseConfigService, plugInViews,
@@ -187,7 +194,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 namedWindowService, variableService, tableService, timeSourceService, valueAddEventService, metricsReporting, statementEventTypeRef,
                 statementVariableRef, configSnapshot, threadingService, internalEventRouterImpl, statementIsolationService, schedulingMgmtService,
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
-                contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc,
+                contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
                 new ExprDeclaredServiceImpl(), new StatementAgentInstanceFactoryFactorySvcDefault(),
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),

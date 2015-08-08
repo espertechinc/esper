@@ -64,7 +64,6 @@ import java.util.List;
  */
 public class EPStatementStartMethodSelectUtil
 {
-
     public static EPStatementStartMethodSelectDesc prepare(StatementSpecCompiled statementSpec,
                                                            EPServicesContext services,
                                                            StatementContext statementContext,
@@ -272,7 +271,7 @@ public class EPStatementStartMethodSelectUtil
                 throw new ExprValidationException("Tables cannot be used with match-recognize");
             }
             boolean isUnbound = (unmaterializedViewChain[0].getViewFactoryChain().isEmpty()) && (!(statementSpec.getStreamSpecs()[0] instanceof NamedWindowConsumerStreamSpec));
-            EventRowRegexNFAViewFactory factory = services.getRegexHandlerFactory().makeViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations());
+            EventRowRegexNFAViewFactory factory = services.getRegexHandlerFactory().makeViewFactory(unmaterializedViewChain[0], statementSpec.getMatchRecognizeSpec(), defaultAgentInstanceContext, isUnbound, statementSpec.getAnnotations(), services.getConfigSnapshot().getEngineDefaults().getMatchRecognize());
             unmaterializedViewChain[0].getViewFactoryChain().add(factory);
 
             EPStatementStartMethodHelperAssignExpr.assignAggregations(factory.getAggregationService(), factory.getAggregationExpressions());

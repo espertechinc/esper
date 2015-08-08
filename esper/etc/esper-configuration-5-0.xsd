@@ -431,6 +431,7 @@
 					<xs:element ref="esper:logging" minOccurs="0"/>
 					<xs:element ref="esper:variables" minOccurs="0"/>
 					<xs:element ref="esper:patterns" minOccurs="0"/>
+					<xs:element ref="esper:match-recognize" minOccurs="0"/>
 					<xs:element ref="esper:stream-selection" minOccurs="0"/>
 					<xs:element ref="esper:time-source" minOccurs="0"/>
 					<xs:element ref="esper:metrics-reporting" minOccurs="0"/>
@@ -597,6 +598,15 @@
 			</xs:choice>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="match-recognize">
+		<xs:complexType>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element ref="esper:max-state" minOccurs="0"/>
+				</xs:sequence>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="stream-selection">
 		<xs:complexType>
 			<xs:choice>
@@ -684,6 +694,12 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="max-subexpression">
+		<xs:complexType>
+			<xs:attribute name="value" type="xs:long" use="required"/>
+			<xs:attribute name="prevent-start" type="xs:boolean" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="max-state">
 		<xs:complexType>
 			<xs:attribute name="value" type="xs:long" use="required"/>
 			<xs:attribute name="prevent-start" type="xs:boolean" use="optional"/>

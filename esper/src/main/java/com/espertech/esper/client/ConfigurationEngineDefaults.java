@@ -38,6 +38,7 @@ public class ConfigurationEngineDefaults implements Serializable
     private AlternativeContext alternativeContext;
     private Cluster cluster;
     private Patterns patterns;
+    private MatchRecognize matchRecognize;
     private Scripts scripts;
 
     /**
@@ -61,6 +62,7 @@ public class ConfigurationEngineDefaults implements Serializable
         alternativeContext = new AlternativeContext();
         cluster = new Cluster();
         patterns = new Patterns();
+        matchRecognize = new MatchRecognize();
         scripts = new Scripts();
     }
 
@@ -244,6 +246,22 @@ public class ConfigurationEngineDefaults implements Serializable
      */
     public void setPatterns(Patterns patterns) {
         this.patterns = patterns;
+    }
+
+    /**
+     * Return match-recognize settings.
+     * @return match-recognize settings
+     */
+    public MatchRecognize getMatchRecognize() {
+        return matchRecognize;
+    }
+
+    /**
+     * Sets match-recognize settings.
+     * @param matchRecognize settings to set
+     */
+    public void setMatchRecognize(MatchRecognize matchRecognize) {
+        this.matchRecognize = matchRecognize;
     }
 
     /**
@@ -1121,7 +1139,7 @@ public class ConfigurationEngineDefaults implements Serializable
     }
 
     /**
-     * Holds variables settings.
+     * Holds pattern settings.
      */
     public static class Patterns implements Serializable
     {
@@ -1161,6 +1179,49 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setMaxSubexpressionPreventStart(boolean maxSubexpressionPreventStart) {
             this.maxSubexpressionPreventStart = maxSubexpressionPreventStart;
+        }
+    }
+
+    /**
+     * Holds match-reconize settings.
+     */
+    public static class MatchRecognize implements Serializable
+    {
+        private Long maxStates;
+        private boolean maxStatesPreventStart = true;
+
+        /**
+         * Returns the maximum number of states
+         * @return state count
+         */
+        public Long getMaxStates() {
+            return maxStates;
+        }
+
+        /**
+         * Sets the maximum number of states
+         * @param maxStates state count
+         */
+        public void setMaxStates(Long maxStates) {
+            this.maxStates = maxStates;
+        }
+
+        /**
+         * Returns true, the default, to indicate that if there is a maximum defined
+         * it is being enforced and new states are not allowed.
+         * @return indicate whether enforced or not
+         */
+        public boolean isMaxStatesPreventStart() {
+            return maxStatesPreventStart;
+        }
+
+        /**
+         * Set to true, the default, to indicate that if there is a maximum defined
+         * it is being enforced and new states are not allowed.
+         * @param maxStatesPreventStart indicate whether enforced or not
+         */
+        public void setMaxStatesPreventStart(boolean maxStatesPreventStart) {
+            this.maxStatesPreventStart = maxStatesPreventStart;
         }
     }
 

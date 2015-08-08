@@ -14,6 +14,7 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EventBean;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * State for when no partitions (single partition) is required.
@@ -54,20 +55,22 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         return new RegexPartitionStateRepoNoGroup(state);
     }
 
-    public void removeOld(EventBean[] oldEvents, boolean isEmpty, boolean[] found)
+    public int removeOld(EventBean[] oldEvents, boolean isEmpty, boolean[] found)
     {
+        int countRemoved = 0;
         if (isEmpty)
         {
-            singletonState.clearCurrentStates();
+            countRemoved = singletonState.getNumStates();
+            singletonState.setCurrentStates(Collections.<RegexNFAStateEntry>emptyList());
         }
         else
         {
-            for (EventBean oldEvent : oldEvents)
-            {
-                singletonState.removeEventFromState(oldEvent);
+            for (EventBean oldEvent : oldEvents) {
+                countRemoved += singletonState.removeEventFromState(oldEvent);
             }
         }
         singletonState.removeEventFromPrev(oldEvents);
+        return countRemoved;
     }
 
     public RegexPartitionState getState(EventBean theEvent, boolean collect)
@@ -86,5 +89,9 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 
     public boolean isPartitioned() {
         return false;
+    }
+
+    public int getStateCount() {
+        return singletonState.getNumStates();
     }
 }

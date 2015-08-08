@@ -87,6 +87,8 @@ public class TestConfigurationParser extends TestCase
         assertEquals(15000, config.getEngineDefaults().getVariables().getMsecVersionRelease());
         assertEquals(null, config.getEngineDefaults().getPatterns().getMaxSubexpressions());
         assertEquals(true, config.getEngineDefaults().getPatterns().isMaxSubexpressionPreventStart());
+        assertEquals(null, config.getEngineDefaults().getMatchRecognize().getMaxStates());
+        assertEquals(true, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(ConfigurationEngineDefaults.TimeSourceType.MILLI, config.getEngineDefaults().getTimeSource().getTimeSourceType());
         assertFalse(config.getEngineDefaults().getExecution().isPrioritized());
         assertFalse(config.getEngineDefaults().getExecution().isDisableLocking());
@@ -405,6 +407,8 @@ public class TestConfigurationParser extends TestCase
         assertEquals(30000, config.getEngineDefaults().getVariables().getMsecVersionRelease());
         assertEquals(3L, (long) config.getEngineDefaults().getPatterns().getMaxSubexpressions());
         assertEquals(false, config.getEngineDefaults().getPatterns().isMaxSubexpressionPreventStart());
+        assertEquals(3L, (long) config.getEngineDefaults().getMatchRecognize().getMaxStates());
+        assertEquals(false, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
 
         assertEquals(ConfigurationEngineDefaults.TimeSourceType.NANO, config.getEngineDefaults().getTimeSource().getTimeSourceType());

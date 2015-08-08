@@ -1953,6 +1953,30 @@ match_recognize (
 
     </sect1>
 
+	<sect1 xml:id="match-recognize-state-max" >
+	   <title>Limiting Engine-wide State Count</title>
+	   
+	   <para>
+		 Esper allows setting a maximum number of states in the configuration, applicable to all match-recognize constructs of all statements. 
+	   </para>
+	   
+	   <para>
+		 If your application uses match-recognize in multiple EPL statements and all such match-recognize constructs should count towards a total number of states counts, you may consider setting a maximum number of states, engine-wide, via the configuration described in <xref linkend="config-engine-matchrecognize-max"/>.
+	   </para>
+	   
+		<para>
+		  When the limit is reached the match-recognize engine issues a notification object to any condition handlers registered with the engine as described in <xref linkend="api-condition"/>. Depending on your configuration the engine can prevent the allocation of a new state instance, until states are discarded or statements are stopped or destroyed or context partitions are terminated.
+		</para>
+
+		<para>
+		  The notification object issued to condition handlers is an instance of <literal>com.espertech.esper.client.hook.ConditionMatchRecognizeStatesMax</literal>. The notification object contains information which statement triggered the limit and the state counts per statement for all statements.
+		</para>
+		
+		<para>
+		  For information on static and runtime configuration, please consult <xref linkend="config-engine-matchrecognize-max"/>. The limit can be changed and disabled or enabled at runtime via the runtime configuration API.
+		</para>
+	</sect1>
+
     <sect1 xml:id="match-recognize-limitations">
         <title>Limitations</title>
         

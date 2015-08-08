@@ -11,6 +11,7 @@
 
 package com.espertech.esper.rowregex;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.MatchRecognizeSpec;
@@ -23,7 +24,7 @@ import java.lang.annotation.Annotation;
  */
 public interface RegexHandlerFactory
 {
-    EventRowRegexNFAViewFactory makeViewFactory(ViewFactoryChain viewFactoryChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations) throws ExprValidationException;
+    EventRowRegexNFAViewFactory makeViewFactory(ViewFactoryChain viewFactoryChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations, ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfigs) throws ExprValidationException;
     RegexPartitionStateRepo makeSingle(RegexPartitionStateRandomAccessGetter prevGetter, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view);
     RegexPartitionStateRepo makePartitioned(RegexPartitionStateRandomAccessGetter prevGetter, RegexPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view);
 }

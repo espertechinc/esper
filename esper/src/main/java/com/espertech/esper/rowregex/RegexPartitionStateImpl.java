@@ -125,14 +125,15 @@ public class RegexPartitionStateImpl implements RegexPartitionState
      * @param oldEvent to remove
      * @return true for removed, false for not found
      */
-    public boolean removeEventFromState(EventBean oldEvent)
+    public int removeEventFromState(EventBean oldEvent)
     {
+        int currentSize = currentStates.size();
         List<RegexNFAStateEntry> keepList = removeEventFromState(oldEvent, currentStates.iterator());
         if (randomAccess != null) {
             randomAccess.remove(oldEvent);
         }
         currentStates = keepList;
-        return keepList.isEmpty();
+        return currentSize - keepList.size();
     }
 
     public int getNumStates() {

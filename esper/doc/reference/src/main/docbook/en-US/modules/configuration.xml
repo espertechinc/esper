@@ -1502,7 +1502,9 @@ config.getEngineDefaults().getThreading().setThreadPoolInboundNumThreads(2);]]><
 				</para>
 
 				<note>
-					If outbound-threading is enabled, listeners and subscribers that send events back into the engine should use the <literal>sendEvent</literal> method and not the <literal>route</literal> method.
+					<para>
+						If outbound-threading is enabled, listeners and subscribers that send events back into the engine should use the <literal>sendEvent</literal> method and not the <literal>route</literal> method.
+					</para>
 				</note>
 			</sect3>
 
@@ -1928,6 +1930,47 @@ config.getEngineDefaults().getLogging().setAuditPattern("[%u] [%s] %m");]]></pro
 			</sect3>
 		</sect2>
 
+		<sect2 xml:id="config-engine-matchrecognize" revision="1">
+			<title>Engine Settings related to Match-Recognize</title>
+			
+			<sect3 xml:id="config-engine-matchrecognize-max" revision="1">
+				<title>Maximum State Count</title>
+
+				<para>
+				   You may use this setting to limit the total engine-wide number of states that all match-recognize constructs may manage. 
+				   When the limit is reached, a condition is raised by the engine through the condition callback API.
+				</para>
+				
+				<para>
+				  By default, when the limit is reached, the engine also prevents the allocation of new states, until states get removed and the limit is no longer reached. By setting the <literal>prevent-start</literal> flag to false you can instruct the engine to only raise a condition and continue to allow the allocation of new states.
+				</para>
+				
+				<para>
+				  The implications of the settings described herein are also detailed in <xref linkend="match-recognize-state-max"/>.
+				</para>
+
+				<para>
+					A sample XML configuration for this setting is shown below:
+				</para>
+					<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <match-recognize>
+      <max-state value="100" prevent-start="false"/>
+    </match-recognize>
+  </defaults>
+</engine-settings>]]></programlisting>
+
+				<para>
+				  The limit can be changed and disabled or enabled at runtime via the runtime configuration API. Pass a null value as the limit to disable limit checking.
+				</para>
+				
+				<para>
+				  A sample code snippet that sets a new limit is:
+				</para>
+				<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().setMatchRecognizeMaxStates(100L);]]></programlisting>				
+			</sect3>
+		</sect2>
+		
 		<sect2 xml:id="config-engine-scripts" revision="1">
 			<title>Engine Settings related to Scripts</title>
 			

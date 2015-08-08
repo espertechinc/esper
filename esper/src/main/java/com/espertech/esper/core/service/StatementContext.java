@@ -27,6 +27,7 @@ import com.espertech.esper.pattern.PatternContextFactory;
 import com.espertech.esper.pattern.PatternObjectResolutionService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
 import com.espertech.esper.schedule.ScheduleAdjustmentService;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
@@ -62,6 +63,7 @@ public final class StatementContext
     private final StatementAIResourceRegistry statementAgentInstanceRegistry;
     private final ContextDescriptor contextDescriptor;
     private final PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc;
+    private final MatchRecognizeStatePoolStmtSvc matchRecognizeStatePoolStmtSvc;
     private final boolean statelessSelect;
     private final ContextControllerFactoryService contextControllerFactoryService;
     private final AggregationServiceFactoryService aggregationServiceFactoryService;
@@ -108,6 +110,7 @@ public final class StatementContext
                               StatementAgentInstanceLock defaultAgentInstanceLock,
                               ContextDescriptor contextDescriptor,
                               PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc,
+                              MatchRecognizeStatePoolStmtSvc matchRecognizeStatePoolStmtSvc,
                               boolean statelessSelect,
                               ContextControllerFactoryService contextControllerFactoryService,
                               AgentInstanceScriptContext defaultAgentInstanceScriptContext,
@@ -135,6 +138,7 @@ public final class StatementContext
         this.defaultAgentInstanceLock = defaultAgentInstanceLock;
         this.contextDescriptor = contextDescriptor;
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
+        this.matchRecognizeStatePoolStmtSvc = matchRecognizeStatePoolStmtSvc;
         this.statelessSelect = statelessSelect;
         this.contextControllerFactoryService = contextControllerFactoryService;
         this.defaultAgentInstanceScriptContext = defaultAgentInstanceScriptContext;
@@ -466,6 +470,10 @@ public final class StatementContext
 
     public PatternSubexpressionPoolStmtSvc getPatternSubexpressionPoolSvc() {
         return patternSubexpressionPoolSvc;
+    }
+
+    public MatchRecognizeStatePoolStmtSvc getMatchRecognizeStatePoolStmtSvc() {
+        return matchRecognizeStatePoolStmtSvc;
     }
 
     public boolean isStatelessSelect() {

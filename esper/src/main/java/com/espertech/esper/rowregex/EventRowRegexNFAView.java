@@ -11,6 +11,7 @@
 
 package com.espertech.esper.rowregex;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
@@ -55,6 +56,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private final boolean isUnbound;
     private final boolean isIterateOnly;
     private final boolean isCollectMultimatches;
+    private final boolean isTrackMaxStates;
 
     private final EventType rowEventType;
     private final AgentInstanceContext agentInstanceContext;
@@ -119,10 +121,12 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                                 boolean isUnbound,
                                 boolean isIterateOnly,
                                 boolean isCollectMultimatches,
-                                RowRegexExprNode expandedPatternNode)
+                                RowRegexExprNode expandedPatternNode,
+                                ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig)
     {
         this.factory = factory;
         this.matchRecognizeSpec = matchRecognizeSpec;
+        this.isTrackMaxStates = matchRecognizeConfig != null && matchRecognizeConfig.getMaxStates() != null;
         this.compositeEventBean = new ObjectArrayEventBean(new Object[variableStreams.size()], compositeEventType);
         this.rowEventType = rowEventType;
         this.variableStreams = variableStreams;
@@ -251,6 +255,12 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         if (handle != null) {
             agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
         }
+        if (isTrackMaxStates) {
+            int size = regexPartitionStateRepo.getStateCount();
+            MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+            poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, size);
+            poolSvc.getStmtHandler().decreaseCount(size);
+        }
     }
 
     public void init(EventBean[] newEvents) {
@@ -318,15 +328,28 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             // reset, rebuilding state
             if (isOutOfSequenceRemove)
             {
+                if (isTrackMaxStates) {
+                    int size = regexPartitionStateRepo.getStateCount();
+                    MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+                    poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, size);
+                    poolSvc.getStmtHandler().decreaseCount(size);
+                }
+
                 regexPartitionStateRepo = regexPartitionStateRepo.copyForIterate();
-                windowMatchedEventset = new LinkedHashSet<EventBean>();
                 Iterator<EventBean> parentEvents = this.getParent().iterator();
-                EventRowRegexIteratorResult iteratorResult = processIterator(startStates, parentEvents, regexPartitionStateRepo);
+                EventRowRegexIteratorResult iteratorResult = processIterator(true, parentEvents, regexPartitionStateRepo);
                 eventSequenceNumber = iteratorResult.getEventSequenceNum();
             }
             else {
                 // remove old events from repository - and let the repository know there are no interesting events left
                 regexPartitionStateRepo.removeOld(oldData, windowMatchedEventset.isEmpty(), found);
+                int numRemoved = regexPartitionStateRepo.removeOld(oldData, windowMatchedEventset.isEmpty(), found);
+
+                if (isTrackMaxStates) {
+                    MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+                    poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, numRemoved);
+                    poolSvc.getStmtHandler().decreaseCount(numRemoved);
+                }
             }
         }
 
@@ -359,7 +382,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
-            List<RegexNFAStateEntry> terminationStates = step(currentStatesIterator, newEvent, nextStates, endStates, !isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
+            List<RegexNFAStateEntry> terminationStates = step(false, currentStatesIterator, newEvent, nextStates, endStates, !isUnbound, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
@@ -636,7 +659,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         return false;
     }
 
- private EventRowRegexIteratorResult processIterator(RegexNFAState[] startStates,
+ private EventRowRegexIteratorResult processIterator(boolean isOutOfSeqDelete,
                                                      Iterator<EventBean> events,
                                                      RegexPartitionStateRepo regexPartitionStateRepo)
     {
@@ -665,7 +688,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     "current : " + EventRowRegexNFAViewUtil.printStates(partitionState.getCurrentStatesForPrint(), streamsVariables, variableStreams, multimatchStreamNumToVariable));
             }
 
-            step(currentStates, theEvent, nextStates, endStates, false, eventSequenceNumber, partitionState.getOptionalKeys());
+            step(!isOutOfSeqDelete, currentStates, theEvent, nextStates, endStates, false, eventSequenceNumber, partitionState.getOptionalKeys());
 
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) || (IS_DEBUG))
             {
@@ -694,7 +717,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
         RegexPartitionStateRepo regexPartitionStateRepoNew = regexPartitionStateRepo.copyForIterate();
 
-        EventRowRegexIteratorResult iteratorResult = processIterator(startStates, it, regexPartitionStateRepoNew);
+        EventRowRegexIteratorResult iteratorResult = processIterator(false, it, regexPartitionStateRepoNew);
         List<RegexNFAStateEntry> endStates = iteratorResult.getEndStates();
         if (endStates.isEmpty())
         {
@@ -901,7 +924,8 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         }
     }
 
-    private List<RegexNFAStateEntry> step(Iterator<RegexNFAStateEntry> currentStatesIterator,
+    private List<RegexNFAStateEntry> step(boolean skipTrackMaxState,
+                                          Iterator<RegexNFAStateEntry> currentStatesIterator,
                                           EventBean theEvent,
                                           List<RegexNFAStateEntry> nextStates,
                                           List<RegexNFAStateEntry> endStates,
@@ -916,6 +940,12 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         {
             RegexNFAStateEntry currentState  = currentStatesIterator.next();
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExState(currentState, variableStreams, multimatchStreamNumToVariable);}
+
+            if (isTrackMaxStates && !skipTrackMaxState) {
+                MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+                poolSvc.getEngineSvc().decreaseCount(agentInstanceContext);
+                poolSvc.getStmtHandler().decreaseCount();
+            }
 
             EventBean[] eventsPerStream = currentState.getEventsPerStream();
             int currentStateStreamNum = currentState.getState().getStreamNum();
@@ -972,15 +1002,27 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     }
                     else
                     {
-                        entry.setState(next);
-                        nextStates.add(entry);
+                        if (isTrackMaxStates) {
+                            MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+                            boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(agentInstanceContext);
+                            if (allow) {
+                                poolSvc.getStmtHandler().increaseCount();
+                                entry.setState(next);
+                                nextStates.add(entry);
+                            }
+                        }
+                        else {
+                            entry.setState(next);
+                            nextStates.add(entry);
+                        }
                     }
                 }
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExState(nextStates, variableStreams, multimatchStreamNumToVariable);}
             }
             // when not-matches
             else {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExState(Collections.<RegexNFAStateEntry>emptyList(), variableStreams, multimatchStreamNumToVariable);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aRegExState(Collections.<RegexNFAStateEntry>emptyList(), variableStreams, multimatchStreamNumToVariable);}
 
                 // determine interval and or-terminated
                 if (isOrTerminated) {
@@ -1023,6 +1065,16 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 // save state for each next state
                 boolean copy = nextStatesFromHere.size() > 1;
                 for (RegexNFAState next : nextStatesFromHere) {
+
+                    if (isTrackMaxStates && !skipTrackMaxState) {
+                        MatchRecognizeStatePoolStmtSvc poolSvc = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc();
+                        boolean allow = poolSvc.getEngineSvc().tryIncreaseCount(agentInstanceContext);
+                        if (!allow) {
+                            continue;
+                        }
+                        poolSvc.getStmtHandler().increaseCount();
+                    }
+
                     EventBean[] eventsForState = eventsPerStream;
                     MultimatchState[] multimatches = isCollectMultimatches ? new MultimatchState[multimatchVariablesArray.length] : null;
                     int[] greedyCounts = new int[allStates.length];

@@ -815,6 +815,11 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 services.getPatternSubexpressionPoolSvc().removeStatement(desc.getEpStatement().getName());
             }
 
+            // remove any match-recognize counts
+            if (services.getMatchRecognizeStatePoolEngineSvc() != null) {
+                services.getMatchRecognizeStatePoolEngineSvc().removeStatement(desc.getEpStatement().getName());
+            }
+
             EPStatementSPI statement = desc.getEpStatement();
             if (statement.getState() == EPStatementState.STARTED)
             {
