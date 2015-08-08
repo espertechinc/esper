@@ -11,6 +11,7 @@
 
 package com.espertech.esper.rowregex;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.collection.Pair;
@@ -65,6 +66,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
     private final ObjectArrayBackedEventBean defineMultimatchEventBean;
     private final boolean[] isExprRequiresMultimatchState;
     private final RowRegexExprNode expandedPatternNode;
+    private final ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig;
 
     /**
      * Ctor.
@@ -74,13 +76,14 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
      * @param annotations annotations
      * @throws ExprValidationException if validation fails
      */
-    public EventRowRegexNFAViewFactory(ViewFactoryChain viewChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations)
+    public EventRowRegexNFAViewFactory(ViewFactoryChain viewChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations, ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig)
             throws ExprValidationException
     {
         EventType parentViewType = viewChain.getEventType();
         this.matchRecognizeSpec = matchRecognizeSpec;
         this.isUnbound = isUnbound;
         this.isIterateOnly = HintEnum.ITERATE_ONLY.getHint(annotations) != null;
+        this.matchRecognizeConfig = matchRecognizeConfig;
         StatementContext statementContext = agentInstanceContext.getStatementContext();
 
         // Expand repeats and permutations
@@ -470,7 +473,8 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                 isUnbound,
                 isIterateOnly,
                 isCollectMultimatches,
-                expandedPatternNode
+                expandedPatternNode,
+                matchRecognizeConfig
              );
     }
 

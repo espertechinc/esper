@@ -12,11 +12,12 @@
 package com.espertech.esper.rowregex;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.util.StopCallback;
 
 /**
  * Service interface for match recognize.
  */
-public interface EventRowRegexNFAViewService
+public interface EventRowRegexNFAViewService extends StopCallback
 {
     public void init(EventBean[] newEvents);
 

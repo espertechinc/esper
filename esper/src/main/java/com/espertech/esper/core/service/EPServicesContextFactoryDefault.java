@@ -20,8 +20,6 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowServiceImpl;
-import com.espertech.esper.epl.table.mgmt.TableService;
-import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportServiceImpl;
@@ -33,6 +31,8 @@ import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
 import com.espertech.esper.epl.named.NamedWindowService;
 import com.espertech.esper.epl.named.NamedWindowServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
+import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.variable.VariableExistsException;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
@@ -48,6 +48,7 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.schedule.*;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -175,6 +176,12 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                     configSnapshot.getEngineDefaults().getPatterns().isMaxSubexpressionPreventStart());
         }
 
+        MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc = null;
+        if (configSnapshot.getEngineDefaults().getMatchRecognize().getMaxStates() != null) {
+            matchRecognizeStatePoolEngineSvc = new MatchRecognizeStatePoolEngineSvc(configSnapshot.getEngineDefaults().getMatchRecognize().getMaxStates(),
+                    configSnapshot.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
+        }
+
         // New services context
         EPServicesContext services = new EPServicesContext(epServiceProvider.getURI(), schedulingService,
                 eventAdapterService, engineImportService, engineSettingsService, databaseConfigService, plugInViews,
@@ -183,7 +190,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 namedWindowService, variableService, tableService, timeSourceService, valueAddEventService, metricsReporting, statementEventTypeRef,
                 statementVariableRef, configSnapshot, threadingService, internalEventRouterImpl, statementIsolationService, schedulingMgmtService,
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
-                contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc,
+                contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
                 new ExprDeclaredServiceImpl() {
         });

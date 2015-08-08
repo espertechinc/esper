@@ -33,6 +33,7 @@ import com.espertech.esper.event.xml.SchemaModel;
 import com.espertech.esper.event.xml.XSDSchemaMapper;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
+import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.Serializable;
@@ -56,6 +57,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     private final PluggableObjectCollection plugInViews;
     private final FilterService filterService;
     private final PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
+    private final MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private final TableService tableService;
 
     /**
@@ -81,6 +83,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
                                        PluggableObjectCollection plugInViews,
                                        FilterService filterService,
                                        PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
+                                       MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                                        TableService tableService)
     {
         this.eventAdapterService = eventAdapterService;
@@ -95,6 +98,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         this.plugInViews = plugInViews;
         this.filterService = filterService;
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
+        this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.tableService = tableService;
     }
 
@@ -600,6 +604,14 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     }
 
     public void setPatternMaxSubexpressions(Long maxSubexpressions) {
-        patternSubexpressionPoolSvc.setPatternMaxSubexpressions(maxSubexpressions);
+        if (patternSubexpressionPoolSvc != null) {
+            patternSubexpressionPoolSvc.setPatternMaxSubexpressions(maxSubexpressions);
+        }
+    }
+
+    public void setMatchRecognizeMaxStates(Long maxStates) {
+        if (matchRecognizeStatePoolEngineSvc != null) {
+            matchRecognizeStatePoolEngineSvc.setMatchRecognizeMaxStates(maxStates);
+        }
     }
 }
