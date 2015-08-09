@@ -211,7 +211,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         // Without context - start here
         else {
             AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
-            final StatementAgentInstanceFactoryOnTriggerResult resultOfStart = contextFactoryResult.getContextFactory().newContext(agentInstanceContext, false);
+            final StatementAgentInstanceFactoryOnTriggerResult resultOfStart = contextFactoryResult.getContextFactory().newContext(agentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
             stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
