@@ -20,6 +20,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperSubselect;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
+import com.espertech.esper.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.epl.enummethod.dot.ExprDeclaredOrLambdaNode;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -724,7 +725,7 @@ public class ExprNodeUtility {
         boolean allConstants = true;
         for(ExprNode childNode : parameters)
         {
-            if (childNode instanceof ExprLambdaGoesNode) {
+            if (!EnumMethodEnum.isEnumerationMethod(methodName) && childNode instanceof ExprLambdaGoesNode) {
                 throw new ExprValidationException("Unexpected lambda-expression encountered as parameter to UDF or static method '" + methodName + "'");
             }
             if (childNode instanceof ExprWildcard) {

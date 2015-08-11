@@ -56,6 +56,8 @@ public class TestEnumInvalid extends TestCase {
         // property not there
         epl = "select contained.where(x=>x.dummy = 1) from SupportBean_ST0_Container";
         SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'contained.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.dummy=1': Failed to resolve property 'x.dummy' to a stream or nested property in a stream [select contained.where(x=>x.dummy = 1) from SupportBean_ST0_Container]");
+        epl = "select * from SupportBean(products.where(p => code = '1'))";
+        SupportMessageAssertUtil.tryInvalid(epService,epl, "Failed to validate filter expression 'products.where()': Failed to resolve 'products.where' to a property, single-row function, aggregation function, script, stream or class name ");
 
         // test not an enumeration method
         epl = "select contained.notAMethod(x=>x.boolPrimitive) from SupportBean_ST0_Container";
