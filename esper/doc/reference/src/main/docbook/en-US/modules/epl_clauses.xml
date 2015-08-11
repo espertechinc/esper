@@ -1963,7 +1963,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 		
 		<tip>
 			<para>
-				For filtering events in order to remove unwanted events, use the <literal>from</literal> clause instead as described in <xref linkend="epl-from-clause-filter"/> 
+				For filtering events in order to remove unwanted events, use filters as part of the <literal>from</literal> clause as described in <xref linkend="epl-from-clause-filter"/> 
 				or for patterns in <xref linkend="pattern-filter"/>.
 			</para>
 			<para>
@@ -1982,6 +1982,19 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 		</para>		
 		<programlisting>...where settlement.orderId = order.orderId</programlisting>
 		<programlisting>...where exists (select orderId from Settlement.win:time(1 min) where settlement.orderId = order.orderId)</programlisting>
+		
+		<para>
+			The following two EPL statements are equivalent since both queries filter events by the <literal>amount</literal> property value and both queries do not specify a data window. 
+        </para>
+        <programlisting><![CDATA[// preferable: specify filter criteria with the "eventtype(...filters...)" notation
+@name('first') select * from Withdrawal(amount > 200)]]></programlisting>
+        <programlisting><![CDATA[// equivalent only when there is no data window
+@name('second') select * from Withdrawal where amount > 200]]></programlisting>
+        
+        <para>
+			You can control whether the engine rewrites the second query to the form of the first query. If you specify @Hint('disable_whereexpr_moveto_filter') you can instruct the engine to not move the <literal>where</literal>-clause expression into the filter.
+        </para>
+
     </sect1>
 
     <sect1 xml:id="epl-grouping-aggregating">

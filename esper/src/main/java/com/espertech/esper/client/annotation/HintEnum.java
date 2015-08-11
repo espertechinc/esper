@@ -97,7 +97,13 @@ public enum HintEnum
     /**
      * For use when filter expression optimization may widen the filter expression.
      */
-    MAX_FILTER_WIDTH("MAX_FILTER_WIDTH", true, true, false);
+    MAX_FILTER_WIDTH("MAX_FILTER_WIDTH", true, true, false),
+
+    /**
+     * For use everywhere where unique data window are used
+     */
+    DISABLE_WHEREEXPR_MOVETO_FILTER("DISABLE_WHEREEXPR_MOVETO_FILTER", false, false, false),
+    ;
 
     private final String value;
     private final boolean acceptsParameters;

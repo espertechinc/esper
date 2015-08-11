@@ -158,7 +158,12 @@ public class TestFilterExpressions extends TestCase
     }
 
     public void testRewriteWhere() {
-        String epl = "select * from SupportBean as A0 where A0.intPrimitive = 3";
+        runAssertionRewriteWhere("");
+        runAssertionRewriteWhere("@Hint('DISABLE_WHEREEXPR_MOVETO_FILTER')");
+    }
+
+    private void runAssertionRewriteWhere(String prefix) {
+        String epl = prefix + " select * from SupportBean as A0 where A0.intPrimitive = 3";
         EPStatement statement = epService.getEPAdministrator().createEPL(epl);
         statement.addListener(listener);
 
@@ -167,6 +172,8 @@ public class TestFilterExpressions extends TestCase
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 4));
         assertFalse(listener.getAndClearIsInvoked());
+
+        statement.destroy();
     }
 
     public void testNullBooleanExpr()

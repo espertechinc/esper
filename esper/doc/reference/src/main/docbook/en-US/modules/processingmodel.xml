@@ -175,12 +175,6 @@ results via method invocation. The subscriber class need not implement an interf
 				</imageobject>
 			</mediaobject>
         </figure>
-
-        <para>
-			The where-clause can contain complex conditions while event stream filters are more restrictive in the type of filters that can be specified. The next statement's where-clause applies the <literal>ceil</literal> function of the <literal>java.lang.Math</literal> Java library class in the where clause. The insert-into clause makes the results of the first statement available to the second statement:
-        </para>
-        <programlisting><![CDATA[insert into WithdrawalFiltered select * from Withdrawal where Math.ceil(amount) >= 200]]></programlisting>
-        <programlisting><![CDATA[select * from WithdrawalFiltered]]></programlisting>
     </sect1>
     
     <sect1 xml:id="processingmodel_time_window" revision="1">

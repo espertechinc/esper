@@ -10,6 +10,7 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.annotation.Hint;
+import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.collection.NameParameterCountKey;
@@ -1021,6 +1022,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         List<StreamSpecCompiled> compiledStreams;
         Set<String> eventTypeReferences = new HashSet<String>();
 
+        // TODO
         // If not using a join and not specifying a data window, make the where-clause, if present, the filter of the stream
         // if selecting using filter spec, and not subquery in where clause
         if ((spec.getStreamSpecs().size() == 1) &&
@@ -1037,7 +1039,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
             ExprNodeSubselectDeclaredDotVisitor visitor = new ExprNodeSubselectDeclaredDotVisitor();
             whereClause.accept(visitor);
-            disqualified = visitor.getSubselects().size() > 0;
+            disqualified = visitor.getSubselects().size() > 0 || HintEnum.DISABLE_WHEREEXPR_MOVETO_FILTER.getHint(annotations) != null;
 
             if (!disqualified)
             {
