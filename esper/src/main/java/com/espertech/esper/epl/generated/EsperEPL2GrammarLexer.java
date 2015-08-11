@@ -388,14 +388,14 @@ public class EsperEPL2GrammarLexer extends Lexer {
 		case 2: _channel = HIDDEN;  break;
 		}
 	}
-	private void SL_COMMENT_action(RuleContext _localctx, int actionIndex) {
-		switch (actionIndex) {
-		case 1: _channel = HIDDEN;  break;
-		}
-	}
 	private void WS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0: _channel = HIDDEN;  break;
+		}
+	}
+	private void SL_COMMENT_action(RuleContext _localctx, int actionIndex) {
+		switch (actionIndex) {
+		case 1: _channel = HIDDEN;  break;
 		}
 	}
 

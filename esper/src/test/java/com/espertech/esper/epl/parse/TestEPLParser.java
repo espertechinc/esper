@@ -113,7 +113,6 @@ public class TestEPLParser extends TestCase
         assertIsInvalid("insert into select 1 from b.win:length(1)");
         assertIsInvalid("insert into 38484 select 1 from b.win:length(1)");
         assertIsInvalid("insert into A B select 1 from b.win:length(1)");
-        assertIsInvalid("insert into A () select 1 from b.win:length(1)");
         assertIsInvalid("insert into A (a,) select 1 from b.win:length(1)");
         assertIsInvalid("insert into A (,) select 1 from b.win:length(1)");
         assertIsInvalid("insert into A(,a) select 1 from b.win:length(1)");

@@ -57,6 +57,23 @@ public class SelectExprInsertEventBeanFactory
             return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, expressionNodes[0], eventAdapterService);
         }
 
+        // handle special case where the target type has no properties and there is a single "null" value selected
+        if (eventType.getPropertyDescriptors().length == 0 &&
+                columnNames.length == 1 &&
+                columnNames[0].equals("null") &&
+                expressionReturnTypes[0] == null &&
+                !isUsingWildcard) {
+
+            EventBeanManufacturer eventManufacturer;
+            try {
+                eventManufacturer = eventAdapterService.getManufacturer(eventType, new WriteablePropertyDescriptor[0], engineImportService, true);
+            }
+            catch (EventBeanManufactureException e) {
+                throw new ExprValidationException(e.getMessage(), e);
+            }
+            return new SelectExprInsertNativeNoEval(eventType, eventManufacturer);
+        }
+
         // handle writing to defined columns
         Set<WriteablePropertyDescriptor> writableProps = eventAdapterService.getWriteableProperties(eventType, false);
         boolean isEligible = checkEligible(eventType, writableProps, allowNestableTargetFragmentTypes);
@@ -555,6 +572,26 @@ public class SelectExprInsertEventBeanFactory
             }
 
             return eventManufacturer.make(values);
+        }
+    }
+
+    public static class SelectExprInsertNativeNoEval implements SelectExprProcessor {
+        private final static Object[] EMPTY_PROPS = new Object[0];
+
+        private final EventType eventType;
+        private final EventBeanManufacturer eventManufacturer;
+
+        public SelectExprInsertNativeNoEval(EventType eventType, EventBeanManufacturer eventManufacturer) {
+            this.eventType = eventType;
+            this.eventManufacturer = eventManufacturer;
+        }
+
+        public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+            return eventManufacturer.make(EMPTY_PROPS);
+        }
+
+        public EventType getResultEventType() {
+            return eventType;
         }
     }
 
