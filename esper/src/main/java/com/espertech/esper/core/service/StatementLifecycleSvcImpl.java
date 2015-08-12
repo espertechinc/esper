@@ -1022,7 +1022,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         List<StreamSpecCompiled> compiledStreams;
         Set<String> eventTypeReferences = new HashSet<String>();
 
-        // TODO
         // If not using a join and not specifying a data window, make the where-clause, if present, the filter of the stream
         // if selecting using filter spec, and not subquery in where clause
         if ((spec.getStreamSpecs().size() == 1) &&
