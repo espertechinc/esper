@@ -304,7 +304,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                 MatchedEventConvertor convertor = new MatchedEventConvertorImpl(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, context.getEventAdapterService());
 
                 observerNode.setObserverFactory(observerFactory);
-                observerFactory.setObserverParameters(validated, convertor);
+                observerFactory.setObserverParameters(validated, convertor, validationContext);
             }
             catch (ObserverParameterException e)
             {

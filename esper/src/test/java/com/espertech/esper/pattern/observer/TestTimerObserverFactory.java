@@ -30,7 +30,7 @@ public class TestTimerObserverFactory extends TestCase
     public void testIntervalWait() throws Exception
     {
         TimerIntervalObserverFactory factory = new TimerIntervalObserverFactory();
-        factory.setObserverParameters(TestViewSupport.toExprListBean(new Object[] {1}), new SupportMatchedEventConvertor());
+        factory.setObserverParameters(TestViewSupport.toExprListBean(new Object[] {1}), new SupportMatchedEventConvertor(), null);
         EventObserver eventObserver = factory.makeObserver(patternContext, null, new SupportObserverEventEvaluator(patternContext), null, null, false);
 
         assertTrue(eventObserver instanceof TimerIntervalObserver);

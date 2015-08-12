@@ -17,10 +17,7 @@ import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Factory for ISO8601 repeating interval observers that indicate truth when a time point was reached.
@@ -44,7 +41,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
 
     protected TimerScheduleSpec spec;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws ObserverParameterException
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
     {
         this.convertor = convertor;
 
@@ -105,7 +102,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
 
         if (allConstantResult) {
             try {
-                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null);
+                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
             }
             catch (ScheduleParameterException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
@@ -127,7 +124,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             return spec;
         }
         try {
-            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext());
+            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
         }
         catch (ScheduleParameterException e) {
             throw new EPException("Error computing iso8601 schedule specification: " + e.getMessage(), e);
@@ -135,7 +132,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
     }
 
     private static interface TimerScheduleSpecCompute {
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext)
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone)
                 throws ScheduleParameterException;
     }
 
@@ -146,7 +143,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             this.parameter = parameter;
         }
 
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext) throws ScheduleParameterException {
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone) throws ScheduleParameterException {
             Object param = PatternExpressionUtil.evaluate(NAME_OBSERVER, beginState, parameter, convertor, exprEvaluatorContext);
             String iso = (String) param;
             if (iso == null) {
@@ -167,7 +164,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             this.periodNode = periodNode;
         }
 
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext) throws ScheduleParameterException {
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone) throws ScheduleParameterException {
             Calendar optionalDate = null;
             if (dateNode != null) {
                 Object param = PatternExpressionUtil.evaluate(NAME_OBSERVER, beginState, dateNode, convertor, exprEvaluatorContext);
@@ -176,14 +173,14 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 }
                 if (param instanceof Number) {
                     long msec = ((Number) param).longValue();
-                    optionalDate = Calendar.getInstance();
+                    optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(msec);
                 }
                 if (param instanceof Calendar) {
                     optionalDate = (Calendar) param;
                 }
                 if (param instanceof Date) {
-                    optionalDate = Calendar.getInstance();
+                    optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(((Date) param).getTime());
                 }
             }

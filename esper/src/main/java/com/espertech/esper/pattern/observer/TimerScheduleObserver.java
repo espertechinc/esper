@@ -94,7 +94,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         SchedulingService schedulingService = observerEventEvaluator.getContext().getPatternContext().getSchedulingService();
         if (anchorTime == null) {
             if (spec.getOptionalDate() == null) {
-                anchorTime = Calendar.getInstance();
+                anchorTime = Calendar.getInstance(observerEventEvaluator.getContext().getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
                 anchorTime.setTimeInMillis(schedulingService.getTime());
             }
             else {

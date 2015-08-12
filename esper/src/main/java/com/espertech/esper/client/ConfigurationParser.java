@@ -1478,6 +1478,13 @@ class ConfigurationParser {
                 throw new ConfigurationException("Failed to parse '" + mathContextStr + "' as a MathContext");
             }
         }
+
+        String timeZoneStr = getOptionalAttribute(parentElement, "time-zone");
+        if (timeZoneStr != null)
+        {
+            TimeZone timeZone = TimeZone.getTimeZone(timeZoneStr);
+            configuration.getEngineDefaults().getExpression().setTimeZone(timeZone);
+        }
     }
 
     private static void handleExecution(Configuration configuration, Element parentElement)

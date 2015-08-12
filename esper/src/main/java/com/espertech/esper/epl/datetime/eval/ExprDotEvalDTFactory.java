@@ -13,11 +13,6 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.TimePeriod;
-import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.dot.ExprDotEval;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.epl.rettype.*;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
 import com.espertech.esper.epl.datetime.calop.CalendarOpFactory;
@@ -25,19 +20,25 @@ import com.espertech.esper.epl.datetime.interval.IntervalOp;
 import com.espertech.esper.epl.datetime.interval.IntervalOpFactory;
 import com.espertech.esper.epl.datetime.reformatop.ReformatOp;
 import com.espertech.esper.epl.datetime.reformatop.ReformatOpFactory;
+import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.ExprDotEval;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
+import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.methodbase.DotMethodFPProvided;
 import com.espertech.esper.epl.methodbase.DotMethodInputTypeMatcher;
 import com.espertech.esper.epl.methodbase.DotMethodTypeEnum;
 import com.espertech.esper.epl.methodbase.DotMethodUtil;
+import com.espertech.esper.epl.rettype.*;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.TimeZone;
 
 public class ExprDotEvalDTFactory {
 
-    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc)
+    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone)
             throws ExprValidationException
     {
         // verify input
@@ -85,7 +86,7 @@ public class ExprDotEvalDTFactory {
                 calendarOps.add(calendarOp);
             }
             else if (opFactory instanceof ReformatOpFactory) {
-                reformatOp = ((ReformatOpFactory) opFactory).getOp(currentMethod, currentMethodName, currentParameters);
+                reformatOp = ((ReformatOpFactory) opFactory).getOp(timeZone, currentMethod, currentMethodName, currentParameters);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {
@@ -129,7 +130,7 @@ public class ExprDotEvalDTFactory {
         ExprDotEval dotEval;
         EPType returnType;
 
-        dotEval = new ExprDotEvalDT(calendarOps, reformatOp, intervalOp, EPTypeHelper.getClassSingleValued(inputType), EPTypeHelper.getEventTypeSingleValued(inputType));
+        dotEval = new ExprDotEvalDT(calendarOps, timeZone, reformatOp, intervalOp, EPTypeHelper.getClassSingleValued(inputType), EPTypeHelper.getEventTypeSingleValued(inputType));
         returnType = dotEval.getTypeInfo();
         return new ExprDotEvalDTMethodDesc(dotEval, returnType, filterAnalyzerDesc);
     }

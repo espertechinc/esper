@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class TestScheduleComputeHelper extends TestCase
 {
@@ -308,7 +309,7 @@ public class TestScheduleComputeHelper extends TestCase
         Date nowDate = timeFormat.parse(now);
         Date expectedDate = timeFormat.parse(expected);
 
-        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate.getTime());
+        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate.getTime(), TimeZone.getDefault());
         Date resultDate = new Date(result);
 
         if (!(resultDate.equals(expectedDate)))
@@ -329,7 +330,7 @@ public class TestScheduleComputeHelper extends TestCase
         long nowDate = DateTime.parseDefaultMSecWZone(nowWZone);
         long expectedDate = DateTime.parseDefaultMSecWZone(expectedWZone);
 
-        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate);
+        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate, TimeZone.getDefault());
         Date resultDate = new Date(result);
 
         if (result != expectedDate)

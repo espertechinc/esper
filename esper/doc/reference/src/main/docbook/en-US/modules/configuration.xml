@@ -2354,7 +2354,30 @@ config.getEngineDefaults().getExpression().setDivisionByZeroReturnsNull(true);]]
 				<para>
 					 An example API configuration is shown next:
 				</para>
-				<programlisting><![CDATA[config.getEngineDefaults().getExpression().setMathContext();]]></programlisting>			
+				<programlisting><![CDATA[config.getEngineDefaults().getExpression().setMathContext(...);]]></programlisting>			
+			</sect3>
+
+			<sect3 xml:id="config-engine-expression-timezone" revision="1">
+				<title>Time Zone</title>
+				<para>
+					By default, when performing calendar operations, the engine uses the default time zone obtained by <literal>java.util.TimeZone.getDefault()</literal>.
+					Use the setting herein to specify a time zone other then the default time zone.
+				</para>
+	
+				<para>
+					 The below XML configuration sets a time zone 'GMT-4:00':
+				</para>
+	
+				<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <expression time-zone="GMT-4:00"/>
+  </defaults>
+</engine-settings>]]></programlisting>
+			
+				<para>
+					 An example API configuration is shown next:
+				</para>
+				<programlisting><![CDATA[config.getEngineDefaults().getExpression().setTimeZone(TimeZone.getTimeZone("GMT-4:00"));]]></programlisting>			
 			</sect3>
 		</sect2>
 

@@ -19,10 +19,8 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerSubqueryPreevalNoDedup;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
-import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.core.EngineImportServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
@@ -30,6 +28,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.named.NamedWindowServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
+import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.event.vaevent.ValueAddEventServiceImpl;
 import com.espertech.esper.pattern.PatternObjectResolutionServiceImpl;
@@ -44,6 +43,7 @@ import com.espertech.esper.view.ViewResolutionServiceImpl;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.TimeZone;
 
 public class SupportStatementContextFactory
 {
@@ -109,7 +109,7 @@ public class SupportStatementContextFactory
                 new PatternObjectResolutionServiceImpl(null),
                 null,
                 null,
-                new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null), null),
+                new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null),
                 null,
                 null,
                 new StatementResultServiceImpl("name", null, null, new ThreadingServiceImpl(new ConfigurationEngineDefaults.Threading())), // statement result svc

@@ -18,13 +18,14 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import junit.framework.TestCase;
 
 import java.util.Collection;
+import java.util.TimeZone;
 
 public class TestJsonUtil extends TestCase {
 
     private EngineImportService engineImportService;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null);
+        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault());
     }
 
     protected void tearDown() {

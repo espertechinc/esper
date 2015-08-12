@@ -51,8 +51,8 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
-import com.espertech.esper.rowregex.RegexHandlerFactoryDefault;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactoryDefault;
 import com.espertech.esper.schedule.*;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -538,7 +538,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         EngineImportServiceImpl engineImportService = new EngineImportServiceImpl(expression.isExtendedAggregation(),
                 expression.isUdfCache(), expression.isDuckTyping(),
                 configSnapshot.getEngineDefaults().getLanguage().isSortUsingCollator(),
-                configSnapshot.getEngineDefaults().getExpression().getMathContext());
+                configSnapshot.getEngineDefaults().getExpression().getMathContext(),
+                configSnapshot.getEngineDefaults().getExpression().getTimeZone());
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports

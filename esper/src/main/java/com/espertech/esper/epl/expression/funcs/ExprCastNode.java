@@ -20,10 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents the CAST(expression, type) function is an expression tree.
@@ -139,11 +136,11 @@ public class ExprCastNode extends ExprNodeBase
                         casterParserComputer = new StringToCalendarWStaticISOFormatComputer();
                     }
                     else {
-                        casterParserComputer = new StringToCalendarWStaticFormatComputer(staticDateFormat);
+                        casterParserComputer = new StringToCalendarWStaticFormatComputer(staticDateFormat, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
                     }
                 }
                 else {
-                    casterParserComputer = new StringToCalendarWDynamicFormatComputer(dynamicDateFormat);
+                    casterParserComputer = new StringToCalendarWDynamicFormatComputer(dynamicDateFormat, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
                 }
             }
             else if (targetType == Long.class) {
@@ -492,17 +489,20 @@ public class ExprCastNode extends ExprNodeBase
 
     public static class StringToCalendarWStaticFormatComputer extends StringToDateLongWStaticFormat {
 
-        public StringToCalendarWStaticFormatComputer(String dateFormat) {
+        private final TimeZone timeZone;
+
+        public StringToCalendarWStaticFormatComputer(String dateFormat, TimeZone timeZone) {
             super(dateFormat);
+            this.timeZone = timeZone;
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parse(dateFormat, formats.get(), input);
+            return parse(dateFormat, formats.get(), input, timeZone);
         }
 
-        protected static Object parse(String formatString, SimpleDateFormat format, Object input) {
+        protected static Object parse(String formatString, SimpleDateFormat format, Object input, TimeZone timeZone) {
             try {
-                Calendar cal = Calendar.getInstance();
+                Calendar cal = Calendar.getInstance(timeZone);
                 Date date = format.parse(input.toString());
                 cal.setTime(date);
                 return cal;
@@ -551,12 +551,15 @@ public class ExprCastNode extends ExprNodeBase
 
     public static class StringToCalendarWDynamicFormatComputer extends StringToDateLongWDynamicFormat {
 
-        public StringToCalendarWDynamicFormatComputer(ExprEvaluator dateFormatEval) {
+        private final TimeZone timeZone;
+
+        public StringToCalendarWDynamicFormatComputer(ExprEvaluator dateFormatEval, TimeZone timeZone) {
             super(dateFormatEval);
+            this.timeZone = timeZone;
         }
 
         protected Object computeFromFormat(String formatString, SimpleDateFormat format, Object input) {
-            return StringToCalendarWStaticFormatComputer.parse(formatString, format, input);
+            return StringToCalendarWStaticFormatComputer.parse(formatString, format, input, timeZone);
         }
     }
 }

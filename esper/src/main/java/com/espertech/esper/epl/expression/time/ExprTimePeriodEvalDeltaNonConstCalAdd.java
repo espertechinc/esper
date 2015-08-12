@@ -17,14 +17,16 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEvalDeltaNonConst
 {
-    private final Calendar cal = Calendar.getInstance();
+    private final Calendar cal;
     private final ExprTimePeriodImpl parent;
 
-    public ExprTimePeriodEvalDeltaNonConstCalAdd(ExprTimePeriodImpl parent) {
+    public ExprTimePeriodEvalDeltaNonConstCalAdd(TimeZone timeZone, ExprTimePeriodImpl parent) {
         this.parent = parent;
+        this.cal = Calendar.getInstance(timeZone);
     }
 
     public synchronized long deltaMillisecondsAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

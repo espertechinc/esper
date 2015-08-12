@@ -303,8 +303,8 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
            ((factory.getContextDetail().getEnd() instanceof ContextDetailConditionCrontab)))     {
             ScheduleSpec scheduleStart = ((ContextDetailConditionCrontab) factory.getContextDetail().getStart()).getSchedule();
             ScheduleSpec scheduleEnd = ((ContextDetailConditionCrontab) factory.getContextDetail().getEnd()).getSchedule();
-            long nextScheduledStartTime = ScheduleComputeHelper.computeNextOccurance(scheduleStart, factory.getTimeProvider().getTime());
-            long nextScheduledEndTime = ScheduleComputeHelper.computeNextOccurance(scheduleEnd, factory.getTimeProvider().getTime());
+            long nextScheduledStartTime = ScheduleComputeHelper.computeNextOccurance(scheduleStart, factory.getTimeProvider().getTime(), factory.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
+            long nextScheduledEndTime = ScheduleComputeHelper.computeNextOccurance(scheduleEnd, factory.getTimeProvider().getTime(), factory.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
             return nextScheduledStartTime >= nextScheduledEndTime;
         }
 

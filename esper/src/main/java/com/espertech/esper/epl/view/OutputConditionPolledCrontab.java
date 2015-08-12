@@ -84,13 +84,13 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
         if (currentReferencePoint == null)
         {
         	currentReferencePoint = currentTime;
-            nextScheduledTime = ScheduleComputeHelper.computeNextOccurance(scheduleSpec, currentTime);
+            nextScheduledTime = ScheduleComputeHelper.computeNextOccurance(scheduleSpec, currentTime, agentInstanceContext.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
             output = true;
         }
 
         if (nextScheduledTime <= currentTime)
         {
-            nextScheduledTime = ScheduleComputeHelper.computeNextOccurance(scheduleSpec, currentTime);
+            nextScheduledTime = ScheduleComputeHelper.computeNextOccurance(scheduleSpec, currentTime, agentInstanceContext.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
             output = true;
         }
 

@@ -20,11 +20,13 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodImpl;
 import junit.framework.TestCase;
 
+import java.util.TimeZone;
+
 public class TestExprTimePeriodEvalDeltaConstCalAdd extends TestCase {
 
     public void testComputeDelta() throws ExprValidationException
     {
-        ExprTimePeriod timePeriod = new ExprTimePeriodImpl(false, true, false, false, false, false, false, false);
+        ExprTimePeriod timePeriod = new ExprTimePeriodImpl(TimeZone.getDefault(), false, true, false, false, false, false, false, false);
         timePeriod.addChildNode(new ExprConstantNodeImpl(1));
         timePeriod.validate(null);
 

@@ -86,7 +86,6 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
         // named parameters
         runAssertionNameParameters();
-        runAssertionCurrentTimeWTime();
 
         /**
          * For Testing, could also use this:
@@ -117,26 +116,6 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
         sendCurrentTime(iso, "2012-10-01T5:51:10.000GMT-0:00");
         assertEquals(b1, listener.assertOneGetNewAndReset().get("sb"));
-
-        epService.getEPAdministrator().destroyAllStatements();
-        iso.destroy();
-    }
-
-    private void runAssertionCurrentTimeWTime() {
-        EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T8:59:00.000GMT-04:00");
-
-        String epl = "select * from pattern[timer:schedule(date: current_timestamp.withTime(9, 0, 0, 0))]";
-        iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
-
-        sendCurrentTime(iso, "2012-10-01T8:59:59.999GMT-4:00");
-        assertFalse(listener.getIsInvokedAndReset());
-
-        sendCurrentTime(iso, "2012-10-01T9:00:00.000GMT-4:00");
-        assertTrue(listener.getIsInvokedAndReset());
-
-        sendCurrentTime(iso, "2012-10-03T9:00:00.000GMT-4:00");
-        assertFalse(listener.getIsInvokedAndReset());
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();

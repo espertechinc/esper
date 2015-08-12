@@ -10,6 +10,7 @@ package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
@@ -43,7 +44,7 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
      */
     protected ScheduleSpec spec = null;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws ObserverParameterException
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
     {
         ObserverParameterUtil.validateNoNamedParameters("timer:at", parameters);
         if (log.isDebugEnabled())

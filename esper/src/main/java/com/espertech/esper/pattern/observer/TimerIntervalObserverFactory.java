@@ -10,6 +10,7 @@ package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.pattern.EvalStateNodeNumber;
 import com.espertech.esper.pattern.MatchedEventConvertor;
@@ -40,7 +41,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
      */
     protected transient MatchedEventConvertor convertor;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws ObserverParameterException
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
     {
         ObserverParameterUtil.validateNoNamedParameters(NAME, parameters);
         String errorMessage = NAME + " requires a single numeric or time period parameter";

@@ -11,6 +11,7 @@
 
 package com.espertech.esper.support.pattern;
 
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.pattern.observer.ObserverFactory;
 import com.espertech.esper.pattern.observer.EventObserver;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class SupportObserverFactory implements ObserverFactory
 {
-    public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor) throws ObserverParameterException
+    public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
     {
     }
 

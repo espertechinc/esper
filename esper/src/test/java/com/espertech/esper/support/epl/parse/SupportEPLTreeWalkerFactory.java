@@ -25,6 +25,8 @@ import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import java.util.TimeZone;
+
 public class SupportEPLTreeWalkerFactory
 {
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream, EngineImportService engineImportService, VariableService variableService)
@@ -34,6 +36,6 @@ public class SupportEPLTreeWalkerFactory
 
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream)
     {
-        return makeWalker(tokenStream, new EngineImportServiceImpl(true, true, true, false, null), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
+        return makeWalker(tokenStream, new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
     }
 }

@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Provides access to engine configuration defaults for modification.
@@ -1364,6 +1365,7 @@ public class ConfigurationEngineDefaults implements Serializable
         private boolean extendedAggregation;
         private boolean duckTyping;
         private MathContext mathContext;
+        private TimeZone timeZone;
 
         /**
          * Ctor.
@@ -1375,6 +1377,7 @@ public class ConfigurationEngineDefaults implements Serializable
             udfCache = true;
             selfSubselectPreeval = true;
             extendedAggregation = true;
+            timeZone = TimeZone.getDefault();
         }
 
         /**
@@ -1518,6 +1521,22 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setMathContext(MathContext mathContext) {
             this.mathContext = mathContext;
+        }
+
+        /**
+         * Returns the time zone for calendar operations.
+         * @return time zone
+         */
+        public TimeZone getTimeZone() {
+            return timeZone;
+        }
+
+        /**
+         * Sets the time zone for calendar operations.
+         * @param timeZone time zone
+         */
+        public void setTimeZone(TimeZone timeZone) {
+            this.timeZone = timeZone;
         }
     }
 

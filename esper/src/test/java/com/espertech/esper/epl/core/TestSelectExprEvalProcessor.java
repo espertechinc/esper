@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 public class TestSelectExprEvalProcessor extends TestCase
 {
@@ -44,7 +45,7 @@ public class TestSelectExprEvalProcessor extends TestCase
         EventAdapterService eventAdapterService = SupportEventAdapterService.getService();
         SupportValueAddEventService vaeService = new SupportValueAddEventService();
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
-        MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null), null);
+        MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null);
 
         methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl());
 

@@ -12,16 +12,18 @@
 package com.espertech.esper.epl.expression.time;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class ExprTimePeriodEvalDeltaConstCalAdd implements ExprTimePeriodEvalDeltaConst
 {
-    private final Calendar cal = Calendar.getInstance();
+    private final Calendar cal;
     private final ExprTimePeriodImpl.TimePeriodAdder[] adders;
     private final int[] added;
 
-    public ExprTimePeriodEvalDeltaConstCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added) {
+    public ExprTimePeriodEvalDeltaConstCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, TimeZone timeZone) {
         this.adders = adders;
         this.added = added;
+        this.cal = Calendar.getInstance(timeZone);
     }
 
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst otherComputation) {

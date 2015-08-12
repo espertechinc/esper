@@ -39,6 +39,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
     private final StatementIsolationService statementIsolationService;
     private final StatementIdGenerator optionalStatementIdGenerator;
     private final FilterService filterService;
+    private final TimeZone timeZone;
 
     /**
      * Ctor.
@@ -48,7 +49,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
      * @param eventAdapterService event wrap service
      * @param statementIsolationService for isolated statement execution
      */
-    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, StatementIdGenerator optionalStatementIdGenerator, FilterService filterService) {
+    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, StatementIdGenerator optionalStatementIdGenerator, FilterService filterService, TimeZone timeZone) {
         this.epService = epService;
         this.deploymentStateService = deploymentStateService;
         this.statementEventTypeRef = statementEventTypeRef;
@@ -56,6 +57,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         this.statementIsolationService = statementIsolationService;
         this.optionalStatementIdGenerator = optionalStatementIdGenerator;
         this.filterService = filterService;
+        this.timeZone = timeZone;
     }
 
     public Module read(InputStream stream, String uri) throws IOException, ParseException
@@ -93,13 +95,13 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         if (deploymentStateService.getDeployment(assignedDeploymentId) != null) {
             throw new IllegalArgumentException("Assigned deployment id '" + assignedDeploymentId + "' is already in use");
         }
-        return deployInternal(module, options, assignedDeploymentId, Calendar.getInstance());
+        return deployInternal(module, options, assignedDeploymentId, Calendar.getInstance(timeZone));
     }
 
     public synchronized DeploymentResult deploy(Module module, DeploymentOptions options) throws DeploymentActionException
     {
         String deploymentId = deploymentStateService.nextDeploymentId();
-        return deployInternal(module, options, deploymentId, Calendar.getInstance());
+        return deployInternal(module, options, deploymentId, Calendar.getInstance(timeZone));
     }
 
     private DeploymentResult deployInternal(Module module, DeploymentOptions options, String deploymentId, Calendar addedDate) throws DeploymentActionException
@@ -240,7 +242,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         }
 
         DeploymentInformationItem[] deploymentInfoArr = statementNames.toArray(new DeploymentInformationItem[statementNames.size()]);
-        DeploymentInformation desc = new DeploymentInformation(deploymentId, module, addedDate, Calendar.getInstance(), deploymentInfoArr, DeploymentState.DEPLOYED);
+        DeploymentInformation desc = new DeploymentInformation(deploymentId, module, addedDate, Calendar.getInstance(timeZone), deploymentInfoArr, DeploymentState.DEPLOYED);
         deploymentStateService.addUpdateDeployment(desc);
 
         if (log.isDebugEnabled()) {
@@ -514,7 +516,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
 
     private void addInternal(Module module, String deploymentId) {
 
-        DeploymentInformation desc = new DeploymentInformation(deploymentId, module, Calendar.getInstance(), Calendar.getInstance(), new DeploymentInformationItem[0], DeploymentState.UNDEPLOYED);
+        DeploymentInformation desc = new DeploymentInformation(deploymentId, module, Calendar.getInstance(timeZone), Calendar.getInstance(timeZone), new DeploymentInformationItem[0], DeploymentState.UNDEPLOYED);
         deploymentStateService.addUpdateDeployment(desc);
     }
 
@@ -571,7 +573,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         }
 
         UndeploymentResult result = undeployRemoveInternal(info, undeploymentOptions);
-        DeploymentInformation updated = new DeploymentInformation(deploymentId, info.getModule(), info.getAddedDate(), Calendar.getInstance(), new DeploymentInformationItem[0], DeploymentState.UNDEPLOYED);
+        DeploymentInformation updated = new DeploymentInformation(deploymentId, info.getModule(), info.getAddedDate(), Calendar.getInstance(timeZone), new DeploymentInformationItem[0], DeploymentState.UNDEPLOYED);
         deploymentStateService.addUpdateDeployment(updated);
         return result;
     }

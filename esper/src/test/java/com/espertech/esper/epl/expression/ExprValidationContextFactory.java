@@ -17,9 +17,11 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.support.core.SupportExprEvaluatorContext;
 
+import java.util.TimeZone;
+
 public class ExprValidationContextFactory {
     public static ExprValidationContext makeEmpty() {
-        return new ExprValidationContext(null, new MethodResolutionServiceImpl(new EngineImportServiceImpl(false, false, false, false, null), null), null, null, null, null, new SupportExprEvaluatorContext(null), null, null, null, null, null, false, false, false, false, null, false);
+        return new ExprValidationContext(null, new MethodResolutionServiceImpl(new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault()), null), null, null, null, null, new SupportExprEvaluatorContext(null), null, null, null, null, null, false, false, false, false, null, false);
     }
 
     public static ExprValidationContext make(StreamTypeService streamTypeService) {

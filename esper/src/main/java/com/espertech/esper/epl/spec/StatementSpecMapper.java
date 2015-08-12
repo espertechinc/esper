@@ -2183,7 +2183,8 @@ public class StatementSpecMapper
         else if (expr instanceof TimePeriodExpression)
         {
             TimePeriodExpression tpe = (TimePeriodExpression) expr;
-            return new ExprTimePeriodImpl(tpe.isHasYears(), tpe.isHasMonths(), tpe.isHasWeeks(), tpe.isHasDays(), tpe.isHasHours(), tpe.isHasMinutes(), tpe.isHasSeconds(), tpe.isHasMilliseconds());
+            return new ExprTimePeriodImpl(mapContext.getConfiguration().getEngineDefaults().getExpression().getTimeZone(),
+                    tpe.isHasYears(), tpe.isHasMonths(), tpe.isHasWeeks(), tpe.isHasDays(), tpe.isHasHours(), tpe.isHasMinutes(), tpe.isHasSeconds(), tpe.isHasMilliseconds());
         }
         else if (expr instanceof NewOperatorExpression) {
             NewOperatorExpression noe = (NewOperatorExpression) expr;

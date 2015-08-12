@@ -41,6 +41,7 @@ import com.espertech.esper.view.window.LengthWindowViewFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 public class SupportExprNodeFactory
 {
@@ -439,6 +440,6 @@ public class SupportExprNodeFactory
 
     public static MethodResolutionService getMethodResService()
     {
-        return new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null), null);
+        return new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null);
     }
 }

@@ -49,12 +49,13 @@ public class EngineImportServiceImpl implements EngineImportService
     private final boolean isDuckType;
     private final boolean sortUsingCollator;
     private final MathContext optionalDefaultMathContext;
+    private final TimeZone timeZone;
 
     /**
 	 * Ctor
      * @param allowExtendedAggregationFunc true to allow non-SQL standard builtin agg functions.
 	 */
-	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext)
+	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone)
     {
         imports = new ArrayList<String>();
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
@@ -66,6 +67,7 @@ public class EngineImportServiceImpl implements EngineImportService
         this.isDuckType = isDuckType;
         this.sortUsingCollator = sortUsingCollator;
         this.optionalDefaultMathContext = optionalDefaultMathContext;
+        this.timeZone = timeZone;
     }
 
     public boolean isUdfCache() {
@@ -559,6 +561,10 @@ public class EngineImportServiceImpl implements EngineImportService
 
     public MathContext getDefaultMathContext() {
         return optionalDefaultMathContext;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 
     public boolean isSortUsingCollator() {

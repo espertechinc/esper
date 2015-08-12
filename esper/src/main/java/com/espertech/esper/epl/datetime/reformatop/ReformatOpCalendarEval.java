@@ -22,23 +22,26 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class ReformatOpCalendarEval implements ReformatOp {
 
     private final CalendarEval calendarEval;
+    private final TimeZone timeZone;
 
-    public ReformatOpCalendarEval(CalendarEval calendarEval) {
+    public ReformatOpCalendarEval(CalendarEval calendarEval, TimeZone timeZone) {
         this.calendarEval = calendarEval;
+        this.timeZone = timeZone;
     }
 
     public Object evaluate(Long ts, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(ts);
         return calendarEval.evaluateInternal(cal);
     }
 
     public Object evaluate(Date d, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(d.getTime());
         return calendarEval.evaluateInternal(cal);
     }

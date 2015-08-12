@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.TimeZone;
 
 public class TestSchedulingServiceImpl extends TestCase
 {
@@ -59,8 +60,8 @@ public class TestSchedulingServiceImpl extends TestCase
         assertTrue(service.isScheduled(callbacks[0]));
         service.add(100, callbacks[0], slots[0][0]);
 
-        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime()), callbacks[1], slots[0][0]);
-        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime()), callbacks[1], slots[0][0]);
+        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault()), callbacks[1], slots[0][0]);
+        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault()), callbacks[1], slots[0][0]);
     }
 
     public void testTrigger()
@@ -148,10 +149,10 @@ public class TestSchedulingServiceImpl extends TestCase
         spec.addValue(ScheduleUnit.MINUTES, 27);
         spec.addValue(ScheduleUnit.SECONDS, 20);
 
-        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime()), callbacks[3], slots[1][1]);
+        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault()), callbacks[3], slots[1][1]);
 
         spec.addValue(ScheduleUnit.SECONDS, 15);
-        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime()), callbacks[4], slots[2][0]);
+        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault()), callbacks[4], slots[2][0]);
 
         // Add some more callbacks
         service.add(5000, callbacks[0], slots[0][0]);

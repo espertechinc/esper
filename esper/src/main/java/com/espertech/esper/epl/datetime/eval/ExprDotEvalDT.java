@@ -14,27 +14,28 @@ package com.espertech.esper.epl.datetime.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.rettype.EPType;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.datetime.calop.CalendarOp;
 import com.espertech.esper.epl.datetime.interval.IntervalOp;
 import com.espertech.esper.epl.datetime.reformatop.ReformatOp;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotEvalVisitor;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.rettype.EPType;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class ExprDotEvalDT implements ExprDotEval
 {
     private final EPType returnType;
     private final DTLocalEvaluator evaluator;
 
-    public ExprDotEvalDT(List<CalendarOp> calendarOps, ReformatOp reformatOp, IntervalOp intervalOp, Class inputType, EventType inputEventType) {
-        this.evaluator = getEvaluator(calendarOps, inputType, inputEventType, reformatOp, intervalOp);
+    public ExprDotEvalDT(List<CalendarOp> calendarOps, TimeZone timeZone, ReformatOp reformatOp, IntervalOp intervalOp, Class inputType, EventType inputEventType) {
+        this.evaluator = getEvaluator(calendarOps, timeZone, inputType, inputEventType, reformatOp, intervalOp);
 
         if (intervalOp != null) {
             returnType = EPTypeHelper.singleValue(Boolean.class);
@@ -60,7 +61,7 @@ public class ExprDotEvalDT implements ExprDotEval
         visitor.visitDateTime();
     }
 
-    public DTLocalEvaluator getEvaluator(List<CalendarOp> calendarOps, Class inputType, EventType inputEventType, ReformatOp reformatOp, IntervalOp intervalOp) {
+    public DTLocalEvaluator getEvaluator(List<CalendarOp> calendarOps, TimeZone timeZone, Class inputType, EventType inputEventType, ReformatOp reformatOp, IntervalOp intervalOp) {
         if (inputEventType == null) {
             if (reformatOp != null) {
                 if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) {
@@ -73,13 +74,13 @@ public class ExprDotEvalDT implements ExprDotEval
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorDateReformat(reformatOp);
                     }
-                    return new DTLocalEvaluatorDateOpsReformat(calendarOps, reformatOp);
+                    return new DTLocalEvaluatorDateOpsReformat(calendarOps, reformatOp, timeZone);
                 }
                 else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLongReformat(reformatOp);
                     }
-                    return new DTLocalEvaluatorLongOpsReformat(calendarOps, reformatOp);
+                    return new DTLocalEvaluatorLongOpsReformat(calendarOps, reformatOp, timeZone);
                 }
             }
             else if (intervalOp != null) {
@@ -87,19 +88,19 @@ public class ExprDotEvalDT implements ExprDotEval
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorCalInterval(intervalOp);
                     }
-                    return new DTLocalEvaluatorCalOpsInterval(calendarOps, intervalOp);
+                    return new DTLocalEvaluatorCalOpsInterval(calendarOps, intervalOp, timeZone);
                 }
                 else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorDateInterval(intervalOp);
                     }
-                    return new DTLocalEvaluatorDateOpsInterval(calendarOps, intervalOp);
+                    return new DTLocalEvaluatorDateOpsInterval(calendarOps, intervalOp, timeZone);
                 }
                 else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLongInterval(intervalOp);
                     }
-                    return new DTLocalEvaluatorLongOpsInterval(calendarOps, intervalOp);
+                    return new DTLocalEvaluatorLongOpsInterval(calendarOps, intervalOp, timeZone);
                 }
             }
             else { // only calendar ops, nothing else
@@ -107,10 +108,10 @@ public class ExprDotEvalDT implements ExprDotEval
                     return new DTLocalEvaluatorCalOpsCal(calendarOps);
                 }
                 else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
-                    return new DTLocalEvaluatorCalOpsDate(calendarOps);
+                    return new DTLocalEvaluatorCalOpsDate(calendarOps, timeZone);
                 }
                 else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
-                    return new DTLocalEvaluatorCalOpsLong(calendarOps);
+                    return new DTLocalEvaluatorCalOpsLong(calendarOps, timeZone);
                 }
             }
             throw new IllegalArgumentException("Invalid input type '" + inputType + "'");
@@ -120,23 +121,23 @@ public class ExprDotEvalDT implements ExprDotEval
         Class getterResultType = inputEventType.getPropertyType(inputEventType.getStartTimestampPropertyName());
 
         if (reformatOp != null) {
-            DTLocalEvaluator inner = getEvaluator(calendarOps, getterResultType, null, reformatOp, null);
+            DTLocalEvaluator inner = getEvaluator(calendarOps, timeZone, getterResultType, null, reformatOp, null);
             return new DTLocalEvaluatorBeanReformat(getter, inner);
         }
         if (intervalOp == null) {   // only calendar ops
-            DTLocalEvaluator inner = getEvaluator(calendarOps, getterResultType, null, null, null);
+            DTLocalEvaluator inner = getEvaluator(calendarOps, timeZone, getterResultType, null, null, null);
             return new DTLocalEvaluatorBeanCalOps(getter, inner);
         }
 
         // have interval ops but no end timestamp
         if (inputEventType.getEndTimestampPropertyName() == null) {
-            DTLocalEvaluator inner = getEvaluator(calendarOps, getterResultType, null, null, intervalOp);
+            DTLocalEvaluator inner = getEvaluator(calendarOps, timeZone, getterResultType, null, null, intervalOp);
             return new DTLocalEvaluatorBeanIntervalNoEndTS(getter, inner);
         }
 
         // interval ops and have end timestamp
         EventPropertyGetter getterEndTimestamp = inputEventType.getGetter(inputEventType.getEndTimestampPropertyName());
-        DTLocalEvaluatorIntervalComp inner = (DTLocalEvaluatorIntervalComp) getEvaluator(calendarOps, getterResultType, null, null, intervalOp);
+        DTLocalEvaluatorIntervalComp inner = (DTLocalEvaluatorIntervalComp) getEvaluator(calendarOps, timeZone, getterResultType, null, null, intervalOp);
         return new DTLocalEvaluatorBeanIntervalWithEnd(getter, getterEndTimestamp, inner);
     }
 
@@ -208,12 +209,16 @@ public class ExprDotEvalDT implements ExprDotEval
     }
 
     private static class DTLocalEvaluatorDateOpsReformat extends DTLocalEvaluatorCalopReformatBase {
-        private DTLocalEvaluatorDateOpsReformat(List<CalendarOp> calendarOps, ReformatOp reformatOp) {
+
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorDateOpsReformat(List<CalendarOp> calendarOps, ReformatOp reformatOp, TimeZone timeZone) {
             super(calendarOps, reformatOp);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(((Date) target).getTime());
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             return reformatOp.evaluate(cal, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -231,12 +236,16 @@ public class ExprDotEvalDT implements ExprDotEval
     }
 
     private static class DTLocalEvaluatorLongOpsReformat extends DTLocalEvaluatorCalopReformatBase {
-        private DTLocalEvaluatorLongOpsReformat(List<CalendarOp> calendarOps, ReformatOp reformatOp) {
+
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorLongOpsReformat(List<CalendarOp> calendarOps, ReformatOp reformatOp, TimeZone timeZone) {
             super(calendarOps, reformatOp);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis((Long) target);
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             return reformatOp.evaluate(cal, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -286,8 +295,11 @@ public class ExprDotEvalDT implements ExprDotEval
     }
 
     private static class DTLocalEvaluatorCalOpsInterval extends DTLocalEvaluatorCalOpsIntervalBase {
-        private DTLocalEvaluatorCalOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp) {
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorCalOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp, TimeZone timeZone) {
             super(calendarOps, intervalOp);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -300,7 +312,7 @@ public class ExprDotEvalDT implements ExprDotEval
         public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
             long startLong = ((Calendar) startTimestamp).getTimeInMillis();
             long endLong = ((Calendar) endTimestamp).getTimeInMillis();
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(startLong);
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             long startTime = cal.getTimeInMillis();
@@ -327,12 +339,16 @@ public class ExprDotEvalDT implements ExprDotEval
     }
 
     private static class DTLocalEvaluatorDateOpsInterval extends DTLocalEvaluatorCalOpsIntervalBase {
-        private DTLocalEvaluatorDateOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp) {
+
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorDateOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp, TimeZone timeZone) {
             super(calendarOps, intervalOp);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(((Date) target).getTime());
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             long time = cal.getTimeInMillis();
@@ -342,7 +358,7 @@ public class ExprDotEvalDT implements ExprDotEval
         public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
             long startLong = ((Date) startTimestamp).getTime();
             long endLong = ((Date) endTimestamp).getTime();
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(startLong);
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             long startTime = cal.getTimeInMillis();
@@ -371,12 +387,15 @@ public class ExprDotEvalDT implements ExprDotEval
 
     private static class DTLocalEvaluatorLongOpsInterval extends DTLocalEvaluatorCalOpsIntervalBase {
 
-        private DTLocalEvaluatorLongOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp) {
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorLongOpsInterval(List<CalendarOp> calendarOps, IntervalOp intervalOp, TimeZone timeZone) {
             super(calendarOps, intervalOp);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis((Long) target);
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             long time = cal.getTimeInMillis();
@@ -386,7 +405,7 @@ public class ExprDotEvalDT implements ExprDotEval
         public Object evaluate(Object startTimestamp, Object endTimestamp, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
             long startLong = (Long) startTimestamp;
             long endLong = (Long) endTimestamp;
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(startLong);
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
             long startTime = cal.getTimeInMillis();
@@ -466,13 +485,16 @@ public class ExprDotEvalDT implements ExprDotEval
 
     private class DTLocalEvaluatorCalOpsLong extends DTLocalEvaluatorCalOpsCalBase implements DTLocalEvaluator {
 
-        private DTLocalEvaluatorCalOpsLong(List<CalendarOp> calendarOps) {
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorCalOpsLong(List<CalendarOp> calendarOps, TimeZone timeZone) {
             super(calendarOps);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
             Long longValue = (Long) target;
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(longValue);
 
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);
@@ -483,13 +505,16 @@ public class ExprDotEvalDT implements ExprDotEval
 
     private class DTLocalEvaluatorCalOpsDate extends DTLocalEvaluatorCalOpsCalBase implements DTLocalEvaluator {
 
-        private DTLocalEvaluatorCalOpsDate(List<CalendarOp> calendarOps) {
+        private final TimeZone timeZone;
+
+        private DTLocalEvaluatorCalOpsDate(List<CalendarOp> calendarOps, TimeZone timeZone) {
             super(calendarOps);
+            this.timeZone = timeZone;
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
             Date dateValue = (Date) target;
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(dateValue.getTime());
 
             evaluateCalOps(calendarOps, cal, eventsPerStream, isNewData, exprEvaluatorContext);

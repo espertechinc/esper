@@ -23,10 +23,7 @@ import javax.xml.xpath.XPathConstants;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TestConfigurationParser extends TestCase
 {
@@ -106,6 +103,7 @@ public class TestConfigurationParser extends TestCase
         assertTrue(config.getEngineDefaults().getExpression().isExtendedAggregation());
         assertFalse(config.getEngineDefaults().getExpression().isDuckTyping());
         assertNull(config.getEngineDefaults().getExpression().getMathContext());
+        assertEquals(TimeZone.getDefault(), config.getEngineDefaults().getExpression().getTimeZone());
         assertNull(config.getEngineDefaults().getExceptionHandling().getHandlerFactories());
         assertNull(config.getEngineDefaults().getConditionHandling().getHandlerFactories());
         assertEquals("js", config.getEngineDefaults().getScripts().getDefaultDialect());
@@ -453,6 +451,7 @@ public class TestConfigurationParser extends TestCase
         assertTrue(config.getEngineDefaults().getExpression().isDuckTyping());
         assertEquals(2, config.getEngineDefaults().getExpression().getMathContext().getPrecision());
         assertEquals(RoundingMode.CEILING, config.getEngineDefaults().getExpression().getMathContext().getRoundingMode());
+        assertEquals(TimeZone.getTimeZone("GMT-4:00"), config.getEngineDefaults().getExpression().getTimeZone());
         assertEquals(2, config.getEngineDefaults().getExceptionHandling().getHandlerFactories().size());
         assertEquals("my.company.cep.LoggingExceptionHandlerFactory", config.getEngineDefaults().getExceptionHandling().getHandlerFactories().get(0));
         assertEquals("my.company.cep.AlertExceptionHandlerFactory", config.getEngineDefaults().getExceptionHandling().getHandlerFactories().get(1));

@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Expression representing a time period.
@@ -31,6 +32,7 @@ import java.util.Calendar;
  */
 public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, ExprEvaluator
 {
+    private final TimeZone timeZone;
     private final boolean hasYear;
     private final boolean hasMonth;
     private final boolean hasWeek;
@@ -52,8 +54,9 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
      * @param hasSecond true if the expression has that part, false if not
      * @param hasMillisecond true if the expression has that part, false if not
      */
-    public ExprTimePeriodImpl(boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond)
+    public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond)
     {
+        this.timeZone = timeZone;
         this.hasYear = hasYear;
         this.hasMonth = hasMonth;
         this.hasWeek = hasWeek;
@@ -75,7 +78,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
             for (int i = 0; i < values.length; i++) {
                 values[i] = ((Number) evaluators[i].evaluate(null, true, context)).intValue();
             }
-            return new ExprTimePeriodEvalDeltaConstCalAdd(adders, values);
+            return new ExprTimePeriodEvalDeltaConstCalAdd(adders, values, timeZone);
         }
     }
 
@@ -84,7 +87,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
             return new ExprTimePeriodEvalDeltaNonConstMsec(this);
         }
         else {
-            return new ExprTimePeriodEvalDeltaNonConstCalAdd(this);
+            return new ExprTimePeriodEvalDeltaNonConstCalAdd(timeZone, this);
         }
     }
 

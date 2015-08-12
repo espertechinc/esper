@@ -446,7 +446,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     }
 
     public void exitTimePeriod(@NotNull EsperEPL2GrammarParser.TimePeriodContext ctx) {
-        ExprTimePeriod timeNode = ASTExprHelper.timePeriodGetExprAllParams(ctx, astExprNodeMap, variableService, statementSpec);
+        ExprTimePeriod timeNode = ASTExprHelper.timePeriodGetExprAllParams(ctx, astExprNodeMap, variableService, statementSpec, configurationInformation);
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(timeNode, ctx, astExprNodeMap);
     }
 
@@ -824,7 +824,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
             return;
         }
         if (ctx.s != null) {
-            ExprNode node = ASTExprHelper.timePeriodGetExprJustSeconds(ctx.expression(), astExprNodeMap);
+            ExprNode node = ASTExprHelper.timePeriodGetExprJustSeconds(ctx.expression(), astExprNodeMap, configurationInformation);
             astExprNodeMap.put(ctx, node);
         }
         else if (ctx.a != null || ctx.d != null) {

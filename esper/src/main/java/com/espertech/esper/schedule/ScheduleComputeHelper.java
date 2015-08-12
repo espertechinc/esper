@@ -51,7 +51,7 @@ public final class ScheduleComputeHelper
      * @param afterTimeInMillis defines the start time
      * @return a long date millisecond value for the next schedule occurance matching the spec
      */
-    public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis)
+    public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
         {
@@ -71,7 +71,7 @@ public final class ScheduleComputeHelper
             afterTimeInMillis += 60 * MIN_OFFSET_MSEC;
         }
 
-        return compute(spec, afterTimeInMillis);
+        return compute(spec, afterTimeInMillis, timeZone);
     }
 
     /**
@@ -81,12 +81,12 @@ public final class ScheduleComputeHelper
      * @param afterTimeInMillis defines the start time
      * @return a long millisecond value representing the delta between current time and the next schedule occurance matching the spec
      */
-    public static long computeDeltaNextOccurance(ScheduleSpec spec, long afterTimeInMillis)
+    public static long computeDeltaNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
     {
-        return computeNextOccurance(spec, afterTimeInMillis) - afterTimeInMillis;
+        return computeNextOccurance(spec, afterTimeInMillis, timeZone) - afterTimeInMillis;
     }
 
-    private static long compute(ScheduleSpec spec, long afterTimeInMillis)
+    private static long compute(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
     {
         while (true)
         {
@@ -95,7 +95,7 @@ public final class ScheduleComputeHelper
                 after = Calendar.getInstance(TimeZone.getTimeZone(spec.getOptionalTimeZone()));
             }
             else {
-                after = Calendar.getInstance();
+                after = Calendar.getInstance(timeZone);
             }
             after.setTimeInMillis(afterTimeInMillis);
 
@@ -154,7 +154,7 @@ public final class ScheduleComputeHelper
             boolean dayMatchRealDate = false;
             while (!dayMatchRealDate)
             {
-                if (checkDayValidInMonth(result.getDayOfMonth(), after.get(Calendar.MONTH), after.get(Calendar.YEAR)))
+                if (checkDayValidInMonth(timeZone, result.getDayOfMonth(), after.get(Calendar.MONTH), after.get(Calendar.YEAR)))
                 {
                     dayMatchRealDate = true;
                 }
@@ -181,13 +181,13 @@ public final class ScheduleComputeHelper
 
             // Perform a last valid date check, if failing, try to compute a new date based on this altered after date
             int year = after.get(Calendar.YEAR);
-            if (!(checkDayValidInMonth(result.getDayOfMonth(), result.getMonth() - 1, year)))
+            if (!(checkDayValidInMonth(timeZone, result.getDayOfMonth(), result.getMonth() - 1, year)))
             {
                 afterTimeInMillis = after.getTimeInMillis();
                 continue;
             }
 
-            return getTime(result, after.get(Calendar.YEAR), spec.getOptionalTimeZone());
+            return getTime(result, after.get(Calendar.YEAR), spec.getOptionalTimeZone(), timeZone);
         }
     }
 
@@ -314,14 +314,14 @@ public final class ScheduleComputeHelper
         return dayOfMonth;
     }
 
-    private static long getTime(ScheduleCalendar result, int year, String optionalTimeZone)
+    private static long getTime(ScheduleCalendar result, int year, String optionalTimeZone, TimeZone timeZone)
     {
         Calendar calendar;
         if (optionalTimeZone != null) {
             calendar = Calendar.getInstance(TimeZone.getTimeZone(optionalTimeZone));
         }
         else {
-            calendar = Calendar.getInstance();
+            calendar = Calendar.getInstance(timeZone);
         }
         calendar.set(year, result.getMonth() - 1, result.getDayOfMonth(), result.getHour(), result.getMinute(), result.getSecond());
         calendar.set(Calendar.MILLISECOND, result.getMilliseconds());
@@ -331,11 +331,11 @@ public final class ScheduleComputeHelper
     /*
      * Check if this is a valid date.
      */
-    private static boolean checkDayValidInMonth(int day, int month, int year)
+    private static boolean checkDayValidInMonth(TimeZone timeZone, int day, int month, int year)
     {
         try
         {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(timeZone);
             calendar.setLenient(false);
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);

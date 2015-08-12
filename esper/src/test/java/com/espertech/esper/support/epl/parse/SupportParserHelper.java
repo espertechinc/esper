@@ -34,12 +34,13 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.TimeZone;
 
 public class SupportParserHelper
 {
     public static EPLTreeWalkerListener parseAndWalkEPL(String expression) throws Exception
     {
-        return parseAndWalkEPL(expression, new EngineImportServiceImpl(true, true, true, false, null), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
+        return parseAndWalkEPL(expression, new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
     }
 
     public static EPLTreeWalkerListener parseAndWalkEPL(String expression, EngineImportService engineImportService, VariableService variableService) throws Exception

@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.client;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.pattern.observer.*;
 import com.espertech.esper.client.EPException;
@@ -23,7 +24,7 @@ public class MyFileExistsObserverFactory extends ObserverFactorySupport
     protected ExprNode filenameExpression;
     protected MatchedEventConvertor convertor;
 
-    public void setObserverParameters(List<ExprNode> expressionParameters, MatchedEventConvertor convertor) throws ObserverParameterException
+    public void setObserverParameters(List<ExprNode> expressionParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
     {
         String message = "File exists observer takes a single string filename parameter";
         if (expressionParameters.size() != 1)
