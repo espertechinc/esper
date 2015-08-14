@@ -922,17 +922,13 @@ sender.sendEvent(myEvent);]]></programlisting>
 				For an event to become unmatched by any statement, the event must not match any statement's event stream filter criteria. Note that the EPL  <literal>where</literal> clause or <literal>having</literal> clause are not considered part of the filter criteria for a stream, as explained by example below.
 			</para>
 			<para>
-				In the next statement all MyEvent events match the statement's event stream filter criteria, regardless of the value of the 'quantity' property. As long as the below statement remains started, the engine would not deliver MyEvent events to your registered <literal>UnmatchedListener</literal> instance:
-			</para>
-			<programlisting><![CDATA[select * from MyEvent where quantity > 5]]></programlisting>
-			
-			<para>
 				In the following statement a MyEvent event with a 'quantity' property value of 5 or less does not match this statement's event stream filter criteria. The engine delivers such an event to the registered <literal>UnmatchedListener</literal> instance provided no other statement matches on the event:
 			</para>
 			<programlisting><![CDATA[select * from MyEvent(quantity > 5)]]></programlisting>
 			<para>
 				 For patterns, if no pattern sub-expression is active for an event type, an event of that type also counts as unmatched in regards to the pattern statement.
 			</para>
+			
 		</sect2>
     </sect1>
 

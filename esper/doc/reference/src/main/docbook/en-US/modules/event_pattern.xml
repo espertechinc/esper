@@ -101,7 +101,7 @@
 
         <para>
 			Underlying the pattern matching is a state machine that transitions between states based on arriving events and based on time advancing. A single event or advancing time may 
-			cause a reaction in multiple parts of your active pattern state.
+			cause a reaction in multiple parts of your active pattern state. Patterns are stateful as the engine maintains pattern state.
          </para>
     </sect1>
 

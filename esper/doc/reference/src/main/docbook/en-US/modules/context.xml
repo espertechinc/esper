@@ -54,7 +54,7 @@
 			</listitem>
 			<listitem>
 				<para>
-                    Context partitions provide a fine-grained lifecycle that is independent of the lifecycle of statement lifecycle.
+                    Context partitions provide a fine-grained lifecycle that is independent of the lifecycle of statement lifecycle, making it easy to specify when an analysis should start and end.
                 </para>
 			</listitem>
 			<listitem>
@@ -79,7 +79,7 @@
 			</listitem>
 			<listitem>
 				<para>
-                    Using contexts your application can coordinate time boundaries for multiple statements.
+                    Using contexts your application can coordinate boundaries for multiple statements.
                 </para>
 			</listitem>
 		</orderedlist>		

@@ -28,7 +28,7 @@
 		</para>
 			
         <para>
-			Esper can apply match-recognize patterns in real-time upon arrival of new events in a stream of events (also termed incrementally,  streaming or continuous). Esper can also match patterns on-demand via the <literal>iterator</literal> pull-API, if specifying a named window or data window on a stream (tables cannot be used in the <literal>from</literal>-clause with match-recognize).
+			Esper can apply match-recognize patterns in real-time upon arrival of new events in a stream of events (also termed incrementally,  streaming or continuous). Esper can also match patterns on-demand via the <literal>iterator</literal> pull-API, if specifying a named window or data window on a stream (tables cannot be used in the <literal>from</literal>-clause with match-recognize). The engine maintains state for partial pattern matches and match-recognize patterns are therefore stateful constructs.
 		</para>
     </sect1>
    

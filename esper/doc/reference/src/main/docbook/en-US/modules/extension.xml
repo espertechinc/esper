@@ -2054,7 +2054,7 @@ engine.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction
 				The observer factory class implements the <literal>setObserverParameters</literal> method that is passed the parameters to the observer as supplied by the statement. It verifies the observer parameters, similar to the code snippet shown next. Our example file-exists observer takes a single string parameter:
 			</para>
 			<programlisting><![CDATA[public void setObserverParameters(List<ExprNode> expressionParameters, 
-			MatchedEventConvertor convertor) throws ObserverParameterException {
+			MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException {
     String message = "File exists observer takes a single string filename parameter";
     if (expressionParameters.size() != 1) {
 	    throw new ObserverParameterException(message);

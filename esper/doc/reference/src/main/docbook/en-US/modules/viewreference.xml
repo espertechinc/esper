@@ -19,7 +19,7 @@
         </para>
 
         <para>
-            Esper distinguishes between data window views and derived-value views. Data windows, or data window views, are views that retain incoming events until an expiry policy indicates to release events. Derived-value views derive a new value from event streams and post the result as events of a new type.
+            Esper distinguishes between data window views and derived-value views. Data windows, or data window views, are views that retain incoming events until an expiry policy indicates to release events. Derived-value views derive a new value from event streams and post the result as events of a new type. Both types of views are stateful.
         </para>
                 
         <para>
@@ -236,6 +236,32 @@
 		   <para>
 			   If a view takes no parameters, use empty parenthesis <literal>()</literal>.
 		   </para>
+		</sect1>
+
+		<sect1 xml:id="view-batchwindows" >
+		   <title>A Note on Batch Windows</title>
+		   
+		   <para>
+			   Batch windows buffer events until a certain threshold is reached and then release the batched events for processing. 
+			   The released events become the insert stream events and the previous batch of events constitutes the remove stream events.
+			   Batch windows thus retain the current and the last batch of events in memory.
+		   </para>
+		   
+		   <para>
+			   It is often desirable to aggregate without retaining events in memory. You can declare a context and define what starts and ends a "batch" instead.
+			   Contexts provide a large degree of freedom in allowing batches to overlap, in allowing batches to span multiple statements and in allowing batches to have complex start and end conditions.
+			   They are further described in <xref linkend="context"/>.
+		   </para>
+
+		   <para>
+			   This example declares a non-overlapping context that spans a time interval of 3 seconds (i.e. a batch of 3 seconds):
+		   </para>
+			<programlisting><![CDATA[create context BatchSpanning3Seconds start @now end after 3 sec]]></programlisting>
+
+		   <para>
+			   The next example EPL aggregates events without retaining events in memory and outputs at the end of each batch:
+		   </para>
+			<programlisting><![CDATA[context BatchSpanning3Seconds select count(*) from Events output snapshot when terminated]]></programlisting>
 		</sect1>
 
         <sect1 xml:id="win-views" >

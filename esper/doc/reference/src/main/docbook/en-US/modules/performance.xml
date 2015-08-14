@@ -1485,6 +1485,24 @@ select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]><
 					Certain important optimizations that the engine can perform when EPL statements realistically differ, may not take place. 
 					The engine also does not try to detect duplicate EPL statements, since that can easily be done by your application using public APIs. 
 				</para>
+				
+				<para>
+					Let's assume your test statement computes an aggregation over a 1-minute time window, for example <literal>select symbol, count(*) from StockTick.win:time(1 min) group by symbol</literal>.
+					If your code creates the same statement 100 times, and depending on engine configuration, the code instructs the engine to track 100 logically independent time windows 
+					and to track aggregations for each group 100 times. Obviously, this is not a good use of EPL and the design of your EPL statements and code may not be optimal.
+				</para>
+				
+				<para>
+					Consider the world of relational databases. Your code could attach to a relational database, create the same table with a different name 100 times, 
+					and populate each of the 100 different tables with the same row data. A relational database administrator would probably recommend against creating 100 identical tables holding the same row data. 
+				</para>
+
+				<para>
+					EPL allows you the freedom to design your EPL in a way that reuses state and processing.
+					For example, your EPL design could utilize a named window instead of allocating 100 independent time window. 
+					Since named windows are shared, the engine only needs to track one time window instead of 100.
+					And your EPL design could use a table to maintain aggregations once and in a central place, so that tracking counts per symbol is done once instead of 100 times.
+				</para>
 		</sect2>
 		<sect2 xml:id="perf-tips-28">
 				<title>Comparing Single-Threaded and Multi-Threaded Performance</title>

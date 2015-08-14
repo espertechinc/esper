@@ -16,7 +16,8 @@
 		</para>
 		
 		<para>
-			Named windows and tables both offer a way to share state between statements. Named windows and tables have differing capabilities and semantics. 
+			Named windows and tables both offer a way to share state between statements and are stateful. 
+			Named windows and tables have differing capabilities and semantics. 
 		</para>
 
 		<para>
