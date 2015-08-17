@@ -23,5 +23,15 @@ public interface RegexPartitionStateRandomAccess
      * @param index to return new data for
      * @return new data event
      */
-    public EventBean getPreviousEvent(int index);
+    EventBean getPreviousEvent(int index);
+
+    void newEventPrepare(EventBean newEvent);
+
+    void existingEventPrepare(EventBean theEvent);
+
+    void remove(EventBean[] oldEvents);
+
+    void remove(EventBean oldEvent);
+
+    boolean isEmpty();
 }

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class RegexPartitionStateImpl implements RegexPartitionState
 {
-    private RegexPartitionStateRandomAccessImpl randomAccess;
+    private RegexPartitionStateRandomAccess randomAccess;
     private List<RegexNFAStateEntry> currentStates = new ArrayList<RegexNFAStateEntry>();
     private Object optionalKeys;
 
@@ -31,7 +31,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
      * @param randomAccess for handling "prev" functions, if any
      * @param optionalKeys keys for "partition", if any
      */
-    public RegexPartitionStateImpl(RegexPartitionStateRandomAccessImpl randomAccess, Object optionalKeys)
+    public RegexPartitionStateImpl(RegexPartitionStateRandomAccess randomAccess, Object optionalKeys)
     {
         this.randomAccess = randomAccess;
         this.optionalKeys = optionalKeys;
@@ -68,7 +68,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
      * Returns the random access for "prev".
      * @return access
      */
-    public RegexPartitionStateRandomAccessImpl getRandomAccess() {
+    public RegexPartitionStateRandomAccess getRandomAccess() {
         return randomAccess;
     }
 

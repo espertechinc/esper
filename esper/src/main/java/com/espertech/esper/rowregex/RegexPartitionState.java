@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface RegexPartitionState
 {
-    public RegexPartitionStateRandomAccessImpl getRandomAccess();
+    public RegexPartitionStateRandomAccess getRandomAccess();
     public Iterator<RegexNFAStateEntry> getCurrentStatesIterator();
     public void setCurrentStates(List<RegexNFAStateEntry> currentStates);
     public Object getOptionalKeys();
