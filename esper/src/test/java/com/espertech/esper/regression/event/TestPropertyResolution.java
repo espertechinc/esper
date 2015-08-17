@@ -123,7 +123,16 @@ public class TestPropertyResolution extends TestCase
         // try control character
         tryInvalidControlCharacter(listener.assertOneGetNew());
 
+        // try enum with keyword
+        tryEnumWithKeyword();
+
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    private void tryEnumWithKeyword() {
+        epService.getEPAdministrator().getConfiguration().addEventType(LocalEventWithEnum.class);
+        epService.getEPAdministrator().getConfiguration().addImport(LocalEventEnum.class);
+        epService.getEPAdministrator().createEPL("select * from LocalEventWithEnum(localEventEnum=LocalEventEnum.`NEW`)");
     }
 
     private void tryInvalidControlCharacter(EventBean eventBean) {
@@ -311,4 +320,19 @@ public class TestPropertyResolution extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
+    public static class LocalEventWithEnum {
+        private LocalEventEnum localEventEnum;
+
+        public LocalEventWithEnum(LocalEventEnum localEventEnum) {
+            this.localEventEnum = localEventEnum;
+        }
+
+        public LocalEventEnum getLocalEventEnum() {
+            return localEventEnum;
+        }
+    }
+
+    public static enum LocalEventEnum {
+        NEW;
+    }
 }

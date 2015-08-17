@@ -1521,7 +1521,7 @@ public class JavaClassHelper
      */
     public static Object resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService, EngineImportService engineImportService)
             throws ExprValidationException
-        {
+    {
         int lastDotIndex = constant.lastIndexOf('.');
         if (lastDotIndex == -1)
         {
@@ -1529,6 +1529,11 @@ public class JavaClassHelper
         }
         String className = constant.substring(0, lastDotIndex);
         String constName = constant.substring(lastDotIndex + 1);
+
+        // un-escape
+        if (constName.startsWith("`") && constName.endsWith("`")) {
+            constName = constName.substring(1, constName.length() - 1);
+        }
 
         Class clazz;
         try
