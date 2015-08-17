@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import junit.framework.TestCase;
@@ -44,17 +45,20 @@ public class TestLiteralConstants extends TestCase
 
     public void testLiteral()
     {
-        String statement = "select 0x23 as mybyte, " +
-                           "'\u0041' as myunicode " +
-                           "from SupportBean";
+        String statement =  "select 0x23 as mybyte, " +
+                            "'\u0041' as myunicode," +
+                            "08 as zero8, " +
+                            "09 as zero9, " +
+                            "008 as zeroZero8 " +
+                            "from SupportBean";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(statement);
         stmt.addListener(updateListener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("e1", 100));
 
-        EventBean theEvent = updateListener.assertOneGetNewAndReset();
-        assertEquals((byte) 35, theEvent.get("mybyte"));
-        assertEquals("A", theEvent.get("myunicode"));
+        EPAssertionUtil.assertProps(updateListener.assertOneGetNewAndReset(),
+                "mybyte,myunicode,zero8,zero9,zeroZero8".split(","),
+                new Object[] {(byte) 35, "A", 8, 9, 8});
     }
 }

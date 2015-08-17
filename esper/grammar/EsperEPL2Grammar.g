@@ -1418,7 +1418,7 @@ IntegerTypeSuffix
 fragment
 DecimalNumeral
     :   '0'
-    |   NonZeroDigit (Digits? | Underscores Digits)
+    |   ('0')* NonZeroDigit (Digits? | Underscores Digits)
     ;
 
 fragment

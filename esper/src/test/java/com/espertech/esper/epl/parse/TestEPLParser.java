@@ -261,6 +261,10 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + "(string in [1:2])");
         assertIsValid(preFill + "(string in (1:2))");
         assertIsValid(preFill + "(string in (1:2])");
+        assertIsValid(preFill + "(intPrimitive = 08)");
+        assertIsValid(preFill + "(intPrimitive = 09)");
+        assertIsValid(preFill + "(intPrimitive = 008)");
+        assertIsValid(preFill + "(intPrimitive = 0008)");
         assertIsValid(preFill + "(intPrimitive between 1 and 2)");
         assertIsValid(preFill + "(intPrimitive not between 1 and 2)");
         assertIsValid(preFill + "(intPrimitive not in [1:2])");
