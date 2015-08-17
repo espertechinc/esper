@@ -1374,7 +1374,8 @@ select * from SensorEvent output when terminated then set myvar=3]]></programlis
         <title>Context and Named Window</title>
                 
 		<para>
-			Named windows are globally-visible data window that may be referred to by multiple statements. You may refer to named windows in statements that declare a context without any special considerations.
+			Named windows are globally-visible data windows that may be referred to by multiple statements. You may refer to named windows in statements that declare a context without any special considerations,
+			with the exception of on-action statements (latter must refer to the same context associated with the named window).
 		</para>
 		
 		<para>
@@ -1429,7 +1430,8 @@ on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
         <title>Context and Tables</title>
                 
 		<para>
-			Tables are globally-visible data structures that hold rows organized by primary key(s) and that may be referred to by multiple statements. 			
+			Tables are globally-visible data structures that hold rows organized by primary key(s) and that may be referred to by multiple statements. You may refer to tables in statements that declare a context 
+			without any special considerations, with the exception of on-action statements (latter must refer to the same context associated with the table).
 		</para>
 		
 		<para>
