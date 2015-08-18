@@ -52,8 +52,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         states.remove(partitionKey);
     }
 
-    public RegexPartitionStateRepo copyForIterate()
-    {
+    public RegexPartitionStateRepo copyForIterate(boolean forOutOfOrderReprocessing) {
         RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta);
         for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
         {

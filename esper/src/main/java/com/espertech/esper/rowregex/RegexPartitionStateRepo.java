@@ -46,7 +46,7 @@ public interface RegexPartitionStateRepo
      * Copy state for iteration.
      * @return copied state
      */
-    public RegexPartitionStateRepo copyForIterate();
+    public RegexPartitionStateRepo copyForIterate(boolean forOutOfOrderReprocessing);
 
     public void removeState(Object partitionKey);
 

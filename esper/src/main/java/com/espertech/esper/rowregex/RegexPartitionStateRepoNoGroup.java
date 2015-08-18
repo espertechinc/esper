@@ -49,8 +49,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
      * Copy state for iteration.
      * @return copy
      */
-    public RegexPartitionStateRepo copyForIterate()
-    {
+    public RegexPartitionStateRepo copyForIterate(boolean forOutOfOrderReprocessing) {
         RegexPartitionStateImpl state = new RegexPartitionStateImpl(singletonState.getRandomAccess(), null);
         return new RegexPartitionStateRepoNoGroup(state);
     }

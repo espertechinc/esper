@@ -335,7 +335,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     poolSvc.getStmtHandler().decreaseCount(size);
                 }
 
-                regexPartitionStateRepo = regexPartitionStateRepo.copyForIterate();
+                regexPartitionStateRepo = regexPartitionStateRepo.copyForIterate(true);
                 Iterator<EventBean> parentEvents = this.getParent().iterator();
                 EventRowRegexIteratorResult iteratorResult = processIterator(true, parentEvents, regexPartitionStateRepo);
                 eventSequenceNumber = iteratorResult.getEventSequenceNum();
@@ -714,7 +714,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
         Iterator<EventBean> it = parent.iterator();
 
-        RegexPartitionStateRepo regexPartitionStateRepoNew = regexPartitionStateRepo.copyForIterate();
+        RegexPartitionStateRepo regexPartitionStateRepoNew = regexPartitionStateRepo.copyForIterate(false);
 
         EventRowRegexIteratorResult iteratorResult = processIterator(false, it, regexPartitionStateRepoNew);
         List<RegexNFAStateEntry> endStates = iteratorResult.getEndStates();
