@@ -699,16 +699,28 @@ group by venue, ccyPair, side]]></programlisting>
 			</para>
 
 			<para>
-				Consider creating a keyed segmented context, for example:
+				Consider creating either a hash segmented context or a keyed segmented context. In the hash segmented context incoming data is simply assigned to one of the buckets using a small computation.
+				In the keyed segmented context the engine must check keys to see if a partition already exists or whether a new partition must be allocated. We'll discuss both below.
+				For both types of context, since locking is on the level of context partition, the locks taken by the engine are very fine grained allowing for highly concurrent processing. 
+			</para>
+
+			<para>
+				This sample EPL declares a hash segmented context. In a hash segmented context the engine can pre-allocate context partitions and therefore does not need to check whether
+				a partition exists already. In a hash segmented context the engine simply assigns events to context partitions based on result of a hash function and modulo operation. 
+			</para>
+			<programlisting><![CDATA[create context MyContext coalesce by consistent_hash_crc32(venue) from CumulativePrice(side='O') granularity 16 preallocate]]></programlisting>
+
+			<para>
+				This sample EPL declares a keyed segmented context. The keyed segmented context instructs the engine to employ a context partition per <literal>venue, ccyPair, side</literal> key combination. The engine must check for each event whether a partition exists for that combination of <literal>venue</literal>, <literal>ccyPair</literal> and <literal>side</literal>:
 			</para>
 			<programlisting><![CDATA[create context MyContext partition by venue, ccyPair, side from CumulativePrice(side='O')]]></programlisting>
 
 			<para>
-				The keyed segmented context instructs the engine to employ a context partition per <literal>venue, ccyPair, side</literal> key combination. As locking is on the level of context partition, the locks taken by the engine are very fine grained allowing for highly concurrent processing.
+				After declaring the context using <literal>create context</literal>, make sure all your statements, including those statements that create named windows and tables, specify that context. This is done by prefixing each statement with <literal>context </literal><emphasis>context_name</emphasis><literal> ....</literal>.
 			</para>
 			
 			<para>
-				The new statement that refers to the context as created above is:
+				The new statement that refers to the context as created above is below. Note the <literal>context MyContext</literal> which tells the engine that this statement executes context partitioned. This must be provided otherwise the statement does not execute context partitioned.
 			</para>
 			<programlisting><![CDATA[context MyContext select venue, ccyPair, side, sum(qty) from CumulativePrice]]></programlisting>
 
