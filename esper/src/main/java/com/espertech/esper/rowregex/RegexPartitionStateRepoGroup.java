@@ -34,6 +34,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     private final Map<Object, RegexPartitionStateImpl> states;
 
     private int currentCollectionSize = INITIAL_COLLECTION_MIN;
+    private int eventSequenceNumber;
 
     /**
      * Ctor.
@@ -46,6 +47,15 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         this.getter = getter;
         this.meta = meta;
         this.states = new HashMap<Object, RegexPartitionStateImpl>();
+    }
+
+    public int incrementAndGetEventSequenceNum() {
+        ++eventSequenceNumber;
+        return eventSequenceNumber;
+    }
+
+    public void setEventSequenceNum(int num) {
+        this.eventSequenceNumber = num;
     }
 
     public void removeState(Object partitionKey) {

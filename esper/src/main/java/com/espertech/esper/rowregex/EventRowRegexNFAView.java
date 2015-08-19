@@ -89,7 +89,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     // state
     private RegexPartitionStateRepo regexPartitionStateRepo;
     private LinkedHashSet<EventBean> windowMatchedEventset; // this is NOT per partition - some optimizations are done for batch-processing (minus is out-of-sequence in partition) 
-    private int eventSequenceNumber;
 
     /**
      * Ctor.
@@ -338,7 +337,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                 regexPartitionStateRepo = regexPartitionStateRepo.copyForIterate(true);
                 Iterator<EventBean> parentEvents = this.getParent().iterator();
                 EventRowRegexIteratorResult iteratorResult = processIterator(true, parentEvents, regexPartitionStateRepo);
-                eventSequenceNumber = iteratorResult.getEventSequenceNum();
+                regexPartitionStateRepo.setEventSequenceNum(iteratorResult.getEventSequenceNum());
             }
             else {
                 // remove old events from repository - and let the repository know there are no interesting events left
@@ -363,7 +362,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         for (EventBean newEvent : newData)
         {
             List<RegexNFAStateEntry> nextStates = new ArrayList<RegexNFAStateEntry>(2);
-            eventSequenceNumber++;
+            int eventSequenceNumber = regexPartitionStateRepo.incrementAndGetEventSequenceNum();
 
             // get state holder for this event
             RegexPartitionState partitionState = regexPartitionStateRepo.getState(newEvent, true);

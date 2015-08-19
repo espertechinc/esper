@@ -55,4 +55,7 @@ public interface RegexPartitionStateRepo
     public boolean isPartitioned();
 
     public int getStateCount();
+
+    public int incrementAndGetEventSequenceNum();
+    public void setEventSequenceNum(int num);
 }

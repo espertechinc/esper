@@ -22,6 +22,7 @@ import java.util.Collections;
 public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 {
     private final RegexPartitionStateImpl singletonState;
+    private int eventSequenceNumber;
 
     /**
      * Ctor.
@@ -30,6 +31,15 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
     public RegexPartitionStateRepoNoGroup(RegexPartitionStateImpl singletonState)
     {
         this.singletonState = singletonState;
+    }
+
+    public int incrementAndGetEventSequenceNum() {
+        ++eventSequenceNumber;
+        return eventSequenceNumber;
+    }
+
+    public void setEventSequenceNum(int num) {
+        this.eventSequenceNumber = num;
     }
 
     /**
