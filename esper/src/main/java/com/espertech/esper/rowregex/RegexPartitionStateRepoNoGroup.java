@@ -22,6 +22,7 @@ import java.util.Collections;
 public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
 {
     private final RegexPartitionStateImpl singletonState;
+    private final RegexPartitionStateRepoScheduleStateImpl optionalIntervalSchedules;
     private int eventSequenceNumber;
 
     /**
@@ -31,6 +32,7 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
     public RegexPartitionStateRepoNoGroup(RegexPartitionStateImpl singletonState)
     {
         this.singletonState = singletonState;
+        this.optionalIntervalSchedules = null;
     }
 
     public int incrementAndGetEventSequenceNum() {
@@ -42,13 +44,18 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         this.eventSequenceNumber = num;
     }
 
+    public RegexPartitionStateRepoScheduleState getScheduleState() {
+        return optionalIntervalSchedules;
+    }
+
     /**
      * Ctor.
      * @param getter "prev" getter
      */
-    public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter)
+    public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare)
     {
         singletonState = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>());
+        optionalIntervalSchedules = keepScheduleState ? new RegexPartitionStateRepoScheduleStateImpl(terminationStateCompare) : null;
     }
 
     public void removeState(Object partitionKey) {
@@ -103,4 +110,6 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
     public int getStateCount() {
         return singletonState.getNumStates();
     }
+
+
 }

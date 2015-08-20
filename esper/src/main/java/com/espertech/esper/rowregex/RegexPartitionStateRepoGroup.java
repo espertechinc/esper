@@ -32,6 +32,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     private final RegexPartitionStateRepoGroupMeta meta;
     private final RegexPartitionStateRandomAccessGetter getter;
     private final Map<Object, RegexPartitionStateImpl> states;
+    private final RegexPartitionStateRepoScheduleStateImpl optionalIntervalSchedules;
 
     private int currentCollectionSize = INITIAL_COLLECTION_MIN;
     private int eventSequenceNumber;
@@ -42,11 +43,14 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
      * @param meta general metadata for grouping
      */
     public RegexPartitionStateRepoGroup(RegexPartitionStateRandomAccessGetter getter,
-                                        RegexPartitionStateRepoGroupMeta meta)
+                                        RegexPartitionStateRepoGroupMeta meta,
+                                        boolean keepScheduleState,
+                                        RegexPartitionTerminationStateComparator terminationStateCompare)
     {
         this.getter = getter;
         this.meta = meta;
         this.states = new HashMap<Object, RegexPartitionStateImpl>();
+        this.optionalIntervalSchedules = keepScheduleState ? new RegexPartitionStateRepoScheduleStateImpl(terminationStateCompare) : null;
     }
 
     public int incrementAndGetEventSequenceNum() {
@@ -58,12 +62,16 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         this.eventSequenceNumber = num;
     }
 
+    public RegexPartitionStateRepoScheduleState getScheduleState() {
+        return optionalIntervalSchedules;
+    }
+
     public void removeState(Object partitionKey) {
         states.remove(partitionKey);
     }
 
     public RegexPartitionStateRepo copyForIterate(boolean forOutOfOrderReprocessing) {
-        RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta);
+        RegexPartitionStateRepoGroup copy = new RegexPartitionStateRepoGroup(getter, meta, false, null);
         for (Map.Entry<Object, RegexPartitionStateImpl> entry : states.entrySet())
         {
             copy.states.put(entry.getKey(), new RegexPartitionStateImpl(entry.getValue().getRandomAccess(), entry.getKey()));

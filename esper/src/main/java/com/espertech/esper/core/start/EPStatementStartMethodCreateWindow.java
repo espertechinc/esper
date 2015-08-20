@@ -13,6 +13,7 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindow;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindowResult;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateWindowDesc;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
@@ -134,7 +135,9 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService());
 
             // create context factory
-            StatementAgentInstanceFactoryCreateWindow contextFactory = new StatementAgentInstanceFactoryCreateWindow(statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
+            // Factory for statement-context instances
+            StatementAgentInstanceFactoryCreateWindow contextFactory = services.getStmtAgentInstanceFactoryFactorySvc().makeFactoryCreateWindow(
+                    statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
 
             // With context - delegate instantiation to context
             final EPStatementStopMethod stopMethod = new EPStatementStopMethodImpl(statementContext, stopCallbacks);

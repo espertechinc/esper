@@ -457,7 +457,12 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
 
-        return new EventRowRegexNFAView(this,
+        EventRowRegexNFAViewScheduler scheduler = null;
+        if (matchRecognizeSpec.getInterval() != null) {
+            scheduler = new EventRowRegexNFAViewSchedulerImpl();
+        }
+
+        EventRowRegexNFAView view = new EventRowRegexNFAView(this,
                 compositeEventType,
                 rowEventType,
                 matchRecognizeSpec,
@@ -474,8 +479,15 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                 isIterateOnly,
                 isCollectMultimatches,
                 expandedPatternNode,
-                matchRecognizeConfig
+                matchRecognizeConfig,
+                scheduler
              );
+
+        if (scheduler != null) {
+            scheduler.setScheduleCallback(agentInstanceViewFactoryContext.getAgentInstanceContext(), view);
+        }
+
+        return view;
     }
 
     public EventType getEventType() {

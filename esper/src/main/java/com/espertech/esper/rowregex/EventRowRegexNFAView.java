@@ -17,8 +17,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
 import com.espertech.esper.epl.agg.service.AggregationServiceMatchRecognize;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -32,8 +30,6 @@ import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.ViewSupport;
@@ -45,7 +41,7 @@ import java.util.*;
 /**
  * View for match recognize support.
  */
-public class EventRowRegexNFAView extends ViewSupport implements StopCallback, EventRowRegexNFAViewService
+public class EventRowRegexNFAView extends ViewSupport implements StopCallback, EventRowRegexNFAViewService, EventRowRegexNFAViewScheduleCallback
 {
     private static final Log log = LogFactory.getLog(EventRowRegexNFAView.class);
     private static final boolean IS_DEBUG = false;
@@ -63,9 +59,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private final AggregationServiceMatchRecognize aggregationService;
 
     // for interval-handling
-    private final ScheduleSlot scheduleSlot;
-    private final EPStatementHandleCallback handle;
-    private final TreeMap<Long, Object> schedule;
+    protected final EventRowRegexNFAViewScheduler scheduler;
     private final boolean isOrTerminated;
 
     private final ExprEvaluator[] columnEvaluators;
@@ -121,7 +115,8 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                                 boolean isIterateOnly,
                                 boolean isCollectMultimatches,
                                 RowRegexExprNode expandedPatternNode,
-                                ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig)
+                                ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig,
+                                EventRowRegexNFAViewScheduler scheduler)
     {
         this.factory = factory;
         this.matchRecognizeSpec = matchRecognizeSpec;
@@ -129,6 +124,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         this.compositeEventBean = new ObjectArrayEventBean(new Object[variableStreams.size()], compositeEventType);
         this.rowEventType = rowEventType;
         this.variableStreams = variableStreams;
+        this.scheduler = scheduler;
 
         // determine names of multimatching variables
         if (variablesSingle.size() == variableStreams.size()) {
@@ -163,28 +159,11 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         this.agentInstanceContext = agentInstanceContext;
         this.isCollectMultimatches = isCollectMultimatches;
 
-        if (matchRecognizeSpec.getInterval() != null)
-        {
-            scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
-            ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-                public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
-                {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExScheduledEval();}
-                    EventRowRegexNFAView.this.triggered();
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExScheduledEval();}
-                }
-            };
-            handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
-            schedule = new TreeMap<Long, Object>();
-
+        if (matchRecognizeSpec.getInterval() != null) {
             agentInstanceContext.addTerminationCallback(this);
             isOrTerminated = matchRecognizeSpec.getInterval().isOrTerminated();
         }
-        else
-        {
-            scheduleSlot = null;
-            handle = null;
-            schedule = null;
+        else {
             isOrTerminated = false;
         }
 
@@ -237,22 +216,23 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
         // create state repository
         RegexHandlerFactory repoFactory = agentInstanceContext.getStatementContext().getRegexPartitionStateRepoFactory();
+        RegexPartitionTerminationStateComparator terminationStateCompare = new RegexPartitionTerminationStateComparator(multimatchStreamNumToVariable, variableStreams);
         if (this.matchRecognizeSpec.getPartitionByExpressions().isEmpty())
         {
-            regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this);
+            regexPartitionStateRepo = repoFactory.makeSingle(prevGetter, agentInstanceContext, this, matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         }
         else
         {
             RegexPartitionStateRepoGroupMeta stateRepoGroupMeta = new RegexPartitionStateRepoGroupMeta(matchRecognizeSpec.getInterval() != null,
                 ExprNodeUtility.toArray(matchRecognizeSpec.getPartitionByExpressions()),
                 ExprNodeUtility.getEvaluators(matchRecognizeSpec.getPartitionByExpressions()), agentInstanceContext);
-            regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this);
+            regexPartitionStateRepo = repoFactory.makePartitioned(prevGetter, stateRepoGroupMeta, agentInstanceContext, this, matchRecognizeSpec.getInterval() != null, terminationStateCompare);
         }
     }
 
     public void stop() {
-        if (handle != null) {
-            agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
+        if (scheduler != null) {
+            scheduler.removeSchedule();
         }
         if (isTrackMaxStates) {
             int size = regexPartitionStateRepo.getStateCount();
@@ -453,7 +433,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     long deltaFromStart = current - matchBeginTime;
                     long deltaUntil = matchRecognizeSpec.getInterval().getScheduleForwardDelta(current, agentInstanceContext) - deltaFromStart;
 
-                    if (schedule.containsKey(matchBeginTime))
+                    if (regexPartitionStateRepo.getScheduleState().containsKey(matchBeginTime))
                     {
                         scheduleCallback(deltaUntil, endState);
                         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegIntervalState(true);}
@@ -1228,164 +1208,62 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private void scheduleCallback(long msecAfterCurrentTime, RegexNFAStateEntry endState)
     {
         long matchBeginTime = endState.getMatchBeginEventTime();
-        if (schedule.isEmpty())
+        if (regexPartitionStateRepo.getScheduleState().isEmpty())
         {
-            schedule.put(matchBeginTime, endState);
-            agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+            regexPartitionStateRepo.getScheduleState().putOrAdd(matchBeginTime, endState);
+            scheduler.addSchedule(msecAfterCurrentTime);
         }
         else
         {
-            Object value = schedule.get(matchBeginTime);
-            if (value == null)
-            {
-                long currentFirstKey = schedule.firstKey();
-                if (currentFirstKey > matchBeginTime)
-                {
-                    agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
-                    agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+            boolean newEntry = regexPartitionStateRepo.getScheduleState().putOrAdd(matchBeginTime, endState);
+            if (newEntry) {
+                long currentFirstKey = regexPartitionStateRepo.getScheduleState().firstKey();
+                if (currentFirstKey > matchBeginTime) {
+                    scheduler.changeSchedule(msecAfterCurrentTime);
                 }
-
-                schedule.put(matchBeginTime, endState);
-            }
-            else if (value instanceof RegexNFAStateEntry)
-            {
-                RegexNFAStateEntry valueEntry = (RegexNFAStateEntry) value;
-                List<RegexNFAStateEntry> list = new ArrayList<RegexNFAStateEntry>();
-                list.add(valueEntry);
-                list.add(endState);
-                schedule.put(matchBeginTime, list);
-            }
-            else
-            {
-                List<RegexNFAStateEntry> list = (List<RegexNFAStateEntry>) value;
-                list.add(endState);
             }
         }
     }
 
     private void removeScheduleAddEndState(RegexNFAStateEntry terminationState, List<RegexNFAStateEntry> foundEndStates) {
         long matchBeginTime = terminationState.getMatchBeginEventTime();
-        Object value = schedule.get(matchBeginTime);
-        if (value == null) {
-            return;
-        }
-        if (value instanceof RegexNFAStateEntry) {
-            RegexNFAStateEntry single = (RegexNFAStateEntry) value;
-            if (compareTerminationStateToEndState(terminationState, single)) {
-                schedule.remove(matchBeginTime);
-                if (schedule.isEmpty()) {
-                    // we do not reschedule and accept a wasted schedule check
-                    agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
-                }
-                foundEndStates.add(single);
-            }
-        }
-        else {
-            List<RegexNFAStateEntry> entries = (List<RegexNFAStateEntry>) value;
-            Iterator<RegexNFAStateEntry> it = entries.iterator();
-            for (;it.hasNext();) {
-                RegexNFAStateEntry endState = it.next();
-                if (compareTerminationStateToEndState(terminationState, endState)) {
-                    it.remove();
-                    foundEndStates.add(endState);
-                }
-            }
-            if (entries.isEmpty()) {
-                schedule.remove(matchBeginTime);
-                if (schedule.isEmpty()) {
-                    // we do not reschedule and accept a wasted schedule check
-                    agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
-                }
-            }
+        boolean removedOne = regexPartitionStateRepo.getScheduleState().findRemoveAddToList(matchBeginTime, terminationState, foundEndStates);
+        if (removedOne && regexPartitionStateRepo.getScheduleState().isEmpty()) {
+            scheduler.removeSchedule();
         }
     }
 
-    // End-state may have less events then the termination state
-    private boolean compareTerminationStateToEndState(RegexNFAStateEntry terminationState, RegexNFAStateEntry endState) {
-        if (terminationState.getMatchBeginEventSeqNo() != endState.getMatchBeginEventSeqNo()) {
-            return false;
-        }
-        for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
-            int stream = entry.getValue().getFirst();
-            boolean multi = entry.getValue().getSecond();
-            if (multi) {
-                EventBean[] termStreamEvents = getMultimatchArray(terminationState, stream);
-                EventBean[] endStreamEvents = getMultimatchArray(endState, stream);
-                if (endStreamEvents != null) {
-                    if (termStreamEvents == null) {
-                        return false;
-                    }
-                    for (int i = 0; i < endStreamEvents.length; i++) {
-                        if (termStreamEvents.length > i && endStreamEvents[i] != termStreamEvents[i]) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            else {
-                EventBean termStreamEvent = terminationState.getEventsPerStream()[stream];
-                EventBean endStreamEvent = endState.getEventsPerStream()[stream];
-                if (endStreamEvent != null && endStreamEvent != termStreamEvent) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private EventBean[] getMultimatchArray(RegexNFAStateEntry state, int stream) {
-        if (state.getOptionalMultiMatches() == null) {
-            return null;
-        }
-        int index = multimatchStreamNumToVariable[stream];
-        MultimatchState multiMatches = state.getOptionalMultiMatches()[index];
-        if (multiMatches == null) {
-            return null;
-        }
-        return multiMatches.getShrinkEventArray();
-    }
-
-    private void triggered()
+    public void triggered()
     {
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         long intervalMSec = this.matchRecognizeSpec.getInterval().getScheduleBackwardDelta(currentTime, agentInstanceContext);
-        if (schedule.isEmpty()) {
+        if (regexPartitionStateRepo.getScheduleState().isEmpty()) {
             return;
         }
 
         List<RegexNFAStateEntry> indicatables = new ArrayList<RegexNFAStateEntry>();
         while (true)
         {
-            long firstKey = schedule.firstKey();
+            long firstKey = regexPartitionStateRepo.getScheduleState().firstKey();
             long cutOffTime = currentTime - intervalMSec;
             if (firstKey > cutOffTime)
             {
                 break;
             }
 
-            Object value = schedule.remove(firstKey);
+            regexPartitionStateRepo.getScheduleState().removeAddRemoved(firstKey, indicatables);
 
-            if (value instanceof RegexNFAStateEntry)
-            {
-                indicatables.add((RegexNFAStateEntry) value);
-            }
-            else
-            {
-                List<RegexNFAStateEntry> list = (List<RegexNFAStateEntry>) value;
-                indicatables.addAll(list);
-            }
-
-            if (schedule.isEmpty())
+            if (regexPartitionStateRepo.getScheduleState().isEmpty())
             {
                 break;
             }
         }
 
         // schedule next
-        if (!schedule.isEmpty())
+        if (!regexPartitionStateRepo.getScheduleState().isEmpty())
         {
-            long msecAfterCurrentTime = schedule.firstKey() + intervalMSec - agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-            agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+            long msecAfterCurrentTime = regexPartitionStateRepo.getScheduleState().firstKey() + intervalMSec - agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+            scheduler.addSchedule(msecAfterCurrentTime);
         }
 
         if (!matchRecognizeSpec.isAllMatches())

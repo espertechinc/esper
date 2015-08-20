@@ -20,6 +20,18 @@ import java.util.*;
 
 public class EventRowRegexNFAViewUtil
 {
+    protected static EventBean[] getMultimatchArray(int[] multimatchStreamNumToVariable, RegexNFAStateEntry state, int stream) {
+        if (state.getOptionalMultiMatches() == null) {
+            return null;
+        }
+        int index = multimatchStreamNumToVariable[stream];
+        MultimatchState multiMatches = state.getOptionalMultiMatches()[index];
+        if (multiMatches == null) {
+            return null;
+        }
+        return multiMatches.getShrinkEventArray();
+    }
+
     protected static String printStates(List<RegexNFAStateEntry> states, Map<Integer, String> streamsVariables, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
         StringBuilder buf = new StringBuilder();
         String delimiter = "";

@@ -58,4 +58,6 @@ public interface RegexPartitionStateRepo
 
     public int incrementAndGetEventSequenceNum();
     public void setEventSequenceNum(int num);
+
+    public RegexPartitionStateRepoScheduleState getScheduleState();
 }

@@ -25,11 +25,11 @@ public class RegexHandlerFactoryDefault implements RegexHandlerFactory {
         return new EventRowRegexNFAViewFactory(viewFactoryChain, matchRecognizeSpec, agentInstanceContext, isUnbound, annotations, matchRecognizeConfigs);
     }
 
-    public RegexPartitionStateRepo makeSingle(RegexPartitionStateRandomAccessGetter prevGetter, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view) {
-        return new RegexPartitionStateRepoNoGroup(prevGetter);
+    public RegexPartitionStateRepo makeSingle(RegexPartitionStateRandomAccessGetter prevGetter, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare) {
+        return new RegexPartitionStateRepoNoGroup(prevGetter, keepScheduleState, terminationStateCompare);
     }
 
-    public RegexPartitionStateRepo makePartitioned(RegexPartitionStateRandomAccessGetter prevGetter, RegexPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view) {
-        return new RegexPartitionStateRepoGroup(prevGetter, stateRepoGroupMeta);
+    public RegexPartitionStateRepo makePartitioned(RegexPartitionStateRandomAccessGetter prevGetter, RegexPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare) {
+        return new RegexPartitionStateRepoGroup(prevGetter, stateRepoGroupMeta, keepScheduleState, terminationStateCompare);
     }
 }

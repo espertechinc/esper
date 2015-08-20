@@ -12,6 +12,7 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.core.context.activator.ViewableActivator;
+import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -25,5 +26,6 @@ import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.view.ViewFactoryChain;
 
 public interface StatementAgentInstanceFactoryFactorySvc {
-    public StatementAgentInstanceFactorySelect makeFactorySelect(int numStreams, ViewableActivator[] eventStreamParentViewableActivators, StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, StreamTypeService typeService, ViewFactoryChain[] unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototypeDesc, StreamJoinAnalysisResult joinAnalysisResult, boolean recoveringResilient, JoinSetComposerPrototype joinSetComposerPrototype, SubSelectStrategyCollection subSelectStrategyCollection, ViewResourceDelegateVerified viewResourceDelegateVerified, OutputProcessViewFactory outputViewFactory);
+    StatementAgentInstanceFactorySelect makeFactorySelect(int numStreams, ViewableActivator[] eventStreamParentViewableActivators, StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, StreamTypeService typeService, ViewFactoryChain[] unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototypeDesc, StreamJoinAnalysisResult joinAnalysisResult, boolean recoveringResilient, JoinSetComposerPrototype joinSetComposerPrototype, SubSelectStrategyCollection subSelectStrategyCollection, ViewResourceDelegateVerified viewResourceDelegateVerified, OutputProcessViewFactory outputViewFactory);
+    StatementAgentInstanceFactoryCreateWindow makeFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivatorFilterProxy activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputViewFactory, boolean isRecoveringStatement);
 }

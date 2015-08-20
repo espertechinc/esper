@@ -12,6 +12,7 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.core.context.activator.ViewableActivator;
+import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -31,5 +32,9 @@ public class StatementAgentInstanceFactoryFactorySvcDefault implements Statement
                 statementContext, statementSpec, services,
                 typeService, unmaterializedViewChain, resultSetProcessorPrototypeDesc, joinAnalysisResult, recoveringResilient,
                 joinSetComposerPrototype, subSelectStrategyCollection, viewResourceDelegateVerified, outputViewFactory);
+    }
+
+    public StatementAgentInstanceFactoryCreateWindow makeFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivatorFilterProxy activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputViewFactory, boolean isRecoveringStatement) {
+        return new StatementAgentInstanceFactoryCreateWindow(statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
     }
 }
