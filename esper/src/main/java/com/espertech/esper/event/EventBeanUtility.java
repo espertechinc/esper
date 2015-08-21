@@ -397,21 +397,6 @@ public class EventBeanUtility
         return keys;
     }
 
-    private static void coerce(Object[] keyValues, Class[] coercionTypes) {
-        for (int i = 0; i < coercionTypes.length; i++)
-        {
-            Object key = keyValues[i];
-            if ((key != null) && (!key.getClass().equals(coercionTypes[i])))
-            {
-                if (key instanceof Number)
-                {
-                    key = JavaClassHelper.coerceBoxed((Number) key, coercionTypes[i]);
-                    keyValues[i] = key;
-                }
-            }
-        }
-    }
-
     public static Object coerce(Object target, Class coercionType) {
         if (coercionType == null) {
             return target;
@@ -726,16 +711,11 @@ public class EventBeanUtility
         return result;
     }
 
-    public static boolean compareReferences(EventBean[] reference, EventBean[] eventsPerStream) {
-        if (reference.length != eventsPerStream.length) {
-            return false;
+    public static boolean eventsAreEqualsAllowNull(EventBean first, EventBean second) {
+        if (first == null) {
+            return second == null;
         }
-        for (int i = 0; i < reference.length; i++) {
-            if (reference[i] != eventsPerStream[i]) {
-                return false;
-            }
-        }
-        return true;
+        return second != null && first.equals(second);
     }
 
     public static String summarize(EventBean theEvent) {

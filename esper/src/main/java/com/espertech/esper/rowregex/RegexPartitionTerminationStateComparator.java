@@ -13,6 +13,7 @@ package com.espertech.esper.rowregex;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.event.EventBeanUtility;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -48,7 +49,7 @@ public class RegexPartitionTerminationStateComparator implements Comparator<Rege
                         return false;
                     }
                     for (int i = 0; i < endStreamEvents.length; i++) {
-                        if (termStreamEvents.length > i && endStreamEvents[i] != termStreamEvents[i]) {
+                        if (termStreamEvents.length > i && !EventBeanUtility.eventsAreEqualsAllowNull(endStreamEvents[i], termStreamEvents[i])) {
                             return false;
                         }
                     }
@@ -57,7 +58,7 @@ public class RegexPartitionTerminationStateComparator implements Comparator<Rege
             else {
                 EventBean termStreamEvent = terminationState.getEventsPerStream()[stream];
                 EventBean endStreamEvent = endState.getEventsPerStream()[stream];
-                if (endStreamEvent != null && endStreamEvent != termStreamEvent) {
+                if (!EventBeanUtility.eventsAreEqualsAllowNull(endStreamEvent, termStreamEvent)) {
                     return false;
                 }
             }
