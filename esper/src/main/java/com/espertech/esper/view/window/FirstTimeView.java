@@ -13,7 +13,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -158,7 +158,7 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
         long afterMSec = timeDeltaComputation.deltaMillisecondsAdd(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(FirstTimeView.this, timeFirstViewFactory.getViewName());}
                 FirstTimeView.this.isClosed = true;

@@ -127,9 +127,9 @@ public class PatternContext
      * Returns extension services context for statement (statement-specific).
      * @return extension services
      */
-    public StatementExtensionSvcContext getExtensionServicesContext()
+    public StatementExtensionSvcContext getStatementExtensionServicesContext()
     {
-        return statementContext.getExtensionServicesContext();
+        return statementContext.getStatementExtensionServicesContext();
     }
 
     /**

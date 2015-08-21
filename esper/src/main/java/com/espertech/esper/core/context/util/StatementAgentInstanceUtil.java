@@ -123,8 +123,8 @@ public class StatementAgentInstanceUtil {
             // cause any filters, that may concide with the caller's filters, to be ignored
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(Long.MAX_VALUE);
 
-            if (agentInstanceContext.getStatementContext().getExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources() != null) {
-                agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources().endContextPartition(agentInstanceContext.getAgentInstanceId());
+            if (agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
+                agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().deallocatePartitioned(agentInstanceContext.getAgentInstanceId());
             }
         }
         finally {
@@ -233,8 +233,8 @@ public class StatementAgentInstanceUtil {
                 preload.executePreload();
             }
 
-            if (statementContext.getExtensionServicesContext() != null && statementContext.getExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getExtensionServicesContext().getStmtResources().startContextPartition(startResult, agentInstanceId);
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                statementContext.getStatementExtensionServicesContext().getStmtResources().allocatePartitioned(agentInstanceId).addResources(startResult);
             }
 
             // instantiate

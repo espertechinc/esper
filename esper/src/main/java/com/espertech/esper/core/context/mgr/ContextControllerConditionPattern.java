@@ -71,8 +71,8 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         patternStopCallback = rootNode.start(callback, patternContext, priorMatches, isRecoveringReslient);
         callback.forwardCalls = true;
 
-        if (agentInstanceContext.getStatementContext().getExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources() != null) {
-            agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources().startContextPattern(patternStopCallback, isStartEndpoint, contextStatePathKey);
+        if (agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
+            agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().startContextPattern(patternStopCallback, isStartEndpoint, contextStatePathKey);
         }
 
         if (callback.isInvoked) {
@@ -105,8 +105,8 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         if (patternStopCallback != null) {
             patternStopCallback.stop();
             patternStopCallback = null;
-            if (agentInstanceContext.getStatementContext().getExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources() != null) {
-                agentInstanceContext.getStatementContext().getExtensionServicesContext().getStmtResources().stopContextPattern(isStartEndpoint, contextStatePathKey);
+            if (agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
+                agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().stopContextPattern(isStartEndpoint, contextStatePathKey);
             }
         }
     }

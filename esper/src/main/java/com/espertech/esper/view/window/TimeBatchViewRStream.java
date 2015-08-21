@@ -12,7 +12,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -250,7 +250,7 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
         currentReferencePoint = deltaWReference.getLastReference();
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeBatchViewRStream.this, timeBatchViewFactory.getViewName());}
                 TimeBatchViewRStream.this.sendBatch();

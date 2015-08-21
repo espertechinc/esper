@@ -4,7 +4,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -169,7 +169,7 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
         long scheduleAfterMSec = targetTime - currentTime;
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 handle = null;  // clear out schedule handle
                 OHLCBarPlugInView.this.postData();

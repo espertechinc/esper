@@ -14,7 +14,7 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.core.service.StatementAgentInstanceFilterVersion;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.spec.ContextDetailConditionCrontab;
@@ -59,7 +59,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
 
     private void startContextCallback() {
         ScheduleHandleCallback scheduleCallback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionCrontab.this.statementContext.getContextDescriptor());}
                 scheduleHandle = null;  // terminates automatically unless scheduled again

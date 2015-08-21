@@ -203,7 +203,7 @@ public class TableMetadata {
 
     public TableStateInstance getState(int agentInstanceId) {
         StatementResourceHolder holder = null;
-        if (contextName == null || agentInstanceId == 0) {
+        if (contextName == null) {
             holder = createTableResources.getResourcesZero();
         }
         else {

@@ -14,7 +14,7 @@ import com.espertech.esper.collection.TimeWindow;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleAdjustmentCallback;
@@ -64,7 +64,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         this.timeWindow = new TimeWindow(agentInstanceContext.isRemoveStream());
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeWindowView.this, TimeWindowView.this.timeWindowViewFactory.getViewName());}
                 TimeWindowView.this.expire();

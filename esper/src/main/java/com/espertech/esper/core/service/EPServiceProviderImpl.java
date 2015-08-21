@@ -241,12 +241,12 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return engine.getServices().getTableService();
     }
 
-    public ExtensionServicesContext getExtensionServicesContext()
+    public EngineLevelExtensionServicesContext getExtensionServicesContext()
     {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
-        return engine.getServices().getExtensionServicesContext();
+        return engine.getServices().getEngineLevelExtensionServicesContext();
     }
 
     public StatementLifecycleSvc getStatementLifecycleSvc()
@@ -652,9 +652,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         loadAdapters(services);
 
         // Initialize extension services
-        if (services.getExtensionServicesContext() != null)
+        if (services.getEngineLevelExtensionServicesContext() != null)
         {
-            services.getExtensionServicesContext().init(services, runtimeSPI, adminSPI);
+            services.getEngineLevelExtensionServicesContext().init(services, runtimeSPI, adminSPI);
         }
 
         // Start metrics reporting, if any

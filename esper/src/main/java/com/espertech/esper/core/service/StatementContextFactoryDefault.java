@@ -91,7 +91,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getExpressionResultCacheSharable(),
                 services.getStatementEventTypeRefService(),
                 services.getTableService().getTableExprEvaluatorContext(),
-                services.getExtensionServicesContext(),
+                services.getEngineLevelExtensionServicesContext(),
                 services.getRegexHandlerFactory()
                 );
     }
@@ -217,8 +217,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         ContextControllerFactoryService contextControllerFactoryService = getContextControllerFactoryService(annotations);
 
         // may use resource tracking
+        final StatementResourceService statementResourceService = new StatementResourceService(optionalContextName != null);
         StatementExtensionSvcContext extensionSvcContext = new StatementExtensionSvcContext() {
-            private StatementResourceService statementResourceService = new StatementResourceService();
             public StatementResourceService getStmtResources() {
                 return statementResourceService;
             }

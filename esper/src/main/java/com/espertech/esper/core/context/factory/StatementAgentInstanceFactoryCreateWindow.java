@@ -44,14 +44,14 @@ import java.util.List;
 public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentInstanceFactoryBase {
     private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateWindow.class);
 
-    private final StatementContext statementContext;
-    private final StatementSpecCompiled statementSpec;
-    private final EPServicesContext services;
-    private final ViewableActivatorFilterProxy activator;
-    private final ViewFactoryChain unmaterializedViewChain;
-    private final ResultSetProcessorFactoryDesc resultSetProcessorPrototype;
-    private final OutputProcessViewFactory outputProcessViewFactory;
-    private final boolean isRecoveringStatement;
+    protected final StatementContext statementContext;
+    protected final StatementSpecCompiled statementSpec;
+    protected final EPServicesContext services;
+    protected final ViewableActivatorFilterProxy activator;
+    protected final ViewFactoryChain unmaterializedViewChain;
+    protected final ResultSetProcessorFactoryDesc resultSetProcessorPrototype;
+    protected final OutputProcessViewFactory outputProcessViewFactory;
+    protected final boolean isRecoveringStatement;
 
     public StatementAgentInstanceFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivatorFilterProxy activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputProcessViewFactory, boolean recoveringStatement) {
         super(statementContext.getAnnotations());

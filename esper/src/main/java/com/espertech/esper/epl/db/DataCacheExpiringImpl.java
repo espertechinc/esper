@@ -12,7 +12,7 @@ import com.espertech.esper.client.ConfigurationCacheReferenceType;
 import com.espertech.esper.collection.apachecommons.ReferenceMap;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -145,7 +145,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
         return cache.size();
     }
 
-    public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+    public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHistoricalScheduledEval();}
         // purge expired

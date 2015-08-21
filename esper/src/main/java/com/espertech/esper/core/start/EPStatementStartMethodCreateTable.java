@@ -124,8 +124,8 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
         else {
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateTableResult result = contextFactory.newContext(defaultAgentInstanceContext, false);
-            if (statementContext.getExtensionServicesContext() != null && statementContext.getExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getExtensionServicesContext().getStmtResources().startContextPartition(result, 0);
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(result);
             }
             outputView = result.getFinalView();
         }

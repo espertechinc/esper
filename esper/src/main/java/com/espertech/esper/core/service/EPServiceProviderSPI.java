@@ -110,7 +110,7 @@ public interface EPServiceProviderSPI extends EPServiceProvider
      * Returns the extension services context.
      * @return extension services context
      */
-    public ExtensionServicesContext getExtensionServicesContext();
+    public EngineLevelExtensionServicesContext getExtensionServicesContext();
 
     /**
      * Returns metrics reporting.

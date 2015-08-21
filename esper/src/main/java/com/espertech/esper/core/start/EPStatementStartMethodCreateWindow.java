@@ -13,7 +13,6 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindow;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindowResult;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateWindowDesc;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
@@ -105,7 +104,8 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         final VirtualDWViewFactory virtualDataWindowFactory = determineVirtualDataWindow(unmaterializedViewChain.getViewFactoryChain());
         Set<String> optionalUniqueKeyProps = ViewServiceHelper.getUniqueCandidateProperties(unmaterializedViewChain.getViewFactoryChain(), statementSpec.getAnnotations());
         NamedWindowProcessor processor = services.getNamedWindowService().addProcessor(windowName, contextName, singleInstanceContext, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
-                statementSpec.getCreateWindowDesc().getAsEventTypeName());
+                statementSpec.getCreateWindowDesc().getAsEventTypeName(),
+                statementContext.getStatementExtensionServicesContext().getStmtResources());
 
         Viewable finalViewable;
         EPStatementStopMethod stopStatementMethod;
@@ -182,8 +182,8 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 };
                 destroyStatementMethod = null;
 
-                if (statementContext.getExtensionServicesContext() != null && statementContext.getExtensionServicesContext().getStmtResources() != null) {
-                    statementContext.getExtensionServicesContext().getStmtResources().startContextPartition(resultOfStart, 0);
+                if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                    statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(resultOfStart);
                 }
             }
         }

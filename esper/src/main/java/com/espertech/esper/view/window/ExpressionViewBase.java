@@ -13,7 +13,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.agg.service.AggregationServiceAggExpressionDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
@@ -85,7 +85,7 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
             }
 
             ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-                public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+                public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
                 {
                     if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(ExpressionViewBase.this, getViewName());}
                     scheduleCallback();

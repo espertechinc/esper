@@ -220,7 +220,7 @@ public final class StatementContext
      * Returns extension context for statements.
      * @return context
      */
-    public StatementExtensionSvcContext getExtensionServicesContext()
+    public StatementExtensionSvcContext getStatementExtensionServicesContext()
     {
         return statementExtensionSvcContext;
     }
@@ -508,8 +508,8 @@ public final class StatementContext
         return statementUserObject;
     }
 
-    public ExtensionServicesContext getEngineExtensionServicesContext() {
-        return stmtEngineServices.getExtensionServicesContext();
+    public EngineLevelExtensionServicesContext getEngineExtensionServicesContext() {
+        return stmtEngineServices.getEngineLevelExtensionServicesContext();
     }
 
     public RegexHandlerFactory getRegexPartitionStateRepoFactory() {

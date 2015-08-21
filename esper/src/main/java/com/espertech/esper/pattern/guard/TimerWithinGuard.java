@@ -9,7 +9,7 @@
 package com.espertech.esper.pattern.guard;
 
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -69,7 +69,7 @@ public class TimerWithinGuard implements Guard, ScheduleHandleCallback
         return true;
     }
 
-    public final void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardScheduledEval();}
         // Timer callback is automatically removed when triggering

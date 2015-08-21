@@ -11,7 +11,7 @@
 
 package com.espertech.esper.support.schedule;
 
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.schedule.ScheduleHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import org.apache.commons.logging.Log;
@@ -23,7 +23,7 @@ public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCa
 
     private int orderTriggered = 0;
 
-    public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+    public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
     {
         log.debug(".scheduledTrigger");
         orderAllCallbacks++;

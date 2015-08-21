@@ -9,7 +9,7 @@
 package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddHelper;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddResult;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusMinus;
@@ -60,7 +60,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         return beginState;
     }
 
-    public final void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverScheduledEval();}
 

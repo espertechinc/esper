@@ -11,7 +11,7 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.variable.VariableChangeCallback;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -176,7 +176,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
         }
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionScheduledEval();}
                 OutputConditionExpression.this.isCallbackScheduled = false;

@@ -15,7 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.core.service.StatementAgentInstanceFilterVersion;
 import com.espertech.esper.epl.spec.ContextDetailConditionTimePeriod;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -67,7 +67,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
 
     private void startContextCallback(long timeOffset) {
         ScheduleHandleCallback scheduleCallback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
             {
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionTimePeriod.this.agentInstanceContext.getStatementContext().getContextDescriptor());}
                 scheduleHandle = null;  // terminates automatically unless scheduled again

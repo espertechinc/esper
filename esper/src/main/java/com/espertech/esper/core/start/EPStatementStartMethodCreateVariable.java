@@ -107,7 +107,7 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
         }
         else {
             // allocate
-            services.getVariableService().allocateVariableState(createDesc.getVariableName(), VariableService.NOCONTEXT_AGENTINSTANCEID, statementContext.getExtensionServicesContext());
+            services.getVariableService().allocateVariableState(createDesc.getVariableName(), VariableService.NOCONTEXT_AGENTINSTANCEID, statementContext.getStatementExtensionServicesContext());
             final CreateVariableView createView = new CreateVariableView(statementContext.getStatementId(), services.getEventAdapterService(), services.getVariableService(), createDesc.getVariableName(), statementContext.getStatementResultService());
 
             services.getVariableService().registerCallback(createDesc.getVariableName(), 0, createView);

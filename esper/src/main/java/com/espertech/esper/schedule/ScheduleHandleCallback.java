@@ -8,7 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.schedule;
 
-import com.espertech.esper.core.service.ExtensionServicesContext;
+import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 
 /**
  * Interface for scheduled callbacks.
@@ -17,8 +17,8 @@ public interface ScheduleHandleCallback
 {
     /**
      * Callback that is invoked as indicated by a schedule added to the scheduling service.
-     * @param extensionServicesContext is a marker interface for providing custom extension services
+     * @param engineLevelExtensionServicesContext is a marker interface for providing custom extension services
      * passed to the triggered class
      */
-    public void scheduledTrigger(ExtensionServicesContext extensionServicesContext);
+    public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext);
 }

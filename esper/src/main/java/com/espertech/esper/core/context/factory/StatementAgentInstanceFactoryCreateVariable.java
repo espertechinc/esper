@@ -40,7 +40,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
                 services.getVariableService().deallocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId());
             }
         };
-        services.getVariableService().allocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId(), statementContext.getExtensionServicesContext());
+        services.getVariableService().allocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId(), statementContext.getStatementExtensionServicesContext());
         return new StatementAgentInstanceFactoryCreateVariableResult(new ViewableDefaultImpl(eventType), stopCallback, agentInstanceContext);
     }
 }

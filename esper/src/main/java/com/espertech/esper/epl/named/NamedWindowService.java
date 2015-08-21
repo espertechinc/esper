@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementResultService;
+import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
@@ -75,7 +76,8 @@ public interface NamedWindowService
                                              boolean isVirtualDataWindow,
                                              StatementMetricHandle statementMetricHandle,
                                              Set<String> optionalUniqueKeyProps,
-                                             String eventTypeAsName) throws ViewProcessingException;
+                                             String eventTypeAsName,
+                                             StatementResourceService statementResourceService) throws ViewProcessingException;
 
     /**
      * Returns the processing instance for a given named window.

@@ -84,9 +84,9 @@ public class ViewFactoryContext
      * Returns extension svc.
      * @return svc
      */
-    public StatementExtensionSvcContext getExtensionServicesContext()
+    public StatementExtensionSvcContext getStatementExtensionServicesContext()
     {
-        return statementContext.getExtensionServicesContext();
+        return statementContext.getStatementExtensionServicesContext();
     }
 
     /**

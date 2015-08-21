@@ -1103,13 +1103,13 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                     ArrayDeque<ScheduleHandleCallback> callbackList = (ArrayDeque<ScheduleHandleCallback>) callbackObject;
                     for (ScheduleHandleCallback callback : callbackList)
                     {
-                        callback.scheduledTrigger(services.getExtensionServicesContext());
+                        callback.scheduledTrigger(services.getEngineLevelExtensionServicesContext());
                     }
                 }
                 else
                 {
                     ScheduleHandleCallback callback = (ScheduleHandleCallback) callbackObject;
-                    callback.scheduledTrigger(services.getExtensionServicesContext());
+                    callback.scheduledTrigger(services.getEngineLevelExtensionServicesContext());
                 }
 
                 // internal join processing, if applicable
@@ -1146,7 +1146,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                     services.getVariableService().setLocalVersion();
                 }
 
-                handle.getScheduleCallback().scheduledTrigger(services.getExtensionServicesContext());
+                handle.getScheduleCallback().scheduledTrigger(services.getEngineLevelExtensionServicesContext());
                 handle.getAgentInstanceHandle().internalDispatch();
             }
         }

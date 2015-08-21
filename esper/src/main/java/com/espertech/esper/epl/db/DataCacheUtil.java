@@ -8,21 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.db;
 
-import com.espertech.esper.client.ConfigurationCacheReferenceType;
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.collection.apachecommons.ReferenceMap;
-import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import com.espertech.esper.core.service.EPStatementHandleCallback;
-import com.espertech.esper.core.service.ExtensionServicesContext;
-import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
-import com.espertech.esper.schedule.SchedulingService;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 public class DataCacheUtil
 {

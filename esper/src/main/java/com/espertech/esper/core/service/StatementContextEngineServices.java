@@ -38,10 +38,10 @@ public final class StatementContextEngineServices
     private final ExpressionResultCacheService expressionResultCacheService;
     private final StatementEventTypeRef statementEventTypeRef;
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
-    private final ExtensionServicesContext extensionServicesContext;
+    private final EngineLevelExtensionServicesContext engineLevelExtensionServicesContext;
     private final RegexHandlerFactory regexHandlerFactory;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowService namedWindowService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, ExtensionServicesContext extensionServicesContext, RegexHandlerFactory regexHandlerFactory) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowService namedWindowService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowService = namedWindowService;
@@ -56,7 +56,7 @@ public final class StatementContextEngineServices
         this.expressionResultCacheService = expressionResultCacheService;
         this.statementEventTypeRef = statementEventTypeRef;
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
-        this.extensionServicesContext = extensionServicesContext;
+        this.engineLevelExtensionServicesContext = engineLevelExtensionServicesContext;
         this.regexHandlerFactory = regexHandlerFactory;
     }
 
@@ -116,8 +116,8 @@ public final class StatementContextEngineServices
         return tableExprEvaluatorContext;
     }
 
-    public ExtensionServicesContext getExtensionServicesContext() {
-        return extensionServicesContext;
+    public EngineLevelExtensionServicesContext getEngineLevelExtensionServicesContext() {
+        return engineLevelExtensionServicesContext;
     }
 
     public RegexHandlerFactory getRegexHandlerFactory() {

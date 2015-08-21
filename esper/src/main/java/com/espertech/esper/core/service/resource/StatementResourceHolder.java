@@ -11,34 +11,36 @@
 
 package com.espertech.esper.core.service.resource;
 
-import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
+import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.view.Viewable;
 
 import java.util.Map;
 
 public class StatementResourceHolder {
-    private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
-    private final Viewable[] topViewables;
-    private final Viewable[] eventStreamViewables;
-    private final EvalRootState[] patternRoots;
-    private final AggregationService aggegationService;
-    private final Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
-    private final StatementAgentInstancePostLoad postLoad;
+    private EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
+    private Viewable[] topViewables;
+    private Viewable[] eventStreamViewables;
+    private EvalRootState[] patternRoots;
+    private AggregationService aggegationService;
+    private Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
+    private StatementAgentInstancePostLoad postLoad;
+    private NamedWindowProcessorInstance namedWindowProcessorInstance;
 
-    public StatementResourceHolder(EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, Viewable[] topViewables, Viewable[] eventStreamViewables, EvalRootState[] patternRoots, AggregationService aggegationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies, StatementAgentInstancePostLoad postLoad) {
-        this.epStatementAgentInstanceHandle = epStatementAgentInstanceHandle;
-        this.topViewables = topViewables;
-        this.eventStreamViewables = eventStreamViewables;
-        this.patternRoots = patternRoots;
-        this.aggegationService = aggegationService;
-        this.subselectStrategies = subselectStrategies;
-        this.postLoad = postLoad;
+    public StatementResourceHolder() {
+    }
+
+    public NamedWindowProcessorInstance getNamedWindowProcessorInstance() {
+        return namedWindowProcessorInstance;
+    }
+
+    public void setNamedWindowProcessorInstance(NamedWindowProcessorInstance namedWindowProcessorInstance) {
+        this.namedWindowProcessorInstance = namedWindowProcessorInstance;
     }
 
     public EPStatementAgentInstanceHandle getEpStatementAgentInstanceHandle() {
@@ -67,5 +69,35 @@ public class StatementResourceHolder {
 
     public StatementAgentInstancePostLoad getPostLoad() {
         return postLoad;
+    }
+
+    public void addResources(StatementAgentInstanceFactoryResult startResult) {
+        epStatementAgentInstanceHandle = startResult.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
+
+        if (startResult instanceof StatementAgentInstanceFactorySelectResult) {
+            StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) startResult;
+            topViewables = selectResult.getTopViews();
+            eventStreamViewables = selectResult.getEventStreamViewables();
+            patternRoots = selectResult.getPatternRoots();
+            aggegationService = selectResult.getOptionalAggegationService();
+            subselectStrategies = selectResult.getSubselectStrategies();
+            postLoad = selectResult.getOptionalPostLoadJoin();
+        }
+        else if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
+            StatementAgentInstanceFactoryCreateWindowResult createResult = (StatementAgentInstanceFactoryCreateWindowResult) startResult;
+            topViewables = new Viewable[] {createResult.getTopView()};
+            postLoad = createResult.getPostLoad();
+        }
+        else if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
+            StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
+            topViewables = new Viewable[] {createResult.getFinalView()};
+            aggegationService = createResult.getOptionalAggegationService();
+        }
+        else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
+            StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
+            patternRoots = new EvalRootState[] {onTriggerResult.getOptPatternRoot()};
+            aggegationService = onTriggerResult.getOptionalAggegationService();
+            subselectStrategies = onTriggerResult.getSubselectStrategies();
+        }
     }
 }

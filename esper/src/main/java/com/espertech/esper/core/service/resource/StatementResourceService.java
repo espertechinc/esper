@@ -11,12 +11,8 @@
 
 package com.espertech.esper.core.service.resource;
 
-import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.mgr.ContextStatePathKey;
-import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.pattern.EvalRootState;
-import com.espertech.esper.view.Viewable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +24,12 @@ public class StatementResourceService {
     private Map<Integer, StatementResourceHolder> resourcesNonZero;
     private Map<ContextStatePathKey, EvalRootState> contextStartEndpoints;
     private Map<ContextStatePathKey, EvalRootState> contextEndEndpoints;
+
+    public StatementResourceService(boolean partitioned) {
+        if (partitioned) {
+            resourcesNonZero = new TreeMap<Integer, StatementResourceHolder>();
+        }
+    }
 
     public StatementResourceHolder getResourcesZero() {
         return resourcesZero;
@@ -53,72 +55,33 @@ public class StatementResourceService {
         this.removeContextPattern(startEndpoint, path);
     }
 
-    public void startContextPartition(StatementAgentInstanceFactoryResult startResult, int agentInstanceId) {
-
-        EPStatementAgentInstanceHandle handle = startResult.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
-        StatementResourceHolder recoveryResources = null;
-
-        if (startResult instanceof StatementAgentInstanceFactorySelectResult) {
-            StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) startResult;
-            recoveryResources = new StatementResourceHolder(
-                    handle,
-                    selectResult.getTopViews(),
-                    selectResult.getEventStreamViewables(),
-                    selectResult.getPatternRoots(),
-                    selectResult.getOptionalAggegationService(),
-                    selectResult.getSubselectStrategies(),
-                    selectResult.getOptionalPostLoadJoin());
+    public StatementResourceHolder allocateNonPartitioned() {
+        if (resourcesZero != null) {
+            return resourcesZero;
         }
-
-        if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
-            StatementAgentInstanceFactoryCreateWindowResult createResult = (StatementAgentInstanceFactoryCreateWindowResult) startResult;
-            recoveryResources = new StatementResourceHolder(handle,new Viewable[] {createResult.getTopView()}, null,
-                    null, null, null, createResult.getPostLoad());
-        }
-
-        if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
-            StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
-            recoveryResources = new StatementResourceHolder(handle,new Viewable[] {createResult.getFinalView()}, null,
-                    null, createResult.getOptionalAggegationService(), null, null);
-        }
-
-        if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
-            StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
-            recoveryResources = new StatementResourceHolder(handle, null, null,
-                    new EvalRootState[] {onTriggerResult.getOptPatternRoot()},
-                    onTriggerResult.getOptionalAggegationService(), onTriggerResult.getSubselectStrategies(), null);
-        }
-
-        if (recoveryResources != null) {
-            this.addRecoveryResources(agentInstanceId, recoveryResources);
-        }
+        resourcesZero = new StatementResourceHolder();
+        return resourcesZero;
     }
 
-    public void endContextPartition(int agentInstanceId) {
-        this.removeRecoveryResources(agentInstanceId);
+    public StatementResourceHolder allocatePartitioned(int agentInstanceId) {
+        StatementResourceHolder resources = resourcesNonZero.get(agentInstanceId);
+        if (resources == null) {
+            resources = new StatementResourceHolder();
+            resourcesNonZero.put(agentInstanceId, resources);
+        }
+        return resources;
     }
 
-    private void addRecoveryResources(int agentInstanceId, StatementResourceHolder recoveryResources) {
-        if (agentInstanceId == 0) {
-            resourcesZero = recoveryResources;
-        }
-        else {
-            if (resourcesNonZero == null) {
-                resourcesNonZero = new TreeMap<Integer, StatementResourceHolder>();
-            }
-            resourcesNonZero.put(agentInstanceId, recoveryResources);
-        }
+    public StatementResourceHolder getPartitioned(int agentInstanceId) {
+        return resourcesNonZero.get(agentInstanceId);
     }
 
-    private void removeRecoveryResources(int agentInstanceId) {
-        if (agentInstanceId == 0) {
-            resourcesZero = null;
-        }
-        else {
-            if (resourcesNonZero != null) {
-                resourcesNonZero.remove(agentInstanceId);
-            }
-        }
+    public StatementResourceHolder getUnpartitioned() {
+        return resourcesZero;
+    }
+
+    public void deallocatePartitioned(int agentInstanceId) {
+        resourcesNonZero.remove(agentInstanceId);
     }
 
     private void removeContextPattern(boolean startEndpoint, ContextStatePathKey path) {

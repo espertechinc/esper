@@ -171,8 +171,8 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
                 }
             }
 
-            if (statementContext.getExtensionServicesContext() != null && statementContext.getExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getExtensionServicesContext().getStmtResources().startContextPartition(resultOfStart, 0);
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(resultOfStart);
             }
         }
 

@@ -64,7 +64,7 @@ public final class EPServicesContext
     private PluggableObjectCollection plugInViews;
     private StatementLockFactory statementLockFactory;
     private ManagedReadWriteLock eventProcessingRWLock;
-    private ExtensionServicesContext extensionServicesContext;
+    private EngineLevelExtensionServicesContext engineLevelExtensionServicesContext;
     private EngineEnvContext engineEnvContext;
     private StatementContextFactory statementContextFactory;
     private PluggableObjectCollection plugInPatternObjects;
@@ -113,7 +113,7 @@ public final class EPServicesContext
      * @param plugInViews resolves view namespace and name to view factory class
      * @param statementLockFactory creates statement-level locks
      * @param eventProcessingRWLock is the engine lock for statement management
-     * @param extensionServicesContext marker interface allows adding additional services
+     * @param engineLevelExtensionServicesContext marker interface allows adding additional services
      * @param engineImportService is engine imported static func packages and aggregation functions
      * @param engineSettingsService provides engine settings
      * @param statementContextFactory is the factory to use to create statement context objects
@@ -144,7 +144,7 @@ public final class EPServicesContext
                              PluggableObjectCollection plugInViews,
                              StatementLockFactory statementLockFactory,
                              ManagedReadWriteLock eventProcessingRWLock,
-                             ExtensionServicesContext extensionServicesContext,
+                             EngineLevelExtensionServicesContext engineLevelExtensionServicesContext,
                              EngineEnvContext engineEnvContext,
                              StatementContextFactory statementContextFactory,
                              PluggableObjectCollection plugInPatternObjects,
@@ -195,7 +195,7 @@ public final class EPServicesContext
         this.plugInViews = plugInViews;
         this.statementLockFactory = statementLockFactory;
         this.eventProcessingRWLock = eventProcessingRWLock;
-        this.extensionServicesContext = extensionServicesContext;
+        this.engineLevelExtensionServicesContext = engineLevelExtensionServicesContext;
         this.engineEnvContext = engineEnvContext;
         this.statementContextFactory = statementContextFactory;
         this.plugInPatternObjects = plugInPatternObjects;
@@ -401,9 +401,9 @@ public final class EPServicesContext
      * Returns extension service for adding custom the services.
      * @return extension service context
      */
-    public ExtensionServicesContext getExtensionServicesContext()
+    public EngineLevelExtensionServicesContext getEngineLevelExtensionServicesContext()
     {
-        return extensionServicesContext;
+        return engineLevelExtensionServicesContext;
     }
 
     /**
@@ -470,9 +470,9 @@ public final class EPServicesContext
         {
             namedWindowService.destroy();
         }
-        if (extensionServicesContext != null)
+        if (engineLevelExtensionServicesContext != null)
         {
-            extensionServicesContext.destroy();
+            engineLevelExtensionServicesContext.destroy();
         }
         if (statementIsolationService != null)
         {
@@ -502,7 +502,7 @@ public final class EPServicesContext
         this.streamFactoryService = null;
         this.plugInViews = null;
         this.statementLockFactory = null;
-        this.extensionServicesContext = null;
+        this.engineLevelExtensionServicesContext = null;
         this.engineEnvContext = null;
         this.statementContextFactory = null;
         this.plugInPatternObjects = null;
