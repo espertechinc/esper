@@ -48,6 +48,7 @@ import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateItem;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.pattern.*;
+import com.espertech.esper.rowregex.RegexNFAState;
 import com.espertech.esper.rowregex.RegexNFAStateEntry;
 import com.espertech.esper.rowregex.RegexPartitionState;
 import com.espertech.esper.schedule.ScheduleHandle;
@@ -147,7 +148,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qRegExStateStart(LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
+    public void qRegExStateStart(RegexNFAState startState, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
 
     }
 

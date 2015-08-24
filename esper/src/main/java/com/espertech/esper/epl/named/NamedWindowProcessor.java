@@ -121,7 +121,7 @@ public class NamedWindowProcessor
     }
 
     public synchronized Collection<Integer> getProcessorInstancesAll() {
-        Set<Integer> keyset = statementResourceService.getResourcesNonZero().keySet();
+        Set<Integer> keyset = statementResourceService.getResourcesPartitioned().keySet();
         return new ArrayDeque<Integer>(keyset);
     }
 
@@ -162,7 +162,7 @@ public class NamedWindowProcessor
         }
 
         // handle no context associated
-        return statementResourceService.getResourcesZero().getNamedWindowProcessorInstance().getTailViewInstance().addConsumer(consumerDesc, isSubselect);
+        return statementResourceService.getResourcesUnpartitioned().getNamedWindowProcessorInstance().getTailViewInstance().addConsumer(consumerDesc, isSubselect);
     }
 
     public boolean isVirtualDataWindow() {
@@ -278,7 +278,7 @@ public class NamedWindowProcessor
             }
         }
         else {
-            for (Map.Entry<Integer, StatementResourceHolder> entry : statementResourceService.getResourcesNonZero().entrySet()) {
+            for (Map.Entry<Integer, StatementResourceHolder> entry : statementResourceService.getResourcesPartitioned().entrySet()) {
                 if (entry.getValue().getNamedWindowProcessorInstance() != null) {
                     entry.getValue().getNamedWindowProcessorInstance().removeIndex(index);
                 }

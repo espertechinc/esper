@@ -1028,7 +1028,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         // handle start states for the event
         for (RegexNFAState startState : startStates)
         {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExStateStart(variableStreams, multimatchStreamNumToVariable);}
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExStateStart(startState, variableStreams, multimatchStreamNumToVariable);}
 
             EventBean[] eventsPerStream = new EventBean[numEventsEventsPerStreamDefine];
             int currentStateStreamNum = startState.getStreamNum();

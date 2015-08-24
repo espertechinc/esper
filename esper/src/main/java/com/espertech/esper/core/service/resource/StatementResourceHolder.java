@@ -13,7 +13,7 @@ package com.espertech.esper.core.service.resource;
 
 import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
-import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
@@ -23,7 +23,7 @@ import com.espertech.esper.view.Viewable;
 import java.util.Map;
 
 public class StatementResourceHolder {
-    private EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
+    private AgentInstanceContext agentInstanceContext;
     private Viewable[] topViewables;
     private Viewable[] eventStreamViewables;
     private EvalRootState[] patternRoots;
@@ -31,6 +31,7 @@ public class StatementResourceHolder {
     private Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
     private StatementAgentInstancePostLoad postLoad;
     private NamedWindowProcessorInstance namedWindowProcessorInstance;
+    private StatementResourceExtension statementResourceExtension;
 
     public StatementResourceHolder() {
     }
@@ -43,8 +44,8 @@ public class StatementResourceHolder {
         this.namedWindowProcessorInstance = namedWindowProcessorInstance;
     }
 
-    public EPStatementAgentInstanceHandle getEpStatementAgentInstanceHandle() {
-        return epStatementAgentInstanceHandle;
+    public AgentInstanceContext getAgentInstanceContext() {
+        return agentInstanceContext;
     }
 
     public Viewable[] getTopViewables() {
@@ -72,7 +73,7 @@ public class StatementResourceHolder {
     }
 
     public void addResources(StatementAgentInstanceFactoryResult startResult) {
-        epStatementAgentInstanceHandle = startResult.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
+        agentInstanceContext = startResult.getAgentInstanceContext();
 
         if (startResult instanceof StatementAgentInstanceFactorySelectResult) {
             StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) startResult;
@@ -99,5 +100,13 @@ public class StatementResourceHolder {
             aggegationService = onTriggerResult.getOptionalAggegationService();
             subselectStrategies = onTriggerResult.getSubselectStrategies();
         }
+    }
+
+    public StatementResourceExtension getStatementResourceExtension() {
+        return statementResourceExtension;
+    }
+
+    public void setStatementResourceExtension(StatementResourceExtension statementResourceExtension) {
+        this.statementResourceExtension = statementResourceExtension;
     }
 }

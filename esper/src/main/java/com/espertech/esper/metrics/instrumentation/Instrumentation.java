@@ -46,6 +46,7 @@ import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateItem;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.pattern.*;
+import com.espertech.esper.rowregex.RegexNFAState;
 import com.espertech.esper.rowregex.RegexNFAStateEntry;
 import com.espertech.esper.rowregex.RegexPartitionState;
 import com.espertech.esper.schedule.ScheduleHandle;
@@ -86,7 +87,7 @@ public interface Instrumentation {
     void aRegEx(RegexPartitionState partitionState, List<RegexNFAStateEntry> endStates, List<RegexNFAStateEntry> terminationStates);
     void qRegExState(RegexNFAStateEntry currentState, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
     void aRegExState(List<RegexNFAStateEntry> next, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
-    void qRegExStateStart(LinkedHashMap<String, Pair<Integer,Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
+    void qRegExStateStart(RegexNFAState startState, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
     void aRegExStateStart(List<RegexNFAStateEntry> nextStates, LinkedHashMap<String, Pair<Integer,Boolean>> variableStreams, int[] multimatchStreamNumToVariable);
     void qRegExPartition(ExprNode[] partitionExpressionNodes);
     void aRegExPartition(boolean exists, RegexPartitionState state);

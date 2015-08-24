@@ -20,23 +20,23 @@ import java.util.TreeMap;
 
 public class StatementResourceService {
 
-    private StatementResourceHolder resourcesZero;
-    private Map<Integer, StatementResourceHolder> resourcesNonZero;
+    private StatementResourceHolder resourcesUnpartitioned;
+    private Map<Integer, StatementResourceHolder> resourcesPartitioned;
     private Map<ContextStatePathKey, EvalRootState> contextStartEndpoints;
     private Map<ContextStatePathKey, EvalRootState> contextEndEndpoints;
 
     public StatementResourceService(boolean partitioned) {
         if (partitioned) {
-            resourcesNonZero = new TreeMap<Integer, StatementResourceHolder>();
+            resourcesPartitioned = new TreeMap<Integer, StatementResourceHolder>();
         }
     }
 
-    public StatementResourceHolder getResourcesZero() {
-        return resourcesZero;
+    public StatementResourceHolder getResourcesUnpartitioned() {
+        return resourcesUnpartitioned;
     }
 
-    public Map<Integer, StatementResourceHolder> getResourcesNonZero() {
-        return resourcesNonZero;
+    public Map<Integer, StatementResourceHolder> getResourcesPartitioned() {
+        return resourcesPartitioned;
     }
 
     public Map<ContextStatePathKey, EvalRootState> getContextEndEndpoints() {
@@ -56,32 +56,36 @@ public class StatementResourceService {
     }
 
     public StatementResourceHolder allocateNonPartitioned() {
-        if (resourcesZero != null) {
-            return resourcesZero;
+        if (resourcesUnpartitioned != null) {
+            return resourcesUnpartitioned;
         }
-        resourcesZero = new StatementResourceHolder();
-        return resourcesZero;
+        resourcesUnpartitioned = new StatementResourceHolder();
+        return resourcesUnpartitioned;
     }
 
     public StatementResourceHolder allocatePartitioned(int agentInstanceId) {
-        StatementResourceHolder resources = resourcesNonZero.get(agentInstanceId);
+        StatementResourceHolder resources = resourcesPartitioned.get(agentInstanceId);
         if (resources == null) {
             resources = new StatementResourceHolder();
-            resourcesNonZero.put(agentInstanceId, resources);
+            resourcesPartitioned.put(agentInstanceId, resources);
         }
         return resources;
     }
 
     public StatementResourceHolder getPartitioned(int agentInstanceId) {
-        return resourcesNonZero.get(agentInstanceId);
+        return resourcesPartitioned.get(agentInstanceId);
     }
 
     public StatementResourceHolder getUnpartitioned() {
-        return resourcesZero;
+        return resourcesUnpartitioned;
     }
 
     public void deallocatePartitioned(int agentInstanceId) {
-        resourcesNonZero.remove(agentInstanceId);
+        resourcesPartitioned.remove(agentInstanceId);
+    }
+
+    public void deallocateUnpartitioned() {
+        resourcesUnpartitioned = null;
     }
 
     private void removeContextPattern(boolean startEndpoint, ContextStatePathKey path) {

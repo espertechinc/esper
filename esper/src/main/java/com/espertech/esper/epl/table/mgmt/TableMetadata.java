@@ -204,11 +204,11 @@ public class TableMetadata {
     public TableStateInstance getState(int agentInstanceId) {
         StatementResourceHolder holder = null;
         if (contextName == null) {
-            holder = createTableResources.getResourcesZero();
+            holder = createTableResources.getResourcesUnpartitioned();
         }
         else {
-            if (createTableResources.getResourcesNonZero() != null) {
-                holder = createTableResources.getResourcesNonZero().get(agentInstanceId);
+            if (createTableResources.getResourcesPartitioned() != null) {
+                holder = createTableResources.getResourcesPartitioned().get(agentInstanceId);
             }
         }
         if (holder == null) {
@@ -223,8 +223,8 @@ public class TableMetadata {
         if (contextName == null) {
             return Collections.singleton(-1);
         }
-        if (createTableResources.getResourcesNonZero() != null) {
-            return createTableResources.getResourcesNonZero().keySet();
+        if (createTableResources.getResourcesPartitioned() != null) {
+            return createTableResources.getResourcesPartitioned().keySet();
         }
         return Collections.singleton(-1);
     }
