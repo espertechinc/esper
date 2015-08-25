@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.mgr.ContextControllerAddendumUtil;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -215,6 +216,15 @@ public final class FilterSpecCompiled
             }
         }
         return hashCode;
+    }
+
+    public int getFilterSpecIndexAmongAll(FilterSpecCompiled[] filterSpecAll) {
+        for (int i = 0; i < filterSpecAll.length; i++) {
+            if (this == filterSpecAll[i]) {
+                return i;
+            }
+        }
+        throw new EPException("Failed to find find filter spec among list of known filters");
     }
 
     protected static FilterSpecParam[][] sortRemoveDups(List<FilterSpecParam>[] parameters) {

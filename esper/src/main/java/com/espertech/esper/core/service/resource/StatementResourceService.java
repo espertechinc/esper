@@ -76,6 +76,14 @@ public class StatementResourceService {
         return resourcesPartitioned.get(agentInstanceId);
     }
 
+    public void setUnpartitioned(StatementResourceHolder statementResourceHolder) {
+        resourcesUnpartitioned = statementResourceHolder;
+    }
+
+    public void setPartitioned(int agentInstanceId, StatementResourceHolder statementResourceHolder) {
+        resourcesPartitioned.put(agentInstanceId, statementResourceHolder);
+    }
+
     public StatementResourceHolder getUnpartitioned() {
         return resourcesUnpartitioned;
     }

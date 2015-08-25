@@ -13,6 +13,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
@@ -65,6 +66,7 @@ public class StatementSpecCompiled
     private final GroupByClauseExpressions groupByExpressions;
     private final IntoTableSpec intoTableSpec;
     private final ExprTableAccessNode[] tableNodes;
+    private FilterSpecCompiled[] filterSpecsOverall;
 
     /**
      * Ctor.
@@ -480,5 +482,13 @@ public class StatementSpecCompiled
 
     public CreateTableDesc getCreateTableDesc() {
         return createTableDesc;
+    }
+
+    public void setFilterSpecsOverall(FilterSpecCompiled[] filterSpecsOverall) {
+        this.filterSpecsOverall = filterSpecsOverall;
+    }
+
+    public FilterSpecCompiled[] getFilterSpecsOverall() {
+        return filterSpecsOverall;
     }
 }

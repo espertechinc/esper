@@ -50,6 +50,8 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filter.FilterSpecParam;
+import com.espertech.esper.filter.FilterSpecParamExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.pattern.EvalNodeAnalysisResult;
@@ -280,6 +282,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             throw ex;
         }
 
+        // We keep a reference of the compiled spec as part of the statement context
+        statementContext.setStatementSpecCompiled(compiledSpec);
+
         // For insert-into streams, create a lock taken out as soon as an event is inserted
         // Makes the processing between chained statements more predictable.
         if (statementSpec.getInsertIntoDesc() != null || statementSpec.getOnTriggerDesc() instanceof OnTriggerMergeDesc)
@@ -303,11 +308,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
         boolean needDedup = false;
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(compiledSpec);
-        for (FilterSpecCompiled filter : streamAnalysis.getFilters()) {
+        FilterSpecCompiled[] filterSpecAll = streamAnalysis.getFilters().toArray(new FilterSpecCompiled[streamAnalysis.getFilters().size()]);
+        compiledSpec.setFilterSpecsOverall(filterSpecAll);
+        for (FilterSpecCompiled filter : filterSpecAll) {
             if (filter.getParameters().length > 1) {
                 needDedup = true;
                 break;
             }
+            assignFilterSpecIds(filter, filterSpecAll);
         }
 
         MultiMatchHandler multiMatchHandler;
@@ -1464,6 +1472,19 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
         FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, new List[0], null);
         return new Pair<FilterSpecCompiled, SelectClauseSpecRaw>(filter, newSelectClauseSpecRaw);
+    }
+
+    private static void assignFilterSpecIds(FilterSpecCompiled filterSpec, FilterSpecCompiled[] filterSpecsAll) {
+        for (int path = 0; path < filterSpec.getParameters().length; path++) {
+            for (FilterSpecParam param : filterSpec.getParameters()[path]) {
+                if (param instanceof FilterSpecParamExprNode) {
+                    int index = filterSpec.getFilterSpecIndexAmongAll(filterSpecsAll);
+                    FilterSpecParamExprNode exprNode = (FilterSpecParamExprNode) param;
+                    exprNode.setFilterSpecId(index);
+                    exprNode.setFilterSpecParamPathNum(path);
+                }
+            }
+        }
     }
 
     private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, String statementName, String statementId, Annotation[] annotations)

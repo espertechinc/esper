@@ -215,7 +215,7 @@ public class TableMetadata {
             return null;
         }
 
-        AggregationServiceTable aggsvc = (AggregationServiceTable) holder.getAggegationService();
+        AggregationServiceTable aggsvc = (AggregationServiceTable) holder.getAggregationService();
         return aggsvc.getTableState();
     }
 

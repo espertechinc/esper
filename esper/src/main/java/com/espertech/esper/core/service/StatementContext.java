@@ -13,6 +13,7 @@ import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.MethodResolutionService;
@@ -74,6 +75,7 @@ public final class StatementContext
     private StatementAgentInstanceLock defaultAgentInstanceLock;
 
     private AgentInstanceScriptContext defaultAgentInstanceScriptContext;
+    private StatementSpecCompiled statementSpecCompiled;
 
     /**
      * Constructor.
@@ -514,5 +516,13 @@ public final class StatementContext
 
     public RegexHandlerFactory getRegexPartitionStateRepoFactory() {
         return stmtEngineServices.getRegexHandlerFactory();
+    }
+
+    public void setStatementSpecCompiled(StatementSpecCompiled statementSpecCompiled) {
+        this.statementSpecCompiled = statementSpecCompiled;
+    }
+
+    public StatementSpecCompiled getStatementSpecCompiled() {
+        return statementSpecCompiled;
     }
 }

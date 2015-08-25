@@ -27,7 +27,7 @@ public class StatementResourceHolder {
     private Viewable[] topViewables;
     private Viewable[] eventStreamViewables;
     private EvalRootState[] patternRoots;
-    private AggregationService aggegationService;
+    private AggregationService aggregationService;
     private Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
     private StatementAgentInstancePostLoad postLoad;
     private NamedWindowProcessorInstance namedWindowProcessorInstance;
@@ -60,8 +60,8 @@ public class StatementResourceHolder {
         return patternRoots;
     }
 
-    public AggregationService getAggegationService() {
-        return aggegationService;
+    public AggregationService getAggregationService() {
+        return aggregationService;
     }
 
     public Map<ExprSubselectNode, SubSelectStrategyHolder> getSubselectStrategies() {
@@ -72,6 +72,34 @@ public class StatementResourceHolder {
         return postLoad;
     }
 
+    public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
+        this.agentInstanceContext = agentInstanceContext;
+    }
+
+    public void setTopViewables(Viewable[] topViewables) {
+        this.topViewables = topViewables;
+    }
+
+    public void setEventStreamViewables(Viewable[] eventStreamViewables) {
+        this.eventStreamViewables = eventStreamViewables;
+    }
+
+    public void setPatternRoots(EvalRootState[] patternRoots) {
+        this.patternRoots = patternRoots;
+    }
+
+    public void setAggregationService(AggregationService aggregationService) {
+        this.aggregationService = aggregationService;
+    }
+
+    public void setSubselectStrategies(Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies) {
+        this.subselectStrategies = subselectStrategies;
+    }
+
+    public void setPostLoad(StatementAgentInstancePostLoad postLoad) {
+        this.postLoad = postLoad;
+    }
+
     public void addResources(StatementAgentInstanceFactoryResult startResult) {
         agentInstanceContext = startResult.getAgentInstanceContext();
 
@@ -80,7 +108,7 @@ public class StatementResourceHolder {
             topViewables = selectResult.getTopViews();
             eventStreamViewables = selectResult.getEventStreamViewables();
             patternRoots = selectResult.getPatternRoots();
-            aggegationService = selectResult.getOptionalAggegationService();
+            aggregationService = selectResult.getOptionalAggegationService();
             subselectStrategies = selectResult.getSubselectStrategies();
             postLoad = selectResult.getOptionalPostLoadJoin();
         }
@@ -92,12 +120,12 @@ public class StatementResourceHolder {
         else if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
             StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
             topViewables = new Viewable[] {createResult.getFinalView()};
-            aggegationService = createResult.getOptionalAggegationService();
+            aggregationService = createResult.getOptionalAggegationService();
         }
         else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
             StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
             patternRoots = new EvalRootState[] {onTriggerResult.getOptPatternRoot()};
-            aggegationService = onTriggerResult.getOptionalAggegationService();
+            aggregationService = onTriggerResult.getOptionalAggegationService();
             subselectStrategies = onTriggerResult.getSubselectStrategies();
         }
     }
