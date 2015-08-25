@@ -8,10 +8,9 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is always the root node in the evaluation tree representing an event expression.
@@ -21,7 +20,11 @@ public class EvalRootFactoryNode extends EvalNodeFactoryBase
 {
     private static final long serialVersionUID = -4478876398666926782L;
 
-    public EvalRootFactoryNode() {
+    public final int numTreeChildNodes;
+
+    public EvalRootFactoryNode(EvalFactoryNode childNode) {
+        addChildNode(childNode);
+        this.numTreeChildNodes = assignFactoryNodeIds();
     }
 
     public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
@@ -42,6 +45,10 @@ public class EvalRootFactoryNode extends EvalNodeFactoryBase
         return this.getChildNodes().get(0).isStateful();
     }
 
+    public int getNumTreeChildNodes() {
+        return numTreeChildNodes;
+    }
+
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (!getChildNodes().isEmpty()) {
             getChildNodes().get(0).toEPL(writer, getPrecedence());
@@ -52,5 +59,31 @@ public class EvalRootFactoryNode extends EvalNodeFactoryBase
         return PatternExpressionPrecedenceEnum.MINIMUM;
     }
 
-    private static final Log log = LogFactory.getLog(EvalRootFactoryNode.class);
+    // assign factory ids, a short-type number assigned once-per-statement to each pattern node
+    // return the count of all ids
+    private int assignFactoryNodeIds() {
+        short count = 0;
+        setFactoryNodeId(count);
+        List<EvalFactoryNode> factories = collectFactories(this);
+        for (EvalFactoryNode factoryNode : factories) {
+            count++;
+            factoryNode.setFactoryNodeId(count);
+        }
+        return count;
+    }
+
+    private static List<EvalFactoryNode> collectFactories(EvalRootFactoryNode rootFactory) {
+        List<EvalFactoryNode> factories = new ArrayList<EvalFactoryNode>(8);
+        for (EvalFactoryNode factoryNode : rootFactory.getChildNodes()) {
+            collectFactoriesRecursive(factoryNode, factories);
+        }
+        return factories;
+    }
+
+    private static void collectFactoriesRecursive(EvalFactoryNode factoryNode, List<EvalFactoryNode> factories) {
+        factories.add(factoryNode);
+        for (EvalFactoryNode childNode : factoryNode.getChildNodes()) {
+            collectFactoriesRecursive(childNode, factories);
+        }
+    }
 }

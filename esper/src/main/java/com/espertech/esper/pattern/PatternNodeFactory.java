@@ -30,5 +30,5 @@ public interface PatternNodeFactory {
     public EvalFactoryNode makeNotNode();
     public EvalFactoryNode makeObserverNode(PatternObserverSpec patternObserverSpec);
     public EvalFactoryNode makeOrNode();
-    public EvalRootFactoryNode makeRootNode();
+    public EvalRootFactoryNode makeRootNode(EvalFactoryNode childNode);
 }

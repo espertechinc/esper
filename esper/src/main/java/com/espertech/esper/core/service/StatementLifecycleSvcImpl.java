@@ -306,6 +306,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             statementContext.getEpStatementHandle().setInsertIntoBackLatchFactory(latchFactoryBack);
         }
 
+        // determine overall filters, assign the filter spec index to filter boolean expressions
         boolean needDedup = false;
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(compiledSpec);
         FilterSpecCompiled[] filterSpecAll = streamAnalysis.getFilters().toArray(new FilterSpecCompiled[streamAnalysis.getFilters().size()]);

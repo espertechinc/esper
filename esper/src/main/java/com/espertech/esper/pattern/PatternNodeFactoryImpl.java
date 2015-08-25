@@ -60,7 +60,7 @@ public class PatternNodeFactoryImpl implements PatternNodeFactory {
         return new EvalOrFactoryNode();
     }
 
-    public EvalRootFactoryNode makeRootNode() {
-        return new EvalRootFactoryNode();
+    public EvalRootFactoryNode makeRootNode(EvalFactoryNode childNode) {
+        return new EvalRootFactoryNode(childNode);
     }
 }

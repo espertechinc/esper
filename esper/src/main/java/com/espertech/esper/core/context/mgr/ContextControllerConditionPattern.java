@@ -53,10 +53,9 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         PatternStreamSpecCompiled patternStreamSpec = endpointPatternSpec.getPatternCompiled();
         StatementContext stmtContext = agentInstanceContext.getStatementContext();
 
-        EvalRootFactoryNode rootFactoryNode = servicesContext.getPatternNodeFactory().makeRootNode();
+        EvalRootFactoryNode rootFactoryNode = servicesContext.getPatternNodeFactory().makeRootNode(patternStreamSpec.getEvalFactoryNode());
         int streamNum = isStartEndpoint ? contextStatePathKey.getSubPath() : -1 * contextStatePathKey.getSubPath();
         boolean allowResilient = contextStatePathKey.getLevel() == 1;
-        rootFactoryNode.addChildNode(patternStreamSpec.getEvalFactoryNode());
         PatternContext patternContext = stmtContext.getPatternContextFactory().createContext(stmtContext, streamNum, rootFactoryNode, new MatchedEventMapMeta(patternStreamSpec.getAllTags(), !patternStreamSpec.getArrayEventTypes().isEmpty()), allowResilient);
 
         PatternAgentInstanceContext patternAgentInstanceContext = stmtContext.getPatternContextFactory().createPatternAgentContext(patternContext, agentInstanceContext, false);

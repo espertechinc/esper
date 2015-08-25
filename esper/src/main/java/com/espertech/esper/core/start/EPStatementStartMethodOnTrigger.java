@@ -263,8 +263,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         String patternTypeName = statementContext.getStatementId() + "_patternon";
         final EventType eventType = services.getEventAdapterService().createSemiAnonymousMapType(patternTypeName, patternStreamSpec.getTaggedEventTypes(), patternStreamSpec.getArrayEventTypes(), usedByChildViews);
 
-        EvalRootFactoryNode rootNode = services.getPatternNodeFactory().makeRootNode();
-        rootNode.addChildNode(patternStreamSpec.getEvalFactoryNode());
+        EvalRootFactoryNode rootNode = services.getPatternNodeFactory().makeRootNode(patternStreamSpec.getEvalFactoryNode());
         PatternContext patternContext = statementContext.getPatternContextFactory().createContext(statementContext, 0, rootNode, patternStreamSpec.getMatchedEventMapMeta(), true);
         ViewableActivatorPattern activator = new ViewableActivatorPattern(patternContext, rootNode, eventType, EPStatementStartMethodHelperUtil.isConsumingFilters(patternStreamSpec.getEvalFactoryNode()), false, false, false);
         return new ActivatorResult(activator, null, eventType);

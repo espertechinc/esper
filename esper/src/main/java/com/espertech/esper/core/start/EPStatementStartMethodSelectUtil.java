@@ -167,9 +167,7 @@ public class EPStatementStartMethodSelectUtil
                 final EventType eventType = services.getEventAdapterService().createSemiAnonymousMapType(patternTypeName, patternStreamSpec.getTaggedEventTypes(), patternStreamSpec.getArrayEventTypes(), usedByChildViews);
                 unmaterializedViewChain[i] = services.getViewService().createFactories(i, eventType, streamSpec.getViewSpecs(), streamSpec.getOptions(), statementContext);
 
-                final EvalRootFactoryNode rootFactoryNode = services.getPatternNodeFactory().makeRootNode();
-                rootFactoryNode.addChildNode(patternStreamSpec.getEvalFactoryNode());
-
+                final EvalRootFactoryNode rootFactoryNode = services.getPatternNodeFactory().makeRootNode(patternStreamSpec.getEvalFactoryNode());
                 final PatternContext patternContext = statementContext.getPatternContextFactory().createContext(statementContext, i, rootFactoryNode, patternStreamSpec.getMatchedEventMapMeta(), true);
 
                 // create activator
