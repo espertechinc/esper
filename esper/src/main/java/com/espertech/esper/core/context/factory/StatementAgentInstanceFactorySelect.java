@@ -53,6 +53,7 @@ import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.pattern.EvalRootMatchRemover;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.rowregex.EventRowRegexHelper;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewService;
@@ -132,7 +133,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         StatementAgentInstancePostLoad postLoadJoin = null;
         boolean suppressSameEventMatches = false;
         boolean discardPartialsOnMatch = false;
-
+        EvalRootMatchRemover evalRootMatchRemover = null;
 
         try {
             // create root viewables
@@ -148,6 +149,9 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
                 eventStreamParentViewable[stream] = activationResult.getViewable();
                 patternRoots[stream] = activationResult.getOptionalPatternRoot();
+                if (stream == 0) {
+                    evalRootMatchRemover = activationResult.getOptEvalRootMatchRemover();
+                }
 
                 if (activationResult.getOptionalLock() != null) {
                     agentInstanceContext.getEpStatementAgentInstanceHandle().setStatementAgentInstanceLock(activationResult.getOptionalLock());
@@ -229,7 +233,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             JoinSetComposerDesc joinSetComposer = null;
             if (streamViews.length == 1)
             {
-                finalView = handleSimpleSelect(streamViews[0], resultSetProcessor, agentInstanceContext, patternRoots, suppressSameEventMatches, discardPartialsOnMatch);
+                finalView = handleSimpleSelect(streamViews[0], resultSetProcessor, agentInstanceContext, evalRootMatchRemover, suppressSameEventMatches, discardPartialsOnMatch);
                 joinPreloadMethod = null;
             }
             else
@@ -371,7 +375,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
     private Viewable handleSimpleSelect(Viewable view,
                                         ResultSetProcessor resultSetProcessor,
                                         AgentInstanceContext agentInstanceContext,
-                                        EvalRootState[] patternRoots,
+                                        EvalRootMatchRemover evalRootMatchRemover,
                                         boolean suppressSameEventMatches,
                                         boolean discardPartialsOnMatch)
     {
@@ -387,8 +391,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
         Deque<EPStatementDispatch> dispatches = null;
 
-        if (patternRoots[0] != null && (suppressSameEventMatches || discardPartialsOnMatch)) {
-            PatternRemoveDispatchView v = new PatternRemoveDispatchView(patternRoots[0], suppressSameEventMatches, discardPartialsOnMatch);
+        if (evalRootMatchRemover != null && (suppressSameEventMatches || discardPartialsOnMatch)) {
+            PatternRemoveDispatchView v = new PatternRemoveDispatchView(evalRootMatchRemover, suppressSameEventMatches, discardPartialsOnMatch);
             dispatches = new ArrayDeque<EPStatementDispatch>(2);
             dispatches.add(v);
             finalView.addView(v);

@@ -20,6 +20,6 @@ public class ViewableActivatorSubselectNone implements ViewableActivator {
     }
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-        return new ViewableActivationResult(null, CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false, null);
+        return new ViewableActivationResult(null, CollectionUtil.STOP_CALLBACK_NONE, null, null, null, false, false, null);
     }
 }

@@ -191,7 +191,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
                 final EPLSelectViewable viewable = found;
                 return new ViewableActivator() {
                     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(viewable, new StopCallback() {public void stop() {}}, null, null, false, false, null);
+                        return new ViewableActivationResult(viewable, new StopCallback() {public void stop() {}}, null, null, null, false, false, null);
                     }
                 };
             }

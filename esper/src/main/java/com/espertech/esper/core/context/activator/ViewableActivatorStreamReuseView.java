@@ -58,7 +58,7 @@ public class ViewableActivatorStreamReuseView implements ViewableActivator, Stop
                 statementContext.isStatelessSelect(),
                 streamNum,
                 isCanIterateUnbound);
-        return new ViewableActivationResult(pair.getFirst(), this, pair.getSecond(), null, false, false, null);
+        return new ViewableActivationResult(pair.getFirst(), this, pair.getSecond(), null, null, false, false, null);
     }
 
     public void stop() {

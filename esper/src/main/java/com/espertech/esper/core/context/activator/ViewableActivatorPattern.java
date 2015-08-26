@@ -57,7 +57,7 @@ public class ViewableActivatorPattern implements ViewableActivator {
         };
 
         EvalRootState rootState = rootNode.start(callback, patternContext, isRecoveringResilient);
-        return new ViewableActivationResult(sourceEventStream, rootState, null, rootState, suppressSameEventMatches, discardPartialsOnMatch, null);
+        return new ViewableActivationResult(sourceEventStream, rootState, null, rootState, rootState, suppressSameEventMatches, discardPartialsOnMatch, null);
     }
 
     public EvalRootFactoryNode getRootFactoryNode() {
