@@ -34,7 +34,7 @@ public class ViewableActivatorStreamReuseView implements ViewableActivator, Stop
     private final int streamNum;
     private final boolean isCanIterateUnbound;
 
-    public ViewableActivatorStreamReuseView(EPServicesContext services, StatementContext statementContext, StatementSpecCompiled statementSpec, FilterStreamSpecCompiled filterStreamSpec, boolean join, ExprEvaluatorContextStatement evaluatorContextStmt, boolean filterSubselectSameStream, int streamNum, boolean isCanIterateUnbound) {
+    protected ViewableActivatorStreamReuseView(EPServicesContext services, StatementContext statementContext, StatementSpecCompiled statementSpec, FilterStreamSpecCompiled filterStreamSpec, boolean join, ExprEvaluatorContextStatement evaluatorContextStmt, boolean filterSubselectSameStream, int streamNum, boolean isCanIterateUnbound) {
         this.services = services;
         this.statementContext = statementContext;
         this.statementSpec = statementSpec;
@@ -58,7 +58,7 @@ public class ViewableActivatorStreamReuseView implements ViewableActivator, Stop
                 statementContext.isStatelessSelect(),
                 streamNum,
                 isCanIterateUnbound);
-        return new ViewableActivationResult(pair.getFirst(), this, pair.getSecond(), null, false, false);
+        return new ViewableActivationResult(pair.getFirst(), this, pair.getSecond(), null, false, false, null);
     }
 
     public void stop() {

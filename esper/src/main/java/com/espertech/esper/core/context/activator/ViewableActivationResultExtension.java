@@ -9,12 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.core.context.factory;
+package com.espertech.esper.core.context.activator;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
-
-public interface StatementAgentInstanceFactory {
-    public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);
-    public void assignExpressions(StatementAgentInstanceFactoryResult result);
-    public void unassignExpressions();
+public interface ViewableActivationResultExtension {
 }

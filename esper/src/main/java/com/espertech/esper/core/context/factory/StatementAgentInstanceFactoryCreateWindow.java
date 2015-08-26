@@ -14,7 +14,7 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
-import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
+import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
@@ -47,13 +47,13 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
     protected final StatementContext statementContext;
     protected final StatementSpecCompiled statementSpec;
     protected final EPServicesContext services;
-    protected final ViewableActivatorFilterProxy activator;
+    protected final ViewableActivator activator;
     protected final ViewFactoryChain unmaterializedViewChain;
     protected final ResultSetProcessorFactoryDesc resultSetProcessorPrototype;
     protected final OutputProcessViewFactory outputProcessViewFactory;
     protected final boolean isRecoveringStatement;
 
-    public StatementAgentInstanceFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivatorFilterProxy activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputProcessViewFactory, boolean recoveringStatement) {
+    public StatementAgentInstanceFactoryCreateWindow(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, ViewFactoryChain unmaterializedViewChain, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, OutputProcessViewFactory outputProcessViewFactory, boolean recoveringStatement) {
         super(statementContext.getAnnotations());
         this.statementContext = statementContext;
         this.statementSpec = statementSpec;
@@ -72,8 +72,9 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
         String windowName = statementSpec.getCreateWindowDesc().getWindowName();
         Viewable finalView;
         Viewable eventStreamParentViewable;
-        StatementAgentInstancePostLoad postLoad = null;
+        StatementAgentInstancePostLoad postLoad;
         Viewable topView;
+        NamedWindowProcessorInstance processorInstance;
 
         try {
             // Register interest
@@ -89,7 +90,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             }
 
             // Allocate processor instance
-            NamedWindowProcessorInstance processorInstance = processor.addInstance(agentInstanceContext);
+            processorInstance = processor.addInstance(agentInstanceContext);
             View rootView = processorInstance.getRootViewInstance();
             eventStreamParentViewable.addView(rootView);
 
@@ -135,9 +136,6 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                         NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceContext);
                         if (instance != null && instance.getRootViewInstance().isVirtualDataWindow()) {
                             instance.getRootViewInstance().getVirtualDataWindow().handleStopWindow();
-                        }
-                        if (instance != null) {
-                            processor.removeProcessorInstance(instance);
                         }
                     }
                     if (environmentStopCallback != null) {
@@ -209,6 +207,12 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
 
         log.debug(".start Statement start completed");
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactoryCreateWindowResult(finalView, stopCallback, agentInstanceContext, eventStreamParentViewable, postLoad, topView);
+        return new StatementAgentInstanceFactoryCreateWindowResult(finalView, stopCallback, agentInstanceContext, eventStreamParentViewable, postLoad, topView, processorInstance);
+    }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
     }
 }

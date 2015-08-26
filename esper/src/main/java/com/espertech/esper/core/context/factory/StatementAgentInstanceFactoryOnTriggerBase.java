@@ -101,6 +101,12 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         return new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService, subselectStrategies, optPatternRoot, tableAccessStrategies);
     }
 
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
+
     public static class OnExprViewResult {
         private final View onExprView;
         private final AggregationService optionalAggregationService;

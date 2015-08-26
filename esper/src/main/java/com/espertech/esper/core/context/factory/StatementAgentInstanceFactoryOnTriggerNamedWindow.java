@@ -105,6 +105,12 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
         return new OnExprViewResult(onExprBaseView, pair.getSecond());
     }
 
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
+
     public View determineFinalOutputView(AgentInstanceContext agentInstanceContext, View onExprView) {
 
         if ((statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_DELETE) ||

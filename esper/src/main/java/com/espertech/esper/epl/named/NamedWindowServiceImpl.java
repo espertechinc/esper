@@ -142,7 +142,7 @@ public class NamedWindowServiceImpl implements NamedWindowService
         return processor.getProcessorInstance(null).getIndexDescriptors();
     }
 
-    public NamedWindowProcessor addProcessor(String name, String contextName, boolean singleInstanceContext, EventType eventType, StatementResultService statementResultService,
+    public NamedWindowProcessor addProcessor(String name, String contextName, EventType eventType, StatementResultService statementResultService,
                                              ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized,
                                              boolean isEnableSubqueryIndexShare, boolean isBatchingDataWindow,
                                              boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle,
@@ -154,7 +154,7 @@ public class NamedWindowServiceImpl implements NamedWindowService
             throw new ViewProcessingException("A named window by name '" + name + "' has already been created");
         }
 
-        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, contextName, singleInstanceContext, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, statementMetricHandle, optionalUniqueKeyProps, eventTypeAsName, statementResourceService);
+        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, statementMetricHandle, optionalUniqueKeyProps, eventTypeAsName, statementResourceService);
         processors.put(name, processor);
 
         if (!observers.isEmpty())

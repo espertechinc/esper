@@ -64,7 +64,6 @@ public interface NamedWindowService
      */
     public NamedWindowProcessor addProcessor(String name,
                                              String contextName,
-                                             boolean singleInstanceContext,
                                              EventType eventType,
                                              StatementResultService statementResultService,
                                              ValueAddEventProcessor revisionProcessor,

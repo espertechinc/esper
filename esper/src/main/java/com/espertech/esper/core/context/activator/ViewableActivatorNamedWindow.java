@@ -35,6 +35,6 @@ public class ViewableActivatorNamedWindow implements ViewableActivator {
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         NamedWindowConsumerDesc consumerDesc = new NamedWindowConsumerDesc(filterExpressions, optPropertyEvaluator, agentInstanceContext);
         NamedWindowConsumerView consumerView = processor.addConsumer(consumerDesc, isSubselect);
-        return new ViewableActivationResult(consumerView, consumerView, null, null, false, false);
+        return new ViewableActivationResult(consumerView, consumerView, null, null, false, false, null);
     }
 }

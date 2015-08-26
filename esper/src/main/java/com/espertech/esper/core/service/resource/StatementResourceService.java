@@ -55,23 +55,6 @@ public class StatementResourceService {
         this.removeContextPattern(startEndpoint, path);
     }
 
-    public StatementResourceHolder allocateNonPartitioned() {
-        if (resourcesUnpartitioned != null) {
-            return resourcesUnpartitioned;
-        }
-        resourcesUnpartitioned = new StatementResourceHolder();
-        return resourcesUnpartitioned;
-    }
-
-    public StatementResourceHolder allocatePartitioned(int agentInstanceId) {
-        StatementResourceHolder resources = resourcesPartitioned.get(agentInstanceId);
-        if (resources == null) {
-            resources = new StatementResourceHolder();
-            resourcesPartitioned.put(agentInstanceId, resources);
-        }
-        return resources;
-    }
-
     public StatementResourceHolder getPartitioned(int agentInstanceId) {
         return resourcesPartitioned.get(agentInstanceId);
     }

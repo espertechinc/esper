@@ -23,6 +23,7 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySel
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementLifecycleSvcUtil;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperAssignExpr;
@@ -48,6 +49,9 @@ import com.espertech.esper.epl.view.OutputProcessViewCallback;
 import com.espertech.esper.event.EventBeanAdapterFactory;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecParam;
+import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
+import com.espertech.esper.pattern.EvalRootFactoryNode;
+import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
 import org.apache.commons.logging.Log;
@@ -173,7 +177,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         }
 
         ViewableActivatorFactory activatorFactory = new ViewableActivatorFactory() {
-            public ViewableActivator createActivator(FilterStreamSpecCompiled filterStreamSpec) {
+            public ViewableActivator createActivatorSimple(FilterStreamSpecCompiled filterStreamSpec) {
 
                 EPLSelectViewable found = null;
                 for (EPLSelectViewable viewable : viewables) {
@@ -187,9 +191,21 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
                 final EPLSelectViewable viewable = found;
                 return new ViewableActivator() {
                     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(viewable, new StopCallback() {public void stop() {}}, null, null, false, false);
+                        return new ViewableActivationResult(viewable, new StopCallback() {public void stop() {}}, null, null, false, false, null);
                     }
                 };
+            }
+
+            public ViewableActivator createFilterProxy(EPServicesContext services, FilterSpecCompiled filterSpec, Annotation[] annotations, boolean b, InstrumentationAgent instrumentationAgentSubquery, boolean b1) {
+                throw new UnsupportedOperationException();
+            }
+
+            public ViewableActivator createStreamReuseView(EPServicesContext services, StatementContext statementContext, StatementSpecCompiled statementSpec, FilterStreamSpecCompiled filterStreamSpec, boolean isJoin, ExprEvaluatorContextStatement evaluatorContextStmt, boolean filterSubselectSameStream, int streamNum, boolean isCanIterateUnbound) {
+                throw new UnsupportedOperationException();
+            }
+
+            public ViewableActivator createPattern(PatternContext patternContext, EvalRootFactoryNode rootFactoryNode, EventType eventType, boolean consumingFilters, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, boolean isCanIterateUnbound) {
+                throw new UnsupportedOperationException();
             }
         };
 

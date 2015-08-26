@@ -23,14 +23,16 @@ public class ViewableActivationResult {
     private final EvalRootState optionalPatternRoot;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
+    private final ViewableActivationResultExtension viewableActivationResultExtension;
 
-    public ViewableActivationResult(Viewable viewable, StopCallback stopCallback, StatementAgentInstanceLock optionalLock, EvalRootState optionalPatternRoot, boolean suppressSameEventMatches, boolean discardPartialsOnMatch) {
+    public ViewableActivationResult(Viewable viewable, StopCallback stopCallback, StatementAgentInstanceLock optionalLock, EvalRootState optionalPatternRoot, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, ViewableActivationResultExtension viewableActivationResultExtension) {
         this.viewable = viewable;
         this.stopCallback = stopCallback;
         this.optionalLock = optionalLock;
         this.optionalPatternRoot = optionalPatternRoot;
         this.suppressSameEventMatches = suppressSameEventMatches;
         this.discardPartialsOnMatch = discardPartialsOnMatch;
+        this.viewableActivationResultExtension = viewableActivationResultExtension;
     }
 
     public StopCallback getStopCallback() {
@@ -55,5 +57,9 @@ public class ViewableActivationResult {
 
     public boolean isDiscardPartialsOnMatch() {
         return discardPartialsOnMatch;
+    }
+
+    public ViewableActivationResultExtension getViewableActivationResultExtension() {
+        return viewableActivationResultExtension;
     }
 }

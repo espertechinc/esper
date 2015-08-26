@@ -85,4 +85,10 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
 
         return new StatementAgentInstanceFactoryCreateIndexResult(finalView, stopCallback, agentInstanceContext);
     }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
 }

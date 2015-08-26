@@ -30,6 +30,6 @@ public class ViewableActivatorTable implements ViewableActivator {
 
     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
         TableStateInstance state = agentInstanceContext.getStatementContext().getTableService().getState(tableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
-        return new ViewableActivationResult(new TableStateViewableInternal(tableMetadata, state, optionalTableFilters), CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false);
+        return new ViewableActivationResult(new TableStateViewableInternal(tableMetadata, state, optionalTableFilters), CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false, null);
     }
 }

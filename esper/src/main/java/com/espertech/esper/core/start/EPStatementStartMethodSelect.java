@@ -19,6 +19,7 @@ import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -58,6 +59,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
         final String contextName = statementSpec.getOptionalContextName();
         AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
         EPStatementStartMethodSelectDesc selectDesc = EPStatementStartMethodSelectUtil.prepare(statementSpec, services, statementContext, isRecoveringResilient, defaultAgentInstanceContext, isQueryPlanLogging(services), null, null, null);
+        statementContext.setStatementAgentInstanceFactory(selectDesc.getStatementAgentInstanceFactorySelect());
 
         // Determine context
         EPStatementStopMethod stopStatementMethod;
@@ -172,7 +174,8 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             }
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(resultOfStart);
+                StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
             }
         }
 

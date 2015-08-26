@@ -36,7 +36,7 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
     private final InstrumentationAgent instrumentationAgent;
     private final boolean isCanIterate;
 
-    public ViewableActivatorFilterProxy(EPServicesContext services, FilterSpecCompiled filterSpec, Annotation[] annotations, boolean subSelect, InstrumentationAgent instrumentationAgent, boolean isCanIterate) {
+    protected ViewableActivatorFilterProxy(EPServicesContext services, FilterSpecCompiled filterSpec, Annotation[] annotations, boolean subSelect, InstrumentationAgent instrumentationAgent, boolean isCanIterate) {
         this.services = services;
         this.filterSpec = filterSpec;
         this.annotations = annotations;
@@ -114,7 +114,7 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
         FilterServiceEntry filterServiceEntry = services.getFilterService().add(filterValueSet, filterHandle);
 
         ViewableActivatorFilterProxyStopCallback stopCallback = new ViewableActivatorFilterProxyStopCallback(this, filterHandle, filterServiceEntry);
-        return new ViewableActivationResult(inputStream, stopCallback, null, null, false, false);
+        return new ViewableActivationResult(inputStream, stopCallback, null, null, false, false, null);
     }
 
     public EPServicesContext getServices() {

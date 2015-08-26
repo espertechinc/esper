@@ -11,7 +11,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvcDefault;
+import com.espertech.esper.core.context.activator.ViewableActivatorFactoryDefault;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvcImpl;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
@@ -19,6 +19,7 @@ import com.espertech.esper.core.context.mgr.ContextManagerFactoryServiceImpl;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
+import com.espertech.esper.core.service.resource.StatementResourceHolderFactoryDefault;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
@@ -196,9 +197,10 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
                 contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
-                new ExprDeclaredServiceImpl(), new StatementAgentInstanceFactoryFactorySvcDefault(),
+                new ExprDeclaredServiceImpl(),
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
-                new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault() {
+                new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
+                new StatementResourceHolderFactoryDefault() {
         });
 
         // Engine services subset available to statements

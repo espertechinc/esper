@@ -349,7 +349,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         }
 
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactorySelectResult(finalView, stopCallback, agentInstanceContext, aggregationService, subselectStrategies, priorNodeStrategies, previousNodeStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, patternRoots, postLoadJoin, topViews, eventStreamParentViewable);
+        return new StatementAgentInstanceFactorySelectResult(finalView, stopCallback, agentInstanceContext, aggregationService, subselectStrategies, priorNodeStrategies, previousNodeStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, patternRoots, postLoadJoin, topViews, eventStreamParentViewable, viewableActivationResult);
+    }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+        StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) result;
+        EPStatementStartMethodHelperAssignExpr.assignAggregations(selectResult.getOptionalAggegationService(), resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+    }
+
+    public void unassignExpressions() {
+        EPStatementStartMethodHelperAssignExpr.assignAggregations(null, resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
     }
 
     private Viewable handleSimpleSelect(Viewable view,

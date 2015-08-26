@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.Viewable;
 
@@ -30,8 +31,9 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
     private final Viewable eventStreamParentViewable;
     private final StatementAgentInstancePostLoad postLoad;
     private final Viewable topView;
+    private final NamedWindowProcessorInstance processorInstance;
 
-    public StatementAgentInstanceFactoryCreateWindowResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable eventStreamParentViewable, StatementAgentInstancePostLoad postLoad, Viewable topView) {
+    public StatementAgentInstanceFactoryCreateWindowResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable eventStreamParentViewable, StatementAgentInstancePostLoad postLoad, Viewable topView, NamedWindowProcessorInstance processorInstance) {
         super(finalView, stopCallback, agentInstanceContext,
                     null, Collections.<ExprSubselectNode, SubSelectStrategyHolder>emptyMap(),
                 Collections.<ExprPriorNode, ExprPriorEvalStrategy>emptyMap(),
@@ -43,6 +45,7 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
         this.eventStreamParentViewable = eventStreamParentViewable;
         this.postLoad = postLoad;
         this.topView = topView;
+        this.processorInstance = processorInstance;
     }
 
     public Viewable getEventStreamParentViewable() {
@@ -55,5 +58,9 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
 
     public Viewable getTopView() {
         return topView;
+    }
+
+    public NamedWindowProcessorInstance getProcessorInstance() {
+        return processorInstance;
     }
 }

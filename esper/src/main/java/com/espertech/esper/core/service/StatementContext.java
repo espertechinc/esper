@@ -9,9 +9,12 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.core.service.resource.StatementResourceHolderFactory;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
@@ -76,6 +79,8 @@ public final class StatementContext
 
     private AgentInstanceScriptContext defaultAgentInstanceScriptContext;
     private StatementSpecCompiled statementSpecCompiled;
+    private StatementAgentInstanceFactory statementAgentInstanceFactory;
+    private EPStatementSPI statement;
 
     /**
      * Constructor.
@@ -345,6 +350,15 @@ public final class StatementContext
     }
 
     /**
+     * Returns the resource holder factory service.
+     * @return service
+     */
+    public StatementResourceHolderFactory getStatementResourceHolderFactory()
+    {
+        return stmtEngineServices.getStatementResourceHolderFactory();
+    }
+
+    /**
      * Returns the configuration.
      * @return configuration
      */
@@ -518,11 +532,31 @@ public final class StatementContext
         return stmtEngineServices.getRegexHandlerFactory();
     }
 
+    public StatementLockFactory getStatementLockFactory() {
+        return stmtEngineServices.getStatementLockFactory();
+    }
+
     public void setStatementSpecCompiled(StatementSpecCompiled statementSpecCompiled) {
         this.statementSpecCompiled = statementSpecCompiled;
     }
 
     public StatementSpecCompiled getStatementSpecCompiled() {
         return statementSpecCompiled;
+    }
+
+    public void setStatementAgentInstanceFactory(StatementAgentInstanceFactorySelect statementAgentInstanceFactory) {
+        this.statementAgentInstanceFactory = statementAgentInstanceFactory;
+    }
+
+    public StatementAgentInstanceFactory getStatementAgentInstanceFactory() {
+        return statementAgentInstanceFactory;
+    }
+
+    public EPStatementSPI getStatement() {
+        return statement;
+    }
+
+    public void setStatement(EPStatementSPI statement) {
+        this.statement = statement;
     }
 }

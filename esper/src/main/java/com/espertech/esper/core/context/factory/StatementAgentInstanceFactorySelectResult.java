@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.factory;
 
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
@@ -35,6 +36,7 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
     private final StatementAgentInstancePostLoad optionalPostLoadJoin;
     private final Viewable[] topViews;
     private final Viewable[] eventStreamViewables;
+    private final ViewableActivationResult[] viewableActivationResults;
 
     public StatementAgentInstanceFactorySelectResult(Viewable finalView,
                                                      StopCallback stopCallback,
@@ -49,12 +51,14 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
                                                      EvalRootState[] patternRoots,
                                                      StatementAgentInstancePostLoad optionalPostLoadJoin,
                                                      Viewable[] topViews,
-                                                     Viewable[] eventStreamViewables) {
+                                                     Viewable[] eventStreamViewables,
+                                                     ViewableActivationResult[] viewableActivationResults) {
         super(finalView, stopCallback, agentInstanceContext, optionalAggegationService, subselectStrategies, priorNodeStrategies, previousNodeStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList);
         this.topViews = topViews;
         this.patternRoots = patternRoots;
         this.optionalPostLoadJoin = optionalPostLoadJoin;
         this.eventStreamViewables = eventStreamViewables;
+        this.viewableActivationResults = viewableActivationResults;
     }
 
     public Viewable[] getTopViews() {
@@ -71,5 +75,9 @@ public class StatementAgentInstanceFactorySelectResult extends StatementAgentIns
 
     public Viewable[] getEventStreamViewables() {
         return eventStreamViewables;
+    }
+
+    public ViewableActivationResult[] getViewableActivationResults() {
+        return viewableActivationResults;
     }
 }

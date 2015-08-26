@@ -84,4 +84,10 @@ public class StatementAgentInstanceFactoryUpdate extends StatementAgentInstanceF
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
         return new StatementAgentInstanceFactoryUpdateResult(onExprView, stopCallback, agentInstanceContext, subselectStrategies);
     }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
 }

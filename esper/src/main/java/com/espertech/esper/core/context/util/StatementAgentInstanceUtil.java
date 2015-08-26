@@ -22,6 +22,7 @@ import com.espertech.esper.core.context.stmt.AIRegistryAggregation;
 import com.espertech.esper.core.context.stmt.AIRegistryExpr;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.service.*;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.start.EPStatementStopMethodImpl;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
@@ -234,7 +235,8 @@ public class StatementAgentInstanceUtil {
             }
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getStatementExtensionServicesContext().getStmtResources().allocatePartitioned(agentInstanceId).addResources(startResult);
+                StatementResourceHolder holder = servicesContext.getStatementResourceHolderFactory().make(startResult);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setPartitioned(agentInstanceId, holder);
             }
 
             // instantiate

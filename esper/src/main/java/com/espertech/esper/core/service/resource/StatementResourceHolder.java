@@ -33,15 +33,40 @@ public class StatementResourceHolder {
     private NamedWindowProcessorInstance namedWindowProcessorInstance;
     private StatementResourceExtension statementResourceExtension;
 
-    public StatementResourceHolder() {
+    public StatementResourceHolder(AgentInstanceContext agentInstanceContext) {
+        this.agentInstanceContext = agentInstanceContext;
     }
 
-    public NamedWindowProcessorInstance getNamedWindowProcessorInstance() {
-        return namedWindowProcessorInstance;
+    protected void setTopViewables(Viewable[] topViewables) {
+        this.topViewables = topViewables;
     }
 
-    public void setNamedWindowProcessorInstance(NamedWindowProcessorInstance namedWindowProcessorInstance) {
+    protected void setEventStreamViewables(Viewable[] eventStreamViewables) {
+        this.eventStreamViewables = eventStreamViewables;
+    }
+
+    protected void setPatternRoots(EvalRootState[] patternRoots) {
+        this.patternRoots = patternRoots;
+    }
+
+    protected void setAggregationService(AggregationService aggregationService) {
+        this.aggregationService = aggregationService;
+    }
+
+    protected void setSubselectStrategies(Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies) {
+        this.subselectStrategies = subselectStrategies;
+    }
+
+    protected void setPostLoad(StatementAgentInstancePostLoad postLoad) {
+        this.postLoad = postLoad;
+    }
+
+    protected void setNamedWindowProcessorInstance(NamedWindowProcessorInstance namedWindowProcessorInstance) {
         this.namedWindowProcessorInstance = namedWindowProcessorInstance;
+    }
+
+    public void setStatementResourceExtension(StatementResourceExtension statementResourceExtension) {
+        this.statementResourceExtension = statementResourceExtension;
     }
 
     public AgentInstanceContext getAgentInstanceContext() {
@@ -72,69 +97,11 @@ public class StatementResourceHolder {
         return postLoad;
     }
 
-    public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
-        this.agentInstanceContext = agentInstanceContext;
-    }
-
-    public void setTopViewables(Viewable[] topViewables) {
-        this.topViewables = topViewables;
-    }
-
-    public void setEventStreamViewables(Viewable[] eventStreamViewables) {
-        this.eventStreamViewables = eventStreamViewables;
-    }
-
-    public void setPatternRoots(EvalRootState[] patternRoots) {
-        this.patternRoots = patternRoots;
-    }
-
-    public void setAggregationService(AggregationService aggregationService) {
-        this.aggregationService = aggregationService;
-    }
-
-    public void setSubselectStrategies(Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies) {
-        this.subselectStrategies = subselectStrategies;
-    }
-
-    public void setPostLoad(StatementAgentInstancePostLoad postLoad) {
-        this.postLoad = postLoad;
-    }
-
-    public void addResources(StatementAgentInstanceFactoryResult startResult) {
-        agentInstanceContext = startResult.getAgentInstanceContext();
-
-        if (startResult instanceof StatementAgentInstanceFactorySelectResult) {
-            StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) startResult;
-            topViewables = selectResult.getTopViews();
-            eventStreamViewables = selectResult.getEventStreamViewables();
-            patternRoots = selectResult.getPatternRoots();
-            aggregationService = selectResult.getOptionalAggegationService();
-            subselectStrategies = selectResult.getSubselectStrategies();
-            postLoad = selectResult.getOptionalPostLoadJoin();
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
-            StatementAgentInstanceFactoryCreateWindowResult createResult = (StatementAgentInstanceFactoryCreateWindowResult) startResult;
-            topViewables = new Viewable[] {createResult.getTopView()};
-            postLoad = createResult.getPostLoad();
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
-            StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
-            topViewables = new Viewable[] {createResult.getFinalView()};
-            aggregationService = createResult.getOptionalAggegationService();
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
-            StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
-            patternRoots = new EvalRootState[] {onTriggerResult.getOptPatternRoot()};
-            aggregationService = onTriggerResult.getOptionalAggegationService();
-            subselectStrategies = onTriggerResult.getSubselectStrategies();
-        }
+    public NamedWindowProcessorInstance getNamedWindowProcessorInstance() {
+        return namedWindowProcessorInstance;
     }
 
     public StatementResourceExtension getStatementResourceExtension() {
         return statementResourceExtension;
-    }
-
-    public void setStatementResourceExtension(StatementResourceExtension statementResourceExtension) {
-        this.statementResourceExtension = statementResourceExtension;
     }
 }

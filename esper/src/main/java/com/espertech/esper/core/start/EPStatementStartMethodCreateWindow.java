@@ -10,7 +10,7 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
-import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
+import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindow;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateWindowResult;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateWindowDesc;
@@ -19,6 +19,7 @@ import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -59,7 +60,6 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
 
         // determine context
         final String contextName = statementSpec.getOptionalContextName();
-        final boolean singleInstanceContext = contextName == null ? false : services.getContextManagementService().getContextDescriptor(contextName).isSingleInstanceContext();
 
         // register agent instance resources for use in HA
         EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = getDefaultAgentInstanceHandle(statementContext);
@@ -82,7 +82,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 }
             };
         }
-        ViewableActivatorFilterProxy activator = new ViewableActivatorFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false);
+        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false);
 
         // create data window view factories
         ViewFactoryChain unmaterializedViewChain = services.getViewService().createFactories(0, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
@@ -103,7 +103,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         boolean isBatchingDataWindow = determineBatchingDataWindow(unmaterializedViewChain.getViewFactoryChain());
         final VirtualDWViewFactory virtualDataWindowFactory = determineVirtualDataWindow(unmaterializedViewChain.getViewFactoryChain());
         Set<String> optionalUniqueKeyProps = ViewServiceHelper.getUniqueCandidateProperties(unmaterializedViewChain.getViewFactoryChain(), statementSpec.getAnnotations());
-        NamedWindowProcessor processor = services.getNamedWindowService().addProcessor(windowName, contextName, singleInstanceContext, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
+        NamedWindowProcessor processor = services.getNamedWindowService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
                 statementSpec.getCreateWindowDesc().getAsEventTypeName(),
                 statementContext.getStatementExtensionServicesContext().getStmtResources());
 
@@ -136,8 +136,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
 
             // create context factory
             // Factory for statement-context instances
-            StatementAgentInstanceFactoryCreateWindow contextFactory = services.getStmtAgentInstanceFactoryFactorySvc().makeFactoryCreateWindow(
-                    statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
+            StatementAgentInstanceFactoryCreateWindow contextFactory = new StatementAgentInstanceFactoryCreateWindow(statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
 
             // With context - delegate instantiation to context
             final EPStatementStopMethod stopMethod = new EPStatementStopMethodImpl(statementContext, stopCallbacks);
@@ -183,7 +182,8 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 destroyStatementMethod = null;
 
                 if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                    statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(resultOfStart);
+                    StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                    statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
                 }
             }
         }

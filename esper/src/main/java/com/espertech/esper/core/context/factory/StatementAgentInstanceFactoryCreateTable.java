@@ -32,4 +32,10 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         TableStateViewablePublic finalView = new TableStateViewablePublic(tableMetadata, tableState);
         return new StatementAgentInstanceFactoryCreateTableResult(finalView, CollectionUtil.STOP_CALLBACK_NONE, agentInstanceContext, aggregationReportingService);
     }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
 }

@@ -9,12 +9,10 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.core.context.factory;
+package com.espertech.esper.core.service.resource;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
 
-public interface StatementAgentInstanceFactory {
-    public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);
-    public void assignExpressions(StatementAgentInstanceFactoryResult result);
-    public void unassignExpressions();
+public interface StatementResourceHolderFactory {
+    StatementResourceHolder make(StatementAgentInstanceFactoryResult resultOfStart);
 }

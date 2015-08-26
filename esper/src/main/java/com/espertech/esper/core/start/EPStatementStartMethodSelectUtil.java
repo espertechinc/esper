@@ -126,14 +126,14 @@ public class EPStatementStartMethodSelectUtil
                 // create activator
                 ViewableActivator activatorDeactivator;
                 if (optionalViewableActivatorFactory != null) {
-                    activatorDeactivator = optionalViewableActivatorFactory.createActivator(filterStreamSpec);
+                    activatorDeactivator = optionalViewableActivatorFactory.createActivatorSimple(filterStreamSpec);
                     if (activatorDeactivator == null) {
                         throw new IllegalStateException("Viewable activate is null for " + filterStreamSpec.getFilterSpec().getFilterForEventType().getName());
                     }
                 }
                 else {
                     if (!hasContext) {
-                        activatorDeactivator = new ViewableActivatorStreamReuseView(services, statementContext, statementSpec, filterStreamSpec, isJoin, evaluatorContextStmt, filterSubselectSameStream, i, isCanIterateUnbound);
+                        activatorDeactivator = services.getViewableActivatorFactory().createStreamReuseView(services, statementContext, statementSpec, filterStreamSpec, isJoin, evaluatorContextStmt, filterSubselectSameStream, i, isCanIterateUnbound);
                     }
                     else {
                         InstrumentationAgent instrumentationAgentFilter = null;
@@ -150,7 +150,7 @@ public class EPStatementStartMethodSelectUtil
                             };
                         }
 
-                        activatorDeactivator = new ViewableActivatorFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), false, instrumentationAgentFilter, isCanIterateUnbound);
+                        activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), false, instrumentationAgentFilter, isCanIterateUnbound);
                     }
                 }
                 eventStreamParentViewableActivators[i] = activatorDeactivator;
@@ -171,7 +171,7 @@ public class EPStatementStartMethodSelectUtil
                 final PatternContext patternContext = statementContext.getPatternContextFactory().createContext(statementContext, i, rootFactoryNode, patternStreamSpec.getMatchedEventMapMeta(), true);
 
                 // create activator
-                ViewableActivator patternActivator = new ViewableActivatorPattern(patternContext, rootFactoryNode, eventType, EPStatementStartMethodHelperUtil.isConsumingFilters(patternStreamSpec.getEvalFactoryNode()), patternStreamSpec.isSuppressSameEventMatches(), patternStreamSpec.isDiscardPartialsOnMatch(), isCanIterateUnbound);
+                ViewableActivator patternActivator = services.getViewableActivatorFactory().createPattern(patternContext, rootFactoryNode, eventType, EPStatementStartMethodHelperUtil.isConsumingFilters(patternStreamSpec.getEvalFactoryNode()), patternStreamSpec.isSuppressSameEventMatches(), patternStreamSpec.isDiscardPartialsOnMatch(), isCanIterateUnbound);
                 eventStreamParentViewableActivators[i] = patternActivator;
             }
             // Create view factories and parent view based on a database SQL statement
@@ -188,7 +188,7 @@ public class EPStatementStartMethodSelectUtil
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
                 eventStreamParentViewableActivators[i] = new ViewableActivator() {
                     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false);
+                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false, null);
                     }
                 };
                 stopCallbacks.add(historicalEventViewable);
@@ -203,7 +203,7 @@ public class EPStatementStartMethodSelectUtil
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
                 eventStreamParentViewableActivators[i] = new ViewableActivator() {
                     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false);
+                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, false, false, null);
                     }
                 };
                 stopCallbacks.add(historicalEventViewable);
@@ -349,7 +349,7 @@ public class EPStatementStartMethodSelectUtil
         OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService());
 
         // Factory for statement-context instances
-        StatementAgentInstanceFactorySelect factory = services.getStmtAgentInstanceFactoryFactorySvc().makeFactorySelect(
+        StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(
                 numStreams, eventStreamParentViewableActivators,
                 statementContext, statementSpec, services,
                 typeService, unmaterializedViewChain, resultSetProcessorPrototypeDesc, joinAnalysisResult, recoveringResilient,

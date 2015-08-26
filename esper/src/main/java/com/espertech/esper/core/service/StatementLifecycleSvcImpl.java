@@ -371,6 +371,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             EPStatementSPI statement = services.getEpStatementFactory().make(statementSpec.getExpressionNoAnnotations(), isPattern,
                     services.getDispatchService(), this, timeLastStateChange, preserveDispatchOrder, isSpinLocks, blockingTimeout,
                     services.getTimeSource(), statementMetadata, statementUserObject, statementContext, isFailed, nameProvided);
+            statementContext.setStatement(statement);
 
             boolean isInsertInto = statementSpec.getInsertIntoDesc() != null;
             boolean isDistinct = statementSpec.getSelectClauseSpec().isDistinct();

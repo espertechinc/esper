@@ -43,4 +43,10 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
         services.getVariableService().allocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId(), statementContext.getStatementExtensionServicesContext());
         return new StatementAgentInstanceFactoryCreateVariableResult(new ViewableDefaultImpl(eventType), stopCallback, agentInstanceContext);
     }
+
+    public void assignExpressions(StatementAgentInstanceFactoryResult result) {
+    }
+
+    public void unassignExpressions() {
+    }
 }

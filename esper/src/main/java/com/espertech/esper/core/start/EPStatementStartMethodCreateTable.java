@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
@@ -125,7 +126,8 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateTableResult result = contextFactory.newContext(defaultAgentInstanceContext, false);
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(result);
+                StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(result);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
             }
             outputView = result.getFinalView();
         }

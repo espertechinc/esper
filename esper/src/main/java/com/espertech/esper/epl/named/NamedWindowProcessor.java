@@ -34,7 +34,6 @@ public class NamedWindowProcessor
     private final NamedWindowTailView tailView;
     private final NamedWindowRootView rootView;
     private final String contextName;
-    private final boolean singleInstanceContext; // TODO remove me
     private final EventType eventType;
     private final String eplExpression;
     private final String statementName;
@@ -56,11 +55,10 @@ public class NamedWindowProcessor
      * @param statementName statement name
      * @param isPrioritized if the engine is running with prioritized execution
      */
-    public NamedWindowProcessor(String namedWindowName, NamedWindowService namedWindowService, String contextName, boolean singleInstanceContext, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementResourceService statementResourceService)
+    public NamedWindowProcessor(String namedWindowName, NamedWindowService namedWindowService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementResourceService statementResourceService)
     {
         this.namedWindowName = namedWindowName;
         this.contextName = contextName;
-        this.singleInstanceContext = singleInstanceContext;
         this.eventType = eventType;
         this.eplExpression = eplExpression;
         this.statementName = statementName;
@@ -81,33 +79,11 @@ public class NamedWindowProcessor
 
     public synchronized NamedWindowProcessorInstance addInstance(AgentInstanceContext agentInstanceContext) {
         if (contextName == null) {
-            StatementResourceHolder holder = statementResourceService.allocateNonPartitioned();
-            checkAlreadyAllocated(holder);
-            NamedWindowProcessorInstance instanceNoContext = new NamedWindowProcessorInstance(null, this, agentInstanceContext);
-            holder.setNamedWindowProcessorInstance(instanceNoContext);
-            return instanceNoContext;
+            return new NamedWindowProcessorInstance(null, this, agentInstanceContext);
         }
 
         int instanceId = agentInstanceContext.getAgentInstanceId();
-        StatementResourceHolder holder = statementResourceService.allocatePartitioned(instanceId);
-        checkAlreadyAllocated(holder);
-        NamedWindowProcessorInstance instance = new NamedWindowProcessorInstance(instanceId, this, agentInstanceContext);
-        holder.setNamedWindowProcessorInstance(instance);
-        return instance;
-    }
-
-    public synchronized void removeProcessorInstance(NamedWindowProcessorInstance instance) {
-        if (contextName == null) {
-            StatementResourceHolder holder = statementResourceService.getUnpartitioned();
-            if (holder != null) {
-                holder.setNamedWindowProcessorInstance(null);
-            }
-            return;
-        }
-        StatementResourceHolder holder = statementResourceService.getPartitioned(instance.getAgentInstanceId());
-        if (holder != null) {
-            holder.setNamedWindowProcessorInstance(null);
-        }
+        return new NamedWindowProcessorInstance(instanceId, this, agentInstanceContext);
     }
 
     public NamedWindowProcessorInstance getProcessorInstanceNoContext() {

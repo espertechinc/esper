@@ -9,12 +9,13 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryFactorySvc;
+import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
+import com.espertech.esper.core.service.resource.StatementResourceHolderFactory;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.dataflow.core.DataFlowService;
 import com.espertech.esper.dispatch.DispatchService;
@@ -34,8 +35,8 @@ import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
-import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolEngineSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.SchedulingMgmtService;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
 import com.espertech.esper.timer.TimeSourceService;
@@ -89,11 +90,12 @@ public final class EPServicesContext
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private TableService tableService;
-    private StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc;
     private ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc;
     private EPStatementFactory epStatementFactory;
     private ContextManagerFactoryService contextManagerFactoryService;
     private RegexHandlerFactory regexHandlerFactory;
+    private ViewableActivatorFactory viewableActivatorFactory;
+    private StatementResourceHolderFactory statementResourceHolderFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -175,11 +177,12 @@ public final class EPServicesContext
                              MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                              DataFlowService dataFlowService,
                              ExprDeclaredService exprDeclaredService,
-                             StatementAgentInstanceFactoryFactorySvc stmtAgentInstanceFactoryFactorySvc,
                              ContextControllerFactoryFactorySvc contextControllerFactoryFactorySvc,
                              ContextManagerFactoryService contextManagerFactoryService,
                              EPStatementFactory epStatementFactory,
-                             RegexHandlerFactory regexHandlerFactory)
+                             RegexHandlerFactory regexHandlerFactory,
+                             ViewableActivatorFactory viewableActivatorFactory,
+                             StatementResourceHolderFactory statementResourceHolderFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -224,11 +227,12 @@ public final class EPServicesContext
         this.dataFlowService = dataFlowService;
         this.exprDeclaredService = exprDeclaredService;
         this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
-        this.stmtAgentInstanceFactoryFactorySvc = stmtAgentInstanceFactoryFactorySvc;
         this.contextControllerFactoryFactorySvc = contextControllerFactoryFactorySvc;
         this.contextManagerFactoryService = contextManagerFactoryService;
         this.epStatementFactory = epStatementFactory;
         this.regexHandlerFactory = regexHandlerFactory;
+        this.viewableActivatorFactory = viewableActivatorFactory;
+        this.statementResourceHolderFactory = statementResourceHolderFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -692,10 +696,6 @@ public final class EPServicesContext
         return tableService;
     }
 
-    public StatementAgentInstanceFactoryFactorySvc getStmtAgentInstanceFactoryFactorySvc() {
-        return stmtAgentInstanceFactoryFactorySvc;
-    }
-
     public ContextControllerFactoryFactorySvc getContextControllerFactoryFactorySvc() {
         return contextControllerFactoryFactorySvc;
     }
@@ -710,5 +710,13 @@ public final class EPServicesContext
 
     public RegexHandlerFactory getRegexHandlerFactory() {
         return regexHandlerFactory;
+    }
+
+    public ViewableActivatorFactory getViewableActivatorFactory() {
+        return viewableActivatorFactory;
+    }
+
+    public StatementResourceHolderFactory getStatementResourceHolderFactory() {
+        return statementResourceHolderFactory;
     }
 }

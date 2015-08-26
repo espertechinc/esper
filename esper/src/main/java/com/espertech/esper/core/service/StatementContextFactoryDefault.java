@@ -92,7 +92,9 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getStatementEventTypeRefService(),
                 services.getTableService().getTableExprEvaluatorContext(),
                 services.getEngineLevelExtensionServicesContext(),
-                services.getRegexHandlerFactory()
+                services.getRegexHandlerFactory(),
+                services.getStatementLockFactory(),
+                services.getStatementResourceHolderFactory()
                 );
     }
 

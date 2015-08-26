@@ -32,7 +32,7 @@ public class ViewableActivatorPattern implements ViewableActivator {
     private final boolean discardPartialsOnMatch;
     private final boolean isCanIterate;
 
-    public ViewableActivatorPattern(PatternContext patternContext, EvalRootFactoryNode rootFactoryNode, EventType eventType, boolean hasConsumingFilter, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, boolean isCanIterate) {
+    protected ViewableActivatorPattern(PatternContext patternContext, EvalRootFactoryNode rootFactoryNode, EventType eventType, boolean hasConsumingFilter, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, boolean isCanIterate) {
         this.patternContext = patternContext;
         this.rootFactoryNode = rootFactoryNode;
         this.eventType = eventType;
@@ -57,7 +57,7 @@ public class ViewableActivatorPattern implements ViewableActivator {
         };
 
         EvalRootState rootState = rootNode.start(callback, patternContext, isRecoveringResilient);
-        return new ViewableActivationResult(sourceEventStream, rootState, null, rootState, suppressSameEventMatches, discardPartialsOnMatch);
+        return new ViewableActivationResult(sourceEventStream, rootState, null, rootState, suppressSameEventMatches, discardPartialsOnMatch, null);
     }
 
     public EvalRootFactoryNode getRootFactoryNode() {

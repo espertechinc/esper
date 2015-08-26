@@ -13,9 +13,7 @@ import com.espertech.esper.client.VariableValueException;
 import com.espertech.esper.client.soda.StreamSelector;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.activator.ViewableActivator;
-import com.espertech.esper.core.context.activator.ViewableActivatorFilterProxy;
 import com.espertech.esper.core.context.activator.ViewableActivatorNamedWindow;
-import com.espertech.esper.core.context.activator.ViewableActivatorPattern;
 import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementOnTriggerDesc;
 import com.espertech.esper.core.context.stmt.*;
@@ -27,6 +25,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeViewForwarding;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.*;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.core.ResultSetProcessorFactoryFactory;
@@ -224,7 +223,8 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             tableAccessStrategyInstances = resultOfStart.getTableAccessEvalStrategies();
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                statementContext.getStatementExtensionServicesContext().getStmtResources().allocateNonPartitioned().addResources(resultOfStart);
+                StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
             }
         }
 
@@ -265,7 +265,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
 
         EvalRootFactoryNode rootNode = services.getPatternNodeFactory().makeRootNode(patternStreamSpec.getEvalFactoryNode());
         PatternContext patternContext = statementContext.getPatternContextFactory().createContext(statementContext, 0, rootNode, patternStreamSpec.getMatchedEventMapMeta(), true);
-        ViewableActivatorPattern activator = new ViewableActivatorPattern(patternContext, rootNode, eventType, EPStatementStartMethodHelperUtil.isConsumingFilters(patternStreamSpec.getEvalFactoryNode()), false, false, false);
+        ViewableActivator activator = services.getViewableActivatorFactory().createPattern(patternContext, rootNode, eventType, EPStatementStartMethodHelperUtil.isConsumingFilters(patternStreamSpec.getEvalFactoryNode()), false, false, false);
         return new ActivatorResult(activator, null, eventType);
     }
 
@@ -283,7 +283,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
                 }
             };
         }
-        ViewableActivatorFilterProxy activator = new ViewableActivatorFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentOnTrigger, false);
+        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentOnTrigger, false);
         EventType activatorResultEventType = filterStreamSpec.getFilterSpec().getResultEventType();
         return new ActivatorResult(activator, triggerEventTypeName, activatorResultEventType);
     }

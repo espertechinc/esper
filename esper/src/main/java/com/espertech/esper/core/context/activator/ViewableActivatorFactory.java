@@ -11,8 +11,46 @@
 
 package com.espertech.esper.core.context.activator;
 
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
+import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
+import com.espertech.esper.pattern.EvalRootFactoryNode;
+import com.espertech.esper.pattern.PatternContext;
+
+import java.lang.annotation.Annotation;
 
 public interface ViewableActivatorFactory {
-    public ViewableActivator createActivator(FilterStreamSpecCompiled filterStreamSpec);
+    ViewableActivator createActivatorSimple(FilterStreamSpecCompiled filterStreamSpec);
+
+
+
+    ViewableActivator createFilterProxy(EPServicesContext services,
+                                               FilterSpecCompiled filterSpec,
+                                               Annotation[] annotations,
+                                               boolean subselect,
+                                               InstrumentationAgent instrumentationAgentSubquery,
+                                               boolean isCanIterate);
+
+    ViewableActivator createStreamReuseView(EPServicesContext services,
+                                            StatementContext statementContext,
+                                            StatementSpecCompiled statementSpec,
+                                            FilterStreamSpecCompiled filterStreamSpec,
+                                            boolean isJoin,
+                                            ExprEvaluatorContextStatement evaluatorContextStmt,
+                                            boolean filterSubselectSameStream,
+                                            int streamNum,
+                                            boolean isCanIterateUnbound);
+
+    ViewableActivator createPattern(PatternContext patternContext,
+                                    EvalRootFactoryNode rootFactoryNode,
+                                    EventType eventType,
+                                    boolean consumingFilters,
+                                    boolean suppressSameEventMatches,
+                                    boolean discardPartialsOnMatch,
+                                    boolean isCanIterateUnbound);
 }
