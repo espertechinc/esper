@@ -8,12 +8,19 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelectResult;
 import com.espertech.esper.core.service.resource.StatementResourceService;
+import com.espertech.esper.util.StopCallback;
+
+import java.util.List;
 
 /**
  * Statement-level extension services.
  */
 public interface StatementExtensionSvcContext
 {
-    public StatementResourceService getStmtResources();
+    StatementResourceService getStmtResources();
+    void postProcessStart(StatementAgentInstanceFactoryResult resultOfStart, boolean isRecoveringResilient);
+    void contributeStopCallback(StatementAgentInstanceFactorySelectResult selectResult, List<StopCallback> stopCallbacks);
 }

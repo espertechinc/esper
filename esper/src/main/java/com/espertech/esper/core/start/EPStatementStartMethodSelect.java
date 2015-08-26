@@ -176,6 +176,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
                 StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
                 statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
             }
         }
 

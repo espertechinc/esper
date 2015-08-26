@@ -11,6 +11,8 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatementException;
 import com.espertech.esper.client.annotation.*;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelectResult;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryServiceImpl;
 import com.espertech.esper.core.context.mgr.ContextStateCache;
@@ -35,6 +37,7 @@ import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.StatementStopServiceImpl;
 import com.espertech.esper.view.ViewEnumHelper;
 import com.espertech.esper.view.ViewResolutionService;
@@ -223,6 +226,12 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         StatementExtensionSvcContext extensionSvcContext = new StatementExtensionSvcContext() {
             public StatementResourceService getStmtResources() {
                 return statementResourceService;
+            }
+
+            public void postProcessStart(StatementAgentInstanceFactoryResult resultOfStart, boolean isRecoveringResilient) {
+            }
+
+            public void contributeStopCallback(StatementAgentInstanceFactorySelectResult selectResult, List<StopCallback> stopCallbacks) {
             }
         };
 

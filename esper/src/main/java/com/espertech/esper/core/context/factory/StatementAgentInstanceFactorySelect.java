@@ -348,8 +348,15 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             throw ex;
         }
 
+        StatementAgentInstanceFactorySelectResult selectResult = new StatementAgentInstanceFactorySelectResult(finalView, null, agentInstanceContext, aggregationService, subselectStrategies, priorNodeStrategies, previousNodeStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, patternRoots, postLoadJoin, topViews, eventStreamParentViewable, viewableActivationResult);
+
+        if (statementContext.getStatementExtensionServicesContext() != null) {
+            statementContext.getStatementExtensionServicesContext().contributeStopCallback(selectResult, stopCallbacks);
+        }
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactorySelectResult(finalView, stopCallback, agentInstanceContext, aggregationService, subselectStrategies, priorNodeStrategies, previousNodeStrategies, regexExprPreviousEvalStrategy, tableAccessStrategies, preloadList, patternRoots, postLoadJoin, topViews, eventStreamParentViewable, viewableActivationResult);
+        selectResult.setStopCallback(stopCallback);
+
+        return selectResult;
     }
 
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {
