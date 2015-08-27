@@ -15,12 +15,7 @@ import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.view.Viewable;
 
-public class StatementResourceHolderFactoryDefault implements StatementResourceHolderFactory {
-
-    public StatementResourceHolder make(StatementAgentInstanceFactoryResult startResult) {
-        return populateHolder(startResult);
-    }
-
+public class StatementResourceHolderUtil {
     public static StatementResourceHolder populateHolder(StatementAgentInstanceFactoryResult startResult) {
         StatementResourceHolder holder = new StatementResourceHolder(startResult.getAgentInstanceContext());
 

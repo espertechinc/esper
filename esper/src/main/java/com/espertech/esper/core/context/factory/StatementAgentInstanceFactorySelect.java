@@ -372,6 +372,54 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         EPStatementStartMethodHelperAssignExpr.assignAggregations(null, resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
     }
 
+    public ViewableActivator[] getEventStreamParentViewableActivators() {
+        return eventStreamParentViewableActivators;
+    }
+
+    public ViewFactoryChain[] getUnmaterializedViewChain() {
+        return unmaterializedViewChain;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
+    }
+
+    public StatementContext getStatementContext() {
+        return statementContext;
+    }
+
+    public StatementSpecCompiled getStatementSpec() {
+        return statementSpec;
+    }
+
+    public EPServicesContext getServices() {
+        return services;
+    }
+
+    public StreamTypeService getTypeService() {
+        return typeService;
+    }
+
+    public ResultSetProcessorFactoryDesc getResultSetProcessorFactoryDesc() {
+        return resultSetProcessorFactoryDesc;
+    }
+
+    public StreamJoinAnalysisResult getJoinAnalysisResult() {
+        return joinAnalysisResult;
+    }
+
+    public JoinSetComposerPrototype getJoinSetComposerPrototype() {
+        return joinSetComposerPrototype;
+    }
+
+    public SubSelectStrategyCollection getSubSelectStrategyCollection() {
+        return subSelectStrategyCollection;
+    }
+
+    public OutputProcessViewFactory getOutputProcessViewFactory() {
+        return outputProcessViewFactory;
+    }
+
     private Viewable handleSimpleSelect(Viewable view,
                                         ResultSetProcessor resultSetProcessor,
                                         AgentInstanceContext agentInstanceContext,

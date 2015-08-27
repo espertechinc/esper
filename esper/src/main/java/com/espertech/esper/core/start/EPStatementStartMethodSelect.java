@@ -61,6 +61,9 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
         EPStatementStartMethodSelectDesc selectDesc = EPStatementStartMethodSelectUtil.prepare(statementSpec, services, statementContext, isRecoveringResilient, defaultAgentInstanceContext, isQueryPlanLogging(services), null, null, null);
         statementContext.setStatementAgentInstanceFactory(selectDesc.getStatementAgentInstanceFactorySelect());
 
+        // allow extension to walk
+        statementContext.getStatementExtensionServicesContext().preStartWalk(selectDesc);
+
         // Determine context
         EPStatementStopMethod stopStatementMethod;
         Viewable finalViewable;
@@ -174,7 +177,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             }
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(resultOfStart);
                 statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
                 statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
             }

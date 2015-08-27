@@ -15,7 +15,6 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
-import com.espertech.esper.core.service.resource.StatementResourceHolderFactory;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.dataflow.core.DataFlowService;
 import com.espertech.esper.dispatch.DispatchService;
@@ -95,7 +94,6 @@ public final class EPServicesContext
     private ContextManagerFactoryService contextManagerFactoryService;
     private RegexHandlerFactory regexHandlerFactory;
     private ViewableActivatorFactory viewableActivatorFactory;
-    private StatementResourceHolderFactory statementResourceHolderFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -181,8 +179,7 @@ public final class EPServicesContext
                              ContextManagerFactoryService contextManagerFactoryService,
                              EPStatementFactory epStatementFactory,
                              RegexHandlerFactory regexHandlerFactory,
-                             ViewableActivatorFactory viewableActivatorFactory,
-                             StatementResourceHolderFactory statementResourceHolderFactory)
+                             ViewableActivatorFactory viewableActivatorFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -232,7 +229,6 @@ public final class EPServicesContext
         this.epStatementFactory = epStatementFactory;
         this.regexHandlerFactory = regexHandlerFactory;
         this.viewableActivatorFactory = viewableActivatorFactory;
-        this.statementResourceHolderFactory = statementResourceHolderFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -714,9 +710,5 @@ public final class EPServicesContext
 
     public ViewableActivatorFactory getViewableActivatorFactory() {
         return viewableActivatorFactory;
-    }
-
-    public StatementResourceHolderFactory getStatementResourceHolderFactory() {
-        return statementResourceHolderFactory;
     }
 }

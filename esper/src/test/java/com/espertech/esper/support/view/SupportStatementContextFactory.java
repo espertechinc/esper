@@ -98,7 +98,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null);
+                new StatementEventTypeRefImpl(), null, null, null, null);
 
         return new StatementContext(stmtEngineServices,
                 null,

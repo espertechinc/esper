@@ -235,7 +235,7 @@ public class StatementAgentInstanceUtil {
             }
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                StatementResourceHolder holder = servicesContext.getStatementResourceHolderFactory().make(startResult);
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(startResult);
                 statementContext.getStatementExtensionServicesContext().getStmtResources().setPartitioned(agentInstanceId, holder);
             }
 

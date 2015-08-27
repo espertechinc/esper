@@ -12,14 +12,16 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatementException;
 import com.espertech.esper.client.annotation.*;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelectResult;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryServiceImpl;
 import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
+import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
+import com.espertech.esper.core.start.EPStatementStartMethodSelectDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
@@ -96,8 +98,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getTableService().getTableExprEvaluatorContext(),
                 services.getEngineLevelExtensionServicesContext(),
                 services.getRegexHandlerFactory(),
-                services.getStatementLockFactory(),
-                services.getStatementResourceHolderFactory()
+                services.getStatementLockFactory()
                 );
     }
 
@@ -228,10 +229,17 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 return statementResourceService;
             }
 
+            public StatementResourceHolder extractStatementResourceHolder(StatementAgentInstanceFactoryResult resultOfStart) {
+                return StatementResourceHolderUtil.populateHolder(resultOfStart);
+            }
+
+            public void preStartWalk(EPStatementStartMethodSelectDesc selectDesc) {
+            }
+
             public void postProcessStart(StatementAgentInstanceFactoryResult resultOfStart, boolean isRecoveringResilient) {
             }
 
-            public void contributeStopCallback(StatementAgentInstanceFactorySelectResult selectResult, List<StopCallback> stopCallbacks) {
+            public void contributeStopCallback(StatementAgentInstanceFactoryResult selectResult, List<StopCallback> stopCallbacks) {
             }
         };
 

@@ -223,8 +223,9 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             tableAccessStrategyInstances = resultOfStart.getTableAccessEvalStrategies();
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(resultOfStart);
                 statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
             }
         }
 

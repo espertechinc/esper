@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.factory;
 
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
@@ -32,8 +33,9 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
     private final StatementAgentInstancePostLoad postLoad;
     private final Viewable topView;
     private final NamedWindowProcessorInstance processorInstance;
+    private final ViewableActivationResult viewableActivationResult;
 
-    public StatementAgentInstanceFactoryCreateWindowResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable eventStreamParentViewable, StatementAgentInstancePostLoad postLoad, Viewable topView, NamedWindowProcessorInstance processorInstance) {
+    public StatementAgentInstanceFactoryCreateWindowResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable eventStreamParentViewable, StatementAgentInstancePostLoad postLoad, Viewable topView, NamedWindowProcessorInstance processorInstance, ViewableActivationResult viewableActivationResult) {
         super(finalView, stopCallback, agentInstanceContext,
                     null, Collections.<ExprSubselectNode, SubSelectStrategyHolder>emptyMap(),
                 Collections.<ExprPriorNode, ExprPriorEvalStrategy>emptyMap(),
@@ -46,6 +48,7 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
         this.postLoad = postLoad;
         this.topView = topView;
         this.processorInstance = processorInstance;
+        this.viewableActivationResult = viewableActivationResult;
     }
 
     public Viewable getEventStreamParentViewable() {
@@ -62,5 +65,9 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
 
     public NamedWindowProcessorInstance getProcessorInstance() {
         return processorInstance;
+    }
+
+    public ViewableActivationResult getViewableActivationResult() {
+        return viewableActivationResult;
     }
 }

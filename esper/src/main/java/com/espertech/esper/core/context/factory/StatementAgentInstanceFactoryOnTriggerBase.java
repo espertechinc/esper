@@ -65,6 +65,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         AggregationService aggregationService;
         EvalRootState optPatternRoot;
         Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> tableAccessStrategies;
+        final ViewableActivationResult activationResult;
 
         try {
             if (services.getSchedulableAgentInstanceDirectory() != null) {
@@ -76,7 +77,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             aggregationService = onExprViewResult.getOptionalAggregationService();
 
             // attach stream to view
-            final ViewableActivationResult activationResult = activator.activate(agentInstanceContext, false, isRecoveringResilient);
+            activationResult = activator.activate(agentInstanceContext, false, isRecoveringResilient);
             activationResult.getViewable().addView(view);
             stopCallbacks.add(activationResult.getStopCallback());
             optPatternRoot = activationResult.getOptionalPatternRoot();
@@ -96,9 +97,16 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             throw ex;
         }
 
+        StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = new StatementAgentInstanceFactoryOnTriggerResult(view, null, agentInstanceContext, aggregationService, subselectStrategies, optPatternRoot, tableAccessStrategies, activationResult);
+        if (statementContext.getStatementExtensionServicesContext() != null) {
+            statementContext.getStatementExtensionServicesContext().contributeStopCallback(onTriggerResult, stopCallbacks);
+        }
+
         log.debug(".start Statement start completed");
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactoryOnTriggerResult(view, stopCallback, agentInstanceContext, aggregationService, subselectStrategies, optPatternRoot, tableAccessStrategies);
+        onTriggerResult.setStopCallback(stopCallback);
+
+        return onTriggerResult;
     }
 
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {

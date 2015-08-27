@@ -166,7 +166,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
                 final StatementAgentInstanceFactoryCreateWindowResult resultOfStart;
                 try {
-                    resultOfStart = (StatementAgentInstanceFactoryCreateWindowResult) contextFactory.newContext(agentInstanceContext, false);
+                    resultOfStart = (StatementAgentInstanceFactoryCreateWindowResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
                 }
                 catch (RuntimeException ex) {
                     services.getNamedWindowService().removeProcessor(windowName);
@@ -182,8 +182,9 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 destroyStatementMethod = null;
 
                 if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
-                    StatementResourceHolder holder = services.getStatementResourceHolderFactory().make(resultOfStart);
+                    StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(resultOfStart);
                     statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                    statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
                 }
             }
         }

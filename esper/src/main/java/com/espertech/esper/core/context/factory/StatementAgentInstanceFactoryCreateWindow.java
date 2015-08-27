@@ -75,12 +75,13 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
         StatementAgentInstancePostLoad postLoad;
         Viewable topView;
         NamedWindowProcessorInstance processorInstance;
+        ViewableActivationResult viewableActivationResult;
 
         try {
             // Register interest
-            ViewableActivationResult activationResult = activator.activate(agentInstanceContext, false, isRecoveringResilient);
-            stopCallbacks.add(activationResult.getStopCallback());
-            eventStreamParentViewable = activationResult.getViewable();
+            viewableActivationResult = activator.activate(agentInstanceContext, false, isRecoveringResilient);
+            stopCallbacks.add(viewableActivationResult.getStopCallback());
+            eventStreamParentViewable = viewableActivationResult.getViewable();
 
             // Obtain processor for this named window
             NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(windowName);
@@ -205,9 +206,16 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             throw ex;
         }
 
+        StatementAgentInstanceFactoryCreateWindowResult createWindowResult = new StatementAgentInstanceFactoryCreateWindowResult(finalView, null, agentInstanceContext, eventStreamParentViewable, postLoad, topView, processorInstance, viewableActivationResult);
+        if (statementContext.getStatementExtensionServicesContext() != null) {
+            statementContext.getStatementExtensionServicesContext().contributeStopCallback(createWindowResult, stopCallbacks);
+        }
+
         log.debug(".start Statement start completed");
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactoryCreateWindowResult(finalView, stopCallback, agentInstanceContext, eventStreamParentViewable, postLoad, topView, processorInstance);
+        createWindowResult.setStopCallback(stopCallback);
+
+        return createWindowResult;
     }
 
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {

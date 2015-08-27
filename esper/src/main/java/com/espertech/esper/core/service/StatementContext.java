@@ -14,7 +14,6 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySel
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.core.service.resource.StatementResourceHolderFactory;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
@@ -347,15 +346,6 @@ public final class StatementContext
     public ValueAddEventService getValueAddEventService()
     {
         return stmtEngineServices.getValueAddEventService();
-    }
-
-    /**
-     * Returns the resource holder factory service.
-     * @return service
-     */
-    public StatementResourceHolderFactory getStatementResourceHolderFactory()
-    {
-        return stmtEngineServices.getStatementResourceHolderFactory();
     }
 
     /**

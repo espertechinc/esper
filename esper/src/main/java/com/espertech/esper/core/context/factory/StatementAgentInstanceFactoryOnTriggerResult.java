@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.factory;
 
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
@@ -31,9 +32,10 @@ import java.util.Map;
 public class StatementAgentInstanceFactoryOnTriggerResult extends StatementAgentInstanceFactoryResult {
 
     private final EvalRootState optPatternRoot;
+    private final ViewableActivationResult viewableActivationResult;
 
     public StatementAgentInstanceFactoryOnTriggerResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, AggregationService aggregationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies,
-                                                        EvalRootState optPatternRoot, Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> tableAccessStrategies) {
+                                                        EvalRootState optPatternRoot, Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> tableAccessStrategies, ViewableActivationResult viewableActivationResult) {
         super(finalView, stopCallback, agentInstanceContext, aggregationService, subselectStrategies,
                 Collections.<ExprPriorNode, ExprPriorEvalStrategy>emptyMap(),
                 Collections.<ExprPreviousNode, ExprPreviousEvalStrategy>emptyMap(),
@@ -41,9 +43,14 @@ public class StatementAgentInstanceFactoryOnTriggerResult extends StatementAgent
                 tableAccessStrategies,
                 Collections.<StatementAgentInstancePreload>emptyList());
         this.optPatternRoot = optPatternRoot;
+        this.viewableActivationResult = viewableActivationResult;
     }
 
     public EvalRootState getOptPatternRoot() {
         return optPatternRoot;
+    }
+
+    public ViewableActivationResult getViewableActivationResult() {
+        return viewableActivationResult;
     }
 }
