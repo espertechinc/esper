@@ -182,4 +182,8 @@ public class SupportEPStatementSPI implements EPStatementSPI {
 
     public void setSubscriber(Object subscriber, String methodName) throws EPSubscriberException {
     }
+
+    public Viewable getParentView() {
+        return null;
+    }
 }
