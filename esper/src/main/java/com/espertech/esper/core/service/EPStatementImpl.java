@@ -164,6 +164,10 @@ public class EPStatementImpl implements EPStatementSPI
         this.timeLastStateChange = timeLastStateChange;
     }
 
+    public Viewable getParentView() {
+        return parentView;
+    }
+
     public void setParentView(Viewable viewable)
     {
         if (viewable == null)

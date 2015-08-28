@@ -64,6 +64,12 @@ public interface EPStatementSPI extends EPStatement
     public void setParentView(Viewable viewable);
 
     /**
+     * Returns the parent view.
+     * @return viewable is the statement parent viewable
+     */
+    public Viewable getParentView();
+
+    /**
      * Returns additional metadata about a statement.
      * @return statement metadata
      */
