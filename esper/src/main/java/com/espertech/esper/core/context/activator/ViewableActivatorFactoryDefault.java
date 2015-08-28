@@ -15,6 +15,9 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
+import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -23,6 +26,7 @@ import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory {
 
@@ -40,5 +44,9 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
 
     public ViewableActivator createPattern(PatternContext patternContext, EvalRootFactoryNode rootFactoryNode, EventType eventType, boolean consumingFilters, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, boolean isCanIterateUnbound) {
         return new ViewableActivatorPattern(patternContext, rootFactoryNode, eventType, consumingFilters, suppressSameEventMatches, discardPartialsOnMatch, isCanIterateUnbound);
+    }
+
+    public ViewableActivator createNamedWindow(NamedWindowProcessor processor, List<ExprNode> filterExpressions, PropertyEvaluator optPropertyEvaluator) {
+        return new ViewableActivatorNamedWindow(processor, filterExpressions, optPropertyEvaluator);
     }
 }

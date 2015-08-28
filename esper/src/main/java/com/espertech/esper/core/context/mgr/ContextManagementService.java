@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.mgr;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
@@ -18,7 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 
 public interface ContextManagementService {
-    public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient) throws ExprValidationException;
+    public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient, EventType statementResultEventType) throws ExprValidationException;
     public int getContextCount();
 
     public ContextDescriptor getContextDescriptor(String contextName);

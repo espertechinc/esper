@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.mgr;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
@@ -35,7 +36,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         contexts = new HashMap<String, ContextManagerEntry>();
     }
 
-    public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient) throws ExprValidationException {
+    public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient, EventType statementResultEventType) throws ExprValidationException {
 
         ContextManagerEntry mgr = contexts.get(contextDesc.getContextName());
         if (mgr != null) {
@@ -45,7 +46,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
             throw new ExprValidationException("Context by name '" + contextDesc.getContextName() + "' already exists");
         }
 
-        ContextControllerFactoryServiceContext factoryServiceContext = new ContextControllerFactoryServiceContext(contextDesc.getContextName(), servicesContext, contextDesc.getContextDetail(), agentInstanceContext, isRecoveringResilient);
+        ContextControllerFactoryServiceContext factoryServiceContext = new ContextControllerFactoryServiceContext(contextDesc.getContextName(), servicesContext, contextDesc.getContextDetail(), agentInstanceContext, isRecoveringResilient, statementResultEventType);
         ContextManager contextManager = servicesContext.getContextManagerFactoryService().make(contextDesc.getContextDetail(), factoryServiceContext);
         factoryServiceContext.getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().setFilterFaultHandler(contextManager);
 

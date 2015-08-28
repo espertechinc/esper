@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.context.mgr;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.spec.ContextDetail;
@@ -21,13 +22,15 @@ public class ContextControllerFactoryServiceContext {
     private final ContextDetail detail;
     private final AgentInstanceContext agentInstanceContextCreate;
     private final boolean isRecoveringResilient;
+    private final EventType statementResultEventType;
 
-    public ContextControllerFactoryServiceContext(String contextName, EPServicesContext servicesContext, ContextDetail detail, AgentInstanceContext agentInstanceContextCreate, boolean isRecoveringResilient) {
+    public ContextControllerFactoryServiceContext(String contextName, EPServicesContext servicesContext, ContextDetail detail, AgentInstanceContext agentInstanceContextCreate, boolean isRecoveringResilient, EventType statementResultEventType) {
         this.contextName = contextName;
         this.servicesContext = servicesContext;
         this.detail = detail;
         this.agentInstanceContextCreate = agentInstanceContextCreate;
         this.isRecoveringResilient = isRecoveringResilient;
+        this.statementResultEventType = statementResultEventType;
     }
 
     public String getContextName() {
@@ -48,5 +51,9 @@ public class ContextControllerFactoryServiceContext {
 
     public boolean isRecoveringResilient() {
         return isRecoveringResilient;
+    }
+
+    public EventType getStatementResultEventType() {
+        return statementResultEventType;
     }
 }

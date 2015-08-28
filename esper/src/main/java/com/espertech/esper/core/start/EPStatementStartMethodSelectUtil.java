@@ -244,7 +244,7 @@ public class EPStatementStartMethodSelectUtil
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
                 }
 
-                eventStreamParentViewableActivators[i] = new ViewableActivatorNamedWindow(processor, namedSpec.getFilterExpressions(), namedSpec.getOptPropertyEvaluator());
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec.getFilterExpressions(), namedSpec.getOptPropertyEvaluator());
                 unmaterializedViewChain[i] = services.getViewService().createFactories(i, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                 joinAnalysisResult.setNamedWindow(i);
                 eventTypeNames[i] = namedSpec.getWindowName();

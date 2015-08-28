@@ -49,12 +49,12 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
         validateContextDetail(services, statementContext, eventTypesReferenced, context.getContextDetail());
         services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), CollectionUtil.toArray(eventTypesReferenced));
 
-        // add context - does not activate that context
-        services.getContextManagementService().addContextSpec(services, agentInstanceContext, context, isRecoveringResilient);
-
         // define output event type
         String typeName = "EventType_Context_" + context.getContextName();
-        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+        EventType statementResultEventType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+
+        // add context - does not activate that context
+        services.getContextManagementService().addContextSpec(services, agentInstanceContext, context, isRecoveringResilient, statementResultEventType);
 
         EPStatementStopMethod stopMethod = new EPStatementStopMethod() {
             public void stop() {
@@ -67,7 +67,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 services.getContextManagementService().destroyedContext(context.getContextName());
             }
         };
-        return new EPStatementStartResult(new ZeroDepthStreamNoIterate(resultType), stopMethod, destroyMethod);
+        return new EPStatementStartResult(new ZeroDepthStreamNoIterate(statementResultEventType), stopMethod, destroyMethod);
     }
 
     private void validateContextDetail(EPServicesContext servicesContext, StatementContext statementContext, Set<String> eventTypesReferenced, ContextDetail contextDetail) throws ExprValidationException {

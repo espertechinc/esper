@@ -534,7 +534,7 @@ public final class StatementContext
         return statementSpecCompiled;
     }
 
-    public void setStatementAgentInstanceFactory(StatementAgentInstanceFactorySelect statementAgentInstanceFactory) {
+    public void setStatementAgentInstanceFactory(StatementAgentInstanceFactory statementAgentInstanceFactory) {
         this.statementAgentInstanceFactory = statementAgentInstanceFactory;
     }
 
