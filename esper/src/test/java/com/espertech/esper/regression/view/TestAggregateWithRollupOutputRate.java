@@ -48,11 +48,19 @@ public class TestAggregateWithRollupOutputRate extends TestCase
     }
 
     public void testOutputLastNonJoin() {
-        runAssertionOutputLast(false);
+        runAssertionOutputLast(false, false);
     }
 
     public void testOutputLastJoin() {
-        runAssertionOutputLast(true);
+        runAssertionOutputLast(false, true);
+    }
+
+    public void testOutputLastNonJoinHinted() {
+        runAssertionOutputLast(true, false);
+    }
+
+    public void testOutputLastJoinHinted() {
+        runAssertionOutputLast(true, true);
     }
 
     public void testOutputLastSortedNonJoin() {
@@ -221,9 +229,18 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         execution.execute();
     }
 
-    public void test4OutputLimitLast()
+    public void test4OutputLimitLast() {
+        runAssertion4OutputLimitLast(false);
+    }
+
+    public void test4OutputLimitLastHinted() {
+        runAssertion4OutputLimitLast(true);
+    }
+
+    private void runAssertion4OutputLimitLast(boolean hinted)
     {
-        String stmtText = "select symbol, sum(price) " +
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+        String stmtText = hint + "select symbol, sum(price) " +
                 "from MarketData.win:time(5.5 sec)" +
                 "group by rollup(symbol)" +
                 "output last every 1 seconds";
@@ -799,10 +816,11 @@ public class TestAggregateWithRollupOutputRate extends TestCase
                 new Object[][] {{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}, {"E1", 2, null}, {"E2", null, null}, {"E2", 1, null}});
     }
 
-    private void runAssertionOutputLast(boolean join) {
+    private void runAssertionOutputLast(boolean hinted, boolean join) {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
                 "from SupportBean.win:time(3.5 sec) " + (join ? ", SupportBean_S0.std:lastevent()" : "") +
                 "group by rollup(theString, intPrimitive) " +

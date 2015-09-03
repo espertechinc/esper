@@ -12,6 +12,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.view.OutputProcessViewConditionLastUnord;
 import com.espertech.esper.event.EventBeanUtility;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,44 +42,7 @@ public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
             return processJoinResult(flattened.getFirst(), flattened.getSecond(), generateSynthetic);
         }
 
-        // Determine the last event of the insert and remove stream that matches having-criteria
-        int index = joinEventsSet.size() - 1;
-        EventBean lastNonEmptyNew = null;
-        EventBean lastNonEmptyOld = null;
-        while(index >= 0)
-        {
-            UniformPair<Set<MultiKey<EventBean>>> pair = joinEventsSet.get(index);
-            if ( ((pair.getFirst() != null) && (!pair.getFirst().isEmpty()) && (lastNonEmptyNew == null)) ||
-                 ((pair.getSecond() != null) && (!pair.getSecond().isEmpty()) && (lastNonEmptyOld == null)) )
-            {
-                UniformPair<EventBean[]> result = processJoinResult(pair.getFirst(), pair.getSecond(), generateSynthetic);
-
-                if ((lastNonEmptyNew == null) && (result != null) && (result.getFirst() != null) && (result.getFirst().length > 0))
-                {
-                    lastNonEmptyNew = result.getFirst()[result.getFirst().length - 1];
-                }
-                if ((lastNonEmptyOld == null) && (result != null) && (result.getSecond() != null) && (result.getSecond().length > 0))
-                {
-                    lastNonEmptyOld = result.getSecond()[result.getSecond().length - 1];
-                }
-            }
-            if ((lastNonEmptyNew != null) && (lastNonEmptyOld != null))
-            {
-                break;
-            }
-            index--;
-        }
-
-        EventBean[] lastNew = null;
-        if (lastNonEmptyNew != null) {
-            lastNew = new EventBean[] {lastNonEmptyNew};
-        }
-        EventBean[] lastOld = null;
-        if (lastNonEmptyOld != null) {
-            lastOld = new EventBean[] {lastNonEmptyOld};
-        }
-
-        return new UniformPair<EventBean[]>(lastNew, lastOld);
+        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastUnord.class.getSimpleName());
     }
 
     public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
@@ -89,43 +53,6 @@ public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
             return processViewResult(pair.getFirst(), pair.getSecond(), generateSynthetic);
         }
 
-        // Determine the last event of the insert and remove stream that matches having-criteria
-        int index = viewEventsList.size() - 1;
-        EventBean lastNonEmptyNew = null;
-        EventBean lastNonEmptyOld = null;
-        while(index >= 0)
-        {
-            UniformPair<EventBean[]> pair = viewEventsList.get(index);
-            if ( ((pair.getFirst() != null) && (pair.getFirst().length != 0) && (lastNonEmptyNew == null)) ||
-                 ((pair.getSecond() != null) && (pair.getSecond().length != 0) && (lastNonEmptyOld == null)) )
-            {
-                UniformPair<EventBean[]> result = processViewResult(pair.getFirst(), pair.getSecond(), generateSynthetic);
-
-                if ((lastNonEmptyNew == null) && (result != null) && (result.getFirst() != null) && (result.getFirst().length > 0))
-                {
-                    lastNonEmptyNew = result.getFirst()[result.getFirst().length - 1];
-                }
-                if ((lastNonEmptyOld == null) && (result != null) && (result.getSecond() != null) && (result.getSecond().length > 0))
-                {
-                    lastNonEmptyOld = result.getSecond()[result.getSecond().length - 1];
-                }
-            }
-            if ((lastNonEmptyNew != null) && (lastNonEmptyOld != null))
-            {
-                break;
-            }
-            index--;
-        }
-
-        EventBean[] lastNew = null;
-        if (lastNonEmptyNew != null) {
-            lastNew = new EventBean[] {lastNonEmptyNew};
-        }
-        EventBean[] lastOld = null;
-        if (lastNonEmptyOld != null) {
-            lastOld = new EventBean[] {lastNonEmptyOld};
-        }
-
-        return new UniformPair<EventBean[]>(lastNew, lastOld);
+        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastUnord.class.getSimpleName());
     }
 }

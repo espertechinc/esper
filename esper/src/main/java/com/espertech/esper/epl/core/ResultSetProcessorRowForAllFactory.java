@@ -73,4 +73,8 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
     public boolean isHistoricalOnly() {
         return isHistoricalOnly;
     }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED;
+    }
 }

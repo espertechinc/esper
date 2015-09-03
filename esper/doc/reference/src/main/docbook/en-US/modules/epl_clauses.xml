@@ -147,7 +147,9 @@ milliseconds-part : <emphasis>(number|variable_name)</emphasis> ("milliseconds" 
 			</para>
 			
 			<note>
-				When the time period has a month or year part, all values must be integer-type values.
+				<para>
+					When the time period has a month or year part, all values must be integer-type values.
+				</para>
 			</note>
 		</sect2>
 		
@@ -3125,13 +3127,234 @@ group by symbol output first every 10 seconds</programlisting>
 				<title>Runtime Considerations</title>
 			
 				<para>
-					Output rate limiting provides output events to your application in regular intervals. Between intervals, the engine uses a buffer to hold events until the output condition is reached. If your application
-					has high-volume streams, you may need to be mindful of the memory needs for output rates.
+					Output rate limiting provides output events to your application in regular intervals. Between intervals, the engine may use a buffer to hold events until the output condition is reached, as described below. 
+					If your application has high-volume streams, you may need to be mindful of the memory needs for buffers especially if the output condition triggers infrequently.
 				</para>
 				
 				<para>
-					The <literal>output</literal> clause with the <literal>snapshot</literal> keyword does not require a buffer, all other output keywords do consume memory until the output condition is reached.
+					The <literal>output</literal> clause with the <literal>snapshot</literal> keyword does not require a buffer for any type of query.
 				</para>
+				
+				<para>
+					We use the term <emphasis>change set</emphasis> to describe all insert and remove stream events that occur since the last triggering of the output condition. The <emphasis>change set</emphasis> is the buffer mentioned above.
+				</para>
+				
+				<para>
+					You can override the default behavior for some types of queries by specifying a hint.
+				</para>
+				
+				<para>
+					Please see <xref linkend="processingmodel_aggregation_output"/> for information on the types of queries discussed below.
+				</para>
+
+				<sect3 xml:id="epl-output-unaggandungrouped">
+					<title>For Un-aggregated and Un-grouped Queries</title>
+					
+					<sect4 xml:id="epl-output-unaggandungrouped-last">
+						<title><literal>Output Last</literal></title>
+
+						<para>
+							For queries that define <literal>output last</literal> the engine retains only the first remove stream event and the last insert stream event, both matching the <literal>having</literal>-clause, if present, 
+							to compute insert and remove stream output when the output condition triggers.
+						</para>
+
+						<para>
+						   Otherwise, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-unaggandungrouped-all">
+						<title><literal>Output All</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-unaggandungrouped-first">
+						<title><literal>Output First</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+				</sect3>
+				
+				<sect3 xml:id="epl-output-fullyaggandungrouped">
+					<title>For Fully Aggregated and Un-grouped Queries</title>					
+
+					<sect4 xml:id="epl-output-fullyaggandungrouped-last">
+						<title><literal>Output Last</literal></title>
+						<para>
+						   By default, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+						
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of the first row since the last triggering of the output condition the engine computes the remove stream output event according to the <literal>select</literal>-clause 
+							for later output (when applicable).
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine computes the insert stream output event according to the <literal>select</literal>-clause for output.
+								</para>
+							</listitem>
+						</itemizedlist>
+					</sect4>
+
+					<sect4 xml:id="epl-output-fullyaggandungrouped-all">
+						<title><literal>Output All</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-fullyaggandungrouped-first">
+						<title><literal>Output First</literal></title>
+						<para>
+						   For statements with a <literal>having</literal>-clause, the engine does not retain a change set.
+						</para>
+						<para>
+						   For statements without a <literal>having</literal>-clause, the engine retains the change set and computes output from the change set at the time the output condition triggers, 
+						   after which it discards the change set.
+						</para>
+					</sect4>					
+				</sect3>
+
+				<sect3 xml:id="epl-output-aggandungrouped">
+					<title>For Aggregated and Un-Grouped Queries</title>
+						
+					<sect4 xml:id="epl-output-aggandungrouped-last">
+						<title><literal>Output Last</literal></title>
+						<para>
+						   By default, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+						
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of the first row since the last triggering of the output condition the engine computes the remove stream output event according to the <literal>select</literal>-clause 
+									for later output (when applicable), and also computes an insert stream output event according to the <literal>select</literal>-clause, retaining the last computed insert stream output event.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine outputs the precomputed last insert stream and remove stream output event.
+								</para>
+							</listitem>
+						</itemizedlist>
+					</sect4>
+
+					<sect4 xml:id="epl-output-aggandungrouped-all">
+						<title><literal>Output All</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-aggandungrouped-first">
+						<title><literal>Output First</literal></title>
+						<para>
+						   For statements with a <literal>having</literal>-clause, the engine does not retain a change set.
+						</para>
+						<para>
+						   For statements without a <literal>having</literal>-clause, the engine retains the change set and computes output from the change set at the time the output condition triggers, 
+						   after which it discards the change set.
+						</para>
+					</sect4>					
+				</sect3>
+
+				<sect3 xml:id="epl-output-fullyaggandgrouped">
+					<title>For Fully Aggregated and Grouped Queries (Includes Rollup)</title>
+						
+					<sect4 xml:id="epl-output-fullyaggandgrouped-last">
+						<title><literal>Output Last</literal></title>
+						<para>
+						   By default, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+						
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of the first row for a given group since the last triggering of the output condition the engine computes the remove stream output event for that group 
+									according to the <literal>select</literal>-clause 
+									for later output (when applicable), and also retains a single insert stream event per group. 
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine uses the retained insert stream events per group to compute output events according to the <literal>select</literal>-clause.
+								</para>
+							</listitem>
+						</itemizedlist>
+					</sect4>
+
+					<sect4 xml:id="epl-output-fullyaggandgrouped-all">
+						<title><literal>Output All</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-fullyaggandgrouped-first">
+						<title><literal>Output First</literal></title>
+						<para>
+						   The engine does not retain a change set.
+						</para>
+					</sect4>					
+				</sect3>
+
+				<sect3 xml:id="epl-output-aggandgrouped">
+					<title>For Aggregated and Grouped Queries</title>
+						
+					<sect4 xml:id="epl-output-aggandgrouped-last">
+						<title><literal>Output Last</literal></title>
+						<para>
+						   By default, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+						
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of the first row for a given group since the last triggering of the output condition the engine computes the insert and remove stream output event for that group 
+									according to the <literal>select</literal>-clause 
+									for later output (when applicable), and retains a last insert and remove stream event per group. 
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine outputs the retained insert and remove stream output events per group.
+								</para>
+							</listitem>
+						</itemizedlist>
+					</sect4>
+
+					<sect4 xml:id="epl-output-aggandgrouped-all">
+						<title><literal>Output All</literal></title>
+						<para>
+						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						</para>
+					</sect4>
+
+					<sect4 xml:id="epl-output-aggandgrouped-first">
+						<title><literal>Output First</literal></title>
+						<para>
+						   The engine does not retain a change set.
+						</para>
+					</sect4>					
+				</sect3>
 
 		</sect2>
 

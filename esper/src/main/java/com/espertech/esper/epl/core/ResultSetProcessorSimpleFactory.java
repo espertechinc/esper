@@ -37,6 +37,10 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
         this.isSelectRStream = isSelectRStream;
     }
 
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.UNAGGREGATED_UNGROUPED;
+    }
+
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorSimple(this, selectExprProcessor, orderByProcessor, agentInstanceContext);
     }

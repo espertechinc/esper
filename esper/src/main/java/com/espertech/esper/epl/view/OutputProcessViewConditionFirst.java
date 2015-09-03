@@ -50,6 +50,10 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
     }
 
+    public int getNumChangesetRows() {
+        return Math.max(viewEventsList.size(), joinEventsSet.size());
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events

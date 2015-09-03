@@ -48,6 +48,32 @@ public class TestOutputLimitAfter extends TestCase
          fields = null;
      }
 
+     public void testAfterWithOutputLast() {
+         runAssertionAfterWithOutputLast(false);
+         runAssertionAfterWithOutputLast(true);
+     }
+
+     private void runAssertionAfterWithOutputLast(boolean hinted) {
+         String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+         String epl = hint + "select sum(intPrimitive) as thesum " +
+                 "from SupportBean.win:keepall() " +
+                 "output after 4 events last every 2 events";
+         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+         stmt.addListener(listener);
+
+         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
+         epService.getEPRuntime().sendEvent(new SupportBean("E3", 30));
+         epService.getEPRuntime().sendEvent(new SupportBean("E4", 40));
+         epService.getEPRuntime().sendEvent(new SupportBean("E5", 50));
+         assertFalse(listener.isInvoked());
+
+         epService.getEPRuntime().sendEvent(new SupportBean("E6", 60));
+         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "thesum".split(","), new Object[] {210});
+
+         stmt.destroy();
+     }
+
      public void testEveryPolicy()
      {
          sendTimer(0);

@@ -29,6 +29,10 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
         this.callback = callback;
     }
 
+    public int getNumChangesetRows() {
+        return 0;
+    }
+
     public Iterator<EventBean> iterator() {
         return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false);
     }

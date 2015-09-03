@@ -57,7 +57,7 @@ public class TestResultSetProcessorFactory extends TestCase
         SelectClauseElementCompiled[] wildcardSelect = new SelectClauseElementCompiled[] {new SelectClauseElementWildcard()};
         StatementSpecCompiled spec = makeSpec(new SelectClauseSpecCompiled(wildcardSelect, false), null, groupByList, null, null, orderByList);
         ResultSetProcessorFactoryDesc processor = ResultSetProcessorFactoryFactory.getProcessorPrototype(spec, stmtContext, typeService1Stream, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, new Configuration());
-        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThrougFactory);
+        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThroughFactory);
     }
 
     public void testGetProcessorSimpleSelect() throws Exception
@@ -66,13 +66,13 @@ public class TestResultSetProcessorFactory extends TestCase
         SelectClauseElementCompiled[] wildcardSelect = new SelectClauseElementCompiled[] {new SelectClauseElementWildcard()};
         StatementSpecCompiled spec = makeSpec(new SelectClauseSpecCompiled(wildcardSelect, false), null, groupByList, null, null, orderByList);
         ResultSetProcessorFactoryDesc processor = ResultSetProcessorFactoryFactory.getProcessorPrototype(spec, stmtContext, typeService3Stream, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, new Configuration());
-        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThrougFactory);
+        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThroughFactory);
 
         // empty group-by with select clause elements
         SelectClauseElementCompiled[] selectList = SupportSelectExprFactory.makeNoAggregateSelectListUnnamed();
         spec = makeSpec(new SelectClauseSpecCompiled(selectList, false), null, groupByList, null, null, orderByList);
         processor = ResultSetProcessorFactoryFactory.getProcessorPrototype(spec, stmtContext, typeService1Stream, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, new Configuration());
-        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThrougFactory);
+        assertTrue(processor.getResultSetProcessorFactory() instanceof ResultSetProcessorHandThroughFactory);
 
         // non-empty group-by and wildcard select, group by ignored
         groupByList.add(SupportExprNodeFactory.makeIdentNode("doubleBoxed", "s0"));

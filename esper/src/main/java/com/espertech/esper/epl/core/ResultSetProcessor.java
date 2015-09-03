@@ -100,4 +100,12 @@ public interface ResultSetProcessor
     public void applyViewResult(EventBean[] newData, EventBean[] oldData);
 
     public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+
+    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
+
+    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize);
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize);
 }

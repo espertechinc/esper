@@ -16,7 +16,7 @@ import com.espertech.esper.epl.agg.service.AggregationService;
  * Result set processor prototye for the hand-through case:
  * no aggregation functions used in the select clause, and no group-by, no having and ordering.
  */
-public class ResultSetProcessorHandThrougFactory implements ResultSetProcessorFactory
+public class ResultSetProcessorHandThroughFactory implements ResultSetProcessorFactory
 {
     private final SelectExprProcessor selectExprProcessor;
     private final boolean isSelectRStream;
@@ -27,7 +27,7 @@ public class ResultSetProcessorHandThrougFactory implements ResultSetProcessorFa
      * a row per group even if groups didn't change
      * @param selectRStream - true if remove stream events should be generated
      */
-    public ResultSetProcessorHandThrougFactory(SelectExprProcessor selectExprProcessor, boolean selectRStream) {
+    public ResultSetProcessorHandThroughFactory(SelectExprProcessor selectExprProcessor, boolean selectRStream) {
         this.selectExprProcessor = selectExprProcessor;
         isSelectRStream = selectRStream;
     }
@@ -47,5 +47,9 @@ public class ResultSetProcessorHandThrougFactory implements ResultSetProcessorFa
 
     public boolean isSelectRStream() {
         return isSelectRStream;
+    }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.HANDTHROUGH;
     }
 }

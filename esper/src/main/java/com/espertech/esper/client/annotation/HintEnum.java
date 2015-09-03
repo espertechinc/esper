@@ -103,7 +103,11 @@ public enum HintEnum
      * For use everywhere where unique data window are used
      */
     DISABLE_WHEREEXPR_MOVETO_FILTER("DISABLE_WHEREEXPR_MOVETO_FILTER", false, false, false),
-    ;
+
+    /**
+     * For use with output rate limiting to enable certain optimization that may however change output.
+     */
+    ENABLE_OUTPUTLIMIT_OPT("ENABLE_OUTPUTLIMIT_OPT", false, false, false);
 
     private final String value;
     private final boolean acceptsParameters;

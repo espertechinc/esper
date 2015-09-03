@@ -52,6 +52,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     protected final Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
 
     private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
+    protected Map<Object, EventBean> groupRepsOutputLastUnordRStream;
 
     public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
@@ -59,7 +60,12 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.agentInstanceContext = agentInstanceContext;
+
         aggregationService.setRemovedCallback(this);
+
+        if (prototype.isOutputLast()) {
+            groupRepsOutputLastUnordRStream = new LinkedHashMap<Object, EventBean>();
+        }
     }
 
     public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
@@ -346,6 +352,26 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         {
             optSortKeys.add(orderByProcessor.getSortKey(eventsPerStream, isNewData, agentInstanceContext));
         }
+    }
+
+    private void generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents)
+    {
+        // Set the current row of aggregation states
+        aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
+
+        // Filter the having clause
+        if (prototype.getOptionalHavingNode() != null)
+        {
+            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]); else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
+            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result); else InstrumentationHelper.get().aHavingClauseJoin(result);}
+            if ((result == null) || (!result))
+            {
+                return;
+            }
+        }
+
+        resultEvents.put(mk, selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
     }
 
     private EventBean[] generateOutputEventsJoin(Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize)
@@ -1683,5 +1709,87 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
             return new MultiKeyUntyped(keys);
         }
+    }
+
+    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
+        if (newData != null) {
+            for (EventBean aNewData : newData) {
+                EventBean[] eventsPerStream = new EventBean[] {aNewData};
+                Object mk = generateGroupKey(eventsPerStream, true);
+
+                // if this is a newly encountered group, generate the remove stream event
+                if (groupRepsView.put(mk, eventsPerStream) == null) {
+                    if (prototype.isSelectRStream()) {
+                        generateOutputBatchedNoSortWMap(false, mk, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
+                    }
+                }
+                aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
+            }
+        }
+        if (oldData != null) {
+            for (EventBean anOldData : oldData) {
+                EventBean[] eventsPerStream = new EventBean[] {anOldData};
+                Object mk = generateGroupKey(eventsPerStream, true);
+
+                if (groupRepsView.put(mk, eventsPerStream) == null) {
+                    if (prototype.isSelectRStream()) {
+                        generateOutputBatchedNoSortWMap(false, mk, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
+                    }
+                }
+
+                aggregationService.applyLeave(eventsPerStream, mk, agentInstanceContext);
+            }
+        }
+    }
+
+    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
+        if (newData != null) {
+            for (MultiKey<EventBean> aNewData : newData) {
+                Object mk = generateGroupKey(aNewData.getArray(), true);
+                if (groupRepsView.put(mk, aNewData.getArray()) == null) {
+                    if (prototype.isSelectRStream()) {
+                        generateOutputBatchedNoSortWMap(true, mk, aNewData.getArray(), false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
+                    }
+                }
+                aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
+            }
+        }
+        if (oldData != null) {
+            for (MultiKey<EventBean> anOldData : oldData) {
+                Object mk = generateGroupKey(anOldData.getArray(), true);
+                if (groupRepsView.put(mk, anOldData.getArray()) == null) {
+                    if (prototype.isSelectRStream()) {
+                        generateOutputBatchedNoSortWMap(true, mk, anOldData.getArray(), false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
+                    }
+                }
+                aggregationService.applyLeave(anOldData.getArray(), mk, agentInstanceContext);
+            }
+        }
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
+        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
+        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    }
+
+    private UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
+        List<EventBean> newEvents = new ArrayList<EventBean>(4);
+        generateOutputBatchedArr(false, groupRepsView, true, isSynthesize, newEvents, null);
+        groupRepsView.clear();
+        EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
+
+        EventBean[] oldEventsArr = null;
+        if (groupRepsOutputLastUnordRStream != null && !groupRepsOutputLastUnordRStream.isEmpty()) {
+            Collection<EventBean> oldEvents = groupRepsOutputLastUnordRStream.values();
+            oldEventsArr = oldEvents.toArray(new EventBean[oldEvents.size()]);
+        }
+
+        if (newEventsArr == null && oldEventsArr == null) {
+            return null;
+        }
+        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
     }
 }

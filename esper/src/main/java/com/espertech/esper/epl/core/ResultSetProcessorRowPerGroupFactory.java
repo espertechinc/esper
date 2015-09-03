@@ -125,4 +125,12 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     public boolean isHistoricalOnly() {
         return isHistoricalOnly;
     }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.FULLYAGGREGATED_GROUPED;
+    }
+
+    public boolean isOutputLast() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
+    }
 }

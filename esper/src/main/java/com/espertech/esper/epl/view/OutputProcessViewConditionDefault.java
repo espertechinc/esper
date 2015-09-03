@@ -49,6 +49,10 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
     }
 
+    public int getNumChangesetRows() {
+        return Math.max(viewEventsList.size(), joinEventsSet.size());
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events
@@ -65,10 +69,22 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
                     "  oldData.length==" + ((oldData == null) ? 0 : oldData.length));
         }
 
-        if (!super.checkAfterCondition(newData, parent.getStatementContext()))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
-            return;
+        // add the incoming events to the event batches
+        if (parent.isHasAfter()) {
+            boolean afterSatisfied = super.checkAfterCondition(newData, parent.getStatementContext());
+            if (!afterSatisfied) {
+                if (!parent.isUnaggregatedUngrouped()) {
+                    viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
+                }
+                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
+                return;
+            }
+            else {
+                viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
+            }
+        }
+        else {
+            viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
         }
 
         int newDataLength = 0;
@@ -81,9 +97,6 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         {
         	oldDataLength = oldData.length;
         }
-
-        // add the incoming events to the event batches
-        viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionUpdate(newDataLength, oldDataLength);}
         outputCondition.updateOutputCondition(newDataLength, oldDataLength);
@@ -108,10 +121,22 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
                     "  oldData.length==" + ((oldEvents == null) ? 0 : oldEvents.size()));
         }
 
-        if (!super.checkAfterCondition(newEvents, parent.getStatementContext()))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWConditionJoin(false);}
-            return;
+        // add the incoming events to the event batches
+        if (parent.isHasAfter()) {
+            boolean afterSatisfied = super.checkAfterCondition(newEvents, parent.getStatementContext());
+            if (!afterSatisfied) {
+                if (!parent.isUnaggregatedUngrouped()) {
+                    addToChangeset(newEvents, oldEvents, joinEventsSet);
+                }
+                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWConditionJoin(false);}
+                return;
+            }
+            else {
+                addToChangeset(newEvents, oldEvents, joinEventsSet);
+            }
+        }
+        else {
+            addToChangeset(newEvents, oldEvents, joinEventsSet);
         }
 
         int newEventsSize = 0;
@@ -126,29 +151,6 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
             oldEventsSize = oldEvents.size();
         }
 
-        // add the incoming events to the event batches
-        Set<MultiKey<EventBean>> copyNew;
-        if (newEvents != null)
-        {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
-        }
-        else
-        {
-            copyNew = new LinkedHashSet<MultiKey<EventBean>>();
-        }
-
-        Set<MultiKey<EventBean>> copyOld;
-        if (oldEvents != null)
-        {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
-        }
-        else
-        {
-            copyOld = new LinkedHashSet<MultiKey<EventBean>>();
-        }
-        
-        joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
-
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionUpdate(newEventsSize, oldEventsSize);}
         outputCondition.updateOutputCondition(newEventsSize, oldEventsSize);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionUpdate();}
@@ -156,7 +158,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWConditionJoin(true);}
     }
 
-	/**
+    /**
 	 * Called once the output condition has been met.
 	 * Invokes the result set processor.
 	 * Used for non-join event data.
@@ -299,5 +301,26 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         if (parent.isTerminable()) {
             outputCondition.terminated();
         }
+    }
+
+    private static void addToChangeset(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet) {
+        // add the incoming events to the event batches
+        Set<MultiKey<EventBean>> copyNew;
+        if (newEvents != null) {
+            copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
+        }
+        else {
+            copyNew = new LinkedHashSet<MultiKey<EventBean>>();
+        }
+
+        Set<MultiKey<EventBean>> copyOld;
+        if (oldEvents != null) {
+            copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
+        }
+        else {
+            copyOld = new LinkedHashSet<MultiKey<EventBean>>();
+        }
+
+        joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
     }
 }

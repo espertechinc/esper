@@ -28,11 +28,11 @@ import java.util.Set;
  */
 public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
 {
-    private final ResultSetProcessorHandThrougFactory prototype;
+    private final ResultSetProcessorHandThroughFactory prototype;
     private final SelectExprProcessor selectExprProcessor;
     private AgentInstanceContext agentInstanceContext;
 
-    public ResultSetProcessorHandThrough(ResultSetProcessorHandThrougFactory prototype, SelectExprProcessor selectExprProcessor, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorHandThrough(ResultSetProcessorHandThroughFactory prototype, SelectExprProcessor selectExprProcessor, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.agentInstanceContext = agentInstanceContext;
@@ -158,5 +158,19 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
     }
 
     public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    }
+
+    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
+    }
+
+    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
+        return null;
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
+        return null;
     }
 }

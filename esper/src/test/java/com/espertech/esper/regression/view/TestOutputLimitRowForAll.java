@@ -166,12 +166,29 @@ public class TestOutputLimitRowForAll extends TestCase
         runAssertion13_14(stmtText, "last");
     }
 
+    public void test13LastNoHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec)" +
+                "output last every 1 seconds";
+        runAssertion13_14(stmtText, "last");
+    }
+
     public void test14LastNoHavingJoin()
     {
         String stmtText = "select sum(price) " +
                             "from MarketData.win:time(5.5 sec), " +
                             "SupportBean.win:keepall() where theString=symbol " +
                             "output last every 1 seconds";
+        runAssertion13_14(stmtText, "last");
+    }
+
+    public void test14LastNoHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
 
@@ -184,6 +201,15 @@ public class TestOutputLimitRowForAll extends TestCase
         runAssertion15_16(stmtText, "last");
     }
 
+    public void test15LastHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec)" +
+                "having sum(price) > 100 " +
+                "output last every 1 seconds";
+        runAssertion15_16(stmtText, "last");
+    }
+
     public void test16LastHavingJoin()
     {
         String stmtText = "select sum(price) " +
@@ -191,6 +217,16 @@ public class TestOutputLimitRowForAll extends TestCase
                             "SupportBean.win:keepall() where theString=symbol " +
                             "having sum(price) > 100 " +
                             "output last every 1 seconds";
+        runAssertion15_16(stmtText, "last");
+    }
+
+    public void test16LastHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "having sum(price) > 100 " +
+                "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
     }
 
@@ -208,6 +244,28 @@ public class TestOutputLimitRowForAll extends TestCase
                             "from MarketData.win:time(5.5 sec) " +
                             "output snapshot every 1 seconds";
         runAssertion18(stmtText, "first");
+    }
+
+    public void testOuputLastWithInsertInto() {
+        runAssertionOuputLastWithInsertInto(false);
+        runAssertionOuputLastWithInsertInto(true);
+    }
+
+    private void runAssertionOuputLastWithInsertInto(boolean hinted) {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+        String eplInsert = hint + "insert into MyStream select sum(intPrimitive) as thesum from SupportBean.win:keepall() " +
+                "output last every 2 events";
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
+
+        EPStatement stmtListen = epService.getEPAdministrator().createEPL("select * from MyStream");
+        stmtListen.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "thesum".split(","), new Object[] {30});
+
+        stmtInsert.destroy();
+        stmtListen.destroy();
     }
 
     private void runAssertion12(String stmtText, String outputLimit)

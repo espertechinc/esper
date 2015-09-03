@@ -29,14 +29,18 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final ConditionType conditionType;
     private final OutputLimitLimitType outputLimitLimitType;
     private final boolean terminable;
+    private final boolean hasAfter;
+    private final boolean isUnaggregatedUngrouped;
 
-    public OutputProcessViewConditionFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType, OutputConditionFactory outputConditionFactory, int streamCount, ConditionType conditionType, OutputLimitLimitType outputLimitLimitType, boolean terminable) {
+    public OutputProcessViewConditionFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType, OutputConditionFactory outputConditionFactory, int streamCount, ConditionType conditionType, OutputLimitLimitType outputLimitLimitType, boolean terminable, boolean hasAfter, boolean isUnaggregatedUngrouped) {
         super(statementContext, postProcessFactory, distinct, afterTimePeriod, afterConditionNumberOfEvents, resultEventType);
         this.outputConditionFactory = outputConditionFactory;
         this.streamCount = streamCount;
         this.conditionType = conditionType;
         this.outputLimitLimitType = outputLimitLimitType;
         this.terminable = terminable;
+        this.hasAfter = hasAfter;
+        this.isUnaggregatedUngrouped = isUnaggregatedUngrouped;
     }
 
     @Override
@@ -63,12 +67,19 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionSnapshotPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         }
-        if (conditionType == ConditionType.POLICY_FIRST) {
+        else if (conditionType == ConditionType.POLICY_FIRST) {
             if (super.postProcessFactory == null) {
                 return new OutputProcessViewConditionFirst(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionFirstPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
+        }
+        else if (conditionType == ConditionType.POLICY_LAST_UNORDERED) {
+            if (super.postProcessFactory == null) {
+                return new OutputProcessViewConditionLastUnord(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
+            }
+            OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
+            return new OutputProcessViewConditionLastUnordPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         }
         else {
             if (super.postProcessFactory == null) {
@@ -95,9 +106,18 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         return terminable;
     }
 
+    public boolean isHasAfter() {
+        return hasAfter;
+    }
+
+    public boolean isUnaggregatedUngrouped() {
+        return isUnaggregatedUngrouped;
+    }
+
     public static enum ConditionType {
         SNAPSHOT,
         POLICY_FIRST,
+        POLICY_LAST_UNORDERED,
         POLICY_NONFIRST
     }
 }

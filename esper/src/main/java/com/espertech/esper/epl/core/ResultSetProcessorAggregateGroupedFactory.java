@@ -13,6 +13,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
 
 /**
@@ -117,5 +118,13 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
 
     public boolean isHistoricalOnly() {
         return isHistoricalOnly;
+    }
+
+    public boolean isOutputLast() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
+    }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.AGGREGATED_GROUPED;
     }
 }

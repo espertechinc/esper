@@ -27,4 +27,10 @@ public interface ResultSetProcessorFactory
     public boolean hasAggregation();
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext);
+
+    /**
+     * Returns the type of result set processor.
+     * @return result set processor type
+     */
+    public ResultSetProcessorType getResultSetProcessorType();
 }

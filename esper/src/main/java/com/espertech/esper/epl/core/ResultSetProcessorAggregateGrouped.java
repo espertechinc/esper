@@ -59,6 +59,10 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     private final Map<Object, EventBean[]> newGenerators = new HashMap<Object, EventBean[]>();
 	private final Map<Object, EventBean[]> oldGenerators = new HashMap<Object, EventBean[]>();
 
+    private Map<Object, EventBean> outputLastUnordGroupNew;
+    private Map<Object, EventBean> outputLastUnordGroupOld;
+
+
     private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
 
     public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -67,7 +71,13 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.agentInstanceContext = agentInstanceContext;
+
         aggregationService.setRemovedCallback(this);
+
+        if (prototype.isOutputLast()) {
+            outputLastUnordGroupNew = new LinkedHashMap<Object, EventBean>();
+            outputLastUnordGroupOld = new LinkedHashMap<Object, EventBean>();
+        }
     }
 
     public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
@@ -1692,5 +1702,94 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
     public void removed(Object key) {
         eventGroupReps.remove(key);
+    }
+
+    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
+        Object[] newDataMultiKey = generateGroupKeys(newData, true);
+        Object[] oldDataMultiKey = generateGroupKeys(oldData, false);
+
+        if (newData != null)
+        {
+            // apply new data to aggregates
+            int count = 0;
+            for (EventBean aNewData : newData)
+            {
+                Object mk = newDataMultiKey[count];
+                eventsPerStreamOneStream[0] = aNewData;
+                aggregationService.applyEnter(eventsPerStreamOneStream, mk, agentInstanceContext);
+                count++;
+            }
+        }
+        if (oldData != null)
+        {
+            // apply old data to aggregates
+            int count = 0;
+            for (EventBean anOldData : oldData)
+            {
+                eventsPerStreamOneStream[0] = anOldData;
+                aggregationService.applyLeave(eventsPerStreamOneStream, oldDataMultiKey[count], agentInstanceContext);
+                count++;
+            }
+        }
+
+        if (prototype.isSelectRStream())
+        {
+            generateOutputBatchedView(oldData, oldDataMultiKey, false, isGenerateSynthetic, outputLastUnordGroupOld, null);
+        }
+        generateOutputBatchedView(newData, newDataMultiKey, false, isGenerateSynthetic, outputLastUnordGroupNew, null);
+    }
+
+    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
+        Object[] newDataMultiKey = generateGroupKeys(newData, true);
+        Object[] oldDataMultiKey = generateGroupKeys(oldData, false);
+
+        if (newData != null) {
+            // apply new data to aggregates
+            int count = 0;
+            for (MultiKey<EventBean> aNewData : newData)
+            {
+                Object mk = newDataMultiKey[count];
+                aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
+                count++;
+            }
+        }
+        if (oldData != null)
+        {
+            // apply old data to aggregates
+            int count = 0;
+            for (MultiKey<EventBean> anOldData : oldData)
+            {
+                aggregationService.applyLeave(anOldData.getArray(), oldDataMultiKey[count], agentInstanceContext);
+                count++;
+            }
+        }
+
+        if (prototype.isSelectRStream())
+        {
+            generateOutputBatchedJoin(oldData, oldDataMultiKey, false, isGenerateSynthetic, outputLastUnordGroupOld, null);
+        }
+        generateOutputBatchedJoin(newData, newDataMultiKey, false, isGenerateSynthetic, outputLastUnordGroupNew, null);
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
+        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
+        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    }
+
+    private UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
+        EventBean[] newEventsArr = (outputLastUnordGroupNew.isEmpty()) ? null : outputLastUnordGroupNew.values().toArray(new EventBean[outputLastUnordGroupNew.size()]);
+        EventBean[] oldEventsArr = null;
+        if (prototype.isSelectRStream()) {
+            oldEventsArr = (outputLastUnordGroupOld.isEmpty()) ? null : outputLastUnordGroupOld.values().toArray(new EventBean[outputLastUnordGroupOld.size()]);
+        }
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
+            return null;
+        }
+        outputLastUnordGroupNew.clear();
+        outputLastUnordGroupOld.clear();
+        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
     }
 }

@@ -33,6 +33,10 @@ public class OutputProcessViewDirect extends OutputProcessViewBase
         this.parent = parent;
     }
 
+    public int getNumChangesetRows() {
+        return 0;
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events

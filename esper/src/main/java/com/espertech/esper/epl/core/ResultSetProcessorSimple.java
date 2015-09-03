@@ -20,10 +20,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.Viewable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Result set processor for the simplest case: no aggregation functions used in the select clause, and no group-by.
@@ -36,6 +33,10 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     private final SelectExprProcessor selectExprProcessor;
     private final OrderByProcessor orderByProcessor;
     private ExprEvaluatorContext exprEvaluatorContext;
+    private EventBean outputLastIStreamBufView;
+    private EventBean outputLastRStreamBufView;
+    private MultiKey<EventBean> outputLastIStreamBufJoin;
+    private MultiKey<EventBean> outputLastRStreamBufJoin;
 
     public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, ExprEvaluatorContext exprEvaluatorContext) {
         this.prototype = prototype;
@@ -158,7 +159,6 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
      */
     public UniformPair<EventBean[]> processViewResultIterator(EventBean[] newData)
     {
-        EventBean[] selectOldEvents = null;
         EventBean[] selectNewEvents;
         if (prototype.getOptionalHavingExpr() == null)
         {
@@ -171,7 +171,7 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
             selectNewEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingExpr(), true, true, exprEvaluatorContext);
         }
 
-        return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
+        return new UniformPair<EventBean[]>(selectNewEvents, null);
     }
 
     public Iterator<EventBean> getIterator(Viewable parent)
@@ -230,5 +230,126 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     }
 
     public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+    }
+
+    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
+        if (prototype.getOptionalHavingExpr() == null) {
+            if (newData != null && newData.length > 0) {
+                outputLastIStreamBufView = newData[newData.length - 1];
+            }
+            if (oldData != null && oldData.length > 0) {
+                outputLastRStreamBufView = oldData[oldData.length - 1];
+            }
+        }
+        else {
+            EventBean[] eventsPerStream = new EventBean[1];
+            if (newData != null && newData.length > 0) {
+                for (EventBean theEvent : newData) {
+                    eventsPerStream[0] = theEvent;
+
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+                    Boolean passesHaving = (Boolean) prototype.getOptionalHavingExpr().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+                    if ((passesHaving == null) || (!passesHaving)) {
+                        continue;
+                    }
+                    outputLastIStreamBufView = theEvent;
+                }
+            }
+            if (oldData != null && oldData.length > 0) {
+                for (EventBean theEvent : oldData) {
+                    eventsPerStream[0] = theEvent;
+
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+                    Boolean passesHaving = (Boolean) prototype.getOptionalHavingExpr().evaluate(eventsPerStream, false, exprEvaluatorContext);
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+                    if ((passesHaving == null) || (!passesHaving)) {
+                        continue;
+                    }
+                    outputLastRStreamBufView = theEvent;
+                }
+            }
+        }
+    }
+
+    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+        if (prototype.getOptionalHavingExpr() == null) {
+            if (newEvents != null && !newEvents.isEmpty()) {
+                outputLastIStreamBufJoin = getLast(newEvents);
+            }
+            if (oldEvents != null && !oldEvents.isEmpty()) {
+                outputLastRStreamBufJoin = getLast(oldEvents);
+            }
+        }
+        else {
+            if (newEvents != null && newEvents.size() > 0) {
+                for (MultiKey<EventBean> theEvent : newEvents) {
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());}
+                    Boolean passesHaving = (Boolean) prototype.getOptionalHavingExpr().evaluate(theEvent.getArray(), true, exprEvaluatorContext);
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+                    if ((passesHaving == null) || (!passesHaving)) {
+                        continue;
+                    }
+                    outputLastIStreamBufJoin = theEvent;
+                }
+            }
+            if (oldEvents != null && oldEvents.size() > 0) {
+                for (MultiKey<EventBean> theEvent : oldEvents) {
+
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());}
+                    Boolean passesHaving = (Boolean) prototype.getOptionalHavingExpr().evaluate(theEvent.getArray(), false, exprEvaluatorContext);
+                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+                    if ((passesHaving == null) || (!passesHaving)) {
+                        continue;
+                    }
+                    outputLastRStreamBufJoin = theEvent;
+                }
+            }
+        }
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
+        if (outputLastIStreamBufView == null && outputLastRStreamBufView == null) {
+            return null;
+        }
+        UniformPair<EventBean[]> pair = processViewResult(toArr(outputLastIStreamBufView), toArr(outputLastRStreamBufView), isSynthesize);
+        outputLastIStreamBufView = null;
+        outputLastRStreamBufView = null;
+        return pair;
+    }
+
+    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
+        if (outputLastIStreamBufJoin == null && outputLastRStreamBufJoin == null) {
+            return null;
+        }
+        UniformPair<EventBean[]> pair = processJoinResult(toSet(outputLastIStreamBufJoin), toSet(outputLastRStreamBufJoin), isSynthesize);
+        outputLastIStreamBufJoin = null;
+        outputLastRStreamBufJoin = null;
+        return pair;
+    }
+
+    private Set<MultiKey<EventBean>> toSet(MultiKey<EventBean> row) {
+        if (row == null) {
+            return null;
+        }
+        return Collections.singleton(row);
+    }
+
+    private MultiKey<EventBean> getLast(Set<MultiKey<EventBean>> events) {
+        int count = 0;
+        for (MultiKey<EventBean> row : events) {
+            count++;
+            if (count == events.size()) {
+                return row;
+            }
+        }
+        throw new IllegalStateException("Cannot get last on empty collection");
+    }
+
+    private EventBean[] toArr(EventBean optionalEvent) {
+        if (optionalEvent == null) {
+            return null;
+        }
+        return new EventBean[] {optionalEvent};
     }
 }

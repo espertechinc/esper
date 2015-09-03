@@ -472,6 +472,16 @@ public class TestOutputLimitEventPerGroup extends TestCase
         runAssertion15_16(stmtText, "last");
     }
 
+    public void test15LastHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+                "from MarketData.win:time(5.5 sec)" +
+                "group by symbol " +
+                "having sum(price) > 50 " +
+                "output last every 1 seconds";
+        runAssertion15_16(stmtText, "last");
+    }
+
     public void test16LastHavingJoin()
     {
         String stmtText = "select symbol, sum(price) " +
@@ -480,6 +490,17 @@ public class TestOutputLimitEventPerGroup extends TestCase
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output last every 1 seconds";
+        runAssertion15_16(stmtText, "last");
+    }
+
+    public void test16LastHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "group by symbol " +
+                "having sum(price) > 50 " +
+                "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
     }
 
@@ -928,9 +949,15 @@ public class TestOutputLimitEventPerGroup extends TestCase
         EPAssertionUtil.assertPropsPerRow(result.getSecond(), fields, new Object[][]{{"SYM1", null}, {"SYM1", 1.0}, {"SYM1", 2.0}});
     }
 
-    public void testNoJoinLast()
+    public void testNoJoinLast() {
+        runAssertionNoJoinLast(true);
+        runAssertionNoJoinLast(false);
+    }
+
+    private void runAssertionNoJoinLast(boolean hinted)
 	{
-	    String viewExpr = "select irstream symbol," +
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+	    String viewExpr = hint + "select irstream symbol," +
 	                             "sum(price) as mySum," +
 	                             "avg(price) as myAvg " +
 	                      "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
@@ -940,8 +967,8 @@ public class TestOutputLimitEventPerGroup extends TestCase
 
 	    EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
 	    selectTestView.addListener(listener);
-
 	    runAssertionLast(selectTestView);
+        selectTestView.destroy();
 	}
 
     public void testNoOutputClauseView()
@@ -996,9 +1023,15 @@ public class TestOutputLimitEventPerGroup extends TestCase
         runAssertionAll(selectTestView);
     }
 
-    public void testJoinLast()
+    public void testJoinLast() {
+        runAssertionJoinLast(true);
+        runAssertionJoinLast(false);
+    }
+
+    public void runAssertionJoinLast(boolean hinted)
 	{
-	    String viewExpr = "select irstream symbol," +
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+        String viewExpr = hint + "select irstream symbol," +
 	                             "sum(price) as mySum," +
 	                             "avg(price) as myAvg " +
 	                      "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
@@ -1016,6 +1049,8 @@ public class TestOutputLimitEventPerGroup extends TestCase
 	    epService.getEPRuntime().sendEvent(new SupportBeanString("AAA"));
 
 	    runAssertionLast(selectTestView);
+
+        selectTestView.destroy();
 	}
 
 	public void testJoinAll()

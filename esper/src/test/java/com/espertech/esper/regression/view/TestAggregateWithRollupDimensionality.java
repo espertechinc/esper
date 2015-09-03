@@ -42,14 +42,16 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     public void testOutputWhenTerminated() {
-        runAssertionOutputWhenTerminated("last");
-        runAssertionOutputWhenTerminated("all");
-        runAssertionOutputWhenTerminated("snapshot");
+        runAssertionOutputWhenTerminated("last", false);
+        runAssertionOutputWhenTerminated("last", true);
+        runAssertionOutputWhenTerminated("all", false);
+        runAssertionOutputWhenTerminated("snapshot", false);
     }
 
-    private void runAssertionOutputWhenTerminated(String outputLimit) {
+    private void runAssertionOutputWhenTerminated(String outputLimit, boolean hinted) {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
         epService.getEPAdministrator().createEPL("@name('s0') create context MyContext start SupportBean_S0(id=1) end SupportBean_S0(id=0)");
-        epService.getEPAdministrator().createEPL("@name('s1') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
+        epService.getEPAdministrator().createEPL(hint + "@name('s1') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
                 "from SupportBean group by rollup(theString) output " + outputLimit + " when terminated");
         epService.getEPAdministrator().getStatement("s1").addListener(listener);
 

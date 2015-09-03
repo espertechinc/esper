@@ -24,6 +24,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
+    private final boolean isOutputLast;
 
     /**
      * Ctor.
@@ -36,13 +37,15 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
                                                  ExprEvaluator optionalHavingNode,
                                                  boolean isSelectRStream,
                                                  boolean isUnidirectional,
-                                                 boolean isHistoricalOnly)
+                                                 boolean isHistoricalOnly,
+                                                 boolean isOutputLast)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.isOutputLast = isOutputLast;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -72,5 +75,13 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
 
     public boolean isHistoricalOnly() {
         return isHistoricalOnly;
+    }
+
+    public boolean isOutputLast() {
+        return isOutputLast;
+    }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.AGGREGATED_UNGROUPED;
     }
 }

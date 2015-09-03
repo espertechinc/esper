@@ -136,4 +136,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     public boolean isHistoricalOnly() {
         return isHistoricalOnly;
     }
+
+    public ResultSetProcessorType getResultSetProcessorType() {
+        return ResultSetProcessorType.FULLYAGGREGATED_GROUPED_ROLLUP;
+    }
 }

@@ -14,42 +14,37 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.event.EventBeanUtility;
+import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * A view that handles the "output snapshot" keyword in output rate stabilizing.
+ * Handles output rate limiting for LAST and without order-by.
  */
-public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAfter
+public class OutputProcessViewConditionLastUnord extends OutputProcessViewBaseWAfter
 {
     private final OutputProcessViewConditionFactory parent;
-
     private final OutputCondition outputCondition;
 
-	private static final Log log = LogFactory.getLog(OutputProcessViewConditionSnapshot.class);
+	private static final Log log = LogFactory.getLog(OutputProcessViewConditionLastUnord.class);
 
-    public OutputProcessViewConditionSnapshot(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
+    public OutputProcessViewConditionLastUnord(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
         super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
-    	OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
-    	this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
+        OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
+        this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
     }
 
     public int getNumChangesetRows() {
         return 0;
     }
 
-    /**
-     * The update method is called if the view does not participate in a join.
-     * @param newData - new events
-     * @param oldData - old events
-     */
     public void update(EventBean[] newData, EventBean[] oldData)
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
@@ -59,23 +54,24 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
                     "  oldData.length==" + ((oldData == null) ? 0 : oldData.length));
         }
 
-        resultSetProcessor.applyViewResult(newData, oldData);
+        boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
+        resultSetProcessor.processOutputLimitedLastNonBufferedView(newData, oldData, isGenerateSynthetic);
 
         if (!super.checkAfterCondition(newData, parent.getStatementContext()))
         {
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
             return;
         }
 
-        // add the incoming events to the event batches
         int newDataLength = 0;
         int oldDataLength = 0;
         if(newData != null)
         {
-        	newDataLength = newData.length;
+            newDataLength = newData.length;
         }
         if(oldData != null)
         {
-        	oldDataLength = oldData.length;
+            oldDataLength = oldData.length;
         }
 
         outputCondition.updateOutputCondition(newDataLength, oldDataLength);
@@ -95,26 +91,24 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
                     "  oldData.length==" + ((oldEvents == null) ? 0 : oldEvents.size()));
         }
 
-        resultSetProcessor.applyJoinResult(newEvents, oldEvents);
+        boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
+        resultSetProcessor.processOutputLimitedLastNonBufferedJoin(newEvents, oldEvents, isGenerateSynthetic);
 
         if (!super.checkAfterCondition(newEvents, parent.getStatementContext()))
         {
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
             return;
         }
 
         int newEventsSize = 0;
-        if (newEvents != null)
-        {
-            // add the incoming events to the event batches
+        if (newEvents != null) {
             newEventsSize = newEvents.size();
         }
 
         int oldEventsSize = 0;
-        if (oldEvents != null)
-        {
+        if (oldEvents != null) {
             oldEventsSize = oldEvents.size();
         }
-
         outputCondition.updateOutputCondition(newEventsSize, oldEventsSize);
     }
 
@@ -125,38 +119,18 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
 	 * @param doOutput - true if the batched events should actually be output as well as processed, false if they should just be processed
 	 * @param forceUpdate - true if output should be made even when no updating events have arrived
 	 * */
-	protected void continueOutputProcessingView(boolean doOutput, boolean forceUpdate)
-	{
-		if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+	protected void continueOutputProcessingView(boolean doOutput, boolean forceUpdate) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".continueOutputProcessingView");
         }
 
-        EventBean[] newEvents = null;
-        EventBean[] oldEvents = null;
+        boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastNonBufferedView(isGenerateSynthetic);
 
-        Iterator<EventBean> it = this.iterator();
-        if (it.hasNext())
-        {
-            ArrayList<EventBean> snapshot = new ArrayList<EventBean>();
-            while(it.hasNext())
-            {
-                EventBean event = it.next();
-                snapshot.add(event);
-            }
-            newEvents = snapshot.toArray(new EventBean[snapshot.size()]);
-            oldEvents = null;
-        }
+        continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
+    }
 
-        UniformPair<EventBean[]> newOldEvents = new UniformPair<EventBean[]>(newEvents, oldEvents);
-
-        if(doOutput)
-		{
-			output(forceUpdate, newOldEvents);
-		}
-	}
-
-	public void output(boolean forceUpdate, UniformPair<EventBean[]> results)
+	protected void output(boolean forceUpdate, UniformPair<EventBean[]> results)
 	{
         // Child view can be null in replay from named window
         if (childView != null)
@@ -178,7 +152,11 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
         {
             log.debug(".continueOutputProcessingJoin");
         }
-        continueOutputProcessingView(doOutput, forceUpdate);
+
+        boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastNonBufferedJoin(isGenerateSynthetic);
+
+        continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
 	}
 
     private OutputCallback getCallbackToLocal(int streamCount)
@@ -191,7 +169,7 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
             {
                 public void continueOutputProcessing(boolean doOutput, boolean forceUpdate)
                 {
-                    OutputProcessViewConditionSnapshot.this.continueOutputProcessingView(doOutput, forceUpdate);
+                    OutputProcessViewConditionLastUnord.this.continueOutputProcessingView(doOutput, forceUpdate);
                 }
             };
         }
@@ -201,15 +179,13 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
             {
                 public void continueOutputProcessing(boolean doOutput, boolean forceUpdate)
                 {
-                    OutputProcessViewConditionSnapshot.this.continueOutputProcessingJoin(doOutput, forceUpdate);
+                    OutputProcessViewConditionLastUnord.this.continueOutputProcessingJoin(doOutput, forceUpdate);
                 }
             };
         }
     }
 
-    @Override
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, parent.isDistinct());
     }
 
@@ -217,5 +193,20 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
         if (parent.isTerminable()) {
             outputCondition.terminated();
         }
+    }
+
+    private void continueOutputProcessingViewAndJoin(boolean doOutput, boolean forceUpdate, UniformPair<EventBean[]> newOldEvents) {
+
+        if (parent.isDistinct() && newOldEvents != null)
+        {
+            newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
+            newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
+        }
+
+        if(doOutput) {
+            output(forceUpdate, newOldEvents);
+        }
+
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionOutputNow(true);}
     }
 }

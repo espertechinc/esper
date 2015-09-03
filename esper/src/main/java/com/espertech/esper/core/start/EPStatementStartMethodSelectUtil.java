@@ -13,7 +13,10 @@ import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.annotation.IterableUnbound;
 import com.espertech.esper.client.hook.SQLColumnTypeConversion;
 import com.espertech.esper.client.hook.SQLOutputRowConversion;
-import com.espertech.esper.core.context.activator.*;
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
+import com.espertech.esper.core.context.activator.ViewableActivator;
+import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
+import com.espertech.esper.core.context.activator.ViewableActivatorTable;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.subselect.SubSelectActivationCollection;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
@@ -346,7 +349,7 @@ public class EPStatementStartMethodSelectUtil
         }
 
         // obtain factory for output limiting
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService());
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType());
 
         // Factory for statement-context instances
         StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(
