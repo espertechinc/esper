@@ -37,32 +37,45 @@ public class ResultAssertExecution
     private EPStatement stmt;
     private final SupportUpdateListener listener;
     private final ResultAssertTestResult expected;
+    private final ResultAssertExecutionTestSelector irTestSelector;
+
     private static final TreeMap<Long, TimeAction> input = ResultAssertInput.getActions();
 
     public ResultAssertExecution(EPServiceProvider engine,
                                  EPStatement stmt,
                                  SupportUpdateListener listener,
-                                 ResultAssertTestResult expected) {
+                                 ResultAssertTestResult expected,
+                                 ResultAssertExecutionTestSelector irTestSelector) {
         this.engine = engine;
         this.stmt = stmt;
         this.listener = listener;
         this.expected = expected;
+        this.irTestSelector = irTestSelector;
+    }
+
+    public ResultAssertExecution(EPServiceProvider engine,
+                                 EPStatement stmt,
+                                 SupportUpdateListener listener,
+                                 ResultAssertTestResult expected) {
+        this(engine, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_BOTH_ISTREAM_AND_IRSTREAM);
     }
 
     public void execute()
     {
         boolean isAssert = System.getProperty("ASSERTION_DISABLED") == null;
 
-        // First execution is for ISTREAM only, which is the default
-        execute(isAssert, true);
+        boolean expectRemoveStream = stmt.getText().toLowerCase().contains("select irstream");
+        execute(isAssert, !expectRemoveStream);
+        stmt.stop();
 
         // Second execution is for IRSTREAM, asserting both the insert and remove stream
-        stmt.stop();
-        String epl = stmt.getText();
-        String irStreamEPL = epl.replace("select ", "select irstream ");
-        stmt = engine.getEPAdministrator().createEPL(irStreamEPL);
-        stmt.addListener(listener);
-        execute(isAssert, false);
+        if (irTestSelector != ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED) {
+            String epl = stmt.getText();
+            String irStreamEPL = epl.replace("select ", "select irstream ");
+            stmt = engine.getEPAdministrator().createEPL(irStreamEPL);
+            stmt.addListener(listener);
+            execute(isAssert, false);
+        }
     }
 
     private void execute(boolean isAssert, boolean isExpectNullRemoveStream)

@@ -20,6 +20,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.regression.support.ResultAssertExecution;
+import com.espertech.esper.regression.support.ResultAssertExecutionTestSelector;
 import com.espertech.esper.regression.support.ResultAssertTestResult;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
@@ -190,12 +191,20 @@ public class TestOutputLimitSimple extends TestCase
         runAssertion15_16(stmtText, "last");
     }
 
-    public void test17FirstNoHavingNoJoin()
+    public void test17FirstNoHavingNoJoinIStream()
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData.win:time(5.5 sec) " +
                             "output first every 1 seconds";
-        runAssertion17(stmtText, "first");
+        runAssertion17IStream(stmtText, "first");
+    }
+
+    public void test17FirstNoHavingNoJoinIRStream()
+    {
+        String stmtText = "select irstream symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec) " +
+                "output first every 1 seconds";
+        runAssertion17IRStream(stmtText, "first");
     }
 
     public void test18SnapshotNoHavingNoJoin()
@@ -250,6 +259,8 @@ public class TestOutputLimitSimple extends TestCase
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         assertEquals(stmtText, model.toEPL());
     }
+
+
 
     private void runAssertion34(String stmtText, String outputLimit)
     {
@@ -376,7 +387,7 @@ public class TestOutputLimitSimple extends TestCase
         execution.execute();
     }
 
-    private void runAssertion17(String stmtText, String outputLimit)
+    private void runAssertion17IStream(String stmtText, String outputLimit)
     {
         sendTimer(0);
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -386,13 +397,30 @@ public class TestOutputLimitSimple extends TestCase
         ResultAssertTestResult expected = new ResultAssertTestResult(CATEGORY, outputLimit, fields);
         expected.addResultInsert(200, 1, new Object[][] {{"IBM", 100L, 25d}});
         expected.addResultInsert(1500, 1, new Object[][] {{"IBM", 150L, 24d}});
-        expected.addResultInsRem(3200, 0, null, null);
+        expected.addResultInsert(3500, 1, new Object[][] {{"YAH", 11000L, 2d}});
+        expected.addResultInsert(4300, 1, new Object[][] {{"IBM", 150L, 22d}});
+        expected.addResultInsert(5900, 1, new Object[][]{{"YAH", 10500L, 1.0d}});
+
+        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
+        execution.execute();
+    }
+
+    private void runAssertion17IRStream(String stmtText, String outputLimit)
+    {
+        sendTimer(0);
+        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+        stmt.addListener(listener);
+
+        String fields[] = new String[] {"symbol", "volume", "price"};
+        ResultAssertTestResult expected = new ResultAssertTestResult(CATEGORY, outputLimit, fields);
+        expected.addResultInsert(200, 1, new Object[][] {{"IBM", 100L, 25d}});
+        expected.addResultInsert(1500, 1, new Object[][] {{"IBM", 150L, 24d}});
         expected.addResultInsert(3500, 1, new Object[][] {{"YAH", 11000L, 2d}});
         expected.addResultInsert(4300, 1, new Object[][] {{"IBM", 150L, 22d}});
         expected.addResultRemove(5700, 0, new Object[][] {{"IBM", 100L, 25d}});
         expected.addResultRemove(6300, 0, new Object[][] {{"MSFT", 5000L, 9d}});
 
-        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
+        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
         execution.execute();
     }
 
@@ -845,6 +873,33 @@ public class TestOutputLimitSimple extends TestCase
 
         sendEvent("s12");
         assertFalse(listener.isInvoked());
+    }
+
+    public void testFirstSimpleHavingAndNoHaving() {
+        runAssertionFirstSimpleHavingAndNoHaving("");
+        runAssertionFirstSimpleHavingAndNoHaving("having intPrimitive != 0");
+    }
+
+    private void runAssertionFirstSimpleHavingAndNoHaving(String having) {
+        String epl = "select theString from SupportBean " + having + " output first every 3 events";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "theString".split(","), new Object[] {"E1"});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "theString".split(","), new Object[] {"E4"});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
+        assertFalse(listener.isInvoked());
+
+        stmt.destroy();
     }
 
     public void testLimitSnapshotJoin()

@@ -16,14 +16,14 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.collection.UniformPair;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.regression.support.ResultAssertExecution;
+import com.espertech.esper.regression.support.ResultAssertExecutionTestSelector;
+import com.espertech.esper.regression.support.ResultAssertTestResult;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBeanString;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.regression.support.ResultAssertTestResult;
-import com.espertech.esper.regression.support.ResultAssertExecution;
 import junit.framework.TestCase;
 
 public class TestOutputLimitAggregateAll extends TestCase
@@ -228,12 +228,20 @@ public class TestOutputLimitAggregateAll extends TestCase
         runAssertion15_16(stmtText, "last");
     }
 
-    public void test17FirstNoHavingNoJoin()
+    public void test17FirstNoHavingNoJoinIStreamOnly()
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData.win:time(5.5 sec) " +
                             "output first every 1 seconds";
-        runAssertion17(stmtText, "first");
+        runAssertion17IStreamOnly(stmtText, "first");
+    }
+
+    public void test17FirstNoHavingNoJoinIRStream()
+    {
+        String stmtText = "select irstream symbol, sum(price) " +
+                "from MarketData.win:time(5.5 sec) " +
+                "output first every 1 seconds";
+        runAssertion17IRStream(stmtText, "first");
     }
 
     public void test18SnapshotNoHavingNoJoin()
@@ -364,7 +372,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         execution.execute();
     }
 
-    private void runAssertion17(String stmtText, String outputLimit)
+    private void runAssertion17IStreamOnly(String stmtText, String outputLimit)
     {
         sendTimer(0);
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -374,13 +382,30 @@ public class TestOutputLimitAggregateAll extends TestCase
         ResultAssertTestResult expected = new ResultAssertTestResult(CATEGORY, outputLimit, fields);
         expected.addResultInsert(200, 1, new Object[][] {{"IBM", 25d}});
         expected.addResultInsert(1500, 1, new Object[][]{{"IBM", 58d}});
-        expected.addResultInsRem(3200, 0, null, null);
+        expected.addResultInsert(3500, 1, new Object[][] {{"YAH", 87d}});
+        expected.addResultInsert(4300, 1, new Object[][]{{"IBM", 109d}});
+        expected.addResultInsert(5900, 1, new Object[][]{{"YAH", 88d}});
+
+        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
+        execution.execute();
+    }
+
+    private void runAssertion17IRStream(String stmtText, String outputLimit)
+    {
+        sendTimer(0);
+        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+        stmt.addListener(listener);
+
+        String fields[] = new String[] {"symbol", "sum(price)"};
+        ResultAssertTestResult expected = new ResultAssertTestResult(CATEGORY, outputLimit, fields);
+        expected.addResultInsert(200, 1, new Object[][] {{"IBM", 25d}});
+        expected.addResultInsert(1500, 1, new Object[][]{{"IBM", 58d}});
         expected.addResultInsert(3500, 1, new Object[][] {{"YAH", 87d}});
         expected.addResultInsert(4300, 1, new Object[][]{{"IBM", 109d}});
         expected.addResultRemove(5700, 0, new Object[][]{{"IBM", 87d}});
         expected.addResultRemove(6300, 0, new Object[][]{{"MSFT", 79d}});
 
-        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
+        ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
         execution.execute();
     }
 
@@ -730,9 +755,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         // Update time: no first event this batch, so a callback
         // is made at the end of the interval
         sendTimeEventRelative(3000);
-        assertTrue(updateListener.getAndClearIsInvoked());
-        assertNull(updateListener.getLastNewData());
-        assertNull(updateListener.getLastOldData());
+        assertFalse(updateListener.getAndClearIsInvoked());
     }
 
     public void testCount()

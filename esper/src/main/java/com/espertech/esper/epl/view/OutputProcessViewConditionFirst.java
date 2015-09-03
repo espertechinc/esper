@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
+import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.ExecutionPathDebugLog;
@@ -81,13 +82,13 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(viewEventsList, isGenerateSynthetic, OutputLimitLimitType.FIRST);
             viewEventsList.clear();
 
-            if (newOldEvents == null || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null)) {
-                return; // nothing to indicate
+            if (!hasRelevantResults(newOldEvents)) {
+                return;
             }
 
             witnessedFirst = true;
 
-            if (parent.isDistinct() && newOldEvents != null)
+            if (parent.isDistinct())
             {
                 newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
                 newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
@@ -145,40 +146,18 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
 
         // add the incoming events to the event batches
         if (!witnessedFirst) {
-            Set<MultiKey<EventBean>> copyNew;
-            if (newEvents != null)
-            {
-                copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
-            }
-            else
-            {
-                copyNew = new LinkedHashSet<MultiKey<EventBean>>();
-            }
-
-            Set<MultiKey<EventBean>> copyOld;
-            if (oldEvents != null)
-            {
-                copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
-            }
-            else
-            {
-                copyOld = new LinkedHashSet<MultiKey<EventBean>>();
-            }
-
-            joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
+            addToChangeSet(joinEventsSet, newEvents, oldEvents);
             boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
-
-            // Process the events and get the result
             UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(joinEventsSet, isGenerateSynthetic, OutputLimitLimitType.FIRST);
             joinEventsSet.clear();
 
-            if (newOldEvents == null || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null)) {
-                return; // nothing to indicate
+            if (!hasRelevantResults(newOldEvents)) {
+                return;
             }
 
             witnessedFirst = true;
 
-            if (parent.isDistinct()  && newOldEvents != null)
+            if (parent.isDistinct())
             {
                 newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
                 newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
@@ -196,26 +175,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
             output(true, newOldEvents);
         }
         else {
-            Set<MultiKey<EventBean>> copyNew;
-            if (newEvents != null)
-            {
-                copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
-            }
-            else
-            {
-                copyNew = new LinkedHashSet<MultiKey<EventBean>>();
-            }
-
-            Set<MultiKey<EventBean>> copyOld;
-            if (oldEvents != null)
-            {
-                copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
-            }
-            else
-            {
-                copyOld = new LinkedHashSet<MultiKey<EventBean>>();
-            }
-            joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
+            addToChangeSet(joinEventsSet, newEvents, oldEvents);
 
             // Process the events and get the result
             resultSetProcessor.processOutputLimitedJoin(joinEventsSet, false, OutputLimitLimitType.FIRST);
@@ -237,7 +197,7 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         outputCondition.updateOutputCondition(newEventsSize, oldEventsSize);
     }
 
-	/**
+    /**
 	 * Called once the output condition has been met.
 	 * Invokes the result set processor.
 	 * Used for non-join event data.
@@ -312,5 +272,46 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         if (parent.isTerminable()) {
             outputCondition.terminated();
         }
+    }
+
+    private boolean hasRelevantResults(UniformPair<EventBean[]> newOldEvents) {
+        if (newOldEvents == null) {
+            return false;
+        }
+        if (parent.getSelectClauseStreamSelectorEnum() == SelectClauseStreamSelectorEnum.ISTREAM_ONLY) {
+            if (newOldEvents.getFirst() == null) {
+                return false; // nothing to indicate
+            }
+        }
+        else if (parent.getSelectClauseStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH) {
+            if (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null) {
+                return false; // nothing to indicate
+            }
+        }
+        else {
+            if (newOldEvents.getSecond() == null) {
+                return false; // nothing to indicate
+            }
+        }
+        return true;
+    }
+
+    private static void addToChangeSet(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
+        Set<MultiKey<EventBean>> copyNew;
+        if (newEvents != null) {
+            copyNew = new LinkedHashSet<MultiKey<EventBean>>(newEvents);
+        }
+        else {
+            copyNew = new LinkedHashSet<MultiKey<EventBean>>();
+        }
+
+        Set<MultiKey<EventBean>> copyOld;
+        if (oldEvents != null) {
+            copyOld = new LinkedHashSet<MultiKey<EventBean>>(oldEvents);
+        }
+        else {
+            copyOld = new LinkedHashSet<MultiKey<EventBean>>();
+        }
+        joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
     }
 }

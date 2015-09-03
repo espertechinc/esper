@@ -3136,6 +3136,10 @@ group by symbol output first every 10 seconds</programlisting>
 				</para>
 				
 				<para>
+					The <literal>output</literal> clause with the <literal>first</literal> keyword does not require a buffer for any type of query.
+				</para>
+
+				<para>
 					We use the term <emphasis>change set</emphasis> to describe all insert and remove stream events that occur since the last triggering of the output condition. The <emphasis>change set</emphasis> is the buffer mentioned above.
 				</para>
 				
@@ -3165,13 +3169,6 @@ group by symbol output first every 10 seconds</programlisting>
 
 					<sect4 xml:id="epl-output-unaggandungrouped-all">
 						<title><literal>Output All</literal></title>
-						<para>
-						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
-						</para>
-					</sect4>
-
-					<sect4 xml:id="epl-output-unaggandungrouped-first">
-						<title><literal>Output First</literal></title>
 						<para>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
@@ -3211,17 +3208,6 @@ group by symbol output first every 10 seconds</programlisting>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
 					</sect4>
-
-					<sect4 xml:id="epl-output-fullyaggandungrouped-first">
-						<title><literal>Output First</literal></title>
-						<para>
-						   For statements with a <literal>having</literal>-clause, the engine does not retain a change set.
-						</para>
-						<para>
-						   For statements without a <literal>having</literal>-clause, the engine retains the change set and computes output from the change set at the time the output condition triggers, 
-						   after which it discards the change set.
-						</para>
-					</sect4>					
 				</sect3>
 
 				<sect3 xml:id="epl-output-aggandungrouped">
@@ -3257,17 +3243,6 @@ group by symbol output first every 10 seconds</programlisting>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
 					</sect4>
-
-					<sect4 xml:id="epl-output-aggandungrouped-first">
-						<title><literal>Output First</literal></title>
-						<para>
-						   For statements with a <literal>having</literal>-clause, the engine does not retain a change set.
-						</para>
-						<para>
-						   For statements without a <literal>having</literal>-clause, the engine retains the change set and computes output from the change set at the time the output condition triggers, 
-						   after which it discards the change set.
-						</para>
-					</sect4>					
 				</sect3>
 
 				<sect3 xml:id="epl-output-fullyaggandgrouped">
@@ -3304,13 +3279,6 @@ group by symbol output first every 10 seconds</programlisting>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
 					</sect4>
-
-					<sect4 xml:id="epl-output-fullyaggandgrouped-first">
-						<title><literal>Output First</literal></title>
-						<para>
-						   The engine does not retain a change set.
-						</para>
-					</sect4>					
 				</sect3>
 
 				<sect3 xml:id="epl-output-aggandgrouped">
@@ -3347,13 +3315,6 @@ group by symbol output first every 10 seconds</programlisting>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
 					</sect4>
-
-					<sect4 xml:id="epl-output-aggandgrouped-first">
-						<title><literal>Output First</literal></title>
-						<para>
-						   The engine does not retain a change set.
-						</para>
-					</sect4>					
 				</sect3>
 
 		</sect2>

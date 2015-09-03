@@ -399,7 +399,6 @@ public class TestOutputLimitRowForAll extends TestCase
         ResultAssertTestResult expected = new ResultAssertTestResult(CATEGORY, outputLimit, fields);
         expected.addResultInsRem(200, 1, new Object[][] {{25d}}, new Object[][] {{null}});
         expected.addResultInsRem(1500, 1, new Object[][] {{58d}}, new Object[][] {{34d}});
-        expected.addResultInsRem(3200, 0, new Object[][] {{85d}}, new Object[][] {{85d}});
         expected.addResultInsRem(3500, 1, new Object[][] {{87d}}, new Object[][] {{85d}});
         expected.addResultInsRem(4300, 1, new Object[][] {{109d}}, new Object[][] {{87d}});
         expected.addResultInsRem(5700, 0, new Object[][] {{87d}}, new Object[][] {{112d}});

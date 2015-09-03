@@ -61,15 +61,9 @@ public class OutputConditionFactoryFactory
             }
         }
 
-        if(outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST)
-		{
-            if (isGrouped) {
-                return new OutputConditionNullFactory();
-            }
-            if (!isWithHavingClause) {
-                return new OutputConditionFirstFactory(outputLimitSpec, statementContext, isGrouped, isWithHavingClause);
-            }
-		}
+        if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST && isGrouped) {
+            return new OutputConditionNullFactory();
+        }
 
         if(outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB)
         {

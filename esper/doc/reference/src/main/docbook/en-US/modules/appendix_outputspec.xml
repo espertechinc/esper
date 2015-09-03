@@ -328,7 +328,7 @@ output first every 1 seconds]]></programlisting>
 			<para>
 				The output is as follows:
 			</para>       
-			<programlisting><![CDATA[                      Input                                  Output
+			<programlisting><![CDATA[                       Input                                  Output
                                                  Insert Stream    Remove Stream
 -----------------------------------------------  ----------------------------------
  Time Symbol  Volume   Price
@@ -350,7 +350,6 @@ output first every 1 seconds]]></programlisting>
   2.5                          
   3.0                          
   3.2                          
-                                                 (empty result)     (empty result)      
   3.5                          
          YAH   11000     2.0   Event E6 arrives
                                                  [YAH, 11000, 2.0]                      
@@ -372,7 +371,7 @@ output first every 1 seconds]]></programlisting>
   6.3                          Event E2 leaves the time window
                                                                     [MSFT, 5000, 9.0]   
   7.0                          Event E3 and E4 leave the time window
-  7.2                          			]]></programlisting>
+  7.2                          		]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="outputspec-simple-snapshot" revision="1">
@@ -711,7 +710,6 @@ output first every 1 seconds]]></programlisting>
   2.5                          
   3.0                          
   3.2                          
-                                                 [85.0]             [85.0]              
   3.5                          
          YAH   11000     2.0   Event E6 arrives
                                                  [87.0]             [85.0]              
@@ -733,7 +731,7 @@ output first every 1 seconds]]></programlisting>
   6.3                          Event E2 leaves the time window
                                                  [79.0]             [88.0]              
   7.0                          Event E3 and E4 leave the time window
-  7.2                          ]]></programlisting>
+  7.2    ]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="outputspec-rowforall-snapshot" revision="1">
@@ -1025,7 +1023,6 @@ output first every 1 seconds]]></programlisting>
   2.5                          
   3.0                          
   3.2                          
-                                                 (empty result)     (empty result)      
   3.5                          
          YAH   11000     2.0   Event E6 arrives
                                                  [YAH, 87.0]                            
@@ -1047,7 +1044,7 @@ output first every 1 seconds]]></programlisting>
   6.3                          Event E2 leaves the time window
                                                                     [MSFT, 79.0]        
   7.0                          Event E3 and E4 leave the time window
-  7.2     			]]></programlisting>
+  7.2                          ]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="outputspec-aggregateall-snapshot" revision="1">

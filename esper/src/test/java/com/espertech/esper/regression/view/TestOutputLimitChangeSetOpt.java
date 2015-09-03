@@ -63,7 +63,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
 
         runAssertion(currentTime, 5, false, "intPrimitive", null, null, "all", null);
 
-        runAssertion(currentTime, 4, false, "intPrimitive", null, null, "first", null);
+        runAssertion(currentTime, 0, false, "intPrimitive", null, null, "first", null);
 
         // fully-aggregated and ungrouped
         runAssertion(currentTime, 5, false, "count(*)", null, null, "last", null);
@@ -71,7 +71,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
 
         runAssertion(currentTime, 5, false, "count(*)", null, null, "all", null);
 
-        runAssertion(currentTime, 4, false, "count(*)", null, null, "first", null);
+        runAssertion(currentTime, 0, false, "count(*)", null, null, "first", null);
         runAssertion(currentTime, 0, false, "count(*)", null, "having count(*) > 0", "first", null);
 
         // aggregated and ungrouped
@@ -80,7 +80,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
 
         runAssertion(currentTime, 5, true, "theString, count(*)", null, null, "all", null);
 
-        runAssertion(currentTime, 4, true, "theString, count(*)", null, null, "first", null);
+        runAssertion(currentTime, 0, true, "theString, count(*)", null, null, "first", null);
         runAssertion(currentTime, 0, true, "theString, count(*)", null, "having count(*) > 0", "first", null);
 
         // fully-aggregated and grouped
