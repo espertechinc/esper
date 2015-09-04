@@ -160,17 +160,17 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
     public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
     }
 
-    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
+    public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
     }
 
-    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic, boolean isAll) {
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll) {
         return null;
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
         return null;
     }
 }

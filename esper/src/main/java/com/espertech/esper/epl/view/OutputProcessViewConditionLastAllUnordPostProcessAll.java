@@ -13,11 +13,11 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 
-public class OutputProcessViewConditionLastUnordPostProcess extends OutputProcessViewConditionLastUnord
+public class OutputProcessViewConditionLastAllUnordPostProcessAll extends OutputProcessViewConditionLastAllUnord
 {
     private final OutputStrategyPostProcess postProcessor;
 
-    public OutputProcessViewConditionLastUnordPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
+    public OutputProcessViewConditionLastAllUnordPostProcessAll(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
         super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext);
         this.postProcessor = postProcessor;
     }

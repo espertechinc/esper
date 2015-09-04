@@ -349,7 +349,6 @@ public class ResultSetProcessorFactoryFactory
         }
 
         ExprEvaluator optionHavingEval = optionalHavingNode == null ? null : optionalHavingNode.getExprEvaluator();
-        boolean isOutputLast = outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
 
         // (1)
         // There is no group-by clause and no aggregate functions with event properties in the select clause and having clause (simplest case)
@@ -374,7 +373,7 @@ public class ResultSetProcessorFactoryFactory
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -385,7 +384,7 @@ public class ResultSetProcessorFactoryFactory
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst)
         {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -398,7 +397,7 @@ public class ResultSetProcessorFactoryFactory
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty()))
             {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
-                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly);
+                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec);
                 return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
             }
 
@@ -406,7 +405,7 @@ public class ResultSetProcessorFactoryFactory
             // There is no group-by clause but there are aggregate functions with event properties in the select clause (aggregation case)
             // or having clause and not all event properties are aggregated (some properties are not under aggregation functions).
             log.debug(".getProcessor Using ResultSetProcessorAggregateAll");
-            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, isOutputLast);
+            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 

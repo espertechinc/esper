@@ -294,6 +294,16 @@ public class TestOutputLimitEventPerRow extends TestCase
         runAssertion11_12(stmtText, "all");
     }
 
+    public void test11AllHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
+                "from MarketData.win:time(5.5 sec) " +
+                "group by symbol " +
+                "having sum(price) > 50 " +
+                "output all every 1 seconds";
+        runAssertion11_12(stmtText, "all");
+    }
+
     public void test12AllHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
@@ -302,6 +312,17 @@ public class TestOutputLimitEventPerRow extends TestCase
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output all every 1 seconds";
+        runAssertion11_12(stmtText, "all");
+    }
+
+    public void test12AllHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "group by symbol " +
+                "having sum(price) > 50 " +
+                "output all every 1 seconds";
         runAssertion11_12(stmtText, "all");
     }
 
@@ -896,10 +917,17 @@ public class TestOutputLimitEventPerRow extends TestCase
 	    runAssertionDefault(selectTestView);
 	}
 
-    public void testNoJoinAll()
+    public void testNoJoinAll() {
+        runAssertionNoJoinAll(false);
+        runAssertionNoJoinAll(true);
+    }
+
+    private void runAssertionNoJoinAll(boolean hinted)
     {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+
         // Every event generates a new row, this time we sum the price by symbol and output volume
-        String viewExpr = "select symbol, volume, sum(price) as mySum " +
+        String viewExpr = hint + "select symbol, volume, sum(price) as mySum " +
                           "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol " +
@@ -909,12 +937,23 @@ public class TestOutputLimitEventPerRow extends TestCase
         selectTestView.addListener(listener);
 
         runAssertionAll(selectTestView);
+
+        selectTestView.destroy();
+        listener.reset();
     }
 
     public void testJoinAll()
     {
+        runAssertionJoinAll(false);
+        runAssertionJoinAll(true);
+    }
+
+    private void runAssertionJoinAll(boolean hinted)
+    {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+
         // Every event generates a new row, this time we sum the price by symbol and output volume
-        String viewExpr = "select symbol, volume, sum(price) as mySum " +
+        String viewExpr = hint + "select symbol, volume, sum(price) as mySum " +
                           "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
                                     SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
@@ -929,6 +968,9 @@ public class TestOutputLimitEventPerRow extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBeanString(SYMBOL_IBM));
 
         runAssertionAll(selectTestView);
+
+        selectTestView.destroy();
+        listener.reset();
     }
 
     public void testJoinLast() {

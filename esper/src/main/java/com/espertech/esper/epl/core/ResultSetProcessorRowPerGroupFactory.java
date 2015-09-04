@@ -133,4 +133,8 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     public boolean isOutputLast() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
     }
+
+    public boolean isOutputAll() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
 }

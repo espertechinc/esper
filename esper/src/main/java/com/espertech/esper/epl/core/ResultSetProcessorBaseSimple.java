@@ -12,7 +12,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.view.OutputProcessViewConditionLastUnord;
+import com.espertech.esper.epl.view.OutputProcessViewConditionLastAllUnord;
 import com.espertech.esper.event.EventBeanUtility;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +42,7 @@ public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
             return processJoinResult(flattened.getFirst(), flattened.getSecond(), generateSynthetic);
         }
 
-        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastUnord.class.getSimpleName());
+        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastAllUnord.class.getSimpleName());
     }
 
     public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
@@ -53,6 +53,6 @@ public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
             return processViewResult(pair.getFirst(), pair.getSecond(), generateSynthetic);
         }
 
-        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastUnord.class.getSimpleName());
+        throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastAllUnord.class.getSimpleName());
     }
 }

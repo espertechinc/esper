@@ -39,6 +39,7 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
     private final AggregationService aggregationService; 
     private ExprEvaluatorContext exprEvaluatorContext;
     private ResultSetProcessorAggregateAllOutputLastHelper outputLastUnordHelper;
+    private ResultSetProcessorAggregateAllOutputAllHelper outputAllUnordHelper;
 
     public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
         this.prototype = prototype;
@@ -46,7 +47,8 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = exprEvaluatorContext;
-        this.outputLastUnordHelper = prototype.isOutputLast() ? new ResultSetProcessorAggregateAllOutputLastHelper() : null;
+        this.outputLastUnordHelper = prototype.isOutputLast() ? new ResultSetProcessorAggregateAllOutputLastHelper(this) : null;
+        this.outputAllUnordHelper = prototype.isOutputAll() ? new ResultSetProcessorAggregateAllOutputAllHelper(this) : null;
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {
@@ -673,25 +675,35 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         return true;
     }
 
-    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        UniformPair<EventBean[]> pair = processViewResult(newData, oldData, isGenerateSynthetic);
-        outputLastUnordHelper.apply(pair);
+    public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllUnordHelper.processView(newData, oldData, isGenerateSynthetic);
+        }
+        else {
+            outputLastUnordHelper.processView(newData, oldData, isGenerateSynthetic);
+        }
     }
 
-    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
-        UniformPair<EventBean[]> pair = processJoinResult(newEvents, oldEvents, isGenerateSynthetic);
-        outputLastUnordHelper.apply(pair);
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllUnordHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
+        }
+        else {
+            outputLastUnordHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
+        }
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllUnordHelper.output();
+        }
+        return outputLastUnordHelper.output();
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
-    }
-
-    private UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
-        return outputLastUnordHelper.renderAndReset();
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllUnordHelper.output();
+        }
+        return outputLastUnordHelper.output();
     }
 }

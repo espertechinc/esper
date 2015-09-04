@@ -3127,7 +3127,7 @@ group by symbol output first every 10 seconds</programlisting>
 				<title>Runtime Considerations</title>
 			
 				<para>
-					Output rate limiting provides output events to your application in regular intervals. Between intervals, the engine may use a buffer to hold events until the output condition is reached, as described below. 
+					Output rate limiting provides output events to your application in regular intervals. Between intervals, the engine may use a buffer to hold data until the output condition is reached, as described below. 
 					If your application has high-volume streams, you may need to be mindful of the memory needs for buffers especially if the output condition triggers infrequently.
 				</para>
 				
@@ -3140,7 +3140,8 @@ group by symbol output first every 10 seconds</programlisting>
 				</para>
 
 				<para>
-					We use the term <emphasis>change set</emphasis> to describe all insert and remove stream events that occur since the last triggering of the output condition. The <emphasis>change set</emphasis> is the buffer mentioned above.
+					We use the term <emphasis>change set</emphasis> to describe all insert and remove stream events that occur since the last triggering of the output condition. 
+					The <emphasis>change set</emphasis> is one type of buffer as mentioned above.
 				</para>
 				
 				<para>
@@ -3161,17 +3162,29 @@ group by symbol output first every 10 seconds</programlisting>
 							For queries that define <literal>output last</literal> the engine retains only the first remove stream event and the last insert stream event, both matching the <literal>having</literal>-clause, if present, 
 							to compute insert and remove stream output when the output condition triggers.
 						</para>
-
-						<para>
-						   Otherwise, the engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
-						</para>
 					</sect4>
 
 					<sect4 xml:id="epl-output-unaggandungrouped-all">
 						<title><literal>Output All</literal></title>
 						<para>
-						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
+						   The engine by default retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
+						
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of any row the engine applies the <literal>having</literal>-clause and retains only matching events, or retains all events if there is no <literal>having</literal>-clause.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine computes the insert and remove stream output events according to the <literal>select</literal>-clause for output.
+								</para>
+							</listitem>
+						</itemizedlist>
 					</sect4>
 				</sect3>
 				
@@ -3185,7 +3198,7 @@ group by symbol output first every 10 seconds</programlisting>
 						</para>
 						
 						<para>
-							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
 						</para>
 						<itemizedlist spacing="compact">
 							<listitem>
@@ -3207,6 +3220,23 @@ group by symbol output first every 10 seconds</programlisting>
 						<para>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
+
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of rows the engine applies the <literal>having</literal>-clause and computes the insert and remove stream output event according to the <literal>select</literal>-clause 
+							for later output (when applicable).
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine outputs the insert and remove stream output events.
+								</para>
+							</listitem>
+						</itemizedlist>
 					</sect4>
 				</sect3>
 
@@ -3220,13 +3250,14 @@ group by symbol output first every 10 seconds</programlisting>
 						</para>
 						
 						<para>
-							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
 						</para>
 						<itemizedlist spacing="compact">
 							<listitem>
 								<para>
-									Upon arrival of the first row since the last triggering of the output condition the engine computes the remove stream output event according to the <literal>select</literal>-clause 
-									for later output (when applicable), and also computes an insert stream output event according to the <literal>select</literal>-clause, retaining the last computed insert stream output event.
+									Upon arrival of the first row since the last triggering of the output condition the engine computes the insert and remove stream output event according to the 
+									<literal>having</literal>-clause (if present) and the <literal>select</literal>-clause 
+									for later output (when applicable), retaining only the last computed insert and remove stream output event.
 								</para>
 							</listitem>
 							<listitem>
@@ -3242,6 +3273,23 @@ group by symbol output first every 10 seconds</programlisting>
 						<para>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
+
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									Upon arrival of rows the engine computes the insert and remove stream output events according to the <literal>having</literal>-clause (if present) and 
+									the <literal>select</literal>-clause for later output, retaining only the computed insert and remove stream output events.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine outputs the retained output events.
+								</para>
+							</listitem>
+						</itemizedlist>
 					</sect4>
 				</sect3>
 
@@ -3255,7 +3303,7 @@ group by symbol output first every 10 seconds</programlisting>
 						</para>
 						
 						<para>
-							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
 						</para>
 						<itemizedlist spacing="compact">
 							<listitem>
@@ -3278,6 +3326,29 @@ group by symbol output first every 10 seconds</programlisting>
 						<para>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
+
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									The engine retains, for each group, a row to represent the group.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon arrival of rows the engine computes the remove stream output events according to the <literal>having</literal>-clause (if present) and 
+									the <literal>select</literal>-clause for later output. 
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine computes the insert stream output events according to the <literal>having</literal>-clause (if present) and 
+									the <literal>select</literal>-clause for output, for each group.
+								</para>
+							</listitem>
+						</itemizedlist>
 					</sect4>
 				</sect3>
 
@@ -3291,7 +3362,7 @@ group by symbol output first every 10 seconds</programlisting>
 						</para>
 						
 						<para>
-							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint with queries that do not have an <literal>order by</literal>-clause:
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
 						</para>
 						<itemizedlist spacing="compact">
 							<listitem>
@@ -3314,6 +3385,29 @@ group by symbol output first every 10 seconds</programlisting>
 						<para>
 						   The engine retains the change set and computes output from the change set at the time the output condition triggers, after which it discards the change set.
 						</para>
+
+						<para>
+							You can instruct the engine to not retain the change set by specifying the <literal>@Hint('enable_outputlimit_opt')</literal> hint only for queries that do not have an <literal>order by</literal>-clause:
+						</para>
+						<itemizedlist spacing="compact">
+							<listitem>
+								<para>
+									The engine retains, for each group, a row to represent the group.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon arrival of rows the engine computes the insert and remove stream output events according to the <literal>having</literal>-clause (if present) and 
+									the <literal>select</literal>-clause for later output. 
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Upon triggering of the output condition the engine computes insert stream output events according to the <literal>having</literal>-clause (if present) and 
+									the <literal>select</literal>-clause for output for each group that does not have output events yet, and outputs all events.
+								</para>
+							</listitem>
+						</itemizedlist>
 					</sect4>
 				</sect3>
 

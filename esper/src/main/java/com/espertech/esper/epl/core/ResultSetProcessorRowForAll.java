@@ -37,12 +37,13 @@ import java.util.Set;
  */
 public class ResultSetProcessorRowForAll implements ResultSetProcessor
 {
-    private final ResultSetProcessorRowForAllFactory prototype;
+    protected final ResultSetProcessorRowForAllFactory prototype;
     private final SelectExprProcessor selectExprProcessor;
     private final OrderByProcessor orderByProcessor;
-    private final AggregationService aggregationService;
-    private ExprEvaluatorContext exprEvaluatorContext;
-    private EventBean[] lastEventRStreamForOutputLast;
+    protected final AggregationService aggregationService;
+    protected ExprEvaluatorContext exprEvaluatorContext;
+    private ResultSetProcessorRowForAllOutputLastHelper outputLastHelper;
+    private ResultSetProcessorRowForAllOutputAllHelper outputAllHelper;
 
     public ResultSetProcessorRowForAll(ResultSetProcessorRowForAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
         this.prototype = prototype;
@@ -50,6 +51,12 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = exprEvaluatorContext;
+        if (prototype.isOutputLast()) {
+            outputLastHelper = new ResultSetProcessorRowForAllOutputLastHelper(this);
+        }
+        else if (prototype.isOutputAll()) {
+            outputAllHelper = new ResultSetProcessorRowForAllOutputAllHelper(this);
+        }
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {
@@ -117,7 +124,7 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
     }
 
-    private EventBean[] getSelectListEvents(boolean isNewData, boolean isSynthesize, boolean join)
+    protected EventBean[] getSelectListEvents(boolean isNewData, boolean isSynthesize, boolean join)
     {
         if (prototype.getOptionalHavingNode() != null)
         {
@@ -516,44 +523,36 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         ResultSetProcessorUtil.applyAggJoinResult(aggregationService, exprEvaluatorContext, newEvents, oldEvents);
     }
 
-    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        if (prototype.isSelectRStream() && lastEventRStreamForOutputLast == null) {
-            lastEventRStreamForOutputLast = getSelectListEvents(false, isGenerateSynthetic, false);
+    public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processView(newData, oldData, isGenerateSynthetic);
         }
-
-        EventBean[] eventsPerStream = new EventBean[1];
-        ResultSetProcessorUtil.applyAggViewResult(aggregationService, exprEvaluatorContext, newData, oldData, eventsPerStream);
+        else {
+            outputLastHelper.processView(newData, oldData, isGenerateSynthetic);
+        }
     }
 
-    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
-        if (prototype.isSelectRStream() && lastEventRStreamForOutputLast == null) {
-            lastEventRStreamForOutputLast = getSelectListEvents(false, isGenerateSynthetic, true);
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
         }
-
-        ResultSetProcessorUtil.applyAggJoinResult(aggregationService, exprEvaluatorContext, newEvents, oldEvents);
+        else {
+            outputLastHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
+        }
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputView(isSynthesize);
+        }
+        return outputLastHelper.outputView(isSynthesize);
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
-    }
-
-    private UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
-        EventBean[] events = getSelectListEvents(true, isSynthesize, false);
-        UniformPair<EventBean[]> result = new UniformPair<EventBean[]>(events, null);
-
-        if (prototype.isSelectRStream() && lastEventRStreamForOutputLast == null) {
-            lastEventRStreamForOutputLast = getSelectListEvents(false, isSynthesize, false);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputJoin(isSynthesize);
         }
-        if (lastEventRStreamForOutputLast != null) {
-            result.setSecond(lastEventRStreamForOutputLast);
-            lastEventRStreamForOutputLast = null;
-        }
-
-        return result;
+        return outputLastHelper.outputJoin(isSynthesize);
     }
 
     private void getSelectListEvent(boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, boolean join)

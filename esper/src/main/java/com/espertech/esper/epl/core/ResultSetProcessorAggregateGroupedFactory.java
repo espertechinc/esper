@@ -124,6 +124,10 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
     }
 
+    public boolean isOutputAll() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
+
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.AGGREGATED_GROUPED;
     }

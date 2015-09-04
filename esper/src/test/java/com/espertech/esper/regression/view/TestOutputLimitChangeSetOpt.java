@@ -11,23 +11,19 @@
 
 package com.espertech.esper.regression.view;
 
-import com.espertech.esper.client.*;
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.support.ResultAssertExecution;
-import com.espertech.esper.regression.support.ResultAssertTestResult;
 import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanString;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -52,6 +48,13 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         listener = null;
     }
 
+    public void testInvalid() {
+        SupportMessageAssertUtil.tryInvalid(epService,
+                "@Hint('enable_outputlimit_opt') select sum(intPrimitive) " +
+                        "from SupportBean output last every 4 events order by theString",
+                "Error starting statement: Error in the output rate limiting clause: The ENABLE_OUTPUTLIMIT_OPT hint is not supported with order-by");
+    }
+
     public void testCases() {
         AtomicLong currentTime = new AtomicLong(0);
         sendTime(currentTime.get());
@@ -62,6 +65,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         runAssertion(currentTime, 0, false, "intPrimitive", null, null, "last", "order by intPrimitive");
 
         runAssertion(currentTime, 5, false, "intPrimitive", null, null, "all", null);
+        runAssertion(currentTime, 0, true, "intPrimitive", null, null, "all", null);
 
         runAssertion(currentTime, 0, false, "intPrimitive", null, null, "first", null);
 
@@ -70,6 +74,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         runAssertion(currentTime, 0, true, "count(*)", null, null, "last", null);
 
         runAssertion(currentTime, 5, false, "count(*)", null, null, "all", null);
+        runAssertion(currentTime, 0, true, "count(*)", null, null, "all", null);
 
         runAssertion(currentTime, 0, false, "count(*)", null, null, "first", null);
         runAssertion(currentTime, 0, false, "count(*)", null, "having count(*) > 0", "first", null);
@@ -78,7 +83,8 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         runAssertion(currentTime, 5, false, "theString, count(*)", null, null, "last", null);
         runAssertion(currentTime, 0, true, "theString, count(*)", null, null, "last", null);
 
-        runAssertion(currentTime, 5, true, "theString, count(*)", null, null, "all", null);
+        runAssertion(currentTime, 5, false, "theString, count(*)", null, null, "all", null);
+        runAssertion(currentTime, 0, true, "theString, count(*)", null, null, "all", null);
 
         runAssertion(currentTime, 0, true, "theString, count(*)", null, null, "first", null);
         runAssertion(currentTime, 0, true, "theString, count(*)", null, "having count(*) > 0", "first", null);
@@ -88,6 +94,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         runAssertion(currentTime, 0, true, "theString, count(*)", "group by theString", null, "last", null);
 
         runAssertion(currentTime, 5, false, "theString, count(*)", "group by theString", null, "all", null);
+        runAssertion(currentTime, 0, true, "theString, count(*)", "group by theString", null, "all", null);
 
         runAssertion(currentTime, 0, false, "theString, count(*)", "group by theString", null, "first", null);
 

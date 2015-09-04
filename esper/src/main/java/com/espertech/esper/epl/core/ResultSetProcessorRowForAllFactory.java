@@ -12,6 +12,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.spec.OutputLimitLimitType;
+import com.espertech.esper.epl.spec.OutputLimitSpec;
 
 /**
  * Result set processor prototype for the case: aggregation functions used in the select clause, and no group-by,
@@ -24,6 +26,7 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
     private final boolean isHistoricalOnly;
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingNode;
+    private final OutputLimitSpec outputLimitSpec;
 
     /**
      * Ctor.
@@ -36,13 +39,15 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
                                               ExprEvaluator optionalHavingNode,
                                               boolean isSelectRStream,
                                               boolean isUnidirectional,
-                                              boolean isHistoricalOnly)
+                                              boolean isHistoricalOnly,
+                                              OutputLimitSpec outputLimitSpec)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.outputLimitSpec = outputLimitSpec;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -76,5 +81,13 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED;
+    }
+
+    public boolean isOutputLast() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
+    }
+
+    public boolean isOutputAll() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
     }
 }

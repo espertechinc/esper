@@ -72,11 +72,19 @@ public class TestAggregateWithRollupOutputRate extends TestCase
     }
 
     public void testOutputAllNonJoin() {
-        runAssertionOutputAll(false);
+        runAssertionOutputAll(false, false);
+    }
+
+    public void testOutputAllNonJoinHinted() {
+        runAssertionOutputAll(false, true);
     }
 
     public void testOutputAllJoin() {
-        runAssertionOutputAll(true);
+        runAssertionOutputAll(true, false);
+    }
+
+    public void testOutputAllJoinHinted() {
+        runAssertionOutputAll(true, true);
     }
 
     public void testOutputAllSortedNonJoin() {
@@ -191,9 +199,18 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         execution.execute();
     }
 
-    public void test3OutputLimitAll()
+    public void test3OutputLimitAll() {
+        runAssertion3OutputLimitAll(false);
+    }
+
+    public void test3OutputLimitAllHinted() {
+        runAssertion3OutputLimitAll(true);
+    }
+
+    private void runAssertion3OutputLimitAll(boolean hinted)
     {
-        String stmtText = "select symbol, sum(price) " +
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
+        String stmtText = hint + "select symbol, sum(price) " +
                 "from MarketData.win:time(5.5 sec)" +
                 "group by rollup(symbol)" +
                 "output all every 1 seconds";
@@ -714,11 +731,12 @@ public class TestAggregateWithRollupOutputRate extends TestCase
                         {"E1", 1, 210L}, {"E1", 1, 300L}});
     }
 
-    private void runAssertionOutputAll(boolean join) {
+    private void runAssertionOutputAll(boolean join, boolean hinted) {
 
+        String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
                 "from SupportBean.win:time(3.5 sec) " + (join ? ", SupportBean_S0.std:lastevent()" : "") +
                 "group by rollup(theString, intPrimitive) " +

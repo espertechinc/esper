@@ -17,10 +17,10 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
+import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.agg.rollup.GroupByRollupKey;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
@@ -43,7 +43,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     protected AgentInstanceContext agentInstanceContext;
 
     // For output rate limiting, as temporary buffer of to keep a representative event for each group
-    private final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
+    protected final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
 
     private final Map<Object, OutputConditionPolled>[] outputState;
 
@@ -51,7 +51,8 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     private final Map<Object, EventBean[]>[] eventPerGroupJoinBuf;
 
     private final EventArrayAndSortKeyArray rstreamEventSortArrayPair;
-    protected final Map<Object, EventBean>[] groupRepsOutputLastUnordRStream;
+    private final ResultSetProcessorRowPerGroupRollupOutputLastHelper outputLastHelper;
+    private final ResultSetProcessorRowPerGroupRollupOutputAllHelper outputAllHelper;
 
     public ResultSetProcessorRowPerGroupRollup(ResultSetProcessorRowPerGroupRollupFactory prototype, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
@@ -79,15 +80,27 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
         if (prototype.getOutputLimitSpec() != null) {
             outputLimitGroupRepsPerLevel = (LinkedHashMap<Object, EventBean[]>[]) new LinkedHashMap[levelCount];
-            groupRepsOutputLastUnordRStream = (LinkedHashMap<Object, EventBean>[]) new LinkedHashMap[levelCount];
             for (int i = 0; i < levelCount; i++) {
                 outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
-                groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
+            }
+
+            if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
+                outputLastHelper = new ResultSetProcessorRowPerGroupRollupOutputLastHelper(this, outputLimitGroupRepsPerLevel.length);
+                outputAllHelper = null;
+            }
+            else if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
+                outputAllHelper = new ResultSetProcessorRowPerGroupRollupOutputAllHelper(this, outputLimitGroupRepsPerLevel.length);
+                outputLastHelper = null;
+            }
+            else {
+                outputLastHelper = null;
+                outputAllHelper = null;
             }
         }
         else {
             outputLimitGroupRepsPerLevel = null;
-            groupRepsOutputLastUnordRStream = null;
+            outputLastHelper = null;
+            outputAllHelper = null;
         }
 
         // Allocate output state for output-first
@@ -946,7 +959,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         generateOutputBatched(join, mk, level, eventsPerStream, isNewData, isSynthesize, resultList, sortKeys);
     }
 
-    private void generateOutputBatched(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
+    protected void generateOutputBatched(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null)
@@ -966,7 +979,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         }
     }
 
-    private void generateOutputBatchedMapUnsorted(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents) {
+    protected void generateOutputBatchedMapUnsorted(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents) {
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null)
@@ -1395,122 +1408,36 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         }
     }
 
-    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        // apply to aggregates
-        Object[] groupKeysPerLevel = new Object[prototype.getGroupByRollupDesc().getLevels().length];
-        EventBean[] eventsPerStream;
-        if (newData != null) {
-            for (EventBean aNewData : newData) {
-                eventsPerStream = new EventBean[] {aNewData};
-                Object groupKeyComplete = generateGroupKey(eventsPerStream, true);
-                for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                    Object groupKey = level.computeSubkey(groupKeyComplete);
-                    groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
-                        if (prototype.isSelectRStream()) {
-                            generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
-                        }
-                    }
-                }
-                aggregationService.applyEnter(eventsPerStream, groupKeysPerLevel, agentInstanceContext);
-            }
+    public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processView(newData, oldData, isGenerateSynthetic);
         }
-        if (oldData != null) {
-            for (EventBean anOldData : oldData) {
-                eventsPerStream = new EventBean[] {anOldData};
-                Object groupKeyComplete = generateGroupKey(eventsPerStream, false);
-                for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                    Object groupKey = level.computeSubkey(groupKeyComplete);
-                    groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
-                        if (prototype.isSelectRStream()) {
-                            generateOutputBatchedMapUnsorted(true, groupKey, level, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
-                        }
-                    }
-                }
-                aggregationService.applyLeave(eventsPerStream, groupKeysPerLevel, agentInstanceContext);
-            }
+        else {
+            outputLastHelper.processView(newData, oldData, isGenerateSynthetic);
         }
     }
 
-    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
-        // apply to aggregates
-        Object[] groupKeysPerLevel = new Object[prototype.getGroupByRollupDesc().getLevels().length];
-        EventBean[] eventsPerStream;
-        if (newEvents != null) {
-            for (MultiKey<EventBean> newEvent : newEvents) {
-                EventBean[] aNewData = newEvent.getArray();
-                Object groupKeyComplete = generateGroupKey(aNewData, true);
-                for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                    Object groupKey = level.computeSubkey(groupKeyComplete);
-                    groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData) == null) {
-                        if (prototype.isSelectRStream()) {
-                            generateOutputBatchedMapUnsorted(false, groupKey, level, aNewData, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
-                        }
-                    }
-                }
-                aggregationService.applyEnter(aNewData, groupKeysPerLevel, agentInstanceContext);
-            }
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
         }
-        if (oldEvents != null) {
-            for (MultiKey<EventBean> oldEvent : oldEvents) {
-                EventBean[] aOldData = oldEvent.getArray();
-                Object groupKeyComplete = generateGroupKey(aOldData, false);
-                for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                    Object groupKey = level.computeSubkey(groupKeyComplete);
-                    groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aOldData) == null) {
-                        if (prototype.isSelectRStream()) {
-                            generateOutputBatchedMapUnsorted(true, groupKey, level, aOldData, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
-                        }
-                    }
-                }
-                aggregationService.applyLeave(aOldData, groupKeysPerLevel, agentInstanceContext);
-            }
+        else {
+            outputLastHelper.processJoin(newEvents, oldEvents, isGenerateSynthetic);
         }
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputView(isSynthesize);
+        }
+        return outputLastHelper.outputView(isSynthesize);
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
-    }
-
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
-
-        List<EventBean> newEvents = new ArrayList<EventBean>(4);
-        for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-            Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
-            for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
-                generateOutputBatched(false, entry.getKey(), level, entry.getValue(), true, isSynthesize, newEvents, null);
-            }
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputJoin(isSynthesize);
         }
-        EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
-        for (Map<Object, EventBean[]> outputLimitGroupRepsPerLevelItem : outputLimitGroupRepsPerLevel) {
-            outputLimitGroupRepsPerLevelItem.clear();
-        }
-
-        EventBean[] oldEventsArr = null;
-        if (groupRepsOutputLastUnordRStream != null) {
-            List<EventBean> oldEventList = new ArrayList<EventBean>(4);
-            for (Map<Object, EventBean> entry : groupRepsOutputLastUnordRStream) {
-                oldEventList.addAll(entry.values());
-            }
-            if (!oldEventList.isEmpty()) {
-                oldEventsArr = oldEventList.toArray(new EventBean[oldEventList.size()]);
-                for (Map<Object, EventBean> groupRepsOutputLastUnordRStreamItem : groupRepsOutputLastUnordRStream) {
-                    groupRepsOutputLastUnordRStreamItem.clear();
-                }
-            }
-        }
-
-        if (newEventsArr == null && oldEventsArr == null) {
-            return null;
-        }
-        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+        return outputLastHelper.outputJoin(isSynthesize);
     }
 
     private UniformPair<EventBean[]> convertToArrayMaySort(List<EventBean> newEvents, List<Object> newEventsSortKey, List<EventBean> oldEvents, List<Object> oldEventsSortKey) {

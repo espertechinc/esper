@@ -77,12 +77,12 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionFirstPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         }
-        else if (conditionType == ConditionType.POLICY_LAST_UNORDERED) {
+        else if (conditionType == ConditionType.POLICY_LASTALL_UNORDERED) {
             if (super.postProcessFactory == null) {
-                return new OutputProcessViewConditionLastUnord(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
+                return new OutputProcessViewConditionLastAllUnord(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
-            return new OutputProcessViewConditionLastUnordPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
+            return new OutputProcessViewConditionLastAllUnordPostProcessAll(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         }
         else {
             if (super.postProcessFactory == null) {
@@ -124,7 +124,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     public static enum ConditionType {
         SNAPSHOT,
         POLICY_FIRST,
-        POLICY_LAST_UNORDERED,
+        POLICY_LASTALL_UNORDERED,
         POLICY_NONFIRST
     }
 }

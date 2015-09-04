@@ -111,9 +111,14 @@ public class OutputProcessViewFactoryFactory
                 OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation);
                 boolean hasOrderBy = statementSpec.getOrderByList() != null && statementSpec.getOrderByList().length > 0;
                 OutputProcessViewConditionFactory.ConditionType conditionType;
-                boolean hasOptHint = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
                 boolean hasAfter = outputLimitSpec.getAfterNumberOfEvents() != null || outputLimitSpec.getAfterTimePeriodExpr() != null;
                 boolean isUnaggregatedUngrouped = resultSetProcessorType == ResultSetProcessorType.HANDTHROUGH || resultSetProcessorType == ResultSetProcessorType.UNAGGREGATED_UNGROUPED;
+
+                // hint checking with order-by
+                boolean hasOptHint = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
+                if (hasOptHint && hasOrderBy) {
+                    throw new ExprValidationException("The " + HintEnum.ENABLE_OUTPUTLIMIT_OPT + " hint is not supported with order-by");
+                }
 
                 if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT) {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.SNAPSHOT;
@@ -125,10 +130,13 @@ public class OutputProcessViewFactoryFactory
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_FIRST;
                 }
                 else if (isUnaggregatedUngrouped && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LAST_UNORDERED;
+                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
+                }
+                else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL && !hasOrderBy) {
+                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
                 }
                 else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST && !hasOrderBy) {
-                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LAST_UNORDERED;
+                    conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
                 }
                 else {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_NONFIRST;

@@ -130,12 +130,29 @@ public class TestOutputLimitRowForAll extends TestCase
         runAssertion56(stmtText, "all");
     }
 
+    public void test9AllNoHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec) " +
+                "output all every 1 seconds";
+        runAssertion56(stmtText, "all");
+    }
+
     public void test10AllNoHavingJoin()
     {
         String stmtText = "select sum(price) " +
                             "from MarketData.win:time(5.5 sec), " +
                             "SupportBean.win:keepall() where theString=symbol " +
                             "output all every 1 seconds";
+        runAssertion56(stmtText, "all");
+    }
+
+    public void test10AllNoHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
 
@@ -148,6 +165,15 @@ public class TestOutputLimitRowForAll extends TestCase
         runAssertion78(stmtText, "all");
     }
 
+    public void test11AllHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec) " +
+                "having sum(price) > 100" +
+                "output all every 1 seconds";
+        runAssertion78(stmtText, "all");
+    }
+
     public void test12AllHavingJoin()
     {
         String stmtText = "select sum(price) " +
@@ -155,6 +181,16 @@ public class TestOutputLimitRowForAll extends TestCase
                             "SupportBean.win:keepall() where theString=symbol " +
                             "having sum(price) > 100" +
                             "output all every 1 seconds";
+        runAssertion78(stmtText, "all");
+    }
+
+    public void test12AllHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "having sum(price) > 100" +
+                "output all every 1 seconds";
         runAssertion78(stmtText, "all");
     }
 

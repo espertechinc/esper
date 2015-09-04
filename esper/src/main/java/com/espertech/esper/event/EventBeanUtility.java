@@ -893,6 +893,62 @@ public class EventBeanUtility
         return buf.toString();
     }
 
+    public static void addToCollection(EventBean[] toAdd, Collection<EventBean> events) {
+        if (toAdd == null) {
+            return;
+        }
+        Collections.addAll(events, toAdd);
+    }
+
+    public static void addToCollection(Set<MultiKey<EventBean>> toAdd, Collection<MultiKey<EventBean>> events) {
+        if (toAdd == null) {
+            return;
+        }
+        events.addAll(toAdd);
+    }
+
+    public static EventBean[] toArrayNullIfEmpty(Collection<EventBean> events) {
+        if (events == null || events.isEmpty()) {
+            return null;
+        }
+        return events.toArray(new EventBean[events.size()]);
+    }
+
+    public static Set<MultiKey<EventBean>> toLinkedHashSetNullIfEmpty(Collection<MultiKey<EventBean>> events) {
+        if (events == null || events.isEmpty()) {
+            return null;
+        }
+        return new LinkedHashSet<MultiKey<EventBean>>(events);
+    }
+
+    public static Set<MultiKey<EventBean>> toSingletonSetIfNotNull(MultiKey<EventBean> row) {
+        if (row == null) {
+            return null;
+        }
+        return Collections.singleton(row);
+    }
+
+    public static MultiKey<EventBean> getLastInSet(Set<MultiKey<EventBean>> events) {
+        if (events.isEmpty()) {
+            return null;
+        }
+        int count = 0;
+        for (MultiKey<EventBean> row : events) {
+            count++;
+            if (count == events.size()) {
+                return row;
+            }
+        }
+        throw new IllegalStateException("Cannot get last on empty collection");
+    }
+
+    public static EventBean[] toArrayIfNotNull(EventBean optionalEvent) {
+        if (optionalEvent == null) {
+            return null;
+        }
+        return new EventBean[] {optionalEvent};
+    }
+
     private static boolean findEvent(EventBean theEvent, EventBean[][] eventsPerView) {
         for (int i = 0; i < eventsPerView.length; i++) {
             if (eventsPerView[i] == null) {

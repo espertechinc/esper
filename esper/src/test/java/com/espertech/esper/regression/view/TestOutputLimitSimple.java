@@ -127,12 +127,29 @@ public class TestOutputLimitSimple extends TestCase
         runAssertion56(stmtText, "all");
     }
 
+    public void test9AllNoHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec) " +
+                "output all every 1 seconds";
+        runAssertion56(stmtText, "all");
+    }
+
     public void test10AllNoHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData.win:time(5.5 sec), " +
                             "SupportBean.win:keepall() where theString=symbol " +
                             "output all every 1 seconds";
+        runAssertion56(stmtText, "all");
+    }
+
+    public void test10AllNoHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
 
@@ -145,6 +162,15 @@ public class TestOutputLimitSimple extends TestCase
         runAssertion78(stmtText, "all");
     }
 
+    public void test11AllHavingNoJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec) " +
+                "having price > 10" +
+                "output all every 1 seconds";
+        runAssertion78(stmtText, "all");
+    }
+
     public void test12AllHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
@@ -152,6 +178,16 @@ public class TestOutputLimitSimple extends TestCase
                             "SupportBean.win:keepall() where theString=symbol " +
                             "having price > 10" +
                             "output all every 1 seconds";
+        runAssertion78(stmtText, "all");
+    }
+
+    public void test12AllHavingJoinHinted()
+    {
+        String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "having price > 10" +
+                "output all every 1 seconds";
         runAssertion78(stmtText, "all");
     }
 
@@ -650,23 +686,29 @@ public class TestOutputLimitSimple extends TestCase
         listener.reset();
     }
 
-    public void testSimpleNoJoinAll()
+    public void testSimpleNoJoinAll() {
+        runAssertionSimpleNoJoinAll(false);
+        runAssertionSimpleNoJoinAll(true);
+    }
+
+    public void runAssertionSimpleNoJoinAll(boolean hinted)
 	{
-	    String viewExpr = "select longBoxed " +
-	    "from " + SupportBean.class.getName() + ".win:length(3) " +
-	    "output all every 2 events";
+        String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
+	    String viewExpr = hint + "select longBoxed " +
+                          "from " + SupportBean.class.getName() + ".win:length(3) " +
+                          "output all every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
 
-	    viewExpr = "select longBoxed " +
-	    "from " + SupportBean.class.getName() + ".win:length(3) " +
-	    "output every 2 events";
+	    viewExpr =  hint + "select longBoxed " +
+	                "from " + SupportBean.class.getName() + ".win:length(3) " +
+	                "output every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
 
-	    viewExpr = "select * " +
-	    "from " + SupportBean.class.getName() + ".win:length(3) " +
-	    "output every 2 events";
+	    viewExpr =  hint + "select * " +
+	                "from " + SupportBean.class.getName() + ".win:length(3) " +
+	                "output every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
 	}
@@ -688,13 +730,20 @@ public class TestOutputLimitSimple extends TestCase
 
     public void testSimpleJoinAll()
 	{
-	    String viewExpr = "select longBoxed  " +
-	    "from " + SupportBeanString.class.getName() + ".win:length(3) as one, " +
-	    SupportBean.class.getName() + ".win:length(3) as two " +
-	    "output all every 2 events";
+        runAssertionSimpleJoinAll(false);
+        runAssertionSimpleJoinAll(true);
+    }
 
-		runAssertAll(createStmtAndListenerJoin(viewExpr));
-	}
+    private void runAssertionSimpleJoinAll(boolean hinted)
+    {
+        String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
+        String viewExpr = hint + "select longBoxed  " +
+                "from " + SupportBeanString.class.getName() + ".win:length(3) as one, " +
+                SupportBean.class.getName() + ".win:length(3) as two " +
+                "output all every 2 events";
+
+        runAssertAll(createStmtAndListenerJoin(viewExpr));
+    }
 
     private SupportUpdateListener createStmtAndListenerNoJoin(String viewExpr) {
 		epService.initialize();

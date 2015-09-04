@@ -52,7 +52,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     protected final Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
 
     private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
-    protected Map<Object, EventBean> groupRepsOutputLastUnordRStream;
+    private ResultSetProcessorRowPerGroupOutputLastHelper outputLastHelper;
+    private ResultSetProcessorRowPerGroupOutputAllHelper outputAllHelper;
 
     public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
@@ -64,7 +65,10 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         aggregationService.setRemovedCallback(this);
 
         if (prototype.isOutputLast()) {
-            groupRepsOutputLastUnordRStream = new LinkedHashMap<Object, EventBean>();
+            outputLastHelper = new ResultSetProcessorRowPerGroupOutputLastHelper(this);
+        }
+        else if (prototype.isOutputAll()) {
+            outputAllHelper = new ResultSetProcessorRowPerGroupOutputAllHelper(this);
         }
     }
 
@@ -289,7 +293,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return events;
     }
 
-    private void generateOutputBatched(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys, AgentInstanceContext agentInstanceContext)
+    private void generateOutputBatchedRow(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys, AgentInstanceContext agentInstanceContext)
     {
         EventBean[] eventsPerStream = new EventBean[1];
 
@@ -321,15 +325,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    private void generateOutputBatchedArr(boolean join, Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    protected void generateOutputBatchedArr(boolean join, Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         for (Map.Entry<Object, EventBean[]> entry : keysAndEvents.entrySet())
         {
-            generateOutputBatched(join, entry.getKey(), entry.getValue(), isNewData, isSynthesize, resultEvents, optSortKeys);
+            generateOutputBatchedRow(join, entry.getKey(), entry.getValue(), isNewData, isSynthesize, resultEvents, optSortKeys);
         }
     }
 
-    private void generateOutputBatched(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    private void generateOutputBatchedRow(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         // Set the current row of aggregation states
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
@@ -354,7 +358,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    private void generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents)
+    protected void generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents)
     {
         // Set the current row of aggregation states
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
@@ -746,7 +750,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
                         aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
@@ -763,7 +767,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
 
@@ -849,7 +853,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -879,7 +883,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -955,7 +959,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -998,7 +1002,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -1077,7 +1081,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
                         aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
@@ -1094,7 +1098,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
 
@@ -1166,7 +1170,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                 if (prototype.isSelectRStream())
                 {
-                    generateOutputBatched(keysAndEvents, false, generateSynthetic, oldEvents, oldEventsSortKey, agentInstanceContext);
+                    generateOutputBatchedRow(keysAndEvents, false, generateSynthetic, oldEvents, oldEventsSortKey, agentInstanceContext);
                 }
 
                 EventBean[] eventsPerStream = new EventBean[1];
@@ -1193,7 +1197,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     }
                 }
 
-                generateOutputBatched(keysAndEvents, true, generateSynthetic, newEvents, newEventsSortKey, agentInstanceContext);
+                generateOutputBatchedRow(keysAndEvents, true, generateSynthetic, newEvents, newEventsSortKey, agentInstanceContext);
 
                 keysAndEvents.clear();
             }
@@ -1267,7 +1271,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
                         aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
@@ -1285,7 +1289,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
 
@@ -1373,7 +1377,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -1404,7 +1408,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -1479,7 +1483,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(false, mk, eventsPerStream, true, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(false, mk, eventsPerStream, true, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -1521,7 +1525,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                                 {
                                     if (prototype.isSelectRStream())
                                     {
-                                        generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                        generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                     }
                                 }
                             }
@@ -1595,7 +1599,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
                         aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
@@ -1613,7 +1617,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         {
                             if (prototype.isSelectRStream())
                             {
-                                generateOutputBatched(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                                generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                             }
                         }
 
@@ -1711,85 +1715,35 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    public void processOutputLimitedLastNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        if (newData != null) {
-            for (EventBean aNewData : newData) {
-                EventBean[] eventsPerStream = new EventBean[] {aNewData};
-                Object mk = generateGroupKey(eventsPerStream, true);
-
-                // if this is a newly encountered group, generate the remove stream event
-                if (groupRepsView.put(mk, eventsPerStream) == null) {
-                    if (prototype.isSelectRStream()) {
-                        generateOutputBatchedNoSortWMap(false, mk, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
-                    }
-                }
-                aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
-            }
+    public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processView(newData, oldData, isGenerateSynthetic);
         }
-        if (oldData != null) {
-            for (EventBean anOldData : oldData) {
-                EventBean[] eventsPerStream = new EventBean[] {anOldData};
-                Object mk = generateGroupKey(eventsPerStream, true);
-
-                if (groupRepsView.put(mk, eventsPerStream) == null) {
-                    if (prototype.isSelectRStream()) {
-                        generateOutputBatchedNoSortWMap(false, mk, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
-                    }
-                }
-
-                aggregationService.applyLeave(eventsPerStream, mk, agentInstanceContext);
-            }
+        else {
+            outputLastHelper.processView(newData, oldData, isGenerateSynthetic);
         }
     }
 
-    public void processOutputLimitedLastNonBufferedJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic) {
-        if (newData != null) {
-            for (MultiKey<EventBean> aNewData : newData) {
-                Object mk = generateGroupKey(aNewData.getArray(), true);
-                if (groupRepsView.put(mk, aNewData.getArray()) == null) {
-                    if (prototype.isSelectRStream()) {
-                        generateOutputBatchedNoSortWMap(true, mk, aNewData.getArray(), false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
-                    }
-                }
-                aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
-            }
+    public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic, boolean isAll) {
+        if (isAll) {
+            outputAllHelper.processJoin(newData, oldData, isGenerateSynthetic);
         }
-        if (oldData != null) {
-            for (MultiKey<EventBean> anOldData : oldData) {
-                Object mk = generateGroupKey(anOldData.getArray(), true);
-                if (groupRepsView.put(mk, anOldData.getArray()) == null) {
-                    if (prototype.isSelectRStream()) {
-                        generateOutputBatchedNoSortWMap(true, mk, anOldData.getArray(), false, isGenerateSynthetic, groupRepsOutputLastUnordRStream);
-                    }
-                }
-                aggregationService.applyLeave(anOldData.getArray(), mk, agentInstanceContext);
-            }
+        else {
+            outputLastHelper.processJoin(newData, oldData, isGenerateSynthetic);
         }
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedView(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputView(isSynthesize);
+        }
+        return outputLastHelper.outputView(isSynthesize);
     }
 
-    public UniformPair<EventBean[]> continueOutputLimitedLastNonBufferedJoin(boolean isSynthesize) {
-        return continueOutputLimitedLastNonBuffered(isSynthesize);
-    }
-
-    private UniformPair<EventBean[]> continueOutputLimitedLastNonBuffered(boolean isSynthesize) {
-        List<EventBean> newEvents = new ArrayList<EventBean>(4);
-        generateOutputBatchedArr(false, groupRepsView, true, isSynthesize, newEvents, null);
-        groupRepsView.clear();
-        EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
-
-        EventBean[] oldEventsArr = null;
-        if (groupRepsOutputLastUnordRStream != null && !groupRepsOutputLastUnordRStream.isEmpty()) {
-            Collection<EventBean> oldEvents = groupRepsOutputLastUnordRStream.values();
-            oldEventsArr = oldEvents.toArray(new EventBean[oldEvents.size()]);
+    public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
+        if (isAll) {
+            return outputAllHelper.outputJoin(isSynthesize);
         }
-
-        if (newEventsArr == null && oldEventsArr == null) {
-            return null;
-        }
-        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+        return outputLastHelper.outputJoin(isSynthesize);
     }
 }

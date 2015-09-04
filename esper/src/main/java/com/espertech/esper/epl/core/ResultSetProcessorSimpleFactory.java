@@ -12,6 +12,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.spec.OutputLimitLimitType;
+import com.espertech.esper.epl.spec.OutputLimitSpec;
 
 /**
  * Result set processor prototype for the simplest case: no aggregation functions used in the select clause, and no group-by.
@@ -21,6 +23,7 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     private final boolean isSelectRStream;
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingExpr;
+    private final OutputLimitSpec outputLimitSpec;
 
     /**
      * Ctor.
@@ -30,11 +33,13 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
      */
     public ResultSetProcessorSimpleFactory(SelectExprProcessor selectExprProcessor,
                                            ExprEvaluator optionalHavingNode,
-                                           boolean isSelectRStream)
+                                           boolean isSelectRStream,
+                                           OutputLimitSpec outputLimitSpec)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingExpr = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
+        this.outputLimitSpec = outputLimitSpec;
     }
 
     public ResultSetProcessorType getResultSetProcessorType() {
@@ -60,5 +65,13 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
 
     public ExprEvaluator getOptionalHavingExpr() {
         return optionalHavingExpr;
+    }
+
+    public boolean isOutputLast() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
+    }
+
+    public boolean isOutputAll() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
     }
 }

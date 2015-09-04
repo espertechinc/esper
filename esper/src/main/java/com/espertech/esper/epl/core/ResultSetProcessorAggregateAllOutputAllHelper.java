@@ -11,17 +11,19 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.event.EventBeanUtility;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Set;
 
-public class ResultSetProcessorAggregateAllOutputLastHelper
+public class ResultSetProcessorAggregateAllOutputAllHelper
 {
     private final ResultSetProcessorAggregateAll processor;
+    private final Deque<EventBean> eventsOld = new ArrayDeque<EventBean>(2);
+    private final Deque<EventBean> eventsNew = new ArrayDeque<EventBean>(2);
 
-    private EventBean lastEventIStreamForOutputLast;
-    private EventBean lastEventRStreamForOutputLast;
-
-    public ResultSetProcessorAggregateAllOutputLastHelper(ResultSetProcessorAggregateAll processor) {
+    public ResultSetProcessorAggregateAllOutputAllHelper(ResultSetProcessorAggregateAll processor) {
         this.processor = processor;
     }
 
@@ -36,35 +38,24 @@ public class ResultSetProcessorAggregateAllOutputLastHelper
     }
 
     public UniformPair<EventBean[]> output() {
-        UniformPair<EventBean[]> newOldEvents = null;
-        if (lastEventIStreamForOutputLast != null) {
-            EventBean[] istream = new EventBean[] {lastEventIStreamForOutputLast};
-            newOldEvents = new UniformPair<EventBean[]>(istream, null);
-        }
-        if (lastEventRStreamForOutputLast != null) {
-            EventBean[] rstream = new EventBean[] {lastEventRStreamForOutputLast};
-            if (newOldEvents == null) {
-                newOldEvents = new UniformPair<EventBean[]>(null, rstream);
-            }
-            else {
-                newOldEvents.setSecond(rstream);
-            }
+        EventBean[] oldEvents = EventBeanUtility.toArrayNullIfEmpty(eventsOld);
+        EventBean[] newEvents = EventBeanUtility.toArrayNullIfEmpty(eventsNew);
+
+        UniformPair<EventBean[]> result = null;
+        if (oldEvents != null || newEvents != null) {
+            result = new UniformPair<EventBean[]>(newEvents, oldEvents);
         }
 
-        lastEventIStreamForOutputLast = null;
-        lastEventRStreamForOutputLast = null;
-        return newOldEvents;
+        eventsOld.clear();
+        eventsNew.clear();
+        return result;
     }
 
     private void apply(UniformPair<EventBean[]> pair) {
         if (pair == null) {
             return;
         }
-        if (pair.getFirst() != null && pair.getFirst().length > 0) {
-            lastEventIStreamForOutputLast = pair.getFirst()[pair.getFirst().length - 1];
-        }
-        if (pair.getSecond() != null && pair.getSecond().length > 0) {
-            lastEventRStreamForOutputLast = pair.getSecond()[pair.getSecond().length - 1];
-        }
+        EventBeanUtility.addToCollection(pair.getFirst(), eventsNew);
+        EventBeanUtility.addToCollection(pair.getSecond(), eventsOld);
     }
 }
