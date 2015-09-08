@@ -11,6 +11,7 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateVariable;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateVariableDesc;
+import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
@@ -27,6 +28,7 @@ import com.espertech.esper.epl.variable.*;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactoryFactory;
+import com.espertech.esper.util.DestroyCallback;
 import com.espertech.esper.view.StatementStopCallback;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
@@ -77,7 +79,8 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             throw new ExprValidationException("Cannot create variable: " + ex.getMessage(), ex);
         }
 
-        EPStatementDestroyMethod destroyMethod = new EPStatementDestroyMethod() {
+        EPStatementDestroyCallbackList destroyMethod = new EPStatementDestroyCallbackList();
+        destroyMethod.addCallback(new DestroyCallback() {
             public void destroy() {
                 try {
                     services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
@@ -86,7 +89,7 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
                     log.error("Error removing variable '" + createDesc.getVariableName() + "': " + ex.getMessage());
                 }
             }
-        };
+        });
 
         EPStatementStopMethod stopMethod = new EPStatementStopMethod(){
             public void stop()
@@ -104,6 +107,13 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             outputView = mergeView;
             ContextManagedStatementCreateVariableDesc statement = new ContextManagedStatementCreateVariableDesc(statementSpec, statementContext, mergeView, contextFactory);
             services.getContextManagementService().addStatement(statementSpec.getOptionalContextName(), statement, isRecoveringResilient);
+
+            final ContextManagementService contextManagementService = services.getContextManagementService();
+            destroyMethod.addCallback(new DestroyCallback() {
+                public void destroy() {
+                    contextManagementService.destroyedStatement(statementSpec.getOptionalContextName(), statementContext.getStatementName(), statementContext.getStatementId());
+                    }
+                });
         }
         else {
             // allocate
@@ -132,10 +142,9 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             OutputProcessViewBase outputViewBase = outputViewFactory.makeView(resultSetProcessor, agentInstanceContext);
             createView.addView(outputViewBase);
             outputView = outputViewBase;
-
-            services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), Collections.singleton(createDesc.getVariableName()), null);
         }
 
+        services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), Collections.singleton(createDesc.getVariableName()), null);
         return new EPStatementStartResult(outputView, stopMethod, destroyMethod);
     }
 }

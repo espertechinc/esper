@@ -13,6 +13,9 @@ package com.espertech.esper.regression.context;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.ContextPartitionVariableState;
+import com.espertech.esper.client.deploy.DeploymentException;
+import com.espertech.esper.client.deploy.DeploymentResult;
+import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -23,6 +26,7 @@ import com.espertech.esper.support.bean.SupportBean_S2;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +88,7 @@ public class TestContextVariables extends TestCase {
         }
     }
 
-    public void testOverlapping() {
+    public void testOverlapping() throws ParseException, DeploymentException, IOException {
         String[] fields = "mycontextvar".split(",");
         epService.getEPAdministrator().createEPL("create context MyCtx as " +
                 "initiated by SupportBean_S0 s0 terminated by SupportBean_S1(p10 = s0.p00)");
@@ -125,6 +129,18 @@ public class TestContextVariables extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {5});
 
         epService.getEPAdministrator().destroyAllStatements();
+
+        // test module deployment and undeployment
+        String epl = "@Name(\"context\")\n" +
+                "create context MyContext\n" +
+                "initiated by distinct(theString) SupportBean as input\n" +
+                "terminated by SupportBean(theString = input.theString);\n" +
+                "\n" +
+                "@Name(\"ctx variable counter\")\n" +
+                "context MyContext create variable integer counter = 0;\n";
+        DeploymentResult result = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+        epService.getEPAdministrator().getDeploymentAdmin().undeploy(result.getDeploymentId());
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
     }
 
     public void testIterateAndListen() {
