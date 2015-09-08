@@ -238,16 +238,16 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         	currentGenerators = new EventBean[outputEvents.length][];
         }
 
-        int count = 0;
-        for (int i = 0; i < outputEvents.length; i++)
+        int countOutputRows = 0;
+        for (int countInputRows = 0; countInputRows < outputEvents.length; countInputRows++)
         {
-            aggregationService.setCurrentAccess(groupByKeys[count], agentInstanceContext.getAgentInstanceId(), null);
-            eventsPerStream[0] = outputEvents[count];
+            aggregationService.setCurrentAccess(groupByKeys[countInputRows], agentInstanceContext.getAgentInstanceId(), null);
+            eventsPerStream[0] = outputEvents[countInputRows];
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null)
             {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(outputEvents[count]);}
+                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(outputEvents[countInputRows]);}
                 Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(result);}
                 if ((result == null) || (!result)) {
@@ -255,37 +255,37 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                 }
             }
 
-            events[count] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
-            keys[count] = groupByKeys[count];
+            events[countOutputRows] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
+            keys[countOutputRows] = groupByKeys[countInputRows];
             if(prototype.isSorting())
             {
-            	EventBean[] currentEventsPerStream = new EventBean[] { outputEvents[count] };
-            	generators.put(keys[count], currentEventsPerStream);
-            	currentGenerators[count] = currentEventsPerStream;
+            	EventBean[] currentEventsPerStream = new EventBean[] { outputEvents[countInputRows] };
+            	generators.put(keys[countOutputRows], currentEventsPerStream);
+            	currentGenerators[countOutputRows] = currentEventsPerStream;
             }
 
-            count++;
+            countOutputRows++;
         }
 
         // Resize if some rows were filtered out
-        if (count != events.length)
+        if (countOutputRows != events.length)
         {
-            if (count == 0)
+            if (countOutputRows == 0)
             {
                 return null;
             }
-            EventBean[] outEvents = new EventBean[count];
-            System.arraycopy(events, 0, outEvents, 0, count);
+            EventBean[] outEvents = new EventBean[countOutputRows];
+            System.arraycopy(events, 0, outEvents, 0, countOutputRows);
             events = outEvents;
 
             if(prototype.isSorting())
             {
-            	Object[] outKeys = new Object[count];
-            	System.arraycopy(keys, 0, outKeys, 0, count);
+            	Object[] outKeys = new Object[countOutputRows];
+            	System.arraycopy(keys, 0, outKeys, 0, countOutputRows);
             	keys = outKeys;
 
-            	EventBean[][] outGens = new EventBean[count][];
-            	System.arraycopy(currentGenerators, 0, outGens, 0, count);
+            	EventBean[][] outGens = new EventBean[countOutputRows][];
+            	System.arraycopy(currentGenerators, 0, outGens, 0, countOutputRows);
             	currentGenerators = outGens;
             }
         }
@@ -391,12 +391,14 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         	currentGenerators = new EventBean[resultSet.size()][];
         }
 
-        int count = 0;
+        int countOutputRows = 0;
+        int countInputRows = -1;
         for (MultiKey<EventBean> row : resultSet)
         {
+            countInputRows++;
             EventBean[] eventsPerStream = row.getArray();
 
-            aggregationService.setCurrentAccess(groupByKeys[count], agentInstanceContext.getAgentInstanceId(), null);
+            aggregationService.setCurrentAccess(groupByKeys[countInputRows], agentInstanceContext.getAgentInstanceId(), null);
 
             // Filter the having clause
             if (prototype.getOptionalHavingNode() != null)
@@ -410,36 +412,36 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                 }
             }
 
-            events[count] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
-            keys[count] = groupByKeys[count];
+            events[countOutputRows] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
+            keys[countOutputRows] = groupByKeys[countInputRows];
             if(prototype.isSorting())
             {
-            	generators.put(keys[count], eventsPerStream);
-            	currentGenerators[count] = eventsPerStream;
+            	generators.put(keys[countOutputRows], eventsPerStream);
+            	currentGenerators[countOutputRows] = eventsPerStream;
             }
 
-            count++;
+            countOutputRows++;
         }
 
         // Resize if some rows were filtered out
-        if (count != events.length)
+        if (countOutputRows != events.length)
         {
-            if (count == 0)
+            if (countOutputRows == 0)
             {
                 return null;
             }
-            EventBean[] outEvents = new EventBean[count];
-            System.arraycopy(events, 0, outEvents, 0, count);
+            EventBean[] outEvents = new EventBean[countOutputRows];
+            System.arraycopy(events, 0, outEvents, 0, countOutputRows);
             events = outEvents;
 
             if(prototype.isSorting())
             {
-            	Object[] outKeys = new Object[count];
-            	System.arraycopy(keys, 0, outKeys, 0, count);
+            	Object[] outKeys = new Object[countOutputRows];
+            	System.arraycopy(keys, 0, outKeys, 0, countOutputRows);
             	keys = outKeys;
 
-            	EventBean[][] outGens = new EventBean[count][];
-            	System.arraycopy(currentGenerators, 0, outGens, 0, count);
+            	EventBean[][] outGens = new EventBean[countOutputRows][];
+            	System.arraycopy(currentGenerators, 0, outGens, 0, countOutputRows);
             	currentGenerators = outGens;
             }
         }

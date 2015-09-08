@@ -14,9 +14,12 @@ package com.espertech.esper.regression.view;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.bean.SupportBeanString;
 import com.espertech.esper.support.client.SupportConfigFactory;
@@ -44,6 +47,33 @@ public class TestGroupByEventPerRowHaving extends TestCase
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         testListener = null;
+    }
+
+    public void testGroupByHaving() {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
+
+        runAssertionGroupByHaving(false);
+        runAssertionGroupByHaving(true);
+    }
+
+    private void runAssertionGroupByHaving(boolean join) {
+        String epl = !join ?
+                "select * from SupportBean.win:length_batch(3) group by theString having count(*) > 1" :
+                "select theString, intPrimitive from SupportBean_S0.std:lastevent(), SupportBean.win:length_batch(3) group by theString having count(*) > 1";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(testListener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 21));
+
+        EventBean[] received = testListener.getNewDataListFlattened();
+        EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive".split(","),
+                new Object[][] {{"E2", 20}, {"E2", 21}});
+        testListener.reset();
+        stmt.destroy();
     }
 
     public void testSumOneView()
