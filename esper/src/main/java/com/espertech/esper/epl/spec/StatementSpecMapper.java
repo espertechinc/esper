@@ -2330,9 +2330,13 @@ public class StatementSpecMapper
                     return script;
                 }
             }
-            return new ExprDotNode(chain,
+            ExprDotNode dotNode = new ExprDotNode(chain,
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isDuckTyping(),
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isUdfCache());
+            if (dotNode.isVariableOp(mapContext.getVariableService())) {
+                mapContext.setHasVariables(true);
+            }
+            return dotNode;
         }
         else if (expr instanceof LambdaExpression) {
             LambdaExpression theBase = (LambdaExpression) expr;

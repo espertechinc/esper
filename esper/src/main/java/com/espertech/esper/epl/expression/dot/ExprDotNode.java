@@ -547,6 +547,12 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
         return ExprNodeUtility.collectChainParameters(chainSpec);
     }
 
+    public boolean isVariableOp(VariableService variableService) {
+        return chainSpec.size() > 0 &&
+                chainSpec.get(0).isProperty() &&
+                variableService.getVariableMetaData(chainSpec.get(0).getName()) != null;
+    }
+
     private ExprValidationException handleNotFound(String name) {
         return new ExprValidationException("Unknown single-row function, expression declaration, script or aggregation function named '" + name + "' could not be resolved");
     }

@@ -37,6 +37,7 @@ import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionDeclDesc;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
+import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.LazyAllocatedMap;
@@ -115,7 +116,8 @@ public class ASTLibFunctionHelper {
                                      List<ExpressionScriptProvided> scriptExpressions,
                                      ContextDescriptor contextDescriptor,
                                      TableService tableService,
-                                     StatementSpecRaw statementSpec) {
+                                     StatementSpecRaw statementSpec,
+                                     VariableService variableService) {
 
         ASTLibModel model = getModel(ctx, tokenStream);
         boolean duckType = configurationInformation.getEngineDefaults().getExpression().isDuckTyping();
@@ -140,6 +142,9 @@ public class ASTLibFunctionHelper {
             chain.add(new ExprChainedSpec(model.getOptionalClassIdent(), Collections.<ExprNode>emptyList(), true));
             chain.add(chainSpec);
             ExprDotNode dotNode = new ExprDotNode(chain, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(), configurationInformation.getEngineDefaults().getExpression().isUdfCache());
+            if (dotNode.isVariableOp(variableService)) {
+                statementSpec.setHasVariables(true);
+            }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, ctx, astExprNodeMap);
             return;
         }

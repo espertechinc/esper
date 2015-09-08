@@ -32,6 +32,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TestVariables extends TestCase
 {
@@ -56,6 +59,37 @@ public class TestVariables extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
         listenerSet = null;
+    }
+
+    public void testDotVariableSeparateThread() throws Exception {
+
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getConfiguration().addVariable("mySimpleVariableService", MySimpleVariableService.class, null);
+        epService.getEPRuntime().setVariableValue("mySimpleVariableService", new MySimpleVariableService());
+
+        EPStatement epStatement = epService.getEPAdministrator().createEPL("select mySimpleVariableService.doSomething() as c0 from SupportBean");
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final List<String> values = new ArrayList<String>();
+        epStatement.setSubscriber(new Object() {
+            public void update(final Map<?, ?> event) {
+                String value = (String) event.get("c0");
+                values.add(value);
+                latch.countDown();
+            }
+        });
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(new Runnable() {
+            public void run() {
+                epService.getEPRuntime().sendEvent(new SupportBean());
+            }
+        });
+        latch.await();
+        executorService.shutdownNow();
+
+        assertEquals(1, values.size());
+        assertEquals("hello", values.get(0));
     }
 
     public void testInvokeMethod() {

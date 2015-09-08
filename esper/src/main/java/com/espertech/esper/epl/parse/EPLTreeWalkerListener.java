@@ -320,7 +320,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     }
 
     public void exitLibFunction(@NotNull EsperEPL2GrammarParser.LibFunctionContext ctx) {
-        ASTLibFunctionHelper.handleLibFunc(tokenStream, ctx, configurationInformation, engineImportService, astExprNodeMap, plugInAggregations, engineURI, expressionDeclarations, exprDeclaredService, scriptExpressions, contextDescriptor, tableService, statementSpec);
+        ASTLibFunctionHelper.handleLibFunc(tokenStream, ctx, configurationInformation, engineImportService, astExprNodeMap, plugInAggregations, engineURI, expressionDeclarations, exprDeclaredService, scriptExpressions, contextDescriptor, tableService, statementSpec, variableService);
     }
 
     public void exitMatchRecog(@NotNull EsperEPL2GrammarParser.MatchRecogContext ctx) {
