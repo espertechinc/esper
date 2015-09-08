@@ -16,10 +16,22 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:https://github.com/espertechinc/esper</connection>
-		<developerConnection>scm:git:https://github.com/espertechinc/esper</developerConnection>
-		<url>https://github.com/espertechinc/esper</url>
+		<url>https://github.com/espertechinc/esper.git</url>
+		<developerConnection>scm:git:git@github.com:espertechinc/esper.git</developerConnection>
+		<connection>scm:git:git@github.com:espertechinc/esper.git</connection>
 	</scm>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus snapshot repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Sonatype Nexus release repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 	<developers>
 		<developer>
 			<id>espertech</id>
@@ -94,12 +106,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<artifactId>maven-site-plugin</artifactId>
-				<configuration>
-					<locales>en</locales>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
@@ -159,6 +165,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.5</version>
+				<configuration>
+					<passphrase>${gpg.passphrase}</passphrase>
+				</configuration>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
