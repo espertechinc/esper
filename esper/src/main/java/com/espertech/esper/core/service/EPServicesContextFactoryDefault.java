@@ -540,7 +540,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 expression.isUdfCache(), expression.isDuckTyping(),
                 configSnapshot.getEngineDefaults().getLanguage().isSortUsingCollator(),
                 configSnapshot.getEngineDefaults().getExpression().getMathContext(),
-                configSnapshot.getEngineDefaults().getExpression().getTimeZone());
+                configSnapshot.getEngineDefaults().getExpression().getTimeZone(),
+                configSnapshot.getEngineDefaults().getExecution().getThreadingProfile());
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports

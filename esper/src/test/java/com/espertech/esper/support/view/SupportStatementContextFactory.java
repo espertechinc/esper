@@ -21,7 +21,6 @@ import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -34,6 +33,7 @@ import com.espertech.esper.event.vaevent.ValueAddEventServiceImpl;
 import com.espertech.esper.pattern.PatternObjectResolutionServiceImpl;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
+import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
 import com.espertech.esper.util.ManagedReadWriteLock;
@@ -43,7 +43,6 @@ import com.espertech.esper.view.ViewResolutionServiceImpl;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.TimeZone;
 
 public class SupportStatementContextFactory
 {
@@ -109,7 +108,7 @@ public class SupportStatementContextFactory
                 new PatternObjectResolutionServiceImpl(null),
                 null,
                 null,
-                new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null),
+                new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null),
                 null,
                 null,
                 new StatementResultServiceImpl("name", null, null, new ThreadingServiceImpl(new ConfigurationEngineDefaults.Threading())), // statement result svc

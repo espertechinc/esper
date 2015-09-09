@@ -8,10 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
-import com.espertech.esper.client.ConfigurationMethodRef;
-import com.espertech.esper.client.ConfigurationPlugInAggregationFunction;
-import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
-import com.espertech.esper.client.ConfigurationPlugInSingleRowFunction;
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -176,4 +173,6 @@ public interface EngineImportService
     public MathContext getDefaultMathContext();
 
     public TimeZone getTimeZone();
+
+    public ConfigurationEngineDefaults.ThreadingProfile getThreadingProfile();
 }

@@ -50,12 +50,13 @@ public class EngineImportServiceImpl implements EngineImportService
     private final boolean sortUsingCollator;
     private final MathContext optionalDefaultMathContext;
     private final TimeZone timeZone;
+    private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
 
     /**
 	 * Ctor
      * @param allowExtendedAggregationFunc true to allow non-SQL standard builtin agg functions.
 	 */
-	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone)
+	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile)
     {
         imports = new ArrayList<String>();
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
@@ -68,6 +69,7 @@ public class EngineImportServiceImpl implements EngineImportService
         this.sortUsingCollator = sortUsingCollator;
         this.optionalDefaultMathContext = optionalDefaultMathContext;
         this.timeZone = timeZone;
+        this.threadingProfile = threadingProfile;
     }
 
     public boolean isUdfCache() {
@@ -565,6 +567,10 @@ public class EngineImportServiceImpl implements EngineImportService
 
     public TimeZone getTimeZone() {
         return timeZone;
+    }
+
+    public ConfigurationEngineDefaults.ThreadingProfile getThreadingProfile() {
+        return threadingProfile;
     }
 
     public boolean isSortUsingCollator() {

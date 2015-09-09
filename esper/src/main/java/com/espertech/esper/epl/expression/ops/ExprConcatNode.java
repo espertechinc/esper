@@ -8,41 +8,25 @@
  **************************************************************************************/
 package com.espertech.esper.epl.expression.ops;
 
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 
 /**
- * Represents a simple Math (+/-/divide/*) in a filter expression tree.
+ * Represents a string concatenation.
  */
-public class ExprConcatNode extends ExprNodeBase implements ExprEvaluator
+public class ExprConcatNode extends ExprNodeBase
 {
-    private StringBuffer buffer;
-    private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = 5811427566733004327L;
-
-    /**
-     * Ctor.
-     */
-    public ExprConcatNode()
-    {
-        buffer = new StringBuffer();
-    }
-
-    public ExprEvaluator getExprEvaluator()
-    {
-        return this;
-    }
+    private ExprEvaluator evaluator;
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
     {
-        if (this.getChildNodes().length < 2)
-        {
+        if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("Concat node must have at least 2 parameters");
         }
-        evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
+        ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         for (int i = 0; i < evaluators.length; i++)
         {
@@ -55,36 +39,26 @@ public class ExprConcatNode extends ExprNodeBase implements ExprEvaluator
                         "' to string is not allowed");
             }
         }
+
+        ConfigurationEngineDefaults.ThreadingProfile threadingProfile = validationContext.getMethodResolutionService().getEngineImportService().getThreadingProfile();
+        if (threadingProfile == ConfigurationEngineDefaults.ThreadingProfile.LARGE) {
+            this.evaluator = new ExprConcatNodeEvalWNew(this, evaluators);
+        }
+        else {
+            this.evaluator = new ExprConcatNodeEvalThreadLocal(this, evaluators);
+        }
+
         return null;
     }
 
-    public Class getType()
+    public ExprEvaluator getExprEvaluator()
     {
-        return String.class;
+        return evaluator;
     }
 
     public boolean isConstantResult()
     {
         return false;
-    }
-
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprConcat(this);}
-        buffer.delete(0, buffer.length());
-        for (ExprEvaluator child : evaluators)
-        {
-            String result = (String) child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (result == null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprConcat(null);}
-                return null;
-            }
-            buffer.append(result);
-        }
-        String result = buffer.toString();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprConcat(result);}
-        return result;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
