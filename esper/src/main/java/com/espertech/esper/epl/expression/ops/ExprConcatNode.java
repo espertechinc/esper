@@ -19,7 +19,13 @@ import java.io.StringWriter;
  */
 public class ExprConcatNode extends ExprNodeBase implements ExprEvaluator
 {
-    private StringBuffer buffer;
+
+    private ThreadLocal<StringBuffer> localBuffer = new ThreadLocal<StringBuffer>() {
+        @Override
+        protected StringBuffer initialValue() {
+            return new StringBuffer();
+        }
+    };
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = 5811427566733004327L;
 
@@ -28,7 +34,6 @@ public class ExprConcatNode extends ExprNodeBase implements ExprEvaluator
      */
     public ExprConcatNode()
     {
-        buffer = new StringBuffer();
     }
 
     public ExprEvaluator getExprEvaluator()
@@ -71,6 +76,7 @@ public class ExprConcatNode extends ExprNodeBase implements ExprEvaluator
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprConcat(this);}
+        final StringBuffer buffer = localBuffer.get();
         buffer.delete(0, buffer.length());
         for (ExprEvaluator child : evaluators)
         {
