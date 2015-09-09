@@ -29,6 +29,7 @@ import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
+import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.core.SupportExprEvaluatorContext;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
@@ -41,7 +42,6 @@ import com.espertech.esper.view.window.LengthWindowViewFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TimeZone;
 
 public class SupportExprNodeFactory
 {
@@ -440,6 +440,6 @@ public class SupportExprNodeFactory
 
     public static MethodResolutionService getMethodResService()
     {
-        return new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null);
+        return new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null);
     }
 }

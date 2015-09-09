@@ -11,6 +11,7 @@
 
 package com.espertech.esper.util;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportServiceImpl;
@@ -25,7 +26,7 @@ public class TestJsonUtil extends TestCase {
     private EngineImportService engineImportService;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault());
+        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL);
     }
 
     protected void tearDown() {

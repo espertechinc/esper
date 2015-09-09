@@ -14,18 +14,16 @@ package com.espertech.esper.support.epl.parse;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.pattern.PatternNodeFactoryImpl;
+import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
 import org.antlr.v4.runtime.CommonTokenStream;
-
-import java.util.TimeZone;
 
 public class SupportEPLTreeWalkerFactory
 {
@@ -36,6 +34,6 @@ public class SupportEPLTreeWalkerFactory
 
     public static EPLTreeWalkerListener makeWalker(CommonTokenStream tokenStream)
     {
-        return makeWalker(tokenStream, new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
+        return makeWalker(tokenStream, SupportEngineImportServiceFactory.make(), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
     }
 }

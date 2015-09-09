@@ -23,6 +23,7 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.epl.SupportSelectExprFactory;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
 import com.espertech.esper.support.event.SupportEventAdapterService;
@@ -32,7 +33,6 @@ import junit.framework.TestCase;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
 
 public class TestSelectExprEvalProcessor extends TestCase
 {
@@ -45,7 +45,7 @@ public class TestSelectExprEvalProcessor extends TestCase
         EventAdapterService eventAdapterService = SupportEventAdapterService.getService();
         SupportValueAddEventService vaeService = new SupportValueAddEventService();
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
-        MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault()), null);
+        MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null);
 
         methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl());
 

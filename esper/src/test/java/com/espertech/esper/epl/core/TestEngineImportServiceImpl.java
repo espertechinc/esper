@@ -12,12 +12,11 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.ConfigurationPlugInAggregationFunction;
-import com.espertech.esper.support.epl.SupportPluginAggregationMethodOne;
+import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.epl.SupportPluginAggregationMethodOneFactory;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
-import java.util.TimeZone;
 
 public class TestEngineImportServiceImpl extends TestCase
 {
@@ -25,7 +24,7 @@ public class TestEngineImportServiceImpl extends TestCase
 
     public void setUp()
     {
-        this.engineImportService = new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault());
+        this.engineImportService = SupportEngineImportServiceFactory.make();
     }
 
     public void testResolveMethodNoArgTypes() throws Exception
