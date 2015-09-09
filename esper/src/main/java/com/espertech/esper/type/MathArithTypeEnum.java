@@ -193,7 +193,10 @@ public enum MathArithTypeEnum
         }
         if (this == DIVIDE)
         {
-            return new DivideBigDecConvComputer(convertorOne, convertorTwo, divisionByZeroReturnsNull);
+            if (optionalMathContext == null) {
+                return new DivideBigDecConvComputerNoMathCtx(convertorOne, convertorTwo, divisionByZeroReturnsNull);
+            }
+            return new DivideBigDecConvComputerWithMathCtx(convertorOne, convertorTwo, divisionByZeroReturnsNull, optionalMathContext);
         }
         return new ModuloDouble();
     }
@@ -732,19 +735,21 @@ public enum MathArithTypeEnum
     /**
      * Computer for math op.
      */
-    public static class DivideBigDecConvComputer implements Computer
+    public abstract static class DivideBigDecConvComputerBase implements Computer
     {
         private final SimpleNumberBigDecimalCoercer convOne;
         private final SimpleNumberBigDecimalCoercer convTwo;
         private final boolean divisionByZeroReturnsNull;
 
+        public abstract Number doDivide(BigDecimal s1, BigDecimal s2);
+
         /**
          * Ctor.
          * @param convOne convertor for LHS
          * @param convTwo convertor for RHS
-         * @param divisionByZeroReturnsNull false for division-by-zero returns infinity, true for null  
+         * @param divisionByZeroReturnsNull false for division-by-zero returns infinity, true for null
          */
-        public DivideBigDecConvComputer(SimpleNumberBigDecimalCoercer convOne, SimpleNumberBigDecimalCoercer convTwo, boolean divisionByZeroReturnsNull)
+        public DivideBigDecConvComputerBase(SimpleNumberBigDecimalCoercer convOne, SimpleNumberBigDecimalCoercer convTwo, boolean divisionByZeroReturnsNull)
         {
             this.convOne = convOne;
             this.convTwo = convTwo;
@@ -767,7 +772,32 @@ public enum MathArithTypeEnum
                     return new BigDecimal(result);
                 }
             }
+            return doDivide(s1, s2);
+        }
+    }
+
+    public static class DivideBigDecConvComputerNoMathCtx extends DivideBigDecConvComputerBase
+    {
+        public DivideBigDecConvComputerNoMathCtx(SimpleNumberBigDecimalCoercer convOne, SimpleNumberBigDecimalCoercer convTwo, boolean divisionByZeroReturnsNull) {
+            super(convOne, convTwo, divisionByZeroReturnsNull);
+        }
+
+        public Number doDivide(BigDecimal s1, BigDecimal s2) {
             return s1.divide(s2);
+        }
+    }
+
+    public static class DivideBigDecConvComputerWithMathCtx extends DivideBigDecConvComputerBase
+    {
+        private final MathContext mathContext;
+
+        public DivideBigDecConvComputerWithMathCtx(SimpleNumberBigDecimalCoercer convOne, SimpleNumberBigDecimalCoercer convTwo, boolean divisionByZeroReturnsNull, MathContext mathContext) {
+            super(convOne, convTwo, divisionByZeroReturnsNull);
+            this.mathContext = mathContext;
+        }
+
+        public Number doDivide(BigDecimal s1, BigDecimal s2) {
+            return s1.divide(s2, mathContext);
         }
     }
 
