@@ -1,7 +1,7 @@
 /*
  * *************************************************************************************
- *  Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
- *  http://esper.codehaus.org                                                          *
+ *  Copyright (C) 2006-2015 EsperTech, Inc. All rights reserved.                       *
+ *  http://www.espertech.com/esper                                                     *
  *  http://www.espertech.com                                                           *
  *  ---------------------------------------------------------------------------------- *
  *  The software in this package is published under the terms of the GPL license       *
