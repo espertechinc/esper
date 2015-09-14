@@ -108,6 +108,8 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
 
         epService.getEPRuntime().sendEvent(new SupportBean("I", 1));
         assertTrue(handler.getContexts().isEmpty());
+
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
     public void testTwoStatementNoDelete()

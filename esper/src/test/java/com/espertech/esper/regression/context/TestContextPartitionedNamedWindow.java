@@ -326,6 +326,8 @@ public class TestContextPartitionedNamedWindow extends TestCase {
 
     public void testNonOverlappingSubqueryAndInvalid() throws Exception
     {
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();} // using a separate engine instance
+
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.getEngineDefaults().getExecution().setPrioritized(true);
         epService = EPServiceProviderManager.getDefaultProvider(configuration);

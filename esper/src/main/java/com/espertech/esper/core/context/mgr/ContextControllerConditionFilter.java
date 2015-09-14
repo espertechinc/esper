@@ -68,7 +68,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
         }
 
         filterHandle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), filterCallback);
-        FilterValueSet filterValueSet = endpointFilterSpec.getFilterSpecCompiled().getValueSet(null, null, addendum);
+        FilterValueSet filterValueSet = endpointFilterSpec.getFilterSpecCompiled().getValueSet(null, agentInstanceContext, addendum);
         filterServiceEntry = servicesContext.getFilterService().add(filterValueSet, filterHandle);
         long filtersVersion = servicesContext.getFilterService().getFiltersVersion();
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
