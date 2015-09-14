@@ -1,6 +1,25 @@
 Esper Changelog
 ===================
 
+Changes in version 5.3.0
+------------------------
+  - Support for match recognize to have a maximum state count
+  - Support for output rate limiting hints
+  - Support for filter expression rewrite hint
+  - Support for stateless statements to have no listener dispatch or insert into latches
+  - Support for configuring an engine-wide default time zone
+  - Support for insert-into into a stream without any properties to use a select-clause that selects only "null"
+  - Many other improvements across the code and documentation that are not explicitly listed above
+
+Bug fixes and other improvements
+  - Fixed issue Github#5 Problem parsing "09" as number
+  - Fixed issue Github#20 BigDecimal coercing divider not using math context when provided
+  - Fixed issue Github#21 Concat expression not thread safe
+  - Fixed issue RPK97299663 create-variable with context not releasing variable on undeploy with deployment admin
+  - Fixed issue GOH20636441 aggregated with grouped and having clause incorrect result for non-join and join
+  - Fixed issue KKL27099184 variable with dot-method not current value when used from separate thread
+  - Fixed issue PJJ14258829 bad error message for property-not-found and enum method
+
 Changes in version 5.2.0
 ------------------------
   - Support for aggregation functions to specify the level of grouping in the parameter list, removing the need for separate subqueries for many use cases
