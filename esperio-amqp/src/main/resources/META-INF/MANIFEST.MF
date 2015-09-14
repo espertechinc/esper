@@ -5,7 +5,7 @@ Bundle-Name: Esper CEP engine for Java - AMQP Input Output Adapters
 Bundle-RequiredExecutionEnvironment: J2SE-1.6, J2SE-1.7
 Bundle-Vendor: EsperTech
 Built-By: EsperTech
-Build-Jdk: 1.6.0_23
+Build-Jdk: 1.6.0_45
 Bundle-Version: 4.9.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.espertech.esperio-amqp
