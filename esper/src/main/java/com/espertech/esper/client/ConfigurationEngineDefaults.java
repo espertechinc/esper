@@ -1188,6 +1188,8 @@ public class ConfigurationEngineDefaults implements Serializable
      */
     public static class MatchRecognize implements Serializable
     {
+        private static final long serialVersionUID = 4541565245238216789L;
+        
         private Long maxStates;
         private boolean maxStatesPreventStart = true;
 
