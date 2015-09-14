@@ -40,7 +40,6 @@ public class RouteResultView extends ViewSupport
      * @param isFirst true for the first-where clause, false for all where-clauses
      * @param eventType output type
      * @param epStatementHandle handle
-     * @param internalEventRouters routing output events
      * @param processors processors for select clauses
      * @param whereClauses where expressions
      * @param agentInstanceContext agent instance context

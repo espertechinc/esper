@@ -19,6 +19,7 @@ import com.espertech.esper.timer.TimeSourceService;
 public class InsertIntoLatchFactory
 {
     private final String name;
+    private final boolean stateless;
     private final boolean useSpin;
     private final TimeSourceService timeSourceService;
     private final long msecWait;
@@ -33,12 +34,13 @@ public class InsertIntoLatchFactory
      * @param locking the blocking strategy to employ
      * @param timeSourceService time source provider
      */
-    public InsertIntoLatchFactory(String name, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
+    public InsertIntoLatchFactory(String name, boolean stateless, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
                                   TimeSourceService timeSourceService)
     {
         this.name = name;
         this.msecWait = msecWait;
         this.timeSourceService = timeSourceService;
+        this.stateless = stateless;
 
         useSpin = (locking == ConfigurationEngineDefaults.Threading.Locking.SPIN);
 
@@ -62,6 +64,9 @@ public class InsertIntoLatchFactory
      */
     public Object newLatch(EventBean payload)
     {
+        if (stateless) {
+            return payload;
+        }
         if (useSpin)
         {
             InsertIntoLatchSpin nextLatch = new InsertIntoLatchSpin(this, currentLatchSpin, msecWait, payload);
@@ -70,7 +75,7 @@ public class InsertIntoLatchFactory
         }
         else
         {
-            InsertIntoLatchWait nextLatch = new InsertIntoLatchWait(this, currentLatchWait, msecWait, payload);
+            InsertIntoLatchWait nextLatch = new InsertIntoLatchWait(currentLatchWait, msecWait, payload);
             currentLatchWait.setLater(nextLatch);
             currentLatchWait = nextLatch;
             return nextLatch;

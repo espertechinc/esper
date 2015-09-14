@@ -632,6 +632,10 @@ config.getEngineDefaults().getThreading().setListenerDispatchPreserveOrder(false
 config.getEngineDefaults().getThreading().setInsertIntoDispatchPreserveOrder(false);]]></programlisting>
 
 			<para>
+				If your application declares only stateless EPL statements then the settings described herein are not relevant. 
+			</para>
+
+			<para>
 				Additional configuration options are available and described in the configuration section that specify timeout values and spin or thread context switching.
 			</para>
 

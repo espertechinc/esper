@@ -213,6 +213,14 @@ public class TestInsertInto extends TestCase
         runAsserts(stmtText, null);
     }
 
+    public void testVariantOneStateless()
+    {
+        String stmtTextStateless = "insert into Event_1 (delta, product) " +
+                "select intPrimitive - intBoxed as deltaTag, intPrimitive * intBoxed as productTag " +
+                "from " + SupportBean.class.getName();
+        runAsserts(stmtTextStateless, null);
+    }
+
     public void testVariantOneWildcard()
     {
         String stmtText = "insert into Event_1 (delta, product) " +

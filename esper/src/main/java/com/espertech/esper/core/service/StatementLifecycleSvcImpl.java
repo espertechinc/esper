@@ -300,8 +300,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             String latchFactoryNameFront = "insert_stream_F_" + insertIntoStreamName + "_" + statementName;
             long msecTimeout = services.getEngineSettingsService().getEngineSettings().getThreading().getInsertIntoDispatchTimeout();
             ConfigurationEngineDefaults.Threading.Locking locking = services.getEngineSettingsService().getEngineSettings().getThreading().getInsertIntoDispatchLocking();
-            InsertIntoLatchFactory latchFactoryFront = new InsertIntoLatchFactory(latchFactoryNameFront, msecTimeout, locking, services.getTimeSource());
-            InsertIntoLatchFactory latchFactoryBack = new InsertIntoLatchFactory(latchFactoryNameBack, msecTimeout, locking, services.getTimeSource());
+            InsertIntoLatchFactory latchFactoryFront = new InsertIntoLatchFactory(latchFactoryNameFront, stateless, msecTimeout, locking, services.getTimeSource());
+            InsertIntoLatchFactory latchFactoryBack = new InsertIntoLatchFactory(latchFactoryNameBack, stateless, msecTimeout, locking, services.getTimeSource());
             statementContext.getEpStatementHandle().setInsertIntoFrontLatchFactory(latchFactoryFront);
             statementContext.getEpStatementHandle().setInsertIntoBackLatchFactory(latchFactoryBack);
         }
@@ -364,7 +364,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         try
         {
             // create statement - may fail for parser and simple validation errors
-            boolean preserveDispatchOrder = services.getEngineSettingsService().getEngineSettings().getThreading().isListenerDispatchPreserveOrder();
+            boolean preserveDispatchOrder = services.getEngineSettingsService().getEngineSettings().getThreading().isListenerDispatchPreserveOrder()
+                    && !stateless;
             boolean isSpinLocks = services.getEngineSettingsService().getEngineSettings().getThreading().getListenerDispatchLocking() == ConfigurationEngineDefaults.Threading.Locking.SPIN;
             long blockingTimeout = services.getEngineSettingsService().getEngineSettings().getThreading().getListenerDispatchTimeout();
             long timeLastStateChange = services.getSchedulingService().getTime();

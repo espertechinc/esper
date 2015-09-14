@@ -1373,7 +1373,8 @@ class MyOwnDataSourceFactory {
 				<title>Preserving the order of events delivered to listeners</title>
 
 				<para>
-					In multithreaded environments, this setting controls whether dispatches of statement result events to listeners preserve the ordering in which a statement processes events. By default the engine guarantees that it delivers a statement's result events to statement listeners in the order in which the result is generated. This behavior can be turned off via configuration as below. 
+					In multithreaded environments, this setting controls whether dispatches of statement result events to listeners preserve the ordering in which a statement processes events. By default the engine guarantees that it delivers a statement's result events to statement listeners in the order in which the result is generated. This behavior can be turned off via configuration as below. This behavior applies to stateful statements
+					and not to stateless statements as stateless statements execute lock-free.
 				</para>
 				
 				<para>
@@ -1411,7 +1412,7 @@ engine = EPServiceProviderManager.getDefaultProvider(config);]]></programlisting
 				<title>Preserving the order of events for insert-into streams</title>
 
 				<para>
-					In multithreaded environments, this setting controls whether statements producing events for other statements via insert-into preserve the order of delivery within the producing and consuming statements, allowing statements that consume other statement's events to behave deterministic in multithreaded applications, if the consuming statement requires such determinism. By default, the engine makes this guarantee (the setting is on).
+					In multithreaded environments, this setting controls whether statements producing events for other statements via insert-into preserve the order of delivery within the producing and consuming statements, allowing statements that consume other statement's events to behave deterministic in multithreaded applications, if the consuming statement requires such determinism. By default, the engine makes this guarantee (the setting is on). This behavior applies to stateful statements and not to stateless statements as stateless statements execute lock-free.
 				</para>
 
 				<para>
