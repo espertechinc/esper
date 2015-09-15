@@ -6,6 +6,7 @@
 	<version>5.3.0</version>
 	<packaging>jar</packaging>
 	<description>EsperIO Socket</description>
+	<url>http://www.espertech.com/esper</url>
 	<inceptionYear>2005</inceptionYear>
 	<licenses>
 		<license>
