@@ -117,7 +117,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
         }
 
         if (factoryContext.getNestingLevel() == 1) {
-            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getStateCache(), factoryContext.getOutermostContextName());
+            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getFactoryContext().getStateCache(), factoryContext.getOutermostContextName());
         }
         if (controllerState == null) {
             return;
@@ -142,7 +142,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
         }
         partitionKeys.clear();
         filterCallbacks.clear();
-        factory.getStateCache().removeContextParentPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId);
+        factory.getFactoryContext().getStateCache().removeContextParentPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId);
     }
 
     public synchronized void create(Object key, EventBean theEvent) {
@@ -169,7 +169,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
         partitionKeys.put(key, handle);
 
         Object[] keyObjectSaved = getKeyObjectsAccountForMultikey(key);
-        factory.getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), keyObjectSaved, factory.getBinding());
+        factory.getFactoryContext().getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), keyObjectSaved, factory.getBinding());
     }
 
     private Object[] getKeyObjectsAccountForMultikey(Object key) {

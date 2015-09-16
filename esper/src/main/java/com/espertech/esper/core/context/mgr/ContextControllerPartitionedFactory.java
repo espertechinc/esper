@@ -35,25 +35,19 @@ public class ContextControllerPartitionedFactory extends ContextControllerFactor
 
     private final ContextDetailPartitioned segmentedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStateCache stateCache;
     private final ContextStatePathValueBinding binding;
 
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerPartitionedFactory(ContextControllerFactoryContext factoryContext, ContextDetailPartitioned segmentedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts, ContextStateCache stateCache) {
+    public ContextControllerPartitionedFactory(ContextControllerFactoryContext factoryContext, ContextDetailPartitioned segmentedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.segmentedSpec = segmentedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.stateCache = stateCache;
-        this.binding = stateCache.getBinding(ContextControllerPartitionedState.class);
+        this.binding = factoryContext.getStateCache().getBinding(ContextControllerPartitionedState.class);
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
         return filtersSpecsNestedContexts != null && !filtersSpecsNestedContexts.isEmpty();
-    }
-
-    public ContextStateCache getStateCache() {
-        return stateCache;
     }
 
     public ContextStatePathValueBinding getBinding() {

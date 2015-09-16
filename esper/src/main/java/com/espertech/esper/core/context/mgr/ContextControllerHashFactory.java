@@ -37,25 +37,19 @@ public class ContextControllerHashFactory extends ContextControllerFactoryBase i
 
     private final ContextDetailHash hashedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStateCache stateCache;
     private final ContextStatePathValueBinding binding;
 
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerHashFactory(ContextControllerFactoryContext factoryContext, ContextDetailHash hashedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts, ContextStateCache stateCache) {
+    public ContextControllerHashFactory(ContextControllerFactoryContext factoryContext, ContextDetailHash hashedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.hashedSpec = hashedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.stateCache = stateCache;
-        this.binding = stateCache.getBinding(Integer.class);
+        this.binding = factoryContext.getStateCache().getBinding(Integer.class);
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
         return filtersSpecsNestedContexts != null && !filtersSpecsNestedContexts.isEmpty();
-    }
-
-    public ContextStateCache getStateCache() {
-        return stateCache;
     }
 
     public ContextStatePathValueBinding getBinding() {

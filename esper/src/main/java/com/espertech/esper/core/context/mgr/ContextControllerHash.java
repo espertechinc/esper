@@ -98,7 +98,7 @@ public class ContextControllerHash implements ContextController, ContextControll
         this.activationFilterAddendum = activationFilterAddendum;
 
         if (factoryContext.getNestingLevel() == 1) {
-            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getStateCache(), factoryContext.getOutermostContextName());
+            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getFactoryContext().getStateCache(), factoryContext.getOutermostContextName());
         }
         if (controllerState == null) {
 
@@ -118,7 +118,7 @@ public class ContextControllerHash implements ContextController, ContextControll
                     ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, null, i, properties, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
                     partitionKeys.put(i, handle);
 
-                    factory.getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), i, factory.getBinding());
+                    factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), i, factory.getBinding());
                 }
                 return;
             }
@@ -173,7 +173,7 @@ public class ContextControllerHash implements ContextController, ContextControll
 
         ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, id, properties, null, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
         partitionKeys.put(id, handle);
-        factory.getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), id, factory.getBinding());
+        factory.getFactoryContext().getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), id, factory.getBinding());
     }
 
     public ContextControllerFactory getFactory() {
@@ -191,7 +191,7 @@ public class ContextControllerHash implements ContextController, ContextControll
         }
         partitionKeys.clear();
         filterCallbacks.clear();
-        factory.getStateCache().removeContextParentPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId);
+        factory.getFactoryContext().getStateCache().removeContextParentPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId);
     }
 
     private void initializeFromState(EventBean optionalTriggeringEvent,

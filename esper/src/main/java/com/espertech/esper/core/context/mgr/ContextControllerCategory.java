@@ -102,7 +102,7 @@ public class ContextControllerCategory implements ContextController {
 
     public void activate(EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, ContextControllerState controllerState, ContextInternalFilterAddendum activationFilterAddendum, Integer importPathId) {
         if (factory.getFactoryContext().getNestingLevel() == 1) {
-            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getStateCache(), factory.getFactoryContext().getOutermostContextName());
+            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getFactoryContext().getStateCache(), factory.getFactoryContext().getOutermostContextName());
         }
 
         if (controllerState == null) {
@@ -121,7 +121,7 @@ public class ContextControllerCategory implements ContextController {
                 ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, optionalTriggeringEvent, optionalTriggeringPattern, count, context, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
                 handleCategories.put(count, handle);
 
-                factory.getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), count, factory.getBinding());
+                factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), count, factory.getBinding());
                 count++;
             }
             return;

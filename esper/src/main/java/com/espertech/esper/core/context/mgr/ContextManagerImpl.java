@@ -117,7 +117,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         if (rootContext != null) {
             // deactivate
             rootContext.deactivate();
-            factory.getStateCache().removeContext(contextName);
+            factory.getFactoryContext().getStateCache().removeContext(contextName);
 
             for (Map.Entry<Integer, ContextControllerTreeAgentInstanceList> entryCP : agentInstances.entrySet()) {
                 StatementAgentInstanceUtil.stopAgentInstances(entryCP.getValue().getAgentInstances(), null, servicesContext, true, false);
@@ -208,7 +208,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
             }
             ContextStatePathKey key = new ContextStatePathKey(1, 0, existingHandle.getSubPathId());
             ContextStatePathValue value = new ContextStatePathValue(existingHandle.getContextPartitionOrPathId(), payload, ContextPartitionState.STARTED);
-            rootContext.getFactory().getStateCache().updateContextPath(contextName, key, value);
+            rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, key, value);
         }
         else {
             List<AgentInstance> removed = new ArrayList<AgentInstance>(2);
@@ -296,7 +296,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
             StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
             list.clearAgentInstances();
             entry.getValue().setState(ContextPartitionState.STOPPED);
-            rootContext.getFactory().getStateCache().updateContextPath(contextName, entry.getKey(), entry.getValue());
+            rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, entry.getKey(), entry.getValue());
         }
         return states;
     }
@@ -310,7 +310,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
             ContextControllerTreeAgentInstanceList list = agentInstances.remove(agentInstanceId);
             StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
             list.clearAgentInstances();
-            rootContext.getFactory().getStateCache().removeContextPath(contextName, entry.getKey().getLevel(), entry.getKey().getParentPath(), entry.getKey().getSubPath());
+            rootContext.getFactory().getFactoryContext().getStateCache().removeContextPath(contextName, entry.getKey().getLevel(), entry.getKey().getParentPath(), entry.getKey().getSubPath());
         }
         return states;
     }
@@ -329,7 +329,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
                 AgentInstance instance = startStatement(agentInstanceId, statement.getValue(), rootContext, list.getInitPartitionKey(), list.getInitContextProperties(), false);
                 list.getAgentInstances().add(instance);
             }
-            rootContext.getFactory().getStateCache().updateContextPath(contextName, entry.getKey(), entry.getValue());
+            rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, entry.getKey(), entry.getValue());
         }
         setState(states.getContextPartitionInformation(), ContextPartitionState.STARTED);
         return states.getContextPartitionInformation();

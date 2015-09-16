@@ -30,21 +30,15 @@ import com.espertech.esper.schedule.TimeProvider;
 
 import java.util.*;
 
-public class ContextControllerInitTermFactory extends ContextControllerFactoryBase implements ContextControllerFactory {
+public abstract class ContextControllerInitTermFactoryBase extends ContextControllerFactoryBase implements ContextControllerFactory {
 
     private final ContextDetailInitiatedTerminated detail;
-    private final ContextStateCache stateCache;
-
-    private final ContextStatePathValueBinding binding;
-
     private Map<String, Object> contextBuiltinProps;
     private MatchedEventMapMeta matchedEventMapMeta;
 
-    public ContextControllerInitTermFactory(ContextControllerFactoryContext factoryContext, ContextDetailInitiatedTerminated detail, ContextStateCache stateCache) {
+    public ContextControllerInitTermFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailInitiatedTerminated detail) {
         super(factoryContext);
         this.detail = detail;
-        this.stateCache = stateCache;
-        this.binding = stateCache.getBinding(detail);
     }
 
     public void validateFactory() throws ExprValidationException {
@@ -53,14 +47,6 @@ public class ContextControllerInitTermFactory extends ContextControllerFactoryBa
         ContextPropertyEventType.addEndpointTypes(factoryContext.getContextName(), detail.getStart(), contextBuiltinProps, allTags);
         ContextPropertyEventType.addEndpointTypes(factoryContext.getContextName(), detail.getEnd(), contextBuiltinProps, allTags);
         matchedEventMapMeta = new MatchedEventMapMeta(allTags, false);
-    }
-
-    public ContextStateCache getStateCache() {
-        return stateCache;
-    }
-
-    public ContextStatePathValueBinding getBinding() {
-        return binding;
     }
 
     public Map<String, Object> getContextBuiltinProps() {
@@ -73,10 +59,6 @@ public class ContextControllerInitTermFactory extends ContextControllerFactoryBa
 
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) {
         return null;
-    }
-
-    public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback) {
-        return new ContextControllerInitTerm(pathId, callback, this);
     }
 
     public void populateFilterAddendums(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum, ContextControllerStatementDesc statement, Object key, int contextId) {
@@ -92,23 +74,6 @@ public class ContextControllerInitTermFactory extends ContextControllerFactoryBa
 
     public List<ContextDetailPartitionItem> getContextDetailPartitionItems() {
         return Collections.emptyList();
-    }
-
-    public StatementAIResourceRegistryFactory getStatementAIResourceRegistryFactory() {
-        if (detail.isOverlapping()) {
-            return new StatementAIResourceRegistryFactory() {
-                public StatementAIResourceRegistry make() {
-                    return new StatementAIResourceRegistry(new AIRegistryAggregationMultiPerm(), new AIRegistryExprMultiPerm());
-                }
-            };
-        }
-        else {
-            return new StatementAIResourceRegistryFactory() {
-                public StatementAIResourceRegistry make() {
-                    return new StatementAIResourceRegistry(new AIRegistryAggregationSingle(), new AIRegistryExprSingle());
-                }
-            };
-        }
     }
 
     public boolean isSingleInstanceContext() {
@@ -141,5 +106,22 @@ public class ContextControllerInitTermFactory extends ContextControllerFactoryBa
                 state == null ? null : state.getPatternData(),
                 state == null ? 0 : state.getStartTime(),
                 null);
+    }
+
+    public StatementAIResourceRegistryFactory getStatementAIResourceRegistryFactory() {
+        if (getContextDetail().isOverlapping()) {
+            return new StatementAIResourceRegistryFactory() {
+                public StatementAIResourceRegistry make() {
+                    return new StatementAIResourceRegistry(new AIRegistryAggregationMultiPerm(), new AIRegistryExprMultiPerm());
+                }
+            };
+        }
+        else {
+            return new StatementAIResourceRegistryFactory() {
+                public StatementAIResourceRegistry make() {
+                    return new StatementAIResourceRegistry(new AIRegistryAggregationSingle(), new AIRegistryExprSingle());
+                }
+            };
+        }
     }
 }

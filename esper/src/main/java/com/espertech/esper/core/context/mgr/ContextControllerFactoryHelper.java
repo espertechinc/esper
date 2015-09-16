@@ -78,11 +78,11 @@ public class ContextControllerFactoryHelper {
     }
 
     private static ContextControllerFactory buildContextFactory(ContextControllerFactoryServiceContext serviceContext, String contextName, ContextDetail detail, int nestingLevel, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) throws ExprValidationException {
-        ContextControllerFactoryContext factoryContext = new ContextControllerFactoryContext(serviceContext.getContextName(), contextName, serviceContext.getServicesContext(), serviceContext.getAgentInstanceContextCreate(), nestingLevel, serviceContext.isRecoveringResilient());
+        ContextControllerFactoryContext factoryContext = new ContextControllerFactoryContext(serviceContext.getContextName(), contextName, serviceContext.getServicesContext(), serviceContext.getAgentInstanceContextCreate(), nestingLevel, serviceContext.isRecoveringResilient(), contextStateCache);
         return buildContextFactory(factoryContext, detail, optFiltersNested, contextStateCache);
     }
 
     private static ContextControllerFactory buildContextFactory(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) throws ExprValidationException {
-        return factoryContext.getServicesContext().getContextControllerFactoryFactorySvc().make(factoryContext, detail, optFiltersNested, contextStateCache);
+        return factoryContext.getServicesContext().getContextControllerFactoryFactorySvc().make(factoryContext, detail, optFiltersNested);
     }
 }

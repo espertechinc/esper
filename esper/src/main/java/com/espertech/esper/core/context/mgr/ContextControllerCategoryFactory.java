@@ -36,17 +36,15 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
 
     private final ContextDetailCategory categorySpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStateCache stateCache;
     private final ContextStatePathValueBinding binding;
 
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerCategoryFactory(ContextControllerFactoryContext factoryContext, ContextDetailCategory categorySpec, List<FilterSpecCompiled> filtersSpecsNestedContexts, ContextStateCache stateCache) {
+    public ContextControllerCategoryFactory(ContextControllerFactoryContext factoryContext, ContextDetailCategory categorySpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.categorySpec = categorySpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.stateCache = stateCache;
-        this.binding = stateCache.getBinding(Integer.class);    // the integer ordinal of the category
+        this.binding = factoryContext.getStateCache().getBinding(Integer.class);    // the integer ordinal of the category
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
@@ -111,10 +109,6 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
 
     public ContextStatePathValueBinding getBinding() {
         return binding;
-    }
-
-    public ContextStateCache getStateCache() {
-        return stateCache;
     }
 
     public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback) {

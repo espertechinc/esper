@@ -17,5 +17,5 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import java.util.List;
 
 public interface ContextControllerFactoryFactorySvc {
-    public ContextControllerFactory make(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache);
+    ContextControllerFactory make(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested);
 }

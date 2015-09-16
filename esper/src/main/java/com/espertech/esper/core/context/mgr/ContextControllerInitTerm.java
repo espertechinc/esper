@@ -35,7 +35,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
 
     protected final int pathId;
     protected final ContextControllerLifecycleCallback activationCallback;
-    protected final ContextControllerInitTermFactory factory;
+    protected final ContextControllerInitTermFactoryImpl factory;
 
     protected ContextControllerCondition startCondition;
     private Map<Object, EventBean> distinctContexts;
@@ -47,7 +47,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
 
     protected int currentSubpathId;
 
-    public ContextControllerInitTerm(int pathId, ContextControllerLifecycleCallback lifecycleCallback, ContextControllerInitTermFactory factory) {
+    public ContextControllerInitTerm(int pathId, ContextControllerLifecycleCallback lifecycleCallback, ContextControllerInitTermFactoryImpl factory) {
         this.pathId = pathId;
         this.activationCallback = lifecycleCallback;
         this.factory = factory;
@@ -77,7 +77,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
     public void activate(EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, ContextControllerState controllerState, ContextInternalFilterAddendum filterAddendum, Integer importPathId) {
 
         if (factory.getFactoryContext().getNestingLevel() == 1) {
-            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getStateCache(), factory.getFactoryContext().getOutermostContextName());
+            controllerState = ContextControllerStateUtil.getRecoveryStates(factory.getFactoryContext().getStateCache(), factory.getFactoryContext().getOutermostContextName());
         }
         if (controllerState == null) {
             startCondition = makeEndpoint(factory.getContextDetail().getStart(), filterAddendum, true, 0);
@@ -99,7 +99,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 endConditions.put(endEndpoint, new ContextControllerInitTermInstance(instanceHandle, null, startTime, endTime, currentSubpathId));
 
                 ContextControllerInitTermState state = new ContextControllerInitTermState(factory.getFactoryContext().getServicesContext().getSchedulingService().getTime(), builtinProps);
-                factory.getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, instanceHandle.getContextPartitionOrPathId(), state, factory.getBinding());
+                factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, instanceHandle.getContextPartitionOrPathId(), state, factory.getBinding());
             }
 
             // non-overlapping and not currently running, or overlapping
@@ -209,7 +209,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                     startNow = startCondition instanceof ContextControllerConditionImmediate;
                 }
 
-                factory.getStateCache().removeContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, instance.getSubPathId());
+                factory.getFactoryContext().getStateCache().removeContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, instance.getSubPathId());
             }
 
             // handle start-condition notification
@@ -250,7 +250,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 installFilterFaultHandler(instanceHandle);
 
                 ContextControllerInitTermState state = new ContextControllerInitTermState(factory.getFactoryContext().getServicesContext().getSchedulingService().getTime(), builtinProperties);
-                factory.getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, instanceHandle.getContextPartitionOrPathId(), state, factory.getBinding());
+                factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, instanceHandle.getContextPartitionOrPathId(), state, factory.getBinding());
             }
         }
         finally {
@@ -340,7 +340,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
             }
         }
         endConditions.clear();
-        factory.getStateCache().removeContextParentPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId);
+        factory.getFactoryContext().getStateCache().removeContextParentPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId);
     }
 
     public static Map<String, Object> getBuiltinProperties(String contextName, long startTime, Long endTime, Map<String, Object> startEndpointData) {

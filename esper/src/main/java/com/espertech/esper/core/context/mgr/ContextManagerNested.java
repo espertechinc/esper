@@ -156,7 +156,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
                 list.clearAgentInstances();
                 leaf.getValue().setState(ContextPartitionState.STOPPED);
-                rootContext.getFactory().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
+                rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
             }
         }
         return new ContextStatePathDescriptor(visitor.getStates(), visitor.getAgentInstanceInfo());
@@ -170,7 +170,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 int agentInstanceId = leaf.getValue().getOptionalContextPartitionId();
                 ContextControllerTreeAgentInstanceList list = treeEntry.getAgentInstances().get(agentInstanceId);
                 StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
-                rootContext.getFactory().getStateCache().removeContextPath(contextName, leaf.getKey().getLevel(), leaf.getKey().getParentPath(), leaf.getKey().getSubPath());
+                rootContext.getFactory().getFactoryContext().getStateCache().removeContextPath(contextName, leaf.getKey().getLevel(), leaf.getKey().getParentPath(), leaf.getKey().getSubPath());
                 ContextPartitionDescriptor descriptor = visitor.getAgentInstanceInfo().get(agentInstanceId);
                 ContextPartitionIdentifierNested nestedIdent = (ContextPartitionIdentifierNested) descriptor.getIdentifier();
                 entry.getKey().deletePath(nestedIdent.getIdentifiers()[nestedContextFactories.length - 1]);
@@ -196,7 +196,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 }
                 list.setState(ContextPartitionState.STARTED);
                 leaf.getValue().setState(ContextPartitionState.STARTED);
-                rootContext.getFactory().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
+                rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
             }
         }
         ContextManagerImpl.setState(visitor.getAgentInstanceInfo(), ContextPartitionState.STARTED);
@@ -280,7 +280,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
     public void safeDestroy() {
         if (rootContext != null) {
             recursiveDeactivateStop(rootContext, false, null);
-            nestedContextFactories[0].getStateCache().removeContext(contextName);
+            nestedContextFactories[0].getFactoryContext().getStateCache().removeContext(contextName);
             rootContext = null;
             statements.clear();
             subcontexts.clear();
@@ -317,7 +317,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 }
                 ContextStatePathKey key = new ContextStatePathKey(nestedContextFactories.length, originator.getPathId(), existingHandle.getSubPathId());
                 ContextStatePathValue value = new ContextStatePathValue(existingHandle.getContextPartitionOrPathId(), payload, ContextPartitionState.STARTED);
-                originator.getFactory().getStateCache().updateContextPath(contextName, key, value);
+                originator.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, key, value);
             }
             else {
                 List<AgentInstance> removed = new ArrayList<AgentInstance>(2);
