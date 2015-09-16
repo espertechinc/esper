@@ -17,7 +17,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import java.util.List;
 
 public class ContextControllerFactoryFactorySvcImpl implements ContextControllerFactoryFactorySvc {
-    // TODO remove ContextStateCache contextStateCache
+
     public ContextControllerFactory make(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested) {
         ContextControllerFactory factory;
         if (detail instanceof ContextDetailInitiatedTerminated) {
