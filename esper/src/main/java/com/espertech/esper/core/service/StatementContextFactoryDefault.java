@@ -98,7 +98,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getTableService().getTableExprEvaluatorContext(),
                 services.getEngineLevelExtensionServicesContext(),
                 services.getRegexHandlerFactory(),
-                services.getStatementLockFactory()
+                services.getStatementLockFactory(),
+                services.getContextManagementService()
                 );
     }
 

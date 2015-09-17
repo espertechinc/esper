@@ -12,6 +12,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
+import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
@@ -433,6 +434,10 @@ public final class StatementContext
 
     public TableExprEvaluatorContext getTableExprEvaluatorContext() {
         return stmtEngineServices.getTableExprEvaluatorContext();
+    }
+
+    public ContextManagementService getContextManagementService() {
+        return stmtEngineServices.getContextManagementService();
     }
 
     public Annotation[] getAnnotations()
