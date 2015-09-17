@@ -48,4 +48,6 @@ public abstract class AggregationServiceBaseUngrouped implements AggregationServ
         }
     }
 
+    public void stop() {
+    }
 }

@@ -151,4 +151,7 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return accessMap.keySet();
     }
+
+    public void stop() {
+    }
 }

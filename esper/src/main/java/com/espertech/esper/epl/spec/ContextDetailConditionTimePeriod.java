@@ -20,6 +20,7 @@ public class ContextDetailConditionTimePeriod implements ContextDetailCondition 
     private static final long serialVersionUID = 5140498109356559324L;
     private ExprTimePeriod timePeriod;
     private boolean immediate;
+    private int scheduleCallbackId = -1;
 
     public ContextDetailConditionTimePeriod(ExprTimePeriod timePeriod, boolean immediate) {
         this.timePeriod = timePeriod;
@@ -40,5 +41,13 @@ public class ContextDetailConditionTimePeriod implements ContextDetailCondition 
 
     public boolean isImmediate() {
         return immediate;
+    }
+
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
+    public void setScheduleCallbackId(int scheduleCallbackId) {
+        this.scheduleCallbackId = scheduleCallbackId;
     }
 }

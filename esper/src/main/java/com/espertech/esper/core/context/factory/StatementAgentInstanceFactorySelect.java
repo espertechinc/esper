@@ -227,6 +227,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext);
             final ResultSetProcessor resultSetProcessor = processorPair.getFirst();
             aggregationService = processorPair.getSecond();
+            stopCallbacks.add(aggregationService);
 
             // for just 1 event stream without joins, handle the one-table process separately.
             final JoinPreloadMethod joinPreloadMethod;

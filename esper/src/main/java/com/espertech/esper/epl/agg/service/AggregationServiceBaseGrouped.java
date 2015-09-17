@@ -44,4 +44,7 @@ public abstract class AggregationServiceBaseGrouped implements AggregationServic
             throw new IllegalArgumentException("Expected the same number of evaluates as computer prototypes");
         }
     }
+
+    public void stop() {
+    }
 }

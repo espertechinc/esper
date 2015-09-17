@@ -112,4 +112,7 @@ public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, Aggrega
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }
+
+    public void stop() {
+    }
 }

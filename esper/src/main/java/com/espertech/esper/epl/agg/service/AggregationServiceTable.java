@@ -88,4 +88,7 @@ public class AggregationServiceTable implements AggregationService {
     private UnsupportedOperationException handleNotSupported() {
         return new UnsupportedOperationException("Operation not supported, aggregation server for reporting only");
     }
+
+    public void stop() {
+    }
 }

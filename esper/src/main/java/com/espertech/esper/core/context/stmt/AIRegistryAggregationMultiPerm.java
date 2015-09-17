@@ -104,4 +104,7 @@ public class AIRegistryAggregationMultiPerm implements AIRegistryAggregation {
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return services.getArray()[exprEvaluatorContext.getAgentInstanceId()].getGroupKeys(exprEvaluatorContext);
     }
+
+    public void stop() {
+    }
 }

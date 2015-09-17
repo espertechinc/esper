@@ -97,4 +97,7 @@ public class AIRegistryAggregationMap implements AIRegistryAggregation {
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return services.get(exprEvaluatorContext.getAgentInstanceId()).getGroupKeys(exprEvaluatorContext);
     }
+
+    public void stop() {
+    }
 }

@@ -215,4 +215,7 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService
     {
         tableStateInstance.getRows().clear();
     }
+
+    public void stop() {
+    }
 }
