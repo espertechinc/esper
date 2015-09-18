@@ -18,6 +18,8 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 
+import java.util.Map;
+
 public interface ContextManagementService {
     public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient, EventType statementResultEventType) throws ExprValidationException;
     public int getContextCount();
@@ -30,5 +32,6 @@ public interface ContextManagementService {
 
     public void destroyedContext(String contextName);
 
+    public Map<String, ContextManagerEntry> getContexts();
     public ContextManager getContextManager(String contextName);
 }

@@ -21,10 +21,7 @@ import com.espertech.esper.epl.spec.CreateContextDesc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ContextManagementServiceImpl implements ContextManagementService {
     private static final Log log = LogFactory.getLog(ContextManagementServiceImpl.class);
@@ -125,6 +122,10 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
     }
 
+    public Map<String, ContextManagerEntry> getContexts() {
+        return contexts;
+    }
+
     private void destroyContext(String contextName, ContextManagerEntry entry) {
         entry.getContextManager().safeDestroy();
         contexts.remove(contextName);
@@ -133,31 +134,5 @@ public class ContextManagementServiceImpl implements ContextManagementService {
 
     private String getNotDecaredText(String contextName) {
         return "Context by name '" + contextName + "' has not been declared";
-    }
-
-    public static class ContextManagerEntry {
-        private final ContextManager contextManager;
-        private final Set<String> referringStatements;
-
-        public ContextManagerEntry(ContextManager contextManager) {
-            this.contextManager = contextManager;
-            this.referringStatements = new HashSet<String>();
-        }
-
-        public ContextManager getContextManager() {
-            return contextManager;
-        }
-
-        public void addStatement(String statementId) {
-            referringStatements.add(statementId);
-        }
-
-        public int getStatementCount() {
-            return referringStatements.size();
-        }
-
-        public void removeStatement(String statementId) {
-            referringStatements.remove(statementId);
-        }
     }
 }
