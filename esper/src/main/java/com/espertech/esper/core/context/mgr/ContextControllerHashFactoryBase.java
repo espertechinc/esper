@@ -33,29 +33,22 @@ import com.espertech.esper.filter.*;
 import java.io.StringWriter;
 import java.util.*;
 
-public class ContextControllerHashFactory extends ContextControllerFactoryBase implements ContextControllerFactory {
+public abstract class ContextControllerHashFactoryBase extends ContextControllerFactoryBase implements ContextControllerFactory {
 
     private final ContextDetailHash hashedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStatePathValueBinding binding;
-
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerHashFactory(ContextControllerFactoryContext factoryContext, ContextDetailHash hashedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
+    public ContextControllerHashFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailHash hashedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.hashedSpec = hashedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.binding = factoryContext.getStateCache().getBinding(Integer.class);
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
         return filtersSpecsNestedContexts != null && !filtersSpecsNestedContexts.isEmpty();
     }
-
-    public ContextStatePathValueBinding getBinding() {
-        return binding;
-    }
-
+    
     public void validateFactory() throws ExprValidationException {
         validatePopulateContextDesc();
         contextBuiltinProps = ContextPropertyEventType.getHashType();
@@ -124,10 +117,6 @@ public class ContextControllerHashFactory extends ContextControllerFactoryBase i
 
     public Map<String, Object> getContextBuiltinProps() {
         return contextBuiltinProps;
-    }
-
-    public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback) {
-        return new ContextControllerHash(pathId, callback, this);
     }
 
     public ContextPartitionIdentifier keyPayloadToIdentifier(Object payload) {

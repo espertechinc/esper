@@ -31,27 +31,21 @@ import com.espertech.esper.filter.FilterValueSetParam;
 
 import java.util.*;
 
-public class ContextControllerPartitionedFactory extends ContextControllerFactoryBase implements ContextControllerFactory {
+public abstract class ContextControllerPartitionedFactoryBase extends ContextControllerFactoryBase implements ContextControllerFactory {
 
     private final ContextDetailPartitioned segmentedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStatePathValueBinding binding;
 
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerPartitionedFactory(ContextControllerFactoryContext factoryContext, ContextDetailPartitioned segmentedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
+    public ContextControllerPartitionedFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailPartitioned segmentedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.segmentedSpec = segmentedSpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.binding = factoryContext.getStateCache().getBinding(ContextControllerPartitionedState.class);
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
         return filtersSpecsNestedContexts != null && !filtersSpecsNestedContexts.isEmpty();
-    }
-
-    public ContextStatePathValueBinding getBinding() {
-        return binding;
     }
 
     public void validateFactory() throws ExprValidationException {
@@ -107,10 +101,6 @@ public class ContextControllerPartitionedFactory extends ContextControllerFactor
 
     public Map<String, Object> getContextBuiltinProps() {
         return contextBuiltinProps;
-    }
-
-    public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback) {
-        return new ContextControllerPartitioned(pathId, callback, this);
     }
 
     public ContextPartitionIdentifier keyPayloadToIdentifier(Object payload) {

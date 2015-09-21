@@ -26,7 +26,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
 
     protected final int pathId;
     protected final ContextControllerLifecycleCallback activationCallback;
-    protected final ContextControllerPartitionedFactory factory;
+    protected final ContextControllerPartitionedFactoryImpl factory;
 
     protected final List<ContextControllerPartitionedFilterCallback> filterCallbacks = new ArrayList<ContextControllerPartitionedFilterCallback>();
     protected final HashMap<Object, ContextControllerInstanceHandle> partitionKeys = new HashMap<Object, ContextControllerInstanceHandle>();
@@ -34,7 +34,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
     private ContextInternalFilterAddendum activationFilterAddendum;
     protected int currentSubpathId;
 
-    public ContextControllerPartitioned(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerPartitionedFactory factory) {
+    public ContextControllerPartitioned(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerPartitionedFactoryImpl factory) {
         this.pathId = pathId;
         this.activationCallback = activationCallback;
         this.factory = factory;

@@ -23,13 +23,13 @@ public class ContextControllerCategory implements ContextController {
 
     private final int pathId;
     private final ContextControllerLifecycleCallback activationCallback;
-    private final ContextControllerCategoryFactory factory;
+    private final ContextControllerCategoryFactoryImpl factory;
 
     private final Map<Integer, ContextControllerInstanceHandle> handleCategories = new LinkedHashMap<Integer, ContextControllerInstanceHandle>();
 
     private int currentSubpathId;
 
-    public ContextControllerCategory(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerCategoryFactory factory) {
+    public ContextControllerCategory(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerCategoryFactoryImpl factory) {
         this.pathId = pathId;
         this.activationCallback = activationCallback;
         this.factory = factory;

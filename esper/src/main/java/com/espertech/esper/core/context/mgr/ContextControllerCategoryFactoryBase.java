@@ -30,21 +30,22 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
-public class ContextControllerCategoryFactory extends ContextControllerFactoryBase implements ContextControllerFactory {
+public abstract class ContextControllerCategoryFactoryBase extends ContextControllerFactoryBase implements ContextControllerFactory {
 
     private final ContextDetailCategory categorySpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
-    private final ContextStatePathValueBinding binding;
 
     private Map<String, Object> contextBuiltinProps;
 
-    public ContextControllerCategoryFactory(ContextControllerFactoryContext factoryContext, ContextDetailCategory categorySpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
+    public ContextControllerCategoryFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailCategory categorySpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
         this.categorySpec = categorySpec;
         this.filtersSpecsNestedContexts = filtersSpecsNestedContexts;
-        this.binding = factoryContext.getStateCache().getBinding(Integer.class);    // the integer ordinal of the category
     }
 
     public boolean hasFiltersSpecsNestedContexts() {
@@ -105,14 +106,6 @@ public class ContextControllerCategoryFactory extends ContextControllerFactoryBa
 
     public Map<String, Object> getContextBuiltinProps() {
         return contextBuiltinProps;
-    }
-
-    public ContextStatePathValueBinding getBinding() {
-        return binding;
-    }
-
-    public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback) {
-        return new ContextControllerCategory(pathId, callback, this);
     }
 
     public ContextPartitionIdentifier keyPayloadToIdentifier(Object payload) {

@@ -23,7 +23,7 @@ public class ContextControllerHash implements ContextController, ContextControll
 
     protected final int pathId;
     protected final ContextControllerLifecycleCallback activationCallback;
-    protected final ContextControllerHashFactory factory;
+    protected final ContextControllerHashFactoryImpl factory;
 
     protected final List<ContextControllerHashedFilterCallback> filterCallbacks = new ArrayList<ContextControllerHashedFilterCallback>();
     protected final Map<Integer, ContextControllerInstanceHandle> partitionKeys = new LinkedHashMap<Integer, ContextControllerInstanceHandle>();
@@ -31,7 +31,7 @@ public class ContextControllerHash implements ContextController, ContextControll
     protected ContextInternalFilterAddendum activationFilterAddendum;
     protected int currentSubpathId;
 
-    public ContextControllerHash(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerHashFactory factory) {
+    public ContextControllerHash(int pathId, ContextControllerLifecycleCallback activationCallback, ContextControllerHashFactoryImpl factory) {
         this.pathId = pathId;
         this.activationCallback = activationCallback;
         this.factory = factory;
