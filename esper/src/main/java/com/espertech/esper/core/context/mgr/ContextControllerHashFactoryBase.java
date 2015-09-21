@@ -193,9 +193,12 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             else {
                 throw new IllegalArgumentException("Unrecognized hash code function '" + hashFuncName + "'");
             }
+
+            // create and register expression
             String expression = item.getFunction().getName() + "(" + paramExpr + ")";
-            FilterSpecLookupable lookupable = new FilterSpecLookupable(expression, getter, Integer.class);
+            FilterSpecLookupable lookupable = new FilterSpecLookupable(expression, getter, Integer.class, true);
             item.setLookupable(lookupable);
+            factoryContext.getServicesContext().getFilterNonPropertyRegisteryService().registerNonPropertyExpression(factoryContext.getAgentInstanceContextCreate().getStatementName(), item.getFilterSpecCompiled().getFilterForEventType(), lookupable);
         }
     }
 

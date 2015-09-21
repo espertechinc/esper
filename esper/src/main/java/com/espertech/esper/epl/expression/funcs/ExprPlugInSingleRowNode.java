@@ -92,7 +92,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     public FilterSpecLookupable getFilterLookupable() {
 
         ExprDotEvalStaticMethod eval = (ExprDotEvalStaticMethod) evaluator;
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, evaluator.getType());
+        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), eval, evaluator.getType(), true);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

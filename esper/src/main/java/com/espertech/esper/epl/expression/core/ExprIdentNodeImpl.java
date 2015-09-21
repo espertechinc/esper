@@ -138,7 +138,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
     }
 
     public FilterSpecLookupable getFilterLookupable() {
-        return new FilterSpecLookupable(resolvedPropertyName, evaluator.getGetter(), evaluator.getType());
+        return new FilterSpecLookupable(resolvedPropertyName, evaluator.getGetter(), evaluator.getType(), false);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException

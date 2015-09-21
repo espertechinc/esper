@@ -20,11 +20,13 @@ public class FilterSpecLookupable implements MetaDefItem, Serializable
     private final String expression;
     private transient final EventPropertyGetter getter;
     private final Class returnType;
+    private final boolean isNonPropertyGetter;
 
-    public FilterSpecLookupable(String expression, EventPropertyGetter getter, Class returnType) {
+    public FilterSpecLookupable(String expression, EventPropertyGetter getter, Class returnType, boolean isNonPropertyGetter) {
         this.expression = expression;
         this.getter = getter;
         this.returnType = returnType;
+        this.isNonPropertyGetter = isNonPropertyGetter;
     }
 
     public String getExpression() {
@@ -60,6 +62,10 @@ public class FilterSpecLookupable implements MetaDefItem, Serializable
 
     public String toString() {
         return "expression='" + expression + '\'';
+    }
+
+    public boolean isNonPropertyGetter() {
+        return isNonPropertyGetter;
     }
 }
 

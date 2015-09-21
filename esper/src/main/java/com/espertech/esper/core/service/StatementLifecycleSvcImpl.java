@@ -49,6 +49,7 @@ import com.espertech.esper.event.NativeEventType;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecParam;
 import com.espertech.esper.filter.FilterSpecParamExprNode;
@@ -317,6 +318,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 break;
             }
             assignFilterSpecIds(filter, filterSpecAll);
+            registerNonPropertyGetters(filter, statementName, services.getFilterNonPropertyRegisteryService());
         }
 
         MultiMatchHandler multiMatchHandler;
@@ -744,6 +746,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         stmtNameToIdMap.remove(statementName);
         stmtNameToStmtMap.remove(statementName);
         services.getStatementEventTypeRefService().removeReferencesStatement(statementName);
+        services.getFilterNonPropertyRegisteryService().removeReferencesStatement(statementName);
     }
 
     public synchronized void stop(String statementId)
@@ -812,6 +815,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
             // fire the statement stop
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qEngineManagementStmtStop(EPStatementState.DESTROYED, services.getEngineURI(), statementId, desc.getEpStatement().getName(), desc.getEpStatement().getText(), services.getSchedulingService().getTime());}
+
+            // remove referenced non-property getters
+            services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
 
             // remove referenced event types
             services.getStatementEventTypeRefService().removeReferencesStatement(desc.getEpStatement().getName());
@@ -1537,6 +1543,16 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
 
         return selectProps;
+    }
+
+    private static void registerNonPropertyGetters(FilterSpecCompiled filter, String statementName, FilterNonPropertyRegisteryService filterNonPropertyRegisteryService) {
+        for (FilterSpecParam[] row : filter.getParameters()) {
+            for (FilterSpecParam col : row) {
+                if (col.getLookupable().isNonPropertyGetter()) {
+                    filterNonPropertyRegisteryService.registerNonPropertyExpression(statementName, filter.getFilterForEventType(), col.getLookupable());
+                }
+            }
+        }
     }
 
     public void dispatchStatementLifecycleEvent(StatementLifecycleEvent theEvent)

@@ -31,6 +31,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
@@ -94,6 +95,7 @@ public final class EPServicesContext
     private ContextManagerFactoryService contextManagerFactoryService;
     private RegexHandlerFactory regexHandlerFactory;
     private ViewableActivatorFactory viewableActivatorFactory;
+    private FilterNonPropertyRegisteryService filterNonPropertyRegisteryService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -179,7 +181,8 @@ public final class EPServicesContext
                              ContextManagerFactoryService contextManagerFactoryService,
                              EPStatementFactory epStatementFactory,
                              RegexHandlerFactory regexHandlerFactory,
-                             ViewableActivatorFactory viewableActivatorFactory)
+                             ViewableActivatorFactory viewableActivatorFactory,
+                             FilterNonPropertyRegisteryService filterNonPropertyRegisteryService)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -229,6 +232,7 @@ public final class EPServicesContext
         this.epStatementFactory = epStatementFactory;
         this.regexHandlerFactory = regexHandlerFactory;
         this.viewableActivatorFactory = viewableActivatorFactory;
+        this.filterNonPropertyRegisteryService = filterNonPropertyRegisteryService;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -710,5 +714,9 @@ public final class EPServicesContext
 
     public ViewableActivatorFactory getViewableActivatorFactory() {
         return viewableActivatorFactory;
+    }
+
+    public FilterNonPropertyRegisteryService getFilterNonPropertyRegisteryService() {
+        return filterNonPropertyRegisteryService;
     }
 }

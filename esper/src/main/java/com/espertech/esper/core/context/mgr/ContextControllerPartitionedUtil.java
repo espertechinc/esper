@@ -195,7 +195,7 @@ public class ContextControllerPartitionedUtil {
                     String propertyName = foundPartition.getPropertyNames().get(0);
                     EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(propertyName);
                     Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(propertyName);
-                    FilterSpecLookupable lookupable = new FilterSpecLookupable(propertyName, getter, resultType);
+                    FilterSpecLookupable lookupable = new FilterSpecLookupable(propertyName, getter, resultType, false);
                     FilterValueSetParam filter = new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keyValue);
                     addendumFilters.add(filter);
                 }
@@ -205,7 +205,7 @@ public class ContextControllerPartitionedUtil {
                         String partitionPropertyName = foundPartition.getPropertyNames().get(i);
                         EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(partitionPropertyName);
                         Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(partitionPropertyName);
-                        FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType);
+                        FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType, false);
                         FilterValueSetParam filter = new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keys[i]);
                         addendumFilters.add(filter);
                     }
@@ -241,7 +241,7 @@ public class ContextControllerPartitionedUtil {
                     for (String partitionPropertyName : foundPartition.getPropertyNames()) {
                         EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(partitionPropertyName);
                         Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(partitionPropertyName);
-                        FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType);
+                        FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType, false);
 
                         Object propertyValue;
                         if (keyValue instanceof MultiKeyUntyped) {
