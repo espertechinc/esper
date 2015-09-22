@@ -208,6 +208,9 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                     };
                     stopCallbacks.add(stopCallback);
                 }
+
+                // add views to stop callback if applicable
+                addViewStopCallback(stopCallbacks, createResult.getNewViews());
             }
 
             // determine match-recognize "previous"-node strategy (none if not present, or one handling and number of nodes)
@@ -362,6 +365,14 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         selectResult.setStopCallback(stopCallback);
 
         return selectResult;
+    }
+
+    private void addViewStopCallback(List<StopCallback> stopCallbacks, List<View> topViews) {
+        for (View view : topViews) {
+            if (view instanceof StoppableView) {
+                stopCallbacks.add((StoppableView) view);
+            }
+        }
     }
 
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {

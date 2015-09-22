@@ -291,7 +291,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
         view.setParent(null);
         recursiveMergeViewRemove(view);
         if (view instanceof StoppableView) {
-            ((StoppableView) view).stopView();
+            ((StoppableView) view).stop();
         }
     }
 
@@ -304,7 +304,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
             }
             else {
                 if (child instanceof StoppableView) {
-                    ((StoppableView) child).stopView();
+                    ((StoppableView) child).stop();
                 }
                 if (child.getViews().length > 0) {
                     recursiveMergeViewRemove(child);

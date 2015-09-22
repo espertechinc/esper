@@ -264,10 +264,10 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
     }
 
     @Override
-    public void stopView() {
+    public void stop() {
         for (View view : views) {
             if (view instanceof StoppableView) {
-                ((StoppableView) view).stopView();
+                ((StoppableView) view).stop();
             }
         }
     }

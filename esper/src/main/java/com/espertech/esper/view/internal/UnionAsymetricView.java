@@ -315,10 +315,10 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
     }
 
     @Override
-    public void stopView() {
+    public void stop() {
         for (View view : views) {
             if (view instanceof StoppableView) {
-                ((StoppableView) view).stopView();
+                ((StoppableView) view).stop();
             }
         }
     }
