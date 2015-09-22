@@ -13,6 +13,7 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.filter.FilterSpecCompiled;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContextDetailNested implements ContextDetail {
@@ -27,7 +28,11 @@ public class ContextDetailNested implements ContextDetail {
         return contexts;
     }
 
-    public List<FilterSpecCompiled> getFilterSpecsIfAny() {
-        return null;
+    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
+        List<FilterSpecCompiled> filterSpecs = new ArrayList<FilterSpecCompiled>(2);
+        for (CreateContextDesc desc : contexts) {
+            filterSpecs.addAll(desc.getContextDetail().getContextDetailFilterSpecs());
+        }
+        return filterSpecs;
     }
 }

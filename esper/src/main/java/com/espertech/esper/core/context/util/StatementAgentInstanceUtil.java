@@ -61,15 +61,15 @@ public class StatementAgentInstanceUtil {
             return;
         }
         for (AgentInstance instance : agentInstances) {
-            stopAgentInstance(instance, terminationProperties, servicesContext, isStatementStop, leaveLocksAcquired);
+            stopAgentInstanceRemoveResources(instance, terminationProperties, servicesContext, isStatementStop, leaveLocksAcquired);
         }
     }
 
-    public static void stopAgentInstance(AgentInstance agentInstance, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stopAgentInstanceRemoveResources(AgentInstance agentInstance, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
         if (terminationProperties != null) {
             agentInstance.getAgentInstanceContext().getContextProperties().getProperties().putAll(terminationProperties);
         }
-        StatementAgentInstanceUtil.stop(agentInstance.getStopCallback(), agentInstance.getAgentInstanceContext(), agentInstance.getFinalView(), servicesContext, isStatementStop, leaveLocksAcquired);
+        StatementAgentInstanceUtil.stop(agentInstance.getStopCallback(), agentInstance.getAgentInstanceContext(), agentInstance.getFinalView(), servicesContext, isStatementStop, leaveLocksAcquired, true);
     }
 
     public static void stopSafe(Collection<StopCallback> terminationCallbacks, StopCallback[] stopCallbacks, StatementContext statementContext) {
@@ -94,7 +94,7 @@ public class StatementAgentInstanceUtil {
         }
     }
 
-    public static void stop(StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stop(StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired, boolean removedStatementResources) {
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextPartitionDestroy(agentInstanceContext);}
         // obtain statement lock
@@ -124,7 +124,9 @@ public class StatementAgentInstanceUtil {
             // cause any filters, that may concide with the caller's filters, to be ignored
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(Long.MAX_VALUE);
 
-            if (agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
+            if (removedStatementResources &&
+                    agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null &&
+                    agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
                 agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().deallocatePartitioned(agentInstanceContext.getAgentInstanceId());
             }
         }

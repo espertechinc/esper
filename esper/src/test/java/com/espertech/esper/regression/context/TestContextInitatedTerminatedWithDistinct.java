@@ -12,13 +12,11 @@
 package com.espertech.esper.regression.context;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.context.ContextPartitionCollection;
 import com.espertech.esper.client.context.ContextPartitionSelectorAll;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPContextPartitionAdminSPI;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;

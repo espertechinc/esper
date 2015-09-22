@@ -17,5 +17,5 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface ContextDetail extends Serializable {
-    public List<FilterSpecCompiled> getFilterSpecsIfAny();
+    public List<FilterSpecCompiled> getContextDetailFilterSpecs();
 }

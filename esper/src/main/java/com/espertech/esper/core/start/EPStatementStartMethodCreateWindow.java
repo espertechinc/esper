@@ -137,6 +137,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             // create context factory
             // Factory for statement-context instances
             StatementAgentInstanceFactoryCreateWindow contextFactory = new StatementAgentInstanceFactoryCreateWindow(statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
+            statementContext.setStatementAgentInstanceFactory(contextFactory);
 
             // With context - delegate instantiation to context
             final EPStatementStopMethod stopMethod = new EPStatementStopMethodImpl(statementContext, stopCallbacks);

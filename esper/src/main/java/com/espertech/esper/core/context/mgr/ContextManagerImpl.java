@@ -219,7 +219,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
                 }
 
                 // remove
-                StatementAgentInstanceUtil.stopAgentInstance(agentInstance, null, servicesContext, false, false);
+                StatementAgentInstanceUtil.stopAgentInstanceRemoveResources(agentInstance, null, servicesContext, false, false);
                 removed.add(agentInstance);
 
                 // start
@@ -397,7 +397,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
                 if (!instance.getAgentInstanceContext().getStatementContext().getStatementId().equals(statementId)) {
                     continue;
                 }
-                StatementAgentInstanceUtil.stop(instance.getStopCallback(), instance.getAgentInstanceContext(), instance.getFinalView(), servicesContext, true, false);
+                StatementAgentInstanceUtil.stop(instance.getStopCallback(), instance.getAgentInstanceContext(), instance.getFinalView(), servicesContext, true, false, true);
                 instanceIt.remove();
             }
         }

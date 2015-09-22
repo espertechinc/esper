@@ -206,7 +206,6 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 // re-activate start condition if not overlapping
                 if (!factory.getContextDetail().isOverlapping()) {
                     startCondition.activate(optionalTriggeringEvent, null, 0, false);
-                    startNow = startCondition instanceof ContextControllerConditionImmediate;
                 }
 
                 factory.getFactoryContext().getStateCache().removeContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, instance.getSubPathId());

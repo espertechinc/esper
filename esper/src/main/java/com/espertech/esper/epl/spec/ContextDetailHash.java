@@ -41,7 +41,7 @@ public class ContextDetailHash implements ContextDetail {
         return granularity;
     }
 
-    public List<FilterSpecCompiled> getFilterSpecsIfAny() {
+    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
         List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(items.size());
         for (ContextDetailHashItem item : items) {
             filters.add(item.getFilterSpecCompiled());
