@@ -38,7 +38,7 @@ public class FireAndForgetProcessorFactory
             return new FireAndForgetProcessorTable(services.getTableService(), tableMetadata);
         }
         else {
-            NamedWindowProcessor nwprocessor = services.getNamedWindowService().getProcessor(processorName);
+            NamedWindowProcessor nwprocessor = services.getNamedWindowMgmtService().getProcessor(processorName);
             if (nwprocessor == null) {
                 throw new ExprValidationException("A table or named window by name '" + processorName + "' does not exist");
             }

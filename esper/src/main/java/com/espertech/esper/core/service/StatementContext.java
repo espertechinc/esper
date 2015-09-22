@@ -10,7 +10,6 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
@@ -21,7 +20,7 @@ import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
@@ -299,9 +298,9 @@ public final class StatementContext
      * Returns the named window management service.
      * @return service for managing named windows
      */
-    public NamedWindowService getNamedWindowService()
+    public NamedWindowMgmtService getNamedWindowMgmtService()
     {
-        return stmtEngineServices.getNamedWindowService();
+        return stmtEngineServices.getNamedWindowMgmtService();
     }
 
     /**

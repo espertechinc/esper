@@ -84,7 +84,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             eventStreamParentViewable = viewableActivationResult.getViewable();
 
             // Obtain processor for this named window
-            NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(windowName);
+            NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(windowName);
 
             if (processor == null) {
                 throw new RuntimeException("Failed to obtain named window processor for named window '" + windowName + "'");
@@ -129,7 +129,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                 public void stop()
                 {
                     String windowName = statementSpec.getCreateWindowDesc().getWindowName();
-                    NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(windowName);
+                    NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(windowName);
                     if (processor == null) {
                         log.warn("Named window processor by name '" + windowName + "' has not been found");
                     }
@@ -166,7 +166,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement)
             {
                 String insertFromWindow = statementSpec.getCreateWindowDesc().getInsertFromWindow();
-                NamedWindowProcessor namedWindowProcessor = services.getNamedWindowService().getProcessor(insertFromWindow);
+                NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(insertFromWindow);
                 NamedWindowProcessorInstance sourceWindowInstances = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
                 List<EventBean> events = new ArrayList<EventBean>();
                 if (statementSpec.getCreateWindowDesc().getInsertFilter() != null)

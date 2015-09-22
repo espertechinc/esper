@@ -102,11 +102,11 @@ public class TestPerfNamedWindow extends TestCase
     }
 
     private void runOnDemandAssertion(String epl, int numIndexes, Object theEvent, Integer expected) {
-        assertEquals(0, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(0, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
-        assertEquals(numIndexes, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(numIndexes, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
 
         long start = System.currentTimeMillis();
         int loops = 1000;
@@ -120,7 +120,7 @@ public class TestPerfNamedWindow extends TestCase
         assertTrue("delta=" + delta, delta < 1000);
 
         stmt.destroy();
-        assertEquals(0, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(0, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
     }
 
     public void testDeletePerformance()

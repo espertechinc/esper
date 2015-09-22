@@ -264,7 +264,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 {
                     hasNamedWindow = true;
                     final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
-                    NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                    NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                     NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(agentInstanceContext);
                     if (processorInstance != null) {
                         final NamedWindowTailViewInstance consumerView = processorInstance.getTailViewInstance();

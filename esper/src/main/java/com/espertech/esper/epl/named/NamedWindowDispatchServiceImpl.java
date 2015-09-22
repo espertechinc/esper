@@ -10,24 +10,17 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
-import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.core.service.resource.StatementResourceService;
-import com.espertech.esper.epl.table.mgmt.TableService;
-import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.metric.MetricReportingService;
-import com.espertech.esper.epl.metric.StatementMetricHandle;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
-import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.util.MetricUtil;
-import com.espertech.esper.view.ViewProcessingException;
 
 import java.util.*;
 
@@ -35,18 +28,14 @@ import java.util.*;
  * This service hold for each named window a dedicated processor and a lock to the named window.
  * This lock is shrared between the named window and on-delete statements.
  */
-public class NamedWindowServiceImpl implements NamedWindowService
+public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchService
 {
     private final SchedulingService schedulingService;
-    private final Map<String, NamedWindowProcessor> processors;
-    private final Map<String, NamedWindowLockPair> windowStatementLocks;
     private final VariableService variableService;
     private final TableService tableService;
-    private final Set<NamedWindowLifecycleObserver> observers;
     private final ExceptionHandlingService exceptionHandlingService;
     private final boolean isPrioritized;
     private final ManagedReadWriteLock eventProcessingRWLock;
-    private final boolean enableQueryPlanLog;
     private final MetricReportingService metricReportingService;
 
     private ThreadLocal<List<NamedWindowConsumerDispatchUnit>> threadLocal = new ThreadLocal<List<NamedWindowConsumerDispatchUnit>>()
@@ -70,122 +59,27 @@ public class NamedWindowServiceImpl implements NamedWindowService
      * @param variableService is for variable access
      * @param isPrioritized if the engine is running with prioritized execution
      */
-    public NamedWindowServiceImpl(SchedulingService schedulingService, VariableService variableService, TableService tableService, boolean isPrioritized,
-                                  ManagedReadWriteLock eventProcessingRWLock, ExceptionHandlingService exceptionHandlingService, boolean enableQueryPlanLog,
-                                  MetricReportingService metricReportingService)
+    public NamedWindowDispatchServiceImpl(SchedulingService schedulingService,
+                                          VariableService variableService,
+                                          TableService tableService,
+                                          boolean isPrioritized,
+                                          ManagedReadWriteLock eventProcessingRWLock,
+                                          ExceptionHandlingService exceptionHandlingService,
+                                          MetricReportingService metricReportingService)
     {
         this.schedulingService = schedulingService;
-        this.processors = new HashMap<String, NamedWindowProcessor>();
-        this.windowStatementLocks = new HashMap<String, NamedWindowLockPair>();
         this.variableService = variableService;
         this.tableService = tableService;
-        this.observers = new HashSet<NamedWindowLifecycleObserver>();
         this.isPrioritized = isPrioritized;
         this.eventProcessingRWLock = eventProcessingRWLock;
         this.exceptionHandlingService = exceptionHandlingService;
-        this.enableQueryPlanLog = enableQueryPlanLog;
         this.metricReportingService = metricReportingService;
     }
 
     public void destroy()
     {
-        processors.clear();
         threadLocal.remove();
         dispatchesPerStmtTL.remove();
-    }
-
-    public String[] getNamedWindows()
-    {
-        Set<String> names = processors.keySet();
-        return names.toArray(new String[names.size()]);
-    }
-
-    public StatementAgentInstanceLock getNamedWindowLock(String windowName)
-    {
-        NamedWindowLockPair pair = windowStatementLocks.get(windowName);
-        if (pair == null) {
-            return null;
-        }
-        return pair.getLock();
-    }
-
-    public void addNamedWindowLock(String windowName, StatementAgentInstanceLock statementResourceLock, String statementName)
-    {
-        windowStatementLocks.put(windowName, new NamedWindowLockPair(statementName, statementResourceLock));
-    }
-
-    public void removeNamedWindowLock(String statementName) {
-        for (Map.Entry<String, NamedWindowLockPair> entry : windowStatementLocks.entrySet()) {
-            if (entry.getValue().getStatementName().equals(statementName)) {
-                windowStatementLocks.remove(entry.getKey());
-                return;
-            }
-        }
-    }
-
-    public boolean isNamedWindow(String name)
-    {
-        return processors.containsKey(name);
-    }
-
-    public NamedWindowProcessor getProcessor(String name)
-    {
-        return processors.get(name);
-    }
-
-    public IndexMultiKey[] getNamedWindowIndexes(String windowName) {
-        NamedWindowProcessor processor = processors.get(windowName);
-        if (processor == null)
-        {
-            return null;
-        }
-        return processor.getProcessorInstance(null).getIndexDescriptors();
-    }
-
-    public NamedWindowProcessor addProcessor(String name, String contextName, EventType eventType, StatementResultService statementResultService,
-                                             ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized,
-                                             boolean isEnableSubqueryIndexShare, boolean isBatchingDataWindow,
-                                             boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle,
-                                             Set<String> optionalUniqueKeyProps, String eventTypeAsName,
-                                             StatementResourceService statementResourceService) throws ViewProcessingException
-    {
-        if (processors.containsKey(name))
-        {
-            throw new ViewProcessingException("A named window by name '" + name + "' has already been created");
-        }
-
-        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, statementMetricHandle, optionalUniqueKeyProps, eventTypeAsName, statementResourceService);
-        processors.put(name, processor);
-
-        if (!observers.isEmpty())
-        {
-            NamedWindowLifecycleEvent theEvent = new NamedWindowLifecycleEvent(name, processor, NamedWindowLifecycleEvent.LifecycleEventType.CREATE);
-            for (NamedWindowLifecycleObserver observer : observers)
-            {
-                observer.observe(theEvent);
-            }
-        }
-
-        return processor;
-    }
-
-    public void removeProcessor(String name)
-    {
-        NamedWindowProcessor processor = processors.get(name);
-        if (processor != null)
-        {
-            processor.destroy();
-            processors.remove(name);
-
-            if (!observers.isEmpty())
-            {
-                NamedWindowLifecycleEvent theEvent = new NamedWindowLifecycleEvent(name, processor, NamedWindowLifecycleEvent.LifecycleEventType.DESTROY);
-                for (NamedWindowLifecycleObserver observer : observers)
-                {
-                    observer.observe(theEvent);
-                }
-            }
-        }
     }
 
     public void addDispatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
@@ -482,16 +376,6 @@ public class NamedWindowServiceImpl implements NamedWindowService
         }
     }
 
-    public void addObserver(NamedWindowLifecycleObserver observer)
-    {
-        observers.add(observer);
-    }
-
-    public void removeObserver(NamedWindowLifecycleObserver observer)
-    {
-        observers.remove(observer);
-    }
-
     public LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> getDeltaPerConsumer(Object perStmtObj, EPStatementAgentInstanceHandle handle) {
         List<NamedWindowConsumerDispatchUnit> list = (List<NamedWindowConsumerDispatchUnit>) perStmtObj;
         LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = new LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData>();
@@ -512,23 +396,5 @@ public class NamedWindowServiceImpl implements NamedWindowService
             }
         }
         return deltaPerConsumer;
-    }
-
-    private static class NamedWindowLockPair {
-        private final String statementName;
-        private final StatementAgentInstanceLock lock;
-
-        private NamedWindowLockPair(String statementName, StatementAgentInstanceLock lock) {
-            this.statementName = statementName;
-            this.lock = lock;
-        }
-
-        public String getStatementName() {
-            return statementName;
-        }
-
-        public StatementAgentInstanceLock getLock() {
-            return lock;
-        }
     }
 }

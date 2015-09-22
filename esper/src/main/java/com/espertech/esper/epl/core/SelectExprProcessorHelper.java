@@ -13,7 +13,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.eval.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.rettype.EventEPType;
@@ -61,7 +61,7 @@ public class SelectExprProcessorHelper
     private final String statementId;
     private final Annotation[] annotations;
     private final ConfigurationInformation configuration;
-    private final NamedWindowService namedWindowService;
+    private final NamedWindowMgmtService namedWindowMgmtService;
     private final TableService tableService;
 
     /**
@@ -90,7 +90,7 @@ public class SelectExprProcessorHelper
                                      String statementId,
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
-                                     NamedWindowService namedWindowService,
+                                     NamedWindowMgmtService namedWindowMgmtService,
                                      TableService tableService) throws ExprValidationException
     {
         this.assignedTypeNumberStack = assignedTypeNumberStack;
@@ -107,7 +107,7 @@ public class SelectExprProcessorHelper
         this.statementId = statementId;
         this.annotations = annotations;
         this.configuration = configuration;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
         this.tableService = tableService;
     }
 
@@ -433,7 +433,7 @@ public class SelectExprProcessorHelper
         // We'd like to maintain 'A' and 'B' EventType in the Map type, and 'a' and 'b' EventBeans in the event bean
         for (int i = 0; i < selectionList.size(); i++)
         {
-            Pair<ExprEvaluator, Object> pair = handleUnderlyingStreamInsert(exprEvaluators[i], namedWindowService, eventAdapterService);
+            Pair<ExprEvaluator, Object> pair = handleUnderlyingStreamInsert(exprEvaluators[i], namedWindowMgmtService, eventAdapterService);
             if (pair != null) {
                 exprEvaluators[i] = pair.getFirst();
                 expressionReturnTypes[i] = pair.getSecond();
@@ -1005,14 +1005,14 @@ public class SelectExprProcessorHelper
         return "type '" + resultEventType.getName() + "'";
     }
 
-    private Pair<ExprEvaluator, Object> handleUnderlyingStreamInsert(ExprEvaluator exprEvaluator, NamedWindowService namedWindowService, final EventAdapterService eventAdapterService) {
+    private Pair<ExprEvaluator, Object> handleUnderlyingStreamInsert(ExprEvaluator exprEvaluator, NamedWindowMgmtService namedWindowMgmtService, final EventAdapterService eventAdapterService) {
         if (!(exprEvaluator instanceof ExprStreamUnderlyingNode)) {
             return null;
         }
         final ExprStreamUnderlyingNode undNode = (ExprStreamUnderlyingNode) exprEvaluator;
         final int streamNum = undNode.getStreamId();
         final Class returnType = undNode.getExprEvaluator().getType();
-        final EventType namedWindowAsType = getNamedWindowUnderlyingType(namedWindowService, eventAdapterService, typeService.getEventTypes()[streamNum]);
+        final EventType namedWindowAsType = getNamedWindowUnderlyingType(namedWindowMgmtService, eventAdapterService, typeService.getEventTypes()[streamNum]);
         final TableMetadata tableMetadata = tableService.getTableMetadataFromEventType(typeService.getEventTypes()[streamNum]);
 
         EventType eventTypeStream;
@@ -1077,11 +1077,11 @@ public class SelectExprProcessorHelper
         return new Pair<ExprEvaluator, Object>(evaluator, eventTypeStream);
     }
 
-    private EventType getNamedWindowUnderlyingType(NamedWindowService namedWindowService, EventAdapterService eventAdapterService, EventType eventType) {
-        if (!namedWindowService.isNamedWindow(eventType.getName())) {
+    private EventType getNamedWindowUnderlyingType(NamedWindowMgmtService namedWindowMgmtService, EventAdapterService eventAdapterService, EventType eventType) {
+        if (!namedWindowMgmtService.isNamedWindow(eventType.getName())) {
             return null;
         }
-        NamedWindowProcessor processor = namedWindowService.getProcessor(eventType.getName());
+        NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(eventType.getName());
         if (processor.getEventTypeAsName() == null) {
             return null;
         }

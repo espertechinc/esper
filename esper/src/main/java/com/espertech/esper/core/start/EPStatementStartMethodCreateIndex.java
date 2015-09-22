@@ -45,7 +45,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
 
     public EPStatementStartResult startInternal(EPServicesContext services, final StatementContext statementContext, boolean isNewStatement, boolean isRecoveringStatement, boolean isRecoveringResilient) throws ExprValidationException, ViewProcessingException {
         CreateIndexDesc spec = statementSpec.getCreateIndexDesc();
-        final NamedWindowProcessor namedWindowProcessor = services.getNamedWindowService().getProcessor(spec.getWindowName());
+        final NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(spec.getWindowName());
         final TableMetadata tableMetadata = services.getTableService().getTableMetadata(spec.getWindowName());
         if (namedWindowProcessor == null && tableMetadata == null) {
             throw new ExprValidationException("A named window or table by name '" + spec.getWindowName() + "' does not exist");

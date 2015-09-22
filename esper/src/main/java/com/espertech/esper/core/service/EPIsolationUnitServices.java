@@ -11,16 +11,8 @@
 
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.dispatch.DispatchService;
-import com.espertech.esper.epl.named.NamedWindowService;
-import com.espertech.esper.epl.variable.VariableService;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.filter.FilterServiceSPI;
-import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
-import com.espertech.esper.util.ManagedReadWriteLock;
 
 /**
  * Context for all services that provide the isolated runtime.

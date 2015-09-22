@@ -82,7 +82,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         SelectExprProcessor insertHelper = SelectExprProcessorFactory.getProcessor(Collections.singleton(0),
                 selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), false, statementSpec.getInsertIntoDesc(), optionalInsertIntoEventType, null, streamTypeService,
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
-                statementContext.getMethodResolutionService(), exprEvaluatorContextStatement, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowService(), null);
+                statementContext.getMethodResolutionService(), exprEvaluatorContextStatement, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null);
 
         return new EPPreparedExecuteIUDSingleStreamExecInsert(exprEvaluatorContextStatement, insertHelper, statementSpec.getTableNodes(), services);
     }

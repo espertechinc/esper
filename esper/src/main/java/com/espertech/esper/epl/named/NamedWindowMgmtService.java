@@ -9,7 +9,6 @@
 package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.resource.StatementResourceService;
@@ -18,14 +17,12 @@ import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.view.ViewProcessingException;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Service to manage named window dispatches, locks and processors on an engine level.
+ * Service to manage named windows on an engine level.
  */
-public interface NamedWindowService
+public interface NamedWindowMgmtService
 {
     /**
      * Error message for data windows required.
@@ -76,7 +73,8 @@ public interface NamedWindowService
                                              StatementMetricHandle statementMetricHandle,
                                              Set<String> optionalUniqueKeyProps,
                                              String eventTypeAsName,
-                                             StatementResourceService statementResourceService) throws ViewProcessingException;
+                                             StatementResourceService statementResourceService,
+                                             NamedWindowDispatchService namedWindowDispatchService) throws ViewProcessingException;
 
     /**
      * Returns the processing instance for a given named window.
@@ -90,20 +88,6 @@ public interface NamedWindowService
      * @param name is the named window name
      */
     public void removeProcessor(String name);
-
-    /**
-     * Dispatch events of the insert and remove stream of named windows to consumers, as part of the
-     * main event processing or dispatch loop.
-     * @return send events to consuming statements
-     */
-    public boolean dispatch();
-
-    /**
-     * For use to add a result of a named window that must be dispatched to consuming views.
-     * @param delta is the result to dispatch
-     * @param consumers is the destination of the dispatch, a map of statements to one or more consuming views
-     */
-    public void addDispatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers);
 
     /**
      * Returns the statement lock for the named window, to be shared with on-delete statements for the same named window.

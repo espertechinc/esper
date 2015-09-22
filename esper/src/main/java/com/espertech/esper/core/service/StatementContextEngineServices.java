@@ -12,7 +12,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
@@ -27,7 +27,7 @@ public final class StatementContextEngineServices
 {
     private final String engineURI;
     private final EventAdapterService eventAdapterService;
-    private final NamedWindowService namedWindowService;
+    private final NamedWindowMgmtService namedWindowMgmtService;
     private final VariableService variableService;
     private final TableService tableService;
     private final EngineSettingsService engineSettingsService;
@@ -44,10 +44,10 @@ public final class StatementContextEngineServices
     private final StatementLockFactory statementLockFactory;
     private final ContextManagementService contextManagementService;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowService namedWindowService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
         this.variableService = variableService;
         this.tableService = tableService;
         this.engineSettingsService = engineSettingsService;
@@ -73,8 +73,8 @@ public final class StatementContextEngineServices
         return eventAdapterService;
     }
 
-    public NamedWindowService getNamedWindowService() {
-        return namedWindowService;
+    public NamedWindowMgmtService getNamedWindowMgmtService() {
+        return namedWindowMgmtService;
     }
 
     public VariableService getVariableService() {

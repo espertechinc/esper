@@ -122,7 +122,7 @@ public class EPStatementStartMethodHelperSubselect
             else
             {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
-                NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
@@ -803,7 +803,7 @@ public class EPStatementStartMethodHelperSubselect
         if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
             if (namedSpec.getFilterExpressions().isEmpty()) {
-                NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 if (processor == null) {
                     throw new ExprValidationException("A named window by name '" + namedSpec.getWindowName() + "' does not exist");
                 }
@@ -852,7 +852,7 @@ public class EPStatementStartMethodHelperSubselect
         }
         if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
-            NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+            NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
             optionalUniqueProps = processor.getOptionalUniqueKeyProps();
         }
 

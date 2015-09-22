@@ -192,7 +192,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         if (subSelectHolder.getStreamSpecCompiled() instanceof NamedWindowConsumerStreamSpec)
         {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) subSelectHolder.getStreamSpecCompiled();
-            NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+            NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
             if (processor == null) {
                 throw new RuntimeException("Failed to find named window by name '" + namedSpec.getWindowName() + "'");
             }

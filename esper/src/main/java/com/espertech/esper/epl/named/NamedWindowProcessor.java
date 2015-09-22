@@ -47,7 +47,7 @@ public class NamedWindowProcessor
 
     /**
      * Ctor.
-     * @param namedWindowService service for dispatching results
+     * @param namedWindowMgmtService service for dispatching results
      * @param eventType the type of event held by the named window
      * @param statementResultService for coordinating on whether insert and remove stream events should be posted
      * @param revisionProcessor for revision processing
@@ -55,7 +55,7 @@ public class NamedWindowProcessor
      * @param statementName statement name
      * @param isPrioritized if the engine is running with prioritized execution
      */
-    public NamedWindowProcessor(String namedWindowName, NamedWindowService namedWindowService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementResourceService statementResourceService)
+    public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementResourceService statementResourceService)
     {
         this.namedWindowName = namedWindowName;
         this.contextName = contextName;
@@ -70,7 +70,7 @@ public class NamedWindowProcessor
         this.statementResourceService = statementResourceService;
 
         rootView = new NamedWindowRootView(revisionProcessor, enableQueryPlanLog, metricReportingService, eventType, isBatchingDataWindow, isEnableSubqueryIndexShare, optionalUniqueKeyProps);
-        tailView = new NamedWindowTailView(eventType, namedWindowService, statementResultService, revisionProcessor, isPrioritized, isBatchingDataWindow);
+        tailView = new NamedWindowTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, isBatchingDataWindow);
     }
 
     public String getEventTypeAsName() {

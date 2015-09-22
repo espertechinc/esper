@@ -44,7 +44,7 @@ public class OutputProcessViewFactoryFactory
         if (statementSpec.getInsertIntoDesc() != null)
         {
             isRouted = true;
-            routeToFront = statementContext.getNamedWindowService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
+            routeToFront = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
         }
 
         OutputStrategyPostProcessFactory outputStrategyPostProcessFactory = null;

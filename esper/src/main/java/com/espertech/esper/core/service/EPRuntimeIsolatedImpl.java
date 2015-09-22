@@ -437,7 +437,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         DualWorkQueue queues = threadWorkQueue.getThreadQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 // Dispatch results to listeners
@@ -467,7 +467,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -496,7 +496,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();

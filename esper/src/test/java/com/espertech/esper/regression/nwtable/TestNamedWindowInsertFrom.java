@@ -316,19 +316,19 @@ public class TestNamedWindowInsertFrom extends TestCase
 
     private long getCount(String windowName) throws Exception
     {
-        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowService().getProcessor(windowName);
+        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowMgmtService().getProcessor(windowName);
         return processor.getProcessorInstance(null).getCountDataWindow();
     }    
 
     private String getStatementName(String windowName) throws Exception
     {
-        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowService().getProcessor(windowName);
+        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowMgmtService().getProcessor(windowName);
         return processor.getStatementName();
     }
 
     private String getEPL(String windowName) throws Exception
     {
-        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowService().getProcessor(windowName);
+        NamedWindowProcessor processor = ((EPServiceProviderSPI)epService).getNamedWindowMgmtService().getProcessor(windowName);
         return processor.getEplExpression();
     }
 }

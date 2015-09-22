@@ -31,8 +31,10 @@ import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
-import com.espertech.esper.epl.named.NamedWindowService;
-import com.espertech.esper.epl.named.NamedWindowServiceImpl;
+import com.espertech.esper.epl.named.NamedWindowDispatchService;
+import com.espertech.esper.epl.named.NamedWindowDispatchServiceImpl;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -147,7 +149,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         StreamFactoryService streamFactoryService = StreamFactoryServiceProvider.newService(epServiceProvider.getURI(), configSnapshot.getEngineDefaults().getViewResources().isShareViews());
         FilterServiceSPI filterService = FilterServiceProvider.newService(configSnapshot.getEngineDefaults().getExecution().getFilterServiceProfile(), configSnapshot.getEngineDefaults().getExecution().isAllowIsolatedService());
         MetricReportingServiceImpl metricsReporting = new MetricReportingServiceImpl(configSnapshot.getEngineDefaults().getMetricsReporting(), epServiceProvider.getURI());
-        NamedWindowService namedWindowService = new NamedWindowServiceImpl(schedulingService, variableService, tableService, engineSettingsService.getEngineSettings().getExecution().isPrioritized(), eventProcessingRWLock, exceptionHandlingService, configSnapshot.getEngineDefaults().getLogging().isEnableQueryPlan(), metricsReporting);
+        NamedWindowMgmtService namedWindowMgmtService = new NamedWindowMgmtServiceImpl(configSnapshot.getEngineDefaults().getLogging().isEnableQueryPlan(), metricsReporting);
+        NamedWindowDispatchService namedWindowDispatchService = new NamedWindowDispatchServiceImpl(schedulingService, variableService, tableService, engineSettingsService.getEngineSettings().getExecution().isPrioritized(), eventProcessingRWLock, exceptionHandlingService, metricsReporting);
 
         ValueAddEventService valueAddEventService = new ValueAddEventServiceImpl();
         valueAddEventService.init(configSnapshot.getRevisionEventTypes(), configSnapshot.getVariantStreams(), eventAdapterService, eventTypeIdGenerator);
@@ -192,7 +195,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 eventAdapterService, engineImportService, engineSettingsService, databaseConfigService, plugInViews,
                 statementLockFactory, eventProcessingRWLock, null, jndiContext, statementContextFactory,
                 plugInPatternObj, timerService, filterService, streamFactoryService,
-                namedWindowService, variableService, tableService, timeSourceService, valueAddEventService, metricsReporting, statementEventTypeRef,
+                namedWindowMgmtService, namedWindowDispatchService, variableService, tableService, timeSourceService, valueAddEventService, metricsReporting, statementEventTypeRef,
                 statementVariableRef, configSnapshot, threadingService, internalEventRouterImpl, statementIsolationService, schedulingMgmtService,
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
                 contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,

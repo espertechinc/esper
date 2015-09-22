@@ -16,7 +16,7 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.metric.MetricReportingService;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
@@ -226,12 +226,12 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return configSnapshot;
     }
 
-    public NamedWindowService getNamedWindowService()
+    public NamedWindowMgmtService getNamedWindowMgmtService()
     {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
-        return engine.getServices().getNamedWindowService();
+        return engine.getServices().getNamedWindowMgmtService();
     }
 
     public TableService getTableService() {

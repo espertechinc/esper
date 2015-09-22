@@ -13,7 +13,6 @@ import com.espertech.esper.client.VariableValueException;
 import com.espertech.esper.client.soda.StreamSelector;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.activator.ViewableActivator;
-import com.espertech.esper.core.context.activator.ViewableActivatorNamedWindow;
 import com.espertech.esper.core.context.factory.*;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementOnTriggerDesc;
 import com.espertech.esper.core.context.stmt.*;
@@ -121,7 +120,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             if (tableMetadata != null) {
                 contextFactoryResult = handleContextFactoryOnTriggerTable(statementContext, services, onTriggerDesc, contextName, streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc);
             }
-            else if (services.getNamedWindowService().getProcessor(onTriggerDesc.getWindowName()) != null) {
+            else if (services.getNamedWindowMgmtService().getProcessor(onTriggerDesc.getWindowName()) != null) {
                 contextFactoryResult = handleContextFactoryOnTriggerNamedWindow(services, statementContext, onTriggerDesc, contextName, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult, optionalStreamSelector);
             }
             else {
@@ -246,7 +245,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
     private ActivatorResult activatorNamedWindow(EPServicesContext services, NamedWindowConsumerStreamSpec namedSpec)
             throws ExprValidationException
     {
-        NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+        NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
         if (processor == null) {
             throw new ExprValidationException("A named window by name '" + namedSpec.getWindowName() + "' does not exist");
         }
@@ -370,7 +369,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             processorFactories[index] = ResultSetProcessorFactoryFactory.getProcessorPrototype(
                     splitSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot());
             whereClauses[index] = splitSpec.getFilterRootNode();
-            isNamedWindowInsert[index] = statementContext.getNamedWindowService().isNamedWindow(splits.getInsertInto().getEventTypeName());
+            isNamedWindowInsert[index] = statementContext.getNamedWindowMgmtService().isNamedWindow(splits.getInsertInto().getEventTypeName());
             insertIntoTableNames[index] = getOptionalInsertIntoTableName(splits.getInsertInto(), services.getTableService());
 
             index++;
@@ -395,7 +394,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
     private ContextFactoryResult handleContextFactoryOnTriggerNamedWindow(EPServicesContext services, StatementContext statementContext, OnTriggerWindowDesc onTriggerDesc, String contextName, StreamSpecCompiled streamSpec, ContextPropertyRegistry contextPropertyRegistry, SubSelectActivationCollection subSelectStreamDesc, ActivatorResult activatorResult, StreamSelector optionalStreamSelector)
             throws ExprValidationException
     {
-        NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(onTriggerDesc.getWindowName());
+        NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(onTriggerDesc.getWindowName());
 
         // validate context
         validateOnExpressionContext(contextName, processor.getContextName(), "Named window '" + onTriggerDesc.getWindowName() + "'");
@@ -418,7 +417,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
                 optionalInsertIntoTableName = tableMetadata.getTableName();
                 routerService = null;
             }
-            addToFront = statementContext.getNamedWindowService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
+            addToFront = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
         }
         boolean isDistinct = statementSpec.getSelectClauseSpec().isDistinct();
         EventType selectResultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();

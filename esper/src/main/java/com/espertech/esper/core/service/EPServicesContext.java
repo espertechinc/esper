@@ -24,7 +24,8 @@ import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowDispatchService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
@@ -69,7 +70,8 @@ public final class EPServicesContext
     private EngineEnvContext engineEnvContext;
     private StatementContextFactory statementContextFactory;
     private PluggableObjectCollection plugInPatternObjects;
-    private NamedWindowService namedWindowService;
+    private NamedWindowMgmtService namedWindowMgmtService;
+    private NamedWindowDispatchService namedWindowDispatchService;
     private VariableService variableService;
     private TimeSourceService timeSourceService;
     private ValueAddEventService valueAddEventService;
@@ -124,7 +126,7 @@ public final class EPServicesContext
      * @param timerService is the timer service
      * @param filterService the filter service
      * @param streamFactoryService is hooking up filters to streams
-     * @param namedWindowService is holding information about the named windows active in the system
+     * @param namedWindowMgmtService is holding information about the named windows active in the system
      * @param variableService provides access to variable values
      * @param valueAddEventService handles update events
      * @param timeSourceService time source provider class
@@ -153,7 +155,8 @@ public final class EPServicesContext
                              TimerService timerService,
                              FilterServiceSPI filterService,
                              StreamFactoryService streamFactoryService,
-                             NamedWindowService namedWindowService,
+                             NamedWindowMgmtService namedWindowMgmtService,
+                             NamedWindowDispatchService namedWindowDispatchService,
                              VariableService variableService,
                              TableService tableService,
                              TimeSourceService timeSourceService,
@@ -202,7 +205,8 @@ public final class EPServicesContext
         this.engineEnvContext = engineEnvContext;
         this.statementContextFactory = statementContextFactory;
         this.plugInPatternObjects = plugInPatternObjects;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
+        this.namedWindowDispatchService = namedWindowDispatchService;
         this.variableService = variableService;
         this.tableService = tableService;
         this.timeSourceService = timeSourceService;
@@ -470,9 +474,13 @@ public final class EPServicesContext
         {
             streamFactoryService.destroy();
         }
-        if (namedWindowService != null)
+        if (namedWindowMgmtService != null)
         {
-            namedWindowService.destroy();
+            namedWindowMgmtService.destroy();
+        }
+        if (namedWindowDispatchService != null)
+        {
+            namedWindowDispatchService.destroy();
         }
         if (engineLevelExtensionServicesContext != null)
         {
@@ -510,7 +518,7 @@ public final class EPServicesContext
         this.engineEnvContext = null;
         this.statementContextFactory = null;
         this.plugInPatternObjects = null;
-        this.namedWindowService = null;
+        this.namedWindowMgmtService = null;
         this.valueAddEventService = null;
         this.metricsReportingService = null;
         this.statementEventTypeRef = null;
@@ -553,9 +561,9 @@ public final class EPServicesContext
      * Returns the named window management service.
      * @return service for managing named windows
      */
-    public NamedWindowService getNamedWindowService()
+    public NamedWindowMgmtService getNamedWindowMgmtService()
     {
-        return namedWindowService;
+        return namedWindowMgmtService;
     }
 
     /**
@@ -718,5 +726,9 @@ public final class EPServicesContext
 
     public FilterNonPropertyRegisteryService getFilterNonPropertyRegisteryService() {
         return filterNonPropertyRegisteryService;
+    }
+
+    public NamedWindowDispatchService getNamedWindowDispatchService() {
+        return namedWindowDispatchService;
     }
 }

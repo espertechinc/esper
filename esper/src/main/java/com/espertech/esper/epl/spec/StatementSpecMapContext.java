@@ -16,7 +16,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
@@ -37,7 +37,7 @@ public class StatementSpecMapContext
     private final SchedulingService schedulingService;
     private final String engineURI;
     private final PatternNodeFactory patternNodeFactory;
-    private final NamedWindowService namedWindowService;
+    private final NamedWindowMgmtService namedWindowMgmtService;
     private final ContextManagementService contextManagementService;
     private final ExprDeclaredService exprDeclaredService;
     private final ContextDescriptor contextDescriptor;
@@ -58,7 +58,7 @@ public class StatementSpecMapContext
      * @param configuration the configuration
      * @param contextDescriptor optional context description
      */
-    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowService namedWindowService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService)
+    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService)
     {
         this.engineImportService = engineImportService;
         this.variableService = variableService;
@@ -67,7 +67,7 @@ public class StatementSpecMapContext
         this.schedulingService = schedulingService;
         this.engineURI = engineURI;
         this.patternNodeFactory = patternNodeFactory;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
         this.contextManagementService = contextManagementService;
         this.exprDeclaredService = exprDeclaredService;
         this.contextDescriptor = contextDescriptor;
@@ -141,8 +141,8 @@ public class StatementSpecMapContext
         return patternNodeFactory;
     }
 
-    public NamedWindowService getNamedWindowService() {
-        return namedWindowService;
+    public NamedWindowMgmtService getNamedWindowMgmtService() {
+        return namedWindowMgmtService;
     }
 
     public Map<String, ExpressionDeclItem> getExpressionDeclarations() {

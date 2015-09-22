@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This view is hooked into a named window's view chain as the last view and handles dispatching of named window
- * insert and remove stream results via {@link com.espertech.esper.epl.named.NamedWindowService} to consuming statements.
+ * insert and remove stream results via {@link NamedWindowMgmtService} to consuming statements.
  */
 public class NamedWindowTailViewInstance extends ViewSupport implements Iterable<EventBean>
 {
@@ -75,8 +75,8 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
 
         if (!consumersInContext.isEmpty() || !tailView.getConsumersNonContext().isEmpty()) {
             NamedWindowDeltaData delta = new NamedWindowDeltaData(newData, oldData);
-            tailView.getNamedWindowService().addDispatch(delta, consumersInContext);
-            tailView.getNamedWindowService().addDispatch(delta, tailView.getConsumersNonContext());
+            tailView.getNamedWindowDispatchService().addDispatch(delta, consumersInContext);
+            tailView.getNamedWindowDispatchService().addDispatch(delta, tailView.getConsumersNonContext());
         }
     }
 

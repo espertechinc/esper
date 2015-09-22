@@ -26,7 +26,7 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
@@ -103,9 +103,9 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         boolean isBatchingDataWindow = determineBatchingDataWindow(unmaterializedViewChain.getViewFactoryChain());
         final VirtualDWViewFactory virtualDataWindowFactory = determineVirtualDataWindow(unmaterializedViewChain.getViewFactoryChain());
         Set<String> optionalUniqueKeyProps = ViewServiceHelper.getUniqueCandidateProperties(unmaterializedViewChain.getViewFactoryChain(), statementSpec.getAnnotations());
-        NamedWindowProcessor processor = services.getNamedWindowService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
+        NamedWindowProcessor processor = services.getNamedWindowMgmtService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
                 statementSpec.getCreateWindowDesc().getAsEventTypeName(),
-                statementContext.getStatementExtensionServicesContext().getStmtResources());
+                statementContext.getStatementExtensionServicesContext().getStmtResources(), services.getNamedWindowDispatchService());
 
         Viewable finalViewable;
         EPStatementStopMethod stopStatementMethod;
@@ -115,7 +115,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             // add stop callback
             stopCallbacks.add(new StopCallback() {
                 public void stop() {
-                    services.getNamedWindowService().removeProcessor(windowName);
+                    services.getNamedWindowMgmtService().removeProcessor(windowName);
                     if (virtualDataWindowFactory != null) {
                         virtualDataWindowFactory.destroyNamedWindow();
                     }
@@ -170,7 +170,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                     resultOfStart = (StatementAgentInstanceFactoryCreateWindowResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
                 }
                 catch (RuntimeException ex) {
-                    services.getNamedWindowService().removeProcessor(windowName);
+                    services.getNamedWindowMgmtService().removeProcessor(windowName);
                     throw ex;
                 }
                 finalViewable = resultOfStart.getFinalView();
@@ -190,11 +190,11 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             }
         }
         catch (ExprValidationException ex) {
-            services.getNamedWindowService().removeProcessor(windowName);
+            services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
         }
         catch (RuntimeException ex) {
-            services.getNamedWindowService().removeProcessor(windowName);
+            services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
         }
 
@@ -228,6 +228,6 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 return;
             }
         }
-        throw new ExprValidationException(NamedWindowService.ERROR_MSG_DATAWINDOWS);
+        throw new ExprValidationException(NamedWindowMgmtService.ERROR_MSG_DATAWINDOWS);
     }
 }

@@ -26,7 +26,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
 import com.espertech.esper.epl.spec.*;
@@ -108,7 +108,7 @@ public final class FilterSpecCompiler
         return buildNoStmtCtx(validatedNodes, eventType, eventTypeName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, streamTypeService,
                 optionalStreamName, assignedTypeNumberStack,
                 evaluatorContextStmt, stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(),
-                stmtContext.getMethodResolutionService(), stmtContext.getEventAdapterService(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowService());
+                stmtContext.getMethodResolutionService(), stmtContext.getEventAdapterService(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowMgmtService());
     }
 
     public static FilterSpecCompiled buildNoStmtCtx(List<ExprNode> validatedFilterNodes,
@@ -131,14 +131,14 @@ public final class FilterSpecCompiler
                                             VariableService variableService,
                                             TableService tableService,
                                             ConfigurationInformation configurationInformation,
-                                            NamedWindowService namedWindowService) throws ExprValidationException {
+                                            NamedWindowMgmtService namedWindowMgmtService) throws ExprValidationException {
 
         FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, exprEvaluatorContext, statementName, statementId, streamTypeService, methodResolutionService, timeProvider, variableService, tableService, eventAdapterService, annotations, contextDescriptor, configurationInformation);
         List<FilterSpecParam>[] parameters = FilterSpecCompilerPlanner.planFilterParameters(validatedFilterNodes, args);
 
         PropertyEvaluator optionalPropertyEvaluator = null;
         if (optionalPropertyEvalSpec != null) {
-            optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, eventAdapterService, methodResolutionService, timeProvider, variableService, tableService, streamTypeService.getEngineURIQualifier(), statementId, statementName, annotations, assignedTypeNumberStack, configurationInformation, namedWindowService);
+            optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, eventAdapterService, methodResolutionService, timeProvider, variableService, tableService, streamTypeService.getEngineURIQualifier(), statementId, statementName, annotations, assignedTypeNumberStack, configurationInformation, namedWindowMgmtService);
         }
 
         FilterSpecCompiled spec = new FilterSpecCompiled(eventType, eventTypeName, parameters, optionalPropertyEvaluator);
@@ -238,7 +238,7 @@ public final class FilterSpecCompiler
             else
             {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
-                NamedWindowProcessor processor = statementContext.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                NamedWindowProcessor processor = statementContext.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 viewFactoryChain = statementContext.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                 subselecteventTypeName = namedSpec.getWindowName();
                 EPLValidationUtil.validateContextName(false, processor.getNamedWindowName(), processor.getContextName(), statementContext.getContextName(), true);

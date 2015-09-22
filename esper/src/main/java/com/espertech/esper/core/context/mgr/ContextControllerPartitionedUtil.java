@@ -16,7 +16,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -118,7 +118,7 @@ public class ContextControllerPartitionedUtil {
         return propertyTypes;
     }
 
-    protected static void validateStatementForContext(String contextName, ContextControllerStatementBase statement, StatementSpecCompiledAnalyzerResult streamAnalysis, Collection<EventType> itemEventTypes, NamedWindowService namedWindowService)
+    protected static void validateStatementForContext(String contextName, ContextControllerStatementBase statement, StatementSpecCompiledAnalyzerResult streamAnalysis, Collection<EventType> itemEventTypes, NamedWindowMgmtService namedWindowMgmtService)
         throws ExprValidationException
     {
         List<FilterSpecCompiled> filters = streamAnalysis.getFilters();
@@ -137,7 +137,7 @@ public class ContextControllerPartitionedUtil {
                         return;
                     }
 
-                    NamedWindowProcessor processor = namedWindowService.getProcessor(stmtFilterType.getName());
+                    NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(stmtFilterType.getName());
                     if (processor != null && processor.getContextName() != null && processor.getContextName().equals(contextName)) {
                         return;
                     }

@@ -13,8 +13,6 @@ package com.espertech.esper.support.view;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
-import com.espertech.esper.client.hook.ConditionHandler;
-import com.espertech.esper.client.hook.ExceptionHandler;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.*;
@@ -24,7 +22,7 @@ import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.named.NamedWindowServiceImpl;
+import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -36,13 +34,11 @@ import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
-import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.view.ViewEnumHelper;
 import com.espertech.esper.view.ViewFactoryContext;
 import com.espertech.esper.view.ViewResolutionServiceImpl;
 
 import java.net.URI;
-import java.util.Collections;
 
 public class SupportStatementContextFactory
 {
@@ -88,7 +84,7 @@ public class SupportStatementContextFactory
 
         StatementContextEngineServices stmtEngineServices = new StatementContextEngineServices("engURI",
                 SupportEventAdapterService.getService(),
-                new NamedWindowServiceImpl(null, variableService, new TableServiceImpl(), false, new ManagedReadWriteLock("dummyeplock", true), new ExceptionHandlingService("engURI", Collections.<ExceptionHandler>emptyList(), Collections.<ConditionHandler>emptyList()), false, null),
+                new NamedWindowMgmtServiceImpl(false, null),
                 null, new TableServiceImpl(),
                 new EngineSettingsService(new Configuration().getEngineDefaults(), new URI[0]),
                 new ValueAddEventServiceImpl(),

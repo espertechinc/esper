@@ -55,7 +55,7 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
 
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) throws ExprValidationException {
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(statement.getStatementSpec());
-        ContextControllerPartitionedUtil.validateStatementForContext(factoryContext.getContextName(), statement, streamAnalysis, getItemEventTypes(segmentedSpec), factoryContext.getServicesContext().getNamedWindowService());
+        ContextControllerPartitionedUtil.validateStatementForContext(factoryContext.getContextName(), statement, streamAnalysis, getItemEventTypes(segmentedSpec), factoryContext.getServicesContext().getNamedWindowMgmtService());
         return new ContextControllerStatementCtxCacheFilters(streamAnalysis.getFilters());
     }
 

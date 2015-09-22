@@ -795,7 +795,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         DualWorkQueue queues = threadWorkQueue.getThreadQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 // Dispatch results to listeners
@@ -826,7 +826,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -855,7 +855,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -1619,12 +1619,12 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 spec = EPAdministratorHelper.compileEPL(epl, epl, true, stmtName, services, SelectClauseStreamSelectorEnum.ISTREAM_ONLY);
             }
             else if (model != null) {
-                spec = StatementSpecMapper.map(model, services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
+                spec = StatementSpecMapper.map(model, services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowMgmtService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
                 epl = model.toEPL();
             }
             else {
                 EPPreparedStatementImpl prepared = (EPPreparedStatementImpl) parameterizedQuery;
-                spec = StatementSpecMapper.map(prepared.getModel(), services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
+                spec = StatementSpecMapper.map(prepared.getModel(), services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowMgmtService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
                 epl = prepared.getOptionalEPL();
                 if (epl == null) {
                     epl = prepared.getModel().toEPL();

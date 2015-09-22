@@ -56,7 +56,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
 
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) throws ExprValidationException {
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(statement.getStatementSpec());
-        ContextControllerPartitionedUtil.validateStatementForContext(factoryContext.getContextName(), statement, streamAnalysis, getItemEventTypes(hashedSpec), factoryContext.getServicesContext().getNamedWindowService());
+        ContextControllerPartitionedUtil.validateStatementForContext(factoryContext.getContextName(), statement, streamAnalysis, getItemEventTypes(hashedSpec), factoryContext.getServicesContext().getNamedWindowMgmtService());
         return new ContextControllerStatementCtxCacheFilters(streamAnalysis.getFilters());
     }
 

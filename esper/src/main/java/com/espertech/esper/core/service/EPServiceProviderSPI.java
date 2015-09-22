@@ -14,7 +14,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.epl.metric.MetricReportingService;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
@@ -86,7 +86,7 @@ public interface EPServiceProviderSPI extends EPServiceProvider
      * Returns the named window service.
      * @return named window service
      */
-    public NamedWindowService getNamedWindowService();
+    public NamedWindowMgmtService getNamedWindowMgmtService();
 
     /**
      * Returns the table service.

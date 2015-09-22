@@ -44,7 +44,7 @@ import com.espertech.esper.epl.expression.table.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodImpl;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.parse.ASTAggregationHelper;
 import com.espertech.esper.epl.parse.ASTTableExprHelper;
 import com.espertech.esper.epl.parse.ASTUtil;
@@ -116,14 +116,14 @@ public class StatementSpecMapper
      * @param configuration supplies config values
      * @return statement specification, and internal representation of a statement
      */
-    public static StatementSpecRaw map(EPStatementObjectModel sodaStatement, EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowService namedWindowService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, TableService tableService)
+    public static StatementSpecRaw map(EPStatementObjectModel sodaStatement, EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, TableService tableService)
     {
         com.espertech.esper.core.context.util.ContextDescriptor contextDescriptor = null;
         if (sodaStatement.getContextName() != null) {
             contextDescriptor = contextManagementService.getContextDescriptor(sodaStatement.getContextName());
         }
 
-        StatementSpecMapContext mapContext = new StatementSpecMapContext(engineImportService, variableService, configuration, schedulingService, engineURI, patternNodeFactory, namedWindowService, contextManagementService, exprDeclaredService, contextDescriptor, tableService);
+        StatementSpecMapContext mapContext = new StatementSpecMapContext(engineImportService, variableService, configuration, schedulingService, engineURI, patternNodeFactory, namedWindowMgmtService, contextManagementService, exprDeclaredService, contextDescriptor, tableService);
 
         StatementSpecRaw raw = map(sodaStatement, mapContext);
         if (mapContext.isHasVariables())

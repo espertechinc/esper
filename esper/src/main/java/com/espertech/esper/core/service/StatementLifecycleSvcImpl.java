@@ -34,7 +34,7 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisit
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeViewResourceVisitor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.script.jsr223.JSR223Helper;
 import com.espertech.esper.epl.script.mvel.MVELHelper;
 import com.espertech.esper.epl.script.mvel.MVELInvoker;
@@ -254,7 +254,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         // Determine Subselects for compilation, and lambda-expression shortcut syntax for named windows
         List<ExprSubselectNode> subselectNodes = visitor.getSubselects();
         if (!visitor.getChainedExpressionsDot().isEmpty()) {
-            rewriteNamedWindowSubselect(visitor.getChainedExpressionsDot(), subselectNodes, services.getNamedWindowService());
+            rewriteNamedWindowSubselect(visitor.getChainedExpressionsDot(), subselectNodes, services.getNamedWindowMgmtService());
         }
 
         // compile foreign scripts
@@ -826,7 +826,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
 
             // remove the named window lock
-            services.getNamedWindowService().removeNamedWindowLock(desc.getEpStatement().getName());
+            services.getNamedWindowMgmtService().removeNamedWindowLock(desc.getEpStatement().getName());
 
             // remove any pattern subexpression counts
             if (services.getPatternSubexpressionPoolSvc() != null) {
@@ -1105,7 +1105,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
             List<ExprSubselectNode> subselects = visitor.getSubselects();
             if (!visitor.getChainedExpressionsDot().isEmpty()) {
-                rewriteNamedWindowSubselect(visitor.getChainedExpressionsDot(), subselects, statementContext.getNamedWindowService());
+                rewriteNamedWindowSubselect(visitor.getChainedExpressionsDot(), subselects, statementContext.getNamedWindowMgmtService());
             }
         }
         catch (ExprValidationException ex) {
@@ -1214,7 +1214,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 // view must be non-empty list
                 if (spec.getCreateWindowDesc().getViewSpecs().isEmpty())
                 {
-                    throw new ExprValidationException(NamedWindowService.ERROR_MSG_DATAWINDOWS);
+                    throw new ExprValidationException(NamedWindowMgmtService.ERROR_MSG_DATAWINDOWS);
                 }
 
                 // use the filter specification of the newly created event type and the views for the named window
@@ -1306,7 +1306,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return !visitor.isHasAggregation() && !visitor.isHasPreviousPrior() && !visitor.isHasSubselect();
     }
 
-    private static void rewriteNamedWindowSubselect(List<ExprDotNode> chainedExpressionsDot, List<ExprSubselectNode> subselects, NamedWindowService service) {
+    private static void rewriteNamedWindowSubselect(List<ExprDotNode> chainedExpressionsDot, List<ExprSubselectNode> subselects, NamedWindowMgmtService service) {
         for (ExprDotNode dotNode : chainedExpressionsDot) {
             String proposedWindow = dotNode.getChainSpec().get(0).getName();
             if (!service.isNamedWindow(proposedWindow)) {

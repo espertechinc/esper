@@ -84,7 +84,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         return new StatementContextEngineServices(
                 services.getEngineURI(),
                 services.getEventAdapterService(),
-                services.getNamedWindowService(),
+                services.getNamedWindowMgmtService(),
                 services.getVariableService(),
                 services.getTableService(),
                 services.getEngineSettingsService(),
@@ -131,7 +131,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         if ((optOnTriggerDesc != null) && (optOnTriggerDesc instanceof OnTriggerWindowDesc)) {
             String windowName = ((OnTriggerWindowDesc) optOnTriggerDesc).getWindowName();
             if (engineServices.getTableService().getTableMetadata(windowName) == null) {
-                defaultStatementAgentInstanceLock = engineServices.getNamedWindowService().getNamedWindowLock(windowName);
+                defaultStatementAgentInstanceLock = engineServices.getNamedWindowMgmtService().getNamedWindowLock(windowName);
                 if (defaultStatementAgentInstanceLock == null) {
                     throw new EPStatementException("Named window or table '" + windowName + "' has not been declared", expression);
                 }
@@ -143,11 +143,11 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         // For creating a named window, save the lock for use with on-delete/on-merge/on-update etc. statements
         else if (optCreateWindowDesc != null)
         {
-            defaultStatementAgentInstanceLock = engineServices.getNamedWindowService().getNamedWindowLock(optCreateWindowDesc.getWindowName());
+            defaultStatementAgentInstanceLock = engineServices.getNamedWindowMgmtService().getNamedWindowLock(optCreateWindowDesc.getWindowName());
             if (defaultStatementAgentInstanceLock == null)
             {
                 defaultStatementAgentInstanceLock = engineServices.getStatementLockFactory().getStatementLock(statementName, annotations, false);
-                engineServices.getNamedWindowService().addNamedWindowLock(optCreateWindowDesc.getWindowName(), defaultStatementAgentInstanceLock, statementName);
+                engineServices.getNamedWindowMgmtService().addNamedWindowLock(optCreateWindowDesc.getWindowName(), defaultStatementAgentInstanceLock, statementName);
             }
         }
         else

@@ -185,7 +185,7 @@ public class TestInfraStartStop extends TestCase
         SupportNamedWindowObserver observer = new SupportNamedWindowObserver();
         NamedWindowLifecycleEvent theEvent;
         if (namedWindow) {
-            epService.getNamedWindowService().addObserver(observer);
+            epService.getNamedWindowMgmtService().addObserver(observer);
         }
 
         // create window

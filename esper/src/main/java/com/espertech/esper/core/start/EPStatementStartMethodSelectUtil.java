@@ -38,7 +38,7 @@ import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.util.EPLValidationUtil;
@@ -106,7 +106,7 @@ public class EPStatementStartMethodSelectUtil
         HistoricalEventViewable[] historicalEventViewables = new HistoricalEventViewable[numStreams];
 
         // verify for joins that required views are present
-        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowService(), defaultAgentInstanceContext);
+        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowMgmtService(), defaultAgentInstanceContext);
         final ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
 
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
@@ -241,7 +241,7 @@ public class EPStatementStartMethodSelectUtil
             else if (streamSpec instanceof NamedWindowConsumerStreamSpec)
             {
                 final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
-                final NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                final NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
@@ -371,7 +371,7 @@ public class EPStatementStartMethodSelectUtil
         }
     }
 
-    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowService namedWindowService, AgentInstanceContext defaultAgentInstanceContext)
+    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowMgmtService namedWindowMgmtService, AgentInstanceContext defaultAgentInstanceContext)
             throws ExprValidationException
     {
         StreamSpecCompiled[] streamSpecs = statementSpec.getStreamSpecs();
@@ -408,7 +408,7 @@ public class EPStatementStartMethodSelectUtil
                     throw new ExprValidationException("Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");
                 }
                 analysisResult.setNamedWindow(i);
-                final NamedWindowProcessor processor = namedWindowService.getProcessor(nwSpec.getWindowName());
+                final NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(nwSpec.getWindowName());
                 NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(defaultAgentInstanceContext);
                 String[][] uniqueIndexes = processor.getUniqueIndexes(processorInstance);
                 analysisResult.getUniqueKeys()[i] = uniqueIndexes;
