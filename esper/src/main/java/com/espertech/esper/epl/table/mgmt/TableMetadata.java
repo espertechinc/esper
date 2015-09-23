@@ -39,7 +39,7 @@ public class TableMetadata {
     private final Map<String, TableMetadataColumn> tableColumns;
     private final TableStateRowFactory rowFactory;
     private final int numberMethodAggregations;
-    private final StatementContext createTableStatementContext;
+    private final StatementContext statementContextCreateTable;
     private final ObjectArrayEventType internalEventType;
     private final ObjectArrayEventType publicEventType;
     private final TableMetadataInternalEventToPublic eventToPublic;
@@ -62,7 +62,7 @@ public class TableMetadata {
         this.tableColumns = tableColumns;
         this.rowFactory = rowFactory;
         this.numberMethodAggregations = numberMethodAggregations;
-        this.createTableStatementContext = createTableStatementContext;
+        this.statementContextCreateTable = createTableStatementContext;
         this.internalEventType = internalEventType;
         this.publicEventType = publicEventType;
         this.eventToPublic = eventToPublic;
@@ -96,7 +96,7 @@ public class TableMetadata {
     }
 
     public String getContextName() {
-        return createTableStatementContext.getContextName();
+        return statementContextCreateTable.getContextName();
     }
 
     public ObjectArrayEventType getInternalEventType() {
@@ -201,10 +201,10 @@ public class TableMetadata {
     }
 
     public TableStateInstance getState(int agentInstanceId) {
-        StatementResourceService createTableResources = createTableStatementContext.getStatementExtensionServicesContext().getStmtResources();
+        StatementResourceService createTableResources = statementContextCreateTable.getStatementExtensionServicesContext().getStmtResources();
 
         StatementResourceHolder holder = null;
-        if (createTableStatementContext.getContextName() == null) {
+        if (statementContextCreateTable.getContextName() == null) {
             holder = createTableResources.getResourcesUnpartitioned();
         }
         else {
@@ -221,9 +221,9 @@ public class TableMetadata {
     }
 
     public Collection<Integer> getAgentInstanceIds() {
-        StatementResourceService createTableResources = createTableStatementContext.getStatementExtensionServicesContext().getStmtResources();
+        StatementResourceService createTableResources = statementContextCreateTable.getStatementExtensionServicesContext().getStmtResources();
 
-        if (createTableStatementContext.getContextName() == null) {
+        if (statementContextCreateTable.getContextName() == null) {
             return Collections.singleton(-1);
         }
         if (createTableResources.getResourcesPartitioned() != null) {
@@ -265,7 +265,7 @@ public class TableMetadata {
         return statementName;
     }
 
-    public StatementContext getCreateTableStatementContext() {
-        return createTableStatementContext;
+    public StatementContext getStatementContextCreateTable() {
+        return statementContextCreateTable;
     }
 }

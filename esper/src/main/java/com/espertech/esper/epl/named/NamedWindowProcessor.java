@@ -11,6 +11,7 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
@@ -39,11 +40,10 @@ public class NamedWindowProcessor
     private final String statementName;
     private final boolean isEnableSubqueryIndexShare;
     private final boolean isVirtualDataWindow;
-    private final StatementMetricHandle statementMetricHandle;
     private final Set<String> optionalUniqueKeyProps;
     private final String eventTypeAsName;
     private final EventTableIndexMetadata eventTableIndexMetadataRepo = new EventTableIndexMetadata();
-    private final StatementResourceService statementResourceService;
+    private final StatementContext statementContextCreateWindow;
 
     /**
      * Ctor.
@@ -55,7 +55,7 @@ public class NamedWindowProcessor
      * @param statementName statement name
      * @param isPrioritized if the engine is running with prioritized execution
      */
-    public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementResourceService statementResourceService)
+    public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow)
     {
         this.namedWindowName = namedWindowName;
         this.contextName = contextName;
@@ -64,10 +64,9 @@ public class NamedWindowProcessor
         this.statementName = statementName;
         this.isEnableSubqueryIndexShare = isEnableSubqueryIndexShare;
         this.isVirtualDataWindow = isVirtualDataWindow;
-        this.statementMetricHandle = statementMetricHandle;
         this.optionalUniqueKeyProps = optionalUniqueKeyProps;
         this.eventTypeAsName = eventTypeAsName;
-        this.statementResourceService = statementResourceService;
+        this.statementContextCreateWindow = statementContextCreateWindow;
 
         rootView = new NamedWindowRootView(revisionProcessor, enableQueryPlanLog, metricReportingService, eventType, isBatchingDataWindow, isEnableSubqueryIndexShare, optionalUniqueKeyProps);
         tailView = namedWindowDispatchService.createTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, isBatchingDataWindow);
@@ -87,23 +86,23 @@ public class NamedWindowProcessor
     }
 
     public NamedWindowProcessorInstance getProcessorInstanceNoContext() {
-        StatementResourceHolder holder = statementResourceService.getUnpartitioned();
+        StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getUnpartitioned();
         return holder == null ? null : holder.getNamedWindowProcessorInstance();
     }
 
     public NamedWindowProcessorInstance getProcessorInstance(int agentInstanceId) {
-        StatementResourceHolder holder = statementResourceService.getPartitioned(agentInstanceId);
+        StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getPartitioned(agentInstanceId);
         return holder == null ? null : holder.getNamedWindowProcessorInstance();
     }
 
     public synchronized Collection<Integer> getProcessorInstancesAll() {
-        Set<Integer> keyset = statementResourceService.getResourcesPartitioned().keySet();
+        Set<Integer> keyset = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getResourcesPartitioned().keySet();
         return new ArrayDeque<Integer>(keyset);
     }
 
     public NamedWindowProcessorInstance getProcessorInstance(AgentInstanceContext agentInstanceContext) {
         if (contextName == null) {
-            StatementResourceHolder holder = statementResourceService.getUnpartitioned();
+            StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getUnpartitioned();
             return holder == null ? null : holder.getNamedWindowProcessorInstance();
         }
 
@@ -112,7 +111,7 @@ public class NamedWindowProcessor
         }
         
         if (this.contextName.equals(agentInstanceContext.getStatementContext().getContextDescriptor().getContextName())) {
-            StatementResourceHolder holder = statementResourceService.getPartitioned(agentInstanceContext.getAgentInstanceId());
+            StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getPartitioned(agentInstanceContext.getAgentInstanceId());
             return holder == null ? null : holder.getNamedWindowProcessorInstance();
         }
 
@@ -124,6 +123,9 @@ public class NamedWindowProcessor
     }
 
     public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc, boolean isSubselect) {
+
+        StatementResourceService statementResourceService = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources();
+
         // handle same-context consumer
         if (this.contextName != null) {
             ContextDescriptor contextDescriptor = consumerDesc.getAgentInstanceContext().getStatementContext().getContextDescriptor();
@@ -204,7 +206,7 @@ public class NamedWindowProcessor
     }
 
     public StatementMetricHandle getCreateNamedWindowMetricsHandle() {
-        return statementMetricHandle;
+        return statementContextCreateWindow.getEpStatementHandle().getMetricsHandle();
     }
 
     public String getNamedWindowName() {
@@ -247,6 +249,8 @@ public class NamedWindowProcessor
     }
 
     public void removeAllInstanceIndexes(IndexMultiKey index) {
+        StatementResourceService statementResourceService = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources();
+
         if (contextName == null) {
             StatementResourceHolder holder = statementResourceService.getUnpartitioned();
             if (holder != null && holder.getNamedWindowProcessorInstance() != null) {
@@ -271,12 +275,6 @@ public class NamedWindowProcessor
         if (last) {
             eventTableIndexMetadataRepo.removeIndex(imk);
             removeAllInstanceIndexes(imk);
-        }
-    }
-
-    private void checkAlreadyAllocated(StatementResourceHolder holder) {
-        if (holder.getNamedWindowProcessorInstance() != null) {
-            throw new RuntimeException("Failed to allocated processor instance: already allocated and not released");
         }
     }
 }

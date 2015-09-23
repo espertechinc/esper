@@ -10,6 +10,7 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
@@ -70,10 +71,9 @@ public interface NamedWindowMgmtService
                                              boolean isEnableSubqueryIndexShare,
                                              boolean isBatchingDataWindow,
                                              boolean isVirtualDataWindow,
-                                             StatementMetricHandle statementMetricHandle,
                                              Set<String> optionalUniqueKeyProps,
                                              String eventTypeAsName,
-                                             StatementResourceService statementResourceService,
+                                             StatementContext statementContextCreateWindow,
                                              NamedWindowDispatchService namedWindowDispatchService) throws ViewProcessingException;
 
     /**

@@ -10,6 +10,7 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
@@ -104,9 +105,9 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
     public NamedWindowProcessor addProcessor(String name, String contextName, EventType eventType, StatementResultService statementResultService,
                                              ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized,
                                              boolean isEnableSubqueryIndexShare, boolean isBatchingDataWindow,
-                                             boolean isVirtualDataWindow, StatementMetricHandle statementMetricHandle,
+                                             boolean isVirtualDataWindow,
                                              Set<String> optionalUniqueKeyProps, String eventTypeAsName,
-                                             StatementResourceService statementResourceService,
+                                             StatementContext statementContextCreateWindow,
                                              NamedWindowDispatchService namedWindowDispatchService) throws ViewProcessingException
     {
         if (processors.containsKey(name))
@@ -114,7 +115,7 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
             throw new ViewProcessingException("A named window by name '" + name + "' has already been created");
         }
 
-        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, statementMetricHandle, optionalUniqueKeyProps, eventTypeAsName, statementResourceService);
+        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, optionalUniqueKeyProps, eventTypeAsName, statementContextCreateWindow);
         processors.put(name, processor);
 
         if (!observers.isEmpty())

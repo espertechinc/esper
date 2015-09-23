@@ -103,9 +103,9 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         boolean isBatchingDataWindow = determineBatchingDataWindow(unmaterializedViewChain.getViewFactoryChain());
         final VirtualDWViewFactory virtualDataWindowFactory = determineVirtualDataWindow(unmaterializedViewChain.getViewFactoryChain());
         Set<String> optionalUniqueKeyProps = ViewServiceHelper.getUniqueCandidateProperties(unmaterializedViewChain.getViewFactoryChain(), statementSpec.getAnnotations());
-        NamedWindowProcessor processor = services.getNamedWindowMgmtService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
+        NamedWindowProcessor processor = services.getNamedWindowMgmtService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, optionalUniqueKeyProps,
                 statementSpec.getCreateWindowDesc().getAsEventTypeName(),
-                statementContext.getStatementExtensionServicesContext().getStmtResources(), services.getNamedWindowDispatchService());
+                statementContext, services.getNamedWindowDispatchService());
 
         Viewable finalViewable;
         EPStatementStopMethod stopStatementMethod;
