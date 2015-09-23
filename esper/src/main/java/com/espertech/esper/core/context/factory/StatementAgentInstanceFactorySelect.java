@@ -378,10 +378,12 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {
         StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) result;
         EPStatementStartMethodHelperAssignExpr.assignAggregations(selectResult.getOptionalAggegationService(), resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.assignSubqueryStrategies(subSelectStrategyCollection, result.getSubselectStrategies());
     }
 
     public void unassignExpressions() {
-        EPStatementStartMethodHelperAssignExpr.assignAggregations(null, resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.unassignAggregations(resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.unassignSubqueryStrategies(subSelectStrategyCollection.getSubqueries().keySet());
     }
 
     public ViewableActivator[] getEventStreamParentViewableActivators() {

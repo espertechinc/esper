@@ -29,6 +29,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.rowregex.RegexExprPreviousEvalStrategy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +78,12 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignAggregations(List<AggregationServiceAggExpressionDesc> aggregationExpressions) {
+        for (AggregationServiceAggExpressionDesc aggregation : aggregationExpressions) {
+            aggregation.assignFuture(null);
+        }
+    }
+
     public static void assignPreviousStrategies(Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousStrategyInstances) {
         for (Map.Entry<ExprPreviousNode, ExprPreviousEvalStrategy> pair : previousStrategyInstances.entrySet()) {
             pair.getKey().setEvaluator(pair.getValue());
@@ -110,6 +117,13 @@ public class EPStatementStartMethodHelperAssignExpr
         }
 
         return processor;
+    }
+
+    public static void unassignSubqueryStrategies(Collection<ExprSubselectNode> subselects) {
+        for (ExprSubselectNode subselectNode : subselects) {
+            subselectNode.setStrategy(null);
+            subselectNode.setSubselectAggregationService(null);
+        }
     }
 
     public static void assignSubqueryStrategies(SubSelectStrategyCollection subSelectStrategyCollection, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategyInstances) {
