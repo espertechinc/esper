@@ -79,14 +79,14 @@ public class TableServiceImpl implements TableService {
     }
 
     public TableMetadata addTable(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory tableStateRowFactory, int numberMethodAggregations, StatementContext statementContext, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging) throws ExprValidationException {
-        final TableMetadata metadata = new TableMetadata(tableName, eplExpression, statementName, keyTypes, tableColumns, tableStateRowFactory, numberMethodAggregations, statementContext.getStatementExtensionServicesContext().getStmtResources(), statementContext.getContextName(), internalEventType, publicEventType, eventToPublic, queryPlanLogging, statementContext.getStatementName());
+        final TableMetadata metadata = new TableMetadata(tableName, eplExpression, statementName, keyTypes, tableColumns, tableStateRowFactory, numberMethodAggregations, statementContext, internalEventType, publicEventType, eventToPublic, queryPlanLogging);
 
         // determine table state factory
         TableStateFactory tableStateFactory;
         if (keyTypes.length == 0) { // ungrouped
             tableStateFactory = new TableStateFactory() {
                 public TableStateInstance makeTableState(AgentInstanceContext agentInstanceContext) {
-                    return new TableStateInstanceUngrouped(metadata, agentInstanceContext);
+                    return new TableStateInstanceUngroupedImpl(metadata, agentInstanceContext);
                 }
             };
         }

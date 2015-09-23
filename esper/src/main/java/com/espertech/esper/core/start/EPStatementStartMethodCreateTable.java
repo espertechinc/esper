@@ -114,6 +114,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
 
         // allocate context factory
         StatementAgentInstanceFactoryCreateTable contextFactory = new StatementAgentInstanceFactoryCreateTable(metadata);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
         Viewable outputView;
 
         if (statementSpec.getOptionalContextName() != null) {

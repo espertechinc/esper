@@ -137,6 +137,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             OnTriggerSplitStreamDesc desc = (OnTriggerSplitStreamDesc) statementSpec.getOnTriggerDesc();
             contextFactoryResult = handleContextFactorySplitStream(statementSpec, statementContext, services, desc, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult);
         }
+        statementContext.setStatementAgentInstanceFactory(contextFactoryResult.getContextFactory());
         EventType resultEventType = contextFactoryResult.getResultSetProcessorPrototype() == null ? null : contextFactoryResult.getResultSetProcessorPrototype().getResultSetProcessorFactory().getResultEventType();
 
         // perform start of hook-up to start
