@@ -67,6 +67,7 @@ public class StatementSpecCompiled
     private final IntoTableSpec intoTableSpec;
     private final ExprTableAccessNode[] tableNodes;
     private FilterSpecCompiled[] filterSpecsOverall;
+    private NamedWindowConsumerStreamSpec[] namedWindowConsumersAll;
 
     /**
      * Ctor.
@@ -490,5 +491,13 @@ public class StatementSpecCompiled
 
     public FilterSpecCompiled[] getFilterSpecsOverall() {
         return filterSpecsOverall;
+    }
+
+    public NamedWindowConsumerStreamSpec[] getNamedWindowConsumersAll() {
+        return namedWindowConsumersAll;
+    }
+
+    public void setNamedWindowConsumersAll(NamedWindowConsumerStreamSpec[] namedWindowConsumersAll) {
+        this.namedWindowConsumersAll = namedWindowConsumersAll;
     }
 }

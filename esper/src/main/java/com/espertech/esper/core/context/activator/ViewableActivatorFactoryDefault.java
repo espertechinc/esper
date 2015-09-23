@@ -19,6 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
+import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
@@ -46,7 +47,7 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
         return new ViewableActivatorPattern(patternContext, rootFactoryNode, eventType, consumingFilters, suppressSameEventMatches, discardPartialsOnMatch, isCanIterateUnbound);
     }
 
-    public ViewableActivator createNamedWindow(NamedWindowProcessor processor, List<ExprNode> filterExpressions, PropertyEvaluator optPropertyEvaluator) {
-        return new ViewableActivatorNamedWindow(processor, filterExpressions, optPropertyEvaluator);
+    public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec) {
+        return new ViewableActivatorNamedWindow(processor, streamSpec.getFilterExpressions(), streamSpec.getOptPropertyEvaluator());
     }
 }

@@ -10,13 +10,16 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
+import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
+import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ManagedReadWriteLock;
@@ -76,6 +79,10 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         this.metricReportingService = metricReportingService;
     }
 
+    public NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow) {
+        return new NamedWindowTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, parentBatchWindow);
+    }
+
     public void destroy()
     {
         threadLocal.remove();
@@ -84,10 +91,8 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
 
     public void addDispatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
     {
-        if (!consumers.isEmpty()) {
-            NamedWindowConsumerDispatchUnit unit = new NamedWindowConsumerDispatchUnit(delta, consumers);
-            threadLocal.get().add(unit);
-        }
+        NamedWindowConsumerDispatchUnit unit = new NamedWindowConsumerDispatchUnit(delta, consumers);
+        threadLocal.get().add(unit);
     }
 
     public boolean dispatch()

@@ -8,7 +8,10 @@
  **************************************************************************************/
 package com.espertech.esper.epl.named;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementResultService;
+import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,8 @@ import java.util.Map;
  */
 public interface NamedWindowDispatchService
 {
+    NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow);
+
     /**
      * Dispatch events of the insert and remove stream of named windows to consumers, as part of the
      * main event processing or dispatch loop.

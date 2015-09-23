@@ -11,9 +11,12 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AuditEnum;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 
 import java.util.Iterator;
@@ -143,6 +146,19 @@ public class NamedWindowTailView
             newConsumers.putAll(consumersNonContext);
             newConsumers.remove(handleRemoved);
             consumersNonContext = newConsumers;
+        }
+    }
+
+    public void addConsumerToBe(NamedWindowConsumerStreamSpec namedSpec, StatementContext statementContext) {
+        // no action necessary
+    }
+
+    public void addDispatches(Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext, NamedWindowDeltaData delta, AgentInstanceContext agentInstanceContext) {
+        if (!consumersInContext.isEmpty()) {
+            namedWindowDispatchService.addDispatch(delta, consumersInContext);
+        }
+        if (!consumersNonContext.isEmpty()) {
+            namedWindowDispatchService.addDispatch(delta, consumersNonContext);
         }
     }
 }

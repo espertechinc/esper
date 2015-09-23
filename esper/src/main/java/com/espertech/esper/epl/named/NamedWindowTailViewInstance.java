@@ -73,11 +73,8 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             updateChildren(newData, oldData);
         }
 
-        if (!consumersInContext.isEmpty() || !tailView.getConsumersNonContext().isEmpty()) {
-            NamedWindowDeltaData delta = new NamedWindowDeltaData(newData, oldData);
-            tailView.getNamedWindowDispatchService().addDispatch(delta, consumersInContext);
-            tailView.getNamedWindowDispatchService().addDispatch(delta, tailView.getConsumersNonContext());
-        }
+        NamedWindowDeltaData delta = new NamedWindowDeltaData(newData, oldData);
+        tailView.addDispatches(consumersInContext, delta, agentInstanceContext);
     }
 
     /**

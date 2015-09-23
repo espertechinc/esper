@@ -19,6 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
+import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
@@ -59,6 +60,5 @@ public interface ViewableActivatorFactory {
                                     boolean isCanIterateUnbound);
 
     ViewableActivator createNamedWindow(NamedWindowProcessor processor,
-                                        List<ExprNode> filterExpressions,
-                                        PropertyEvaluator optPropertyEvaluator);
+                                        NamedWindowConsumerStreamSpec streamSpec);
 }

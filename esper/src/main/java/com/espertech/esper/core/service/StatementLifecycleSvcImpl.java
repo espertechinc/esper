@@ -311,7 +311,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         boolean needDedup = false;
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(compiledSpec);
         FilterSpecCompiled[] filterSpecAll = streamAnalysis.getFilters().toArray(new FilterSpecCompiled[streamAnalysis.getFilters().size()]);
+        NamedWindowConsumerStreamSpec[] namedWindowConsumersAll = streamAnalysis.getNamedWindowConsumers().toArray(new NamedWindowConsumerStreamSpec[streamAnalysis.getNamedWindowConsumers().size()]);
         compiledSpec.setFilterSpecsOverall(filterSpecAll);
+        compiledSpec.setNamedWindowConsumersAll(namedWindowConsumersAll);
         for (FilterSpecCompiled filter : filterSpecAll) {
             if (filter.getParameters().length > 1) {
                 needDedup = true;
