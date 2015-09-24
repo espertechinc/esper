@@ -10,17 +10,21 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
+import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Service to manage named window dispatches, locks and processors on an engine level.
  */
 public interface NamedWindowDispatchService
 {
+    NamedWindowProcessor createProcessor(String name, NamedWindowMgmtServiceImpl namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow);
     NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow);
 
     /**

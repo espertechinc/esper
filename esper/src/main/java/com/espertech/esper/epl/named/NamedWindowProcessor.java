@@ -102,8 +102,7 @@ public class NamedWindowProcessor
 
     public NamedWindowProcessorInstance getProcessorInstance(AgentInstanceContext agentInstanceContext) {
         if (contextName == null) {
-            StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getUnpartitioned();
-            return holder == null ? null : holder.getNamedWindowProcessorInstance();
+            return getProcessorInstanceNoContext();
         }
 
         if (agentInstanceContext.getStatementContext().getContextDescriptor() == null) {
@@ -111,8 +110,7 @@ public class NamedWindowProcessor
         }
         
         if (this.contextName.equals(agentInstanceContext.getStatementContext().getContextDescriptor().getContextName())) {
-            StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getPartitioned(agentInstanceContext.getAgentInstanceId());
-            return holder == null ? null : holder.getNamedWindowProcessorInstance();
+            return getProcessorInstance(agentInstanceContext.getAgentInstanceId());
         }
 
         return null;
@@ -246,6 +244,10 @@ public class NamedWindowProcessor
 
     public EventTableIndexMetadata getEventTableIndexMetadataRepo() {
         return eventTableIndexMetadataRepo;
+    }
+
+    public StatementContext getStatementContextCreateWindow() {
+        return statementContextCreateWindow;
     }
 
     public void removeAllInstanceIndexes(IndexMultiKey index) {

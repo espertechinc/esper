@@ -115,7 +115,7 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
             throw new ViewProcessingException("A named window by name '" + name + "' has already been created");
         }
 
-        NamedWindowProcessor processor = new NamedWindowProcessor(name, this, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, optionalUniqueKeyProps, eventTypeAsName, statementContextCreateWindow);
+        NamedWindowProcessor processor = namedWindowDispatchService.createProcessor(name, this, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, optionalUniqueKeyProps, eventTypeAsName, statementContextCreateWindow);
         processors.put(name, processor);
 
         if (!observers.isEmpty())
