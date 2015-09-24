@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.table.strategy;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,15 +21,15 @@ import java.util.concurrent.locks.Lock;
 public abstract class ExprTableEvalStrategyUngroupedBase {
 
     private final Lock lock;
-    protected final AtomicReference<ObjectArrayBackedEventBean> aggregationState;
+    protected final TableStateInstanceUngrouped ungrouped;
 
-    protected ExprTableEvalStrategyUngroupedBase(Lock lock, AtomicReference<ObjectArrayBackedEventBean> aggregationState) {
+    protected ExprTableEvalStrategyUngroupedBase(Lock lock, TableStateInstanceUngrouped ungrouped) {
         this.lock = lock;
-        this.aggregationState = aggregationState;
+        this.ungrouped = ungrouped;
     }
 
     protected ObjectArrayBackedEventBean lockTableReadAndGet(ExprEvaluatorContext context) {
         ExprTableEvalLockUtil.obtainLockUnless(lock, context);
-        return aggregationState.get();
+        return ungrouped.getEventUngrouped();
     }
 }

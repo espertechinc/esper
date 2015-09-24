@@ -17,10 +17,10 @@ import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyUngroupedAccess extends ExprTableEvalStrategyUngroupedBase implements ExprTableAccessEvalStrategy {
@@ -28,8 +28,8 @@ public class ExprTableEvalStrategyUngroupedAccess extends ExprTableEvalStrategyU
     private final int slot;
     private final AggregationAccessor accessor;
 
-    public ExprTableEvalStrategyUngroupedAccess(Lock lock, AtomicReference<ObjectArrayBackedEventBean> aggregationState, int slot, AggregationAccessor accessor) {
-        super(lock, aggregationState);
+    public ExprTableEvalStrategyUngroupedAccess(Lock lock, TableStateInstanceUngrouped ungrouped, int slot, AggregationAccessor accessor) {
+        super(lock, ungrouped);
         this.slot = slot;
         this.accessor = accessor;
     }

@@ -14,6 +14,7 @@ package com.espertech.esper.epl.table.strategy;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
@@ -24,8 +25,8 @@ public abstract class ExprTableEvalStrategyGroupByMethodBase extends ExprTableEv
 
     private final int index;
 
-    protected ExprTableEvalStrategyGroupByMethodBase(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, int index) {
-        super(lock, aggregationState);
+    protected ExprTableEvalStrategyGroupByMethodBase(Lock lock, TableStateInstanceGrouped grouped, int index) {
+        super(lock, grouped);
         this.index = index;
     }
 

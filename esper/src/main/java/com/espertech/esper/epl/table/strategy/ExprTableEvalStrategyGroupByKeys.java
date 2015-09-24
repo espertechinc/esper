@@ -14,22 +14,21 @@ package com.espertech.esper.epl.table.strategy;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
-import com.espertech.esper.event.ObjectArrayBackedEventBean;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyGroupByKeys extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
 
-    public ExprTableEvalStrategyGroupByKeys(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState) {
-        super(lock, aggregationState);
+    public ExprTableEvalStrategyGroupByKeys(Lock lock, TableStateInstanceGrouped grouped) {
+        super(lock, grouped);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         lockTableRead(context);
-        Set<Object> keys = aggregationState.keySet();
+        Set<Object> keys = grouped.getGroupKeys();
         return keys.toArray(new Object[keys.size()]);
     }
 

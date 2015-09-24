@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Map;
@@ -24,8 +25,8 @@ public class ExprTableEvalStrategyGroupByTopLevelSingle extends ExprTableEvalStr
 
     private final ExprEvaluator groupExpr;
 
-    public ExprTableEvalStrategyGroupByTopLevelSingle(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, Map<String, TableMetadataColumn> items, ExprEvaluator groupExpr) {
-        super(lock, aggregationState, items);
+    public ExprTableEvalStrategyGroupByTopLevelSingle(Lock lock, TableStateInstanceGrouped grouped, Map<String, TableMetadataColumn> items, ExprEvaluator groupExpr) {
+        super(lock, grouped, items);
         this.groupExpr = groupExpr;
     }
 

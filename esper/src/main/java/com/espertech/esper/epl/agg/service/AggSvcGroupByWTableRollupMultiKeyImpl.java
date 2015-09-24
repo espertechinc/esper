@@ -16,7 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGroupBy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 /**
@@ -26,7 +26,7 @@ public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBa
 {
     private final AggregationGroupByRollupDesc groupByRollupDesc;
 
-    public AggSvcGroupByWTableRollupMultiKeyImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGroupBy tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents, AggregationGroupByRollupDesc groupByRollupDesc) {
+    public AggSvcGroupByWTableRollupMultiKeyImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGrouped tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents, AggregationGroupByRollupDesc groupByRollupDesc) {
         super(tableMetadata, methodPairs, accessors, join, tableStateInstance, targetStates, accessStateExpr, agents);
         this.groupByRollupDesc = groupByRollupDesc;
     }
@@ -53,7 +53,7 @@ public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBa
     public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
     {
         MultiKeyUntyped key = rollupLevel.computeMultiKey(groupByKey, tableMetadata.getKeyTypes().length);
-        ObjectArrayBackedEventBean bean = tableStateInstance.getRows().get(key);
+        ObjectArrayBackedEventBean bean = tableStateInstance.getRowForGroupKey(key);
 
         if (bean != null) {
             AggregationRowPair row = (AggregationRowPair) bean.getProperties()[0];

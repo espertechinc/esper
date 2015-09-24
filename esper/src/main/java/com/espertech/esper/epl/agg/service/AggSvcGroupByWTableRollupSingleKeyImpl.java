@@ -15,14 +15,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGroupBy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
 public class AggSvcGroupByWTableRollupSingleKeyImpl extends AggSvcGroupByWTableBase
 {
-    public AggSvcGroupByWTableRollupSingleKeyImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGroupBy tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents) {
+    public AggSvcGroupByWTableRollupSingleKeyImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGrouped tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents) {
         super(tableMetadata, methodPairs, accessors, join, tableStateInstance, targetStates, accessStateExpr, agents);
     }
 

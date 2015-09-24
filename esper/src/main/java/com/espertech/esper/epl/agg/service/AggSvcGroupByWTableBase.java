@@ -17,7 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGroupBy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalLockUtil;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -33,7 +33,7 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService
     protected final TableColumnMethodPair[] methodPairs;
     protected final AggregationAccessorSlotPair[] accessors;
     protected final boolean isJoin;
-    protected final TableStateInstanceGroupBy tableStateInstance;
+    protected final TableStateInstanceGrouped tableStateInstance;
     protected final int[] targetStates;
     protected final ExprNode[] accessStateExpr;
     private final AggregationAgent[] agents;
@@ -44,7 +44,7 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService
     protected AggregationState[] currentAggregatorStates;
     protected Object currentGroupKey;
 
-    public AggSvcGroupByWTableBase(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGroupBy tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents) {
+    public AggSvcGroupByWTableBase(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGrouped tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents) {
         this.tableMetadata = tableMetadata;
         this.methodPairs = methodPairs;
         this.accessors = accessors;
@@ -133,7 +133,7 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService
 
     public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
     {
-        ObjectArrayBackedEventBean bean = tableStateInstance.getRows().get(groupByKey);
+        ObjectArrayBackedEventBean bean = tableStateInstance.getRowForGroupKey(groupByKey);
 
         if (bean != null) {
             AggregationRowPair row = (AggregationRowPair) bean.getProperties()[0];
@@ -208,12 +208,12 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService
     }
 
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
-        return tableStateInstance.getRows().keySet();
+        return tableStateInstance.getGroupKeys();
     }
 
     public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
     {
-        tableStateInstance.getRows().clear();
+        tableStateInstance.clear();
     }
 
     public void stop() {

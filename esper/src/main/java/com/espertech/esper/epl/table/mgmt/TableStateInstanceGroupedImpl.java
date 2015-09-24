@@ -33,12 +33,12 @@ import com.espertech.esper.util.CollectionUtil;
 
 import java.util.*;
 
-public class TableStateInstanceGroupBy extends TableStateInstance {
+public class TableStateInstanceGroupedImpl extends TableStateInstance {
 
     private final Map<Object, ObjectArrayBackedEventBean> rows = new HashMap<Object, ObjectArrayBackedEventBean>();
     private final IndexMultiKey primaryIndexKey;
 
-    public TableStateInstanceGroupBy(TableMetadata tableMetadata, AgentInstanceContext agentInstanceContext) {
+    public TableStateInstanceGroupedImpl(TableMetadata tableMetadata, AgentInstanceContext agentInstanceContext) {
         super(tableMetadata, agentInstanceContext);
 
         List<EventPropertyGetter> indexGetters = new ArrayList<EventPropertyGetter>();

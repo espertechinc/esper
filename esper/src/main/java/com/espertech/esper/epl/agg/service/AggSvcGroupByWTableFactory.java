@@ -15,7 +15,7 @@ import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGroupBy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 /**
  * Implementation for handling aggregation with grouping by group-keys.
@@ -43,7 +43,7 @@ public class AggSvcGroupByWTableFactory implements AggregationServiceFactory
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
-        TableStateInstanceGroupBy tableState = (TableStateInstanceGroupBy) agentInstanceContext.getStatementContext().getTableService().getState(tableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
+        TableStateInstanceGrouped tableState = (TableStateInstanceGrouped) agentInstanceContext.getStatementContext().getTableService().getState(tableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
         if (groupByRollupDesc == null) {
             return new AggSvcGroupByWTableImpl(tableMetadata, methodPairs, accessors, isJoin,
                     tableState, targetStates, accessStateExpr, agents);

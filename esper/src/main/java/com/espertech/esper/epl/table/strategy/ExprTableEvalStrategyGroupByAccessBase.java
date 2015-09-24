@@ -15,18 +15,18 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 public abstract class ExprTableEvalStrategyGroupByAccessBase extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
 
     private final AggregationAccessorSlotPair pair;
 
-    protected ExprTableEvalStrategyGroupByAccessBase(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, AggregationAccessorSlotPair pair) {
-        super(lock, aggregationState);
+    protected ExprTableEvalStrategyGroupByAccessBase(Lock lock, TableStateInstanceGrouped grouped, AggregationAccessorSlotPair pair) {
+        super(lock, grouped);
         this.pair = pair;
     }
 

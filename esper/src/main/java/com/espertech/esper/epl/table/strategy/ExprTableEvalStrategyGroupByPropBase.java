@@ -15,11 +15,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 public abstract class ExprTableEvalStrategyGroupByPropBase extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
@@ -27,8 +26,8 @@ public abstract class ExprTableEvalStrategyGroupByPropBase extends ExprTableEval
     private final int propertyIndex;
     private final ExprEvaluatorEnumerationGivenEvent optionalEnumEval;
 
-    protected ExprTableEvalStrategyGroupByPropBase(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval) {
-        super(lock, aggregationState);
+    protected ExprTableEvalStrategyGroupByPropBase(Lock lock, TableStateInstanceGrouped grouped, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval) {
+        super(lock, grouped);
         this.propertyIndex = propertyIndex;
         this.optionalEnumEval = optionalEnumEval;
     }

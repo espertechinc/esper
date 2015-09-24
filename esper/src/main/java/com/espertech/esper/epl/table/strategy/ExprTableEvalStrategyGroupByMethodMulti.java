@@ -14,6 +14,7 @@ package com.espertech.esper.epl.table.strategy;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
@@ -24,8 +25,8 @@ public class ExprTableEvalStrategyGroupByMethodMulti extends ExprTableEvalStrate
 
     private final ExprEvaluator[] groupExpr;
 
-    public ExprTableEvalStrategyGroupByMethodMulti(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, int index, ExprEvaluator[] groupExpr) {
-        super(lock, aggregationState, index);
+    public ExprTableEvalStrategyGroupByMethodMulti(Lock lock, TableStateInstanceGrouped grouped, int index, ExprEvaluator[] groupExpr) {
+        super(lock, grouped, index);
         this.groupExpr = groupExpr;
     }
 

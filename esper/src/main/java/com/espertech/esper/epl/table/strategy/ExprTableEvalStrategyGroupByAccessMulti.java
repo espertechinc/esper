@@ -16,18 +16,17 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.event.ObjectArrayBackedEventBean;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyGroupByAccessMulti extends ExprTableEvalStrategyGroupByAccessBase {
 
     private final ExprEvaluator[] groupExpr;
 
-    public ExprTableEvalStrategyGroupByAccessMulti(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, AggregationAccessorSlotPair pair, ExprEvaluator[] groupExpr) {
-        super(lock, aggregationState, pair);
+    public ExprTableEvalStrategyGroupByAccessMulti(Lock lock, TableStateInstanceGrouped grouped, AggregationAccessorSlotPair pair, ExprEvaluator[] groupExpr) {
+        super(lock, grouped, pair);
         this.groupExpr = groupExpr;
     }
 

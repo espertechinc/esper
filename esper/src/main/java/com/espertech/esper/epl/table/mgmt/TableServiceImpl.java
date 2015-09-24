@@ -93,7 +93,7 @@ public class TableServiceImpl implements TableService {
         else {
             tableStateFactory = new TableStateFactory() {
                 public TableStateInstance makeTableState(AgentInstanceContext agentInstanceContext) {
-                    return new TableStateInstanceGroupBy(metadata, agentInstanceContext);
+                    return new TableStateInstanceGroupedImpl(metadata, agentInstanceContext);
                 }
             };
         }

@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
@@ -25,8 +26,8 @@ public class ExprTableEvalStrategyGroupByAccessSingle extends ExprTableEvalStrat
 
     private final ExprEvaluator groupExpr;
 
-    public ExprTableEvalStrategyGroupByAccessSingle(Lock tableLevelLock, Map<Object, ObjectArrayBackedEventBean> aggregationState, AggregationAccessorSlotPair pair, ExprEvaluator groupExpr) {
-        super(tableLevelLock, aggregationState, pair);
+    public ExprTableEvalStrategyGroupByAccessSingle(Lock tableLevelLock, TableStateInstanceGrouped grouped, AggregationAccessorSlotPair pair, ExprEvaluator groupExpr) {
+        super(tableLevelLock, grouped, pair);
         this.groupExpr = groupExpr;
     }
 
