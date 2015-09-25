@@ -99,10 +99,11 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
 
         VariableMetaData variableMetaData = services.getVariableService().getVariableMetaData(createDesc.getVariableName());
         Viewable outputView;
+        EventType eventType = CreateVariableView.getEventType(statementContext.getStatementId(), services.getEventAdapterService(), variableMetaData);
+        StatementAgentInstanceFactoryCreateVariable contextFactory = new StatementAgentInstanceFactoryCreateVariable(statementContext, services, variableMetaData, eventType);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         if (statementSpec.getOptionalContextName() != null) {
-            EventType eventType = CreateVariableView.getEventType(statementContext.getStatementId(), services.getEventAdapterService(), variableMetaData);
-            StatementAgentInstanceFactoryCreateVariable contextFactory = new StatementAgentInstanceFactoryCreateVariable(statementContext, services, variableMetaData, eventType);
             ContextMergeView mergeView = new ContextMergeView(eventType);
             outputView = mergeView;
             ContextManagedStatementCreateVariableDesc statement = new ContextManagedStatementCreateVariableDesc(statementSpec, statementContext, mergeView, contextFactory);
