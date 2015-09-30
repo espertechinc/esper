@@ -14,6 +14,7 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.activator.ViewableActivatorStreamReuseView;
@@ -379,11 +380,18 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) result;
         EPStatementStartMethodHelperAssignExpr.assignAggregations(selectResult.getOptionalAggegationService(), resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
         EPStatementStartMethodHelperAssignExpr.assignSubqueryStrategies(subSelectStrategyCollection, result.getSubselectStrategies());
+        EPStatementStartMethodHelperAssignExpr.assignPriorStrategies(result.getPriorNodeStrategies());
     }
 
     public void unassignExpressions() {
         EPStatementStartMethodHelperAssignExpr.unassignAggregations(resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
         EPStatementStartMethodHelperAssignExpr.unassignSubqueryStrategies(subSelectStrategyCollection.getSubqueries().keySet());
+        for (int streamNum = 0; streamNum < viewResourceDelegate.getPerStream().length; streamNum++) {
+            SortedMap<Integer, List<ExprPriorNode>> callbacksPerIndex = viewResourceDelegate.getPerStream()[streamNum].getPriorRequests();
+            for (Map.Entry<Integer, List<ExprPriorNode>> priorItem : callbacksPerIndex.entrySet()) {
+                EPStatementStartMethodHelperAssignExpr.unassignPriorStrategies(priorItem.getValue());
+            }
+        }
     }
 
     public ViewableActivator[] getEventStreamParentViewableActivators() {

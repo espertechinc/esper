@@ -32,6 +32,8 @@ public interface AIRegistryExpr {
     public AIRegistryMatchRecognizePrevious allocateMatchRecognizePrevious();
     public AIRegistryTableAccess allocateTableAccess(ExprTableAccessNode tableNode);
 
+    public AIRegistryPrior getOrAllocatePrior(ExprPriorNode key);
+
     public int getSubselectAgentInstanceCount();
     public int getPreviousAgentInstanceCount();
     public int getPriorAgentInstanceCount();

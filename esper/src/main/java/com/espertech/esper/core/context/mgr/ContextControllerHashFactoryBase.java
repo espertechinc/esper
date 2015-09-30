@@ -203,7 +203,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
     }
 
     // Compare filters in statement with filters in segmented context, addendum filter compilation
-    private static void getAddendumFilters(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> addendums, int agentInstanceId, List<FilterSpecCompiled> filtersSpecs, ContextDetailHash hashSpec, ContextControllerStatementDesc statementDesc) {
+    public static void getAddendumFilters(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> addendums, int agentInstanceId, List<FilterSpecCompiled> filtersSpecs, ContextDetailHash hashSpec, ContextControllerStatementDesc statementDesc) {
 
         // determine whether create-named-window
         boolean isCreateWindow = statementDesc != null && statementDesc.getStatement().getStatementSpec().getCreateWindowDesc() != null;

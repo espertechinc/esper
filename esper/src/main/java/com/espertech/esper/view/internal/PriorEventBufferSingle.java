@@ -9,11 +9,14 @@
 package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.collection.RollingEventBuffer;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
-import com.espertech.esper.collection.RollingEventBuffer;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Buffers view-posted insert stream (new data) and remove stream (old data) events for
@@ -119,15 +122,7 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
         {
             throw new IllegalArgumentException("Single prior event buffer takes only a given index of zero");
         }
-        EventBean priorEvent = priorEventMap.get(theEvent);
-        if (priorEvent == null)
-        {
-            if (!priorEventMap.containsKey(theEvent))
-            {
-                return null;
-            }
-        }
-        return priorEvent;
+        return priorEventMap.get(theEvent);
     }
 
     public EventBean getRelativeToEnd(EventBean theEvent, int index)

@@ -96,6 +96,12 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignPriorStrategies(Collection<ExprPriorNode> priorStrategyInstances) {
+        for (ExprPriorNode node : priorStrategyInstances) {
+            node.setPriorStrategy(null);
+        }
+    }
+
     public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
