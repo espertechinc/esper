@@ -19,7 +19,7 @@ public class FilterNonPropertyRegisteryServiceImpl implements FilterNonPropertyR
         // default implementation, no action required
     }
 
-    public FilterSpecLookupable getNonPropertyExpression(EventType eventType, String expression) {
+    public FilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression) {
         // default implementation, no action required
         throw new UnsupportedOperationException();
     }

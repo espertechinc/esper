@@ -28,11 +28,11 @@ public interface FilterNonPropertyRegisteryService {
 
     /**
      * Obtain expression
-     * @param eventType event type
+     * @param eventTypeName event type name
      * @param expression expression text
      * @return lookupable
      */
-    FilterSpecLookupable getNonPropertyExpression(EventType eventType, String expression);
+    FilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression);
 
     /**
      * Remove references to expression
