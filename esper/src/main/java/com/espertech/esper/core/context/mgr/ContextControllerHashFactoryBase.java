@@ -20,6 +20,7 @@ import com.espertech.esper.core.context.stmt.*;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;
@@ -195,7 +196,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             }
 
             // create and register expression
-            String expression = item.getFunction().getName() + "(" + paramExpr + ")";
+            String expression = item.getFunction().getName() + "(" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
             FilterSpecLookupable lookupable = new FilterSpecLookupable(expression, getter, Integer.class, true);
             item.setLookupable(lookupable);
             factoryContext.getServicesContext().getFilterNonPropertyRegisteryService().registerNonPropertyExpression(factoryContext.getAgentInstanceContextCreate().getStatementName(), item.getFilterSpecCompiled().getFilterForEventType(), lookupable);
