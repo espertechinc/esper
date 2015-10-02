@@ -36,13 +36,13 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     private ResultSetProcessorSimpleOutputLastHelper outputLastHelper;
     private ResultSetProcessorSimpleOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
-        this.exprEvaluatorContext = exprEvaluatorContext;
+        this.exprEvaluatorContext = agentInstanceContext;
         if (prototype.isOutputLast()) {
-            outputLastHelper = new ResultSetProcessorSimpleOutputLastHelper(this);
+            outputLastHelper = resultSetProcessorHelperFactory.makeSimpleAndLast(prototype, this, agentInstanceContext);
         }
         else if (prototype.isOutputAll()) {
             outputAllHelper = new ResultSetProcessorSimpleOutputAllHelper(this);

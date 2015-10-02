@@ -92,7 +92,8 @@ public class ResultSetProcessorFactoryFactory
                                                            boolean allowAggregation,
                                                            ContextPropertyRegistry contextPropertyRegistry,
                                                            SelectExprProcessorDeliveryCallback selectExprProcessorCallback,
-                                                           ConfigurationInformation configurationInformation
+                                                           ConfigurationInformation configurationInformation,
+                                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory
     )
             throws ExprValidationException
     {
@@ -373,7 +374,7 @@ public class ResultSetProcessorFactoryFactory
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, resultSetProcessorHelperFactory);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -384,7 +385,7 @@ public class ResultSetProcessorFactoryFactory
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst)
         {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, resultSetProcessorHelperFactory);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 

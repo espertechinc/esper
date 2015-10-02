@@ -47,7 +47,7 @@ public class TestResultSetProcessorSimple extends TestCase
         selectExprProcessor = factory.getEvaluator();
         orderByProcessor = null;
 
-        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null);
+        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null, null);
 		outputProcessorAll = (ResultSetProcessorSimple) prototype.instantiate(null, null, null);
     }
 

@@ -24,6 +24,7 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingExpr;
     private final OutputLimitSpec outputLimitSpec;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
     /**
      * Ctor.
@@ -34,12 +35,14 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     public ResultSetProcessorSimpleFactory(SelectExprProcessor selectExprProcessor,
                                            ExprEvaluator optionalHavingNode,
                                            boolean isSelectRStream,
-                                           OutputLimitSpec outputLimitSpec)
+                                           OutputLimitSpec outputLimitSpec,
+                                           ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingExpr = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.outputLimitSpec = outputLimitSpec;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
     public ResultSetProcessorType getResultSetProcessorType() {
@@ -47,7 +50,7 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorSimple(this, selectExprProcessor, orderByProcessor, agentInstanceContext);
+        return new ResultSetProcessorSimple(this, selectExprProcessor, orderByProcessor, agentInstanceContext, resultSetProcessorHelperFactory);
     }
 
     public EventType getResultEventType()

@@ -39,13 +39,11 @@ import com.espertech.esper.dataflow.ops.epl.EPLSelectViewable;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.epl.view.OutputProcessViewCallback;
@@ -199,7 +197,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
                 };
             }
 
-            public ViewableActivator createFilterProxy(EPServicesContext services, FilterSpecCompiled filterSpec, Annotation[] annotations, boolean b, InstrumentationAgent instrumentationAgentSubquery, boolean b1) {
+            public ViewableActivator createFilterProxy(EPServicesContext services, FilterSpecCompiled filterSpec, Annotation[] annotations, boolean subselect, InstrumentationAgent instrumentationAgentSubquery, boolean isCanIterate, Integer streamNumFromClause) {
                 throw new UnsupportedOperationException();
             }
 
