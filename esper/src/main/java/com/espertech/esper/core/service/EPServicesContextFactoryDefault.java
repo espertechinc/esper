@@ -23,10 +23,7 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowServiceImpl;
-import com.espertech.esper.epl.core.EngineImportException;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
-import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
@@ -203,7 +200,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new ExprDeclaredServiceImpl(),
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
-                new FilterNonPropertyRegisteryServiceImpl()
+                new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl()
                 {
         });
 

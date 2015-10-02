@@ -104,7 +104,7 @@ public class EPStatementStartMethodHelperSubselect
                 }
 
                 // Register filter, create view factories
-                ViewableActivator activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), true, instrumentationAgentSubquery, false);
+                ViewableActivator activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), true, instrumentationAgentSubquery, false, null);
                 ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(subselectStreamNumber, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
                 subselect.setRawEventType(viewFactoryChain.getEventType());
 

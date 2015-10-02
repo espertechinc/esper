@@ -134,7 +134,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         StreamTypeService typeService = new StreamTypeServiceImpl(typesPerStream, namesPerStream, isIStreamOnly, services.getEngineURI(), true);
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
-        ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot());
+        ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory());
         resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
 
         if (statementSpec.getSelectClauseSpec().isDistinct())

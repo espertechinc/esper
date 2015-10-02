@@ -25,8 +25,8 @@ import com.espertech.esper.epl.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
@@ -82,7 +82,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 }
             };
         }
-        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false);
+        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false, 0);
 
         // create data window view factories
         ViewFactoryChain unmaterializedViewChain = services.getViewService().createFactories(0, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
@@ -129,7 +129,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             // obtain result set processor factory
             StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {processor.getNamedWindowType()}, new String[] {windowName}, new boolean[] {true}, services.getEngineURI(), false);
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                    statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot());
+                    statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory());
 
             // obtain factory for output limiting
             OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType());

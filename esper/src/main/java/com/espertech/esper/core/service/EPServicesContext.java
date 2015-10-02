@@ -21,6 +21,7 @@ import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.DispatchServiceProvider;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
@@ -98,6 +99,7 @@ public final class EPServicesContext
     private RegexHandlerFactory regexHandlerFactory;
     private ViewableActivatorFactory viewableActivatorFactory;
     private FilterNonPropertyRegisteryService filterNonPropertyRegisteryService;
+    private ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -185,7 +187,8 @@ public final class EPServicesContext
                              EPStatementFactory epStatementFactory,
                              RegexHandlerFactory regexHandlerFactory,
                              ViewableActivatorFactory viewableActivatorFactory,
-                             FilterNonPropertyRegisteryService filterNonPropertyRegisteryService)
+                             FilterNonPropertyRegisteryService filterNonPropertyRegisteryService,
+                             ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -237,6 +240,7 @@ public final class EPServicesContext
         this.regexHandlerFactory = regexHandlerFactory;
         this.viewableActivatorFactory = viewableActivatorFactory;
         this.filterNonPropertyRegisteryService = filterNonPropertyRegisteryService;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -730,5 +734,9 @@ public final class EPServicesContext
 
     public NamedWindowDispatchService getNamedWindowDispatchService() {
         return namedWindowDispatchService;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }
