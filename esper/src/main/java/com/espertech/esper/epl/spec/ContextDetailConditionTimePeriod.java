@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.filter.FilterSpecCompiled;
 
@@ -49,5 +50,11 @@ public class ContextDetailConditionTimePeriod implements ContextDetailCondition 
 
     public void setScheduleCallbackId(int scheduleCallbackId) {
         this.scheduleCallbackId = scheduleCallbackId;
+    }
+
+    public Long getExpectedEndTime(AgentInstanceContext agentInstanceContext) {
+        long current = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
+        long msec = timePeriod.nonconstEvaluator().deltaMillisecondsAdd(current, null, true, agentInstanceContext);
+        return current + msec;
     }
 }

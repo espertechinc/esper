@@ -90,8 +90,6 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
     }
 
     public Long getExpectedEndTime() {
-        long current = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
-        long msec = spec.getTimePeriod().nonconstEvaluator().deltaMillisecondsAdd(current, null, true, agentInstanceContext);
-        return current + msec;
+        return spec.getExpectedEndTime(agentInstanceContext);
     }
 }
