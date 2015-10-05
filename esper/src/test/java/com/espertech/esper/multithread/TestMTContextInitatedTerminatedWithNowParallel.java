@@ -9,7 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.context;
+package com.espertech.esper.multithread;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TestContextInitatedTerminatedWithNowParallel extends TestCase {
+public class TestMTContextInitatedTerminatedWithNowParallel extends TestCase {
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
