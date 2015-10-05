@@ -350,7 +350,7 @@ public class EPStatementStartMethodSelectUtil
         }
 
         // obtain factory for output limiting
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType());
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory());
 
         // Factory for statement-context instances
         StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(

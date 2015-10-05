@@ -12,9 +12,15 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSet;
+import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSetImpl;
 
 public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHelperFactory {
     public ResultSetProcessorSimpleOutputLastHelper makeSimpleAndLast(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorSimpleOutputLastHelperImpl(simple);
+    }
+
+    public OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(boolean isJoin, AgentInstanceContext agentInstanceContext) {
+        return new OutputProcessViewConditionDeltaSetImpl(isJoin);
     }
 }

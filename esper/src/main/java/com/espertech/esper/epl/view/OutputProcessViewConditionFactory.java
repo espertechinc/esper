@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
@@ -33,8 +34,9 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final boolean hasAfter;
     private final boolean isUnaggregatedUngrouped;
     private final SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
-    public OutputProcessViewConditionFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType, OutputConditionFactory outputConditionFactory, int streamCount, ConditionType conditionType, OutputLimitLimitType outputLimitLimitType, boolean terminable, boolean hasAfter, boolean isUnaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum) {
+    public OutputProcessViewConditionFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType, OutputConditionFactory outputConditionFactory, int streamCount, ConditionType conditionType, OutputLimitLimitType outputLimitLimitType, boolean terminable, boolean hasAfter, boolean isUnaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         super(statementContext, postProcessFactory, distinct, afterTimePeriod, afterConditionNumberOfEvents, resultEventType);
         this.outputConditionFactory = outputConditionFactory;
         this.streamCount = streamCount;
@@ -44,6 +46,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         this.hasAfter = hasAfter;
         this.isUnaggregatedUngrouped = isUnaggregatedUngrouped;
         this.selectClauseStreamSelectorEnum = selectClauseStreamSelectorEnum;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
     @Override
@@ -86,10 +89,10 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         }
         else {
             if (super.postProcessFactory == null) {
-                return new OutputProcessViewConditionDefault(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
+                return new OutputProcessViewConditionDefault(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, streamCount > 1, resultSetProcessorHelperFactory);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
-            return new OutputProcessViewConditionDefaultPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
+            return new OutputProcessViewConditionDefaultPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess, streamCount > 1, resultSetProcessorHelperFactory);
         }
     }
 

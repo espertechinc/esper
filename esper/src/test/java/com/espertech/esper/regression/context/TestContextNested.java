@@ -298,7 +298,7 @@ public class TestContextNested extends TestCase {
         bean = new SupportBean("E1", 2);
         bean.setLongPrimitive(3);
         epService.getEPRuntime().sendEvent(bean);
-        assertFilters(epService, isolationAllowed, "SupportBean(consistent_hash_crc32(unresolvedPropertyName=theString streamOrPropertyName=null resolvedPropertyName=theString)=33,intPrimitive>0)", spiStmt);
+        assertFilters(epService, isolationAllowed, "SupportBean(consistent_hash_crc32(theString)=33,intPrimitive>0)", spiStmt);
         assertFilters(epService, isolationAllowed, "SupportBean(intPrimitive<0),SupportBean(intPrimitive>0)", spiCtx);
         epService.getEPAdministrator().destroyAllStatements();
 
@@ -1231,6 +1231,46 @@ public class TestContextNested extends TestCase {
         EPAssertionUtil.assertProps(listenerOne.assertOneGetNewAndReset(), fields, new Object[]{"E1", 0, 2L});
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    public void testNestedOverlappingAndPattern() {
+        EPServiceProvider epService = allocateEngine(false);
+        epService.getEPAdministrator().createEPL("create context NestedContext " +
+                "context PartitionedByKeys partition by theString from SupportBean, " +
+                "context TimedImmediate initiated @now and pattern[every timer:interval(10)] terminated after 10 seconds");
+        runAssertion(epService);
+    }
+
+    public void testNestedNonOverlapping() {
+        EPServiceProvider epService = allocateEngine(false);
+        epService.getEPAdministrator().createEPL("create context NestedContext " +
+                "context PartitionedByKeys partition by theString from SupportBean, " +
+                "context TimedImmediate start @now end after 10 seconds");
+        runAssertion(epService);
+    }
+
+    private void runAssertion(EPServiceProvider epService) {
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+        SupportUpdateListener listenerOne = new SupportUpdateListener();
+        String[] fields = "c0,c1".split(",");
+        EPStatement statementOne = epService.getEPAdministrator().createEPL("context NestedContext " +
+                "select theString as c0, sum(intPrimitive) as c1 from SupportBean \n" +
+                "output last when terminated");
+        statementOne.addListener(listenerOne);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(10000));
+        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
+                new Object[][]{{"E1", 1}, {"E2", 2}}, null);
+        listenerOne.reset();
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 4));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(20000));
+        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
+                new Object[][]{{"E1", 3}, {"E3", 4}}, null);
     }
 
     private Object makeEvent(String theString, int intPrimitive, long longPrimitive) {

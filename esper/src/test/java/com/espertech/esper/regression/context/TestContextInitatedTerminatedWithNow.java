@@ -122,44 +122,6 @@ public class TestContextInitatedTerminatedWithNow extends TestCase {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    public void testNestedOverlappingAndPattern() {
-        epService.getEPAdministrator().createEPL("create context NestedContext " +
-                "context PartitionedByKeys partition by theString from SupportBean, " +
-                "context TimedImmediate initiated @now and pattern[every timer:interval(10)] terminated after 10 seconds");
-        runAssertion();
-    }
-
-    public void testNestedNonOverlapping() {
-        epService.getEPAdministrator().createEPL("create context NestedContext " +
-                "context PartitionedByKeys partition by theString from SupportBean, " +
-                "context TimedImmediate start @now end after 10 seconds");
-        runAssertion();
-    }
-
-    private void runAssertion() {
-
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        SupportUpdateListener listenerOne = new SupportUpdateListener();
-        String[] fields = "c0,c1".split(",");
-        EPStatement statementOne = epService.getEPAdministrator().createEPL("context NestedContext " +
-                "select theString as c0, sum(intPrimitive) as c1 from SupportBean \n" +
-                "output last when terminated");
-        statementOne.addListener(listenerOne);
-
-        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(10000));
-        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
-                new Object[][]{{"E1", 1}, {"E2", 2}}, null);
-        listenerOne.reset();
-
-        epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
-        epService.getEPRuntime().sendEvent(new SupportBean("E3", 4));
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(20000));
-        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
-                new Object[][]{{"E1", 3}, {"E3", 4}}, null);
-    }
-
     public void testInvalid() {
         // for overlapping contexts, @now without condition is not allowed
         tryInvalid("create context TimedImmediate initiated @now terminated after 10 seconds",
