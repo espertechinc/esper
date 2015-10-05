@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-public class TestContextTemporalFixed extends TestCase {
+public class TestContextInitTermTemporalFixed extends TestCase {
 
     private EPServiceProvider epService;
     private EPServiceProviderSPI spi;

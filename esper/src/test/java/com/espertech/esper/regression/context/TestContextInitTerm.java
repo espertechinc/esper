@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.List;
 
-public class TestContextInitatedTerminated extends TestCase {
+public class TestContextInitTerm extends TestCase {
 
     private EPServiceProvider epService;
     private EPServiceProviderSPI spi;

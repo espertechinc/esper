@@ -22,7 +22,7 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
-public class TestContextInitatedTerminatedPrioritized extends TestCase {
+public class TestContextInitTermPrioritized extends TestCase {
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

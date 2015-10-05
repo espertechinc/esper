@@ -24,7 +24,7 @@ import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
-public class TestContextInitatedTerminatedWithDistinct extends TestCase {
+public class TestContextInitTermWithDistinct extends TestCase {
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

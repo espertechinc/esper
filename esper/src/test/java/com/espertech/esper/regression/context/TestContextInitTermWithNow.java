@@ -21,7 +21,7 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.SupportModelHelper;
 import junit.framework.TestCase;
 
-public class TestContextInitatedTerminatedWithNow extends TestCase {
+public class TestContextInitTermWithNow extends TestCase {
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
