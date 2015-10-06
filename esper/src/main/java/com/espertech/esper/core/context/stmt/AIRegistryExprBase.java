@@ -98,6 +98,14 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
         return allocatePrior(key);
     }
 
+    public AIRegistryPrevious getOrAllocatePrevious(ExprPreviousNode key) {
+        AIRegistryPrevious existing = previous.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        return allocatePrevious(key);
+    }
+
     public AIRegistryPrevious allocatePrevious(ExprPreviousNode previousNode) {
         AIRegistryPrevious service = allocateAIRegistryPrevious();
         previous.put(previousNode, service);

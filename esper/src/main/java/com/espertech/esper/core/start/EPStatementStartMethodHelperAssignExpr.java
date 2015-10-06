@@ -90,6 +90,12 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignPreviousStrategies(Collection<ExprPreviousNode> nodes) {
+        for (ExprPreviousNode node : nodes) {
+            node.setEvaluator(null);
+        }
+    }
+
     public static void assignPriorStrategies(Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategyInstances) {
         for (Map.Entry<ExprPriorNode, ExprPriorEvalStrategy> pair : priorStrategyInstances.entrySet()) {
             pair.getKey().setPriorStrategy(pair.getValue());

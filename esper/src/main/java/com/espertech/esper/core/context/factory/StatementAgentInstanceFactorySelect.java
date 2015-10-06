@@ -381,16 +381,19 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         EPStatementStartMethodHelperAssignExpr.assignAggregations(selectResult.getOptionalAggegationService(), resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
         EPStatementStartMethodHelperAssignExpr.assignSubqueryStrategies(subSelectStrategyCollection, result.getSubselectStrategies());
         EPStatementStartMethodHelperAssignExpr.assignPriorStrategies(result.getPriorNodeStrategies());
+        EPStatementStartMethodHelperAssignExpr.assignPreviousStrategies(result.getPreviousNodeStrategies());
     }
 
     public void unassignExpressions() {
         EPStatementStartMethodHelperAssignExpr.unassignAggregations(resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
         EPStatementStartMethodHelperAssignExpr.unassignSubqueryStrategies(subSelectStrategyCollection.getSubqueries().keySet());
         for (int streamNum = 0; streamNum < viewResourceDelegate.getPerStream().length; streamNum++) {
-            SortedMap<Integer, List<ExprPriorNode>> callbacksPerIndex = viewResourceDelegate.getPerStream()[streamNum].getPriorRequests();
+            ViewResourceDelegateVerifiedStream viewResourceStream = viewResourceDelegate.getPerStream()[streamNum];
+            SortedMap<Integer, List<ExprPriorNode>> callbacksPerIndex = viewResourceStream.getPriorRequests();
             for (Map.Entry<Integer, List<ExprPriorNode>> priorItem : callbacksPerIndex.entrySet()) {
                 EPStatementStartMethodHelperAssignExpr.unassignPriorStrategies(priorItem.getValue());
             }
+            EPStatementStartMethodHelperAssignExpr.unassignPreviousStrategies(viewResourceStream.getPreviousRequests());
         }
     }
 

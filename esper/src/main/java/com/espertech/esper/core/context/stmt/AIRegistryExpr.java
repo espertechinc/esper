@@ -33,6 +33,7 @@ public interface AIRegistryExpr {
     public AIRegistryTableAccess allocateTableAccess(ExprTableAccessNode tableNode);
 
     public AIRegistryPrior getOrAllocatePrior(ExprPriorNode key);
+    public AIRegistryPrevious getOrAllocatePrevious(ExprPreviousNode key);
 
     public int getSubselectAgentInstanceCount();
     public int getPreviousAgentInstanceCount();
