@@ -100,7 +100,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         }
 
         // create factory chain context to hold callbacks specific to "prior" and "prev"
-        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0]);
+        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0], -1, true, subqueryNumber);
 
         ViewServiceCreateResult createResult = services.getViewService().createViews(viewableRoot, viewFactoryChain, viewFactoryChainContext, false);
         final Viewable subselectView = createResult.getFinalViewable();

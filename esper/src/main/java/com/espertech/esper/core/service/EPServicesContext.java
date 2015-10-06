@@ -45,6 +45,7 @@ import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimerService;
 import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.view.ViewService;
+import com.espertech.esper.view.ViewServicePreviousFactory;
 import com.espertech.esper.view.ViewServiceProvider;
 import com.espertech.esper.view.stream.StreamFactoryService;
 
@@ -100,6 +101,7 @@ public final class EPServicesContext
     private ViewableActivatorFactory viewableActivatorFactory;
     private FilterNonPropertyRegisteryService filterNonPropertyRegisteryService;
     private ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private ViewServicePreviousFactory viewServicePreviousFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -188,7 +190,8 @@ public final class EPServicesContext
                              RegexHandlerFactory regexHandlerFactory,
                              ViewableActivatorFactory viewableActivatorFactory,
                              FilterNonPropertyRegisteryService filterNonPropertyRegisteryService,
-                             ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
+                             ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                             ViewServicePreviousFactory viewServicePreviousFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -241,6 +244,7 @@ public final class EPServicesContext
         this.viewableActivatorFactory = viewableActivatorFactory;
         this.filterNonPropertyRegisteryService = filterNonPropertyRegisteryService;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.viewServicePreviousFactory = viewServicePreviousFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -738,5 +742,9 @@ public final class EPServicesContext
 
     public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
         return resultSetProcessorHelperFactory;
+    }
+
+    public ViewServicePreviousFactory getViewServicePreviousFactory() {
+        return viewServicePreviousFactory;
     }
 }

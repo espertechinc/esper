@@ -63,7 +63,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, numberOfEvents, isForceUpdate, isStartEager, relativeAccessByEvent);
     }
 

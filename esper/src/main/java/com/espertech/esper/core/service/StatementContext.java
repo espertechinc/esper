@@ -38,6 +38,7 @@ import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.view.StatementStopService;
 import com.espertech.esper.view.ViewResolutionService;
 import com.espertech.esper.view.ViewService;
+import com.espertech.esper.view.ViewServicePreviousFactory;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;
@@ -524,6 +525,10 @@ public final class StatementContext
 
     public RegexHandlerFactory getRegexPartitionStateRepoFactory() {
         return stmtEngineServices.getRegexHandlerFactory();
+    }
+
+    public ViewServicePreviousFactory getViewServicePreviousFactory() {
+        return stmtEngineServices.getViewServicePreviousFactory();
     }
 
     public StatementLockFactory getStatementLockFactory() {

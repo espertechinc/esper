@@ -40,7 +40,7 @@ public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implem
     public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new ExpressionBatchView(this, relativeAccessByEvent, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
     }
 

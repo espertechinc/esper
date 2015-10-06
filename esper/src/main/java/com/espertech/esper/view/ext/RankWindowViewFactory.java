@@ -130,7 +130,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamSortRankRandomAccess rankedRandomAccess = ViewServiceHelper.getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
+        IStreamSortRankRandomAccess rankedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
 
         boolean useCollatorSort = false;
         if (agentInstanceViewFactoryContext.getAgentInstanceContext().getStatementContext().getConfigSnapshot() != null)

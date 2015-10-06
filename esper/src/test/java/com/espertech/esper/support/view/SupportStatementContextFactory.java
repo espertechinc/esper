@@ -56,12 +56,12 @@ public class SupportStatementContextFactory
 
     public static AgentInstanceViewFactoryChainContext makeAgentInstanceViewFactoryContext(SchedulingService stub) {
         AgentInstanceContext agentInstanceContext = makeAgentInstanceContext(stub);
-        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, false, null, null);
+        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, false, null, null, 0, false, -1);
     }
 
     public static AgentInstanceViewFactoryChainContext makeAgentInstanceViewFactoryContext() {
         AgentInstanceContext agentInstanceContext = makeAgentInstanceContext();
-        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, false, null, null);
+        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, false, null, null, 0, false, -1);
     }
 
     public static StatementContext makeContext()
@@ -93,7 +93,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null);
+                new StatementEventTypeRefImpl(), null, null, null, null, null, null);
 
         return new StatementContext(stmtEngineServices,
                 null,

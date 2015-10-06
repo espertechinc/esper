@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.view.window;
 
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
@@ -35,7 +36,7 @@ public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase
     public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
-        IStreamRandomAccess randomAccess = ViewServiceHelper.getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
+        ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new ExpressionWindowView(this, randomAccess, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
     }
 

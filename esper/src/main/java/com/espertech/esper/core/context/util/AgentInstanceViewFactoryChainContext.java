@@ -38,12 +38,18 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
     private boolean isRemoveStream;
     private final Object previousNodeGetter;
     private final ViewUpdatedCollection priorViewUpdatedCollection;
+    private final int streamNum;
+    private final boolean isSubquery;
+    private final int subqueryNumber;
 
-    public AgentInstanceViewFactoryChainContext(AgentInstanceContext agentInstanceContext, boolean isRemoveStream, Object previousNodeGetter, ViewUpdatedCollection priorViewUpdatedCollection) {
+    public AgentInstanceViewFactoryChainContext(AgentInstanceContext agentInstanceContext, boolean isRemoveStream, Object previousNodeGetter, ViewUpdatedCollection priorViewUpdatedCollection, int streamNum, boolean isSubquery, int subqueryNumber) {
         this.agentInstanceContext = agentInstanceContext;
         this.isRemoveStream = isRemoveStream;
         this.previousNodeGetter = previousNodeGetter;
         this.priorViewUpdatedCollection = priorViewUpdatedCollection;
+        this.streamNum = streamNum;
+        this.isSubquery = isSubquery;
+        this.subqueryNumber = subqueryNumber;
     }
 
     public StatementAgentInstanceLock getAgentInstanceLock() {
@@ -114,7 +120,7 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
         return agentInstanceContext.getTableExprEvaluatorContext();
     }
 
-    public static AgentInstanceViewFactoryChainContext create(List<ViewFactory> viewFactoryChain, AgentInstanceContext agentInstanceContext, ViewResourceDelegateVerifiedStream viewResourceDelegate) {
+    public static AgentInstanceViewFactoryChainContext create(List<ViewFactory> viewFactoryChain, AgentInstanceContext agentInstanceContext, ViewResourceDelegateVerifiedStream viewResourceDelegate, int streamNum, boolean isSubquery, int subqueryNumber) {
 
         Object previousNodeGetter = null;
         if (viewResourceDelegate.getPreviousRequests() != null && !viewResourceDelegate.getPreviousRequests().isEmpty()) {
@@ -140,7 +146,7 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
             removedStream = countDataWindow > 1;
         }
 
-        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, removedStream, previousNodeGetter, priorViewUpdatedCollection);
+        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, removedStream, previousNodeGetter, priorViewUpdatedCollection, streamNum, isSubquery, subqueryNumber);
     }
 
     public String getStatementName() {
@@ -161,5 +167,17 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
 
     public Object getStatementUserObject() {
         return agentInstanceContext.getStatementUserObject();
+    }
+
+    public int getStreamNum() {
+        return streamNum;
+    }
+
+    public boolean isSubquery() {
+        return isSubquery;
+    }
+
+    public int getSubqueryNumber() {
+        return subqueryNumber;
     }
 }

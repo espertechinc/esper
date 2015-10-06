@@ -67,7 +67,7 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream())
         {
             return new LengthBatchViewRStream(agentInstanceViewFactoryContext, this, size);

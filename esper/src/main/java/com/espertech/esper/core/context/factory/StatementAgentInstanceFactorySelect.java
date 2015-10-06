@@ -180,7 +180,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             AgentInstanceViewFactoryChainContext viewFactoryChainContexts[] = new AgentInstanceViewFactoryChainContext[numStreams];
             for (int i = 0; i < numStreams; i++)
             {
-                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i]);
+                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i], i, false, -1);
             }
 
             // handle "prior" nodes and their strategies

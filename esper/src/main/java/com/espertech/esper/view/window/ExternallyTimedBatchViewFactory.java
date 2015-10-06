@@ -82,7 +82,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new ExternallyTimedBatchView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, optionalReferencePoint, relativeAccessByEvent, agentInstanceViewFactoryContext);
     }
 

@@ -62,6 +62,7 @@ import com.espertech.esper.util.GraphCircularDependencyException;
 import com.espertech.esper.util.GraphUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.ManagedReadWriteLock;
+import com.espertech.esper.view.ViewServicePreviousFactoryImpl;
 import com.espertech.esper.view.stream.StreamFactoryService;
 import com.espertech.esper.view.stream.StreamFactoryServiceProvider;
 import org.apache.commons.logging.Log;
@@ -200,7 +201,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new ExprDeclaredServiceImpl(),
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
-                new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl()
+                new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
+                new ViewServicePreviousFactoryImpl()
                 {
         });
 

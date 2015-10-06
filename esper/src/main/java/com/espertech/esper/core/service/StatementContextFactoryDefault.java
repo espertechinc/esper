@@ -99,7 +99,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getEngineLevelExtensionServicesContext(),
                 services.getRegexHandlerFactory(),
                 services.getStatementLockFactory(),
-                services.getContextManagementService()
+                services.getContextManagementService(),
+                services.getViewServicePreviousFactory()
                 );
     }
 

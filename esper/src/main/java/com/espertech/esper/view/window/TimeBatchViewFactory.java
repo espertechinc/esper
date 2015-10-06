@@ -67,7 +67,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream())
         {
             return new TimeBatchViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation, optionalReferencePoint, isForceUpdate, isStartEager);

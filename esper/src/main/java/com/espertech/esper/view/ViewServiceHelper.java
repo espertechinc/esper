@@ -67,43 +67,6 @@ public class ViewServiceHelper
         return null;
     }
 
-    public static IStreamRandomAccess getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamRandomAccess randomAccess = null;
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            randomAccess = new IStreamRandomAccess(getter);
-            getter.updated(randomAccess);
-        }
-        return randomAccess;
-    }
-
-    public static IStreamRelativeAccess getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamRelativeAccess relativeAccessByEvent = null;
-
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RelativeAccessByEventNIndexMap getter = (RelativeAccessByEventNIndexMap) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            relativeAccessByEvent = new IStreamRelativeAccess(getter);
-            getter.updated(relativeAccessByEvent, null);
-        }
-
-        return relativeAccessByEvent;
-    }
-
-    public static IStreamSortRankRandomAccess getOptPreviousExprSortedRankedAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamSortRankRandomAccess rankedRandomAccess = null;
-
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            rankedRandomAccess = new IStreamSortRankRandomAccess(getter);
-            getter.updated(rankedRandomAccess);
-        }
-
-        return rankedRandomAccess;
-    }
-
     /**
      * Add merge views for any views in the chain requiring a merge (group view).
      * Appends to the list of view specifications passed in one ore more
