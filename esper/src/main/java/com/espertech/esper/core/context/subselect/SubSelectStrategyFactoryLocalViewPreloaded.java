@@ -33,6 +33,7 @@ import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentAgentInstance;
+import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentAgentInstanceSubq;
 import com.espertech.esper.epl.lookup.SubordTableLookupStrategy;
 import com.espertech.esper.epl.lookup.SubordTableLookupStrategyFactory;
 import com.espertech.esper.epl.lookup.SubordTableLookupStrategyNullRow;
@@ -107,7 +108,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         final Viewable subselectView = createResult.getFinalViewable();
 
         // create index/holder table
-        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstance(agentInstanceContext));
+        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, subqueryNumber));
         stopCallbackList.add(new SubqueryStopCallback(index));
 
         // create strategy

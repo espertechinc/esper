@@ -352,7 +352,7 @@ public class EPStatementStartMethodHelperSubselect
 
             if (hashKeys.size() == 1) {
                 if (!hashCoercionDesc.isCoerce()) {
-                    eventTableFactory = new PropertyIndexedEventTableSingleFactory(0, viewableEventType, indexedProps[0], unique, null);
+                    eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, indexedProps[0], unique, null);
                 }
                 else {
                     eventTableFactory = new PropertyIndexedEventTableSingleCoerceAddFactory(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0]);
