@@ -60,6 +60,7 @@ import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
+import com.espertech.esper.view.StoppableView;
 import com.espertech.esper.view.ViewFactoryChain;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.ViewServiceHelper;
@@ -210,12 +211,17 @@ public class EPStatementStartMethodHelperSubselect
             SubSelectStrategyFactoryDesc factoryDesc = subselectEntry.getValue();
             SubSelectActivationHolder holder = factoryDesc.getSubSelectActivationHolder();
 
-            // activate view
+            // activate viewable
             ViewableActivationResult subselectActivationResult = holder.getActivator().activate(agentInstanceContext, true, isRecoveringResilient);
             stopCallbackList.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
             SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList);
+
+            // handle stoppable view
+            if (result.getSubselectView() instanceof StoppableView) {
+                stopCallbackList.add((StoppableView) result.getSubselectView());
+            }
 
             // set aggregation
             final SubordTableLookupStrategy lookupStrategy = result.getStrategy();

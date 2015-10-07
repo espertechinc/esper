@@ -168,19 +168,35 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             }
         }
 
-        // preload
-        preload(services, index, subselectView, agentInstanceContext);
-        StatementAgentInstancePostLoad postLoad = new StatementAgentInstancePostLoad() {
-            public void executePostLoad() {
-                preload(services, index, subselectView, agentInstanceContext);
-            }
-
-            public void acceptIndexVisitor(StatementAgentInstancePostLoadIndexVisitor visitor) {
-                for (EventTable table : index) {
-                    visitor.visit(table);
+        // preload when allowed
+        StatementAgentInstancePostLoad postLoad;
+        if (services.getEventTableIndexService().allowInitIndex()) {
+            preload(services, index, subselectView, agentInstanceContext);
+            postLoad = new StatementAgentInstancePostLoad() {
+                public void executePostLoad() {
+                    preload(services, index, subselectView, agentInstanceContext);
                 }
-            }
-        };
+
+                public void acceptIndexVisitor(StatementAgentInstancePostLoadIndexVisitor visitor) {
+                    for (EventTable table : index) {
+                        visitor.visit(table);
+                    }
+                }
+            };
+        }
+        else {
+            postLoad = new StatementAgentInstancePostLoad() {
+                public void executePostLoad() {
+                    // no post-load
+                }
+
+                public void acceptIndexVisitor(StatementAgentInstancePostLoadIndexVisitor visitor) {
+                    for (EventTable table : index) {
+                        visitor.visit(table);
+                    }
+                }
+            };
+        }
 
         BufferView bufferView = new BufferView(subSelectHolder.getStreamNumber());
         bufferView.setObserver(new SubselectBufferObserver(index));
