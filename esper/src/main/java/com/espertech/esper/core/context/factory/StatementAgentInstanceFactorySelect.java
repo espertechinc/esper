@@ -34,6 +34,7 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
+import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
@@ -382,6 +383,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         EPStatementStartMethodHelperAssignExpr.assignSubqueryStrategies(subSelectStrategyCollection, result.getSubselectStrategies());
         EPStatementStartMethodHelperAssignExpr.assignPriorStrategies(result.getPriorNodeStrategies());
         EPStatementStartMethodHelperAssignExpr.assignPreviousStrategies(result.getPreviousNodeStrategies());
+        Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes = viewResourceDelegate.getPerStream()[0].getMatchRecognizePreviousRequests();
+        EPStatementStartMethodHelperAssignExpr.assignMatchRecognizePreviousStrategies(matchRecognizeNodes, result.getRegexExprPreviousEvalStrategy());
     }
 
     public void unassignExpressions() {
@@ -395,6 +398,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             }
             EPStatementStartMethodHelperAssignExpr.unassignPreviousStrategies(viewResourceStream.getPreviousRequests());
         }
+        Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes = viewResourceDelegate.getPerStream()[0].getMatchRecognizePreviousRequests();
+        EPStatementStartMethodHelperAssignExpr.unassignMatchRecognizePreviousStrategies(matchRecognizeNodes);
     }
 
     public ViewableActivator[] getEventStreamParentViewableActivators() {

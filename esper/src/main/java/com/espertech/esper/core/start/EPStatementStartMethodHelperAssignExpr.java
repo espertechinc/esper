@@ -72,6 +72,14 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignMatchRecognizePreviousStrategies(Collection<ExprPreviousMatchRecognizeNode> matchRecognizeNodes) {
+        if (matchRecognizeNodes != null) {
+            for (ExprPreviousMatchRecognizeNode node : matchRecognizeNodes) {
+                node.setStrategy(null);
+            }
+        }
+    }
+
     public static void assignAggregations(AggregationResultFuture aggregationService, List<AggregationServiceAggExpressionDesc> aggregationExpressions) {
         for (AggregationServiceAggExpressionDesc aggregation : aggregationExpressions) {
             aggregation.assignFuture(aggregationService);
