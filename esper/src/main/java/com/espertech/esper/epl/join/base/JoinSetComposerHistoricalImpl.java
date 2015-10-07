@@ -31,6 +31,7 @@ import java.util.Set;
  */
 public class JoinSetComposerHistoricalImpl implements JoinSetComposer
 {
+    private final boolean allowInitIndex;
     private final EventTable[][] repositories;
     private final QueryStrategy[] queryStrategies;
 
@@ -48,17 +49,26 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
      * @param streamViews the viewable representing each stream
      * @param staticEvalExprEvaluatorContext expression evaluation context for static (not runtime) evaluation
      */
-    public JoinSetComposerHistoricalImpl(Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, Viewable[] streamViews,
+    public JoinSetComposerHistoricalImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, Viewable[] streamViews,
                                          ExprEvaluatorContext staticEvalExprEvaluatorContext)
     {
+        this.allowInitIndex = allowInitIndex;
         this.repositories = JoinSetComposerUtil.toArray(repositories, streamViews.length);
         this.queryStrategies = queryStrategies;
         this.streamViews = streamViews;
         this.staticEvalExprEvaluatorContext = staticEvalExprEvaluatorContext;
     }
 
+    public boolean allowsInit() {
+        return allowInitIndex;
+    }
+
     public void init(EventBean[][] eventsPerStream)
     {
+        if (!allowInitIndex) {
+            throw new IllegalStateException("Initialization by events not supported");
+        }
+
         if (repositories == null)
         {
             return;

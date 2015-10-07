@@ -14,6 +14,7 @@ package com.espertech.esper.epl.db;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKey;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;
@@ -50,11 +51,11 @@ public class TestDatabasePollingViewable extends TestCase
 
         Map<Integer, List<ExprNode>> sqlParameters = new HashMap<Integer, List<ExprNode>>();
         sqlParameters.put(1, Collections.singletonList((ExprNode) new ExprIdentNodeImpl("intPrimitive", "s0")));
-        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null, null, null);
+        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null, null, null, null);
 
         indexingStrategy = new PollResultIndexingStrategy()
         {
-            public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+            public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
             {
                 return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
             }

@@ -74,7 +74,7 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
         chain = enterRemoves.get(0);
     }
 
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(null, false, optKeyCoercedTypes != null || optRangeCoercedTypes != null, streamNum, combinedPropertyLists(optionalKeyedProps, rangeProps), EventTableOrganization.EventTableOrganizationType.COMPOSITE);
         return new EventTable[] {new PropertyCompositeEventTable((optionalKeyedProps != null && optionalKeyedProps.length > 0), chain, optKeyCoercedTypes, optRangeCoercedTypes, organization)};
     }

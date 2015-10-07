@@ -10,7 +10,9 @@ package com.espertech.esper.epl.join.pollindex;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.EventTable;
+import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentStmt;
 import com.espertech.esper.epl.join.table.PropertyCompositeEventTableFactory;
 import com.espertech.esper.epl.join.table.UnindexedEventTableList;
 
@@ -44,14 +46,14 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
         this.rangeCoercionTypes = rangeCoercionTypes;
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
     {
         if (!isActiveCache)
         {
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         PropertyCompositeEventTableFactory factory = new PropertyCompositeEventTableFactory(streamNum, eventType, indexPropertiesJoin, keyCoercionTypes, rangePropertiesJoin, rangeCoercionTypes);
-        EventTable[] tables = factory.makeEventTables();
+        EventTable[] tables = factory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext));
         for (EventTable table : tables) {
             table.add(pollResult.toArray(new EventBean[pollResult.size()]));
         }

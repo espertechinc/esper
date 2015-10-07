@@ -30,7 +30,7 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     }
 
     @Override
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
         return new EventTable[] {new PropertySortedEventTableCoerced(propertyGetter, organization, coercionType)};
     }

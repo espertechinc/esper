@@ -175,7 +175,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
     public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), dataWindowContents);
+        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), dataWindowContents, agentInstanceContext);
     }
 
     public boolean isVirtualDataWindow() {

@@ -538,13 +538,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         agentInstanceContext.getEpStatementAgentInstanceHandle().setOptionalDispatchable(joinStatementDispatch);
 
         JoinPreloadMethod preloadMethod;
-        if (joinAnalysisResult.getUnidirectionalStreamNumber() >= 0)
-        {
+        if (joinAnalysisResult.getUnidirectionalStreamNumber() >= 0) {
             preloadMethod = new JoinPreloadMethodNull();
         }
-        else
-        {
-            preloadMethod = new JoinPreloadMethodImpl(streamNames.length, joinSetComposerDesc.getJoinSetComposer());
+        else {
+            if (!joinSetComposerDesc.getJoinSetComposer().allowsInit()) {
+                preloadMethod = new JoinPreloadMethodNull();
+            }
+            else {
+                preloadMethod = new JoinPreloadMethodImpl(streamNames.length, joinSetComposerDesc.getJoinSetComposer());
+            }
         }
 
         // Create buffer for each view. Point buffer to dispatchable for join.

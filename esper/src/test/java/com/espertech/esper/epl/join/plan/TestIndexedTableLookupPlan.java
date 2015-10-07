@@ -35,7 +35,7 @@ public class TestIndexedTableLookupPlan extends TestCase
         types = new EventType[] { SupportEventTypeFactory.createBeanType(SupportBean.class) };
 
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, types[0], new String[] {"intBoxed"}, false, null);
-        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables()[0];
+        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
     }
 
     public void testLookup()

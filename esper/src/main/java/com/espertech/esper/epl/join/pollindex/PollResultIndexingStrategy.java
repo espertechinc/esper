@@ -9,6 +9,8 @@
 package com.espertech.esper.epl.join.pollindex;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.EventTable;
 
 import java.util.List;
@@ -23,12 +25,14 @@ public interface PollResultIndexingStrategy
 {
     /**
      * Build and index of a poll result.
+     * @param agentInstanceContext
      * @param pollResult result of a poll operation
      * @param isActiveCache true to indicate that caching is active and therefore index building makes sense as
      *   the index structure is not a throw-away.
+     * @param statementContext
      * @return indexed collection of poll results
      */
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache);
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext);
 
     public String toQueryPlan();
 }

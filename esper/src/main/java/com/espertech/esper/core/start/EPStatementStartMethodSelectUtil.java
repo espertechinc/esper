@@ -312,7 +312,7 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt,
                     services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(),
                     statementSpec.getSqlParameters(),
-                    statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
+                    statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream))
             {
@@ -346,7 +346,7 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getStatementName(), statementContext.getStatementId(),
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typeService.getEventTypes(), streamNames,
                     joinAnalysisResult, queryPlanLogging, statementContext, historicalViewableDesc, defaultAgentInstanceContext,
-                    selectsRemoveStream, hasAggregations, services.getTableService(), false);
+                    selectsRemoveStream, hasAggregations, services.getTableService(), false, services.getEventTableIndexService().allowInitIndex());
         }
 
         // obtain factory for output limiting

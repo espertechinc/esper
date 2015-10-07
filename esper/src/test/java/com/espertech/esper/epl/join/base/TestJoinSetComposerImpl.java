@@ -59,7 +59,7 @@ public class TestJoinSetComposerImpl extends TestCase
         indexes[0].put(new TableLookupIndexReqKey("idxLeft"), indexLeft);
         indexes[1].put(new TableLookupIndexReqKey("idxLeft"), indexRight);
 
-        joinSetComposerImpl = new JoinSetComposerImpl(indexes, queryStrategies, false, null, true);
+        joinSetComposerImpl = new JoinSetComposerImpl(true, indexes, queryStrategies, false, null, true);
     }
 
     public void testJoin()

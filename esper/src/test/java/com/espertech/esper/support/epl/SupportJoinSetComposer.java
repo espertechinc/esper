@@ -49,4 +49,8 @@ public class SupportJoinSetComposer implements JoinSetComposer
 
     public void visitIndexes(StatementAgentInstancePostLoadIndexVisitor visitor) {
     }
+
+    public boolean allowsInit() {
+        return true;
+    }
 }

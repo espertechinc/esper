@@ -13,6 +13,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.IterablesArrayIterator;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -49,6 +50,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
     private ExprEvaluator[] evaluators;
     private SortedSet<Integer> subordinateStreams;
     private ExprEvaluatorContext exprEvaluatorContext;
+    private StatementContext statementContext;
 
     private static final EventBean[][] NULL_ROWS;
     static {
@@ -57,7 +59,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
     }
     private static final PollResultIndexingStrategy iteratorIndexingStrategy = new PollResultIndexingStrategy()
     {
-        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
         {
             return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
         }
@@ -107,8 +109,10 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                          EventAdapterService eventAdapterService,
                          String statementName,
                          String statementId,
-                         Annotation[] annotations) throws ExprValidationException
+                         Annotation[] annotations,
+                         StatementContext statementContext) throws ExprValidationException
     {
+        this.statementContext = statementContext;
         evaluators = new ExprEvaluator[inputParameters.size()];
         subordinateStreams = new TreeSet<Integer>();
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -196,7 +200,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                     List<EventBean> pollResult = pollExecStrategy.poll(lookupValues, exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
-                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive());
+                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext); // TODO
 
                     // assign to row
                     resultPerInputRow[row] = indexTable;

@@ -27,6 +27,7 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
+import com.espertech.esper.epl.lookup.EventTableIndexServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
 import com.espertech.esper.epl.named.NamedWindowDispatchService;
 import com.espertech.esper.epl.named.NamedWindowDispatchServiceImpl;
@@ -202,7 +203,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
-                new ViewServicePreviousFactoryImpl()
+                new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl()
                 {
         });
 

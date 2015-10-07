@@ -48,7 +48,7 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
         }
     }
 
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTable[] tables = new EventTable[propertyGetters.length];
         if (unique) {
             for (int i = 0; i < tables.length; i++) {

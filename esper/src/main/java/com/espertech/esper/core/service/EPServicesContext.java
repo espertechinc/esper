@@ -24,6 +24,7 @@ import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowDispatchService;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -102,6 +103,7 @@ public final class EPServicesContext
     private FilterNonPropertyRegisteryService filterNonPropertyRegisteryService;
     private ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
     private ViewServicePreviousFactory viewServicePreviousFactory;
+    private EventTableIndexService eventTableIndexService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -191,7 +193,8 @@ public final class EPServicesContext
                              ViewableActivatorFactory viewableActivatorFactory,
                              FilterNonPropertyRegisteryService filterNonPropertyRegisteryService,
                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
-                             ViewServicePreviousFactory viewServicePreviousFactory)
+                             ViewServicePreviousFactory viewServicePreviousFactory,
+                             EventTableIndexService eventTableIndexService)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -245,6 +248,7 @@ public final class EPServicesContext
         this.filterNonPropertyRegisteryService = filterNonPropertyRegisteryService;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.viewServicePreviousFactory = viewServicePreviousFactory;
+        this.eventTableIndexService = eventTableIndexService;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -746,5 +750,9 @@ public final class EPServicesContext
 
     public ViewServicePreviousFactory getViewServicePreviousFactory() {
         return viewServicePreviousFactory;
+    }
+
+    public EventTableIndexService getEventTableIndexService() {
+        return eventTableIndexService;
     }
 }

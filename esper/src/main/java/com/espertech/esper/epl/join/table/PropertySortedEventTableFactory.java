@@ -40,7 +40,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory
         propertyGetter = EventBeanUtility.getAssertPropertyGetter(eventType, propertyName);
     }
 
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
         return new EventTable[] {new PropertySortedEventTable(propertyGetter, organization)};
     }

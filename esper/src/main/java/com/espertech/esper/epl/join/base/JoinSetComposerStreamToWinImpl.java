@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
 {
+    private final boolean allowInitIndex;
     private final EventTable[][] repositories;
     private final int streamNumber;
     private final QueryStrategy queryStrategy;
@@ -46,8 +47,9 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
      * @param queryStrategy is the lookup query strategy for the stream
      * @param selfJoinRepositoryResets indicators for any stream's table that reset after strategy executon
      */
-    public JoinSetComposerStreamToWinImpl(Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets)
+    public JoinSetComposerStreamToWinImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets)
     {
+        this.allowInitIndex = allowInitIndex;
         this.repositories = JoinSetComposerUtil.toArray(repositories);
         this.streamNumber = streamNumber;
         this.queryStrategy = queryStrategy;
@@ -69,8 +71,15 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
         }
     }
 
+    public boolean allowsInit() {
+        return allowInitIndex;
+    }
+
     public void init(EventBean[][] eventsPerStream)
     {
+        if (!allowInitIndex) {
+            throw new IllegalStateException("Initialization by events not supported");
+        }
         for (int i = 0; i < eventsPerStream.length; i++)
         {
             if ((eventsPerStream[i] != null) && (i != streamNumber))

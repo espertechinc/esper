@@ -17,8 +17,6 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.pollindex.*;
@@ -27,6 +25,7 @@ import com.espertech.esper.epl.join.util.QueryPlanIndexDescHistorical;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHook;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHookUtil;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.DependencyGraph;
@@ -70,7 +69,8 @@ public class JoinSetComposerPrototypeFactory
                                                           boolean selectsRemoveStream,
                                                           boolean hasAggregations,
                                                           TableService tableService,
-                                                          boolean isOnDemandQuery)
+                                                          boolean isOnDemandQuery,
+                                                          boolean allowIndexInit)
             throws ExprValidationException
     {
         // Determine if there is a historical stream, and what dependencies exist
@@ -90,7 +90,7 @@ public class JoinSetComposerPrototypeFactory
         // Handle a join with a database or other historical data source for 2 streams
         if ((historicalViewableDesc.isHasHistorical()) && (streamTypes.length == 2))
         {
-            return makeComposerHistorical2Stream(outerJoinDescList, optionalFilterNode, streamTypes, historicalViewableDesc, queryPlanLogging, exprEvaluatorContext, statementContext, streamNames);
+            return makeComposerHistorical2Stream(outerJoinDescList, optionalFilterNode, streamTypes, historicalViewableDesc, queryPlanLogging, exprEvaluatorContext, statementContext, streamNames, allowIndexInit);
         }
 
         boolean isOuterJoins = !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList);
@@ -189,7 +189,7 @@ public class JoinSetComposerPrototypeFactory
                                                 historicalStreamIndexLists,
                                                 joinRemoveStream,
                                                 isOuterJoins,
-                tableService);
+                tableService, statementContext.getEventTableIndexService());
     }
 
     private static JoinSetComposerPrototype makeComposerHistorical2Stream(OuterJoinDesc[] outerJoinDescList,
@@ -199,7 +199,8 @@ public class JoinSetComposerPrototypeFactory
                                                    boolean queryPlanLogging,
                                                    ExprEvaluatorContext exprEvaluatorContext,
                                                    StatementContext statementContext,
-                                                   String[] streamNames)
+                                                   String[] streamNames,
+                                                   boolean allowIndexInit)
             throws ExprValidationException
     {
         int polledViewNum = 0;
@@ -308,7 +309,7 @@ public class JoinSetComposerPrototypeFactory
                                                     outerJoinEqualsNode,
                                                     indexStrategies,
                                                     isAllHistoricalNoSubordinate,
-                                                    outerJoinDescList);
+                                                    outerJoinDescList, allowIndexInit);
     }
 
     private static Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> determineIndexing(ExprNode filterForIndexing,

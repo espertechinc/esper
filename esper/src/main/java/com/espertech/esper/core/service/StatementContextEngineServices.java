@@ -11,6 +11,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
@@ -45,8 +46,9 @@ public final class StatementContextEngineServices
     private final StatementLockFactory statementLockFactory;
     private final ContextManagementService contextManagementService;
     private final ViewServicePreviousFactory viewServicePreviousFactory;
+    private final EventTableIndexService eventTableIndexService;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -66,6 +68,7 @@ public final class StatementContextEngineServices
         this.statementLockFactory = statementLockFactory;
         this.contextManagementService = contextManagementService;
         this.viewServicePreviousFactory = viewServicePreviousFactory;
+        this.eventTableIndexService = eventTableIndexService;
     }
 
     public String getEngineURI() {
@@ -142,5 +145,9 @@ public final class StatementContextEngineServices
 
     public ViewServicePreviousFactory getViewServicePreviousFactory() {
         return viewServicePreviousFactory;
+    }
+
+    public EventTableIndexService getEventTableIndexService() {
+        return eventTableIndexService;
     }
 }

@@ -57,7 +57,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
         }
     }
 
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false,
                 streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
         if (unique) {

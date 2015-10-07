@@ -43,7 +43,7 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
         propertyGetter = EventBeanUtility.getAssertPropertyGetter(eventType, propertyName);
     }
 
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.HASH);
         if (unique) {
             return new EventTable[] {new PropertyIndexedEventTableSingleUnique(propertyGetter, organization)};

@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -529,6 +530,10 @@ public final class StatementContext
 
     public ViewServicePreviousFactory getViewServicePreviousFactory() {
         return stmtEngineServices.getViewServicePreviousFactory();
+    }
+
+    public EventTableIndexService getEventTableIndexService() {
+        return stmtEngineServices.getEventTableIndexService();
     }
 
     public StatementLockFactory getStatementLockFactory() {

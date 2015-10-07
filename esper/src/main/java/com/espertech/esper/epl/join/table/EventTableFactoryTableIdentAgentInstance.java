@@ -8,27 +8,17 @@
  **************************************************************************************/
 package com.espertech.esper.epl.join.table;
 
-/**
- * Factory for simple table of events without an index.
- */
-public class UnindexedEventTableFactory implements EventTableFactory
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+
+public class EventTableFactoryTableIdentAgentInstance implements EventTableFactoryTableIdent
 {
-    private final int streamNum;
+    private final AgentInstanceContext agentInstanceContext;
 
-    public UnindexedEventTableFactory(int streamNum) {
-        this.streamNum = streamNum;
+    public EventTableFactoryTableIdentAgentInstance(AgentInstanceContext agentInstanceContext) {
+        this.agentInstanceContext = agentInstanceContext;
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        return new EventTable[] {new UnindexedEventTable(streamNum)};
-    }
-
-    public Class getEventTableClass() {
-        return UnindexedEventTable.class;
-    }
-
-    public String toQueryPlan()
-    {
-        return this.getClass().getSimpleName() + " streamNum=" + streamNum;
+    public AgentInstanceContext getAgentInstanceContext() {
+        return agentInstanceContext;
     }
 }

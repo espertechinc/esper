@@ -38,7 +38,7 @@ public class PropertyIndexedEventTableSingleCoerceAddFactory extends PropertyInd
     }
 
     @Override
-    public EventTable[] makeEventTables() {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.HASH);
         return new EventTable[] {new PropertyIndexedEventTableSingleCoerceAdd(propertyGetter, organization, coercer, coercionType)};
     }

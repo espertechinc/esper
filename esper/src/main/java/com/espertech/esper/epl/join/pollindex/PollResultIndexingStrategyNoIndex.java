@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.join.pollindex;
 
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableList;
 import com.espertech.esper.client.EventBean;
@@ -25,7 +26,7 @@ public class PollResultIndexingStrategyNoIndex implements PollResultIndexingStra
     public PollResultIndexingStrategyNoIndex() {
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
     {
         return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
     }

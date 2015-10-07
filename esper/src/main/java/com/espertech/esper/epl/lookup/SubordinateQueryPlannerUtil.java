@@ -10,6 +10,7 @@ package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.plan.CoercionDesc;
@@ -174,13 +175,14 @@ public class SubordinateQueryPlannerUtil
     public static EventTable[] realizeTables(SubordinateQueryIndexDesc[] indexDescriptors,
                                              EventType eventType,
                                              EventTableIndexRepository indexRepository,
-                                             Iterable<EventBean> contents) {
+                                             Iterable<EventBean> contents,
+                                             AgentInstanceContext agentInstanceContext) {
         EventTable[] tables = new EventTable[indexDescriptors.length];
         for (int i = 0; i < tables.length; i++) {
             SubordinateQueryIndexDesc desc = indexDescriptors[i];
             EventTable table = indexRepository.getIndexByDesc(desc.getIndexMultiKey());
             if (table == null) {
-                table = EventTableUtil.buildIndex(0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null);
+                table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null);
 
                 // fill table since its new
                 EventBean[] events = new EventBean[1];
