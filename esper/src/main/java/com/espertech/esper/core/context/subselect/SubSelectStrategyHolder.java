@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.context.subselect;
 
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
@@ -30,14 +31,16 @@ public class SubSelectStrategyHolder
     private final Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousNodeStrategies;
     private final Viewable subselectView;
     private final StatementAgentInstancePostLoad postLoad;
+    private final ViewableActivationResult subselectActivationResult;
 
-    public SubSelectStrategyHolder(ExprSubselectStrategy stategy, AggregationService subselectAggregationService, Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategies, Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousNodeStrategies, Viewable subselectView, StatementAgentInstancePostLoad postLoad) {
+    public SubSelectStrategyHolder(ExprSubselectStrategy stategy, AggregationService subselectAggregationService, Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategies, Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousNodeStrategies, Viewable subselectView, StatementAgentInstancePostLoad postLoad, ViewableActivationResult subselectActivationResult) {
         this.stategy = stategy;
         this.subselectAggregationService = subselectAggregationService;
         this.priorStrategies = priorStrategies;
         this.previousNodeStrategies = previousNodeStrategies;
         this.subselectView = subselectView;
         this.postLoad = postLoad;
+        this.subselectActivationResult = subselectActivationResult;
     }
 
     public ExprSubselectStrategy getStategy() {
@@ -62,5 +65,9 @@ public class SubSelectStrategyHolder
 
     public StatementAgentInstancePostLoad getPostLoad() {
         return postLoad;
+    }
+
+    public ViewableActivationResult getSubselectActivationResult() {
+        return subselectActivationResult;
     }
 }

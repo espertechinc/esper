@@ -12,7 +12,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.context.activator.*;
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
+import com.espertech.esper.core.context.activator.ViewableActivator;
+import com.espertech.esper.core.context.activator.ViewableActivatorSubselectNone;
+import com.espertech.esper.core.context.activator.ViewableActivatorTable;
 import com.espertech.esper.core.context.subselect.*;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
@@ -196,7 +199,8 @@ public class EPStatementStartMethodHelperSubselect
             EPServicesContext services,
             SubSelectStrategyCollection subSelectStrategyCollection,
             final AgentInstanceContext agentInstanceContext,
-            List<StopCallback> stopCallbackList) {
+            List<StopCallback> stopCallbackList,
+            boolean isRecoveringResilient) {
 
         Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies = new HashMap<ExprSubselectNode, SubSelectStrategyHolder>();
 
@@ -207,7 +211,7 @@ public class EPStatementStartMethodHelperSubselect
             SubSelectActivationHolder holder = factoryDesc.getSubSelectActivationHolder();
 
             // activate view
-            ViewableActivationResult subselectActivationResult = holder.getActivator().activate(agentInstanceContext, true, false);
+            ViewableActivationResult subselectActivationResult = holder.getActivator().activate(agentInstanceContext, true, isRecoveringResilient);
             stopCallbackList.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
@@ -241,7 +245,8 @@ public class EPStatementStartMethodHelperSubselect
                     result.getPriorNodeStrategies(),
                     result.getPreviousNodeStrategies(),
                     result.getSubselectView(),
-                    result.getPostLoad());
+                    result.getPostLoad(),
+                    subselectActivationResult);
             subselectStrategies.put(subselectNode, instance);
         }
 

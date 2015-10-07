@@ -180,7 +180,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
                 }
 
                 AIRegistryAggregation subselectAggregation = aiRegistryExpr.allocateSubselectAggregation(entry.getKey());
-                subselectStrategyInstances.put(entry.getKey(), new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null));
+                subselectStrategyInstances.put(entry.getKey(), new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null, null));
             }
 
             // use statement-wide agent-instance-specific tables

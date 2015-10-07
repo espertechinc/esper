@@ -134,7 +134,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             for (ExprSubselectNode node : subSelectStrategyCollection.getSubqueries().keySet()) {
                 AIRegistrySubselect specificService = aiRegistryExpr.allocateSubselect(node);
                 node.setStrategy(specificService);
-                subselectStrategyInstances.put(node, new SubSelectStrategyHolder(null, null, null, null, null, null));
+                subselectStrategyInstances.put(node, new SubSelectStrategyHolder(null, null, null, null, null, null, null));
             }
 
             ContextMergeView mergeView = new ContextMergeView(onExprView.getEventType());

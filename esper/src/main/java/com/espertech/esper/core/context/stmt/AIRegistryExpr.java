@@ -34,6 +34,7 @@ public interface AIRegistryExpr {
 
     public AIRegistryPrior getOrAllocatePrior(ExprPriorNode key);
     public AIRegistryPrevious getOrAllocatePrevious(ExprPreviousNode key);
+    public AIRegistrySubselect getOrAllocateSubquery(ExprSubselectNode key);
 
     public int getSubselectAgentInstanceCount();
     public int getPreviousAgentInstanceCount();

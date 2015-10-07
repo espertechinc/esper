@@ -102,7 +102,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
                 }
 
                 AIRegistryAggregation subselectAggregation = aiRegistryExpr.allocateSubselectAggregation(entry.getKey());
-                SubSelectStrategyHolder strategyHolder = new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null);
+                SubSelectStrategyHolder strategyHolder = new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null, null);
                 subselectStrategyInstances.put(entry.getKey(), strategyHolder);
             }
 

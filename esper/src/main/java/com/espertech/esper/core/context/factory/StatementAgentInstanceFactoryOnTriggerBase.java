@@ -86,7 +86,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             view = determineFinalOutputView(agentInstanceContext, view);
 
             // start subselects
-            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks);
+            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
             // plan table access
             tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());
