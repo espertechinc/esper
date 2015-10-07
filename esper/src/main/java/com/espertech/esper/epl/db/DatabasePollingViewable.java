@@ -31,7 +31,6 @@ import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -107,9 +106,6 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                          String engineURI,
                          Map<Integer, List<ExprNode>> sqlParameters,
                          EventAdapterService eventAdapterService,
-                         String statementName,
-                         String statementId,
-                         Annotation[] annotations,
                          StatementContext statementContext) throws ExprValidationException
     {
         this.statementContext = statementContext;
@@ -118,7 +114,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
         this.exprEvaluatorContext = exprEvaluatorContext;
 
         int count = 0;
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         for (String inputParam : inputParameters)
         {
             ExprNode raw = findSQLExpressionNode(myStreamNumber, count, sqlParameters);

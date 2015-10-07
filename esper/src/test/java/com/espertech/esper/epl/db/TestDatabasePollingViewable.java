@@ -51,7 +51,7 @@ public class TestDatabasePollingViewable extends TestCase
 
         Map<Integer, List<ExprNode>> sqlParameters = new HashMap<Integer, List<ExprNode>>();
         sqlParameters.put(1, Collections.singletonList((ExprNode) new ExprIdentNodeImpl("intPrimitive", "s0")));
-        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null, null, null, null);
+        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null);
 
         indexingStrategy = new PollResultIndexingStrategy()
         {

@@ -312,7 +312,7 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt,
                     services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(),
                     statementSpec.getSqlParameters(),
-                    statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext);
+                    statementContext.getEventAdapterService(), statementContext);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream))
             {

@@ -33,7 +33,6 @@ import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -116,12 +115,12 @@ public class MethodPollingViewable implements HistoricalEventViewable
 
     public void validate(EngineImportService engineImportService, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider,
                          VariableService variableService, TableService tableService, ExprEvaluatorContext exprEvaluatorContext, ConfigurationInformation configSnapshot,
-                         SchedulingService schedulingService, String engineURI, Map<Integer, List<ExprNode>> sqlParameters, EventAdapterService eventAdapterService, String statementName, String statementId, Annotation[] annotations, StatementContext statementContext) throws ExprValidationException {
+                         SchedulingService schedulingService, String engineURI, Map<Integer, List<ExprNode>> sqlParameters, EventAdapterService eventAdapterService, StatementContext statementContext) throws ExprValidationException {
 
         this.statementContext = statementContext;
 
         // validate and visit
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
         for (ExprNode exprNode : inputParameters) {
@@ -151,7 +150,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
 
         ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
                 methodProviderClass.getName(), isStaticMethod ? null : methodProviderClass,
-                methodStreamSpec.getMethodName(), validatedInputParameters, methodResolutionService, eventAdapterService, statementId,
+                methodStreamSpec.getMethodName(), validatedInputParameters, methodResolutionService, eventAdapterService, statementContext.getStatementId(),
                 false, null, handler, methodStreamSpec.getMethodName(), tableService);
         validatedExprNodes = desc.getChildEvals();
     }
