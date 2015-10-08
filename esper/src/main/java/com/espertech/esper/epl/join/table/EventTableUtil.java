@@ -35,7 +35,8 @@ public class EventTableUtil
         if (rangeProps == null || rangeProps.length == 0) {
             if (indexProps == null || indexProps.length == 0)
             {
-                table = new UnindexedEventTable(indexedStreamNum);
+                EventTableFactory factory = agentInstanceContext.getStatementContext().getEventTableIndexService().createUnindexed(indexedStreamNum);
+                table = factory.makeEventTables(ident)[0];
             }
             else
             {

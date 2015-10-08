@@ -13,7 +13,7 @@ package com.espertech.esper.epl.join.table;
  */
 public class UnindexedEventTableFactory implements EventTableFactory
 {
-    private final int streamNum;
+    protected final int streamNum;
 
     public UnindexedEventTableFactory(int streamNum) {
         this.streamNum = streamNum;

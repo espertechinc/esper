@@ -21,7 +21,7 @@ public class ContextControllerFactoryHelper {
 
     public static ContextControllerFactory[] getFactory(ContextControllerFactoryServiceContext serviceContext, ContextStateCache contextStateCache) throws ExprValidationException {
         if (!(serviceContext.getDetail() instanceof ContextDetailNested)) {
-            ContextControllerFactory factory = buildContextFactory(serviceContext, serviceContext.getContextName(), serviceContext.getDetail(), 1, null, contextStateCache);
+            ContextControllerFactory factory = buildContextFactory(serviceContext, serviceContext.getContextName(), serviceContext.getDetail(), 1, 1, null, contextStateCache);
             factory.validateFactory();
             return new ContextControllerFactory[] {factory};
         }
@@ -71,14 +71,14 @@ public class ContextControllerFactoryHelper {
                 optFiltersNested = filtersPerNestedContext.get(context);
             }
 
-            hierarchy[i] = buildContextFactory(serviceContext, context.getContextName(), context.getContextDetail(), nestingLevel, optFiltersNested, contextStateCache);
+            hierarchy[i] = buildContextFactory(serviceContext, context.getContextName(), context.getContextDetail(), nestingLevel, nestedSpec.getContexts().size(), optFiltersNested, contextStateCache);
             hierarchy[i].validateFactory();
         }
         return hierarchy;
     }
 
-    private static ContextControllerFactory buildContextFactory(ContextControllerFactoryServiceContext serviceContext, String contextName, ContextDetail detail, int nestingLevel, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) throws ExprValidationException {
-        ContextControllerFactoryContext factoryContext = new ContextControllerFactoryContext(serviceContext.getContextName(), contextName, serviceContext.getServicesContext(), serviceContext.getAgentInstanceContextCreate(), nestingLevel, serviceContext.isRecoveringResilient(), contextStateCache);
+    private static ContextControllerFactory buildContextFactory(ContextControllerFactoryServiceContext serviceContext, String contextName, ContextDetail detail, int nestingLevel, int numNestingLevels, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) throws ExprValidationException {
+        ContextControllerFactoryContext factoryContext = new ContextControllerFactoryContext(serviceContext.getContextName(), contextName, serviceContext.getServicesContext(), serviceContext.getAgentInstanceContextCreate(), nestingLevel, numNestingLevels, serviceContext.isRecoveringResilient(), contextStateCache);
         return buildContextFactory(factoryContext, detail, optFiltersNested, contextStateCache);
     }
 

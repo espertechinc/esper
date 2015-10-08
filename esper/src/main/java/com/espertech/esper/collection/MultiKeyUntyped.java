@@ -20,7 +20,7 @@ import java.io.Serializable;
  */
 public final class MultiKeyUntyped implements MetaDefItem, Serializable
 {
-    private final transient Object[] keys;
+    private final Object[] keys;
     private final int hashCode;
     private static final long serialVersionUID = -3890626073105861216L;
 

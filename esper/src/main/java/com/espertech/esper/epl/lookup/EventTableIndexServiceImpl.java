@@ -29,4 +29,8 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
     public EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName) {
         return new PropertyIndexedEventTableSingleFactory(indexedStreamNum, eventType, propertyName, unique, optionalIndexName);
     }
+
+    public EventTableFactory createUnindexed(int indexedStreamNum) {
+        return new UnindexedEventTableFactory(indexedStreamNum);
+    }
 }

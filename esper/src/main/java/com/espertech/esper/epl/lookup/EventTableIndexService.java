@@ -12,10 +12,12 @@
 package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 
 public interface EventTableIndexService {
     boolean allowInitIndex();
     EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexedPropertyName, Class indexCoercionType);
     EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexedPropertyName, boolean unique, String optionalIndexName);
+    EventTableFactory createUnindexed(int indexedStreamNum);
 }
