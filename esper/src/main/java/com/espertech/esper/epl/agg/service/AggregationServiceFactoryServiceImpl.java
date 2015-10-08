@@ -59,7 +59,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return new AggSvcGroupByReclaimAgedFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, reclaimGroupAged, reclaimGroupFrequency, variableService, pairs, accessAggregations, join, optionalContextName);
     }
 
-    public AggregationServiceFactory getGroupReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding) {
+    public AggregationServiceFactory getGroupReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional) {
         return new AggSvcGroupByRefcountedNoAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding);
     }
 

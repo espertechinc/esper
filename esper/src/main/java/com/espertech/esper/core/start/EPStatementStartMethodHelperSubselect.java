@@ -301,9 +301,9 @@ public class EPStatementStartMethodHelperSubselect
         // No filter expression means full table scan
         if ((filterExpr == null) || fullTableScan)
         {
-            UnindexedEventTableFactory table = new UnindexedEventTableFactory(0);
+            EventTableFactory tableFactory = statementContext.getEventTableIndexService().createUnindexed(0);
             SubordFullTableScanLookupStrategyFactory strategy = new SubordFullTableScanLookupStrategyFactory();
-            return new Pair<EventTableFactory, SubordTableLookupStrategyFactory>(table, strategy);
+            return new Pair<EventTableFactory, SubordTableLookupStrategyFactory>(tableFactory, strategy);
         }
 
         // Build a list of streams and indexes
@@ -725,7 +725,7 @@ public class EPStatementStartMethodHelperSubselect
 
             List<ExprAggregateNode> havingAgg = Collections.emptyList();
             List<ExprAggregateNode> orderByAgg = Collections.emptyList();
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null);
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null, true);
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {

@@ -173,7 +173,8 @@ public class AggregationServiceFactoryFactory
                                                            AggregationGroupByRollupDesc groupByRollupDesc,
                                                            String optionalContextName,
                                                            IntoTableSpec intoTableSpec,
-                                                           TableService tableService)
+                                                           TableService tableService,
+                                                           boolean isUnidirectional)
             throws ExprValidationException
     {
         // No aggregates used, we do not need this service
@@ -365,7 +366,7 @@ public class AggregationServiceFactoryFactory
                 else
                 {
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);
+                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional);
                     }
                     else {
                         serviceFactory = factoryService.getGroupReclaimMixable(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);
