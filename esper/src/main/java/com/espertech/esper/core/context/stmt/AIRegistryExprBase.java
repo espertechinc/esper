@@ -114,6 +114,14 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
         return allocateSubselect(key);
     }
 
+    public AIRegistryAggregation getOrAllocateSubselectAggregation(ExprSubselectNode subselectNode) {
+        AIRegistryAggregation existing = subselectAggregations.get(subselectNode);
+        if (existing != null) {
+            return existing;
+        }
+        return allocateSubselectAggregation(subselectNode);
+    }
+
     public AIRegistryPrevious allocatePrevious(ExprPreviousNode previousNode) {
         AIRegistryPrevious service = allocateAIRegistryPrevious();
         previous.put(previousNode, service);

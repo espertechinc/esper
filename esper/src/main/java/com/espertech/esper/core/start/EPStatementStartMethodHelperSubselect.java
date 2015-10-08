@@ -127,6 +127,10 @@ public class EPStatementStartMethodHelperSubselect
             {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
                 NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
+
+                // add consumer
+                processor.getTailView().addConsumerToBe(namedSpec, statementContext);
+
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();

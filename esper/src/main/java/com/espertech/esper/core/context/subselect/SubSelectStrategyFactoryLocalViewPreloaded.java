@@ -145,7 +145,9 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
                 }
                 subselectView.addView(aggregatorView);
 
-                preload(services, null, aggregatorView, agentInstanceContext);
+                if (services.getEventTableIndexService().allowInitIndex()) {
+                    preload(services, null, aggregatorView, agentInstanceContext);
+                }
 
                 return new SubSelectStrategyRealization(NULL_ROW_STRATEGY, null, aggregationService, priorNodeStrategies, previousNodeStrategies, subselectView, null);
             }
