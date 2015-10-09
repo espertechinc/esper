@@ -32,7 +32,6 @@ import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
-import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentAgentInstance;
 import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentAgentInstanceSubq;
 import com.espertech.esper.epl.lookup.SubordTableLookupStrategy;
 import com.espertech.esper.epl.lookup.SubordTableLookupStrategyFactory;
@@ -87,28 +86,28 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
     }
 
     public SubSelectStrategyRealization instantiate(final EPServicesContext services,
-                                                 Viewable viewableRoot,
-                                                 final AgentInstanceContext agentInstanceContext,
-                                                 List<StopCallback> stopCallbackList) {
+                                                    Viewable viewableRoot,
+                                                    final AgentInstanceContext agentInstanceContext,
+                                                    List<StopCallback> stopCallbackList, int subqueryNumber) {
 
         List<ViewFactory> viewFactoryChain = subSelectHolder.getViewFactoryChain().getViewFactoryChain();
 
         // add "prior" view factory
         boolean hasPrior = viewResourceDelegate.getPerStream()[0].getPriorRequests() != null && !viewResourceDelegate.getPerStream()[0].getPriorRequests().isEmpty();
         if (hasPrior) {
-            PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), 1024 + subqueryNumber, viewFactoryChain.size() + 1, viewFactoryChain.isEmpty());
+            PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), 1024 + this.subqueryNumber, viewFactoryChain.size() + 1, viewFactoryChain.isEmpty());
             viewFactoryChain = new ArrayList<ViewFactory>(viewFactoryChain);
             viewFactoryChain.add(priorEventViewFactory);
         }
 
         // create factory chain context to hold callbacks specific to "prior" and "prev"
-        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0], -1, true, subqueryNumber);
+        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0], -1, true, this.subqueryNumber);
 
         ViewServiceCreateResult createResult = services.getViewService().createViews(viewableRoot, viewFactoryChain, viewFactoryChainContext, false);
         final Viewable subselectView = createResult.getFinalViewable();
 
         // create index/holder table
-        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, subqueryNumber));
+        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, this.subqueryNumber));
         stopCallbackList.add(new SubqueryStopCallback(index));
 
         // create strategy
@@ -123,7 +122,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), true, subqueryNumber);
 
             if (!correlatedSubquery) {
                 View aggregatorView;

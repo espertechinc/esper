@@ -22,7 +22,7 @@ public class AggSvcGroupAllNoAccessFactory extends AggregationServiceFactoryBase
         super(evaluators, aggregators, groupKeyBinding);
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
 
         AggregationMethod[] aggregatorsAgentInstance = methodResolutionService.newAggregators(super.aggregators, agentInstanceContext.getAgentInstanceId());
         return new AggSvcGroupAllNoAccessImpl(evaluators, aggregatorsAgentInstance, aggregators);

@@ -89,7 +89,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
 
     public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
         // get result set processor and aggregation services
-        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext);
+        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext, false, null);
 
         // get named window processor instance
         NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(agentInstanceContext);

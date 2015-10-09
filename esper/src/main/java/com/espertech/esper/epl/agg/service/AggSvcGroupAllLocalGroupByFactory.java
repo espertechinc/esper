@@ -27,7 +27,7 @@ public class AggSvcGroupAllLocalGroupByFactory implements AggregationServiceFact
         this.groupKeyBinding = groupKeyBinding;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupAllLocalGroupBy(methodResolutionService, isJoin, localGroupByPlan, groupKeyBinding);
     }
 }

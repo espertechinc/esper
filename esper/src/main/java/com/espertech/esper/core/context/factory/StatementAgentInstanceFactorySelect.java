@@ -229,7 +229,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());
 
             // obtain result set processor and aggregation services
-            Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext);
+            Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext, false, null);
             final ResultSetProcessor resultSetProcessor = processorPair.getFirst();
             aggregationService = processorPair.getSecond();
             stopCallbacks.add(aggregationService);

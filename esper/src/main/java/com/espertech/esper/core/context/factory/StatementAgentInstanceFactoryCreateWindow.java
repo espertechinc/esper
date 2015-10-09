@@ -152,7 +152,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             finalView = tailView;
 
             // obtain result set processor
-            ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
+            ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null);
 
             // Attach output view
             View outputView = outputProcessViewFactory.makeView(resultSetProcessor, agentInstanceContext);

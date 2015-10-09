@@ -83,7 +83,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
         OnTriggerWindowDesc onTriggerWindowDesc = (OnTriggerWindowDesc) statementSpec.getOnTriggerDesc();
 
         // get result set processor and aggregation services
-        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext);
+        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext, false, null);
 
         TableStateInstance state = services.getTableService().getState(onTriggerWindowDesc.getWindowName(), agentInstanceContext.getAgentInstanceId());
         EventTable[] indexes;

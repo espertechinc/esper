@@ -24,13 +24,15 @@ public class SubSelectStrategyFactoryDesc
     private final AggregationServiceFactoryDesc aggregationServiceFactoryDesc;
     private final List<ExprPriorNode> priorNodesList;
     private final List<ExprPreviousNode> prevNodesList;
+    private final int subqueryNumber;
 
-    public SubSelectStrategyFactoryDesc(SubSelectActivationHolder subSelectActivationHolder, SubSelectStrategyFactory factory, AggregationServiceFactoryDesc aggregationServiceFactoryDesc, List<ExprPriorNode> priorNodesList, List<ExprPreviousNode> prevNodesList) {
+    public SubSelectStrategyFactoryDesc(SubSelectActivationHolder subSelectActivationHolder, SubSelectStrategyFactory factory, AggregationServiceFactoryDesc aggregationServiceFactoryDesc, List<ExprPriorNode> priorNodesList, List<ExprPreviousNode> prevNodesList, int subqueryNumber) {
         this.subSelectActivationHolder = subSelectActivationHolder;
         this.factory = factory;
         this.aggregationServiceFactoryDesc = aggregationServiceFactoryDesc;
         this.priorNodesList = priorNodesList;
         this.prevNodesList = prevNodesList;
+        this.subqueryNumber = subqueryNumber;
     }
 
     public SubSelectActivationHolder getSubSelectActivationHolder() {
@@ -51,5 +53,9 @@ public class SubSelectStrategyFactoryDesc
 
     public List<ExprPreviousNode> getPrevNodesList() {
         return prevNodesList;
+    }
+
+    public int getSubqueryNumber() {
+        return subqueryNumber;
     }
 }

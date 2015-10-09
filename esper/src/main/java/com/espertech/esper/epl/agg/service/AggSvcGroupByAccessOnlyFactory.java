@@ -42,7 +42,7 @@ public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory
         this.isJoin = isJoin;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByAccessOnlyImpl(methodResolutionService, groupKeyBinding, accessors, accessAggSpecs, isJoin);
     }
 }

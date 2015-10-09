@@ -19,5 +19,5 @@ import com.espertech.esper.epl.core.MethodResolutionService;
  */
 public interface AggregationServiceFactory
 {
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService);
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber);
 }

@@ -42,7 +42,7 @@ public class AggSvcGroupByWTableFactory implements AggregationServiceFactory
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         TableStateInstanceGrouped tableState = (TableStateInstanceGrouped) agentInstanceContext.getStatementContext().getTableService().getState(tableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
         if (groupByRollupDesc == null) {
             return new AggSvcGroupByWTableImpl(tableMetadata, methodPairs, accessors, isJoin,

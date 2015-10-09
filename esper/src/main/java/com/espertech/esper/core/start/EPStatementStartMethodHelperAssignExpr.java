@@ -116,10 +116,10 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
-    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype) {
+    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, boolean isSubquery, Integer subqueryNumber) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
-            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), isSubquery, subqueryNumber);
         }
 
         OrderByProcessor orderByProcessor = null;

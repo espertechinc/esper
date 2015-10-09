@@ -101,13 +101,14 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
     public SubSelectStrategyRealization instantiate(EPServicesContext services,
                                                     Viewable viewableRoot,
                                                     AgentInstanceContext agentInstanceContext,
-                                                    List<StopCallback> stopCallbackList) {
+                                                    List<StopCallback> stopCallbackList,
+                                                    int subqueryNumber) {
 
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), true, subqueryNumber);
             if (groupByKeys == null) {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);

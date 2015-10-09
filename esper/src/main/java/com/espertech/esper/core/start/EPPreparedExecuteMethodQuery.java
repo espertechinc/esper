@@ -135,7 +135,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory());
-        resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
+        resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null);
 
         if (statementSpec.getSelectClauseSpec().isDistinct())
         {

@@ -220,7 +220,7 @@ public class EPStatementStartMethodHelperSubselect
             stopCallbackList.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
-            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList);
+            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList, factoryDesc.getSubqueryNumber());
 
             // handle stoppable view
             if (result.getSubselectView() instanceof StoppableView) {
@@ -838,7 +838,7 @@ public class EPStatementStartMethodHelperSubselect
                     SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
                     SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
                             processor, null, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
-                    return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+                    return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
                 }
             }
         }
@@ -857,7 +857,7 @@ public class EPStatementStartMethodHelperSubselect
             SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
             SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
                     null, metadata, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
-            return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+            return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
         }
 
         // determine unique keys, if any
@@ -877,7 +877,7 @@ public class EPStatementStartMethodHelperSubselect
                 outerEventTypes, subselectTypeService, fullTableScan, queryPlanLogging, optionalUniqueProps, statementContext, subqueryNum);
 
         SubSelectStrategyFactory factory = new SubSelectStrategyFactoryLocalViewPreloaded(subqueryNum, subSelectActivation, indexPair, filterExpr, filterExprEval, correlatedSubquery, aggregationServiceFactoryDesc, viewResourceDelegateVerified, groupByEvaluators);
-        return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+        return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
     }
 
     public static String getSubqueryInfoText(int subqueryNum, ExprSubselectNode subselect) {
