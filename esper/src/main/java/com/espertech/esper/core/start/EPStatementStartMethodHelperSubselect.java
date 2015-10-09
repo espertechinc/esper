@@ -119,7 +119,8 @@ public class EPStatementStartMethodHelperSubselect
                 TableQueryStreamSpec table = (TableQueryStreamSpec) streamSpec;
                 TableMetadata metadata = services.getTableService().getTableMetadata(table.getTableName());
                 ViewFactoryChain viewFactoryChain = ViewFactoryChain.fromTypeNoViews(metadata.getInternalEventType());
-                subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, metadata.getInternalEventType(), viewFactoryChain, new ViewableActivatorTable(metadata, null), streamSpec));
+                ViewableActivator viewableActivator = services.getViewableActivatorFactory().createTable(metadata, null);
+                subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, metadata.getInternalEventType(), viewFactoryChain, viewableActivator, streamSpec));
                 subselect.setRawEventType(metadata.getInternalEventType());
                 destroyCallbacks.addCallback(new EPStatementDestroyCallbackTableIdxRef(services.getTableService(), metadata, statementContext.getStatementName()));
             }

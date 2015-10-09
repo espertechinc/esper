@@ -15,10 +15,12 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
@@ -46,5 +48,9 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
 
     public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec) {
         return new ViewableActivatorNamedWindow(processor, streamSpec.getFilterExpressions(), streamSpec.getOptPropertyEvaluator());
+    }
+
+    public ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters) {
+        return new ViewableActivatorTable(metadata, optionalTableFilters);
     }
 }

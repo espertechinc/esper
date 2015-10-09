@@ -39,6 +39,7 @@ import com.espertech.esper.dataflow.ops.epl.EPLSelectViewable;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
@@ -46,6 +47,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.view.OutputProcessViewCallback;
 import com.espertech.esper.event.EventBeanAdapterFactory;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -210,6 +212,10 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
             }
 
             public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec) {
+                throw new UnsupportedOperationException();
+            }
+
+            public ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters) {
                 throw new UnsupportedOperationException();
             }
         };

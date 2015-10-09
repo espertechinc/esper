@@ -224,7 +224,7 @@ public class EPStatementStartMethodSelectUtil
                     tableFilterEvals = ExprNodeUtility.getEvaluators(tableStreamSpec.getFilterExpressions());
                 }
                 EPLValidationUtil.validateContextName(true, metadata.getTableName(), metadata.getContextName(), statementSpec.getOptionalContextName(), false);
-                eventStreamParentViewableActivators[i] = new ViewableActivatorTable(metadata, tableFilterEvals);
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createTable(metadata, tableFilterEvals);
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(metadata.getInternalEventType());
                 eventTypeNames[i] = tableStreamSpec.getTableName();
                 joinAnalysisResult.setTablesForStream(i, metadata);

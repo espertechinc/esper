@@ -26,8 +26,6 @@ import junit.framework.TestCase;
 public class TestContextPartitionedNamedWindow extends TestCase {
 
     private EPServiceProvider epService;
-    private SupportUpdateListener listenerSelect;
-    private SupportUpdateListener listenerNamedWindow;
 
     public void setUp()
     {
@@ -39,15 +37,10 @@ public class TestContextPartitionedNamedWindow extends TestCase {
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
-
-        listenerSelect = new SupportUpdateListener();
-        listenerNamedWindow = new SupportUpdateListener();
     }
 
     public void tearDown() {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
-        listenerSelect = null;
-        listenerNamedWindow = null;
     }
 
     public void testNWFireAndForgetInvalid() {
