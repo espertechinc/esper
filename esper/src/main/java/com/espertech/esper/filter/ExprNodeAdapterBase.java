@@ -84,4 +84,8 @@ public class ExprNodeAdapterBase
     public int getFilterSpecParamPathNum() {
         return filterSpecParamPathNum;
     }
+
+    public ExprEvaluatorContext getEvaluatorContext() {
+        return evaluatorContext;
+    }
 }
