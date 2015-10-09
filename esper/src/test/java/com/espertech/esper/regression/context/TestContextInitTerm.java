@@ -28,6 +28,7 @@ import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.AgentInstanceAssertionUtil;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -937,6 +938,41 @@ public class TestContextInitTerm extends TestCase {
         assertFalse(listener.getAndClearIsInvoked());
     }
 
+    public void testNonOverlappingSubqueryAndInvalid() throws Exception
+    {
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();} // using a separate engine instance
+
+        Configuration configuration = SupportConfigFactory.getConfiguration();
+        configuration.getEngineDefaults().getExecution().setPrioritized(true);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
+        epService.getEPAdministrator().getConfiguration().addEventType(Event.class);
+
+        sendTimeEvent("2002-05-1T10:00:00.000");
+
+        String epl =
+                "\n @Name('ctx') create context RuleActivityTime as start (0, 9, *, *, *) end (0, 17, *, *, *);" +
+                        "\n @Name('window') context RuleActivityTime create window EventsWindow.std:firstunique(productID) as Event;" +
+                        "\n @Name('variable') create variable boolean IsOutputTriggered_2 = false;" +
+                        "\n @Name('A') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +
+                        "\n @Name('B') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +
+                        "\n @Name('C') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +
+                        "\n @Name('D') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +
+                        "\n @Name('out') context RuleActivityTime select * from EventsWindow";
+
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+        epService.getEPAdministrator().getStatement("out").addListener(new SupportUpdateListener());
+
+        epService.getEPRuntime().sendEvent(new Event("A1"));
+
+        // invalid - subquery not the same context
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into EventsWindow select * from Event(not exists (select * from EventsWindow))",
+                "Failed to validate subquery number 1 querying EventsWindow: Named window by name 'EventsWindow' has been declared for context 'RuleActivityTime' and can only be used within the same context");
+
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
     private void sendTimeEvent(String time) {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(time)));
     }
@@ -971,5 +1007,17 @@ public class TestContextInitTerm extends TestCase {
 
     private void sendCurrentTimeWithMinus(String time, long minus) {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(time) - minus));
+    }
+
+    public static class Event {
+        private final String productID;
+
+        public Event(String productId) {
+            this.productID = productId;
+        }
+
+        public String getProductID() {
+            return productID;
+        }
     }
 }
