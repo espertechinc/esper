@@ -16,12 +16,28 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
+import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.filter.FilterSpecParam;
+import com.espertech.esper.filter.FilterSpecParamExprNode;
 import com.espertech.esper.pattern.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StatementLifecycleSvcUtil {
+
+    public static void assignFilterSpecIds(FilterSpecCompiled filterSpec, FilterSpecCompiled[] filterSpecsAll) {
+        for (int path = 0; path < filterSpec.getParameters().length; path++) {
+            for (FilterSpecParam param : filterSpec.getParameters()[path]) {
+                if (param instanceof FilterSpecParamExprNode) {
+                    int index = filterSpec.getFilterSpecIndexAmongAll(filterSpecsAll);
+                    FilterSpecParamExprNode exprNode = (FilterSpecParamExprNode) param;
+                    exprNode.setFilterSpecId(index);
+                    exprNode.setFilterSpecParamPathNum(path);
+                }
+            }
+        }
+    }
 
     public static void walkStatement(StatementSpecRaw spec, ExprNodeSubselectDeclaredDotVisitor visitor) throws ExprValidationException {
 

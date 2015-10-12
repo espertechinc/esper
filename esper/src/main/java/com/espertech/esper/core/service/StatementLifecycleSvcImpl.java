@@ -319,7 +319,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 needDedup = true;
                 break;
             }
-            assignFilterSpecIds(filter, filterSpecAll);
+            StatementLifecycleSvcUtil.assignFilterSpecIds(filter, filterSpecAll);
             registerNonPropertyGetters(filter, statementName, services.getFilterNonPropertyRegisteryService());
         }
 
@@ -1483,19 +1483,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
         FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, new List[0], null);
         return new Pair<FilterSpecCompiled, SelectClauseSpecRaw>(filter, newSelectClauseSpecRaw);
-    }
-
-    private static void assignFilterSpecIds(FilterSpecCompiled filterSpec, FilterSpecCompiled[] filterSpecsAll) {
-        for (int path = 0; path < filterSpec.getParameters().length; path++) {
-            for (FilterSpecParam param : filterSpec.getParameters()[path]) {
-                if (param instanceof FilterSpecParamExprNode) {
-                    int index = filterSpec.getFilterSpecIndexAmongAll(filterSpecsAll);
-                    FilterSpecParamExprNode exprNode = (FilterSpecParamExprNode) param;
-                    exprNode.setFilterSpecId(index);
-                    exprNode.setFilterSpecParamPathNum(path);
-                }
-            }
-        }
     }
 
     private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, String statementName, String statementId, Annotation[] annotations)
