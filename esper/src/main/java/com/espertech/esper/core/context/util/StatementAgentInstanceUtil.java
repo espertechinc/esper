@@ -377,7 +377,7 @@ public class StatementAgentInstanceUtil {
             // sub-selects always go first
             for (FilterHandle handle : callbacks)
             {
-                if (handle == filterHandle) {
+                if (handle.equals(filterHandle)) {
                     return true;
                 }
             }
