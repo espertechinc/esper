@@ -9,11 +9,13 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.view.ViewProcessingException;
+import com.espertech.esper.view.Viewable;
 import com.espertech.esper.view.ZeroDepthStreamNoIterate;
 
 import java.util.Collections;
@@ -45,6 +47,10 @@ public class EPStatementStartMethodCreateExpression extends EPStatementStartMeth
                 services.getExprDeclaredService().destroyedExpression(statementSpec.getCreateExpressionDesc());
             }
         };
-        return new EPStatementStartResult(new ZeroDepthStreamNoIterate(resultType), stopMethod, destroyMethod);
+
+        Viewable resultView = new ZeroDepthStreamNoIterate(resultType);
+        statementContext.setStatementAgentInstanceFactory(new StatementAgentInstanceFactoryNoAgentInstance(resultView));
+
+        return new EPStatementStartResult(resultView, stopMethod, destroyMethod);
     }
 }

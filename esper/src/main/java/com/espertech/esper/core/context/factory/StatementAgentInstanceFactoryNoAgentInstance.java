@@ -19,11 +19,11 @@ import com.espertech.esper.epl.table.mgmt.TableStateViewablePublic;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.Viewable;
 
-public class StatementAgentInstanceFactoryCreateSchema implements StatementAgentInstanceFactory {
+public class StatementAgentInstanceFactoryNoAgentInstance implements StatementAgentInstanceFactory {
 
     private final Viewable sharedFinalView;
 
-    public StatementAgentInstanceFactoryCreateSchema(Viewable sharedFinalView) {
+    public StatementAgentInstanceFactoryNoAgentInstance(Viewable sharedFinalView) {
         this.sharedFinalView = sharedFinalView;
     }
 
