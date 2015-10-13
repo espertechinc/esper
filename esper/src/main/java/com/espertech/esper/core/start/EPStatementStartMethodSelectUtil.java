@@ -328,7 +328,7 @@ public class EPStatementStartMethodSelectUtil
         // Construct a processor for results posted by views and joins, which takes care of aggregation if required.
         // May return null if we don't need to post-process results posted by views or joins.
         ResultSetProcessorFactoryDesc resultSetProcessorPrototypeDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                statementSpec, statementContext, typeService, viewResourceDelegateUnverified, joinAnalysisResult.getUnidirectionalInd(), true, contextPropertyRegistry, selectExprProcessorDeliveryCallback, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory());
+                statementSpec, statementContext, typeService, viewResourceDelegateUnverified, joinAnalysisResult.getUnidirectionalInd(), true, contextPropertyRegistry, selectExprProcessorDeliveryCallback, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
 
         // Validate where-clause filter tree, outer join clause and output limit expression
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, viewResourceDelegateUnverified);

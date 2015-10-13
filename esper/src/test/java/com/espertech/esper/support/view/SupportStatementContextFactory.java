@@ -37,6 +37,7 @@ import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
 import com.espertech.esper.view.ViewEnumHelper;
 import com.espertech.esper.view.ViewFactoryContext;
 import com.espertech.esper.view.ViewResolutionServiceImpl;
+import com.espertech.esper.view.ViewServicePreviousFactoryImpl;
 
 import java.net.URI;
 
@@ -93,7 +94,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null, null, null);
+                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null);
 
         return new StatementContext(stmtEngineServices,
                 null,

@@ -174,7 +174,8 @@ public class AggregationServiceFactoryFactory
                                                            String optionalContextName,
                                                            IntoTableSpec intoTableSpec,
                                                            TableService tableService,
-                                                           boolean isUnidirectional)
+                                                           boolean isUnidirectional,
+                                                           boolean isFireAndForget)
             throws ExprValidationException
     {
         // No aggregates used, we do not need this service
@@ -319,7 +320,7 @@ public class AggregationServiceFactoryFactory
                 serviceFactory = factoryService.getNoGroupLocalGroupBy(isJoin, localGroupByPlan, groupKeyBinding);
             }
             else if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                serviceFactory = factoryService.getNoGroupNoAccess(methodAggEvaluators, methodAggFactories);
+                serviceFactory = factoryService.getNoGroupNoAccess(methodAggEvaluators, methodAggFactories, isUnidirectional, isFireAndForget);
             }
             else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
                 serviceFactory = factoryService.getNoGroupAccessOnly(accessorPairs, accessAggregations, isJoin);
@@ -366,7 +367,7 @@ public class AggregationServiceFactoryFactory
                 else
                 {
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional);
+                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional, isFireAndForget);
                     }
                     else {
                         serviceFactory = factoryService.getGroupReclaimMixable(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);

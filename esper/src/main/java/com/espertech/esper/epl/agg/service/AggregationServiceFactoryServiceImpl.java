@@ -31,7 +31,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return AggregationServiceNullFactory.AGGREGATION_SERVICE_NULL_FACTORY;
     }
 
-    public AggregationServiceFactory getNoGroupNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr) {
+    public AggregationServiceFactory getNoGroupNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget) {
         return new AggSvcGroupAllNoAccessFactory(evaluatorsArr, aggregatorsArr, null);
     }
 
@@ -59,7 +59,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return new AggSvcGroupByReclaimAgedFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, reclaimGroupAged, reclaimGroupFrequency, variableService, pairs, accessAggregations, join, optionalContextName);
     }
 
-    public AggregationServiceFactory getGroupReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional) {
+    public AggregationServiceFactory getGroupReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget) {
         return new AggSvcGroupByRefcountedNoAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding);
     }
 

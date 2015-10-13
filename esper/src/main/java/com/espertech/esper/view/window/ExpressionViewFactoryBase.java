@@ -72,7 +72,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
         if (!aggregateNodes.isEmpty()) {
             try {
-                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY, streamTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementContext.getContextName(), null, null, true);
+                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY, streamTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementContext.getContextName(), null, null, true, false);
             }
             catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);

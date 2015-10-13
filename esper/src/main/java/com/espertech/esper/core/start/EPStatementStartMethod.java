@@ -19,6 +19,8 @@ import com.espertech.esper.view.*;
  */
 public interface EPStatementStartMethod
 {
+    final static int DEFAULT_AGENT_INSTANCE_ID = -1;
+
     /**
      * Starts the EPL statement.
      * @return a viewable to attach to for listening to events, and a stop method to invoke to clean up

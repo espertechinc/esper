@@ -23,6 +23,7 @@ import com.espertech.esper.epl.join.table.UnindexedEventTableList;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc3Stream;
 import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.support.view.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -51,7 +52,7 @@ public class TestDatabasePollingViewable extends TestCase
 
         Map<Integer, List<ExprNode>> sqlParameters = new HashMap<Integer, List<ExprNode>>();
         sqlParameters.put(1, Collections.singletonList((ExprNode) new ExprIdentNodeImpl("intPrimitive", "s0")));
-        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null);
+        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, SupportStatementContextFactory.makeContext());
 
         indexingStrategy = new PollResultIndexingStrategy()
         {

@@ -33,7 +33,7 @@ import com.espertech.esper.util.CollectionUtil;
 
 import java.util.*;
 
-public class TableStateInstanceGroupedImpl extends TableStateInstance {
+public class TableStateInstanceGroupedImpl extends TableStateInstance implements TableStateInstanceGrouped {
 
     private final Map<Object, ObjectArrayBackedEventBean> rows = new HashMap<Object, ObjectArrayBackedEventBean>();
     private final IndexMultiKey primaryIndexKey;
@@ -124,6 +124,18 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance {
 
     public Collection<EventBean> getEventCollection() {
         return (Collection<EventBean>) (Collection<?>) rows.values();
+    }
+
+    public ObjectArrayBackedEventBean getRowForGroupKey(Object groupKey) {
+        return rows.get(groupKey);
+    }
+
+    public Set<Object> getGroupKeys() {
+        return rows.keySet();
+    }
+
+    public void clear() {
+        clearEvents();
     }
 
     public void clearEvents() {

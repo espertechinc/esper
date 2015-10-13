@@ -93,7 +93,8 @@ public class ResultSetProcessorFactoryFactory
                                                            ContextPropertyRegistry contextPropertyRegistry,
                                                            SelectExprProcessorDeliveryCallback selectExprProcessorCallback,
                                                            ConfigurationInformation configurationInformation,
-                                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory
+                                                           ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                           boolean isFireAndForget
     )
             throws ExprValidationException
     {
@@ -307,7 +308,7 @@ public class ResultSetProcessorFactoryFactory
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
                 stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), stmtContext.getMethodResolutionService(), groupByRollupDesc,
-                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional);
+                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget);
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);

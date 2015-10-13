@@ -116,7 +116,7 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
-    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, boolean isSubquery, Integer subqueryNumber) {
+    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, boolean isSubquery, Integer subqueryNumber, boolean isFireAndForget) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
             aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), isSubquery, subqueryNumber);

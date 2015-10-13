@@ -67,7 +67,7 @@ public abstract class EPStatementStartMethodBase implements EPStatementStartMeth
             throws ExprValidationException
     {
         EPStatementAgentInstanceHandle handle = getDefaultAgentInstanceHandle(statementContext);
-        return new AgentInstanceContext(statementContext, handle, -1, null, null, statementContext.getDefaultAgentInstanceScriptContext());
+        return new AgentInstanceContext(statementContext, handle, DEFAULT_AGENT_INSTANCE_ID, null, null, statementContext.getDefaultAgentInstanceScriptContext());
     }
 
     protected boolean isQueryPlanLogging(EPServicesContext services) {
