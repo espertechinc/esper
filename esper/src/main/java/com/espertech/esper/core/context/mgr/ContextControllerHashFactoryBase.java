@@ -204,65 +204,54 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
     }
 
     // Compare filters in statement with filters in segmented context, addendum filter compilation
-    public static void getAddendumFilters(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> addendums, int agentInstanceId, List<FilterSpecCompiled> filtersSpecs, ContextDetailHash hashSpec, ContextControllerStatementDesc statementDesc) {
+    public static void getAddendumFilters(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> addendums, int hashCode, List<FilterSpecCompiled> filtersSpecs, ContextDetailHash hashSpec, ContextControllerStatementDesc statementDesc) {
+        for (FilterSpecCompiled filtersSpec : filtersSpecs) {
+            FilterValueSetParam[][] addendum = getAddendumFilters(filtersSpec, hashCode, hashSpec, statementDesc);
+            if (addendum == null) {
+                continue;
+            }
+
+            FilterValueSetParam[][] existing = addendums.get(filtersSpec);
+            if (existing != null) {
+                addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
+            }
+            addendums.put(filtersSpec, addendum);
+        }
+    }
+
+    public static FilterValueSetParam[][] getAddendumFilters(FilterSpecCompiled filterSpecCompiled, int hashCode, ContextDetailHash hashSpec, ContextControllerStatementDesc statementDesc) {
 
         // determine whether create-named-window
         boolean isCreateWindow = statementDesc != null && statementDesc.getStatement().getStatementSpec().getCreateWindowDesc() != null;
+        ContextDetailHashItem foundPartition = null;
+
         if (!isCreateWindow) {
-            for (FilterSpecCompiled filtersSpec : filtersSpecs) {
-
-                ContextDetailHashItem foundPartition = findHashItemSpec(hashSpec, filtersSpec);
-                if (foundPartition == null) {
-                    continue;
-                }
-
-                FilterValueSetParam filter = new FilterValueSetParamImpl(foundPartition.getLookupable(), FilterOperator.EQUAL, agentInstanceId);
-
-                FilterValueSetParam[][] addendum = new FilterValueSetParam[1][];
-                addendum[0] = new FilterValueSetParam[] {filter};
-
-                FilterValueSetParam[][] partitionFilters = foundPartition.getParametersCompiled();
-                if (partitionFilters != null) {
-                    addendum = ContextControllerAddendumUtil.addAddendum(partitionFilters, filter);
-                }
-
-                FilterValueSetParam[][] existing = addendums.get(filtersSpec);
-                if (existing != null) {
-                    addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
-                }
-                addendums.put(filtersSpec, addendum);
-            }
+            foundPartition = findHashItemSpec(hashSpec, filterSpecCompiled);
         }
-        // handle segmented context for create-window
         else {
             String declaredAsName = statementDesc.getStatement().getStatementSpec().getCreateWindowDesc().getAsEventTypeName();
-            if (declaredAsName != null) {
-                for (FilterSpecCompiled filterSpec : filtersSpecs) {
-
-                    ContextDetailHashItem foundPartition = null;
-                    for (ContextDetailHashItem partitionItem : hashSpec.getItems()) {
-                        if (partitionItem.getFilterSpecCompiled().getFilterForEventType().getName().equals(declaredAsName)) {
-                            foundPartition = partitionItem;
-                            break;
-                        }
-                    }
-
-                    if (foundPartition == null) {
-                        continue;
-                    }
-
-                    FilterValueSetParam filter = new FilterValueSetParamImpl(foundPartition.getLookupable(), FilterOperator.EQUAL, agentInstanceId);
-                    FilterValueSetParam[][] addendum = new FilterValueSetParam[1][];
-                    addendum[0] = new FilterValueSetParam[] {filter};
-
-                    FilterValueSetParam[][] existing = addendums.get(filterSpec);
-                    if (existing != null) {
-                        addendum = ContextControllerAddendumUtil.multiplyAddendum(existing, addendum);
-                    }
-                    addendums.put(filterSpec, addendum);
+            for (ContextDetailHashItem partitionItem : hashSpec.getItems()) {
+                if (partitionItem.getFilterSpecCompiled().getFilterForEventType().getName().equals(declaredAsName)) {
+                    foundPartition = partitionItem;
+                    break;
                 }
             }
         }
+
+        if (foundPartition == null) {
+            return null;
+        }
+
+        FilterValueSetParam filter = new FilterValueSetParamImpl(foundPartition.getLookupable(), FilterOperator.EQUAL, hashCode);
+
+        FilterValueSetParam[][] addendum = new FilterValueSetParam[1][];
+        addendum[0] = new FilterValueSetParam[] {filter};
+
+        FilterValueSetParam[][] partitionFilters = foundPartition.getParametersCompiled();
+        if (partitionFilters != null) {
+            addendum = ContextControllerAddendumUtil.addAddendum(partitionFilters, filter);
+        }
+        return addendum;
     }
 
     public static ContextDetailHashItem findHashItemSpec(ContextDetailHash hashSpec, FilterSpecCompiled filterSpec) {
