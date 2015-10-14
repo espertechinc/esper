@@ -28,6 +28,7 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.pattern.PatternContextFactory;
+import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.PatternObjectResolutionService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
@@ -530,6 +531,10 @@ public final class StatementContext
 
     public ViewServicePreviousFactory getViewServicePreviousFactory() {
         return stmtEngineServices.getViewServicePreviousFactory();
+    }
+
+    public PatternNodeFactory getPatternNodeFactory() {
+        return stmtEngineServices.getPatternNodeFactory();
     }
 
     public EventTableIndexService getEventTableIndexService() {

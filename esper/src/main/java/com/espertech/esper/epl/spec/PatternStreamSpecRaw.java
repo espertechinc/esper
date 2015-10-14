@@ -152,9 +152,9 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         Audit auditPattern = AuditEnum.PATTERN.getAudit(context.getAnnotations());
         Audit auditPatternInstance = AuditEnum.PATTERNINSTANCES.getAudit(context.getAnnotations());
         EvalFactoryNode compiledEvalFactoryNode = evalFactoryNode;
-        if (auditPattern != null || auditPatternInstance != null) {
+        if (context.getPatternNodeFactory().isAuditSupported() && (auditPattern != null || auditPatternInstance != null)) {
             EvalAuditInstanceCount instanceCount = new EvalAuditInstanceCount();
-            compiledEvalFactoryNode = recursiveAddAuditNode(null, auditPattern != null, auditPatternInstance != null, evalFactoryNode, instanceCount);
+            compiledEvalFactoryNode = recursiveAddAuditNode(context.getPatternNodeFactory(), null, auditPattern != null, auditPatternInstance != null, evalFactoryNode, instanceCount);
         }
 
         return new PatternStreamSpecCompiled(compiledEvalFactoryNode, tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, this.getViewSpecs(), this.getOptionalStreamName(), this.getOptions(), suppressSameEventMatches, discardPartialsOnMatch);
@@ -598,17 +598,17 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         return writer.toString();
     }
 
-    private static EvalFactoryNode recursiveAddAuditNode(EvalFactoryNode parentNode, boolean auditPattern, boolean auditPatternInstance, EvalFactoryNode evalNode, EvalAuditInstanceCount instanceCount) {
+    private static EvalFactoryNode recursiveAddAuditNode(PatternNodeFactory patternNodeFactory, EvalFactoryNode parentNode, boolean auditPattern, boolean auditPatternInstance, EvalFactoryNode evalNode, EvalAuditInstanceCount instanceCount) {
         StringWriter writer = new StringWriter();
         evalNode.toEPL(writer, PatternExpressionPrecedenceEnum.MINIMUM);
         String expressionText = writer.toString();
         boolean filterChildNonQuitting = parentNode != null && parentNode.isFilterChildNonQuitting();
-        EvalAuditFactoryNode audit = new EvalAuditFactoryNode(auditPattern, auditPatternInstance, expressionText, instanceCount, filterChildNonQuitting);
+        EvalFactoryNode audit = patternNodeFactory.makeAuditNode(auditPattern, auditPatternInstance, expressionText, instanceCount, filterChildNonQuitting);
         audit.addChildNode(evalNode);
 
         List<EvalFactoryNode> newChildNodes = new ArrayList<EvalFactoryNode>();
         for (EvalFactoryNode child : evalNode.getChildNodes()) {
-            newChildNodes.add(recursiveAddAuditNode(evalNode, auditPattern, auditPatternInstance, child, instanceCount));
+            newChildNodes.add(recursiveAddAuditNode(patternNodeFactory, evalNode, auditPattern, auditPatternInstance, child, instanceCount));
         }
 
         evalNode.getChildNodes().clear();
