@@ -175,5 +175,9 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
         for (Map.Entry<ExprPreviousNode, AIRegistryPrevious> entry : previous.entrySet()) {
             entry.getValue().deassignService(agentInstanceId);
         }
+        for (Map.Entry<ExprTableAccessNode, AIRegistryTableAccess> entry : tableAccess.entrySet()) {
+            entry.getValue().deassignService(agentInstanceId);
+        }
+        matchRecognizePrevious.deassignService(agentInstanceId);
     }
 }
