@@ -203,7 +203,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
-                new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl()
+                new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl(), new EPRuntimeIsolatedFactoryImpl()
                 {
         });
 

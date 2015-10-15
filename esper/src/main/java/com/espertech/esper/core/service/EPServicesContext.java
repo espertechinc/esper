@@ -104,6 +104,7 @@ public final class EPServicesContext
     private ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
     private ViewServicePreviousFactory viewServicePreviousFactory;
     private EventTableIndexService eventTableIndexService;
+    private EPRuntimeIsolatedFactory epRuntimeIsolatedFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -194,7 +195,8 @@ public final class EPServicesContext
                              FilterNonPropertyRegisteryService filterNonPropertyRegisteryService,
                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
                              ViewServicePreviousFactory viewServicePreviousFactory,
-                             EventTableIndexService eventTableIndexService)
+                             EventTableIndexService eventTableIndexService,
+                             EPRuntimeIsolatedFactory epRuntimeIsolatedFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -249,6 +251,7 @@ public final class EPServicesContext
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.viewServicePreviousFactory = viewServicePreviousFactory;
         this.eventTableIndexService = eventTableIndexService;
+        this.epRuntimeIsolatedFactory = epRuntimeIsolatedFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -754,5 +757,9 @@ public final class EPServicesContext
 
     public EventTableIndexService getEventTableIndexService() {
         return eventTableIndexService;
+    }
+
+    public EPRuntimeIsolatedFactory getEpRuntimeIsolatedFactory() {
+        return epRuntimeIsolatedFactory;
     }
 }

@@ -25,7 +25,7 @@ public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedS
     private static final Log log = LogFactory.getLog(EPServiceProviderIsolatedImpl.class);
 
     private final String name;
-    private final EPRuntimeIsolatedImpl runtime;
+    private final EPRuntimeIsolatedSPI runtime;
     private final EPAdministratorIsolatedImpl admin;
     private final EPIsolationUnitServices isolatedServices;
     private final Map<String, EPServiceProviderIsolatedImpl> providers;
@@ -46,7 +46,7 @@ public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedS
         this.providers = providers;
         this.isolatedServices = isolatedServices;
 
-        runtime = new EPRuntimeIsolatedImpl(isolatedServices, unisolatedSvc);
+        runtime = unisolatedSvc.getEpRuntimeIsolatedFactory().make(isolatedServices, unisolatedSvc);
         admin = new EPAdministratorIsolatedImpl(name, isolatedServices, unisolatedSvc, runtime);
     }
 

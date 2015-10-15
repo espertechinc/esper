@@ -30,7 +30,7 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
     private final String isolatedServiceName;
     private final EPIsolationUnitServices services;
     private final EPServicesContext unisolatedServices;
-    private final EPRuntimeIsolatedImpl isolatedRuntime;
+    private final EPRuntimeIsolatedSPI isolatedRuntime;
     private final Set<String> statementNames = Collections.synchronizedSet(new HashSet<String>());
 
     /**
@@ -40,7 +40,7 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
      * @param unisolatedServices engine services
      * @param isolatedRuntime the runtime for this isolated service
      */
-    public EPAdministratorIsolatedImpl(String isolatedServiceName, EPIsolationUnitServices services, EPServicesContext unisolatedServices, EPRuntimeIsolatedImpl isolatedRuntime)
+    public EPAdministratorIsolatedImpl(String isolatedServiceName, EPIsolationUnitServices services, EPServicesContext unisolatedServices, EPRuntimeIsolatedSPI isolatedRuntime)
     {
         this.isolatedServiceName = isolatedServiceName;
         this.services = services;

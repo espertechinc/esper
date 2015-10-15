@@ -41,12 +41,12 @@ import java.util.*;
  */
 public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEventRouteDest, EPRuntimeEventSender
 {
-    private EPServicesContext unisolatedServices;
-    private EPIsolationUnitServices services;
-    private boolean isSubselectPreeval;
-    private boolean isPrioritized;
-    private boolean isLatchStatementInsertStream;
-    private ThreadWorkQueue threadWorkQueue;
+    protected EPServicesContext unisolatedServices;
+    protected EPIsolationUnitServices services;
+    protected boolean isSubselectPreeval;
+    protected boolean isPrioritized;
+    protected boolean isLatchStatementInsertStream;
+    protected ThreadWorkQueue threadWorkQueue;
 
     private ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>> matchesPerStmtThreadLocal;
     private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
@@ -353,7 +353,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
     }
 
-    private void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
+    protected void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
     {
         if (ThreadLogUtil.ENABLED_TRACE)
         {

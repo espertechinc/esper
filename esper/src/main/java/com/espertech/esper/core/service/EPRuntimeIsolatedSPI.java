@@ -8,12 +8,11 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPRuntimeIsolated;
 
 import java.util.Map;
 
-public interface EPRuntimeIsolatedSPI extends EPRuntimeIsolated
+public interface EPRuntimeIsolatedSPI extends EPRuntimeIsolated, InternalEventRouteDest
 {
     public Map<String, Long> getStatementNearestSchedules();
 }
