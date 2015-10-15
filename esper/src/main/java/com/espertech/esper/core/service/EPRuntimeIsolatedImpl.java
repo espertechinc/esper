@@ -48,10 +48,10 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     protected boolean isLatchStatementInsertStream;
     protected ThreadWorkQueue threadWorkQueue;
 
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>> matchesPerStmtThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>> matchesPerStmtThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
+    protected ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
+    protected ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
 
     /**
      * Ctor.
@@ -582,7 +582,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         dispatch();
     }
 
-    private void processMatches(EventBean theEvent)
+    protected void processMatches(EventBean theEvent)
     {
         // get matching filters
         ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
