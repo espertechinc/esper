@@ -47,6 +47,10 @@ public class TestFollowedByMaxEnginePool extends TestCase implements SupportBean
 
     public void testFollowedWithMax()
     {
+        if (SupportConfigFactory.skipTest(TestFollowedByMaxEnginePool.class)) {
+            return;
+        }
+
         initService(4L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -90,6 +94,10 @@ public class TestFollowedByMaxEnginePool extends TestCase implements SupportBean
 
     public void testTwoStatementsAndStopDestroy()
     {
+        if (SupportConfigFactory.skipTest(TestFollowedByMaxEnginePool.class)) {
+            return;
+        }
+
         initService(4, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -131,6 +139,10 @@ public class TestFollowedByMaxEnginePool extends TestCase implements SupportBean
 
     public void testSingleNoOperatorMax()
     {
+        if (SupportConfigFactory.skipTest(TestFollowedByMaxEnginePool.class)) {
+            return;
+        }
+
         initService(2L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -181,6 +193,10 @@ public class TestFollowedByMaxEnginePool extends TestCase implements SupportBean
 
     public void testNoPreventRuntimeConfig()
     {
+        if (SupportConfigFactory.skipTest(TestFollowedByMaxEnginePool.class)) {
+            return;
+        }
+
         initService(2L, false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

@@ -12,12 +12,28 @@
 package com.espertech.esper.support.client;
 
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.util.CollectionUtil;
 
 import java.lang.reflect.Method;
 
 public class SupportConfigFactory
 {
     private static final String TEST_CONFIG_FACTORY_CLASS = "CONFIGFACTORY_CLASS";
+    private static final String SKIP_TEST = "SKIP_TEST";
+
+    public static boolean skipTest(Class testClass) {
+        String skipTests = System.getProperty(SKIP_TEST);
+        if (skipTests == null) {
+            return false;
+        }
+        String[] skipped = skipTests.split(",");
+        for (String item : skipped) {
+            if (item.trim().equals(testClass.getSimpleName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static Configuration getConfiguration()
     {

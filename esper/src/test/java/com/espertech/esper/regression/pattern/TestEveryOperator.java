@@ -84,7 +84,7 @@ public class TestEveryOperator extends TestCase implements SupportBeanConstants
     public void testEveryAndNot()
     {
         Configuration config = SupportConfigFactory.getConfiguration();
-        EPServiceProvider engine = EPServiceProviderManager.getProvider("testRFIDZoneExit", config);
+        EPServiceProvider engine = EPServiceProviderManager.getDefaultProvider(config);
         engine.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(engine, this.getClass(), getName());}
 
