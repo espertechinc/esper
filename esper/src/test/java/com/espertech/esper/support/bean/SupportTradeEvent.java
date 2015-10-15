@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean;
 
-public class SupportTradeEvent
+import java.io.Serializable;
+
+public class SupportTradeEvent implements Serializable
 {
     private int id;
     private String userId;
