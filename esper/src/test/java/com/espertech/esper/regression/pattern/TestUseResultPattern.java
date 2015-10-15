@@ -172,8 +172,7 @@ public class TestUseResultPattern extends TestCase implements SupportBeanConstan
         Configuration config = SupportConfigFactory.getConfiguration();
         config.addEventType("FxTradeEvent", SupportTradeEvent.class
                 .getName());
-        EPServiceProvider epService = EPServiceProviderManager.getProvider(
-                "testRFIDZoneEnter", config);
+        EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
