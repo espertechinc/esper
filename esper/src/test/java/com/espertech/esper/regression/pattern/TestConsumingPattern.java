@@ -20,6 +20,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
+
 public class TestConsumingPattern extends TestCase
 {
     private EPServiceProvider epService;
@@ -496,7 +498,7 @@ public class TestConsumingPattern extends TestCase
         }
     }
 
-    private final class AEvent {
+    private static class AEvent implements Serializable {
         private final String id;
         private final String pa;
         private final Integer mysec;
@@ -520,7 +522,7 @@ public class TestConsumingPattern extends TestCase
         }
     }
 
-    private final class BEvent {
+    private static class BEvent implements Serializable {
         private final String id;
         private final String pb;
 
@@ -538,7 +540,7 @@ public class TestConsumingPattern extends TestCase
         }
     }
 
-    private final class CEvent {
+    private static class CEvent implements Serializable {
         private final String id;
         private final String pc;
 
@@ -556,7 +558,7 @@ public class TestConsumingPattern extends TestCase
         }
     }
 
-    private final class DEvent {
+    private static class DEvent implements Serializable {
         private final String id;
 
         private DEvent(String id) {
