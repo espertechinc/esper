@@ -153,14 +153,16 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
         else {
             StatementAgentInstanceFactorySelectResult resultOfStart = (StatementAgentInstanceFactorySelectResult) selectDesc.getStatementAgentInstanceFactorySelect().newContext(defaultAgentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
+
+            final StopCallback startResultStop = services.getEpStatementFactory().makeStopMethod(resultOfStart);
             final EPStatementStopMethod selectStop = selectDesc.getStopMethod();
-            final StopCallback startResultStop = resultOfStart.getStopCallback();
             stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
                     StatementAgentInstanceUtil.stopSafe(startResultStop, statementContext);
                     selectStop.stop();
                 }
             };
+
             aggregationService = resultOfStart.getOptionalAggegationService();
             subselectStrategyInstances = resultOfStart.getSubselectStrategies();
             priorStrategyInstances = resultOfStart.getPriorNodeStrategies();

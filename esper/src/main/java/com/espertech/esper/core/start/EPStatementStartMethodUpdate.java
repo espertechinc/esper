@@ -157,9 +157,10 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             final StatementAgentInstanceFactoryUpdateResult resultOfStart = (StatementAgentInstanceFactoryUpdateResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
+            final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(resultOfStart);
             stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
-                    resultOfStart.getStopCallback().stop();
+                    stopCallback.stop();
                     stopMethod.stop();
                 }
             };

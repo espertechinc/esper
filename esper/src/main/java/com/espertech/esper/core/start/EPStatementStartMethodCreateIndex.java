@@ -116,7 +116,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                 }
                 throw ex;
             }
-            final StopCallback stopCallback = result.getStopCallback();
+            final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(result);
             stopMethod = new EPStatementStopMethod() {
                 public void stop() {
                     stopCallback.stop();

@@ -174,9 +174,10 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                     throw ex;
                 }
                 finalViewable = resultOfStart.getFinalView();
+                final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(resultOfStart);
                 stopStatementMethod = new EPStatementStopMethod() {
                     public void stop() {
-                        resultOfStart.getStopCallback().stop();
+                        stopCallback.stop();
                         stopMethod.stop();
                     }
                 };
