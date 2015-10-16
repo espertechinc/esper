@@ -121,6 +121,6 @@ public class SupportStatementContextFactory
                 null,
                 AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY,
                 false,
-                null);
+                null, new StatementSemiAnonymousTypeRegistryImpl());
     }
 }

@@ -273,7 +273,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 defaultAgentInstanceScriptContext,
                 AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY,
                 writesToTables,
-                statementUserObject);
+                statementUserObject,
+                StatementSemiAnonymousTypeRegistryImpl.INSTANCE);
     }
 
     private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations) {

@@ -15,14 +15,14 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
-import com.espertech.esper.epl.lookup.EventTableIndexService;
-import com.espertech.esper.epl.spec.StatementSpecCompiled;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
@@ -31,8 +31,8 @@ import com.espertech.esper.pattern.PatternContextFactory;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.PatternObjectResolutionService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
-import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.ScheduleAdjustmentService;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
@@ -75,6 +75,7 @@ public final class StatementContext
     private final AggregationServiceFactoryService aggregationServiceFactoryService;
     private final boolean writesToTables;
     private final Object statementUserObject;
+    private final StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry;
 
     // settable for view-sharing
     private StatementAgentInstanceLock defaultAgentInstanceLock;
@@ -125,7 +126,8 @@ public final class StatementContext
                               AgentInstanceScriptContext defaultAgentInstanceScriptContext,
                               AggregationServiceFactoryService aggregationServiceFactoryService,
                               boolean writesToTables,
-                              Object statementUserObject)
+                              Object statementUserObject,
+                              StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry)
     {
         this.stmtEngineServices = stmtEngineServices;
         this.statementIdBytes = statementIdBytes;
@@ -154,6 +156,7 @@ public final class StatementContext
         this.aggregationServiceFactoryService = aggregationServiceFactoryService;
         this.writesToTables = writesToTables;
         this.statementUserObject = statementUserObject;
+        this.statementSemiAnonymousTypeRegistry = statementSemiAnonymousTypeRegistry;
     }
 
     public StatementType getStatementType()
@@ -567,5 +570,9 @@ public final class StatementContext
 
     public void setStatement(EPStatementSPI statement) {
         this.statement = statement;
+    }
+
+    public StatementSemiAnonymousTypeRegistry getStatementSemiAnonymousTypeRegistry() {
+        return statementSemiAnonymousTypeRegistry;
     }
 }
