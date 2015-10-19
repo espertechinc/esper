@@ -196,7 +196,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                     List<EventBean> pollResult = pollExecStrategy.poll(lookupValues, exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
-                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext); // TODO
+                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext);
 
                     // assign to row
                     resultPerInputRow[row] = indexTable;

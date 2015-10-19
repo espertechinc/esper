@@ -31,6 +31,7 @@ import com.espertech.esper.support.util.AgentInstanceAssertionUtil;
 import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -500,12 +501,14 @@ public class TestContextInitTerm extends TestCase {
         }
 
         // assert type of expression
-        FilterSet set = filterSpi.take(Collections.singleton(stmt.getStatementId()));
-        assertEquals(1, set.getFilters().size());
-        FilterValueSet valueSet = set.getFilters().get(0).getFilterValueSet();
-        assertEquals(1, valueSet.getParameters().length);
-        FilterValueSetParam para = valueSet.getParameters()[0][0];
-        assertTrue(para.getFilterOperator() != FilterOperator.BOOLEAN_EXPRESSION);
+        if (filterSpi.isSupportsTakeApply()) {
+            FilterSet set = filterSpi.take(Collections.singleton(stmt.getStatementId()));
+            assertEquals(1, set.getFilters().size());
+            FilterValueSet valueSet = set.getFilters().get(0).getFilterValueSet();
+            assertEquals(1, valueSet.getParameters().length);
+            FilterValueSetParam para = valueSet.getParameters()[0][0];
+            assertTrue(para.getFilterOperator() != FilterOperator.BOOLEAN_EXPRESSION);
+        }
 
         stmt.destroy();
     }
@@ -532,15 +535,15 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean_S0(3, "S02"));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 2));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E3", 2, "S01"}, {"E3", 2, "S02"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{{"E3", 2, "S01"}, {"E3", 2, "S02"}});
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(4, "S03"));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 2));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4", 2, "S01"}, {"E4", 2, "S02"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4", 2, "S01"}, {"E4", 2, "S02"}});
 
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 1));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E5", 1, "S03"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{{"E5", 1, "S03"}});
     }
 
     public void testTerminateTwoContextSameTime() {
@@ -1009,7 +1012,7 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(time) - minus));
     }
 
-    public static class Event {
+    public static class Event implements Serializable {
         private final String productID;
 
         public Event(String productId) {

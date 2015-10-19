@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public interface FilterServiceSPI extends FilterService
 {
+    public boolean isSupportsTakeApply();
+
     /**
      * Take a set of statements of out the active filters, returning a save-set of filters.
      * @param statementId statement ids to remove

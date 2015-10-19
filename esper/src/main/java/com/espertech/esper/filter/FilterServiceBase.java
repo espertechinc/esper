@@ -49,6 +49,10 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         filterServiceListeners = new CopyOnWriteArraySet<FilterServiceListener>();
     }
 
+    public boolean isSupportsTakeApply() {
+        return indexBuilder.isSupportsTakeApply();
+    }
+
     public long getFiltersVersion() {
         return filtersVersion;
     }

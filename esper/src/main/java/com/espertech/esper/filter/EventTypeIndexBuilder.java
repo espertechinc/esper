@@ -208,4 +208,8 @@ public class EventTypeIndexBuilder
             add(entry.getFilterValueSet(), entry.getHandle(), lockFactory);
         }
     }
+
+    public boolean isSupportsTakeApply() {
+        return isolatableCallbacks != null;
+    }
 }
