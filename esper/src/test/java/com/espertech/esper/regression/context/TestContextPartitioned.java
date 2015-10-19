@@ -24,6 +24,7 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class TestContextPartitioned extends TestCase {
@@ -822,7 +823,7 @@ public class TestContextPartitioned extends TestCase {
         }
     }
 
-    public static class Event {
+    public static class Event implements Serializable {
    		public String grp;
    		public String subGrp;
    		public int type;
@@ -910,7 +911,7 @@ public class TestContextPartitioned extends TestCase {
         return theString.contains("X");
     }
 
-    public static class WebEvent {
+    public static class WebEvent implements Serializable {
         private final String pageName;
         private final String sessionId;
 

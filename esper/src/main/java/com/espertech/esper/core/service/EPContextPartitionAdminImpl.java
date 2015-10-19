@@ -28,6 +28,10 @@ public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI
         this.services = services;
     }
 
+    public boolean isSupportsExtract() {
+        return services.getContextManagerFactoryService().isSupportsExtract();
+    }
+
     public String[] getContextStatementNames(String contextName) {
         ContextManager contextManager = services.getContextManagementService().getContextManager(contextName);
         if (contextManager == null) {

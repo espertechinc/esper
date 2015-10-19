@@ -180,13 +180,15 @@ public class TestContextInitTermWithDistinct extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E10", 2L});
 
         // destroy context partition, should forget about the distinct key
-        getSpi(epService).destroyContextPartitions("MyContext", new ContextPartitionSelectorAll());
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "B", "E11"));
-        epService.getEPRuntime().sendEvent(new SupportBean("B", 2));
-        assertFalse(listener.isInvoked());
+        if (getSpi(epService).isSupportsExtract()) {
+            getSpi(epService).destroyContextPartitions("MyContext", new ContextPartitionSelectorAll());
+            epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "B", "E11"));
+            epService.getEPRuntime().sendEvent(new SupportBean("B", 2));
+            assertFalse(listener.isInvoked());
 
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "B", "E12"));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E12", 1L});
+            epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "B", "E12"));
+            EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E12", 1L});
+        }
     }
 
     private static void sendEvent(EPServiceProvider engine, String theString, int intPrimitive, long longPrimitive) {

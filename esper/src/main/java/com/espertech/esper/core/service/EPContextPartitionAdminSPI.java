@@ -17,6 +17,8 @@ import com.espertech.esper.core.context.mgr.AgentInstanceSelector;
 
 public interface EPContextPartitionAdminSPI extends EPContextPartitionAdmin
 {
+    public boolean isSupportsExtract();
+
     public EPContextPartitionExtract extractDestroyPaths(String contextName, ContextPartitionSelector selector);
     public EPContextPartitionExtract extractStopPaths(String contextName, ContextPartitionSelector selector);
 
