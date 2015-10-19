@@ -66,23 +66,31 @@ public class TestContextInitTerm extends TestCase {
 
         // test start-after with immediate start
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        String contextExpr =  "create context CtxPerId start after 0 sec end after 60 sec";
+        String contextExpr = "create context CtxPerId start after 0 sec end after 60 sec";
         epService.getEPAdministrator().createEPL(contextExpr);
         EPStatement stream = epService.getEPAdministrator().createEPL("context CtxPerId select theString as c0, intPrimitive as c1 from SupportBean");
         stream.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOne, new Object[] {"E1", 1});
-        
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOne, new Object[]{"E1", 1});
+
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(59999));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOne, new Object[] {"E2", 2});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOne, new Object[]{"E2", 2});
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(60000));
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
         epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    public void testPatternIntervalZeroInitiatedNow() {
+        if (SupportConfigFactory.skipTest(TestContextInitTerm.class)) {
+            return;
+        }
+
+        String[] fieldsOne = "c0,c1".split(",");
 
         // test initiated-by pattern with immediate start
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(120000));
