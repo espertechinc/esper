@@ -25,6 +25,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
+import com.espertech.esper.view.HistoricalEventViewable;
 
 import java.lang.annotation.Annotation;
 
@@ -61,4 +62,6 @@ public interface ViewableActivatorFactory {
                                         NamedWindowConsumerStreamSpec streamSpec);
 
     ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters);
+
+    ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable);
 }

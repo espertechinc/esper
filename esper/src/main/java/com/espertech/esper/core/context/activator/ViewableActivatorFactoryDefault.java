@@ -25,6 +25,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
+import com.espertech.esper.view.HistoricalEventViewable;
 
 import java.lang.annotation.Annotation;
 
@@ -52,5 +53,9 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
 
     public ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters) {
         return new ViewableActivatorTable(metadata, optionalTableFilters);
+    }
+
+    public ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable) {
+        return new ViewableActivatorHistorical(historicalEventViewable);
     }
 }

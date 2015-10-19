@@ -57,6 +57,7 @@ import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
+import com.espertech.esper.view.HistoricalEventViewable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -216,6 +217,10 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
             }
 
             public ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters) {
+                throw new UnsupportedOperationException();
+            }
+
+            public ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable) {
                 throw new UnsupportedOperationException();
             }
         };

@@ -185,15 +185,11 @@ public class EPStatementStartMethodSelectUtil
                 SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, statementContext.getMethodResolutionService());
                 SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getMethodResolutionService());
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
-                final HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
+                HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
                         statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC());
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
-                eventStreamParentViewableActivators[i] = new ViewableActivator() {
-                    public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, null, false, false, null);
-                    }
-                };
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);
                 stopCallbacks.add(historicalEventViewable);
             }
             else if (streamSpec instanceof MethodStreamSpec)
@@ -201,14 +197,10 @@ public class EPStatementStartMethodSelectUtil
                 validateNoViews(streamSpec, "Method data");
                 MethodStreamSpec methodStreamSpec = (MethodStreamSpec) streamSpec;
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
-                final HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName());
+                HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName());
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
-                eventStreamParentViewableActivators[i] = new ViewableActivator() {
-                    public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, null, false, false, null);
-                    }
-                };
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);
                 stopCallbacks.add(historicalEventViewable);
             }
             else if (streamSpec instanceof TableQueryStreamSpec)

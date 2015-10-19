@@ -25,7 +25,7 @@ public class ViewableActivationResult {
     private final EvalRootMatchRemover optEvalRootMatchRemover;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
-    private final ViewableActivationResultExtension viewableActivationResultExtension;
+    private ViewableActivationResultExtension viewableActivationResultExtension;
 
     public ViewableActivationResult(Viewable viewable, StopCallback stopCallback, StatementAgentInstanceLock optionalLock, EvalRootState optionalPatternRoot, EvalRootMatchRemover optEvalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, ViewableActivationResultExtension viewableActivationResultExtension) {
         this.viewable = viewable;
@@ -64,6 +64,10 @@ public class ViewableActivationResult {
 
     public ViewableActivationResultExtension getViewableActivationResultExtension() {
         return viewableActivationResultExtension;
+    }
+
+    public void setViewableActivationResultExtension(ViewableActivationResultExtension viewableActivationResultExtension) {
+        this.viewableActivationResultExtension = viewableActivationResultExtension;
     }
 
     public EvalRootMatchRemover getOptEvalRootMatchRemover() {
