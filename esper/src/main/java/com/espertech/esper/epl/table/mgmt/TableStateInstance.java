@@ -36,7 +36,7 @@ public abstract class TableStateInstance {
     public abstract void addEvent(EventBean theEvent);
     public abstract void deleteEvent(EventBean matchingEvent);
     public abstract void clearEvents();
-    public abstract void addExplicitIndex(CreateIndexDesc spec) throws ExprValidationException;
+    public abstract void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient) throws ExprValidationException;
     public abstract String[] getSecondaryIndexes();
     public abstract EventTable getIndex(String indexName);
     public abstract ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
