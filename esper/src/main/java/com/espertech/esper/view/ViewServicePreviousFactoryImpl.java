@@ -18,7 +18,7 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
 
 public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactory
 {
-    public IStreamRandomAccess getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
+    public ViewUpdatedCollection getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         IStreamRandomAccess randomAccess = null;
         if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
         {
@@ -29,7 +29,7 @@ public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactor
         return randomAccess;
     }
 
-    public IStreamRelativeAccess getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
+    public ViewUpdatedCollection getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         IStreamRelativeAccess relativeAccessByEvent = null;
 
         if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)

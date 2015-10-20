@@ -9,6 +9,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -63,8 +64,8 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, numberOfEvents, isForceUpdate, isStartEager, relativeAccessByEvent);
+        ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, numberOfEvents, isForceUpdate, isStartEager, viewUpdatedCollection);
     }
 
     public EventType getEventType()
