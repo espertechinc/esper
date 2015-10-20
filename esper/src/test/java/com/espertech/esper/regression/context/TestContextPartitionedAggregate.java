@@ -38,7 +38,6 @@ public class TestContextPartitionedAggregate extends TestCase {
         configuration.addEventType("SupportBean", SupportBean.class);
         configuration.addEventType("SupportBean_S0", SupportBean_S0.class);
         configuration.getEngineDefaults().getLogging().setEnableExecutionDebug(true);
-        configuration.addPlugInAggregationFunctionFactory("concat", MyConcatAggregationFunctionFactory.class.getName());
         configuration.addPlugInSingleRowFunction("toArray", this.getClass().getName(), "toArray");
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -81,13 +80,13 @@ public class TestContextPartitionedAggregate extends TestCase {
 
         String[] fields = new String[] {"theString", "intPrimitive", "val0"};
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
-                "select theString, intPrimitive, (select concat(p00) from SupportBean_S0.win:keepall() as s0 where sb.intPrimitive = s0.id) as val0 " +
+                "select theString, intPrimitive, (select count(*) from SupportBean_S0.win:keepall() as s0 where sb.intPrimitive = s0.id) as val0 " +
                 "from SupportBean as sb");
         stmtOne.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(10, "s1"));
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, ""});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, 0L});
     }
 
     public void testGroupByEventPerGroupStream() {
