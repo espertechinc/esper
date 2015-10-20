@@ -168,7 +168,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             boolean hasAggregations = !resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getExpressions().isEmpty();
             joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, null,
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typesPerStream, namesPerStream,
-                    streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true, services.getEventTableIndexService().allowInitIndex());
+                    streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true, services.getEventTableIndexService().allowInitIndex(false));
         }
 
         // check context partition use
@@ -323,7 +323,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
                 viewablePerStream[i] = instance.getTailViewInstance();
             }
 
-            JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(viewablePerStream, true, agentInstanceContext);
+            JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(viewablePerStream, true, agentInstanceContext, false);
             JoinSetComposer joinComposer = joinSetComposerDesc.getJoinSetComposer();
             JoinSetFilter joinFilter;
             if (joinSetComposerDesc.getPostJoinFilterEvaluator() != null) {

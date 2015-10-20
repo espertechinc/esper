@@ -16,7 +16,7 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 
 public interface EventTableIndexService {
-    boolean allowInitIndex();
+    boolean allowInitIndex(boolean isRecoveringResilient);
     EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexedPropertyName, Class indexCoercionType);
     EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexedPropertyName, boolean unique, String optionalIndexName);
     EventTableFactory createUnindexed(int indexedStreamNum);

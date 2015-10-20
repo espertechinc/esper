@@ -245,7 +245,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             else
             {
                 JoinPlanResult joinPlanResult = handleJoin(typeService.getStreamNames(), streamViews, resultSetProcessor,
-                        agentInstanceContext, stopCallbacks, joinAnalysisResult);
+                        agentInstanceContext, stopCallbacks, joinAnalysisResult, isRecoveringResilient);
                 finalView = joinPlanResult.getViewable();
                 joinPreloadMethod = joinPlanResult.getPreloadMethod();
                 joinSetComposer = joinPlanResult.getJoinSetComposerDesc();
@@ -518,9 +518,10 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                                          ResultSetProcessor resultSetProcessor,
                                                          AgentInstanceContext agentInstanceContext,
                                                          List<StopCallback> stopCallbacks,
-                                                         StreamJoinAnalysisResult joinAnalysisResult)
+                                                         StreamJoinAnalysisResult joinAnalysisResult,
+                                                         boolean isRecoveringResilient)
     {
-        final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext);
+        final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext, isRecoveringResilient);
 
         stopCallbacks.add(new StopCallback(){
             public void stop()

@@ -102,7 +102,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                                                     Viewable viewableRoot,
                                                     AgentInstanceContext agentInstanceContext,
                                                     List<StopCallback> stopCallbackList,
-                                                    int subqueryNumber) {
+                                                    int subqueryNumber, boolean isRecoveringResilient) {
 
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 

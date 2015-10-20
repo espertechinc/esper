@@ -16,5 +16,5 @@ import com.espertech.esper.view.Viewable;
  */
 public interface JoinSetComposerPrototype
 {
-    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext);
+    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);
 }

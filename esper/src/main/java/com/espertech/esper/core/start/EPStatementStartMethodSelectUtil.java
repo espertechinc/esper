@@ -13,10 +13,8 @@ import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.annotation.IterableUnbound;
 import com.espertech.esper.client.hook.SQLColumnTypeConversion;
 import com.espertech.esper.client.hook.SQLOutputRowConversion;
-import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
-import com.espertech.esper.core.context.activator.ViewableActivatorTable;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.subselect.SubSelectActivationCollection;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
@@ -53,7 +51,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
-import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.HistoricalEventViewable;
@@ -338,7 +335,7 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getStatementName(), statementContext.getStatementId(),
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typeService.getEventTypes(), streamNames,
                     joinAnalysisResult, queryPlanLogging, statementContext, historicalViewableDesc, defaultAgentInstanceContext,
-                    selectsRemoveStream, hasAggregations, services.getTableService(), false, services.getEventTableIndexService().allowInitIndex());
+                    selectsRemoveStream, hasAggregations, services.getTableService(), false, services.getEventTableIndexService().allowInitIndex(recoveringResilient));
         }
 
         // obtain factory for output limiting

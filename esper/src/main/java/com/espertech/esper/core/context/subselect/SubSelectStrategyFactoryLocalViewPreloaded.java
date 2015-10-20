@@ -88,7 +88,8 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
     public SubSelectStrategyRealization instantiate(final EPServicesContext services,
                                                     Viewable viewableRoot,
                                                     final AgentInstanceContext agentInstanceContext,
-                                                    List<StopCallback> stopCallbackList, int subqueryNumber) {
+                                                    List<StopCallback> stopCallbackList,
+                                                    int subqueryNumber, boolean isRecoveringResilient) {
 
         List<ViewFactory> viewFactoryChain = subSelectHolder.getViewFactoryChain().getViewFactoryChain();
 
@@ -144,7 +145,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
                 }
                 subselectView.addView(aggregatorView);
 
-                if (services.getEventTableIndexService().allowInitIndex()) {
+                if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
                     preload(services, null, aggregatorView, agentInstanceContext);
                 }
 
@@ -172,7 +173,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         // preload when allowed
         StatementAgentInstancePostLoad postLoad;
-        if (services.getEventTableIndexService().allowInitIndex()) {
+        if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
             preload(services, index, subselectView, agentInstanceContext);
             postLoad = new StatementAgentInstancePostLoad() {
                 public void executePostLoad() {

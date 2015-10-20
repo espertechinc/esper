@@ -56,7 +56,7 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
         this.allowIndexInit = allowIndexInit;
     }
 
-    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext) {
+    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         QueryStrategy[] queryStrategies = new QueryStrategy[streamTypes.length];
 
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[polledViewNum];

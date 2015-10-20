@@ -12,13 +12,10 @@
 package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.*;
-import com.espertech.esper.util.CollectionUtil;
 
 public class EventTableIndexServiceImpl implements EventTableIndexService {
-    public boolean allowInitIndex() {
+    public boolean allowInitIndex(boolean isRecoveringResilient) {
         return true;
     }
 

@@ -217,7 +217,7 @@ public class EPStatementStartMethodHelperSubselect
             stopCallbackList.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
-            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList, factoryDesc.getSubqueryNumber());
+            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList, factoryDesc.getSubqueryNumber(), isRecoveringResilient);
 
             // handle stoppable view
             if (result.getSubselectView() instanceof StoppableView) {

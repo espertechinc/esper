@@ -101,7 +101,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         this.eventTableIndexService = eventTableIndexService;
     }
 
-    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext) {
+    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
 
         // Build indexes
         Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream = new HashMap[indexSpecs.length];
@@ -191,7 +191,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             JoinSetComposer composer;
             if (historicalViewableDesc.isHasHistorical())
             {
-                composer = new JoinSetComposerHistoricalImpl(eventTableIndexService.allowInitIndex(), indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
+                composer = new JoinSetComposerHistoricalImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
             }
             else
             {
@@ -199,7 +199,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                     composer = new JoinSetComposerFAFImpl(indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream, isOuterJoins);
                 }
                 else {
-                    composer = new JoinSetComposerImpl(eventTableIndexService.allowInitIndex(), indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream);
+                    composer = new JoinSetComposerImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream);
                 }
             }
 
@@ -224,7 +224,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                 driver = queryStrategies[0];
             }
 
-            JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
+            JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
                     unidirectionalStream, driver, streamJoinAnalysisResult.getUnidirectionalNonDriving());
             ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
             joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
