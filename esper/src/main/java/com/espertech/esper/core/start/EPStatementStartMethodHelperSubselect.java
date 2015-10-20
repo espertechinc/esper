@@ -14,8 +14,6 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
-import com.espertech.esper.core.context.activator.ViewableActivatorSubselectNone;
-import com.espertech.esper.core.context.activator.ViewableActivatorTable;
 import com.espertech.esper.core.context.subselect.*;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
@@ -129,9 +127,6 @@ public class EPStatementStartMethodHelperSubselect
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
                 NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
 
-                // add consumer
-                processor.getTailView().addConsumerToBe(namedSpec, statementContext);
-
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
@@ -147,12 +142,13 @@ public class EPStatementStartMethodHelperSubselect
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(viewFactoryChain.getEventType());
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activatorNamedWindow, streamSpec));
+                    processor.getTailView().addConsumerToBe(namedSpec, statementContext);
                 }
                 // else if there are no named window stream filter expressions and index sharing is enabled
                 else {
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(processor.getNamedWindowType());
-                    ViewableActivatorSubselectNone activator = new ViewableActivatorSubselectNone();
+                    ViewableActivator activator = services.getViewableActivatorFactory().makeSubqueryNWIndexShare();
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activator, streamSpec));
                 }
             }

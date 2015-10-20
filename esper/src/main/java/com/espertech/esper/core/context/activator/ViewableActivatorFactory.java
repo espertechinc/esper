@@ -64,4 +64,6 @@ public interface ViewableActivatorFactory {
     ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters);
 
     ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable);
+
+    ViewableActivator makeSubqueryNWIndexShare();
 }

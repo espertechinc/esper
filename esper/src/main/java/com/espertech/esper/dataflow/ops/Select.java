@@ -223,6 +223,10 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
             public ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable) {
                 throw new UnsupportedOperationException();
             }
+
+            public ViewableActivator makeSubqueryNWIndexShare() {
+                throw new UnsupportedOperationException();
+            }
         };
 
         // for per-row deliver, register select expression result callback

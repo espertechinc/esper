@@ -58,4 +58,8 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
     public ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable) {
         return new ViewableActivatorHistorical(historicalEventViewable);
     }
+
+    public ViewableActivator makeSubqueryNWIndexShare() {
+        return new ViewableActivatorSubselectNone();
+    }
 }
