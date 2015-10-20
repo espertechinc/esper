@@ -25,7 +25,7 @@ public class TestIStreamRelativeAccessImpl extends TestCase
     {
         IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver updateObserver = new IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver()
         {
-            public void updated(IStreamRelativeAccess iStreamRelativeAccess, EventBean[] newData)
+            public void updated(RelativeAccessByEventNIndex iStreamRelativeAccess, EventBean[] newData)
             {
             }
         };

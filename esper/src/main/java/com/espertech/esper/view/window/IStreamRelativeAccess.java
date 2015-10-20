@@ -120,7 +120,7 @@ public class IStreamRelativeAccess implements RelativeAccessByEventNIndex, ViewU
          * @param iStreamRelativeAccess is the collection
          * @param newData is the new data available
          */
-        public void updated(IStreamRelativeAccess iStreamRelativeAccess, EventBean[] newData);
+        public void updated(RelativeAccessByEventNIndex iStreamRelativeAccess, EventBean[] newData);
     }
 
     public void destroy()

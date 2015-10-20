@@ -10,18 +10,18 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides random-access into window contents by event and index as a combination.
  */
 public class RelativeAccessByEventNIndexGetter implements IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver
 {
-    private final Map<EventBean, IStreamRelativeAccess> accessorByEvent = new HashMap<EventBean, IStreamRelativeAccess>();
-    private final Map<IStreamRelativeAccess, EventBean[]> eventsByAccessor  = new HashMap<IStreamRelativeAccess, EventBean[]>();
+    private final Map<EventBean, RelativeAccessByEventNIndex> accessorByEvent = new HashMap<EventBean, RelativeAccessByEventNIndex>();
+    private final Map<RelativeAccessByEventNIndex, EventBean[]> eventsByAccessor  = new HashMap<RelativeAccessByEventNIndex, EventBean[]>();
 
-    public void updated(IStreamRelativeAccess iStreamRelativeAccess, EventBean[] newData)
+    public void updated(RelativeAccessByEventNIndex iStreamRelativeAccess, EventBean[] newData)
     {
         // remove data posted from the last update
         EventBean[] lastNewData = eventsByAccessor.get(iStreamRelativeAccess);
@@ -53,9 +53,9 @@ public class RelativeAccessByEventNIndexGetter implements IStreamRelativeAccess.
      * @param theEvent to which the method returns relative access from
      * @return buffer
      */
-    public IStreamRelativeAccess getAccessor(EventBean theEvent)
+    public RelativeAccessByEventNIndex getAccessor(EventBean theEvent)
     {
-        IStreamRelativeAccess iStreamRelativeAccess = accessorByEvent.get(theEvent);
+        RelativeAccessByEventNIndex iStreamRelativeAccess = accessorByEvent.get(theEvent);
         if (iStreamRelativeAccess == null)
         {
             throw new IllegalStateException("Accessor for window random access not found for event " + theEvent);
