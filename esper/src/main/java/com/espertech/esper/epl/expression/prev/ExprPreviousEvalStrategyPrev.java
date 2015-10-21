@@ -117,7 +117,7 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
                 substituteEvent = relativeAccess.getRelativeToEvent(evalEvent, index);
             }
             else {
-                substituteEvent = relativeAccess.getRelativeToEnd(evalEvent, index);
+                substituteEvent = relativeAccess.getRelativeToEnd(index);
             }
         }
         return substituteEvent;

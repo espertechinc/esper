@@ -125,25 +125,25 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
         return priorEventMap.get(theEvent);
     }
 
-    public EventBean getRelativeToEnd(EventBean theEvent, int index)
+    public EventBean getRelativeToEnd(int index)
     {
         // No requirement to index from end of current buffer
         return null;
     }
 
-    public Iterator<EventBean> getWindowToEvent(Object evalEvent)
+    public Iterator<EventBean> getWindowToEvent()
     {
         // no requirement for window iterator support
         return null;
     }
 
-    public int getWindowToEventCount(EventBean evalEvent)
+    public int getWindowToEventCount()
     {
         // no requirement for count support
         return 0;
     }
 
-    public Collection<EventBean> getWindowToEventCollReadOnly(Object evalEvent) {
+    public Collection<EventBean> getWindowToEventCollReadOnly() {
         return null;
     }
 

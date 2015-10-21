@@ -45,7 +45,7 @@ public class ExprPreviousEvalStrategyCount implements ExprPreviousEvalStrategy
             if (relativeAccess == null) {
                 return null;
             }
-            size = relativeAccess.getWindowToEventCount(evalEvent);
+            size = relativeAccess.getWindowToEventCount();
         }
 
         return size;

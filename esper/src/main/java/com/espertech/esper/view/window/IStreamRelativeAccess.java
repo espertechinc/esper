@@ -79,7 +79,7 @@ public class IStreamRelativeAccess implements RelativeAccessByEventNIndex, ViewU
         return null;
     }
 
-    public EventBean getRelativeToEnd(EventBean theEvent, int prevIndex)
+    public EventBean getRelativeToEnd(int prevIndex)
     {
         if (lastNewData == null)
         {
@@ -93,16 +93,16 @@ public class IStreamRelativeAccess implements RelativeAccessByEventNIndex, ViewU
         return null;
     }
 
-    public Iterator<EventBean> getWindowToEvent(Object evalEvent)
+    public Iterator<EventBean> getWindowToEvent()
     {
         return new ReversedArrayEventIterator(lastNewData);
     }
 
-    public Collection<EventBean> getWindowToEventCollReadOnly(Object evalEvent) {
+    public Collection<EventBean> getWindowToEventCollReadOnly() {
         return Arrays.asList(lastNewData);
     }
 
-    public int getWindowToEventCount(EventBean evalEvent)
+    public int getWindowToEventCount()
     {
         if (lastNewData == null) {
             return 0;

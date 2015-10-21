@@ -26,11 +26,11 @@ public interface RelativeAccessByEventNIndex
      */
     public EventBean getRelativeToEvent(EventBean theEvent, int index);
 
-    public EventBean getRelativeToEnd(EventBean theEvent, int index);
+    public EventBean getRelativeToEnd(int index);
 
-    public Iterator<EventBean> getWindowToEvent(Object evalEvent);
+    public Iterator<EventBean> getWindowToEvent();
 
-    public Collection<EventBean> getWindowToEventCollReadOnly(Object evalEvent);
+    public Collection<EventBean> getWindowToEventCollReadOnly();
 
-    public int getWindowToEventCount(EventBean evalEvent);
+    public int getWindowToEventCount();
 }

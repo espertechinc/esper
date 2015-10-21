@@ -35,22 +35,22 @@ public class PriorEventViewRelAccess implements RelativeAccessByEventNIndex
         return buffer.getRelativeToEvent(theEvent, relativeIndex);
     }
 
-    public EventBean getRelativeToEnd(EventBean theEvent, int index)
+    public EventBean getRelativeToEnd(int index)
     {
         // No requirement to index from end of current buffer
         return null;
     }
 
-    public Iterator<EventBean> getWindowToEvent(Object evalEvent)
+    public Iterator<EventBean> getWindowToEvent()
     {
         return null;
     }
 
-    public Collection<EventBean> getWindowToEventCollReadOnly(Object evalEvent) {
+    public Collection<EventBean> getWindowToEventCollReadOnly() {
         return null;
     }
 
-    public int getWindowToEventCount(EventBean evalEvent)
+    public int getWindowToEventCount()
     {
         return 0;
     }

@@ -53,8 +53,8 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
             if (relativeAccess == null) {
                 return null;
             }
-            size = relativeAccess.getWindowToEventCount(evalEvent);
-            events = relativeAccess.getWindowToEvent(evalEvent);
+            size = relativeAccess.getWindowToEventCount();
+            events = relativeAccess.getWindowToEvent();
         }
 
         if (size <= 0) {
@@ -88,7 +88,7 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
             if (relativeAccess == null) {
                 return null;
             }
-            events = relativeAccess.getWindowToEventCollReadOnly(evalEvent);
+            events = relativeAccess.getWindowToEventCollReadOnly();
         }
         return events;
     }
@@ -109,8 +109,8 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
             if (relativeAccess == null) {
                 return null;
             }
-            size = relativeAccess.getWindowToEventCount(evalEvent);
-            events = relativeAccess.getWindowToEvent(evalEvent);
+            size = relativeAccess.getWindowToEventCount();
+            events = relativeAccess.getWindowToEvent();
         }
 
         if (size <= 0) {
