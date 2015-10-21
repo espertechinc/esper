@@ -10,8 +10,8 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Provides random-access into window contents by event and index as a combination.
@@ -58,7 +58,7 @@ public class RelativeAccessByEventNIndexGetter implements IStreamRelativeAccess.
         RelativeAccessByEventNIndex iStreamRelativeAccess = accessorByEvent.get(theEvent);
         if (iStreamRelativeAccess == null)
         {
-            throw new IllegalStateException("Accessor for window random access not found for event " + theEvent);
+            return null;
         }
         return iStreamRelativeAccess;
     }

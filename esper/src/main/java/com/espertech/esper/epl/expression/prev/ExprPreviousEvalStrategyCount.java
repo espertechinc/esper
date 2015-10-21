@@ -13,7 +13,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.window.RandomAccessByIndex;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
+import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
 import java.util.Collection;
 
@@ -21,9 +21,9 @@ public class ExprPreviousEvalStrategyCount implements ExprPreviousEvalStrategy
 {
     private final int streamNumber;
     private final RandomAccessByIndexGetter randomAccessGetter;
-    private final RelativeAccessByEventNIndexMap relativeAccessGetter;
+    private final RelativeAccessByEventNIndexGetter relativeAccessGetter;
 
-    public ExprPreviousEvalStrategyCount(int streamNumber, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexMap relativeAccessGetter)
+    public ExprPreviousEvalStrategyCount(int streamNumber, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter)
     {
         this.streamNumber = streamNumber;
         this.randomAccessGetter = randomAccessGetter;

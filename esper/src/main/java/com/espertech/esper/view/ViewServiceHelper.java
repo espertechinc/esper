@@ -18,12 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;
-import com.espertech.esper.view.ext.IStreamSortRankRandomAccess;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
-import com.espertech.esper.view.window.IStreamRandomAccess;
-import com.espertech.esper.view.window.IStreamRelativeAccess;
-import com.espertech.esper.view.window.RandomAccessByIndexGetter;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -14,7 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.window.RandomAccessByIndex;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
+import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -25,9 +25,9 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
     private final ExprEvaluator evalNode;
     private final Class componentType;
     private final RandomAccessByIndexGetter randomAccessGetter;
-    private final RelativeAccessByEventNIndexMap relativeAccessGetter;
+    private final RelativeAccessByEventNIndexGetter relativeAccessGetter;
 
-    public ExprPreviousEvalStrategyWindow(int streamNumber, ExprEvaluator evalNode, Class componentType, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexMap relativeAccessGetter)
+    public ExprPreviousEvalStrategyWindow(int streamNumber, ExprEvaluator evalNode, Class componentType, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter)
     {
         this.streamNumber = streamNumber;
         this.evalNode = evalNode;

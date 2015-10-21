@@ -63,7 +63,7 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexMap();
+        return new RelativeAccessByEventNIndexGetter();
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
