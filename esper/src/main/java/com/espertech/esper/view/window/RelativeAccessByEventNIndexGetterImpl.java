@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Provides random-access into window contents by event and index as a combination.
  */
-public class RelativeAccessByEventNIndexGetterImpl implements IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver
+public class RelativeAccessByEventNIndexGetterImpl implements IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver, RelativeAccessByEventNIndexGetter
 {
     private final Map<EventBean, RelativeAccessByEventNIndex> accessorByEvent = new HashMap<EventBean, RelativeAccessByEventNIndex>();
     private final Map<RelativeAccessByEventNIndex, EventBean[]> eventsByAccessor  = new HashMap<RelativeAccessByEventNIndex, EventBean[]>();
