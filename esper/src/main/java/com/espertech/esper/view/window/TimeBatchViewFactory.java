@@ -63,7 +63,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexGetter();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)

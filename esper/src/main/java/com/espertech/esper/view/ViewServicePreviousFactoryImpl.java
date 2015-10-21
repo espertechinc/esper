@@ -35,8 +35,9 @@ public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactor
         if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
         {
             RelativeAccessByEventNIndexGetter getter = (RelativeAccessByEventNIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            relativeAccessByEvent = new IStreamRelativeAccess(getter);
-            getter.updated(relativeAccessByEvent, null);
+            IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver observer = (IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver) getter;
+            relativeAccessByEvent = new IStreamRelativeAccess(observer);
+            observer.updated(relativeAccessByEvent, null);
         }
 
         return relativeAccessByEvent;

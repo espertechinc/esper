@@ -46,7 +46,7 @@ public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implem
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexGetter();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public boolean isIncludeTriggeringEvent() {

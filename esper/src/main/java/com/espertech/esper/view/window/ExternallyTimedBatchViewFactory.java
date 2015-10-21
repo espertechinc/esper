@@ -78,7 +78,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexGetter();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
