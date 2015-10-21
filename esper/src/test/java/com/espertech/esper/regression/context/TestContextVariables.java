@@ -170,6 +170,10 @@ public class TestContextVariables extends TestCase {
     }
 
     public void testGetSetAPI() {
+        if (SupportConfigFactory.skipTest(TestContextVariables.class)) {
+            return;
+        }
+
         epService.getEPAdministrator().createEPL("create context MyCtx as initiated by SupportBean_S0 s0 terminated after 24 hours");
         epService.getEPAdministrator().createEPL("context MyCtx create variable int mycontextvar = 5");
         epService.getEPAdministrator().createEPL("context MyCtx on SupportBean(theString = context.s0.p00) set mycontextvar = intPrimitive");
