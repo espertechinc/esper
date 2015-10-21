@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.deploy;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProviderIsolated;
 import com.espertech.esper.client.EPStatement;
@@ -40,6 +41,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
     private final StatementIdGenerator optionalStatementIdGenerator;
     private final FilterService filterService;
     private final TimeZone timeZone;
+    private final ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy;
 
     /**
      * Ctor.
@@ -49,7 +51,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
      * @param eventAdapterService event wrap service
      * @param statementIsolationService for isolated statement execution
      */
-    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, StatementIdGenerator optionalStatementIdGenerator, FilterService filterService, TimeZone timeZone) {
+    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, StatementIdGenerator optionalStatementIdGenerator, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
         this.epService = epService;
         this.deploymentStateService = deploymentStateService;
         this.statementEventTypeRef = statementEventTypeRef;
@@ -58,6 +60,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         this.optionalStatementIdGenerator = optionalStatementIdGenerator;
         this.filterService = filterService;
         this.timeZone = timeZone;
+        this.undeployRethrowPolicy = undeployRethrowPolicy;
     }
 
     public Module read(InputStream stream, String uri) throws IOException, ParseException
@@ -588,6 +591,9 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         List<DeploymentInformationItem> revertedStatements = new ArrayList<DeploymentInformationItem>();
         if (undeploymentOptions.isDestroyStatements()) {
             Set<String> referencedTypes = new HashSet<String>();
+
+            RuntimeException firstExceptionEncountered = null;
+
             for (DeploymentInformationItem item : reverted) {
                 EPStatement statement = epService.getStatement(item.getStatementName());
                 if (statement == null) {
@@ -603,11 +609,18 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
                 }
                 catch (RuntimeException ex) {
                     log.warn("Unexpected exception destroying statement: " + ex.getMessage(), ex);
+                    if (firstExceptionEncountered == null) {
+                        firstExceptionEncountered = ex;
+                    }
                 }
                 revertedStatements.add(item);
             }
             EPLModuleUtil.undeployTypes(referencedTypes, statementEventTypeRef, eventAdapterService, filterService);
             Collections.reverse(revertedStatements);
+
+            if (firstExceptionEncountered != null && undeployRethrowPolicy == ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.RETHROW_FIRST) {
+                throw firstExceptionEncountered;
+            }
         }
 
         return new UndeploymentResult(info.getDeploymentId(), revertedStatements);

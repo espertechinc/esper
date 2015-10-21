@@ -842,8 +842,15 @@
 			<xs:sequence>
 				<xs:element ref="esper:handlerFactory" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
+			<xs:attribute name="undeploy-rethrow-policy" type="esper:undeployRethrowPolicyEnum" use="optional"/>
 		</xs:complexType>
 	</xs:element>
+	<xs:simpleType name="undeployRethrowPolicyEnum">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="warn"/>
+			<xs:enumeration value="rethrow_first"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:element name="conditionHandling">
 		<xs:complexType>
 			<xs:sequence>

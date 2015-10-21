@@ -49,7 +49,7 @@ public class EPAdministratorImpl implements EPAdministratorSPI
             statementIdGenerator = statementIdGeneratorFactory.create(new StatementIdGeneratorFactoryContext(services.getEngineURI()));
         }
         this.deploymentAdminService = new EPDeploymentAdminImpl(this, adminContext.getServices().getDeploymentStateService(), adminContext.getServices().getStatementEventTypeRefService(), adminContext.getServices().getEventAdapterService(), adminContext.getServices().getStatementIsolationService(), statementIdGenerator, adminContext.getServices().getFilterService(),
-                services.getConfigSnapshot().getEngineDefaults().getExpression().getTimeZone());
+                services.getConfigSnapshot().getEngineDefaults().getExpression().getTimeZone(), services.getConfigSnapshot().getEngineDefaults().getExceptionHandling().getUndeployRethrowPolicy());
     }
 
     public EPDeploymentAdmin getDeploymentAdmin()

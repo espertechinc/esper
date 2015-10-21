@@ -1043,6 +1043,10 @@ class ConfigurationParser {
             if (subElement.getNodeName().equals("exceptionHandling"))
             {
                 configuration.getEngineDefaults().getExceptionHandling().addClasses(getHandlerFactories(subElement));
+                String enableUndeployRethrowStr = getOptionalAttribute(subElement, "undeploy-rethrow-policy");
+                if (enableUndeployRethrowStr != null) {
+                    configuration.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.valueOf(enableUndeployRethrowStr.toUpperCase()));
+                }
             }
             if (subElement.getNodeName().equals("conditionHandling"))
             {

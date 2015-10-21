@@ -12,6 +12,7 @@
 package com.espertech.esper.support.client;
 
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.lang.reflect.Method;
@@ -59,6 +60,7 @@ public class SupportConfigFactory
             config = new Configuration();
             config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
             config.getEngineDefaults().getExceptionHandling().addClass(SupportExceptionHandlerFactoryRethrow.class);
+            config.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.RETHROW_FIRST);
         }
         return config;
     }

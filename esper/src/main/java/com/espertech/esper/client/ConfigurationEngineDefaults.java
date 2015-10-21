@@ -1890,6 +1890,7 @@ public class ConfigurationEngineDefaults implements Serializable
     public static class ExceptionHandling implements Serializable {
         private static final long serialVersionUID = -708367341332718634L;
         private List<String> handlerFactories;
+        private UndeployRethrowPolicy undeployRethrowPolicy = UndeployRethrowPolicy.WARN;
 
         /**
          * Returns the list of exception handler factory class names,
@@ -1936,6 +1937,40 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void addClass(Class exceptionHandlerFactoryClass) {
             addClass(exceptionHandlerFactoryClass.getName());
+        }
+
+        /**
+         * Returns the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
+         * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         * @return indicator
+         */
+        public UndeployRethrowPolicy getUndeployRethrowPolicy() {
+            return undeployRethrowPolicy;
+        }
+
+        /**
+         * Sets the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
+         * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         * @param undeployRethrowPolicy indicator
+         */
+        public void setUndeployRethrowPolicy(UndeployRethrowPolicy undeployRethrowPolicy) {
+            this.undeployRethrowPolicy = undeployRethrowPolicy;
+        }
+
+        /**
+         * Enumeration of blocking techniques.
+         */
+        public enum UndeployRethrowPolicy
+        {
+            /**
+             * Warn.
+             */
+            WARN,
+
+            /**
+             * Rethrow First Encountered Exception.
+             */
+            RETHROW_FIRST
         }
     }
 

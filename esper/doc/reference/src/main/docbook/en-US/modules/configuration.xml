@@ -2605,10 +2605,12 @@ config.getEngineDefaults().getExecution().setAllowIsolatedService(true);]]></pro
 			
 			<para>
 				Use the settings as described here to register an exception handler factory class that provides an exception handler. The engine invokes exception handlers in the order they are listed to handle a continues-query unchecked exception, as further described in <xref linkend="api-exception"/>.
+				Please provide the full-qualified class name of each class that implements the <literal>com.espertech.esper.client.hook.ExceptionHandlerFactory</literal> interface in the engine defaults configuration as below.
 			</para>
 
 			<para>
-				Please provide the full-qualified class name of each class that implements the <literal>com.espertech.esper.client.hook.ExceptionHandlerFactory</literal> interface in the engine defaults configuration as below.
+				By default, during a module undeploy when the engine encounters a runtime exception for any of the statements it logs such exceptions as warnings. 
+				You can set the <literal>undeploy-rethrow-policy</literal> flag to <literal>rethrow_first</literal> instead have the engine rethrow the first runtime exception.
 			</para>
 	
 			<para>
@@ -2617,7 +2619,7 @@ config.getEngineDefaults().getExecution().setAllowIsolatedService(true);]]></pro
 
 			<programlisting><![CDATA[<engine-settings>
   <defaults>
-    <exceptionHandling>
+    <exceptionHandling undeploy-rethrow-policy="warn">
       <handlerFactory class="my.company.cep.MyCEPEngineExceptionHandlerFactory"/>
     </exceptionHandling>
   </defaults>
@@ -2627,8 +2629,8 @@ config.getEngineDefaults().getExecution().setAllowIsolatedService(true);]]></pro
 			 The API calls to register an exception handler factory are as follows:
 			</para>
 			<programlisting><![CDATA[Configuration config = new Configuration();
-config.getEngineDefaults().getExceptionHandling().addClass(MyCEPEngineExceptionHandlerFactory.class);]]></programlisting>
-	
+config.getEngineDefaults().getExceptionHandling().addClass(MyCEPEngineExceptionHandlerFactory.class);
+config.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.RETHROW_FIRST);]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="config-engine-conditionhandling" revision="1">

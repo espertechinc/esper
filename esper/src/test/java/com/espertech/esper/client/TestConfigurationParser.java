@@ -105,6 +105,7 @@ public class TestConfigurationParser extends TestCase
         assertNull(config.getEngineDefaults().getExpression().getMathContext());
         assertEquals(TimeZone.getDefault(), config.getEngineDefaults().getExpression().getTimeZone());
         assertNull(config.getEngineDefaults().getExceptionHandling().getHandlerFactories());
+        assertEquals(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.WARN, config.getEngineDefaults().getExceptionHandling().getUndeployRethrowPolicy());
         assertNull(config.getEngineDefaults().getConditionHandling().getHandlerFactories());
         assertEquals("js", config.getEngineDefaults().getScripts().getDefaultDialect());
 
@@ -455,6 +456,7 @@ public class TestConfigurationParser extends TestCase
         assertEquals(2, config.getEngineDefaults().getExceptionHandling().getHandlerFactories().size());
         assertEquals("my.company.cep.LoggingExceptionHandlerFactory", config.getEngineDefaults().getExceptionHandling().getHandlerFactories().get(0));
         assertEquals("my.company.cep.AlertExceptionHandlerFactory", config.getEngineDefaults().getExceptionHandling().getHandlerFactories().get(1));
+        assertEquals(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.RETHROW_FIRST, config.getEngineDefaults().getExceptionHandling().getUndeployRethrowPolicy());
         assertEquals(2, config.getEngineDefaults().getConditionHandling().getHandlerFactories().size());
         assertEquals("my.company.cep.LoggingConditionHandlerFactory", config.getEngineDefaults().getConditionHandling().getHandlerFactories().get(0));
         assertEquals("my.company.cep.AlertConditionHandlerFactory", config.getEngineDefaults().getConditionHandling().getHandlerFactories().get(1));
