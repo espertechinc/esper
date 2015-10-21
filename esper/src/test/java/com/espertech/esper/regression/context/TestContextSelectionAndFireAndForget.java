@@ -154,7 +154,9 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
                 new ContextPartitionSelector[] {new SupportSelectorById(Collections.singleton(2))});
 
         // extract path
-        getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        if (getSpi(epService).isSupportsExtract()) {
+            getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        }
     }
 
     public void testIterateStatement() {

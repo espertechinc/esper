@@ -147,6 +147,13 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             }
         }
 
+        // check context partition use
+        if (statementSpec.getOptionalContextName() != null) {
+            if (numStreams > 1) {
+                throw new ExprValidationException("Joins in runtime queries for context partitions are not supported");
+            }
+        }
+
         // plan joins or simple queries
         if (numStreams > 1)
         {
@@ -169,13 +176,6 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, null,
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typesPerStream, namesPerStream,
                     streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true, services.getEventTableIndexService().allowInitIndex(false));
-        }
-
-        // check context partition use
-        if (statementSpec.getOptionalContextName() != null) {
-            if (numStreams > 1) {
-                throw new ExprValidationException("Joins in runtime queries for context partitions are not supported");
-            }
         }
     }
 
