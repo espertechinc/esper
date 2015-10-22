@@ -138,11 +138,6 @@ public class ExpressionBatchView extends ExpressionViewBase {
         if (fireBatch) {
             expire(numEventsInBatch);
         }
-        else {
-            if (newData != null) {
-                Collections.addAll(window, newData);
-            }
-        }
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
     }

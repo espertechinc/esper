@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implements DataWindowBatchingViewFactory
 {
-    private boolean includeTriggeringEvent = true;
+    protected boolean includeTriggeringEvent = true;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
