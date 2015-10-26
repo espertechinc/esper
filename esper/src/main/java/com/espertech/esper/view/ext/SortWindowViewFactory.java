@@ -35,6 +35,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
      */
     protected ExprNode[] sortCriteriaExpressions;
 
+    protected ExprEvaluator[] sortCriteriaEvaluators;
 
     /**
      * The flags defining the ascending or descending sort order.
@@ -47,6 +48,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
     protected int sortWindowSize;
 
     private EventType eventType;
+    private boolean useCollatorSort = false;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParams) throws ViewParameterException
     {
@@ -91,20 +93,18 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
                 sortCriteriaExpressions[i - 1] = validated[i];
             }
         }
+        sortCriteriaEvaluators = ExprNodeUtility.getEvaluators(sortCriteriaExpressions);
+
+        if (statementContext.getConfigSnapshot() != null) {
+            useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
+        }
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         IStreamSortRankRandomAccess sortedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
 
-        boolean useCollatorSort = false;
-        if (agentInstanceViewFactoryContext.getAgentInstanceContext().getStatementContext().getConfigSnapshot() != null)
-        {
-            useCollatorSort = agentInstanceViewFactoryContext.getAgentInstanceContext().getStatementContext().getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
-        }
-
-        ExprEvaluator[] childEvals = ExprNodeUtility.getEvaluators(sortCriteriaExpressions);
-        return new SortWindowView(this, sortCriteriaExpressions, childEvals, isDescendingValues, sortWindowSize, sortedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
+        return new SortWindowView(this, sortCriteriaExpressions, sortCriteriaEvaluators, isDescendingValues, sortWindowSize, sortedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
     }
 
     public Object makePreviousGetter() {
@@ -136,6 +136,22 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public String getViewName() {
         return NAME;
+    }
+
+    public ExprEvaluator[] getSortCriteriaEvaluators() {
+        return sortCriteriaEvaluators;
+    }
+
+    public boolean[] getIsDescendingValues() {
+        return isDescendingValues;
+    }
+
+    public int getSortWindowSize() {
+        return sortWindowSize;
+    }
+
+    public boolean isUseCollatorSort() {
+        return useCollatorSort;
     }
 
     private boolean compare(boolean[] one, boolean[] two)

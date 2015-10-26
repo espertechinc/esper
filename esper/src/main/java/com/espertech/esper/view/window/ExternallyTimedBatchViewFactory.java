@@ -112,6 +112,18 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         return "Externally-timed-batch";
     }
 
+    public ExprEvaluator getTimestampExpressionEval() {
+        return timestampExpressionEval;
+    }
+
+    public Long getOptionalReferencePoint() {
+        return optionalReferencePoint;
+    }
+
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a timestamp expression and a numeric or time period parameter for window size and an optional long-typed reference point in msec, and an optional list of control keywords as a string parameter (please see the documentation)";
     }

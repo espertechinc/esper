@@ -85,6 +85,10 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
         return "Time-Accumulative-Batch";
     }
 
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric parameter or time period parameter";
     }

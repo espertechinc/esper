@@ -99,6 +99,14 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
         return "Externally-timed";
     }
 
+    public ExprEvaluator getTimestampExpressionEval() {
+        return timestampExpressionEval;
+    }
+
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a timestamp expression and a numeric or time period parameter for window size";
     }
