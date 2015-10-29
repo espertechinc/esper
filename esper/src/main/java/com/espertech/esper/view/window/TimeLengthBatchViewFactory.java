@@ -108,4 +108,8 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
     public String getViewName() {
         return "Time-Length-Batch";
     }
+
+    public long getNumberOfEvents() {
+        return numberOfEvents;
+    }
 }

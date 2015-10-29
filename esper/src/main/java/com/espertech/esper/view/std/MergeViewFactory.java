@@ -60,7 +60,7 @@ public class MergeViewFactory implements ViewFactory
             throw new ViewParameterException("Groupwin view for this merge view could not be found among parent views");
         }
         criteriaExpressions = groupByViewFactory.getCriteriaExpressions();
-        removable = groupByViewFactory.isRetainAged();
+        removable = groupByViewFactory.isReclaimAged();
 
         // determine types of fields
         Class[] fieldTypes = new Class[criteriaExpressions.length];
@@ -129,6 +129,10 @@ public class MergeViewFactory implements ViewFactory
             return false;
         }
         return true;
+    }
+
+    public ExprNode[] getCriteriaExpressions() {
+        return criteriaExpressions;
     }
 
     public String getViewName() {

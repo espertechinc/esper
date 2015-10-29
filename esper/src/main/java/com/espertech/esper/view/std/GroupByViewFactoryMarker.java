@@ -14,5 +14,5 @@ public interface GroupByViewFactoryMarker
 {
     public ExprNode[] getCriteriaExpressions();
 
-    public boolean isRetainAged();
+    public boolean isReclaimAged();
 }

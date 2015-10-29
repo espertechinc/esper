@@ -142,8 +142,16 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         return true;
     }
 
-    public boolean isRetainAged() {
+    public boolean isReclaimAged() {
         return isReclaimAged;
+    }
+
+    public double getReclaimMaxAge() {
+        return reclaimMaxAge;
+    }
+
+    public double getReclaimFrequency() {
+        return reclaimFrequency;
     }
 
     public String getViewName() {
