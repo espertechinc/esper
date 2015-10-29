@@ -11,6 +11,7 @@ package com.espertech.esper.view;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.view.ext.IStreamSortRankRandomAccess;
+import com.espertech.esper.view.ext.IStreamSortRankRandomAccessImpl;
 import com.espertech.esper.view.window.IStreamRandomAccess;
 import com.espertech.esper.view.window.IStreamRelativeAccess;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
@@ -49,7 +50,7 @@ public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactor
         if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
         {
             RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            rankedRandomAccess = new IStreamSortRankRandomAccess(getter);
+            rankedRandomAccess = new IStreamSortRankRandomAccessImpl(getter);
             getter.updated(rankedRandomAccess);
         }
 
