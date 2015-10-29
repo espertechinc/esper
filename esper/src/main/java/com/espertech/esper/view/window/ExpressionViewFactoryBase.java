@@ -12,7 +12,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
-import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
@@ -72,7 +71,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
         if (!aggregateNodes.isEmpty()) {
             try {
-                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY, streamTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementContext.getContextName(), null, null, true, false);
+                aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementContext.getContextName(), null, null, false, false);
             }
             catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
