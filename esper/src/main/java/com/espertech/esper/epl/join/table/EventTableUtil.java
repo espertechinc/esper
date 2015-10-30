@@ -50,7 +50,7 @@ public class EventTableUtil
                     else
                     {
                         if (coerceOnAddOnly) {
-                            EventTableFactory factory = new PropertyIndexedEventTableSingleCoerceAddFactory(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0]);
+                            EventTableFactory factory = agentInstanceContext.getStatementContext().getEventTableIndexService().createSingleCoerceAdd(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0]);
                             table = factory.makeEventTables(ident)[0];
                         }
                         else {

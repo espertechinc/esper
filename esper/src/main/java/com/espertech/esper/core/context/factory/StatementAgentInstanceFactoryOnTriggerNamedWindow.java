@@ -102,6 +102,16 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
         SubordWMatchExprLookupStrategy strategy = queryPlan.getFactory().realize(indexes, agentInstanceContext, processorInstance.getRootViewInstance().getDataWindowContents(), processorInstance.getRootViewInstance().getVirtualDataWindow());
         NamedWindowOnExprBaseView onExprBaseView = onExprFactory.make(strategy, processorInstance.getRootViewInstance(), agentInstanceContext, pair.getFirst());
 
+        if (indexes != null) {
+            for (final EventTable table : indexes) {
+                stopCallbacks.add(new StopCallback() {
+                    public void stop() {
+                        table.clear();
+                    }
+                });
+            }
+        }
+
         return new OnExprViewResult(onExprBaseView, pair.getSecond());
     }
 
