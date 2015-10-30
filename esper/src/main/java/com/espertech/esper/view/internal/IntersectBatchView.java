@@ -39,7 +39,7 @@ import java.util.List;
  * - the single batch-view has its newData posted to child views, and removed from all non-batch views
  * - all oldData events received from all non-batch views are removed from each view
  */
-public class IntersectBatchView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer
+public class IntersectBatchView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
 {
     private static final Log log = LogFactory.getLog(IntersectBatchView.class);
 
@@ -90,6 +90,10 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
             views[i].addView(view);
             view.setObserver(this);
         }
+    }
+
+    public View[] getViewContained() {
+        return views;
     }
 
     public View cloneView()

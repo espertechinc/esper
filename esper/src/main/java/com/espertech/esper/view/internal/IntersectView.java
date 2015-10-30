@@ -31,7 +31,7 @@ import java.util.Set;
  * view retains all events that is in all of the data windows at the same time (an intersection)
  * and removes all events that leave any of the data windows.
  */
-public class IntersectView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer
+public class IntersectView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
 {
     private static final Log log = LogFactory.getLog(IntersectView.class);
 
@@ -67,6 +67,10 @@ public class IntersectView extends ViewSupport implements LastPostObserver, Clon
             views[i].addView(view);
             view.setObserver(this);
         }
+    }
+
+    public View[] getViewContained() {
+        return views;
     }
 
     public View cloneView()

@@ -32,7 +32,7 @@ import java.util.List;
  * The view is parameterized by two or more data windows. From an external viewpoint, the
  * view retains all events that is in any of the data windows (a union).
  */
-public class UnionAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer
+public class UnionAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer, ViewContainer
 {
     private static final Log log = LogFactory.getLog(UnionAsymetricView.class);
 
@@ -83,6 +83,10 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
                 unionWindow.add(theEvent);
             }
         }
+    }
+
+    public View[] getViewContained() {
+        return this.views;
     }
 
     public View cloneView()
