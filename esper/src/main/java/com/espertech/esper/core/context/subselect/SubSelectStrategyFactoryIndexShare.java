@@ -139,7 +139,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
             else {
                 EventTable[] tables = null;
                 if (!optionalNamedWindowProcessor.isVirtualDataWindow()) {
-                    tables = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), instance.getRootViewInstance().getEventType(), instance.getRootViewInstance().getIndexRepository(), instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext);
+                    tables = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), instance.getRootViewInstance().getEventType(), instance.getRootViewInstance().getIndexRepository(), instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext, isRecoveringResilient);
                 }
                 SubordTableLookupStrategy strategy = queryPlan.getLookupStrategyFactory().makeStrategy(tables, instance.getRootViewInstance().getVirtualDataWindow());
                 subqueryLookup = new SubordIndexedTableLookupStrategyLocking(strategy, instance.getTailViewInstance().getAgentInstanceContext().getAgentInstanceLock());

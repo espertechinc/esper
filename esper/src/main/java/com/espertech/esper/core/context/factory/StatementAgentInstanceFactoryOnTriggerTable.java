@@ -79,7 +79,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
                 queryPlanResult, statementContext.getAnnotations());
     }
 
-    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
+    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
         OnTriggerWindowDesc onTriggerWindowDesc = (OnTriggerWindowDesc) statementSpec.getOnTriggerDesc();
 
         // get result set processor and aggregation services

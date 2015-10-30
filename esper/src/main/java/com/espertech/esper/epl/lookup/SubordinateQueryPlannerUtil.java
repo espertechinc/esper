@@ -176,7 +176,8 @@ public class SubordinateQueryPlannerUtil
                                              EventType eventType,
                                              EventTableIndexRepository indexRepository,
                                              Iterable<EventBean> contents,
-                                             AgentInstanceContext agentInstanceContext) {
+                                             AgentInstanceContext agentInstanceContext,
+                                             boolean isRecoveringResilient) {
         EventTable[] tables = new EventTable[indexDescriptors.length];
         for (int i = 0; i < tables.length; i++) {
             SubordinateQueryIndexDesc desc = indexDescriptors[i];
@@ -185,10 +186,12 @@ public class SubordinateQueryPlannerUtil
                 table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null);
 
                 // fill table since its new
-                EventBean[] events = new EventBean[1];
-                for (EventBean prefilledEvent : contents) {
-                    events[0] = prefilledEvent;
-                    table.add(events);
+                if (!isRecoveringResilient) {
+                    EventBean[] events = new EventBean[1];
+                    for (EventBean prefilledEvent : contents) {
+                        events[0] = prefilledEvent;
+                        table.add(events);
+                    }
                 }
 
                 indexRepository.addIndex(desc.getIndexMultiKey(), new EventTableIndexRepositoryEntry(null, table));

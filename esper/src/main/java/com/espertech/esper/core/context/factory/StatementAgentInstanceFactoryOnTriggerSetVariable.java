@@ -39,7 +39,7 @@ public class StatementAgentInstanceFactoryOnTriggerSetVariable extends Statement
         this.outputProcessViewFactory = outputProcessViewFactory;
     }
 
-    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
+    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
         OnSetVariableView view = onSetVariableViewFactory.instantiate(agentInstanceContext);
         return new OnExprViewResult(view, null);
     }

@@ -87,7 +87,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
                 queryPlan, statementContext.getAnnotations());
     }
 
-    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
+    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
         // get result set processor and aggregation services
         Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext, false, null);
 
@@ -97,7 +97,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
         // obtain on-expr view
         EventTable[] indexes = null;
         if (queryPlan.getIndexDescs() != null) {
-            indexes = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), processor.getNamedWindowType(), processorInstance.getRootViewInstance().getIndexRepository(), processorInstance.getRootViewInstance().getDataWindowContents(), agentInstanceContext);
+            indexes = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), processor.getNamedWindowType(), processorInstance.getRootViewInstance().getIndexRepository(), processorInstance.getRootViewInstance().getDataWindowContents(), agentInstanceContext, isRecoveringReslient);
         }
         SubordWMatchExprLookupStrategy strategy = queryPlan.getFactory().realize(indexes, agentInstanceContext, processorInstance.getRootViewInstance().getDataWindowContents(), processorInstance.getRootViewInstance().getVirtualDataWindow());
         NamedWindowOnExprBaseView onExprBaseView = onExprFactory.make(strategy, processorInstance.getRootViewInstance(), agentInstanceContext, pair.getFirst());
