@@ -369,7 +369,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         return selectResult;
     }
 
-    private void addViewStopCallback(List<StopCallback> stopCallbacks, List<View> topViews) {
+    protected static void addViewStopCallback(List<StopCallback> stopCallbacks, List<View> topViews) {
         for (View view : topViews) {
             if (view instanceof StoppableView) {
                 stopCallbacks.add((StoppableView) view);

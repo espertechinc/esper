@@ -101,6 +101,9 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             topView = createResult.getTopViewable();
             finalView = createResult.getFinalViewable();
 
+            // add views to stop callback if applicable
+            StatementAgentInstanceFactorySelect.addViewStopCallback(stopCallbacks, createResult.getNewViews());
+
             // If this is a virtual data window implementation, bind it to the context for easy lookup
             StopCallback envStopCallback = null;
             if (finalView instanceof VirtualDWView) {
