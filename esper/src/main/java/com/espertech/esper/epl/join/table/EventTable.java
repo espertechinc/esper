@@ -76,6 +76,11 @@ public interface EventTable extends Iterable<EventBean>
      */
     public void clear();
 
+    /**
+     * Destroy index.
+     */
+    public void destroy();
+
     public String toQueryPlan();
 
     /**

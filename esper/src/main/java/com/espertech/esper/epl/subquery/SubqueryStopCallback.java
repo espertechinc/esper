@@ -33,7 +33,7 @@ public class SubqueryStopCallback implements StopCallback
         if (eventIndex != null)
         {
             for (EventTable table : eventIndex) {
-                table.clear();
+                table.destroy();
             }
         }
     }

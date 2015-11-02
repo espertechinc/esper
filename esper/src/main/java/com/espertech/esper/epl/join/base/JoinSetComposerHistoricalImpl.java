@@ -99,7 +99,7 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
             {
                 for (EventTable table : repositories[i])
                 {
-                    table.clear();
+                    table.destroy();
                 }
             }
         }

@@ -62,6 +62,9 @@ public class SingleReferenceEventTable implements EventTable, EventTableAsSet {
         throw new UnsupportedOperationException();
     }
 
+    public void destroy() {
+    }
+
     public String toQueryPlan() {
         return "single-reference";
     }

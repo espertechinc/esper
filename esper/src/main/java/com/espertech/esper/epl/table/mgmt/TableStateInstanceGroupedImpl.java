@@ -141,7 +141,7 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
     public void clearEvents() {
         rows.clear();
         for (EventTable table : indexRepository.getTables()) {
-            table.clear();
+            table.destroy();
         }
     }
 

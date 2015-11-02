@@ -87,7 +87,7 @@ public class JoinSetComposerImpl implements JoinSetComposer
             {
                 for (EventTable table : repositories[i])
                 {
-                    table.clear();
+                    table.destroy();
                 }
             }
         }

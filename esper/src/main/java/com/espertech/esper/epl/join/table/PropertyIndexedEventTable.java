@@ -174,6 +174,10 @@ public class PropertyIndexedEventTable implements EventTable
         propertyIndex.clear();
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public String toQueryPlan()
     {
         return this.getClass().getSimpleName() +

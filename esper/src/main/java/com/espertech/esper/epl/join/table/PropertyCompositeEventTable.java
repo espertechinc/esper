@@ -148,6 +148,10 @@ public class PropertyCompositeEventTable implements EventTable
         index.clear();
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public String toString() {
         return toQueryPlan();
     }

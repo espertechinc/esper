@@ -118,6 +118,10 @@ public class UnindexedEventTableList implements EventTable
         eventSet.clear();
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public Integer getNumberOfEvents() {
         return eventSet.size();
     }

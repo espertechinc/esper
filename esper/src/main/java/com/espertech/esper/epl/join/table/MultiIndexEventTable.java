@@ -87,6 +87,10 @@ public class MultiIndexEventTable implements EventTable
         }
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public String toQueryPlan() {
         StringWriter buf = new StringWriter();
         String delimiter = "";

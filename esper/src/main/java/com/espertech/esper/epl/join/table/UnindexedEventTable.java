@@ -38,6 +38,10 @@ public class UnindexedEventTable implements EventTable
         eventSet.clear();
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
         if (newData != null) {

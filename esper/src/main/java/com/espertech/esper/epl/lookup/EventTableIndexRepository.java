@@ -88,7 +88,7 @@ public class EventTableIndexRepository
     public void destroy()
     {
         for (EventTable table : tables) {
-            table.clear();
+            table.destroy();
         }
         tables.clear();
         tableIndexesRefCount.clear();
