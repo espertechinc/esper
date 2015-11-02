@@ -181,16 +181,16 @@ public class TestViewGroupBy extends TestCase
         EPAdministrator epAdmin = epService.getEPAdministrator();
         String filter = "select * from " + SupportMarketDataBean.class.getName();
 
-        EPStatement priceLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(price)");
+        EPStatement priceLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(price) order by symbol asc");
         priceLast3Stats.addListener(priceLast3StatsListener);
 
-        EPStatement volumeLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(volume)");
+        EPStatement volumeLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(volume) order by symbol asc");
         volumeLast3Stats.addListener(volumeLast3StatsListener);
 
-        EPStatement priceAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(price)");
+        EPStatement priceAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(price) order by symbol asc");
         priceAllStats.addListener(priceAllStatsListener);
 
-        EPStatement volumeAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(volume)");
+        EPStatement volumeAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(volume) order by symbol asc");
         volumeAllStats.addListener(volumeAllStatsListener);
 
         Vector<Map<String, Object>> expectedList = new Vector<Map<String, Object>>();
@@ -241,18 +241,18 @@ public class TestViewGroupBy extends TestCase
         // Check iterator results
         expectedList.get(0).put("symbol", SYMBOL_CISCO);
         expectedList.get(0).put("average", 26.5d);
-        expectedList.get(1).put("symbol", SYMBOL_IBM);
-        expectedList.get(1).put("average", 10.875d);
-        expectedList.get(2).put("symbol", SYMBOL_GE);
-        expectedList.get(2).put("average", averageGE);
+        expectedList.get(1).put("symbol", SYMBOL_GE);
+        expectedList.get(1).put("average", averageGE);
+        expectedList.get(2).put("symbol", SYMBOL_IBM);
+        expectedList.get(2).put("average", 10.875d);
         EPAssertionUtil.assertPropsPerRow(priceAllStats.iterator(), expectedList);
 
         expectedList.get(0).put("symbol", SYMBOL_CISCO);
         expectedList.get(0).put("average", 27d);
-        expectedList.get(1).put("symbol", SYMBOL_IBM);
-        expectedList.get(1).put("average", 11d + 1/6d);
-        expectedList.get(2).put("symbol", SYMBOL_GE);
-        expectedList.get(2).put("average", 86d + 2d/3d);
+        expectedList.get(1).put("symbol", SYMBOL_GE);
+        expectedList.get(1).put("average", 86d + 2d/3d);
+        expectedList.get(2).put("symbol", SYMBOL_IBM);
+        expectedList.get(2).put("average", 11d + 1/6d);
         EPAssertionUtil.assertPropsPerRow(priceLast3Stats.iterator(), expectedList);
     }
 
