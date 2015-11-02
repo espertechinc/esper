@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 public class TestContainedEventExample extends TestCase
 {
@@ -290,7 +291,7 @@ public class TestContainedEventExample extends TestCase
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"svcOne", "typeA", 750.0}, {"svcOne", "typeB", 600.0}});
     }
 
-    public class ResponseEvent
+    public static class ResponseEvent implements Serializable
     {
         private String category;
         private SubEvent[] subEvents;
@@ -312,7 +313,7 @@ public class TestContainedEventExample extends TestCase
         }
     }
 
-    public class SubEvent
+    public static class SubEvent implements Serializable
     {
         private long responseTimeMillis;
         private String subEventType;

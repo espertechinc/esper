@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean.bookexample;
 
-public class OrderItem
+import java.io.Serializable;
+
+public class OrderItem implements Serializable
 {
     private String itemId;
     private String productId;
