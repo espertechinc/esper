@@ -133,6 +133,10 @@ public class TestViewLengthBatch extends TestCase
 
     public void testLengthBatchSize3And2Staggered()
     {
+        if (SupportConfigFactory.skipTest(TestViewLengthBatch.class)) {
+            return;
+        }
+
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportBean.class.getName() + ".win:length_batch(3).win:length_batch(2)");
         stmt.addListener(listener);

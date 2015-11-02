@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean;
 
-public class SupportBeanTimestamp
+import java.io.Serializable;
+
+public class SupportBeanTimestamp implements Serializable
 {
     private String id;
     private long timestamp;

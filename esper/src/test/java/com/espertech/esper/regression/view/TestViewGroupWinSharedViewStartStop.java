@@ -62,7 +62,7 @@ public class TestViewGroupWinSharedViewStartStop extends TestCase {
 
         int i = 0;
         for (String csv : groups) {
-            Object[] event = {csv,0};
+            Object[] event = {csv,0f};
             epService.getEPRuntime().sendEvent(event, "MyEvent");
             i++;
 

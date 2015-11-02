@@ -19,12 +19,15 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
+
 public class TestViewGroupLengthWinWeightAvg extends TestCase
 {
     public void testSensorQuery() throws Exception {
         Configuration config = SupportConfigFactory.getConfiguration();
         config.addEventType("Sensor", Sensor.class);
-        EPServiceProvider epService = EPServiceProviderManager.getProvider("testSensorQuery", config);
+        EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
+        epService.initialize();
 
         boolean useGroup = true;
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -75,7 +78,7 @@ public class TestViewGroupLengthWinWeightAvg extends TestCase
         epService.destroy();
     }
 
-    static public class Sensor {
+    public static class Sensor implements Serializable {
 
         public Sensor() {
         }
