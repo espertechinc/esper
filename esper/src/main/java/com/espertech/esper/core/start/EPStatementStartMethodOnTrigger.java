@@ -100,7 +100,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         }
         else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
-            activatorResult = activatorNamedWindow(services, namedSpec);
+            activatorResult = activatorNamedWindow(services, namedSpec, statementContext);
         }
         else if (streamSpec instanceof TableQueryStreamSpec) {
             throw new ExprValidationException("Tables cannot be used in an on-action statement triggering stream");
@@ -244,7 +244,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         return new EPStatementStartResult(finalViewable, stopStatementMethod, destroyCallbacks);
     }
 
-    private ActivatorResult activatorNamedWindow(EPServicesContext services, NamedWindowConsumerStreamSpec namedSpec)
+    private ActivatorResult activatorNamedWindow(EPServicesContext services, NamedWindowConsumerStreamSpec namedSpec, StatementContext statementContext)
             throws ExprValidationException
     {
         NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
@@ -257,6 +257,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         if (namedSpec.getOptPropertyEvaluator() != null) {
             activatorResultEventType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
         }
+        processor.getTailView().addConsumerToBe(namedSpec, statementContext);
         return new ActivatorResult(activator, triggerEventTypeName, activatorResultEventType);
     }
 
