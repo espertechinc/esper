@@ -207,7 +207,7 @@ public class SubordinateQueryPlannerUtil
                 repo.addIndexReference(desc.getIndexName(), statementName);
             }
             else {
-                repo.addIndex(false, desc.getIndexMultiKey(), null, statementName, false);
+                repo.addIndex(false, desc.getIndexMultiKey(), null, statementName, false, desc.getQueryPlanIndexItem());
                 repo.addIndexReference(desc.getIndexMultiKey(), statementName);
             }
         }

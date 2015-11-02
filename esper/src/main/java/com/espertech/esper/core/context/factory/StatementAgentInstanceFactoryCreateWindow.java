@@ -138,8 +138,8 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                     }
                     else {
                         NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceContext);
-                        if (instance != null && instance.getRootViewInstance().isVirtualDataWindow()) {
-                            instance.getRootViewInstance().getVirtualDataWindow().handleStopWindow();
+                        if (instance != null) {
+                            instance.getRootViewInstance().destroy();
                         }
                     }
                     if (environmentStopCallback != null) {

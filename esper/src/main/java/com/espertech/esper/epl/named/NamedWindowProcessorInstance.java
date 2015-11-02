@@ -25,7 +25,7 @@ public class NamedWindowProcessorInstance
 
     public NamedWindowProcessorInstance(Integer agentInstanceId, NamedWindowProcessor processor, AgentInstanceContext agentInstanceContext) {
         this.agentInstanceId = agentInstanceId;
-        rootViewInstance = new NamedWindowRootViewInstance(processor.getRootView(), agentInstanceContext);
+        rootViewInstance = new NamedWindowRootViewInstance(processor.getRootView(), agentInstanceContext, processor.getEventTableIndexMetadataRepo());
         tailViewInstance = new NamedWindowTailViewInstance(rootViewInstance, processor.getTailView(), agentInstanceContext);
         rootViewInstance.setDataWindowContents(tailViewInstance);   // for iteration used for delete without index
     }

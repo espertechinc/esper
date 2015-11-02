@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.epl.lookup;
 
-import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 
 import java.util.*;
 
@@ -20,7 +20,7 @@ public class EventTableIndexMetadata
     public EventTableIndexMetadata() {
     }
 
-    public void addIndex(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, String statementName, boolean failIfExists)
+    public void addIndex(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
         throws ExprValidationException
     {
         if (getIndexByName(explicitIndexName) != null) {
@@ -32,7 +32,7 @@ public class EventTableIndexMetadata
             }
             return;
         }
-        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexName, isPrimary);
+        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexName, isPrimary, optionalQueryPlanIndexItem);
         entry.addReferringStatement(statementName);
         indexes.put(indexMultiKey, entry);
     }

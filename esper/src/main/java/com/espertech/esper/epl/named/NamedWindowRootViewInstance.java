@@ -15,12 +15,12 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
 import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.lookup.EventTableIndexRepository;
-import com.espertech.esper.epl.lookup.IndexMultiKey;
-import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
+import com.espertech.esper.epl.join.table.EventTableUtil;
+import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
 
@@ -42,11 +42,18 @@ public class NamedWindowRootViewInstance extends ViewSupport
 
     private Iterable<EventBean> dataWindowContents;
 
-    public NamedWindowRootViewInstance(NamedWindowRootView rootView, AgentInstanceContext agentInstanceContext) {
+    public NamedWindowRootViewInstance(NamedWindowRootView rootView, AgentInstanceContext agentInstanceContext, EventTableIndexMetadata eventTableIndexMetadata) {
         this.rootView = rootView;
         this.agentInstanceContext = agentInstanceContext;
 
         this.indexRepository = new EventTableIndexRepository();
+        for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry : eventTableIndexMetadata.getIndexes().entrySet()) {
+            if (entry.getValue().getQueryPlanIndexItem() != null) {
+                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName());
+                indexRepository.addIndex(entry.getKey(), new EventTableIndexRepositoryEntry(entry.getValue().getOptionalIndexName(), index));
+            }
+        }
+
         this.tablePerMultiLookup = new HashMap<SubordWMatchExprLookupStrategy, EventTable[]>();
     }
 
@@ -149,6 +156,9 @@ public class NamedWindowRootViewInstance extends ViewSupport
     {
         indexRepository.destroy();
         tablePerMultiLookup.clear();
+        if (isVirtualDataWindow()) {
+            getVirtualDataWindow().handleStopWindow();
+        }
     }
 
     /**

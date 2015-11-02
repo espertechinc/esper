@@ -8,6 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.epl.lookup;
 
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,10 +17,12 @@ public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase
 {
     private final boolean primary;
     private final Set<String> referencedByStmt;
+    private final QueryPlanIndexItem queryPlanIndexItem;
 
-    public EventTableIndexMetadataEntry(String optionalIndexName, boolean primary) {
+    public EventTableIndexMetadataEntry(String optionalIndexName, boolean primary, QueryPlanIndexItem queryPlanIndexItem) {
         super(optionalIndexName);
         this.primary = primary;
+        this.queryPlanIndexItem = queryPlanIndexItem;
         referencedByStmt = primary ? null : new HashSet<String>();
     }
 
@@ -44,5 +48,9 @@ public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase
 
     public String[] getReferringStatements() {
         return referencedByStmt.toArray(new String[referencedByStmt.size()]);
+    }
+
+    public QueryPlanIndexItem getQueryPlanIndexItem() {
+        return queryPlanIndexItem;
     }
 }

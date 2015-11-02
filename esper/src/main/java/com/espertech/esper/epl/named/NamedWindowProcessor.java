@@ -269,7 +269,7 @@ public class NamedWindowProcessor
     }
 
     public void validateAddIndex(String statementName, String indexName, IndexMultiKey imk) throws ExprValidationException {
-        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, statementName, true);
+        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, statementName, true, null);
     }
 
     public void removeIndexReferencesStmtMayRemoveIndex(IndexMultiKey imk, String finalStatementName) {

@@ -70,7 +70,7 @@ public class TableMetadata {
 
         if (keyTypes.length > 0) {
             Pair<int[], IndexMultiKey> pair = TableServiceUtil.getIndexMultikeyForKeys(tableColumns, internalEventType);
-            eventTableIndexMetadataRepo.addIndex(true, pair.getSecond(), tableName, createTableStatementContext.getStatementName(), true);
+            eventTableIndexMetadataRepo.addIndex(true, pair.getSecond(), tableName, createTableStatementContext.getStatementName(), true, null);
             tableRowKeyFactory = new TableRowKeyFactory(pair.getFirst());
         }
     }
@@ -143,7 +143,7 @@ public class TableMetadata {
 
     public void validateAddIndexAssignUpdateStrategies(String createIndexStatementName, IndexMultiKey imk, String indexName) throws ExprValidationException {
         // add index - for now
-        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, createIndexStatementName, true);
+        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, createIndexStatementName, true, null);
 
         // validate strategies, rollback if required
         for (Map.Entry<String, List<TableUpdateStrategyReceiverDesc>> stmtEntry : stmtNameToUpdateStrategyReceivers.entrySet()) {
