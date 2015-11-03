@@ -791,7 +791,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return "Type '" + existingType.getName() + "' is not compatible";
     }
 
-    public final EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes) throws EventAdapterException
+    public final EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes, boolean isTransient) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
         EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName);
@@ -818,7 +818,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         {
             mapProperties.put(entry.getKey(), new EventType[] {entry.getValue().getFirst()});
         }
-        return createAnonymousMapType(typeName, mapProperties);
+        return createAnonymousMapType(typeName, mapProperties, true);
     }
 
     public final EventType createAnonymousWrapperType(String typeName, EventType underlyingEventType, Map<String, Object> propertyTypes) throws EventAdapterException

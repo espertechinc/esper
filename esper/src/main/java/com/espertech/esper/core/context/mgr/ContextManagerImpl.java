@@ -57,7 +57,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         StatementAIResourceRegistryFactory resourceRegistryFactory = factory.getStatementAIResourceRegistryFactory();
 
         Map<String, Object> contextProps = factory.getContextBuiltinProps();
-        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps);
+        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps, true);
         ContextPropertyRegistryImpl registry = new ContextPropertyRegistryImpl(factory.getContextDetailPartitionItems(), contextPropsType);
         contextDescriptor = new ContextDescriptor(contextName, factory.isSingleInstanceContext(), registry, resourceRegistryFactory, this, factory.getContextDetail());
     }

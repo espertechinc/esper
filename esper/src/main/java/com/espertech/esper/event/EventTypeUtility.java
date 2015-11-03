@@ -1081,7 +1081,7 @@ public class EventTypeUtility {
 
             if (useMap) {
                 if (isAnonymous) {
-                    eventType = eventAdapterService.createAnonymousMapType(spec.getSchemaName(), compiledTyping);
+                    eventType = eventAdapterService.createAnonymousMapType(spec.getSchemaName(), compiledTyping, true);
                 }
                 else {
                     eventType = eventAdapterService.addNestableMapType(spec.getSchemaName(), compiledTyping, (ConfigurationEventTypeMap) config, false, false, true, false, false);

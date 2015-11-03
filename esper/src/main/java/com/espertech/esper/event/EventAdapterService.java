@@ -122,9 +122,10 @@ public interface EventAdapterService
      * cache the returned EventType instance to reuse EventType's for same-typed events.
      * <p>
      * @param propertyTypes is a map of String to Class objects
+     * @param isTransient transient types are not available by event type id lookup and recovery, they are always re-created on-the-fly
      * @return EventType implementation for map field names and value types
      */
-    public EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes);
+    public EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes, boolean isTransient);
 
     /**
      * Creata a wrapper around an event and some additional properties

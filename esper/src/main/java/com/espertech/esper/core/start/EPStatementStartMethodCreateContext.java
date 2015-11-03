@@ -51,7 +51,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
         // define output event type
         String typeName = "EventType_Context_" + context.getContextName();
-        EventType statementResultEventType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+        EventType statementResultEventType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap(), true);
 
         // add context - does not activate that context
         services.getContextManagementService().addContextSpec(services, agentInstanceContext, context, isRecoveringResilient, statementResultEventType);

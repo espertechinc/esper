@@ -580,7 +580,7 @@ public class SelectExprProcessorHelper
                 }
                 else
                 {
-                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_mapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_mapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
                     return new EvalSelectStreamNoUnderlyingMap(selectExprContext, resultEventType, namedStreams, isUsingWildcard);
                 }
             }
@@ -602,7 +602,7 @@ public class SelectExprProcessorHelper
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
             }
             else {
-                resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
             }
             if (selectExprContext.getExpressionNodes().length == 0) {
                 return new EvalSelectNoWildcardEmptyProps(selectExprContext, resultEventType);
@@ -884,7 +884,7 @@ public class SelectExprProcessorHelper
                 {
                     // Use an anonymous type if the target is not a variant stream
                     if (valueAddEventService.getValueAddProcessor(insertIntoDesc.getEventTypeName()) == null) {
-                        resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_vae_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                        resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_vae_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
                     }
                     else {
                         String statementName = "stmt_" + statementId + "_insert";
@@ -1138,7 +1138,7 @@ public class SelectExprProcessorHelper
             return null;
         }
 
-        final EventType mapType = eventAdapterService.createAnonymousMapType(statementId + "_innereval_" + CollectionUtil.toString(assignedTypeNumberStack, "_") + "_" + expressionNum, eventTypeExpr);
+        final EventType mapType = eventAdapterService.createAnonymousMapType(statementId + "_innereval_" + CollectionUtil.toString(assignedTypeNumberStack, "_") + "_" + expressionNum, eventTypeExpr, true);
         final ExprEvaluator innerEvaluator = exprEvaluator;
         ExprEvaluator evaluatorFragment = new ExprEvaluator() {
             public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)

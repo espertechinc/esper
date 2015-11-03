@@ -56,7 +56,7 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
         Map<String, Object> variableTypes = new HashMap<String, Object>();
         variableTypes.put(variableMetaData.getVariableName(), variableMetaData.getType());
         String outputEventTypeName = statementId + "_outcreatevar";
-        return eventAdapterService.createAnonymousMapType(outputEventTypeName, variableTypes);
+        return eventAdapterService.createAnonymousMapType(outputEventTypeName, variableTypes, true);
     }
 
     public void update(Object newValue, Object oldValue)

@@ -39,7 +39,7 @@ public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBas
 
         // define output event type
         String typeName = "EventType_Graph_" + createGraphDesc.getGraphName();
-        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap(), true);
 
         services.getDataFlowService().addStartGraph(createGraphDesc, statementContext, services, agentInstanceContext, isNewStatement);
 

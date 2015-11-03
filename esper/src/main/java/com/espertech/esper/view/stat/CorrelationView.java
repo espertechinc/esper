@@ -105,6 +105,6 @@ public class CorrelationView extends BaseBivariateStatisticsView implements Clon
         StatViewAdditionalProps.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.CORRELATION__CORRELATION);
         String outputEventTypeName = statementContext.getStatementId() + "_correlview_" + streamNum;
-        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap);
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap, true);
     }
 }

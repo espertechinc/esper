@@ -29,6 +29,6 @@ public class SupportEventTypeFactory
 
     public static EventType createMapType(Map<String,Object> map)
     {
-        return SupportEventAdapterService.getService().createAnonymousMapType("test", map);
+        return SupportEventAdapterService.getService().createAnonymousMapType("test", map, true);
     }
 }

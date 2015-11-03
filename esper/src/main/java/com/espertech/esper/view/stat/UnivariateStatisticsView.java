@@ -198,7 +198,7 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
                 ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE
                 );
         String outputEventTypeName = statementContext.getStatementId() + "_statview_" + streamNum;
-        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap);
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap, true);
     }
 
     public BaseStatisticsBean getBaseStatisticsBean() {

@@ -17,8 +17,6 @@ import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.event.map.MapEventBean;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,7 +82,7 @@ public class TestMapEventBean extends TestCase
         testTypesMap.clear();
         testTypesMap.put("a", SupportBean.class);
         testTypesMap.put("b", SupportBean_A.class);
-        EventType eventType = SupportEventAdapterService.getService().createAnonymousMapType("test", testTypesMap);
+        EventType eventType = SupportEventAdapterService.getService().createAnonymousMapType("test", testTypesMap, true);
 
         Map<String, Object> events = new HashMap<String, Object>();
         events.put("a", beanOne);

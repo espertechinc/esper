@@ -34,7 +34,7 @@ public class EPStatementStartMethodCreateExpression extends EPStatementStartMeth
 
         // define output event type
         String typeName = "EventType_Expression_" + expressionName;
-        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap(), true);
 
         EPStatementStopMethod stopMethod = new EPStatementStopMethod() {
             public void stop() {

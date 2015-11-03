@@ -47,7 +47,7 @@ public class OnSetVariableViewFactory
 
         variableReadWritePackage = new VariableReadWritePackage(desc.getAssignments(), variableService, eventAdapterService);
         String outputEventTypeName = statementId + "_outsetvar";
-        eventType = eventAdapterService.createAnonymousMapType(outputEventTypeName, variableReadWritePackage.getVariableTypes());
+        eventType = eventAdapterService.createAnonymousMapType(outputEventTypeName, variableReadWritePackage.getVariableTypes(), true);
     }
 
     public OnSetVariableView instantiate(ExprEvaluatorContext exprEvaluatorContext) {

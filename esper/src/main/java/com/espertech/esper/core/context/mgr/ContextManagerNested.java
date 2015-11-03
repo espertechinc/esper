@@ -81,7 +81,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         for (ContextControllerFactory factory : nestedContextFactories) {
             contextProps.put(factory.getFactoryContext().getContextName(), factory.getContextBuiltinProps());
         }
-        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps);
+        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps, true);
         ContextPropertyRegistryImpl registry = new ContextPropertyRegistryImpl(Collections.<ContextDetailPartitionItem>emptyList(), contextPropsType);
         contextDescriptor = new ContextDescriptor(contextName, false, registry, resourceRegistryFactory, this, factoryServiceContext.getDetail());
     }

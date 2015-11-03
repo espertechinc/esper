@@ -46,7 +46,7 @@ public class TestEventAdapterServiceImpl extends TestCase
         Map<String, Object> testTypesMap;
         testTypesMap = new HashMap<String, Object>();
         testTypesMap.put("key1", String.class);
-        EventType eventType = adapterService.createAnonymousMapType("test", testTypesMap);
+        EventType eventType = adapterService.createAnonymousMapType("test", testTypesMap, true);
 
         assertEquals(Map.class, eventType.getUnderlyingType());
         assertEquals(1, eventType.getPropertyNames().length);

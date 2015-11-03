@@ -236,7 +236,7 @@ public class DatabasePollingViewableFactory
         EventType eventType;
         if (outputRowConversionHook == null) {
             String outputEventType = statementId + "_dbpoll_" + streamNumber;
-            eventType = eventAdapterService.createAnonymousMapType(outputEventType, eventTypeFields);
+            eventType = eventAdapterService.createAnonymousMapType(outputEventType, eventTypeFields, true);
         }
         else {
             Class carrierClass = outputRowConversionHook.getOutputRowType(new SQLOutputRowTypeContext(databaseStreamSpec.getDatabaseName(), databaseStreamSpec.getSqlWithSubsParams(), eventTypeFields));

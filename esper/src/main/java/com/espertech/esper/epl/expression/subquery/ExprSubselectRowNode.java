@@ -190,7 +190,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
 
     private EventType getAssignAnonymousType(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
         Map<String, Object> rowType = getRowType();
-        EventType resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_subquery_" + this.getSubselectNumber(), rowType);
+        EventType resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_subquery_" + this.getSubselectNumber(), rowType, true);
         subselectMultirowType = new SubselectMultirowType(resultEventType, eventAdapterService);
         return resultEventType;
     }

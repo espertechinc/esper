@@ -99,7 +99,7 @@ public class SelectExprJoinWildcardProcessorFactory
             }
             else {
                 if (useMap) {
-                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap);
+                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap, true);
                 }
                 else {
                     resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap);
