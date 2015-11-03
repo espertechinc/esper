@@ -57,7 +57,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             }
             else {
                 try {
-                    processorInstance.getRootViewInstance().addExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns());
+                    processorInstance.getRootViewInstance().addExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), isRecoveringResilient);
                 }
                 catch (ExprValidationException e) {
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
