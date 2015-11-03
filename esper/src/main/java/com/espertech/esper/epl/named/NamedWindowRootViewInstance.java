@@ -186,7 +186,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
      */
     public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {
         Iterable<EventBean> initializeFrom = isRecoveringResilient ? CollectionUtil.NULL_EVENT_ITERABLE : this.dataWindowContents;
-        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext);
+        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient);
     }
 
     public boolean isVirtualDataWindow() {

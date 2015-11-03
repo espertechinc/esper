@@ -111,7 +111,7 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
     }
 
     public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext());
+        indexRepository.validateAddExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient);
     }
 
     public String[] getSecondaryIndexes() {

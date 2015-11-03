@@ -108,10 +108,13 @@ public class EventTableIndexRepository
         return keySet.toArray(new IndexMultiKey[keySet.size()]);
     }
 
-    public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext)
+    public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists)
             throws ExprValidationException
     {
         if (explicitIndexes.containsKey(indexName)) {
+            if (allowIndexExists) {
+                return;
+            }
             throw new ExprValidationException("Index by name '" + indexName + "' already exists");
         }
 
