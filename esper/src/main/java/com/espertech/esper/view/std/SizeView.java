@@ -149,7 +149,7 @@ public class SizeView extends ViewSupport implements CloneableView
         schemaMap.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), long.class);
         StatViewAdditionalProps.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.SIZE_VIEW__SIZE);
         String outputEventTypeName = statementContext.getStatementId() + "_sizeview_" + streamNum;
-        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, schemaMap, true);
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, schemaMap, false);
     }
 
     private void addProperties(Map<String, Object> newDataMap)

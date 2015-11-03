@@ -129,6 +129,6 @@ public class RegressionLinestView extends BaseBivariateStatisticsView implements
         StatViewAdditionalProps.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.REGRESSION__SLOPE, ViewFieldEnum.REGRESSION__YINTERCEPT);
         String outputEventTypeName = statementContext.getStatementId() + "_regview_" + streamNum;
-        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap, true);
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap, false);
     }
 }

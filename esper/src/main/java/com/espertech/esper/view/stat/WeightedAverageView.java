@@ -227,7 +227,7 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
         schemaMap.put(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName(), Double.class);
         StatViewAdditionalProps.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE);
         String outputEventTypeName = statementContext.getStatementId() + "_wavgview_" + streamNum;
-        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, schemaMap, true);
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, schemaMap, false);
     }
 
     public double getSumXtimesW() {
