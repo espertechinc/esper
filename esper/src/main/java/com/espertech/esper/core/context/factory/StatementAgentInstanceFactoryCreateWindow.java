@@ -166,7 +166,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             postLoad = processorInstance.getPostLoad();
 
             // Handle insert case
-            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement)
+            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement && !isRecoveringResilient)
             {
                 String insertFromWindow = statementSpec.getCreateWindowDesc().getInsertFromWindow();
                 NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(insertFromWindow);
