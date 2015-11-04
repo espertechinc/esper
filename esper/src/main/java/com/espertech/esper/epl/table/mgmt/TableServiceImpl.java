@@ -27,7 +27,7 @@ import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNodeSubpropAccessor;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.parse.ASTAggregationHelper;
-import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyFactory;
+import com.espertech.esper.epl.table.strategy.*;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategyFactory;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategyReceiver;
@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 
 public class TableServiceImpl implements TableService {
 
@@ -203,6 +204,17 @@ public class TableServiceImpl implements TableService {
 
     public String[] getTables() {
         return CollectionUtil.toArray(tables.keySet());
+    }
+
+    public TableAndLockProvider getStateProvider(String tableName, int agentInstanceId, boolean writesToTables) {
+        TableStateInstance instance = assertGetState(tableName, agentInstanceId);
+        Lock lock = writesToTables ? instance.getTableLevelRWLock().writeLock() : instance.getTableLevelRWLock().readLock();
+        if (instance instanceof TableStateInstanceGrouped) {
+            return new TableAndLockProviderGroupedImpl(new TableAndLockGrouped(lock, (TableStateInstanceGrouped) instance));
+        }
+        else {
+            return new TableAndLockProviderUngroupedImpl(new TableAndLockUngrouped(lock, (TableStateInstanceUngrouped) instance));
+        }
     }
 
     private StreamTableColWStreamName findTableColumnMayByPrefixed(StreamTypeService streamTypeService, String streamAndPropName)

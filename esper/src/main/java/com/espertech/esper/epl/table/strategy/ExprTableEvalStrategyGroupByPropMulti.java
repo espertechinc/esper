@@ -15,17 +15,15 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyGroupByPropMulti extends ExprTableEvalStrategyGroupByPropBase {
 
     private final ExprEvaluator[] groupExpr;
 
-    public ExprTableEvalStrategyGroupByPropMulti(Lock lock, TableStateInstanceGrouped grouped, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval, ExprEvaluator[] groupExpr) {
-        super(lock, grouped, propertyIndex, optionalEnumEval);
+    public ExprTableEvalStrategyGroupByPropMulti(TableAndLockProviderGrouped provider, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval, ExprEvaluator[] groupExpr) {
+        super(provider, propertyIndex, optionalEnumEval);
         this.groupExpr = groupExpr;
     }
 

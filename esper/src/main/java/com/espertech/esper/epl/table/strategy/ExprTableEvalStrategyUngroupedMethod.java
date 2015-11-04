@@ -25,8 +25,8 @@ public class ExprTableEvalStrategyUngroupedMethod extends ExprTableEvalStrategyU
 
     private final int methodOffset;
 
-    public ExprTableEvalStrategyUngroupedMethod(Lock lock, TableStateInstanceUngrouped ungrouped, int methodOffset) {
-        super(lock, ungrouped);
+    public ExprTableEvalStrategyUngroupedMethod(TableAndLockProviderUngrouped provider, int methodOffset) {
+        super(provider);
         this.methodOffset = methodOffset;
     }
 

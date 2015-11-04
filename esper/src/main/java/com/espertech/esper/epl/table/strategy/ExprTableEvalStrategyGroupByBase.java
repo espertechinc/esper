@@ -15,24 +15,23 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
-import java.util.concurrent.locks.Lock;
-
 public abstract class ExprTableEvalStrategyGroupByBase {
 
-    private final Lock lock;
-    protected final TableStateInstanceGrouped grouped;
+    private final TableAndLockProviderGrouped provider;
 
-    protected ExprTableEvalStrategyGroupByBase(Lock lock, TableStateInstanceGrouped grouped) {
-        this.lock = lock;
-        this.grouped = grouped;
+    protected ExprTableEvalStrategyGroupByBase(TableAndLockProviderGrouped provider) {
+        this.provider = provider;
     }
 
     protected ObjectArrayBackedEventBean lockTableReadAndGet(Object group, ExprEvaluatorContext context) {
-        ExprTableEvalLockUtil.obtainLockUnless(lock, context);
-        return grouped.getRowForGroupKey(group);
+        TableAndLockGrouped tableAndLockGrouped = provider.get();
+        ExprTableEvalLockUtil.obtainLockUnless(tableAndLockGrouped.getLock(), context);
+        return tableAndLockGrouped.getGrouped().getRowForGroupKey(group);
     }
 
-    protected void lockTableRead(ExprEvaluatorContext context) {
-        ExprTableEvalLockUtil.obtainLockUnless(lock, context);
+    protected TableStateInstanceGrouped lockTableRead(ExprEvaluatorContext context) {
+        TableAndLockGrouped tableAndLockGrouped = provider.get();
+        ExprTableEvalLockUtil.obtainLockUnless(tableAndLockGrouped.getLock(), context);
+        return tableAndLockGrouped.getGrouped();
     }
 }

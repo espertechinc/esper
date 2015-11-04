@@ -16,17 +16,15 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyGroupByAccessMulti extends ExprTableEvalStrategyGroupByAccessBase {
 
     private final ExprEvaluator[] groupExpr;
 
-    public ExprTableEvalStrategyGroupByAccessMulti(Lock lock, TableStateInstanceGrouped grouped, AggregationAccessorSlotPair pair, ExprEvaluator[] groupExpr) {
-        super(lock, grouped, pair);
+    public ExprTableEvalStrategyGroupByAccessMulti(TableAndLockProviderGrouped provider, AggregationAccessorSlotPair pair, ExprEvaluator[] groupExpr) {
+        super(provider, pair);
         this.groupExpr = groupExpr;
     }
 

@@ -27,8 +27,8 @@ public class ExprTableEvalStrategyUngroupedTopLevel extends ExprTableEvalStrateg
 
     private final Map<String, TableMetadataColumn> items;
 
-    public ExprTableEvalStrategyUngroupedTopLevel(Lock lock, TableStateInstanceUngrouped ungrouped, Map<String, TableMetadataColumn> items) {
-        super(lock, ungrouped);
+    public ExprTableEvalStrategyUngroupedTopLevel(TableAndLockProviderUngrouped provider, Map<String, TableMetadataColumn> items) {
+        super(provider);
         this.items = items;
     }
 

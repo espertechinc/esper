@@ -28,8 +28,8 @@ public class ExprTableEvalStrategyUngroupedProp extends ExprTableEvalStrategyUng
     private final int propertyIndex;
     private final ExprEvaluatorEnumerationGivenEvent optionalEnumEval;
 
-    public ExprTableEvalStrategyUngroupedProp(Lock lock, TableStateInstanceUngrouped ungrouped, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval) {
-        super(lock, ungrouped);
+    public ExprTableEvalStrategyUngroupedProp(TableAndLockProviderUngrouped provider, int propertyIndex, ExprEvaluatorEnumerationGivenEvent optionalEnumEval) {
+        super(provider);
         this.propertyIndex = propertyIndex;
         this.optionalEnumEval = optionalEnumEval;
     }

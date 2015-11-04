@@ -21,6 +21,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
+import com.espertech.esper.epl.table.strategy.TableAndLockProvider;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategyReceiver;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
@@ -48,4 +49,5 @@ public interface TableService {
     public void validateAddIndex(String createIndexStatementName, TableMetadata tableMetadata, String indexName, IndexMultiKey imk) throws ExprValidationException;
     public void removeIndexReferencesStmtMayRemoveIndex(String statementName, TableMetadata tableMetadata);
     public TableMetadata addTable(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory tableStateRowFactory, int numberMethodAggregations, StatementContext statementContext, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging) throws ExprValidationException;
+    public TableAndLockProvider getStateProvider(String tableName, int agentInstanceId, boolean writesToTables);
 }

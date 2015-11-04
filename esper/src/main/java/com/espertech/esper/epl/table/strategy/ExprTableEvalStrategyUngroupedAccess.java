@@ -28,8 +28,8 @@ public class ExprTableEvalStrategyUngroupedAccess extends ExprTableEvalStrategyU
     private final int slot;
     private final AggregationAccessor accessor;
 
-    public ExprTableEvalStrategyUngroupedAccess(Lock lock, TableStateInstanceUngrouped ungrouped, int slot, AggregationAccessor accessor) {
-        super(lock, ungrouped);
+    public ExprTableEvalStrategyUngroupedAccess(TableAndLockProviderUngrouped provider, int slot, AggregationAccessor accessor) {
+        super(provider);
         this.slot = slot;
         this.accessor = accessor;
     }

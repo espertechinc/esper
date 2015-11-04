@@ -11,20 +11,14 @@
 
 package com.espertech.esper.epl.table.strategy;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.event.ObjectArrayBackedEventBean;
+public class TableAndLockProviderGroupedImpl implements TableAndLockProviderGrouped {
+    private final TableAndLockGrouped pair;
 
-public abstract class ExprTableEvalStrategyUngroupedBase {
-
-    private final TableAndLockProviderUngrouped provider;
-
-    protected ExprTableEvalStrategyUngroupedBase(TableAndLockProviderUngrouped provider) {
-        this.provider = provider;
+    public TableAndLockProviderGroupedImpl(TableAndLockGrouped pair) {
+        this.pair = pair;
     }
 
-    protected ObjectArrayBackedEventBean lockTableReadAndGet(ExprEvaluatorContext context) {
-        TableAndLockUngrouped pair = provider.get();
-        ExprTableEvalLockUtil.obtainLockUnless(pair.getLock(), context);
-        return pair.getUngrouped().getEventUngrouped();
+    public TableAndLockGrouped get() {
+        return pair;
     }
 }

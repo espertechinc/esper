@@ -13,8 +13,8 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyFactory;
+import com.espertech.esper.epl.table.strategy.TableAndLockProvider;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,9 +29,10 @@ public class EPStatementStartMethodHelperTableAccess
 
         Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> strategies = new HashMap<ExprTableAccessNode, ExprTableAccessEvalStrategy>();
         for (ExprTableAccessNode tableNode : tableNodes) {
-            TableStateInstance state = services.getTableService().getState(tableNode.getTableName(), agentInstanceContext.getAgentInstanceId());
+            boolean writesToTables = agentInstanceContext.getStatementContext().isWritesToTables();
+            TableAndLockProvider provider = services.getTableService().getStateProvider(tableNode.getTableName(), agentInstanceContext.getAgentInstanceId(), writesToTables);
             TableMetadata tableMetadata = services.getTableService().getTableMetadata(tableNode.getTableName());
-            ExprTableAccessEvalStrategy strategy = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(agentInstanceContext.getStatementContext().isWritesToTables(), tableNode, state, tableMetadata);
+            ExprTableAccessEvalStrategy strategy = ExprTableEvalStrategyFactory.getTableAccessEvalStrategy(tableNode, provider, tableMetadata);
             strategies.put(tableNode, strategy);
         }
 

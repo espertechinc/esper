@@ -15,19 +15,17 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 public abstract class ExprTableEvalStrategyGroupByTopLevelBase extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
 
     private final Map<String, TableMetadataColumn> items;
 
-    protected ExprTableEvalStrategyGroupByTopLevelBase(Lock lock, TableStateInstanceGrouped grouped, Map<String, TableMetadataColumn> items) {
-        super(lock, grouped);
+    protected ExprTableEvalStrategyGroupByTopLevelBase(TableAndLockProviderGrouped provider, Map<String, TableMetadataColumn> items) {
+        super(provider);
         this.items = items;
     }
 

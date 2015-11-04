@@ -18,16 +18,15 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyGroupByKeys extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
 
-    public ExprTableEvalStrategyGroupByKeys(Lock lock, TableStateInstanceGrouped grouped) {
-        super(lock, grouped);
+    public ExprTableEvalStrategyGroupByKeys(TableAndLockProviderGrouped provider) {
+        super(provider);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        lockTableRead(context);
+        TableStateInstanceGrouped grouped = lockTableRead(context);
         Set<Object> keys = grouped.getGroupKeys();
         return keys.toArray(new Object[keys.size()]);
     }
