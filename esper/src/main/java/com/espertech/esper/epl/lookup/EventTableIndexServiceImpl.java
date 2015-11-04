@@ -19,19 +19,19 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return true;
     }
 
-    public EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType) {
+    public EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde) {
         return new PropertyIndexedEventTableSingleCoerceAllFactory(indexedStreamNum, eventType, indexProp, indexCoercionType);
     }
 
-    public EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType) {
+    public EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde) {
         return new PropertyIndexedEventTableSingleCoerceAddFactory(indexedStreamNum, eventType, indexProp, indexCoercionType);
     }
 
-    public EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName) {
+    public EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName, Object optionalSerde) {
         return new PropertyIndexedEventTableSingleFactory(indexedStreamNum, eventType, propertyName, unique, optionalIndexName);
     }
 
-    public EventTableFactory createUnindexed(int indexedStreamNum) {
+    public EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde) {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
 }

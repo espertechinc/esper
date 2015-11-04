@@ -183,7 +183,7 @@ public class SubordinateQueryPlannerUtil
             SubordinateQueryIndexDesc desc = indexDescriptors[i];
             EventTable table = indexRepository.getIndexByDesc(desc.getIndexMultiKey());
             if (table == null) {
-                table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null);
+                table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null, null);
 
                 // fill table since its new
                 if (!isRecoveringResilient) {

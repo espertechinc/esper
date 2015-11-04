@@ -108,7 +108,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateIndexResult result;
             try {
-                result = contextFactory.newContext(defaultAgentInstanceContext, false);
+                result = contextFactory.newContext(defaultAgentInstanceContext, isRecoveringResilient);
             }
             catch (EPException ex) {
                 if (ex.getCause() instanceof ExprValidationException) {

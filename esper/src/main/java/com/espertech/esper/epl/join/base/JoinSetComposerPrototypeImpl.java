@@ -139,7 +139,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                         index = view.getJoinIndexTable(items.get(entry.getKey()));
                     }
                     else {
-                        index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null);
+                        index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null, null);
                     }
                     indexesPerStream[streamNo].put(entry.getKey(), index);
                 }

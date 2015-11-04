@@ -52,7 +52,8 @@ public class EventTableIndexRepository
                                Iterable<EventBean> prefilledEvents,
                                EventType indexedType,
                                String indexName,
-                               AgentInstanceContext agentInstanceContext)
+                               AgentInstanceContext agentInstanceContext,
+                               Object optionalSerde)
     {
         if (hashProps.isEmpty() && btreeProps.isEmpty()) {
             throw new IllegalArgumentException("Invalid zero element list for hash and btree columns");
@@ -65,7 +66,7 @@ public class EventTableIndexRepository
             return new Pair<IndexMultiKey, EventTableAndNamePair>(indexPropKeyMatch, new EventTableAndNamePair(refTablePair.getTable(), refTablePair.getOptionalIndexName()));
         }
 
-        return addIndex(unique, hashProps, btreeProps, prefilledEvents, indexedType, indexName, false, agentInstanceContext);
+        return addIndex(unique, hashProps, btreeProps, prefilledEvents, indexedType, indexName, false, agentInstanceContext, optionalSerde);
     }
 
     public void addIndex(IndexMultiKey indexMultiKey, EventTableIndexRepositoryEntry entry) {
@@ -108,7 +109,7 @@ public class EventTableIndexRepository
         return keySet.toArray(new IndexMultiKey[keySet.size()]);
     }
 
-    public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists)
+    public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
             throws ExprValidationException
     {
         if (explicitIndexes.containsKey(indexName)) {
@@ -119,7 +120,7 @@ public class EventTableIndexRepository
         }
 
         EventTableCreateIndexDesc desc = EventTableIndexUtil.validateCompileExplicitIndex(unique, columns, eventType);
-        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(unique, desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, indexName, agentInstanceContext);
+        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(unique, desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, indexName, agentInstanceContext, optionalSerde);
         explicitIndexes.put(indexName, pair.getSecond().getEventTable());
     }
 
@@ -135,7 +136,7 @@ public class EventTableIndexRepository
         return entry.getTable();
     }
 
-    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext) {
+    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps);
@@ -152,7 +153,7 @@ public class EventTableIndexRepository
         Class[] rangeCoercionTypes = IndexedPropDesc.getCoercionTypes(rangePropDescs);
 
         QueryPlanIndexItem indexItem = new QueryPlanIndexItem(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, false);
-        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, unique, indexName);
+        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, unique, indexName, optionalSerde);
 
         // fill table since its new
         EventBean[] events = new EventBean[1];

@@ -49,7 +49,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
         this.indexRepository = new EventTableIndexRepository();
         for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry : eventTableIndexMetadata.getIndexes().entrySet()) {
             if (entry.getValue().getQueryPlanIndexItem() != null) {
-                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName());
+                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName(), null);
                 indexRepository.addIndex(entry.getKey(), new EventTableIndexRepositoryEntry(entry.getValue().getOptionalIndexName(), index));
             }
         }
@@ -186,7 +186,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
      */
     public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {
         Iterable<EventBean> initializeFrom = isRecoveringResilient ? CollectionUtil.NULL_EVENT_ITERABLE : this.dataWindowContents;
-        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient);
+        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
     }
 
     public boolean isVirtualDataWindow() {

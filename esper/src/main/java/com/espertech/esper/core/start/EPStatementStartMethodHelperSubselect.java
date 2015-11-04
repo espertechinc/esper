@@ -302,7 +302,7 @@ public class EPStatementStartMethodHelperSubselect
         // No filter expression means full table scan
         if ((filterExpr == null) || fullTableScan)
         {
-            EventTableFactory tableFactory = statementContext.getEventTableIndexService().createUnindexed(0);
+            EventTableFactory tableFactory = statementContext.getEventTableIndexService().createUnindexed(0, null);
             SubordFullTableScanLookupStrategyFactory strategy = new SubordFullTableScanLookupStrategyFactory();
             return new Pair<EventTableFactory, SubordTableLookupStrategyFactory>(tableFactory, strategy);
         }
@@ -353,7 +353,7 @@ public class EPStatementStartMethodHelperSubselect
 
             if (hashKeys.size() == 1) {
                 if (!hashCoercionDesc.isCoerce()) {
-                    eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, indexedProps[0], unique, null);
+                    eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, indexedProps[0], unique, null, null);
                 }
                 else {
                     eventTableFactory = new PropertyIndexedEventTableSingleCoerceAddFactory(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0]);
