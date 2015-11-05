@@ -41,7 +41,6 @@ public class BuiltinAnnotation {
                 Hook.class,
                 IterableUnbound.class,
                 Name.class,
-                NoCache.class,
                 NoLock.class,
                 Overflow.class,
                 Priority.class,
