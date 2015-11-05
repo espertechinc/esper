@@ -20,6 +20,7 @@ import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -222,6 +223,14 @@ public class EPStatementStartMethodHelperSubselect
             // handle stoppable view
             if (result.getSubselectView() instanceof StoppableView) {
                 stopCallbackList.add((StoppableView) result.getSubselectView());
+            }
+            if (result.getSubselectAggregationService() != null) {
+                final AggregationService subselectAggregationService = result.getSubselectAggregationService();
+                stopCallbackList.add(new StopCallback() {
+                    public void stop() {
+                        subselectAggregationService.stop();
+                    }
+                });
             }
 
             // set aggregation
