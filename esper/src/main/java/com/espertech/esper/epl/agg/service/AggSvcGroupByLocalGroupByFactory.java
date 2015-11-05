@@ -17,9 +17,9 @@ import com.espertech.esper.epl.core.MethodResolutionService;
 
 public class AggSvcGroupByLocalGroupByFactory implements AggregationServiceFactory {
 
-    private final boolean join;
-    private final AggregationLocalGroupByPlan localGroupByPlan;
-    private final Object groupKeyBinding;
+    protected final boolean join;
+    protected final AggregationLocalGroupByPlan localGroupByPlan;
+    protected final Object groupKeyBinding;
 
     public AggSvcGroupByLocalGroupByFactory(boolean join, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding) {
         this.join = join;
