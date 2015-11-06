@@ -9,6 +9,7 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdate;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdateResult;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementOnTriggerDesc;
@@ -118,6 +119,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
 
         // create context factory
         StatementAgentInstanceFactoryUpdate contextFactory = new StatementAgentInstanceFactoryUpdate(statementContext, services, streamEventType, updateSpec, onExprView, routerDesc, subSelectStrategyCollection);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         // perform start of hook-up to start
         Viewable finalViewable;
