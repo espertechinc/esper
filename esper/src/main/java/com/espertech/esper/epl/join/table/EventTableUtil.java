@@ -37,7 +37,7 @@ public class EventTableUtil
         if (rangeProps == null || rangeProps.length == 0) {
             if (indexProps == null || indexProps.length == 0)
             {
-                EventTableFactory factory = agentInstanceContext.getStatementContext().getEventTableIndexService().createUnindexed(indexedStreamNum, optionalSerde);
+                EventTableFactory factory = eventTableIndexService.createUnindexed(indexedStreamNum, optionalSerde);
                 table = factory.makeEventTables(ident)[0];
             }
             else
@@ -71,7 +71,7 @@ public class EventTableUtil
                     else
                     {
                         if (coerceOnAddOnly) {
-                            EventTableFactory factory = new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
+                            EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAdd(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
                             table = factory.makeEventTables(ident)[0];
                         }
                         else {

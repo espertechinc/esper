@@ -48,7 +48,11 @@ public class PropertyIndexedEventTableCoerceAddFactory extends PropertyIndexedEv
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, true, streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
+        EventTableOrganization organization = getOrganization();
         return new EventTable[] {new PropertyIndexedEventTableCoerceAdd(propertyGetters, organization, coercers, coercionType)};
+    }
+
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
     }
 }

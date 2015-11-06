@@ -21,4 +21,5 @@ public interface EventTableIndexService {
     EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde);
     EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexProp, boolean unique, String optionalIndexName, Object optionalSerde);
     EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde);
+    EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes);
 }

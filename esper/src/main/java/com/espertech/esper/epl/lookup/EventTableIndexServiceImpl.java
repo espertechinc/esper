@@ -34,4 +34,8 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
     public EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde) {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
+
+    public EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes) {
+        return new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
+    }
 }
