@@ -11,7 +11,7 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.mgr.ContextControllerAddendumUtil;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.pattern.MatchedEventMap;
 
@@ -104,14 +104,15 @@ public final class FilterSpecCompiled
      * Returns the values for the filter, using the supplied result events to ask filter parameters
      * for the value to filter for.
      * @param matchedEvents contains the result events to use for determining filter values
+     * @param agentInstanceContext
      * @return filter values
      */
-    public FilterValueSet getValueSet(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext, FilterValueSetParam[][] addendum)
+    public FilterValueSet getValueSet(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterValueSetParam[][] addendum)
     {
         FilterValueSetParam[][] valueList = new FilterValueSetParam[parameters.length][];
         for (int i = 0; i < parameters.length; i++) {
             valueList[i] = new FilterValueSetParam[parameters[i].length];
-            populateValueSet(valueList[i], matchedEvents, evaluatorContext, parameters[i]);
+            populateValueSet(valueList[i], matchedEvents, agentInstanceContext, parameters[i]);
         }
 
         if (addendum != null) {
@@ -120,12 +121,12 @@ public final class FilterSpecCompiled
         return new FilterValueSetImpl(filterForEventType, valueList);
     }
 
-    private static void populateValueSet(FilterValueSetParam[] valueList, MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, FilterSpecParam[] specParams) {
+    private static void populateValueSet(FilterValueSetParam[] valueList, MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterSpecParam[] specParams) {
         // Ask each filter specification parameter for the actual value to filter for
         int count = 0;
         for (FilterSpecParam specParam : specParams)
         {
-            Object filterForValue = specParam.getFilterValue(matchedEvents, exprEvaluatorContext);
+            Object filterForValue = specParam.getFilterValue(matchedEvents, agentInstanceContext);
             FilterValueSetParam valueParam = new FilterValueSetParamImpl(specParam.getLookupable(), specParam.getFilterOperator(), filterForValue);
             valueList[count] = valueParam;
             count++;

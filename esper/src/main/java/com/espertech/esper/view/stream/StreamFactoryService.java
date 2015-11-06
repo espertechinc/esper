@@ -9,9 +9,9 @@
 package com.espertech.esper.view.stream;
 
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.view.EventStream;
@@ -37,7 +37,7 @@ public interface StreamFactoryService
      * @param epStatementAgentInstanceHandle is the statements-own handle for use in registering callbacks with services
      * @param isJoin is indicatng whether the stream will participate in a join statement, information
      * necessary for stream reuse and multithreading concerns
-     * @param exprEvaluatorContext expression evaluation context
+     * @param agentInstanceContext expression evaluation context
      * @param hasOrderBy if the consumer has order-by
      * @return event stream representing active filter
      */
@@ -46,7 +46,7 @@ public interface StreamFactoryService
                                                          FilterService filterService,
                                                          EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
                                                          boolean isJoin,
-                                                         ExprEvaluatorContext exprEvaluatorContext,
+                                                         AgentInstanceContext agentInstanceContext,
                                                          boolean hasOrderBy,
                                                          boolean filterWithSameTypeSubselect,
                                                          Annotation[] annotations,

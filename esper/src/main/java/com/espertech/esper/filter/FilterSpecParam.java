@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.util.MetaDefItem;
@@ -40,9 +41,10 @@ public abstract class FilterSpecParam implements MetaDefItem, Serializable
     /**
      * Return the filter parameter constant to filter for.
      * @param matchedEvents is the prior results that can be used to determine filter parameters
+     * @param agentInstanceContext
      * @return filter parameter constant's value
      */
-    public abstract Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext);
+    public abstract Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext);
 
     public FilterSpecLookupable getLookupable() {
         return lookupable;

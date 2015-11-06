@@ -108,7 +108,7 @@ public final class FilterSpecCompiler
         return buildNoStmtCtx(validatedNodes, eventType, eventTypeName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, streamTypeService,
                 optionalStreamName, assignedTypeNumberStack,
                 evaluatorContextStmt, stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(),
-                stmtContext.getMethodResolutionService(), stmtContext.getEventAdapterService(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowMgmtService());
+                stmtContext.getMethodResolutionService(), stmtContext.getEventAdapterService(), stmtContext.getFilterBooleanExpressionFactory(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowMgmtService());
     }
 
     public static FilterSpecCompiled buildNoStmtCtx(List<ExprNode> validatedFilterNodes,
@@ -127,13 +127,14 @@ public final class FilterSpecCompiler
                                             ContextDescriptor contextDescriptor,
                                             MethodResolutionService methodResolutionService,
                                             EventAdapterService eventAdapterService,
+                                            FilterBooleanExpressionFactory filterBooleanExpressionFactory,
                                             TimeProvider timeProvider,
                                             VariableService variableService,
                                             TableService tableService,
                                             ConfigurationInformation configurationInformation,
                                             NamedWindowMgmtService namedWindowMgmtService) throws ExprValidationException {
 
-        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, exprEvaluatorContext, statementName, statementId, streamTypeService, methodResolutionService, timeProvider, variableService, tableService, eventAdapterService, annotations, contextDescriptor, configurationInformation);
+        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, exprEvaluatorContext, statementName, statementId, streamTypeService, methodResolutionService, timeProvider, variableService, tableService, eventAdapterService, filterBooleanExpressionFactory, annotations, contextDescriptor, configurationInformation);
         List<FilterSpecParam>[] parameters = FilterSpecCompilerPlanner.planFilterParameters(validatedFilterNodes, args);
 
         PropertyEvaluator optionalPropertyEvaluator = null;

@@ -51,7 +51,7 @@ public class ViewableActivatorStreamReuseView implements ViewableActivator, Stop
                 statementContext.getFilterService(),
                 agentInstanceContext.getEpStatementAgentInstanceHandle(),
                 join,
-                evaluatorContextStmt,
+                agentInstanceContext,
                 statementSpec.getOrderByList().length > 0,
                 filterSubselectSameStream,
                 statementContext.getAnnotations(),

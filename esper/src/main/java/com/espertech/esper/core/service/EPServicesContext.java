@@ -34,6 +34,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.filter.FilterBooleanExpressionFactory;
 import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
@@ -105,6 +106,7 @@ public final class EPServicesContext
     private ViewServicePreviousFactory viewServicePreviousFactory;
     private EventTableIndexService eventTableIndexService;
     private EPRuntimeIsolatedFactory epRuntimeIsolatedFactory;
+    private FilterBooleanExpressionFactory filterBooleanExpressionFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -196,7 +198,8 @@ public final class EPServicesContext
                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
                              ViewServicePreviousFactory viewServicePreviousFactory,
                              EventTableIndexService eventTableIndexService,
-                             EPRuntimeIsolatedFactory epRuntimeIsolatedFactory)
+                             EPRuntimeIsolatedFactory epRuntimeIsolatedFactory,
+                             FilterBooleanExpressionFactory filterBooleanExpressionFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -252,6 +255,7 @@ public final class EPServicesContext
         this.viewServicePreviousFactory = viewServicePreviousFactory;
         this.eventTableIndexService = eventTableIndexService;
         this.epRuntimeIsolatedFactory = epRuntimeIsolatedFactory;
+        this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -761,5 +765,9 @@ public final class EPServicesContext
 
     public EPRuntimeIsolatedFactory getEpRuntimeIsolatedFactory() {
         return epRuntimeIsolatedFactory;
+    }
+
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
+        return filterBooleanExpressionFactory;
     }
 }

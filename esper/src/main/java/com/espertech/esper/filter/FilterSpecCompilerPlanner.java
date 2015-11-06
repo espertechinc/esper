@@ -205,7 +205,7 @@ public class FilterSpecCompilerPlanner
         boolean hasSubselectFilterStream = determineSubselectFilterStream(exprNode);
         boolean hasTableAccess = determineTableAccessFilterStream(exprNode);
         FilterSpecLookupable lookupable = new FilterSpecLookupable(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, null, exprNode.getExprEvaluator().getType(), false);
-        return new FilterSpecParamExprNode(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.variableService, args.tableService, args.eventAdapterService, args.configurationInformation, args.statementName, hasSubselectFilterStream, hasTableAccess);
+        return new FilterSpecParamExprNode(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.variableService, args.tableService, args.eventAdapterService, args.filterBooleanExpressionFactory, args.configurationInformation, hasSubselectFilterStream, hasTableAccess);
     }
 
     private static ExprAndNode makeValidateAndNode(List<ExprNode> remainingExprNodes, FilterSpecCompilerArgs args)

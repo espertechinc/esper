@@ -19,6 +19,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.filter.FilterBooleanExpressionFactory;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.view.ViewService;
@@ -49,8 +50,9 @@ public final class StatementContextEngineServices
     private final ViewServicePreviousFactory viewServicePreviousFactory;
     private final EventTableIndexService eventTableIndexService;
     private final PatternNodeFactory patternNodeFactory;
+    private final FilterBooleanExpressionFactory filterBooleanExpressionFactory;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory, FilterBooleanExpressionFactory filterBooleanExpressionFactory) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -72,6 +74,7 @@ public final class StatementContextEngineServices
         this.viewServicePreviousFactory = viewServicePreviousFactory;
         this.eventTableIndexService = eventTableIndexService;
         this.patternNodeFactory = patternNodeFactory;
+        this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
     }
 
     public String getEngineURI() {
@@ -156,5 +159,9 @@ public final class StatementContextEngineServices
 
     public PatternNodeFactory getPatternNodeFactory() {
         return patternNodeFactory;
+    }
+
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
+        return filterBooleanExpressionFactory;
     }
 }

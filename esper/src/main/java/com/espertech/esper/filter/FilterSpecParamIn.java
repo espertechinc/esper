@@ -9,7 +9,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public final class FilterSpecParamIn extends FilterSpecParam
         }
     }
 
-    public final Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext)
+    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
     {
         // If the list of values consists of all-constants and no event properties, then use cached version
         if (inListConstantsOnly != null)
@@ -82,7 +82,7 @@ public final class FilterSpecParamIn extends FilterSpecParam
         int count = 0;
         for (FilterSpecParamInValue valuePlaceholder : listOfValues)
         {
-            actualValues[count++] = valuePlaceholder.getFilterValue(matchedEvents, evaluatorContext);
+            actualValues[count++] = valuePlaceholder.getFilterValue(matchedEvents, agentInstanceContext);
         }
         return new MultiKeyUntyped(actualValues);
     }

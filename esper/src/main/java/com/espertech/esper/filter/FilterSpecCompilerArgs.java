@@ -39,11 +39,12 @@ public class FilterSpecCompilerArgs {
     public final VariableService variableService;
     public final TableService tableService;
     public final EventAdapterService eventAdapterService;
+    public final FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     public final Annotation[] annotations;
     public final ContextDescriptor contextDescriptor;
     public final ConfigurationInformation configurationInformation;
 
-    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, String statementId, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
+    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, String statementId, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -55,6 +56,7 @@ public class FilterSpecCompilerArgs {
         this.variableService = variableService;
         this.tableService = tableService;
         this.eventAdapterService = eventAdapterService;
+        this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.annotations = annotations;
         this.contextDescriptor = contextDescriptor;
         this.configurationInformation = configurationInformation;

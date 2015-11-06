@@ -102,7 +102,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getContextManagementService(),
                 services.getViewServicePreviousFactory(),
                 services.getEventTableIndexService(),
-                services.getPatternNodeFactory()
+                services.getPatternNodeFactory(),
+                services.getFilterBooleanExpressionFactory()
                 );
     }
 

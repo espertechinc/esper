@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.RefCountedMap;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
@@ -96,7 +97,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
                                                                       FilterService filterService,
                                                                       EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
                                                                       boolean isJoin,
-                                                                      final ExprEvaluatorContext exprEvaluatorContext,
+                                                                      final AgentInstanceContext agentInstanceContext,
                                                                       final boolean hasOrderBy,
                                                                       boolean filterWithSameTypeSubselect,
                                                                       Annotation[] annotations,
@@ -162,7 +163,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
 
                 public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
                 {
-                    EventBean[] result = filterSpec.getOptionalPropertyEvaluator().getProperty(theEvent, exprEvaluatorContext);
+                    EventBean[] result = filterSpec.getOptionalPropertyEvaluator().getProperty(theEvent, agentInstanceContext);
                     if (result == null)
                     {
                         return;
@@ -215,7 +216,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
         }
 
         // Activate filter
-        FilterValueSet filterValues = filterSpec.getValueSet(null, exprEvaluatorContext, null);
+        FilterValueSet filterValues = filterSpec.getValueSet(null, agentInstanceContext, null);
         FilterServiceEntry filterServiceEntry = filterService.add(filterValues, handle);
         entry.setFilterServiceEntry(filterServiceEntry);
 

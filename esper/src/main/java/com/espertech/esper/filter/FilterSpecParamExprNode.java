@@ -13,8 +13,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.service.ExprEvaluatorContextWTableAccess;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVariableVisitor;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -34,6 +33,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
     private final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
     private final transient EventAdapterService eventAdapterService;
+    private final transient FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     private final transient VariableService variableService;
     private final transient TableService tableService;
     private final boolean hasVariable;
@@ -65,8 +65,8 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
                              VariableService variableService,
                              TableService tableService,
                              EventAdapterService eventAdapterService,
+                             FilterBooleanExpressionFactory filterBooleanExpressionFactory,
                              ConfigurationInformation configurationInformation,
-                             String statementName,
                              boolean hasSubquery,
                              boolean hasTableAccess)
         throws IllegalArgumentException
@@ -82,6 +82,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         this.variableService = variableService;
         this.tableService = tableService;
         this.eventAdapterService = eventAdapterService;
+        this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.useLargeThreadingProfile = configurationInformation.getEngineDefaults().getExecution().getThreadingProfile() == ConfigurationEngineDefaults.ThreadingProfile.LARGE;
         this.hasFilterStreamSubquery = hasSubquery;
         this.hasTableAccess = hasTableAccess;
@@ -109,7 +110,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         return taggedEventTypes;
     }
 
-    public final ExprNodeAdapterBase getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext)
+    public final ExprNodeAdapterBase getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
     {
         EventBean[] events = null;
 
@@ -141,58 +142,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
             }
         }
 
-        // handle table evaluator context
-        if (hasTableAccess) {
-            exprEvaluatorContext = new ExprEvaluatorContextWTableAccess(exprEvaluatorContext, tableService);
-        }
-
-        // non-pattern case
-        ExprNodeAdapterBase adapter;
-        if (events == null) {
-
-            // if a subquery is present in a filter stream acquire the agent instance lock
-            if (hasFilterStreamSubquery) {
-                adapter = new ExprNodeAdapterBaseStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService);
-            }
-            // no-variable no-prior event evaluation
-            else if (!hasVariable) {
-                adapter = new ExprNodeAdapterBase(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext);
-            }
-            else {
-                // with-variable no-prior event evaluation
-                adapter = new ExprNodeAdapterBaseVariables(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService);
-            }
-        }
-        else {
-            // pattern cases
-            VariableService variableServiceToUse = hasVariable == false ? null : variableService;
-            if (useLargeThreadingProfile) {
-                // no-threadlocal evaluation
-                // if a subquery is present in a pattern filter acquire the agent instance lock
-                if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamNoTLStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-                else {
-                    adapter = new ExprNodeAdapterMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-            }
-            else {
-                if (hasFilterStreamSubquery) {
-                    adapter = new ExprNodeAdapterMultiStreamStmtLock(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-                else {
-                    // evaluation with threadlocal cache
-                    adapter = new ExprNodeAdapterMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-            }
-        }
-
-        if (!hasTableAccess) {
-            return adapter;
-        }
-
-        // handle table
-        return new ExprNodeAdapterBaseWTableAccess(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, adapter, tableService);
+        return filterBooleanExpressionFactory.make(this, events, agentInstanceContext, agentInstanceContext.getStatementContext(), agentInstanceContext.getAgentInstanceId());
     }
 
     public final String toString()
@@ -247,5 +197,41 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
 
     public void setFilterSpecParamPathNum(int filterSpecParamPathNum) {
         this.filterSpecParamPathNum = filterSpecParamPathNum;
+    }
+
+    public LinkedHashMap<String, Pair<EventType, String>> getArrayEventTypes() {
+        return arrayEventTypes;
+    }
+
+    public EventAdapterService getEventAdapterService() {
+        return eventAdapterService;
+    }
+
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
+        return filterBooleanExpressionFactory;
+    }
+
+    public VariableService getVariableService() {
+        return variableService;
+    }
+
+    public TableService getTableService() {
+        return tableService;
+    }
+
+    public boolean isHasVariable() {
+        return hasVariable;
+    }
+
+    public boolean isUseLargeThreadingProfile() {
+        return useLargeThreadingProfile;
+    }
+
+    public boolean isHasFilterStreamSubquery() {
+        return hasFilterStreamSubquery;
+    }
+
+    public boolean isHasTableAccess() {
+        return hasTableAccess;
     }
 }

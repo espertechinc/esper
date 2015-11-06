@@ -28,6 +28,7 @@ import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.event.vaevent.ValueAddEventServiceImpl;
+import com.espertech.esper.filter.FilterBooleanExpressionFactoryImpl;
 import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.PatternObjectResolutionServiceImpl;
 import com.espertech.esper.schedule.ScheduleBucket;
@@ -95,7 +96,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl());
+                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl());
 
         return new StatementContext(stmtEngineServices,
                 null,

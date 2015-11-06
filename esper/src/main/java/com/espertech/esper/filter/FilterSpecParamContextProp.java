@@ -9,7 +9,7 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
@@ -30,11 +30,11 @@ public final class FilterSpecParamContextProp extends FilterSpecParam
         this.numberCoercer = numberCoercer;
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext) {
-        if (evaluatorContext.getContextProperties() == null) {
+    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
+        if (agentInstanceContext.getContextProperties() == null) {
             return null;
         }
-        Object result = getter.get(evaluatorContext.getContextProperties());
+        Object result = getter.get(agentInstanceContext.getContextProperties());
 
         if (numberCoercer == null) {
             return result;
