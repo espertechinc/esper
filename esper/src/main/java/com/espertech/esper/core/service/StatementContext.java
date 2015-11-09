@@ -77,6 +77,7 @@ public final class StatementContext
     private final boolean writesToTables;
     private final Object statementUserObject;
     private final StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry;
+    private final int priority;
 
     // settable for view-sharing
     private StatementAgentInstanceLock defaultAgentInstanceLock;
@@ -128,7 +129,8 @@ public final class StatementContext
                               AggregationServiceFactoryService aggregationServiceFactoryService,
                               boolean writesToTables,
                               Object statementUserObject,
-                              StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry)
+                              StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry,
+                              int priority)
     {
         this.stmtEngineServices = stmtEngineServices;
         this.statementIdBytes = statementIdBytes;
@@ -158,6 +160,7 @@ public final class StatementContext
         this.writesToTables = writesToTables;
         this.statementUserObject = statementUserObject;
         this.statementSemiAnonymousTypeRegistry = statementSemiAnonymousTypeRegistry;
+        this.priority = priority;
     }
 
     public StatementType getStatementType()
@@ -580,5 +583,9 @@ public final class StatementContext
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory()
     {
         return stmtEngineServices.getFilterBooleanExpressionFactory();
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

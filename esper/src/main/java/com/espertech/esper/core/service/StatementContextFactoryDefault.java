@@ -275,7 +275,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY,
                 writesToTables,
                 statementUserObject,
-                StatementSemiAnonymousTypeRegistryImpl.INSTANCE);
+                StatementSemiAnonymousTypeRegistryImpl.INSTANCE,
+                annotationData.getPriority());
     }
 
     private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations) {
