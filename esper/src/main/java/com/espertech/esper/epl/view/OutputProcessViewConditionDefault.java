@@ -54,6 +54,10 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         return deltaSet.getNumChangesetRows();
     }
 
+    public OutputCondition getOptionalOutputCondition() {
+        return outputCondition;
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events

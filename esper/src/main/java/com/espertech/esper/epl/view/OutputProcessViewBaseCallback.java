@@ -33,6 +33,10 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
         return 0;
     }
 
+    public OutputCondition getOptionalOutputCondition() {
+        return null;
+    }
+
     public Iterator<EventBean> iterator() {
         return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false);
     }

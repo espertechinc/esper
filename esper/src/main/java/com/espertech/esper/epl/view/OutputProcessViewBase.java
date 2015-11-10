@@ -29,6 +29,7 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
     protected Viewable parentView;
 
     public abstract int getNumChangesetRows();
+    public abstract OutputCondition getOptionalOutputCondition();
 
     protected OutputProcessViewBase(ResultSetProcessor resultSetProcessor) {
         this.resultSetProcessor = resultSetProcessor;

@@ -48,6 +48,10 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         return 0;
     }
 
+    public OutputCondition getOptionalOutputCondition() {
+        return outputCondition;
+    }
+
     public void update(EventBean[] newData, EventBean[] oldData)
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))

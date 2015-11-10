@@ -42,6 +42,10 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
         return 0;
     }
 
+    public OutputCondition getOptionalOutputCondition() {
+        return null;
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events
