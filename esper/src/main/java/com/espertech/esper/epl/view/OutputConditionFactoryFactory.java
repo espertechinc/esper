@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
@@ -39,7 +40,8 @@ public class OutputConditionFactoryFactory
 										 	  	  StatementContext statementContext,
                                                   boolean isGrouped,
                                                   boolean isWithHavingClause,
-                                                  boolean isStartConditionOnCreation)
+                                                  boolean isStartConditionOnCreation,
+                                                  ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
             throws ExprValidationException
     {
 		if(outputLimitSpec == null)
@@ -111,7 +113,7 @@ public class OutputConditionFactoryFactory
                 throw new IllegalArgumentException("Variable named '" + outputLimitSpec.getVariableName() + "' must be of numeric type");
             }
 
-            return new OutputConditionTimeFactory(outputLimitSpec.getTimePeriodExpr(), isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionTime(outputLimitSpec.getTimePeriodExpr(), isStartConditionOnCreation);
         }
 	}
 }

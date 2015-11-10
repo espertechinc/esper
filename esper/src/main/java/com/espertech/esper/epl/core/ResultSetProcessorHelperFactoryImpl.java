@@ -12,6 +12,9 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.epl.view.OutputConditionFactory;
+import com.espertech.esper.epl.view.OutputConditionTimeFactory;
 import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSet;
 import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSetImpl;
 
@@ -22,5 +25,9 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
 
     public OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(boolean isJoin, AgentInstanceContext agentInstanceContext) {
         return new OutputProcessViewConditionDeltaSetImpl(isJoin);
+    }
+
+    public OutputConditionFactory makeOutputConditionTime(ExprTimePeriod timePeriodExpr, boolean isStartConditionOnCreation) {
+        return new OutputConditionTimeFactory(timePeriodExpr, isStartConditionOnCreation);
     }
 }

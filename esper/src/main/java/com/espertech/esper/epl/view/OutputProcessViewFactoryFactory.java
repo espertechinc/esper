@@ -109,7 +109,7 @@ public class OutputProcessViewFactoryFactory
             try {
                 boolean isWithHavingClause = statementSpec.getHavingExprRootNode() != null;
                 boolean isStartConditionOnCreation = hasOnlyTables(statementSpec.getStreamSpecs());
-                OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation);
+                OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation, resultSetProcessorHelperFactory);
                 boolean hasOrderBy = statementSpec.getOrderByList() != null && statementSpec.getOrderByList().length > 0;
                 OutputProcessViewConditionFactory.ConditionType conditionType;
                 boolean hasAfter = outputLimitSpec.getAfterNumberOfEvents() != null || outputLimitSpec.getAfterTimePeriodExpr() != null;
