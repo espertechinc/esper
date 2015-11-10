@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.EventType;
@@ -66,7 +67,9 @@ public class DatabasePollingViewableFactory
                                                                  EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
                                                                  SQLColumnTypeConversion columnTypeConversionHook,
                                                                  SQLOutputRowConversion outputRowConversionHook,
-                                                                 boolean enableJDBCLogging)
+                                                                 boolean enableJDBCLogging,
+                                                                 DataCacheFactory dataCacheFactory,
+                                                                 StatementContext statementContext)
             throws ExprValidationException
     {
         // Parse the SQL for placeholders and text fragments
@@ -252,7 +255,7 @@ public class DatabasePollingViewableFactory
         try
         {
             connectionCache = databaseConfigService.getConnectionCache(databaseName, preparedStatementText);
-            dataCache = databaseConfigService.getDataCache(databaseName, epStatementAgentInstanceHandle);
+            dataCache = databaseConfigService.getDataCache(databaseName, statementContext, epStatementAgentInstanceHandle, dataCacheFactory, streamNumber);
         }
         catch (DatabaseConfigException e)
         {

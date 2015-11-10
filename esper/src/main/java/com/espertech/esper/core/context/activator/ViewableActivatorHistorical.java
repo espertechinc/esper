@@ -17,7 +17,7 @@ import com.espertech.esper.view.HistoricalEventViewable;
 
 public class ViewableActivatorHistorical implements ViewableActivator {
 
-    private final HistoricalEventViewable historicalEventViewable;
+    protected final HistoricalEventViewable historicalEventViewable;
 
     public ViewableActivatorHistorical(HistoricalEventViewable historicalEventViewable) {
         this.historicalEventViewable = historicalEventViewable;

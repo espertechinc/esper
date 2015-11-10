@@ -10,14 +10,13 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.PollExecStrategy;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.MethodStreamSpec;
-import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
@@ -65,7 +64,9 @@ public class MethodPollingViewableFactory
                                                                ScheduleBucket scheduleBucket,
                                                                ExprEvaluatorContext exprEvaluatorContext,
                                                                VariableService variableService,
-                                                               String contextName)
+                                                               String contextName,
+                                                               DataCacheFactory dataCacheFactory,
+                                                               StatementContext statementContext)
             throws ExprValidationException
     {
         VariableMetaData variableMetaData = variableService.getVariableMetaData(methodStreamSpec.getClassName());
@@ -196,7 +197,7 @@ public class MethodPollingViewableFactory
             configCache = engineImportService.getConfigurationMethodRef(declaringClass.getSimpleName());
         }
         ConfigurationDataCache dataCacheDesc = (configCache != null) ? configCache.getDataCacheDesc() : null;
-        DataCache dataCache = DataCacheFactory.getDataCache(dataCacheDesc, epStatementAgentInstanceHandle, schedulingService, scheduleBucket);
+        DataCache dataCache = dataCacheFactory.getDataCache(dataCacheDesc, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNumber);
         PollExecStrategy methodPollStrategy;
         if (mapType != null) {
             if (methodFastClass.getReturnType().isArray()) {

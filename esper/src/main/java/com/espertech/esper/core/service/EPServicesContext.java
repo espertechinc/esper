@@ -22,6 +22,7 @@ import com.espertech.esper.dispatch.DispatchServiceProvider;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
@@ -107,6 +108,7 @@ public final class EPServicesContext
     private EventTableIndexService eventTableIndexService;
     private EPRuntimeIsolatedFactory epRuntimeIsolatedFactory;
     private FilterBooleanExpressionFactory filterBooleanExpressionFactory;
+    private DataCacheFactory dataCacheFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -199,7 +201,8 @@ public final class EPServicesContext
                              ViewServicePreviousFactory viewServicePreviousFactory,
                              EventTableIndexService eventTableIndexService,
                              EPRuntimeIsolatedFactory epRuntimeIsolatedFactory,
-                             FilterBooleanExpressionFactory filterBooleanExpressionFactory)
+                             FilterBooleanExpressionFactory filterBooleanExpressionFactory,
+                             DataCacheFactory dataCacheFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -256,6 +259,7 @@ public final class EPServicesContext
         this.eventTableIndexService = eventTableIndexService;
         this.epRuntimeIsolatedFactory = epRuntimeIsolatedFactory;
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
+        this.dataCacheFactory = dataCacheFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -769,5 +773,9 @@ public final class EPServicesContext
 
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
         return filterBooleanExpressionFactory;
+    }
+
+    public DataCacheFactory getDataCacheFactory() {
+        return dataCacheFactory;
     }
 }

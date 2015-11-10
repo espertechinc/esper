@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.db;
 
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 
 /**
  * Service providing database connection factory and configuration information
@@ -44,9 +45,10 @@ public interface DatabaseConfigService
     /**
      * Returns a new cache implementation for this database.
      * @param databaseName is the name of the database to return a new cache implementation for for
+     * @param statementContext statement context
      * @param epStatementAgentInstanceHandle is the statements-own handle for use in registering callbacks with services
      * @return cache implementation
      * @throws DatabaseConfigException is thrown to indicate database configuration errors
      */
-    public DataCache getDataCache(String databaseName, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle) throws DatabaseConfigException;
+    public DataCache getDataCache(String databaseName, StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, DataCacheFactory dataCacheFactory, int streamNumber) throws DatabaseConfigException;
 }

@@ -24,6 +24,7 @@ import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowServiceImpl;
 import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
@@ -205,7 +206,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
                 new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl(), new EPRuntimeIsolatedFactoryImpl(),
-                new FilterBooleanExpressionFactoryImpl() {
+                new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory() {
         });
 
         // Engine services subset available to statements

@@ -12,6 +12,7 @@ import com.espertech.esper.client.ConfigurationDataCache;
 import com.espertech.esper.client.ConfigurationLRUCache;
 import com.espertech.esper.client.ConfigurationExpiryTimeCache;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 
@@ -28,29 +29,32 @@ public class DataCacheFactory
      * @param scheduleBucket for ordered timer invokation
      * @return data cache implementation
      */
-    public static DataCache getDataCache(ConfigurationDataCache cacheDesc,
-                                         EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
-                                         SchedulingService schedulingService,
-                                         ScheduleBucket scheduleBucket)
+    public DataCache getDataCache(ConfigurationDataCache cacheDesc,
+                                  StatementContext statementContext,
+                                  EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
+                                  SchedulingService schedulingService,
+                                  ScheduleBucket scheduleBucket,
+                                  int streamNum)
     {
-        if (cacheDesc == null)
-        {
+        if (cacheDesc == null) {
             return new DataCacheNullImpl();
         }
 
-        if (cacheDesc instanceof ConfigurationLRUCache)
-        {
+        if (cacheDesc instanceof ConfigurationLRUCache) {
             ConfigurationLRUCache lruCache = (ConfigurationLRUCache) cacheDesc;
             return new DataCacheLRUImpl(lruCache.getSize());
         }
 
-        if (cacheDesc instanceof ConfigurationExpiryTimeCache)
-        {
+        if (cacheDesc instanceof ConfigurationExpiryTimeCache) {
             ConfigurationExpiryTimeCache expCache = (ConfigurationExpiryTimeCache) cacheDesc;
-            return new DataCacheExpiringImpl(expCache.getMaxAgeSeconds(), expCache.getPurgeIntervalSeconds(), expCache.getCacheReferenceType(),
-                    schedulingService, scheduleBucket.allocateSlot(), epStatementAgentInstanceHandle);
+            return makeTimeCache(expCache, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNum);
         }
 
         throw new IllegalStateException("Cache implementation class not configured");
+    }
+
+    protected DataCache makeTimeCache(ConfigurationExpiryTimeCache expCache, StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, SchedulingService schedulingService, ScheduleBucket scheduleBucket, int streamNum) {
+        return new DataCacheExpiringImpl(expCache.getMaxAgeSeconds(), expCache.getPurgeIntervalSeconds(), expCache.getCacheReferenceType(),
+                schedulingService, scheduleBucket.allocateSlot(), epStatementAgentInstanceHandle);
     }
 }

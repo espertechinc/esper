@@ -94,6 +94,10 @@ public class DatabasePollingViewable implements HistoricalEventViewable
         pollExecStrategy.destroy();
     }
 
+    public DataCache getOptionalDataCache() {
+        return dataCache;
+    }
+
     public void validate(EngineImportService engineImportService,
                          StreamTypeService streamTypeService,
                          MethodResolutionService methodResolutionService,

@@ -34,9 +34,9 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
-import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.util.EPLValidationUtil;
@@ -183,7 +183,7 @@ public class EPStatementStartMethodSelectUtil
                 SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getMethodResolutionService());
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
                 HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
-                        statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC());
+                        statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC(), services.getDataCacheFactory(), statementContext);
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);
@@ -194,7 +194,7 @@ public class EPStatementStartMethodSelectUtil
                 validateNoViews(streamSpec, "Method data");
                 MethodStreamSpec methodStreamSpec = (MethodStreamSpec) streamSpec;
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
-                HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName());
+                HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName(), services.getDataCacheFactory(), statementContext);
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);

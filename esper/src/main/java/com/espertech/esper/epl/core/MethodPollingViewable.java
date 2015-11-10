@@ -113,6 +113,10 @@ public class MethodPollingViewable implements HistoricalEventViewable
         return dataCacheThreadLocal;
     }
 
+    public DataCache getOptionalDataCache() {
+        return dataCache;
+    }
+
     public void validate(EngineImportService engineImportService, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider,
                          VariableService variableService, TableService tableService, ExprEvaluatorContext exprEvaluatorContext, ConfigurationInformation configSnapshot,
                          SchedulingService schedulingService, String engineURI, Map<Integer, List<ExprNode>> sqlParameters, EventAdapterService eventAdapterService, StatementContext statementContext) throws ExprValidationException {

@@ -11,14 +11,13 @@
 
 package com.espertech.esper.epl.db;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.ConfigurationDBRef;
+import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.support.epl.SupportDatabaseService;
-import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
+import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -63,12 +62,13 @@ public class TestDatabaseServiceImpl extends TestCase
 
     public void testGetCache() throws Exception
     {
-        assertTrue(databaseServiceImpl.getDataCache("name1", null) instanceof DataCacheNullImpl);
+        DataCacheFactory dataCacheFactory = new DataCacheFactory();
+        assertTrue(databaseServiceImpl.getDataCache("name1", null, null, dataCacheFactory, 0) instanceof DataCacheNullImpl);
 
-        DataCacheLRUImpl lru = (DataCacheLRUImpl) databaseServiceImpl.getDataCache("name2", null);
+        DataCacheLRUImpl lru = (DataCacheLRUImpl) databaseServiceImpl.getDataCache("name2", null, null, dataCacheFactory, 0);
         assertEquals(10000, lru.getCacheSize());
 
-        DataCacheExpiringImpl exp = (DataCacheExpiringImpl) databaseServiceImpl.getDataCache("name3", null);
+        DataCacheExpiringImpl exp = (DataCacheExpiringImpl) databaseServiceImpl.getDataCache("name3", null, null, dataCacheFactory, 0);
         assertEquals(1000, exp.getMaxAgeMSec());
         assertEquals(3000, exp.getPurgeIntervalMSec());
     }
