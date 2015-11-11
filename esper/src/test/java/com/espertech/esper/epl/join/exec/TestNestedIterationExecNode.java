@@ -18,6 +18,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.join.exec.base.FullTableScanLookupStrategy;
 import com.espertech.esper.epl.join.exec.base.NestedIterationExecNode;
 import com.espertech.esper.epl.join.exec.base.TableLookupExecNode;
+import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import junit.framework.TestCase;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
 import com.espertech.esper.client.EventBean;
@@ -33,7 +34,7 @@ public class TestNestedIterationExecNode extends TestCase
         UnindexedEventTable[] indexes = new UnindexedEventTable[4];
         for (int i = 0; i < indexes.length; i++)
         {
-            indexes[i] = new UnindexedEventTable(0);
+            indexes[i] = new UnindexedEventTableImpl(0);
         }
 
         exec = new NestedIterationExecNode(new int[] {3, 0, 1});

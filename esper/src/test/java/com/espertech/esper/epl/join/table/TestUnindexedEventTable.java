@@ -20,7 +20,7 @@ public class TestUnindexedEventTable extends TestCase
 {
     public void testFlow()
     {
-        UnindexedEventTable rep = new UnindexedEventTable(1);
+        UnindexedEventTable rep = new UnindexedEventTableImpl(1);
 
         EventBean[] addOne = SupportEventBeanFactory.makeEvents(new String[] {"a", "b"});
         rep.add(addOne);

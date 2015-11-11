@@ -14,6 +14,7 @@ package com.espertech.esper.epl.db;
 import com.espertech.esper.client.ConfigurationCacheReferenceType;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
+import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
@@ -30,7 +31,7 @@ public class TestDataCacheExpiringImpl extends TestCase
     {
         for (int i = 0; i < lists.length; i++)
         {
-            lists[i] = new UnindexedEventTable(0);
+            lists[i] = new UnindexedEventTableImpl(0);
         }
     }
 

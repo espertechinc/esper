@@ -19,6 +19,7 @@ import com.espertech.esper.epl.join.exec.base.TableLookupExecNode;
 import com.espertech.esper.epl.join.plan.TableLookupIndexReqKey;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
+import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
@@ -42,9 +43,9 @@ public class TestJoinSetComposerImpl extends TestCase
         newEventOne = SupportEventBeanFactory.makeEvents(new String[] { "s1_3"});
         newEventTwo = SupportEventBeanFactory.makeEvents(new String[] { "s2_3"});
 
-        indexLeft = new UnindexedEventTable(1);
+        indexLeft = new UnindexedEventTableImpl(1);
         indexLeft.add(indexedEventOne);
-        indexRight = new UnindexedEventTable(1);
+        indexRight = new UnindexedEventTableImpl(1);
         indexRight.add(indexedEventTwo);
 
         QueryStrategy[] queryStrategies = new QueryStrategy[2];

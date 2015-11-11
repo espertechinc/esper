@@ -15,6 +15,7 @@ import com.espertech.esper.epl.join.exec.base.FullTableScanLookupStrategy;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
+import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import junit.framework.TestCase;
 
@@ -27,7 +28,7 @@ public class TestFullTableScanLookupPlan extends TestCase
 
     public void setUp()
     {
-        unindexedEventIndex = new UnindexedEventTable(0);
+        unindexedEventIndex = new UnindexedEventTableImpl(0);
     }
 
     public void testLookup()

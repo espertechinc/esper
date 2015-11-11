@@ -20,7 +20,7 @@ public class UnindexedEventTableFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        return new EventTable[] {new UnindexedEventTable(streamNum)};
+        return new EventTable[] {new UnindexedEventTableImpl(streamNum)};
     }
 
     public Class getEventTableClass() {
