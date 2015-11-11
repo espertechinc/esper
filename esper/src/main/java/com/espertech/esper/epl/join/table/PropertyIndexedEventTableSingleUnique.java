@@ -52,6 +52,27 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         return propertyIndex;
     }
 
+    /**
+     * Remove then add events.
+     * @param newData to add
+     * @param oldData to remove
+     */
+    @Override
+    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (oldData != null) {
+            for (EventBean theEvent : oldData) {
+                remove(theEvent);
+            }
+        }
+        if (newData != null) {
+            for (EventBean theEvent : newData) {
+                add(theEvent);
+            }
+        }
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+    }
+
     public void add(EventBean theEvent)
     {
         Object key = getKey(theEvent);
