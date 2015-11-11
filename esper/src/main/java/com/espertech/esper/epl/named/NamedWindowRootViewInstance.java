@@ -49,7 +49,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
         this.indexRepository = new EventTableIndexRepository();
         for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry : eventTableIndexMetadata.getIndexes().entrySet()) {
             if (entry.getValue().getQueryPlanIndexItem() != null) {
-                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName(), null);
+                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName(), null, false);
                 indexRepository.addIndex(entry.getKey(), new EventTableIndexRepositoryEntry(entry.getValue().getOptionalIndexName(), index));
             }
         }

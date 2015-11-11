@@ -153,7 +153,7 @@ public class EventTableIndexRepository
         Class[] rangeCoercionTypes = IndexedPropDesc.getCoercionTypes(rangePropDescs);
 
         QueryPlanIndexItem indexItem = new QueryPlanIndexItem(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, false);
-        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, unique, indexName, optionalSerde);
+        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, unique, indexName, optionalSerde, false);
 
         // fill table since its new
         EventBean[] events = new EventBean[1];

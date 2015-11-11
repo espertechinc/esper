@@ -19,23 +19,23 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return true;
     }
 
-    public EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde) {
+    public EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde, boolean isFireAndForget) {
         return new PropertyIndexedEventTableSingleCoerceAllFactory(indexedStreamNum, eventType, indexProp, indexCoercionType);
     }
 
-    public EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde) {
+    public EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde, boolean isFireAndForget) {
         return new PropertyIndexedEventTableSingleCoerceAddFactory(indexedStreamNum, eventType, indexProp, indexCoercionType);
     }
 
-    public EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName, Object optionalSerde) {
+    public EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget) {
         return new PropertyIndexedEventTableSingleFactory(indexedStreamNum, eventType, propertyName, unique, optionalIndexName);
     }
 
-    public EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde) {
+    public EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde, boolean isFireAndForget) {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
 
-    public EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes) {
+    public EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget) {
         return new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
     }
 }

@@ -12,14 +12,13 @@
 package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 
 public interface EventTableIndexService {
     boolean allowInitIndex(boolean isRecoveringResilient);
-    EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde);
-    EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde);
-    EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexProp, boolean unique, String optionalIndexName, Object optionalSerde);
-    EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde);
-    EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes);
+    EventTableFactory createSingleCoerceAdd(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde, boolean isFireAndForget);
+    EventTableFactory createSingleCoerceAll(int indexedStreamNum, EventType eventType, String indexProp, Class indexCoercionType, Object optionalSerde, boolean isFireAndForget);
+    EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexProp, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget);
+    EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde, boolean isFireAndForget);
+    EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget);
 }
