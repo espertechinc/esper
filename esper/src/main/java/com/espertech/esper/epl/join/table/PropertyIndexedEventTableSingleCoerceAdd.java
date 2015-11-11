@@ -13,13 +13,16 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
-public class PropertyIndexedEventTableSingleCoerceAdd extends PropertyIndexedEventTableSingle
+import java.util.Map;
+import java.util.Set;
+
+public class PropertyIndexedEventTableSingleCoerceAdd extends PropertyIndexedEventTableSingleUnadorned
 {
     private final SimpleNumberCoercer coercer;
     private final Class coercionType;
 
     public PropertyIndexedEventTableSingleCoerceAdd(EventPropertyGetter propertyGetter, EventTableOrganization organization, SimpleNumberCoercer coercer, Class coercionType) {
-        super(propertyGetter, organization, true);
+        super(propertyGetter, organization);
         this.coercer = coercer;
         this.coercionType = coercionType;
     }

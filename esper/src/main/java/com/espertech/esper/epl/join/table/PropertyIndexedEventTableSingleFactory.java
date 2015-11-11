@@ -49,7 +49,7 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
             return new EventTable[] {new PropertyIndexedEventTableSingleUnique(propertyGetter, organization)};
         }
         else {
-            return new EventTable[] {new PropertyIndexedEventTableSingle(propertyGetter, organization, true)};
+            return new EventTable[] {new PropertyIndexedEventTableSingleUnadorned(propertyGetter, organization)};
         }
     }
 

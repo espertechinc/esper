@@ -59,7 +59,7 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
         else {
             for (int i = 0; i < tables.length; i++) {
                 EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganization.EventTableOrganizationType.HASH);
-                tables[i] = new PropertyIndexedEventTableSingle(propertyGetters[i], organization, true);
+                tables[i] = new PropertyIndexedEventTableSingleUnadorned(propertyGetters[i], organization);
             }
         }
         return tables;
