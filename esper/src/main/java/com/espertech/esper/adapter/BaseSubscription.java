@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerSubqueryPreevalNoDedup;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.filter.FilterHandleCallback;
@@ -100,7 +101,7 @@ public abstract class BaseSubscription implements Subscription, FilterHandleCall
 
         String name = "subscription:" + subscriptionName;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(name, name);
-        EPStatementHandle statementHandle = new EPStatementHandle(name, name, name, StatementType.ESPERIO, name, false, metricsHandle, 0, false, false, MultiMatchHandlerFactory.getDefaultHandler());
+        EPStatementHandle statementHandle = new EPStatementHandle(name, name, name, StatementType.ESPERIO, name, false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion());
         EPStatementHandleCallback registerHandle = new EPStatementHandleCallback(agentHandle, this);
         spi.getFilterService().add(fvs, registerHandle);

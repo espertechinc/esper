@@ -328,24 +328,24 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         if (!needDedup) {
             // no dedup
             if (subselectNodes.isEmpty()) {
-                multiMatchHandler = MultiMatchHandlerNoSubqueryNoDedup.INSTANCE;
+                multiMatchHandler = services.getMultiMatchHandlerFactory().makeNoDedupNoSubq();
             }
             else {
                 if (isSubselectPreeval) {
-                    multiMatchHandler = MultiMatchHandlerSubqueryPreevalNoDedup.INSTANCE;
+                    multiMatchHandler = services.getMultiMatchHandlerFactory().makeNoDedupSubselectPreval();
                 }
                 else {
-                    multiMatchHandler = MultiMatchHandlerSubqueryPostevalNoDedup.INSTANCE;
+                    multiMatchHandler = services.getMultiMatchHandlerFactory().makeNoDedupSubselectPosteval();
                 }
             }
         }
         else {
             // with dedup
             if (subselectNodes.isEmpty()) {
-                multiMatchHandler = MultiMatchHandlerNoSubqueryWDedup.INSTANCE;
+                multiMatchHandler = services.getMultiMatchHandlerFactory().makeDedupNoSubq();
             }
             else {
-                multiMatchHandler = new MultiMatchHandlerSubqueryWDedup(isSubselectPreeval);
+                multiMatchHandler = services.getMultiMatchHandlerFactory().makeDedupSubq(isSubselectPreeval);
             }
         }
         statementContext.getEpStatementHandle().setMultiMatchHandler(multiMatchHandler);

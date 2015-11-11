@@ -18,7 +18,7 @@ import java.util.Collection;
 
 public class MultiMatchHandlerNoSubqueryNoDedup implements MultiMatchHandler {
 
-    public static final MultiMatchHandlerNoSubqueryNoDedup INSTANCE = new MultiMatchHandlerNoSubqueryNoDedup();
+    protected static final MultiMatchHandlerNoSubqueryNoDedup INSTANCE = new MultiMatchHandlerNoSubqueryNoDedup();
 
     private MultiMatchHandlerNoSubqueryNoDedup() {
     }

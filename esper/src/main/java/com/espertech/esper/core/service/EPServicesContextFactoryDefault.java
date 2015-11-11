@@ -19,6 +19,7 @@ import com.espertech.esper.core.context.mgr.ContextManagerFactoryServiceImpl;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
@@ -206,7 +207,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
                 new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl(), new EPRuntimeIsolatedFactoryImpl(),
-                new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory() {
+                new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory(), new MultiMatchHandlerFactoryImpl() {
         });
 
         // Engine services subset available to statements

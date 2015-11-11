@@ -197,6 +197,10 @@ public class TestPerfNamedWindow extends TestCase
 
     public void testDeletePerformanceTwoDeleters()
     {
+        if (SupportConfigFactory.skipTest(TestPerfNamedWindow.class)) {
+            return;
+        }
+
         // create window
         String stmtTextCreate = "create window MyWindow.win:keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);

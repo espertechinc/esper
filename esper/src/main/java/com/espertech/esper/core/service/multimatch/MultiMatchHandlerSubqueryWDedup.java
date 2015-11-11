@@ -21,7 +21,7 @@ public class MultiMatchHandlerSubqueryWDedup implements MultiMatchHandler {
 
     private final boolean subselectPreeval;
 
-    public MultiMatchHandlerSubqueryWDedup(boolean subselectPreeval) {
+    protected MultiMatchHandlerSubqueryWDedup(boolean subselectPreeval) {
         this.subselectPreeval = subselectPreeval;
     }
 

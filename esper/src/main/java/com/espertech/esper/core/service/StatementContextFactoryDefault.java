@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
@@ -168,7 +169,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         AnnotationAnalysisResult annotationData = AnnotationAnalysisResult.analyzeAnnotations(annotations);
         boolean hasVariables = statementSpecRaw.isHasVariables() || (statementSpecRaw.getCreateContextDesc() != null);
         boolean hasTableAccess = StatementContextFactoryUtil.determineHasTableAccess(subselectNodes, statementSpecRaw, engineServices);
-        EPStatementHandle epStatementHandle = new EPStatementHandle(statementId, statementName, expression, statementType, expression, hasVariables, stmtMetric, annotationData.getPriority(), annotationData.isPremptive(), hasTableAccess, MultiMatchHandlerFactory.getDefaultHandler());
+        EPStatementHandle epStatementHandle = new EPStatementHandle(statementId, statementName, expression, statementType, expression, hasVariables, stmtMetric, annotationData.getPriority(), annotationData.isPremptive(), hasTableAccess, engineServices.getMultiMatchHandlerFactory().getDefaultHandler());
 
         MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(engineServices.getEngineImportService(), engineServices.getSchedulingService());
 

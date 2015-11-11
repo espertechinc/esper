@@ -17,6 +17,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
@@ -102,7 +103,7 @@ public class SupportStatementContextFactory
                 null,
                 stub,
                 new ScheduleBucket(1),
-                new EPStatementHandle("id1", "name1", "epl1", StatementType.SELECT, "epl1", false, null, 0, false, false, MultiMatchHandlerFactory.getDefaultHandler()),
+                new EPStatementHandle("id1", "name1", "epl1", StatementType.SELECT, "epl1", false, null, 0, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler()),
                 new ViewResolutionServiceImpl(new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {ViewEnumHelper.getBuiltinViews()}), null, null),
                 new PatternObjectResolutionServiceImpl(null),
                 null,

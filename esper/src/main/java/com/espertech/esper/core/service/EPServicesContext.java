@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
 import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.dataflow.core.DataFlowService;
 import com.espertech.esper.dispatch.DispatchService;
@@ -109,6 +110,7 @@ public final class EPServicesContext
     private EPRuntimeIsolatedFactory epRuntimeIsolatedFactory;
     private FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     private DataCacheFactory dataCacheFactory;
+    private MultiMatchHandlerFactory multiMatchHandlerFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -202,7 +204,8 @@ public final class EPServicesContext
                              EventTableIndexService eventTableIndexService,
                              EPRuntimeIsolatedFactory epRuntimeIsolatedFactory,
                              FilterBooleanExpressionFactory filterBooleanExpressionFactory,
-                             DataCacheFactory dataCacheFactory)
+                             DataCacheFactory dataCacheFactory,
+                             MultiMatchHandlerFactory multiMatchHandlerFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -260,6 +263,7 @@ public final class EPServicesContext
         this.epRuntimeIsolatedFactory = epRuntimeIsolatedFactory;
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.dataCacheFactory = dataCacheFactory;
+        this.multiMatchHandlerFactory = multiMatchHandlerFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -777,5 +781,9 @@ public final class EPServicesContext
 
     public DataCacheFactory getDataCacheFactory() {
         return dataCacheFactory;
+    }
+
+    public MultiMatchHandlerFactory getMultiMatchHandlerFactory() {
+        return multiMatchHandlerFactory;
     }
 }
