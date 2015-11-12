@@ -71,7 +71,7 @@ public class TestVariableService extends TestCase
             c+=i;
             variables[i] = Character.toString(c);
             service.createNewVariable(null, variables[i], Integer.class.getName(), false, false, false, 0, null);
-            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         }
 
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
@@ -105,7 +105,7 @@ public class TestVariableService extends TestCase
         assertNull(service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
         service.createNewVariable(null, "a", Long.class.getName(), false, false, false, 100L, null);
-        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         VariableReader reader = service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         assertEquals(Long.class, reader.getVariableMetaData().getType());
         assertEquals(100L, reader.getValue());
@@ -132,7 +132,7 @@ public class TestVariableService extends TestCase
         for (int i = 0; i < variables.length; i++)
         {
             service.createNewVariable(null, variables[i], Long.class.getName(), false, false, false, 100L, null);
-            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
             readers[i] = service.getReader(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
 
@@ -159,7 +159,7 @@ public class TestVariableService extends TestCase
     public void testInvalid() throws Exception
     {
         service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, null);
-        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         assertNull(service.getReader("dummy", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
         try

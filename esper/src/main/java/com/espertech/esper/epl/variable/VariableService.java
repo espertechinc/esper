@@ -109,7 +109,7 @@ public interface VariableService
 
     public String isContextVariable(String propertyName);
 
-    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext);
+    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext, boolean isRecoveringResilient);
     public void deallocateVariableState(String variableName, int agentInstanceId);
 
     public ConcurrentHashMap<Integer,VariableReader> getReadersPerCP(String variableName);

@@ -58,7 +58,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
                 services.getVariableService().deallocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId());
             }
         };
-        services.getVariableService().allocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId(), statementContext.getStatementExtensionServicesContext());
+        services.getVariableService().allocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId(), statementContext.getStatementExtensionServicesContext(), isRecoveringResilient);
 
         final CreateVariableView createView = new CreateVariableView(statementContext.getStatementId(), services.getEventAdapterService(), services.getVariableService(), createDesc.getVariableName(), statementContext.getStatementResultService(), agentInstanceContext.getAgentInstanceId());
 

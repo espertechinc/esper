@@ -349,7 +349,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             Pair<String, Boolean> arrayType = JavaClassHelper.isGetArrayType(type);
             variableService.createNewVariable(null, variableName, arrayType.getFirst(), constant, arrayType.getSecond(), false, initializationValue, engineImportService);
-            variableService.allocateVariableState(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+            variableService.allocateVariableState(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
             statementVariableRef.addConfiguredVariable(variableName);
         }
         catch (VariableExistsException e)

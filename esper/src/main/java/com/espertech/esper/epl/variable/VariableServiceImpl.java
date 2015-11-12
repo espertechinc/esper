@@ -386,8 +386,7 @@ public class VariableServiceImpl implements VariableService
         variables.put(variableName, metaData);
     }
 
-    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext)
-    {
+    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext, boolean isRecoveringResilient) {
         VariableMetaData metaData = variables.get(variableName);
         if (metaData == null) {
             throw new IllegalArgumentException("Failed to find variable '" + variableName + "'");
@@ -397,8 +396,13 @@ public class VariableServiceImpl implements VariableService
         Object initialState = metaData.getVariableStateFactory().getInitialState();
         if (optionalStateHandler != null) {
             Pair<Boolean, Object> priorValue = optionalStateHandler.getHasState(variableName, metaData.getVariableNumber(), agentInstanceId, metaData.getType(), metaData.getEventType(), extensionServicesContext);
-            if (priorValue.getFirst()) {
-                initialState = priorValue.getSecond();
+            if (isRecoveringResilient) {
+                if (priorValue.getFirst()) {
+                    initialState = priorValue.getSecond();
+                }
+            }
+            else {
+                optionalStateHandler.setState(variableName, metaData.getVariableNumber(), agentInstanceId, initialState);
             }
         }
 

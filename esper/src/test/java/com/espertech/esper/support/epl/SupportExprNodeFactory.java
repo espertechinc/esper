@@ -418,9 +418,9 @@ public class SupportExprNodeFactory
 
         VariableService variableService = new VariableServiceImpl(0, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
         variableService.createNewVariable(null, "intPrimitive", Integer.class.getName(), false, false, false, 10, null);
-        variableService.allocateVariableState("intPrimitive", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        variableService.allocateVariableState("intPrimitive", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         variableService.createNewVariable(null, "var1", String.class.getName(), false, false, false, "my_variable_value", null);
-        variableService.allocateVariableState("var1", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        variableService.allocateVariableState("var1", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
 
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, getMethodResService(), viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, null, null, null, false, false, false, false, null, false));
     }

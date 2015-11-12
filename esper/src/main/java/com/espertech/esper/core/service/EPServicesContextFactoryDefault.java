@@ -307,7 +307,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             {
                 Pair<String, Boolean> arrayType = JavaClassHelper.isGetArrayType(entry.getValue().getType());
                 variableService.createNewVariable(null, entry.getKey(), arrayType.getFirst(), entry.getValue().isConstant(), arrayType.getSecond(), false, entry.getValue().getInitializationValue(), engineImportService);
-                variableService.allocateVariableState(entry.getKey(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+                variableService.allocateVariableState(entry.getKey(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
             }
             catch (VariableExistsException e)
             {

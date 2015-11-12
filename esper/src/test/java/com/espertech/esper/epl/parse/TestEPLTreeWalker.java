@@ -233,7 +233,7 @@ public class TestEPLTreeWalker extends TestCase
     {
         VariableService variableService = new VariableServiceImpl(0, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
         variableService.createNewVariable(null, "var1", Long.class.getName(), false, false, false, 100L, null);
-        variableService.allocateVariableState("var1", 0, null);
+        variableService.allocateVariableState("var1", 0, null, false);
 
         String expression = "on com.MyClass as myevent set var1 = 'a', var2 = 2*3, var3 = var1";
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression, null, variableService);
