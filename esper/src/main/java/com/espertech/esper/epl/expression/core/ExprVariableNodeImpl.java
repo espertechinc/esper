@@ -11,6 +11,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.DuplicatePropertyException;
 import com.espertech.esper.epl.core.PropertyNotFoundException;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -128,7 +129,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
 
         readersPerCp = validationContext.getVariableService().getReadersPerCP(variableName);
         if (variableMetadata.getContextPartitionName() == null) {
-            readerNonCP = readersPerCp.get(VariableService.NOCONTEXT_AGENTINSTANCEID);
+            readerNonCP = readersPerCp.get(EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
         return null;
     }

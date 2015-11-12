@@ -23,8 +23,6 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public interface VariableService
 {
-    public final static int NOCONTEXT_AGENTINSTANCEID = 0;
-
     /**
      * Sets the variable version that subsequent reads consider.
      */

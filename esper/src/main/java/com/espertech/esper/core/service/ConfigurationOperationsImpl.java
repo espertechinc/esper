@@ -10,6 +10,7 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
@@ -348,7 +349,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             Pair<String, Boolean> arrayType = JavaClassHelper.isGetArrayType(type);
             variableService.createNewVariable(null, variableName, arrayType.getFirst(), constant, arrayType.getSecond(), false, initializationValue, engineImportService);
-            variableService.allocateVariableState(variableName, 0, null);
+            variableService.allocateVariableState(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
             statementVariableRef.addConfiguredVariable(variableName);
         }
         catch (VariableExistsException e)
@@ -540,7 +541,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
             }
         }
 
-        VariableReader reader = variableService.getReader(name, VariableService.NOCONTEXT_AGENTINSTANCEID);
+        VariableReader reader = variableService.getReader(name, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         if (reader == null)
         {
             return false;

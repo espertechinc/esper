@@ -10,6 +10,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -351,7 +352,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
         if (contextNameVariable != null) {
             throw new ExprValidationException("Method invocation on context-specific variable is not supported");
         }
-        VariableReader variableReader = validationContext.getVariableService().getReader(firstItem.getName(), VariableService.NOCONTEXT_AGENTINSTANCEID);
+        VariableReader variableReader = validationContext.getVariableService().getReader(firstItem.getName(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         if (variableReader != null) {
             EPType typeInfo;
             ExprDotStaticMethodWrap wrap;

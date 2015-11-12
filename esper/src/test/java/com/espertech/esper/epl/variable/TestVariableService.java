@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.variable;
 
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.event.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -70,7 +71,7 @@ public class TestVariableService extends TestCase
             c+=i;
             variables[i] = Character.toString(c);
             service.createNewVariable(null, variables[i], Integer.class.getName(), false, false, false, 0, null);
-            service.allocateVariableState(variables[i], 0, null);
+            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
         }
 
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
@@ -101,21 +102,21 @@ public class TestVariableService extends TestCase
 
     public void testReadWrite() throws Exception
     {
-        assertNull(service.getReader("a", 0));
+        assertNull(service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
         service.createNewVariable(null, "a", Long.class.getName(), false, false, false, 100L, null);
-        service.allocateVariableState("a", 0, null);
-        VariableReader reader = service.getReader("a", 0);
+        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        VariableReader reader = service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         assertEquals(Long.class, reader.getVariableMetaData().getType());
         assertEquals(100L, reader.getValue());
 
-        service.write(reader.getVariableMetaData().getVariableNumber(), 0, 101L);
+        service.write(reader.getVariableMetaData().getVariableNumber(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, 101L);
         service.commit();
         assertEquals(100L, reader.getValue());
         service.setLocalVersion();
         assertEquals(101L, reader.getValue());        
 
-        service.write(reader.getVariableMetaData().getVariableNumber(), 0, 102L);
+        service.write(reader.getVariableMetaData().getVariableNumber(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, 102L);
         service.commit();
         assertEquals(101L, reader.getValue());
         service.setLocalVersion();
@@ -131,15 +132,15 @@ public class TestVariableService extends TestCase
         for (int i = 0; i < variables.length; i++)
         {
             service.createNewVariable(null, variables[i], Long.class.getName(), false, false, false, 100L, null);
-            service.allocateVariableState(variables[i], 0, null);
-            readers[i] = service.getReader(variables[i], 0);
+            service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+            readers[i] = service.getReader(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
 
         for (int i = 0; i < 1000; i++)
         {
             for (int j = 0; j < variables.length; j++)
             {
-                service.write(readers[j].getVariableMetaData().getVariableNumber(), 0, 100L + i);
+                service.write(readers[j].getVariableMetaData().getVariableNumber(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, 100L + i);
                 service.commit();
             }
             readCompare(variables, 100L + i);
@@ -151,15 +152,15 @@ public class TestVariableService extends TestCase
         service.setLocalVersion();
         for (int i = 0; i < variables.length; i++)
         {
-            assertEquals(value, service.getReader(variables[i], 0).getValue());
+            assertEquals(value, service.getReader(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID).getValue());
         }
     }
 
     public void testInvalid() throws Exception
     {
         service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, null);
-        service.allocateVariableState("a", 0, null);
-        assertNull(service.getReader("dummy", 0));
+        service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
+        assertNull(service.getReader("dummy", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
         try
         {

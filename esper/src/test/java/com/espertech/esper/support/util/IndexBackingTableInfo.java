@@ -18,7 +18,7 @@ public interface IndexBackingTableInfo {
     public final static String INDEX_CALLBACK_HOOK = "@Hook(type=HookType.INTERNAL_QUERY_PLAN, hook='" + SupportQueryPlanIndexHook.resetGetClassName() + "')\n";
 
     public final static String BACKING_SINGLE_UNIQUE = PropertyIndexedEventTableSingleUnique.class.getSimpleName();
-    public final static String BACKING_SINGLE_DUPS = PropertyIndexedEventTableSingle.class.getSimpleName();
+    public final static String BACKING_SINGLE_DUPS = PropertyIndexedEventTableSingleUnadorned.class.getSimpleName();
     public final static String BACKING_MULTI_UNIQUE = PropertyIndexedEventTableUnique.class.getSimpleName();
     public final static String BACKING_MULTI_DUPS = PropertyIndexedEventTable.class.getSimpleName();
     public final static String BACKING_SORTED_COERCED = PropertySortedEventTableCoerced.class.getSimpleName();

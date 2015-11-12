@@ -94,5 +94,4 @@ public class ExpressionResultCacheServiceThreadlocal implements ExpressionResult
     public void popContext() {
         threadCache.get().popContext();
     }
-
 }

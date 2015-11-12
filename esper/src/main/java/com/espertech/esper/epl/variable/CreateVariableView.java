@@ -43,12 +43,12 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
      * @param variableName is the name of the variable to create
      * @param statementResultService for coordinating on whether insert and remove stream events should be posted
      */
-    public CreateVariableView(String statementId, EventAdapterService eventAdapterService, VariableService variableService, String variableName, StatementResultService statementResultService)
+    public CreateVariableView(String statementId, EventAdapterService eventAdapterService, VariableService variableService, String variableName, StatementResultService statementResultService, int agentInstanceId)
     {
         this.eventAdapterService = eventAdapterService;
         this.variableName = variableName;
         this.statementResultService = statementResultService;
-        reader = variableService.getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+        reader = variableService.getReader(variableName, agentInstanceId);
         eventType = getEventType(statementId, eventAdapterService, reader.getVariableMetaData());
     }
 

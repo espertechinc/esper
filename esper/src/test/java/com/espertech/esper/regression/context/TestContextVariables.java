@@ -165,8 +165,9 @@ public class TestContextVariables extends TestCase {
         EPAssertionUtil.assertProps(listenerUpdate.assertOneGetNewAndReset(), "mycontextvar".split(","), new Object[]{101});
         EPAssertionUtil.assertPropsPerRow(EPAssertionUtil.iteratorToArray(stmtUpd.iterator()), fields, new Object[][] {{100}, {101}});
 
-        assertFalse(stmtVar.iterator().hasNext());
-        assertFalse(listenerCreateVariable.getAndClearIsInvoked());
+        EventBean[] events = EPAssertionUtil.iteratorToArray(stmtVar.iterator());
+        EPAssertionUtil.assertPropsPerRowAnyOrder(events, "mycontextvar".split(","), new Object[][] {{100}, {101}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listenerCreateVariable.getNewDataListFlattened(), "mycontextvar".split(","), new Object[][] {{100}, {101}});
     }
 
     public void testGetSetAPI() {

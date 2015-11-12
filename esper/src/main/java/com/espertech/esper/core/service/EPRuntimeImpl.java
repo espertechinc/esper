@@ -1379,7 +1379,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
         services.getVariableService().getReadWriteLock().writeLock().lock();
         try {
-            services.getVariableService().checkAndWrite(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID, variableValue);
+            services.getVariableService().checkAndWrite(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, variableValue);
             services.getVariableService().commit();
         }
         finally {
@@ -1389,7 +1389,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
     public void setVariableValue(Map<String, Object> variableValues) throws EPException
     {
-        setVariableValueInternal(variableValues, VariableService.NOCONTEXT_AGENTINSTANCEID, false);
+        setVariableValueInternal(variableValues, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, false);
     }
 
     public void setVariableValue(Map<String, Object> variableValues, int agentInstanceId) throws VariableValueException, VariableNotFoundException {
@@ -1406,7 +1406,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         if (metaData.getContextPartitionName() != null) {
             throw new VariableNotFoundException("Variable by name '" + variableName + "' has been declared for context '" + metaData.getContextPartitionName() + "' and cannot be read without context partition selector");
         }
-        VariableReader reader = services.getVariableService().getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+        VariableReader reader = services.getVariableService().getReader(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         Object value = reader.getValue();
         if (value == null || reader.getVariableMetaData().getEventType() == null) {
             return value;
@@ -1466,7 +1466,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         {
             VariableMetaData metaData = services.getVariableService().getVariableMetaData(variableName);
             checkVariable(variableName, metaData, false, false);
-            VariableReader reader = services.getVariableService().getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+            VariableReader reader = services.getVariableService().getReader(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
             if (reader == null)
             {
                 throw new VariableNotFoundException("Variable by name '" + variableName + "' has not been declared");

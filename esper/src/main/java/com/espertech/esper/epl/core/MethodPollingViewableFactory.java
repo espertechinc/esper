@@ -11,6 +11,7 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.*;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.PollExecStrategy;
@@ -92,7 +93,7 @@ public class MethodPollingViewableFactory
                     invocationTarget = null;
                 }
                 else {
-                    variableReader = variableService.getReader(methodStreamSpec.getClassName(), VariableService.NOCONTEXT_AGENTINSTANCEID);
+                    variableReader = variableService.getReader(methodStreamSpec.getClassName(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
                     if (variableMetaData.isConstant()) {
                         invocationTarget = variableReader.getValue();
                         if (invocationTarget instanceof EventBean) {

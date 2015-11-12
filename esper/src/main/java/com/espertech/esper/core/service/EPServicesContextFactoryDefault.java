@@ -20,6 +20,7 @@ import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirecto
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
@@ -306,7 +307,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             {
                 Pair<String, Boolean> arrayType = JavaClassHelper.isGetArrayType(entry.getValue().getType());
                 variableService.createNewVariable(null, entry.getKey(), arrayType.getFirst(), entry.getValue().isConstant(), arrayType.getSecond(), false, entry.getValue().getInitializationValue(), engineImportService);
-                variableService.allocateVariableState(entry.getKey(), 0, null);
+                variableService.allocateVariableState(entry.getKey(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null);
             }
             catch (VariableExistsException e)
             {
