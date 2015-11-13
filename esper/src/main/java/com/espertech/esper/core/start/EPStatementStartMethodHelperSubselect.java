@@ -365,15 +365,15 @@ public class EPStatementStartMethodHelperSubselect
                     eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, indexedProps[0], unique, null, null, false);
                 }
                 else {
-                    eventTableFactory = new PropertyIndexedEventTableSingleCoerceAddFactory(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0]);
+                    eventTableFactory = statementContext.getEventTableIndexService().createSingleCoerceAdd(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0], null, false);
                 }
             }
             else {
                 if (!hashCoercionDesc.isCoerce()) {
-                    eventTableFactory = new PropertyIndexedEventTableFactory(0, viewableEventType, indexedProps, unique, null);
+                    eventTableFactory = statementContext.getEventTableIndexService().createMultiKey(0, viewableEventType, indexedProps, unique, null, null, false);
                 }
                 else {
-                    eventTableFactory = new PropertyIndexedEventTableCoerceAddFactory(0, viewableEventType, indexedProps, hashCoercionDesc.getCoercionTypes());
+                    eventTableFactory = statementContext.getEventTableIndexService().createMultiKeyCoerceAdd(0, viewableEventType, indexedProps, hashCoercionDesc.getCoercionTypes(), false);
                 }
             }
         }
