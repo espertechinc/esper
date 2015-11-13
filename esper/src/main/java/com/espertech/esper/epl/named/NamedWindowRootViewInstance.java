@@ -185,7 +185,8 @@ public class NamedWindowRootViewInstance extends ViewSupport
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
     public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {
-        Iterable<EventBean> initializeFrom = isRecoveringResilient ? CollectionUtil.NULL_EVENT_ITERABLE : this.dataWindowContents;
+        boolean initIndex = agentInstanceContext.getStatementContext().getEventTableIndexService().allowInitIndex(isRecoveringResilient);
+        Iterable<EventBean> initializeFrom = initIndex ? this.dataWindowContents : CollectionUtil.NULL_EVENT_ITERABLE;
         indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
     }
 
