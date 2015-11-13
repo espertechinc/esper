@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Iterator for use by {@link com.espertech.esper.epl.join.table.PropertyIndexedEventTable}.
+ * Iterator for use by {@link com.espertech.esper.epl.join.table.PropertyIndexedEventTableUnadorned}.
  */
 public final class PropertyIndexedEventTableIterator<T> implements Iterator<EventBean>
 {

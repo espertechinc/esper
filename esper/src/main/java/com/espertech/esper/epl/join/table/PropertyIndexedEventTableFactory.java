@@ -58,13 +58,12 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false,
-                streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
+        EventTableOrganization organization = getOrganization();
         if (unique) {
             return new EventTable[] {new PropertyIndexedEventTableUnique(propertyGetters, organization)};
         }
         else {
-            return new EventTable[] {new PropertyIndexedEventTable(propertyGetters, organization)};
+            return new EventTable[] {new PropertyIndexedEventTableUnadorned(propertyGetters, organization)};
         }
     }
 
@@ -73,7 +72,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
             return PropertyIndexedEventTableUnique.class;
         }
         else {
-            return PropertyIndexedEventTable.class;
+            return PropertyIndexedEventTableUnadorned.class;
         }
     }
 
@@ -83,6 +82,11 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
                 (unique ? " unique" : " non-unique") +
                 " streamNum=" + streamNum +
                 " propertyNames=" + Arrays.toString(propertyNames);
+    }
+
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(optionalIndexName, unique, false,
+                streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
     }
 
     private static Log log = LogFactory.getLog(PropertyIndexedEventTableFactory.class);

@@ -23,13 +23,13 @@ public abstract class PropertyIndexedEventTableSingle implements EventTable
     protected final EventPropertyGetter propertyGetter;
     protected final EventTableOrganization organization;
 
+    public abstract Set<EventBean> lookup(Object key);
+
     public PropertyIndexedEventTableSingle(EventPropertyGetter propertyGetter, EventTableOrganization organization)
     {
         this.propertyGetter = propertyGetter;
         this.organization = organization;
     }
-
-    public abstract Set<EventBean> lookup(Object key);
 
     /**
      * Determine multikey for index access.

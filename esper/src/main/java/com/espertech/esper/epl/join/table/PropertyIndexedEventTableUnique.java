@@ -54,63 +54,6 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
     }
 
-    /**
-     * Add an array of events. Same event instance is not added twice. Event properties should be immutable.
-     * Allow null passed instead of an empty array.
-     * @param events to add
-     * @throws IllegalArgumentException if the event was already existed in the index
-     */
-    @Override
-    public void add(EventBean[] events)
-    {
-        if (events != null) {
-
-            if (InstrumentationHelper.ENABLED && events.length > 0) {
-                InstrumentationHelper.get().qIndexAdd(this, events);
-                for (EventBean theEvent : events) {
-                    add(theEvent);
-                }
-                InstrumentationHelper.get().aIndexAdd();
-                return;
-            }
-
-            for (EventBean theEvent : events) {
-                add(theEvent);
-            }
-        }
-    }
-
-    /**
-     * Remove events.
-     * @param events to be removed, can be null instead of an empty array.
-     * @throws IllegalArgumentException when the event could not be removed as its not in the index
-     */
-    @Override
-    public void remove(EventBean[] events)
-    {
-        if (events != null) {
-
-            if (InstrumentationHelper.ENABLED && events.length > 0) {
-                InstrumentationHelper.get().qIndexRemove(this, events);
-                for (EventBean theEvent : events) {
-                    remove(theEvent);
-                }
-                InstrumentationHelper.get().aIndexRemove();
-                return;
-            }
-
-            for (EventBean theEvent : events) {
-                remove(theEvent);
-            }
-        }
-    }
-
-    /**
-     * Returns the set of events that have the same property value as the given event.
-     * @param keys to compare against
-     * @return set of events with property value, or null if none found (never returns zero-sized set)
-     */
-    @Override
     public Set<EventBean> lookup(Object[] keys)
     {
         MultiKeyUntyped key = new MultiKeyUntyped(keys);
@@ -147,7 +90,6 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         return propertyIndex.isEmpty();
     }
 
-    @Override
     public Iterator<EventBean> iterator()
     {
         return propertyIndex.values().iterator();
@@ -160,26 +102,20 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         }
     }
 
-    @Override
+    public void destroy() {
+        clear();
+    }
+
     public Integer getNumberOfEvents() {
         return propertyIndex.size();
     }
 
-    @Override
     public int getNumKeys() {
         return propertyIndex.size();
     }
 
-    @Override
     public Object getIndex() {
         return propertyIndex;
-    }
-
-    public String toQueryPlan()
-    {
-        return this.getClass().getSimpleName() +
-                " streamNum=" + organization.getStreamNum() +
-                " propertyGetters=" + Arrays.toString(propertyGetters);
     }
 
     public Set<EventBean> allValues() {
