@@ -21,5 +21,5 @@ public interface EventTableIndexService {
     EventTableFactory createSingle(int indexedStreamNum, EventType eventType, String indexProp, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget);
     EventTableFactory createUnindexed(int indexedStreamNum, Object optionalSerde, boolean isFireAndForget);
     EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget);
-    EventTableFactory createMultiKey(int indexedStreamNum, EventType eventType, String[] indexProps, boolean unique, String optionalIndexName, boolean isFireAndForget);
+    EventTableFactory createMultiKey(int indexedStreamNum, EventType eventType, String[] indexProps, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget);
 }

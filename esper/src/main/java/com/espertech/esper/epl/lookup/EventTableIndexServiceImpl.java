@@ -35,7 +35,7 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
 
-    public EventTableFactory createMultiKey(int indexedStreamNum, EventType eventType, String[] indexProps, boolean unique, String optionalIndexName, boolean isFireAndForget) {
+    public EventTableFactory createMultiKey(int indexedStreamNum, EventType eventType, String[] indexProps, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget) {
         return new PropertyIndexedEventTableFactory(indexedStreamNum, eventType, indexProps, unique, optionalIndexName);
     }
 

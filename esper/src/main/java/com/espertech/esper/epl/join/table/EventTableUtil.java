@@ -65,7 +65,7 @@ public class EventTableUtil
                 else {
                     if (indexCoercionTypes == null || indexCoercionTypes.length == 0)
                     {
-                        EventTableFactory factory = eventTableIndexService.createMultiKey(indexedStreamNum, eventType, indexProps, unique, optionalIndexName, isFireAndForget);
+                        EventTableFactory factory = eventTableIndexService.createMultiKey(indexedStreamNum, eventType, indexProps, unique, optionalIndexName, optionalSerde, isFireAndForget);
                         table = factory.makeEventTables(ident)[0];
                     }
                     else
