@@ -42,4 +42,8 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
     public EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget) {
         return new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
     }
+
+    public EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexedKeyProps, Class[] coercionKeyTypes, String[] indexedRangeProps, Class[] coercionRangeTypes, boolean isFireAndForget) {
+        return new PropertyCompositeEventTableFactory(indexedStreamNum, eventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes);
+    }
 }

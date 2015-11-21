@@ -411,7 +411,7 @@ public class EPStatementStartMethodHelperSubselect
             Class[] coercionKeyTypes = SubordPropUtil.getCoercionTypes(hashKeys.values());
             String[] indexedRangeProps = rangeKeys.keySet().toArray(new String[rangeKeys.keySet().size()]);
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
-            eventTableFactory = new PropertyCompositeEventTableFactory(0, viewableEventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes.getCoercionTypes());
+            eventTableFactory = statementContext.getEventTableIndexService().createComposite(0, viewableEventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes.getCoercionTypes(), false);
             hashCoercionDesc = CoercionUtil.getCoercionTypesHash(viewableEventType, indexedKeyProps, hashKeyList);
             rangeCoercionDesc = coercionRangeTypes;
         }

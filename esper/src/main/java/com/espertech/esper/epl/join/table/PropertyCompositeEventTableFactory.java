@@ -30,12 +30,12 @@ import java.util.List;
  */
 public class PropertyCompositeEventTableFactory implements EventTableFactory
 {
-    private final int streamNum;
-    private final String[] optionalKeyedProps;
-    private final String[] rangeProps;
-    private final CompositeIndexEnterRemove chain;
-    private final Class[] optKeyCoercedTypes;
-    private final Class[] optRangeCoercedTypes;
+    protected final int streamNum;
+    protected final String[] optionalKeyedProps;
+    protected final String[] rangeProps;
+    protected final CompositeIndexEnterRemove chain;
+    protected final Class[] optKeyCoercedTypes;
+    protected final Class[] optRangeCoercedTypes;
 
     /**
      * Ctor.
@@ -75,8 +75,8 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        EventTableOrganization organization = new EventTableOrganization(null, false, optKeyCoercedTypes != null || optRangeCoercedTypes != null, streamNum, combinedPropertyLists(optionalKeyedProps, rangeProps), EventTableOrganization.EventTableOrganizationType.COMPOSITE);
-        return new EventTable[] {new PropertyCompositeEventTable((optionalKeyedProps != null && optionalKeyedProps.length > 0), chain, optKeyCoercedTypes, optRangeCoercedTypes, organization)};
+        EventTableOrganization organization = getOrganization();
+        return new EventTable[] {new PropertyCompositeEventTableImpl(optKeyCoercedTypes, optRangeCoercedTypes, organization, (optionalKeyedProps != null && optionalKeyedProps.length > 0), chain)};
     }
 
     public Class getEventTableClass() {
@@ -89,6 +89,10 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
                 " streamNum=" + streamNum +
                 " keys=" + Arrays.toString(optionalKeyedProps) +
                 " ranges=" + Arrays.toString(rangeProps);
+    }
+
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(null, false, optKeyCoercedTypes != null || optRangeCoercedTypes != null, streamNum, combinedPropertyLists(optionalKeyedProps, rangeProps), EventTableOrganization.EventTableOrganizationType.COMPOSITE);
     }
 
     private String[] combinedPropertyLists(String[] optionalKeyedProps, String[] rangeProps) {

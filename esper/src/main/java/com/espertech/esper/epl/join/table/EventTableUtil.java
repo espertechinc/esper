@@ -94,7 +94,7 @@ public class EventTableUtil
                 }
             }
             else {
-                EventTableFactory factory = new PropertyCompositeEventTableFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes);
+                EventTableFactory factory = eventTableIndexService.createComposite(indexedStreamNum, eventType, indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, isFireAndForget);
                 return factory.makeEventTables(ident)[0];
             }
         }
