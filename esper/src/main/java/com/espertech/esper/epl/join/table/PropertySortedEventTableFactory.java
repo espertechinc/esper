@@ -55,6 +55,18 @@ public class PropertySortedEventTableFactory implements EventTableFactory
                 " propertyName=" + propertyName;
     }
 
+    public int getStreamNum() {
+        return streamNum;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public EventPropertyGetter getPropertyGetter() {
+        return propertyGetter;
+    }
+
     protected EventTableOrganization getOrganization() {
         return new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
     }

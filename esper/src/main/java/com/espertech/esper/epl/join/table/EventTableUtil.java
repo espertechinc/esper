@@ -89,7 +89,7 @@ public class EventTableUtil
                     return factory.makeEventTables(ident)[0];
                 }
                 else {
-                    EventTableFactory factory = new PropertySortedEventTableCoercedFactory(indexedStreamNum, eventType, rangeProps[0], rangeCoercionTypes[0]);
+                    EventTableFactory factory = eventTableIndexService.createSortedCoerce(indexedStreamNum, eventType, rangeProps[0], rangeCoercionTypes[0], isFireAndForget);
                     return factory.makeEventTables(ident)[0];
                 }
             }

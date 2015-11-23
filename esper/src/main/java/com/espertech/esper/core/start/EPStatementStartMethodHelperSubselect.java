@@ -401,7 +401,7 @@ public class EPStatementStartMethodHelperSubselect
                 eventTableFactory = statementContext.getEventTableIndexService().createSorted(0, viewableEventType, indexedProp, false);
             }
             else {
-                eventTableFactory = new PropertySortedEventTableCoercedFactory(0, viewableEventType, indexedProp, coercionRangeTypes.getCoercionTypes()[0]);
+                eventTableFactory = statementContext.getEventTableIndexService().createSortedCoerce(0, viewableEventType, indexedProp, coercionRangeTypes.getCoercionTypes()[0], false);
             }
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = coercionRangeTypes;

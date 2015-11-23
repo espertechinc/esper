@@ -50,4 +50,8 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
     public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, boolean isFireAndForget) {
         return new PropertySortedEventTableFactory(indexedStreamNum, eventType, indexedProp);
     }
+
+    public EventTableFactory createSortedCoerce(int indexedStreamNum, EventType eventType, String indexedProp, Class indexCoercionType, boolean isFireAndForget) {
+        return new PropertySortedEventTableCoercedFactory(indexedStreamNum, eventType, indexedProp, indexCoercionType);
+    }
 }
