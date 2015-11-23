@@ -23,4 +23,5 @@ public interface EventTableIndexService {
     EventTableFactory createMultiKeyCoerceAdd(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget);
     EventTableFactory createMultiKey(int indexedStreamNum, EventType eventType, String[] indexProps, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget);
     EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexedKeyProps, Class[] coercionKeyTypes, String[] indexedRangeProps, Class[] coercionRangeTypes, boolean isFireAndForget);
+    EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, boolean isFireAndForget);
 }

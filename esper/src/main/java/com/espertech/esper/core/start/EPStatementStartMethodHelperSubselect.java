@@ -398,7 +398,7 @@ public class EPStatementStartMethodHelperSubselect
             String indexedProp = rangeKeys.keySet().iterator().next();
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
             if (!coercionRangeTypes.isCoerce()) {
-                eventTableFactory = new PropertySortedEventTableFactory(0, viewableEventType, indexedProp);
+                eventTableFactory = statementContext.getEventTableIndexService().createSorted(0, viewableEventType, indexedProp, false);
             }
             else {
                 eventTableFactory = new PropertySortedEventTableCoercedFactory(0, viewableEventType, indexedProp, coercionRangeTypes.getCoercionTypes()[0]);

@@ -46,4 +46,8 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
     public EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexedKeyProps, Class[] coercionKeyTypes, String[] indexedRangeProps, Class[] coercionRangeTypes, boolean isFireAndForget) {
         return new PropertyCompositeEventTableFactory(indexedStreamNum, eventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes);
     }
+
+    public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, boolean isFireAndForget) {
+        return new PropertySortedEventTableFactory(indexedStreamNum, eventType, indexedProp);
+    }
 }

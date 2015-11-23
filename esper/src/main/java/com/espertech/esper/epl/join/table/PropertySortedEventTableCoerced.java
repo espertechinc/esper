@@ -10,10 +10,8 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-public class PropertySortedEventTableCoerced extends PropertySortedEventTable
+public class PropertySortedEventTableCoerced extends PropertySortedEventTableImpl
 {
     private Class coercionType;
 
@@ -41,6 +39,4 @@ public class PropertySortedEventTableCoerced extends PropertySortedEventTable
                 " propertyGetter=" + propertyGetter +
                 " coercionType=" + coercionType;
     }
-
-    private static Log log = LogFactory.getLog(PropertySortedEventTableCoerced.class);
 }

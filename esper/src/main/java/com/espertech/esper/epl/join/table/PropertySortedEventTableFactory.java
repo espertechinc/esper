@@ -41,8 +41,8 @@ public class PropertySortedEventTableFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
-        return new EventTable[] {new PropertySortedEventTable(propertyGetter, organization)};
+        EventTableOrganization organization = getOrganization();
+        return new EventTable[] {new PropertySortedEventTableImpl(propertyGetter, organization)};
     }
 
     public Class getEventTableClass() {
@@ -55,5 +55,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory
                 " propertyName=" + propertyName;
     }
 
-    private static Log log = LogFactory.getLog(PropertySortedEventTableFactory.class);
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
+    }
 }

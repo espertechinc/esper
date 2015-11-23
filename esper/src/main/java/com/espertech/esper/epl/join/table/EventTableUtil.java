@@ -85,7 +85,7 @@ public class EventTableUtil
         else {
             if ((rangeProps.length == 1) && (indexProps == null || indexProps.length == 0)) {
                 if (rangeCoercionTypes == null) {
-                    EventTableFactory factory = new PropertySortedEventTableFactory(indexedStreamNum, eventType, rangeProps[0]);
+                    EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], isFireAndForget);
                     return factory.makeEventTables(ident)[0];
                 }
                 else {
