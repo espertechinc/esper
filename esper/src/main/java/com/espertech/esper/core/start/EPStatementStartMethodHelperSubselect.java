@@ -382,15 +382,15 @@ public class EPStatementStartMethodHelperSubselect
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = new CoercionDesc(false, null);
             if (joinPropDesc.getInKeywordSingleIndex() != null) {
-                eventTableFactory = new PropertyIndexedEventTableSingleFactory(0, viewableEventType, joinPropDesc.getInKeywordSingleIndex().getIndexedProp(), unique, null);
+                eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, joinPropDesc.getInKeywordSingleIndex().getIndexedProp(), unique, null, null, false);
                 inKeywordSingleIdxKeys = joinPropDesc.getInKeywordSingleIndex().getExpressions();
             }
             else if (joinPropDesc.getInKeywordMultiIndex() != null) {
-                eventTableFactory = new PropertyIndexedEventTableSingleArrayFactory(0, viewableEventType, joinPropDesc.getInKeywordMultiIndex().getIndexedProp(), unique, null);
+                eventTableFactory = statementContext.getEventTableIndexService().createInArray(0, viewableEventType, joinPropDesc.getInKeywordMultiIndex().getIndexedProp(), unique);
                 inKeywordMultiIdxKey = joinPropDesc.getInKeywordMultiIndex().getExpression();
             }
             else {
-                eventTableFactory = new UnindexedEventTableFactory(0);
+                eventTableFactory = statementContext.getEventTableIndexService().createUnindexed(0, null, false);
             }
         }
         else if (hashKeys.isEmpty() && rangeKeys.size() == 1)

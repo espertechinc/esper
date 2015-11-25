@@ -43,6 +43,10 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
     }
 
+    public EventTableFactory createMultiKeyCoerceAll(int indexedStreamNum, EventType eventType, String[] indexProps, Class[] indexCoercionTypes, boolean isFireAndForget) {
+        return new PropertyIndexedEventTableCoerceAllFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
+    }
+
     public EventTableFactory createComposite(int indexedStreamNum, EventType eventType, String[] indexedKeyProps, Class[] coercionKeyTypes, String[] indexedRangeProps, Class[] coercionRangeTypes, boolean isFireAndForget) {
         return new PropertyCompositeEventTableFactory(indexedStreamNum, eventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes);
     }
@@ -53,5 +57,9 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
 
     public EventTableFactory createSortedCoerce(int indexedStreamNum, EventType eventType, String indexedProp, Class indexCoercionType, boolean isFireAndForget) {
         return new PropertySortedEventTableCoercedFactory(indexedStreamNum, eventType, indexedProp, indexCoercionType);
+    }
+
+    public EventTableFactory createInArray(int indexedStreamNum, EventType eventType, String[] indexedProp, boolean unique) {
+        return new PropertyIndexedEventTableSingleArrayFactory(0, eventType, indexedProp, unique, null);
     }
 }

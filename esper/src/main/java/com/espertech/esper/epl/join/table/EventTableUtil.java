@@ -75,7 +75,7 @@ public class EventTableUtil
                             table = factory.makeEventTables(ident)[0];
                         }
                         else {
-                            EventTableFactory factory = new PropertyIndexedEventTableCoerceAllFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
+                            EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAll(indexedStreamNum, eventType, indexProps, indexCoercionTypes, isFireAndForget);
                             table = factory.makeEventTables(ident)[0];
                         }
                     }

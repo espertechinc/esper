@@ -84,6 +84,26 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
                 " propertyNames=" + Arrays.toString(propertyNames);
     }
 
+    public int getStreamNum() {
+        return streamNum;
+    }
+
+    public String[] getPropertyNames() {
+        return propertyNames;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public String getOptionalIndexName() {
+        return optionalIndexName;
+    }
+
+    public EventPropertyGetter[] getPropertyGetters() {
+        return propertyGetters;
+    }
+
     protected EventTableOrganization getOrganization() {
         return new EventTableOrganization(optionalIndexName, unique, false,
                 streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
