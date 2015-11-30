@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Handles statement management.
  */
-public interface StatementLifecycleSvc
+public interface StatementLifecycleSvc extends StatementLifecycleStmtIdResolver
 {
     /**
      * Initialized the service before use.
@@ -123,8 +123,6 @@ public interface StatementLifecycleSvc
     public void destroy();
 
     public String getStatementNameById(String id);
-
-    public EPStatementSPI getStatementById(String id);
 
     public Map<String, EPStatement> getStmtNameToStmt();
 
