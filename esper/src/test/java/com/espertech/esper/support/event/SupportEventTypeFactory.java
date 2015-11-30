@@ -12,6 +12,7 @@
 package com.espertech.esper.support.event;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 
 import java.util.Map;
 

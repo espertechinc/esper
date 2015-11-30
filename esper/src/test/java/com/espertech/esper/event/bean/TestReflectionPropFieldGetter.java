@@ -14,10 +14,9 @@ package com.espertech.esper.event.bean;
 import junit.framework.TestCase;
 import com.espertech.esper.support.bean.SupportLegacyBean;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.event.bean.ReflectionPropFieldGetter;
 
 import java.lang.reflect.Field;
 

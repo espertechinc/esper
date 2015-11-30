@@ -13,11 +13,10 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationCacheReferenceType;
 import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.join.table.UnindexedEventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
 

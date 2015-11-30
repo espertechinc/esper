@@ -14,9 +14,8 @@ package com.espertech.esper.view.std;
 import com.espertech.esper.client.EventType;
 import junit.framework.TestCase;
 
-import com.espertech.esper.view.ViewParameterException;
 import com.espertech.esper.view.TestViewSupport;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 
 public class TestSizeViewFactory extends TestCase
 {

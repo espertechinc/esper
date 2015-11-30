@@ -20,9 +20,9 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.pattern.PatternNodeFactoryImpl;
-import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 public class SupportEPLTreeWalkerFactory

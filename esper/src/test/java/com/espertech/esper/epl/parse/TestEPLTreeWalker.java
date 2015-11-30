@@ -28,7 +28,7 @@ import com.espertech.esper.rowregex.RowRegexExprNodePrecedenceEnum;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.epl.parse.SupportParserHelper;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;

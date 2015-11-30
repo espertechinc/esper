@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.DBStatementStreamSpec;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.support.epl.SupportDatabaseService;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.view.EventCollection;
 import junit.framework.TestCase;
 

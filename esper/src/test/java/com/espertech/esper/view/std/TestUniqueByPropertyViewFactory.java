@@ -14,7 +14,7 @@ package com.espertech.esper.view.std;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
 import junit.framework.TestCase;

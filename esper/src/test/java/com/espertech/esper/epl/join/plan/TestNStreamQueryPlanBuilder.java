@@ -17,7 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.util.DependencyGraph;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;

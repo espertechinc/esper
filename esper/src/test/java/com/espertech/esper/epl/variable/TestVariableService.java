@@ -13,7 +13,7 @@ package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
 

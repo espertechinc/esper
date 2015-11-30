@@ -12,6 +12,7 @@
 package com.espertech.esper.support.view;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.StreamSpecOptions;

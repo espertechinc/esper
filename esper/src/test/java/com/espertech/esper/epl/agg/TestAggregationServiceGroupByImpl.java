@@ -20,7 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.support.epl.SupportAggregatorFactory;
 import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 public class TestAggregationServiceGroupByImpl extends TestCase

@@ -910,6 +910,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return statementDesc.getEpStatement();
     }
 
+    public StatementContext getStatementContextById(String id) {
+        EPStatementDesc statementDesc = this.stmtIdToDescMap.get(id);
+        if (statementDesc == null) {
+            return null;
+        }
+        return statementDesc.getEpStatement().getStatementContext();
+    }
+
     public synchronized String[] getStatementNames()
     {
         String[] statements = new String[stmtNameToStmtMap.size()];

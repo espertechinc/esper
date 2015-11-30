@@ -14,6 +14,7 @@ package com.espertech.esper.view;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.epl.SupportExprNodeFactory;

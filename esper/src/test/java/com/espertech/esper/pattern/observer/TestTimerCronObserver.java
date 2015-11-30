@@ -19,7 +19,7 @@ import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.guard.SupportObserverEvaluator;
 import com.espertech.esper.support.pattern.SupportPatternContextFactory;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.ScheduleUnit;
 import junit.framework.TestCase;

@@ -13,7 +13,7 @@ package com.espertech.esper.support.epl;
 
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 
 import java.util.Map;
 import java.util.HashMap;

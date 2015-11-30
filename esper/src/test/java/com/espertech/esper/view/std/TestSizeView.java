@@ -17,7 +17,7 @@ import com.espertech.esper.support.bean.SupportBean_A;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.support.view.SupportStreamImpl;
 import com.espertech.esper.view.ViewFieldEnum;
 import junit.framework.TestCase;

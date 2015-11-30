@@ -18,7 +18,7 @@ import com.espertech.esper.event.bean.BeanEventAdapter;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.BeanEventTypeFactory;
 import com.espertech.esper.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 

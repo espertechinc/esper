@@ -13,7 +13,7 @@ package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 import com.espertech.esper.support.epl.SupportAggregationResultFuture;
 

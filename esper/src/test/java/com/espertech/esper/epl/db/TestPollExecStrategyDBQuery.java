@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.sql.Types;
 
 import com.espertech.esper.support.epl.SupportDatabaseService;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 

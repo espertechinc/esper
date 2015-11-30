@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Handles statement management.
  */
-public interface StatementLifecycleSvc extends StatementLifecycleStmtIdResolver
+public interface StatementLifecycleSvc extends StatementLifecycleStmtContextResolver
 {
     /**
      * Initialized the service before use.
@@ -125,6 +125,8 @@ public interface StatementLifecycleSvc extends StatementLifecycleStmtIdResolver
     public String getStatementNameById(String id);
 
     public Map<String, EPStatement> getStmtNameToStmt();
+
+    public EPStatementSPI getStatementById(String id);
 
     StatementSpecCompiled getStatementSpec(String statementName);
 }
