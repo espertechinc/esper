@@ -22,6 +22,7 @@ public class ExceptionHandlerContext {
     private final Throwable throwable;
     private final String statementName;
     private final String epl;
+    private final ExceptionHandlerExceptionType type;
 
     /**
      * Ctor.
@@ -30,11 +31,12 @@ public class ExceptionHandlerContext {
      * @param statementName statement name
      * @param epl statement EPL expression text
      */
-    public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl) {
+    public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl, ExceptionHandlerExceptionType type) {
         this.engineURI = engineURI;
         this.throwable = throwable;
         this.statementName = statementName;
         this.epl = epl;
+        this.type = type;
     }
 
     /**
@@ -67,5 +69,9 @@ public class ExceptionHandlerContext {
      */
     public String getEpl() {
         return epl;
+    }
+
+    public ExceptionHandlerExceptionType getType() {
+        return type;
     }
 }

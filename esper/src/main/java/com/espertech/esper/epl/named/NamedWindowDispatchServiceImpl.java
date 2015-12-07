@@ -11,6 +11,7 @@ package com.espertech.esper.epl.named;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
@@ -343,7 +344,7 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            exceptionHandlingService.handleException(ex, handle);
+            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -374,7 +375,7 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            exceptionHandlingService.handleException(ex, handle);
+            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {

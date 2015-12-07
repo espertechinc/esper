@@ -13,6 +13,7 @@ import com.espertech.esper.client.context.ContextPartitionDescriptor;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.client.context.ContextPartitionVariableState;
 import com.espertech.esper.client.dataflow.EPDataFlowRuntime;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
@@ -1117,7 +1118,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1151,7 +1152,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle());
+            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1203,7 +1204,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1249,7 +1250,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {

@@ -43,7 +43,9 @@ public class MyFlushedSimpleView extends ViewSupport implements StopCallback
     public void setParent(Viewable parent)
     {
         super.setParent(parent);
-        eventType = parent.getEventType();
+        if (parent != null) {
+            eventType = parent.getEventType();
+        }
     }
 
     public View cloneView(AgentInstanceViewFactoryChainContext agentInstanceContext)

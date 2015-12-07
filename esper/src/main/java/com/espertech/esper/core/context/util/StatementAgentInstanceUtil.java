@@ -12,6 +12,7 @@
 package com.espertech.esper.core.context.util;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePreload;
 import com.espertech.esper.core.context.mgr.AgentInstance;
@@ -89,8 +90,7 @@ public class StatementAgentInstanceUtil {
             stopMethod.stop();
         }
         catch (RuntimeException e) {
-            log.warn("Failed to perform statement stop for statement '" + statementContext.getStatementName() +
-                    "' expression '" + statementContext.getExpression() + "' : " + e.getMessage(), e);
+            statementContext.getExceptionHandlingService().handleException(e, statementContext.getStatementName(), statementContext.getExpression(), ExceptionHandlerExceptionType.STOP);
         }
     }
 
@@ -386,7 +386,7 @@ public class StatementAgentInstanceUtil {
 
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle());
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
 
         return false;
@@ -423,7 +423,7 @@ public class StatementAgentInstanceUtil {
             agentInstanceContext.getEpStatementAgentInstanceHandle().internalDispatch();
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle());
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
         finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {

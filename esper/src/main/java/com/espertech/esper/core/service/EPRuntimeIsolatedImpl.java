@@ -15,6 +15,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventSender;
 import com.espertech.esper.client.EventTypeException;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
@@ -666,7 +667,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -700,7 +701,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
