@@ -29,4 +29,5 @@ public interface ResultSetProcessorSimpleOutputLastHelper
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
     UniformPair<EventBean[]> outputJoin(boolean isSynthesize);
+    void destroy();
 }

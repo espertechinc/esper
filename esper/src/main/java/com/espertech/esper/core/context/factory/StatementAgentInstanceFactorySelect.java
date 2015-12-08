@@ -238,6 +238,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             final ResultSetProcessor resultSetProcessor = processorPair.getFirst();
             aggregationService = processorPair.getSecond();
             stopCallbacks.add(aggregationService);
+            stopCallbacks.add(resultSetProcessor);
 
             // for just 1 event stream without joins, handle the one-table process separately.
             final JoinPreloadMethod joinPreloadMethod;

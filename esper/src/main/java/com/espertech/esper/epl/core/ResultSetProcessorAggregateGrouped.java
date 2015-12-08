@@ -1588,6 +1588,10 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
+    public void stop() {
+        // no action required
+    }
+
     protected void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)

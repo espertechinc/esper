@@ -706,4 +706,8 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         }
         return outputLastUnordHelper.output();
     }
+
+    public void stop() {
+        // no action required
+    }
 }

@@ -99,4 +99,7 @@ public class SupportResultSetProcessor implements ResultSetProcessor
     public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
         return null;
     }
+
+    public void stop() {
+    }
 }

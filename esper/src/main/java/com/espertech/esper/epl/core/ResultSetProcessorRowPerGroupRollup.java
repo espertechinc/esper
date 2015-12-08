@@ -1440,6 +1440,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         return outputLastHelper.outputJoin(isSynthesize);
     }
 
+    public void stop() {
+        // no action required
+    }
+
     private UniformPair<EventBean[]> convertToArrayMaySort(List<EventBean> newEvents, List<Object> newEventsSortKey, List<EventBean> oldEvents, List<Object> oldEventsSortKey) {
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;

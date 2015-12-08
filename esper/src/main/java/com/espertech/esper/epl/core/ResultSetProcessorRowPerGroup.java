@@ -1746,4 +1746,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
         return outputLastHelper.outputJoin(isSynthesize);
     }
+
+    public void stop() {
+        // no action required
+    }
 }

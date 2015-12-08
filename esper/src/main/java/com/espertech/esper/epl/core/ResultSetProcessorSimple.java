@@ -267,4 +267,10 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
         }
         return outputLastHelper.outputJoin(isSynthesize);
     }
+
+    public void stop() {
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
+    }
 }

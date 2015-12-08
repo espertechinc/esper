@@ -523,6 +523,10 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         ResultSetProcessorUtil.applyAggJoinResult(aggregationService, exprEvaluatorContext, newEvents, oldEvents);
     }
 
+    public void stop() {
+        // no action required
+    }
+
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
         if (isAll) {
             outputAllHelper.processView(newData, oldData, isGenerateSynthetic);

@@ -124,4 +124,8 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
         outputLastRStreamBufJoin = null;
         return pair;
     }
+
+    public void destroy() {
+        // no action required
+    }
 }
