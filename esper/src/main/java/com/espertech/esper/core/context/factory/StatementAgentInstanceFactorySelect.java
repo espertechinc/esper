@@ -149,6 +149,11 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 suppressSameEventMatches = activationResult.isSuppressSameEventMatches();
                 discardPartialsOnMatch = activationResult.isDiscardPartialsOnMatch();
 
+                // add stop callback for any stream-level viewable when applicable
+                if (activationResult.getViewable() instanceof StopCallback) {
+                    stopCallbacks.add((StopCallback) activationResult.getViewable());
+                }
+
                 eventStreamParentViewable[stream] = activationResult.getViewable();
                 patternRoots[stream] = activationResult.getOptionalPatternRoot();
                 if (stream == 0) {
