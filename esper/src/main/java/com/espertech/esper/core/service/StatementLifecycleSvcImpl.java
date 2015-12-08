@@ -1510,9 +1510,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             // fire the statement stop
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qEngineManagementStmtStop(EPStatementState.DESTROYED, services.getEngineURI(), desc.getEpStatement().getStatementId(), desc.getEpStatement().getName(), desc.getEpStatement().getText(), services.getSchedulingService().getTime());}
 
-            // remove referenced non-property getters
-            services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
-
             // remove referenced event types
             services.getStatementEventTypeRefService().removeReferencesStatement(desc.getEpStatement().getName());
 
@@ -1543,6 +1540,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 statement.setParentView(null);
                 stopMethod.stop();
             }
+
+            // remove referenced non-property getters (after stop to allow lookup of these during stop)
+            services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
 
             if (desc.getDestroyMethod() != null) {
                 desc.getDestroyMethod().destroy();

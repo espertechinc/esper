@@ -39,6 +39,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
     private final ContextDetailHash hashedSpec;
     private final List<FilterSpecCompiled> filtersSpecsNestedContexts;
     private Map<String, Object> contextBuiltinProps;
+    private Map<EventType, FilterSpecLookupable> nonPropertyExpressions = new HashMap<EventType, FilterSpecLookupable>();
 
     public ContextControllerHashFactoryBase(ContextControllerFactoryContext factoryContext, ContextDetailHash hashedSpec, List<FilterSpecCompiled> filtersSpecsNestedContexts) {
         super(factoryContext);
@@ -58,6 +59,10 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) throws ExprValidationException {
         StatementSpecCompiledAnalyzerResult streamAnalysis = StatementSpecCompiledAnalyzer.analyzeFilters(statement.getStatementSpec());
         ContextControllerPartitionedUtil.validateStatementForContext(factoryContext.getContextName(), statement, streamAnalysis, getItemEventTypes(hashedSpec), factoryContext.getServicesContext().getNamedWindowMgmtService());
+        // register non-property expression to be able to recreated indexes
+        for (Map.Entry<EventType, FilterSpecLookupable> entry : nonPropertyExpressions.entrySet()) {
+            factoryContext.getServicesContext().getFilterNonPropertyRegisteryService().registerNonPropertyExpression(statement.getStatementContext().getStatementName(), entry.getKey(), entry.getValue());
+        }
         return new ContextControllerStatementCtxCacheFilters(streamAnalysis.getFilters());
     }
 
@@ -200,6 +205,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             FilterSpecLookupable lookupable = new FilterSpecLookupable(expression, getter, Integer.class, true);
             item.setLookupable(lookupable);
             factoryContext.getServicesContext().getFilterNonPropertyRegisteryService().registerNonPropertyExpression(factoryContext.getAgentInstanceContextCreate().getStatementName(), item.getFilterSpecCompiled().getFilterForEventType(), lookupable);
+            nonPropertyExpressions.put(item.getFilterSpecCompiled().getFilterForEventType(), lookupable);
         }
     }
 
