@@ -202,6 +202,10 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         }
     }
 
+    public void stop() {
+        // Not applicable
+    }
+
     private void continueOutputProcessingViewAndJoin(boolean doOutput, boolean forceUpdate, UniformPair<EventBean[]> newOldEvents) {
 
         if (parent.isDistinct() && newOldEvents != null)

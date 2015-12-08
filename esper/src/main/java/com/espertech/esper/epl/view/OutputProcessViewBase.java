@@ -13,13 +13,14 @@ import com.espertech.esper.core.service.UpdateDispatchView;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.join.base.JoinExecutionStrategy;
 import com.espertech.esper.epl.join.base.JoinSetIndicator;
+import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public abstract class OutputProcessViewBase implements View, JoinSetIndicator, OutputProcessViewTerminable
+public abstract class OutputProcessViewBase implements View, JoinSetIndicator, OutputProcessViewTerminable, StopCallback
 {
     private static final Log log = LogFactory.getLog(OutputProcessViewBase.class);
 

@@ -159,4 +159,8 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
     public void terminated() {
         // Not applicable
     }
+
+    public void stop() {
+        // Not applicable
+    }
 }

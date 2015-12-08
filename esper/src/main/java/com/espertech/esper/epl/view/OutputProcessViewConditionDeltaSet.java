@@ -25,4 +25,5 @@ public interface OutputProcessViewConditionDeltaSet
     void clear();
     List<UniformPair<Set<MultiKey<EventBean>>>> getJoinEventsSet();
     List<UniformPair<EventBean[]>> getViewEventsSet();
+    void destroy();
 }

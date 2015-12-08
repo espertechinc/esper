@@ -222,4 +222,8 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
             outputCondition.terminated();
         }
     }
+
+    public void stop() {
+        // Not applicable
+    }
 }

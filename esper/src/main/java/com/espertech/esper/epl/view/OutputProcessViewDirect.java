@@ -129,4 +129,8 @@ public class OutputProcessViewDirect extends OutputProcessViewBase
     public void terminated() {
         // Not applicable
     }
+
+    public void stop() {
+        // Not applicable
+    }
 }

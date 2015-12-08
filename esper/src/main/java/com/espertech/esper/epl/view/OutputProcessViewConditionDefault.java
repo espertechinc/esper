@@ -219,6 +219,10 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         }
 	}
 
+    public void stop() {
+        deltaSet.destroy();
+    }
+
 	private void resetEventBatches()
 	{
         deltaSet.clear();

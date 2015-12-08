@@ -278,6 +278,10 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
         }
     }
 
+    public void stop() {
+        // Not applicable
+    }
+
     private boolean hasRelevantResults(UniformPair<EventBean[]> newOldEvents) {
         if (newOldEvents == null) {
             return false;

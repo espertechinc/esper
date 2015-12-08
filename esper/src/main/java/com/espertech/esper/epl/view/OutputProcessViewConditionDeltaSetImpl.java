@@ -50,6 +50,10 @@ public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessView
         joinEventsSet.clear();
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public List<UniformPair<Set<MultiKey<EventBean>>>> getJoinEventsSet() {
         return joinEventsSet;
     }

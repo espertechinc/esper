@@ -53,4 +53,8 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
         UniformPair<EventBean[]> pair = resultSetProcessor.processViewResult(newData, oldData, false);
         callback.outputViaCallback(pair.getFirst());
     }
+
+    public void stop() {
+        // Not applicable
+    }
 }

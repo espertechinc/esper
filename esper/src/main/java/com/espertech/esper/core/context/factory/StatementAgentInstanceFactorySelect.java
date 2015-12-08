@@ -251,6 +251,11 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 joinSetComposer = joinPlanResult.getJoinSetComposerDesc();
             }
 
+            // for stoppable final views, add callback
+            if (finalView instanceof StopCallback) {
+                stopCallbacks.add((StopCallback) finalView);
+            }
+
             // Replay any named window data, for later consumers of named data windows
             if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
                 boolean hasNamedWindow = false;
