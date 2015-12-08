@@ -1503,7 +1503,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
     }
 
-    private void destroyInternal(EPStatementDesc desc)
+    protected void destroyInternal(EPStatementDesc desc)
     {
         try
         {
