@@ -12,10 +12,11 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.annotation.Hint;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.client.annotation.Name;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.collection.NameParameterCountKey;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.service.multimatch.*;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
@@ -52,7 +53,6 @@ import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecParam;
-import com.espertech.esper.filter.FilterSpecParamExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.pattern.EvalNodeAnalysisResult;
@@ -811,73 +811,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             EPStatementDesc desc = stmtIdToDescMap.get(statementId);
             if (desc == null)
             {
-                log.debug(".startInternal - Statement already destroyed");
+                log.debug(".destroy - Statement already destroyed");
                 return;
             }
-
-            // fire the statement stop
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qEngineManagementStmtStop(EPStatementState.DESTROYED, services.getEngineURI(), statementId, desc.getEpStatement().getName(), desc.getEpStatement().getText(), services.getSchedulingService().getTime());}
-
-            // remove referenced non-property getters
-            services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
-
-            // remove referenced event types
-            services.getStatementEventTypeRefService().removeReferencesStatement(desc.getEpStatement().getName());
-
-            // remove referenced variabkes
-            services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
-
-            // remove the named window lock
-            services.getNamedWindowMgmtService().removeNamedWindowLock(desc.getEpStatement().getName());
-
-            // remove any pattern subexpression counts
-            if (services.getPatternSubexpressionPoolSvc() != null) {
-                services.getPatternSubexpressionPoolSvc().removeStatement(desc.getEpStatement().getName());
-            }
-
-            // remove any match-recognize counts
-            if (services.getMatchRecognizeStatePoolEngineSvc() != null) {
-                services.getMatchRecognizeStatePoolEngineSvc().removeStatement(desc.getEpStatement().getName());
-            }
-
-            EPStatementSPI statement = desc.getEpStatement();
-            if (statement.getState() == EPStatementState.STARTED)
-            {
-                // fire the statement stop
-                desc.getStatementContext().getStatementStopService().fireStatementStopped();
-
-                // invoke start-provided stop method
-                EPStatementStopMethod stopMethod = desc.getStopMethod();
-                statement.setParentView(null);
-                stopMethod.stop();
-            }
-
-            if (desc.getDestroyMethod() != null) {
-                desc.getDestroyMethod().destroy();
-            }
-
-            // finally remove reference to schedulable agent-instance resources (an HA requirements)
-            if (services.getSchedulableAgentInstanceDirectory() != null) {
-                services.getSchedulableAgentInstanceDirectory().removeStatement(desc.getStatementContext().getEpStatementHandle().getStatementId());
-            }
-
-            long timeLastStateChange = services.getSchedulingService().getTime();
-            statement.setCurrentState(EPStatementState.DESTROYED, timeLastStateChange);
-
-            stmtNameToStmtMap.remove(statement.getName());
-            stmtNameToIdMap.remove(statement.getName());
-            stmtIdToDescMap.remove(statementId);
-
-            if (!epServiceProvider.isDestroyed()) {
-                ((EPRuntimeSPI) epServiceProvider.getEPRuntime()).clearCaches();
-            }
-
-            dispatchStatementLifecycleEvent(new StatementLifecycleEvent(statement, StatementLifecycleEvent.LifecycleEventType.STATECHANGE));
+            destroyInternal(desc);
         }
         finally
         {
             eventProcessingRWLock.releaseWriteLock();
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aEngineManagementStmtStop();}
         }
     }
 
@@ -957,17 +898,27 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
     public synchronized void destroyAllStatements() throws EPException
     {
-        String[] statementIds = getStatementIds();
-        for (int i = 0; i < statementIds.length; i++)
-        {
-            try
-            {
-                destroy(statementIds[i]);
+        // Acquire a lock for event processing as threads may be in the views used by the statement
+        // and that could conflict with the destroy of views
+        eventProcessingRWLock.acquireWriteLock();
+        try {
+            String[] statementIds = getStatementIds();
+            for (String statementId : statementIds) {
+                EPStatementDesc desc = stmtIdToDescMap.get(statementId);
+                if (desc == null) {
+                    continue;
+                }
+
+                try {
+                    destroyInternal(desc);
+                }
+                catch (RuntimeException ex) {
+                    services.getExceptionHandlingService().handleException(ex, desc.getEpStatement().getName(), desc.getEpStatement().getText(), ExceptionHandlerExceptionType.STOP);
+                }
             }
-            catch (Exception ex)
-            {
-                log.warn("Error destroying statement:" + ex.getMessage(), ex);
-            }
+        }
+        finally {
+            eventProcessingRWLock.releaseWriteLock();
         }
     }
 
@@ -1549,6 +1500,75 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                     filterNonPropertyRegisteryService.registerNonPropertyExpression(statementName, filter.getFilterForEventType(), col.getLookupable());
                 }
             }
+        }
+    }
+
+    private void destroyInternal(EPStatementDesc desc)
+    {
+        try
+        {
+            // fire the statement stop
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qEngineManagementStmtStop(EPStatementState.DESTROYED, services.getEngineURI(), desc.getEpStatement().getStatementId(), desc.getEpStatement().getName(), desc.getEpStatement().getText(), services.getSchedulingService().getTime());}
+
+            // remove referenced non-property getters
+            services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
+
+            // remove referenced event types
+            services.getStatementEventTypeRefService().removeReferencesStatement(desc.getEpStatement().getName());
+
+            // remove referenced variabkes
+            services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
+
+            // remove the named window lock
+            services.getNamedWindowMgmtService().removeNamedWindowLock(desc.getEpStatement().getName());
+
+            // remove any pattern subexpression counts
+            if (services.getPatternSubexpressionPoolSvc() != null) {
+                services.getPatternSubexpressionPoolSvc().removeStatement(desc.getEpStatement().getName());
+            }
+
+            // remove any match-recognize counts
+            if (services.getMatchRecognizeStatePoolEngineSvc() != null) {
+                services.getMatchRecognizeStatePoolEngineSvc().removeStatement(desc.getEpStatement().getName());
+            }
+
+            EPStatementSPI statement = desc.getEpStatement();
+            if (statement.getState() == EPStatementState.STARTED)
+            {
+                // fire the statement stop
+                desc.getStatementContext().getStatementStopService().fireStatementStopped();
+
+                // invoke start-provided stop method
+                EPStatementStopMethod stopMethod = desc.getStopMethod();
+                statement.setParentView(null);
+                stopMethod.stop();
+            }
+
+            if (desc.getDestroyMethod() != null) {
+                desc.getDestroyMethod().destroy();
+            }
+
+            // finally remove reference to schedulable agent-instance resources (an HA requirements)
+            if (services.getSchedulableAgentInstanceDirectory() != null) {
+                services.getSchedulableAgentInstanceDirectory().removeStatement(desc.getStatementContext().getEpStatementHandle().getStatementId());
+            }
+
+            long timeLastStateChange = services.getSchedulingService().getTime();
+            statement.setCurrentState(EPStatementState.DESTROYED, timeLastStateChange);
+
+            stmtNameToStmtMap.remove(statement.getName());
+            stmtNameToIdMap.remove(statement.getName());
+            stmtIdToDescMap.remove(statement.getStatementId());
+
+            if (!epServiceProvider.isDestroyed()) {
+                ((EPRuntimeSPI) epServiceProvider.getEPRuntime()).clearCaches();
+            }
+
+            dispatchStatementLifecycleEvent(new StatementLifecycleEvent(statement, StatementLifecycleEvent.LifecycleEventType.STATECHANGE));
+        }
+        finally
+        {
+            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aEngineManagementStmtStop();}
         }
     }
 

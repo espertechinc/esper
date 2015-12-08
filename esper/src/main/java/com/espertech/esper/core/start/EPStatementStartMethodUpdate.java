@@ -148,7 +148,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             stopStatementMethod = new EPStatementStopMethod(){
                 public void stop()
                 {
-                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                     stopMethod.stop();
                 }
             };

@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 
@@ -27,7 +28,7 @@ public interface ContextManagementService {
     public ContextDescriptor getContextDescriptor(String contextName);
 
     public void addStatement(String contextName, ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
-    public void stoppedStatement(String contextName, String statementName, String statementId);
+    public void stoppedStatement(String contextName, String statementName, String statementId, String epl, ExceptionHandlingService exceptionHandlingService);
     public void destroyedStatement(String contextName, String statementName, String statementId);
 
     public void destroyedContext(String contextName);

@@ -146,12 +146,12 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 ContextMergeView mergeView = new ContextMergeView(processor.getNamedWindowType());
                 finalViewable = mergeView;
 
-                ContextManagedStatementCreateWindowDesc statement = new ContextManagedStatementCreateWindowDesc(statementSpec, statementContext, mergeView, contextFactory);
+                final ContextManagedStatementCreateWindowDesc statement = new ContextManagedStatementCreateWindowDesc(statementSpec, statementContext, mergeView, contextFactory);
                 services.getContextManagementService().addStatement(contextName, statement, isRecoveringResilient);
                 stopStatementMethod = new EPStatementStopMethod(){
                     public void stop()
                     {
-                        services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                        services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                         stopMethod.stop();
                     }
                 };

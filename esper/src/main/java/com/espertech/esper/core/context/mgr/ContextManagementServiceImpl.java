@@ -12,9 +12,11 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetailNested;
 import com.espertech.esper.epl.spec.CreateContextDesc;
@@ -93,7 +95,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
     }
 
-    public void stoppedStatement(String contextName, String statementName, String statementId) {
+    public void stoppedStatement(String contextName, String statementName, String statementId, String epl, ExceptionHandlingService exceptionHandlingService) {
         ContextManagerEntry entry = contexts.get(contextName);
         if (entry == null) {
             log.warn("Stop statement for statement '" + statementName + "' failed to locate corresponding context manager '" + contextName + "'");
@@ -103,7 +105,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
             entry.getContextManager().stopStatement(statementName, statementId);
         }
         catch (RuntimeException ex) {
-            log.warn("Failed to stop statement '" + statementName + "' as related to context '" + contextName + "': " + ex.getMessage(), ex);
+            exceptionHandlingService.handleException(ex, statementName, epl, ExceptionHandlerExceptionType.STOP);
         }
     }
 
