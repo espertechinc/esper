@@ -55,6 +55,10 @@ public class TestTableLifecycle extends TestCase {
         runAssertionDependent("select * from SupportBean where exists (select * from abc)");
     }
 
+    public void testLifecycleInsertInto() throws Exception {
+        runAssertionDependent("insert into abc select 'a' as id, 'a' as p from SupportBean");
+    }
+
     private void runAssertionIntoTable() throws Exception {
         String eplCreate = "create table abc (total count(*))";
         String eplUse = "select abc from SupportBean";

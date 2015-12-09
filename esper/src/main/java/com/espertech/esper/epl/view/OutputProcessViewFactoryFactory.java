@@ -13,6 +13,7 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.StatementVariableRef;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.ResultSetProcessorType;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
@@ -31,7 +32,7 @@ import com.espertech.esper.epl.util.EPLValidationUtil;
  */
 public class OutputProcessViewFactoryFactory
 {
-    public static OutputProcessViewFactory make(StatementSpecCompiled statementSpec, InternalEventRouter internalEventRouter, StatementContext statementContext, EventType resultEventType, OutputProcessViewCallback optionalOutputProcessViewCallback, TableService tableService, ResultSetProcessorType resultSetProcessorType, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
+    public static OutputProcessViewFactory make(StatementSpecCompiled statementSpec, InternalEventRouter internalEventRouter, StatementContext statementContext, EventType resultEventType, OutputProcessViewCallback optionalOutputProcessViewCallback, TableService tableService, ResultSetProcessorType resultSetProcessorType, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, StatementVariableRef statementVariableRef)
             throws ExprValidationException
     {
         // determine direct-callback
@@ -60,6 +61,7 @@ public class OutputProcessViewFactoryFactory
                 if (tableMetadata != null) {
                     tableName = tableMetadata.getTableName();
                     EPLValidationUtil.validateContextName(true, tableName, tableMetadata.getContextName(), statementSpec.getOptionalContextName(), true);
+                    statementVariableRef.addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
                 }
             }
 
