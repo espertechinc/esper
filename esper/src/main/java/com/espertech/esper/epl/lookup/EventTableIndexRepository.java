@@ -184,6 +184,7 @@ public class EventTableIndexRepository
             if (entry.getOptionalIndexName() != null) {
                 explicitIndexes.remove(entry.getOptionalIndexName());
             }
+            entry.getTable().destroy();
         }
     }
 
