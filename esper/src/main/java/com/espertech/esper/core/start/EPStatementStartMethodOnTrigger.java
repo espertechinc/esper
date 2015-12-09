@@ -119,6 +119,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             tableMetadata = services.getTableService().getTableMetadata(onTriggerDesc.getWindowName());
             if (tableMetadata != null) {
                 contextFactoryResult = handleContextFactoryOnTriggerTable(statementContext, services, onTriggerDesc, contextName, streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc);
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
             }
             else if (services.getNamedWindowMgmtService().getProcessor(onTriggerDesc.getWindowName()) != null) {
                 contextFactoryResult = handleContextFactoryOnTriggerNamedWindow(services, statementContext, onTriggerDesc, contextName, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult, optionalStreamSelector);
