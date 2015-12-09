@@ -240,6 +240,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             poolSvc.getEngineSvc().decreaseCount(agentInstanceContext, size);
             poolSvc.getStmtHandler().decreaseCount(size);
         }
+        regexPartitionStateRepo.destroy();
     }
 
     public void init(EventBean[] newEvents) {

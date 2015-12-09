@@ -111,5 +111,6 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         return singletonState.getNumStates();
     }
 
-
+    public void destroy() {
+    }
 }
