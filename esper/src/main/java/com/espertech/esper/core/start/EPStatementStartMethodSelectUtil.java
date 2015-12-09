@@ -226,6 +226,7 @@ public class EPStatementStartMethodSelectUtil
                 if (isJoin) {
                     destroyCallbacks.addCallback(new EPStatementDestroyCallbackTableIdxRef(services.getTableService(), metadata, statementContext.getStatementName()));
                 }
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), metadata.getTableName());
             }
             else if (streamSpec instanceof NamedWindowConsumerStreamSpec)
             {

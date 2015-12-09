@@ -122,6 +122,7 @@ public class EPStatementStartMethodHelperSubselect
                 subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, metadata.getInternalEventType(), viewFactoryChain, viewableActivator, streamSpec));
                 subselect.setRawEventType(metadata.getInternalEventType());
                 destroyCallbacks.addCallback(new EPStatementDestroyCallbackTableIdxRef(services.getTableService(), metadata, statementContext.getStatementName()));
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), metadata.getTableName());
             }
             else
             {

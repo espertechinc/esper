@@ -39,7 +39,23 @@ public class TestTableLifecycle extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
-    public void testLifecycle() throws Exception {
+    public void testLifecycleIntoTable() throws Exception {
+        runAssertionIntoTable();
+    }
+
+    public void testLifecycleCreateIndex() throws Exception {
+        runAssertionDependent("create index IDX on abc (p)");
+    }
+
+    public void testLifecycleJoin() throws Exception {
+        runAssertionDependent("select * from SupportBean, abc");
+    }
+
+    public void testLifecycleSubquery() throws Exception {
+        runAssertionDependent("select * from SupportBean where exists (select * from abc)");
+    }
+
+    private void runAssertionIntoTable() throws Exception {
         String eplCreate = "create table abc (total count(*))";
         String eplUse = "select abc from SupportBean";
         String eplInto = "into table abc select count(*) as total from SupportBean";
@@ -85,20 +101,21 @@ public class TestTableLifecycle extends TestCase {
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().createEPL(eplCreate);
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
-    public void testLifecycleWithIndex() {
+    private void runAssertionDependent(String eplDependent) {
         String eplCreate = "create table abc (id string primary key, p string)";
-        String eplIndex = "create index IDX on abc (p)";
 
         // typical select-use-destroy
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eplCreate);
-        EPStatement stmtIndex = epService.getEPAdministrator().createEPL(eplIndex);
+        EPStatement stmtDependent = epService.getEPAdministrator().createEPL(eplDependent);
 
         stmtCreate.destroy();
         assertFailCreate(eplCreate);
-        stmtIndex.destroy();
+        stmtDependent.destroy();
         epService.getEPAdministrator().createEPL(eplCreate);
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void assertFailCreate(String create) {
