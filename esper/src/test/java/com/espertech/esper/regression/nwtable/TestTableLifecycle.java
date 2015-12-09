@@ -87,6 +87,20 @@ public class TestTableLifecycle extends TestCase {
         epService.getEPAdministrator().createEPL(eplCreate);
     }
 
+    public void testLifecycleWithIndex() {
+        String eplCreate = "create table abc (id string primary key, p string)";
+        String eplIndex = "create index IDX on abc (p)";
+
+        // typical select-use-destroy
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eplCreate);
+        EPStatement stmtIndex = epService.getEPAdministrator().createEPL(eplIndex);
+
+        stmtCreate.destroy();
+        assertFailCreate(eplCreate);
+        stmtIndex.destroy();
+        epService.getEPAdministrator().createEPL(eplCreate);
+    }
+
     private void assertFailCreate(String create) {
         try {
             epService.getEPAdministrator().createEPL(create);

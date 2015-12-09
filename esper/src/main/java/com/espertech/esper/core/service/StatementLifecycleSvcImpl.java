@@ -1513,9 +1513,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             // remove referenced event types
             services.getStatementEventTypeRefService().removeReferencesStatement(desc.getEpStatement().getName());
 
-            // remove referenced variabkes
-            services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
-
             // remove the named window lock
             services.getNamedWindowMgmtService().removeNamedWindowLock(desc.getEpStatement().getName());
 
@@ -1543,6 +1540,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
             // remove referenced non-property getters (after stop to allow lookup of these during stop)
             services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
+
+            // remove referenced variables (after stop to allow lookup of these during stop)
+            services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
 
             if (desc.getDestroyMethod() != null) {
                 desc.getDestroyMethod().destroy();
