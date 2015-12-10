@@ -21,6 +21,7 @@ import com.espertech.esper.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.util.UuidGenerator;
 import junit.framework.TestCase;
 
 public class TestAPICreateStartStopDestroy extends TestCase {
@@ -100,7 +101,7 @@ public class TestAPICreateStartStopDestroy extends TestCase {
 
     private void tryInvalidCompile(String epl, String message) {
         try {
-            epService.getEPAdministrator().createEPL(epl);
+            epService.getEPAdministrator().createEPL(epl, UuidGenerator.generate());
             fail();
         }
         catch (EPStatementException ex) {
