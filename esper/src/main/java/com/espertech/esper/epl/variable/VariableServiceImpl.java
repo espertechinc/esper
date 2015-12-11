@@ -395,7 +395,7 @@ public class VariableServiceImpl implements VariableService
         // Check current state - see if the variable exists in the state handler
         Object initialState = metaData.getVariableStateFactory().getInitialState();
         if (optionalStateHandler != null) {
-            Pair<Boolean, Object> priorValue = optionalStateHandler.getHasState(variableName, metaData.getVariableNumber(), agentInstanceId, metaData.getType(), metaData.getEventType(), extensionServicesContext);
+            Pair<Boolean, Object> priorValue = optionalStateHandler.getHasState(variableName, metaData.getVariableNumber(), agentInstanceId, metaData.getType(), metaData.getEventType(), extensionServicesContext, metaData.isConstant());
             if (isRecoveringResilient) {
                 if (priorValue.getFirst()) {
                     initialState = priorValue.getSecond();

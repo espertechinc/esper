@@ -29,7 +29,7 @@ public interface VariableStateHandler
      * @param statementExtContext for caches etc.
      * @return indicator whether the variable is known and it's state, or whether it doesn't have state (false)
      */
-    public Pair<Boolean, Object> getHasState(String variableName, int variableNumber, int agentInstanceId, Class type, EventType eventType, StatementExtensionSvcContext statementExtContext);
+    public Pair<Boolean, Object> getHasState(String variableName, int variableNumber, int agentInstanceId, Class type, EventType eventType, StatementExtensionSvcContext statementExtContext, boolean isConstant);
 
     /**
      * Sets the new variable value
