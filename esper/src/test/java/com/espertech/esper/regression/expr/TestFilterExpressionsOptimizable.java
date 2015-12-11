@@ -590,6 +590,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     private EPStatement assertFilterMulti(String epl, FilterItem[][] expected) {
         EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
+        if (!((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
+            return statementSPI;
+        }
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
         FilterSet set = filterServiceSPI.take(Collections.singleton(statementSPI.getStatementId()));
         FilterValueSet valueSet = set.getFilters().get(0).getFilterValueSet();
@@ -686,9 +689,11 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     private void assertFilterSingle(String epl, String expression, FilterOperator op) {
         EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
-        FilterValueSetParam param = getFilterSingle(statementSPI);
-        assertEquals("failed for '" + epl + "'", op, param.getFilterOperator());
-        assertEquals(expression, param.getLookupable().getExpression());
+        if (((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
+            FilterValueSetParam param = getFilterSingle(statementSPI);
+            assertEquals("failed for '" + epl + "'", op, param.getFilterOperator());
+            assertEquals(expression, param.getLookupable().getExpression());
+        }
     }
 
     private void runAssertionTypeOf() {
@@ -708,12 +713,14 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     private void assertFilterTwo(String epl, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
         EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
-        FilterValueSetParam[] multi = getFilterMulti(statementSPI);
-        assertEquals(2, multi.length);
-        assertEquals(opOne, multi[0].getFilterOperator());
-        assertEquals(expressionOne, multi[0].getLookupable().getExpression());
-        assertEquals(opTwo, multi[1].getFilterOperator());
-        assertEquals(expressionTwo, multi[1].getLookupable().getExpression());
+        if (((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
+            FilterValueSetParam[] multi = getFilterMulti(statementSPI);
+            assertEquals(2, multi.length);
+            assertEquals(opOne, multi[0].getFilterOperator());
+            assertEquals(expressionOne, multi[0].getLookupable().getExpression());
+            assertEquals(opTwo, multi[1].getFilterOperator());
+            assertEquals(expressionTwo, multi[1].getLookupable().getExpression());
+        }
     }
 
     private FilterValueSetParam getFilterSingle(EPStatementSPI statementSPI) {
