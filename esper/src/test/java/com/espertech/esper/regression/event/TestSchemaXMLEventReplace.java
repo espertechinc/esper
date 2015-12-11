@@ -30,6 +30,10 @@ public class TestSchemaXMLEventReplace extends TestCase
 
     public void testSchemaReplace() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestSchemaXMLEventReplace.class)) {
+            return;
+        }
+
         ConfigurationEventTypeXMLDOM eventTypeMeta = new ConfigurationEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("simpleEvent");
         String schemaUri = TestSchemaXMLEventReplace.class.getClassLoader().getResource(CLASSLOADER_SCHEMA_URI).toString();

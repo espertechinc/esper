@@ -73,6 +73,9 @@ public class TestRevisionWindowed extends TestCase
 
     public void testSubclassInterface()
     {
+        if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
+            return;
+        }
         epService.getEPAdministrator().getConfiguration().addEventType("ISupportRevisionFull", ISupportRevisionFull.class);
         epService.getEPAdministrator().getConfiguration().addEventType("ISupportDeltaFive", ISupportDeltaFive.class);
 
@@ -110,6 +113,9 @@ public class TestRevisionWindowed extends TestCase
 
     public void testMultiPropertyMapMixin()
     {
+        if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
+            return;
+        }
         String[] fields = "k0,p1,p5,m0".split(",");
         stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevMap.win:length(3) as select * from RevisableMap");
         epService.getEPAdministrator().createEPL("insert into RevMap select * from MyMap");
@@ -149,6 +155,9 @@ public class TestRevisionWindowed extends TestCase
 
     public void testTimeWindow()
     {
+        if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
+            return;
+        }
         sendTimer(0);
         stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.win:time(10 sec) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
@@ -199,6 +208,9 @@ public class TestRevisionWindowed extends TestCase
 
     public void testUnique()
     {
+        if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
+            return;
+        }
         stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.std:unique(p1) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");
@@ -230,6 +242,9 @@ public class TestRevisionWindowed extends TestCase
 
     public void testGroupLength()
     {
+        if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
+            return;
+        }
         stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.std:groupwin(p1).win:length(2) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");

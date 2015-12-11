@@ -54,6 +54,9 @@ public class TestPlugInEventRepresentation extends TestCase
      */
     public void testPreConfigStaticTypeResolution() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         Configuration configuration = getConfiguration();
         configuration.addPlugInEventType("TestTypeOne", new URI[] {new URI("type://properties/test1/testtype")}, "t1");
         configuration.addPlugInEventType("TestTypeTwo", new URI[] {new URI("type://properties/test2")}, "t2");
@@ -71,6 +74,9 @@ public class TestPlugInEventRepresentation extends TestCase
 
     public void testRuntimeConfigStaticTypeResolution() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         Configuration configuration = getConfiguration();
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -98,6 +104,9 @@ public class TestPlugInEventRepresentation extends TestCase
      */
     public void testRuntimeConfigDynamicTypeResolution() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         Configuration configuration = getConfiguration();
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -112,6 +121,9 @@ public class TestPlugInEventRepresentation extends TestCase
 
     public void testStaticConfigDynamicTypeResolution() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         URI[] uriList = new URI[] {new URI("type://properties/test2/myresolver")};
         Configuration configuration = getConfiguration();
         configuration.setPlugInEventTypeResolutionURIs(uriList);
@@ -126,6 +138,9 @@ public class TestPlugInEventRepresentation extends TestCase
 
     public void testInvalid() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         Configuration configuration = getConfiguration();
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -143,6 +158,9 @@ public class TestPlugInEventRepresentation extends TestCase
 
     public void testContextContents() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestPlugInEventRepresentation.class)) {
+            return;
+        }
         Configuration configuration = getConfiguration();
         configuration.addPlugInEventRepresentation(new URI("type://test/support"), SupportEventRepresentation.class.getName(), "abc");
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
