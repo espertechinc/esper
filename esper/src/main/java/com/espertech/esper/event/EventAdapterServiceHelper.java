@@ -30,6 +30,17 @@ import java.util.*;
  */
 public class EventAdapterServiceHelper
 {
+    public static String getMessageExpecting(String eventTypeName, EventType existingType, String typeOfEventType) {
+        String message = "Event type named '" + eventTypeName + "' has not been defined or is not a " + typeOfEventType + " event type";
+        if (existingType != null) {
+            message += ", the name '" + eventTypeName + "' refers to a " + JavaClassHelper.getClassNameFullyQualPretty(existingType.getUnderlyingType()) + " event type";
+        }
+        else {
+            message += ", the name '" + eventTypeName + "' has not been defined as an event type";
+        }
+        return message;
+    }
+
     public static EventBeanFactory getFactoryForType(EventType type, EventAdapterService eventAdapterService) {
         if (type instanceof WrapperEventType) {
             WrapperEventType wrapperType = (WrapperEventType) type;

@@ -40,7 +40,7 @@ public class TestSchemaXMLEventReplace extends TestCase
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.addEventType("TestXMLSchemaType", eventTypeMeta);
 
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

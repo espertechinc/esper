@@ -41,7 +41,7 @@ public class TestSelectExprSQLCompat extends TestCase
 
     public void testQualifiedPropertyNamed()
     {
-        EPServiceProvider epService = EPServiceProviderManager.getProvider("default", config);
+        EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

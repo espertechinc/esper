@@ -564,7 +564,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     {
         EventType existingType = nameToTypeMap.get(eventTypeName);
         if (!(existingType instanceof MapEventType)) {
-            throw new EPException(getMessageExpecting(eventTypeName, existingType, "Map"));
+            throw new EPException(EventAdapterServiceHelper.getMessageExpecting(eventTypeName, existingType, "Map"));
         }
 
         return adapterForTypedMap(theEvent, existingType);
@@ -574,7 +574,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     {
         EventType existingType = nameToTypeMap.get(eventTypeName);
         if (!(existingType instanceof ObjectArrayEventType)) {
-            throw new EPException(getMessageExpecting(eventTypeName, existingType, "Object-array"));
+            throw new EPException(EventAdapterServiceHelper.getMessageExpecting(eventTypeName, existingType, "Object-array"));
         }
 
         return adapterForTypedObjectArray(theEvent, existingType);
@@ -953,17 +953,6 @@ public class EventAdapterServiceImpl implements EventAdapterService
 
     public EventBeanSPI getShellForType(EventType eventType) {
         return EventAdapterServiceHelper.getShellForType(eventType);
-    }
-
-    private String getMessageExpecting(String eventTypeName, EventType existingType, String typeOfEventType) {
-        String message = "Event type named '" + eventTypeName + "' has not been defined or is not a " + typeOfEventType + " event type";
-        if (existingType != null) {
-            message += ", the name '" + eventTypeName + "' refers to a " + JavaClassHelper.getClassNameFullyQualPretty(existingType.getUnderlyingType()) + " event type";
-        }
-        else {
-            message += ", the name '" + eventTypeName + "' has not been defined as an event type";
-        }
-        return message;
     }
 
     public EventBeanAdapterFactory getAdapterFactoryForType(EventType eventType) {

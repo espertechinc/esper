@@ -64,7 +64,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         xmlDOMEventTypeDesc.addXPathProperty("xpathAttrNumTwo", "/myevent/@attrnumtwo", XPathConstants.STRING, "long");
         configuration.addEventType("TestXMLNoSchemaType", xmlDOMEventTypeDesc);
 
-        epService = EPServiceProviderManager.getProvider("TestNoSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -97,7 +97,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         xmlDOMEventTypeDesc.setRootElementName("my.event2");
         configuration.addEventType("TestXMLWithDots", xmlDOMEventTypeDesc);
 
-        epService = EPServiceProviderManager.getProvider("TestNoSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -154,7 +154,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         xmlDOMEventTypeDesc.setXPathPropertyExpr(false);    // <== DOM getter
         configuration.addEventType("TestXMLNoSchemaType", xmlDOMEventTypeDesc);
 
-        epService = EPServiceProviderManager.getProvider("TestNoSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -189,7 +189,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         xmlDOMEventTypeDesc.setXPathPropertyExpr(true);    // <== XPath getter
         configuration.addEventType("TestXMLNoSchemaType", xmlDOMEventTypeDesc);
 
-        epService = EPServiceProviderManager.getProvider("TestNoSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();

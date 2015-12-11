@@ -39,7 +39,7 @@ public class TestGroupedTimeWinUniqueSortMinMax extends TestCase {
     public void testSensorQuery() throws Exception {
         Configuration configuration = setup();
         configuration.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);
-        EPServiceProvider epService = EPServiceProviderManager.getProvider("testSensorQuery", configuration);
+        EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         MatchListener listener = new MatchListener();

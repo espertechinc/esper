@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean;
 
-public class SupportLegacyBeanInt
+import java.io.Serializable;
+
+public class SupportLegacyBeanInt implements Serializable
 {
     public int fieldIntPrimitive;
 

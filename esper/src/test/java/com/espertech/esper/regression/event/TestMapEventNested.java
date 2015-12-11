@@ -582,8 +582,8 @@ public class TestMapEventNested extends TestCase
         EventBean eventResult = listener.assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(eventResult, "a,b,c,d".split(","), new Object[]{1, 2, 3, n0_1});
         Map[] valueE = (Map[]) eventResult.get("e");
-        assertSame(valueE[0], n0_2[0]);
-        assertSame(valueE[1], n0_2[1]);
+        assertEquals(valueE[0], n0_2[0]);
+        assertEquals(valueE[1], n0_2[1]);
 
         assertEquals(int.class, stmt.getEventType().getPropertyType("a"));
         assertEquals(int.class, stmt.getEventType().getPropertyType("b"));

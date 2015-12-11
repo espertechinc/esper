@@ -238,7 +238,7 @@ public class TestAggregateFiltered extends TestCase
         Configuration config = SupportConfigFactory.getConfiguration();
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(2, RoundingMode.HALF_UP));
         config.addEventType(SupportBeanNumeric.class);
-        EPServiceProvider engineMathCtx = EPServiceProviderManager.getProvider(TestAggregateFiltered.class.getName(), config);
+        EPServiceProvider engineMathCtx = EPServiceProviderManager.getDefaultProvider(config);
 
         engineMathCtx.getEPAdministrator().createEPL("select avg(bigdec) as c0 from SupportBeanNumeric").addListener(listener);
         engineMathCtx.getEPRuntime().sendEvent(new SupportBeanNumeric(null, makeBigDec(0, 2, RoundingMode.HALF_UP)));
