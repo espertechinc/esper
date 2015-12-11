@@ -233,7 +233,7 @@ public class TestPerfNamedWindow extends TestCase
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;
-        assertTrue("Delta=" + delta, delta < 500);
+        assertTrue("Delta=" + delta, delta < 1500);
 
         // assert they are all deleted
         assertEquals(0, EPAssertionUtil.iteratorCount(stmtCreate.iterator()));
