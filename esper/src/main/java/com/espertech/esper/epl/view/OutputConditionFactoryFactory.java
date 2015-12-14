@@ -73,7 +73,7 @@ public class OutputConditionFactoryFactory
         }
         else if(outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION)
         {
-            return new OutputConditionExpressionFactory(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionExpression(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
         }
         else if(outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS)
 		{
@@ -100,7 +100,7 @@ public class OutputConditionFactoryFactory
                 return new OutputConditionTermFactory();
             }
             else {
-                return new OutputConditionExpressionFactory(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
+                return resultSetProcessorHelperFactory.makeOutputConditionExpression(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
             }
 		}
         else {

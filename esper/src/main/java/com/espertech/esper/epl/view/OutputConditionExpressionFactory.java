@@ -33,7 +33,7 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory
     private final VariableReadWritePackage variableReadWritePackage;
     private final VariableReadWritePackage variableReadWritePackageAfterTerminated;
     private final Set<String> variableNames;
-    private final boolean isStartConditionOnCreation;
+    protected final boolean isStartConditionOnCreation;
 
     private EventType builtinPropertiesEventType;
 
