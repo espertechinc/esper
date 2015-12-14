@@ -29,7 +29,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 {
     private static final Log log = LogFactory.getLog(AggSvcGroupByReclaimAgedImpl.class);
 
-    private static final long DEFAULT_MAX_AGE_MSEC = 60000L;
+    public static final long DEFAULT_MAX_AGE_MSEC = 60000L;
 
     private final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
