@@ -123,16 +123,14 @@ public class TestAggregateLocalGroupBy extends TestCase
     }
 
     public void testGrouped() throws Exception {
-        /* TODO
         runAssertionGroupedSolutionPattern();
         runAssertionGroupedMultiLevelMethod();
         runAssertionGroupedMultiLevelAccess();
         runAssertionGroupedMultiLevelNoDefaultLvl();
         runAssertionGroupedSameKey();
         runAssertionGroupedRowRemove();
-        */
         runAssertionGroupedOnSelect();
-        // TODO runAssertionEnumMethods(false);
+        runAssertionEnumMethods(false);
     }
 
     public void testPlanning() {
