@@ -52,6 +52,8 @@ public class TestAggregateRowForAll extends TestCase
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
                           "from " + SupportBean.class.getName() + ".win:time(10 sec)";
+
+        sendTimerEvent(0);
         selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
 
@@ -61,10 +63,11 @@ public class TestAggregateRowForAll extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:time(10) as one, " +
+                          "from " + SupportBeanString.class.getName() + ".win:keepall() as one, " +
                                     SupportBean.class.getName() + ".win:time(10 sec) as two " +
                           "where one.theString = two.theString";
 
+        sendTimerEvent(0);
         selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
 
