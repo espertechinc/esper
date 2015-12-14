@@ -321,7 +321,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         StatementSpecCompiled defaultSelectAllSpec = new StatementSpecCompiled();
         defaultSelectAllSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {outputEventType}, new String[] {"trigger_stream"}, new boolean[] {true}, services.getEngineURI(), false);
-        ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+        ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
 
         OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, null, null, services.getTableService(), outputResultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
         StatementAgentInstanceFactoryOnTriggerSetVariable contextFactory = new StatementAgentInstanceFactoryOnTriggerSetVariable(statementContext, statementSpec, services, activatorResult.activator, subSelectStrategyCollection, onSetVariableViewFactory, outputResultSetProcessorPrototype, outputViewFactory);
@@ -354,7 +354,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         ResultSetProcessorFactoryDesc[] processorFactories = new ResultSetProcessorFactoryDesc[desc.getSplitStreams().size() + 1];
         ExprNode[] whereClauses = new ExprNode[desc.getSplitStreams().size() + 1];
         processorFactories[0] = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                statementSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+                statementSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
         whereClauses[0] = statementSpec.getFilterRootNode();
         boolean[] isNamedWindowInsert = new boolean[desc.getSplitStreams().size() + 1];
         isNamedWindowInsert[0] = false;
@@ -371,7 +371,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             EPStatementStartMethodHelperValidate.validateNodes(splitSpec, statementContext, typeService, null);
 
             processorFactories[index] = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                    splitSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+                    splitSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
             whereClauses[index] = splitSpec.getFilterRootNode();
             isNamedWindowInsert[index] = statementContext.getNamedWindowMgmtService().isNamedWindow(splits.getInsertInto().getEventTypeName());
             insertIntoTableNames[index] = getOptionalInsertIntoTableName(splits.getInsertInto(), services.getTableService());
@@ -407,7 +407,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), new String[] {onTriggerDesc.getWindowName()});
 
         // validate expressions and plan subselects
-        TriggerValidationPlanResult validationResult = validateOnTriggerPlanSubSelects(services, statementContext, onTriggerDesc, namedWindowType, streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc, null);
+        TriggerValidationPlanResult validationResult = validateOnTriggerPlan(services, statementContext, onTriggerDesc, namedWindowType, streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc, null);
 
         InternalEventRouter routerService = null;
         boolean addToFront = false;
@@ -442,7 +442,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             StatementSpecCompiled defaultSelectAllSpec = new StatementSpecCompiled();
             defaultSelectAllSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {namedWindowType}, new String[] {"trigger_stream"}, new boolean[] {true}, services.getEngineURI(), false);
-            outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+            outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
         }
 
         EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
@@ -452,15 +452,15 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         return new ContextFactoryResult(contextFactory, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype);
     }
 
-    private TriggerValidationPlanResult validateOnTriggerPlanSubSelects(EPServicesContext services,
-                                                                        StatementContext statementContext,
-                                                                        OnTriggerWindowDesc onTriggerDesc,
-                                                                        EventType namedWindowType,
-                                                                        StreamSpecCompiled streamSpec,
-                                                                        ActivatorResult activatorResult,
-                                                                        ContextPropertyRegistry contextPropertyRegistry,
-                                                                        SubSelectActivationCollection subSelectStreamDesc,
-                                                                        String optionalTableName)
+    private TriggerValidationPlanResult validateOnTriggerPlan(EPServicesContext services,
+                                                              StatementContext statementContext,
+                                                              OnTriggerWindowDesc onTriggerDesc,
+                                                              EventType namedWindowType,
+                                                              StreamSpecCompiled streamSpec,
+                                                              ActivatorResult activatorResult,
+                                                              ContextPropertyRegistry contextPropertyRegistry,
+                                                              SubSelectActivationCollection subSelectStreamDesc,
+                                                              String optionalTableName)
             throws ExprValidationException
     {
         String zeroStreamAliasName = onTriggerDesc.getOptionalAsName();
@@ -522,7 +522,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             statementSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
         }
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                statementSpec, statementContext, typeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+                statementSpec, statementContext, typeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
 
         return new TriggerValidationPlanResult(subSelectStrategyCollection, resultSetProcessorPrototype, validatedJoin, zeroStreamAliasName);
     }
@@ -555,7 +555,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         }
 
         // validate expressions and plan subselects
-        TriggerValidationPlanResult validationResult = validateOnTriggerPlanSubSelects(services, statementContext, onTriggerDesc, metadata.getInternalEventType(), streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc, metadata.getTableName());
+        TriggerValidationPlanResult validationResult = validateOnTriggerPlan(services, statementContext, onTriggerDesc, metadata.getInternalEventType(), streamSpec, activatorResult, contextPropertyRegistry, subSelectStreamDesc, metadata.getTableName());
 
         // table on-action view factory
         TableOnViewFactory onExprFactory = TableOnViewFactoryFactory.make(metadata, onTriggerDesc, activatorResult.activatorResultEventType, streamSpec.getOptionalStreamName(),
@@ -571,7 +571,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             defaultSelectAllSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
             // we'll be expecting public-type events as there is no copy op
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {metadata.getPublicEventType()}, new String[] {"trigger_stream"}, new boolean[] {true}, services.getEngineURI(), false);
-            outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false);
+            outputResultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(defaultSelectAllSpec, statementContext, streamTypeService, null, new boolean[0], true, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
         }
 
         EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();

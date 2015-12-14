@@ -736,7 +736,7 @@ public class EPStatementStartMethodHelperSubselect
 
             List<ExprAggregateNode> havingAgg = Collections.emptyList();
             List<ExprAggregateNode> orderByAgg = Collections.emptyList();
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null, false, false);
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null, false, false, false);
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {
