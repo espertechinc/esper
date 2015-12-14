@@ -142,7 +142,12 @@ public class TestOutputLimitChangeSetOpt extends TestCase
         EPStatementSPI spi = (EPStatementSPI) stmt;
         StatementResourceHolder resources = spi.getStatementContext().getStatementExtensionServicesContext().getStmtResources().getResourcesUnpartitioned();
         OutputProcessViewBase outputProcessViewBase = (OutputProcessViewBase) resources.getEventStreamViewables()[0].getViews()[0].getViews()[0];
-        assertEquals(numExpectedChangeset, outputProcessViewBase.getNumChangesetRows());
+        try {
+            assertEquals(numExpectedChangeset, outputProcessViewBase.getNumChangesetRows());
+        }
+        catch (UnsupportedOperationException ex) {
+            // allowed
+        }
     }
 
     private void sendTime(long currentTime) {
