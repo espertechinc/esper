@@ -74,7 +74,7 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         }
     }
 
-    protected static EPException handleUniqueIndexViolation(String indexName, Object key) {
+    public static EPException handleUniqueIndexViolation(String indexName, Object key) {
         String indexNameDisplay = indexName == null ? "" : " '" + indexName + "'";
         throw new EPException("Unique index violation, index" + indexNameDisplay + " is a unique index and key '" + key + "' already exists");
     }
