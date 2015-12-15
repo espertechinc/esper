@@ -245,7 +245,7 @@ public class TestTableInvalid extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService, "create table myvariable as (mycount count(*))",
                 "Error starting statement: Variable by name 'myvariable' has already been created [");
         SupportMessageAssertUtil.tryInvalid(epService, "create table aggvar_ungrouped as (total count(*))",
-                "Error starting statement: Variable by name 'aggvar_ungrouped' has already been created [");
+                "Error starting statement: Table by name 'aggvar_ungrouped' has already been created [");
         // invalid primary key use
         SupportMessageAssertUtil.tryInvalid(epService, "create table abc as (total count(*) primary key)",
                 "Error starting statement: Column 'total' may not be tagged as primary key, an expression cannot become a primary key column [");

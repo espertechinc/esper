@@ -748,6 +748,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         stmtNameToIdMap.remove(statementName);
         stmtNameToStmtMap.remove(statementName);
         services.getStatementEventTypeRefService().removeReferencesStatement(statementName);
+        services.getStatementVariableRefService().removeReferencesStatement(statementName);
         services.getFilterNonPropertyRegisteryService().removeReferencesStatement(statementName);
     }
 

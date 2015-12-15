@@ -58,7 +58,7 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
             return PropertyIndexedEventTableSingleUnique.class;
         }
         else {
-            return PropertyIndexedEventTableSingleUnadorned.class;
+            return PropertyIndexedEventTableSingle.class;
         }
     }
 

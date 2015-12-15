@@ -313,7 +313,7 @@ public class VariableServiceImpl implements VariableService
         // check if it exists
         VariableMetaData metaData = variables.get(variableName);
         if (metaData != null) {
-            throw new VariableExistsException(VariableServiceUtil.getAlreadyDeclaredEx(variableName));
+            throw new VariableExistsException(VariableServiceUtil.getAlreadyDeclaredEx(variableName, false));
         }
 
         // find empty spot
