@@ -149,10 +149,6 @@ public class NamedWindowTailView
         }
     }
 
-    public void addConsumerToBe(NamedWindowConsumerStreamSpec namedSpec, StatementContext statementContext) {
-        // no action necessary
-    }
-
     public void addDispatches(Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext, NamedWindowDeltaData delta, AgentInstanceContext agentInstanceContext) {
         if (!consumersInContext.isEmpty()) {
             namedWindowDispatchService.addDispatch(delta, consumersInContext);

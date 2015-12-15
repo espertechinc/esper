@@ -238,7 +238,7 @@ public class EPStatementStartMethodSelectUtil
                 }
 
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec);
-                processor.getTailView().addConsumerToBe(namedSpec, statementContext);
+                services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
                 unmaterializedViewChain[i] = services.getViewService().createFactories(i, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                 joinAnalysisResult.setNamedWindow(i);
                 eventTypeNames[i] = namedSpec.getWindowName();

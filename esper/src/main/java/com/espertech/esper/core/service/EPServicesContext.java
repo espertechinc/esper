@@ -28,6 +28,7 @@ import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
+import com.espertech.esper.epl.named.NamedWindowConsumerMgmtService;
 import com.espertech.esper.epl.named.NamedWindowDispatchService;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
@@ -111,6 +112,7 @@ public final class EPServicesContext
     private FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     private DataCacheFactory dataCacheFactory;
     private MultiMatchHandlerFactory multiMatchHandlerFactory;
+    private NamedWindowConsumerMgmtService namedWindowConsumerMgmtService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -205,7 +207,8 @@ public final class EPServicesContext
                              EPRuntimeIsolatedFactory epRuntimeIsolatedFactory,
                              FilterBooleanExpressionFactory filterBooleanExpressionFactory,
                              DataCacheFactory dataCacheFactory,
-                             MultiMatchHandlerFactory multiMatchHandlerFactory)
+                             MultiMatchHandlerFactory multiMatchHandlerFactory,
+                             NamedWindowConsumerMgmtService namedWindowConsumerMgmtService)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -264,6 +267,7 @@ public final class EPServicesContext
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.dataCacheFactory = dataCacheFactory;
         this.multiMatchHandlerFactory = multiMatchHandlerFactory;
+        this.namedWindowConsumerMgmtService = namedWindowConsumerMgmtService;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -785,5 +789,9 @@ public final class EPServicesContext
 
     public MultiMatchHandlerFactory getMultiMatchHandlerFactory() {
         return multiMatchHandlerFactory;
+    }
+
+    public NamedWindowConsumerMgmtService getNamedWindowConsumerMgmtService() {
+        return namedWindowConsumerMgmtService;
     }
 }

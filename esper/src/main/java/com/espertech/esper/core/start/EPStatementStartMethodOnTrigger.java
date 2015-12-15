@@ -258,7 +258,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         if (namedSpec.getOptPropertyEvaluator() != null) {
             activatorResultEventType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
         }
-        processor.getTailView().addConsumerToBe(namedSpec, statementContext);
+        services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
         return new ActivatorResult(activator, triggerEventTypeName, activatorResultEventType);
     }
 

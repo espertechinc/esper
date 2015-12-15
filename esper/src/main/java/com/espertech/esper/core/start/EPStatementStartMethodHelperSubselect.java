@@ -144,7 +144,7 @@ public class EPStatementStartMethodHelperSubselect
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(viewFactoryChain.getEventType());
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activatorNamedWindow, streamSpec));
-                    processor.getTailView().addConsumerToBe(namedSpec, statementContext);
+                    services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
                 }
                 // else if there are no named window stream filter expressions and index sharing is enabled
                 else {

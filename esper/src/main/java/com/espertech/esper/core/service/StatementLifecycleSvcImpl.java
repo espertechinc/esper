@@ -705,7 +705,11 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         EPStatementStartResult startResult;
         try
         {
+            // start logically
             startResult = desc.getStartMethod().start(services, desc.getStatementContext(), isNewStatement, isRecoveringStatement, isResilient);
+
+            // start named window consumers
+            services.getNamedWindowConsumerMgmtService().start(desc.getStatementContext().getStatementName());
         }
         catch (EPStatementException ex)
         {
@@ -750,6 +754,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         services.getStatementEventTypeRefService().removeReferencesStatement(statementName);
         services.getStatementVariableRefService().removeReferencesStatement(statementName);
         services.getFilterNonPropertyRegisteryService().removeReferencesStatement(statementName);
+        services.getNamedWindowConsumerMgmtService().removeReferences(statementName);
     }
 
     public synchronized void stop(String statementId)
@@ -777,6 +782,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 log.debug(".startInternal - Statement already stopped");
                 return;
             }
+
+            // stop named window consumers
+            services.getNamedWindowConsumerMgmtService().stop(desc.getStatementContext().getStatementName());
 
             // fire the statement stop
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qEngineManagementStmtStop(EPStatementState.STOPPED, services.getEngineURI(), statementId, statement.getName(), statement.getText(), services.getSchedulingService().getTime());}
@@ -1544,6 +1552,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
             // remove referenced variables (after stop to allow lookup of these during stop)
             services.getStatementVariableRefService().removeReferencesStatement(desc.getEpStatement().getName());
+
+            // destroy named window consumers
+            services.getNamedWindowConsumerMgmtService().destroy(desc.getStatementContext().getStatementName());
 
             if (desc.getDestroyMethod() != null) {
                 desc.getDestroyMethod().destroy();

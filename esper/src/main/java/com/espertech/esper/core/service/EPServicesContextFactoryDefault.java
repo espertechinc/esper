@@ -32,10 +32,7 @@ import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.lookup.EventTableIndexServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
-import com.espertech.esper.epl.named.NamedWindowDispatchService;
-import com.espertech.esper.epl.named.NamedWindowDispatchServiceImpl;
-import com.espertech.esper.epl.named.NamedWindowMgmtService;
-import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
+import com.espertech.esper.epl.named.*;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -208,8 +205,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new EPStatementFactoryDefault(), new RegexHandlerFactoryDefault(), new ViewableActivatorFactoryDefault(),
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
                 new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl(), new EPRuntimeIsolatedFactoryImpl(),
-                new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory(), new MultiMatchHandlerFactoryImpl() {
-        });
+                new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory(), new MultiMatchHandlerFactoryImpl(), NamedWindowConsumerMgmtServiceImpl.INSTANCE);
 
         // Engine services subset available to statements
         statementContextFactory.setStmtEngineServices(services);
