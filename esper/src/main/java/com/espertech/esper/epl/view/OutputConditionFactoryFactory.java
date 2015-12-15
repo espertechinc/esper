@@ -69,7 +69,7 @@ public class OutputConditionFactoryFactory
 
         if(outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB)
         {
-            return new OutputConditionCrontabFactory(outputLimitSpec.getCrontabAtSchedule(), statementContext, isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionCrontab(outputLimitSpec.getCrontabAtSchedule(), statementContext, isStartConditionOnCreation);
         }
         else if(outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION)
         {
