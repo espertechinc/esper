@@ -11,17 +11,32 @@
 
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.client.PropertyAccessException;
+import java.net.URL;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.xpath.XPathEvaluator;
+
 import com.espertech.esper.util.ResourceLoader;
 import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
 import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
 import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
-import com.sun.org.apache.xerces.internal.xs.*;
-import junit.framework.TestCase;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
+import com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition;
+import com.sun.org.apache.xerces.internal.xs.XSConstants;
+import com.sun.org.apache.xerces.internal.xs.XSElementDeclaration;
+import com.sun.org.apache.xerces.internal.xs.XSImplementation;
+import com.sun.org.apache.xerces.internal.xs.XSLoader;
+import com.sun.org.apache.xerces.internal.xs.XSModel;
+import com.sun.org.apache.xerces.internal.xs.XSModelGroup;
+import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
+import com.sun.org.apache.xerces.internal.xs.XSObject;
+import com.sun.org.apache.xerces.internal.xs.XSObjectList;
+import com.sun.org.apache.xerces.internal.xs.XSParticle;
+import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
-import javax.xml.namespace.QName;
-import java.net.URL;
+import junit.framework.TestCase;
 
 public class TestXSDSchemaMapper extends TestCase
 {
@@ -68,11 +83,7 @@ public class TestXSDSchemaMapper extends TestCase
         assertFalse(nested2Element.isArray());
         assertNull(nested2Element.getOptionalSimpleType());
 
-        SchemaElementSimple simpleProp3 = nested2Element.getSimpleElements().get(0);
-        assertEquals("prop3", simpleProp3.getName());
-        assertEquals("samples:schemas:simpleSchema", simpleProp3.getNamespace());
-        assertEquals(XSSimpleType.PRIMITIVE_DECIMAL, simpleProp3.getXsSimpleType());
-        assertTrue(simpleProp3.isArray());
+        verifySimpleElement(nested2Element.getSimpleElements().get(0), "prop3", XSSimpleType.PRIMITIVE_DECIMAL);
 
         SchemaElementComplex prop4Element = component.getChildren().get(1);
         assertEquals("prop4", prop4Element.getName());
@@ -98,18 +109,17 @@ public class TestXSDSchemaMapper extends TestCase
         assertEquals("nested4", nested4Element.getName());
         assertEquals("samples:schemas:simpleSchema", nested4Element.getNamespace());
         assertEquals(1, nested4Element.getAttributes().size());
-        assertEquals(1, nested4Element.getSimpleElements().size());
+        assertEquals(4, nested4Element.getSimpleElements().size());
         assertEquals(0, nested4Element.getChildren().size());
         assertEquals("id", nested4Element.getAttributes().get(0).getName());
         assertEquals(XSSimpleType.PRIMITIVE_STRING, nested4Element.getAttributes().get(0).getXsSimpleType());
         assertTrue(nested4Element.isArray());
         assertNull(nested4Element.getOptionalSimpleType());
 
-        SchemaElementSimple prop5Element = nested4Element.getSimpleElements().get(0);
-        assertEquals("prop5", prop5Element.getName());
-        assertEquals("samples:schemas:simpleSchema", prop5Element.getNamespace());
-        assertEquals(XSSimpleType.PRIMITIVE_STRING, prop5Element.getXsSimpleType());
-        assertTrue(prop5Element.isArray());
+        verifySimpleElement(nested4Element.getSimpleElements().get(0), "prop5", XSSimpleType.PRIMITIVE_STRING);
+        verifySimpleElement(nested4Element.getSimpleElements().get(1), "prop6", XSSimpleType.PRIMITIVE_STRING);
+        verifySimpleElement(nested4Element.getSimpleElements().get(2), "prop7", XSSimpleType.PRIMITIVE_STRING);
+        verifySimpleElement(nested4Element.getSimpleElements().get(3), "prop8", XSSimpleType.PRIMITIVE_STRING);
     }
 
     public void testEvent() throws Exception
@@ -188,6 +198,13 @@ public class TestXSDSchemaMapper extends TestCase
                 }
             }
         }
+    }
+
+    private static void verifySimpleElement(SchemaElementSimple simpleEement, String name, short type){
+        assertEquals(name, simpleEement.getName());
+        assertEquals("samples:schemas:simpleSchema", simpleEement.getNamespace());
+        assertEquals(type, simpleEement.getXsSimpleType());
+        assertTrue(simpleEement.isArray());
     }
 
     private String print(XSParticle particle)

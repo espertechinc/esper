@@ -11,21 +11,6 @@
 
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.util.FileUtil;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.ResourceLoader;
-import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
-import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
-import com.sun.org.apache.xerces.internal.xs.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.DOMError;
-import org.w3c.dom.DOMErrorHandler;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.LSInput;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +21,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.DOMError;
+import org.w3c.dom.DOMErrorHandler;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.LSInput;
+
+import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.util.FileUtil;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.ResourceLoader;
+import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
+import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
+import com.sun.org.apache.xerces.internal.xs.StringList;
+import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
+import com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition;
+import com.sun.org.apache.xerces.internal.xs.XSConstants;
+import com.sun.org.apache.xerces.internal.xs.XSElementDeclaration;
+import com.sun.org.apache.xerces.internal.xs.XSFacet;
+import com.sun.org.apache.xerces.internal.xs.XSImplementation;
+import com.sun.org.apache.xerces.internal.xs.XSLoader;
+import com.sun.org.apache.xerces.internal.xs.XSModel;
+import com.sun.org.apache.xerces.internal.xs.XSModelGroup;
+import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
+import com.sun.org.apache.xerces.internal.xs.XSObject;
+import com.sun.org.apache.xerces.internal.xs.XSObjectList;
+import com.sun.org.apache.xerces.internal.xs.XSParticle;
+import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
+import com.sun.org.apache.xerces.internal.xs.XSTerm;
+
 /**
  * Helper class for mapping a XSD schema model to an internal representation.
  */
+@SuppressWarnings("restriction")
 public class XSDSchemaMapper
 {
     private static final Log log = LogFactory.getLog(XSDSchemaMapper.class);
@@ -236,65 +253,85 @@ public class XSDSchemaMapper
             XSParticle particle = complexActualElement.getParticle();
             if (particle.getTerm() instanceof XSModelGroup )
             {
-                XSModelGroup group = (XSModelGroup)particle.getTerm();
-                XSObjectList particles = group.getParticles();
-                for (int i = 0; i < particles.getLength(); i++)
-                {
-                    XSParticle childParticle = (XSParticle)particles.item(i);
-
-                    if (childParticle.getTerm() instanceof XSElementDeclaration)
-                    {
-                        XSElementDeclaration decl = (XSElementDeclaration) childParticle.getTerm();
-                        boolean isArrayFlag = isArray(childParticle);
-
-                        if (isSimpleTypeCategory(decl.getTypeDefinition().getTypeCategory())) {
-
-                            XSSimpleTypeDecl simpleType = (XSSimpleTypeDecl) decl.getTypeDefinition();
-                            Integer fractionDigits = getFractionRestriction(simpleType);
-                            simpleElements.add(new SchemaElementSimple(decl.getName(), decl.getNamespace(), simpleType.getPrimitiveKind(), simpleType.getName(), isArrayFlag, fractionDigits));
-                        }
-
-                        if (isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory()))
-                        {
-                            String name = decl.getName();
-                            String namespace = decl.getNamespace();
-                            NamespaceNamePair nameNamespace = new NamespaceNamePair(namespace, name);
-                            nameNamespaceStack.add(nameNamespace);
-
-                            // if the stack contains
-                            if (maxRecursiveDepth != Integer.MAX_VALUE)
-                            {
-                                int containsCount = 0;
-                                for (NamespaceNamePair pair : nameNamespaceStack)
-                                {
-                                    if (nameNamespace.equals(pair))
-                                    {
-                                        containsCount++;
-                                    }
-                                }
-
-                                if (containsCount >= maxRecursiveDepth)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            complexActualElement = (XSComplexTypeDefinition) decl.getTypeDefinition();
-                            SchemaElementComplex innerComplex = process(name, namespace, complexActualElement, isArrayFlag, nameNamespaceStack, maxRecursiveDepth);
-
-                            nameNamespaceStack.pop();
-
-                            if (log.isDebugEnabled())
-                            {
-                                log.debug("Adding complex " + complexElement);
-                            }
-                            complexElements.add(innerComplex);
-                        }
-                    }
-                }
+                return processModelGroup(particle, simpleElements, complexElements, nameNamespaceStack, complexActualElement, maxRecursiveDepth, complexElement);
             }
         }
 
+        return complexElement;
+    }
+
+    private static SchemaElementComplex processModelGroup(XSObject xsObject, List<SchemaElementSimple> simpleElements, List<SchemaElementComplex> complexElements, Stack<NamespaceNamePair> nameNamespaceStack, XSComplexTypeDefinition complexActualElement, int maxRecursiveDepth, SchemaElementComplex complexElement){
+        XSTerm term = null;
+        if(xsObject instanceof XSParticle){
+            term = ((XSParticle)xsObject).getTerm();
+        }
+        else {
+            term = (XSTerm) xsObject;
+        }
+
+        if(term instanceof XSModelGroup){
+            XSModelGroup group = (XSModelGroup) term;
+            XSObjectList particles = group.getParticles();
+            for (int i = 0; i < particles.getLength(); i++)
+            {
+                XSParticle childParticle = (XSParticle)particles.item(i);
+
+                if (childParticle.getTerm() instanceof XSElementDeclaration)
+                {
+                    XSElementDeclaration decl = (XSElementDeclaration) childParticle.getTerm();
+                    boolean isArrayFlag = isArray(childParticle);
+
+                    if (isSimpleTypeCategory(decl.getTypeDefinition().getTypeCategory())) {
+                        XSSimpleTypeDecl simpleType = (XSSimpleTypeDecl) decl.getTypeDefinition();
+                        Integer fractionDigits = getFractionRestriction(simpleType);
+                        simpleElements.add(new SchemaElementSimple(decl.getName(), decl.getNamespace(), simpleType.getPrimitiveKind(), simpleType.getName(), isArrayFlag, fractionDigits));
+                    }
+
+                    if (isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory()))
+                    {
+                        String name = decl.getName();
+                        String namespace = decl.getNamespace();
+                        NamespaceNamePair nameNamespace = new NamespaceNamePair(namespace, name);
+                        nameNamespaceStack.add(nameNamespace);
+
+                        // if the stack contains
+                        if (maxRecursiveDepth != Integer.MAX_VALUE)
+                        {
+                            int containsCount = 0;
+                            for (NamespaceNamePair pair : nameNamespaceStack)
+                            {
+                                if (nameNamespace.equals(pair))
+                                {
+                                    containsCount++;
+                                }
+                            }
+
+
+                            if (containsCount >= maxRecursiveDepth)
+                            {
+                                continue;
+                            }
+                        }
+                        else{
+                            System.out.println("Wat?"); //Does get hit.
+                        }
+
+                        complexActualElement = (XSComplexTypeDefinition) decl.getTypeDefinition();
+                        SchemaElementComplex innerComplex = process(name, namespace, complexActualElement, isArrayFlag, nameNamespaceStack, maxRecursiveDepth);
+
+                        nameNamespaceStack.pop();
+
+                        if (log.isDebugEnabled())
+                        {
+                            log.debug("Adding complex " + complexElement);
+                        }
+                        complexElements.add(innerComplex);
+                    }
+                }
+                processModelGroup(childParticle.getTerm(), simpleElements, complexElements, nameNamespaceStack, complexActualElement, maxRecursiveDepth, complexElement);
+            }
+
+        }
         return complexElement;
     }
 
