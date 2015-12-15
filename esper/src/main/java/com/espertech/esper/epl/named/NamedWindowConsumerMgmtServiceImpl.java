@@ -47,7 +47,6 @@ public class NamedWindowConsumerMgmtServiceImpl implements NamedWindowConsumerMg
         if (log.isDebugEnabled()) {
             log.debug("Statement '" + statementName + " destroyed");
         }
-        throw new RuntimeException("hello");
     }
 
     public void removeReferences(String statementName) {
