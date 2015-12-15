@@ -82,4 +82,8 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
     public int getNumKeys() {
         return index.size();
     }
+
+    public Class getProviderClass() {
+        return PropertyCompositeEventTable.class;
+    }
 }

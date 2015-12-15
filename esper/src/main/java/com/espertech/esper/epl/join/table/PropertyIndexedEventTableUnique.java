@@ -124,4 +124,8 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         }
         return new HashSet<EventBean>(propertyIndex.values());
     }
+
+    public Class getProviderClass() {
+        return PropertyIndexedEventTableUnique.class;
+    }
 }

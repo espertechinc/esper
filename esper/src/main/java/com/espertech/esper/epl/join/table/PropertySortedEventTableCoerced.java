@@ -39,4 +39,8 @@ public class PropertySortedEventTableCoerced extends PropertySortedEventTableImp
                 " propertyGetter=" + propertyGetter +
                 " coercionType=" + coercionType;
     }
+
+    public Class getProviderClass() {
+        return PropertySortedEventTableCoerced.class;
+    }
 }

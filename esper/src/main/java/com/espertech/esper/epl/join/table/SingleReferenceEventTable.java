@@ -92,4 +92,8 @@ public class SingleReferenceEventTable implements EventTable, EventTableAsSet {
         }
         return Collections.emptySet();
     }
+
+    public Class getProviderClass() {
+        return SingleReferenceEventTable.class;
+    }
 }

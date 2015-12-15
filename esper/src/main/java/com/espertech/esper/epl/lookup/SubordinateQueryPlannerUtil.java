@@ -167,7 +167,7 @@ public class SubordinateQueryPlannerUtil
         }
         IndexNameAndDescPair[] names = new IndexNameAndDescPair[pairs.length];
         for (int i = 0; i < pairs.length; i++) {
-            names[i] = new IndexNameAndDescPair(pairs[i].getIndexName(), pairs[i].getEventTable().getClass().getSimpleName());
+            names[i] = new IndexNameAndDescPair(pairs[i].getIndexName(), pairs[i].getEventTable().getProviderClass().getSimpleName());
         }
         return names;
     }

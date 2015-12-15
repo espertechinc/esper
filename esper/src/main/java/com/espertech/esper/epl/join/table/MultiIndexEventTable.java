@@ -127,4 +127,8 @@ public class MultiIndexEventTable implements EventTable
     public EventTableOrganization getOrganization() {
         return organization;
     }
+
+    public Class getProviderClass() {
+        return MultiIndexEventTable.class;
+    }
 }

@@ -122,4 +122,8 @@ public class UnindexedEventTableImpl extends UnindexedEventTable
     public Object getIndex() {
         return eventSet;
     }
+
+    public Class getProviderClass() {
+        return UnindexedEventTable.class;
+    }
 }

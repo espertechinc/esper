@@ -101,4 +101,8 @@ public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTabl
     public Object getIndex() {
         return propertyIndex;
     }
+
+    public Class getProviderClass() {
+        return PropertyIndexedEventTable.class;
+    }
 }

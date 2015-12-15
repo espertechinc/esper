@@ -117,7 +117,7 @@ public class FireAndForgetQueryExec
                 hook.fireAndForget(new QueryPlanIndexDescFAF(
                         new IndexNameAndDescPair[] {
                                 new IndexNameAndDescPair(indexName, tablePair != null ?
-                                        tablePair.getSecond().getEventTable().getClass().getSimpleName() : null)
+                                        tablePair.getSecond().getEventTable().getProviderClass().getSimpleName() : null)
                         }));
             }
         }

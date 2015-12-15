@@ -97,4 +97,8 @@ public class VirtualDWEventTable implements EventTable
     public EventTableOrganization getOrganization() {
         return organization;
     }
+
+    public Class getProviderClass() {
+        return VirtualDWEventTable.class;
+    }
 }

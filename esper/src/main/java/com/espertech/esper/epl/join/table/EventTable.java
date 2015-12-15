@@ -83,6 +83,8 @@ public interface EventTable extends Iterable<EventBean>
 
     public String toQueryPlan();
 
+    public Class getProviderClass();
+
     /**
      * If the number of events is readily available, an implementation will return that number
      * or it may return null to indicate that the count is not readily available.

@@ -323,4 +323,8 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
             throw new IllegalArgumentException("Unrecognized operator '" + lookupValue.getOperator() + "'");
         }
     }
+
+    public Class getProviderClass() {
+        return PropertySortedEventTable.class;
+    }
 }
