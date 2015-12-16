@@ -115,7 +115,14 @@ public class TestNamedWindowOnUpdate extends TestCase
         EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 8.0}});
 
         createSendEvent(epService, "S2", "BComp", 4.0, 0.0);
-        assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+        // this example does not have @priority thereby it is undefined whether there are two counts delivered or one
+        if (listener.getLastNewData().length == 2) {
+            assertEquals(1L, listener.getLastNewData()[0].get("cnt"));
+            assertEquals(2L, listener.getLastNewData()[1].get("cnt"));
+        }
+        else {
+            assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+        }
         EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 7.0}, {"BComp", 4.0, 0.0}});
     }
 
