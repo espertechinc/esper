@@ -21,6 +21,8 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
+
 public class TestEPStatementSubstitutionParams extends TestCase
 {
     private EPServiceProvider epService;
@@ -438,13 +440,13 @@ public class TestEPStatementSubstitutionParams extends TestCase
         }
     }
 
-    public interface IKey {
+    public interface IKey extends Serializable {
     }
 
-    public class MyObjectKeyInterface implements IKey {
+    public static class MyObjectKeyInterface implements IKey {
     }
 
-    public class MyEventOne {
+    public static class MyEventOne {
         private IKey key;
 
         public MyEventOne(IKey key) {
@@ -456,10 +458,10 @@ public class TestEPStatementSubstitutionParams extends TestCase
         }
     }
 
-    public class MyObjectKeyConcrete {
+    public static class MyObjectKeyConcrete implements Serializable {
     }
 
-    public class MyEventTwo {
+    public static class MyEventTwo implements Serializable {
         private MyObjectKeyConcrete key;
 
         public MyEventTwo(MyObjectKeyConcrete key) {

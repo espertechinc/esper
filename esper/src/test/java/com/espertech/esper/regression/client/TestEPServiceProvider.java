@@ -134,6 +134,8 @@ public class TestEPServiceProvider extends TestCase
         epService.initialize();
         assertSame(epService, listenerTwo.assertOneGetAndResetInitializedEvents());
         assertTrue(listener.getInitializedEvents().isEmpty());
+
+        epService.destroy();
     }
 
     public void testStatementStateChange()
