@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,13 +48,12 @@ import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
 import com.sun.org.apache.xerces.internal.xs.XSObject;
 import com.sun.org.apache.xerces.internal.xs.XSObjectList;
 import com.sun.org.apache.xerces.internal.xs.XSParticle;
-import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSTerm;
+import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
 /**
  * Helper class for mapping a XSD schema model to an internal representation.
  */
-@SuppressWarnings("restriction")
 public class XSDSchemaMapper
 {
     private static final Log log = LogFactory.getLog(XSDSchemaMapper.class);
@@ -68,10 +66,9 @@ public class XSDSchemaMapper
     /**
      * Loading and mapping of the schema to the internal representation.
      * @param schemaResource schema to load and map.
-     * @param maxRecusiveDepth depth of maximal recursive element
      * @return model
      */
-    public static SchemaModel loadAndMap(String schemaResource, String schemaText, int maxRecusiveDepth)
+    public static SchemaModel loadAndMap(String schemaResource, String schemaText)
     {
         // Load schema
         XSModel model;
@@ -89,7 +86,7 @@ public class XSDSchemaMapper
         }
 
         // Map schema to internal representation
-        return map(model, maxRecusiveDepth);
+        return map(model);
     }
 
     private static XSModel readSchemaInternal(String schemaResource, String schemaText) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
@@ -152,7 +149,7 @@ public class XSDSchemaMapper
         return xsModel;
     }
 
-    private static SchemaModel map(XSModel xsModel, int maxRecusiveDepth)
+    private static SchemaModel map(XSModel xsModel)
     {
         // get namespaces
         StringList namespaces = xsModel.getNamespaces();
@@ -178,21 +175,20 @@ public class XSDSchemaMapper
             if (!isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory()))
             {
                 continue;
-            }            
+            }
 
             XSComplexTypeDefinition complexActualElement = (XSComplexTypeDefinition) decl.getTypeDefinition();
             String name = object.getName();
             String namespace = object.getNamespace();
-            Stack<NamespaceNamePair> nameNamespaceStack = new Stack<NamespaceNamePair>();
-            NamespaceNamePair nameNamespace = new NamespaceNamePair(namespace, name);
-            nameNamespaceStack.add(nameNamespace);
+
+            ElementPathNode rootNode = new ElementPathNode(null, name);
 
             if (log.isDebugEnabled())
             {
                 log.debug("Processing component " + namespace + " " + name);
             }
 
-            SchemaElementComplex complexElement = process(name, namespace, complexActualElement, false, nameNamespaceStack, maxRecusiveDepth);
+            SchemaElementComplex complexElement = process(name, namespace, complexActualElement, false, rootNode);
 
             if (log.isDebugEnabled())
             {
@@ -214,11 +210,11 @@ public class XSDSchemaMapper
         return (typeCategory == XSTypeDefinition.SIMPLE_TYPE) || (typeCategory == JAVA5_SIMPLE_TYPE) || (typeCategory == JAVA6_SIMPLE_TYPE);
     }
 
-    private static SchemaElementComplex process(String complexElementName, String complexElementNamespace, XSComplexTypeDefinition complexActualElement, boolean isArray, Stack<NamespaceNamePair> nameNamespaceStack, int maxRecursiveDepth)
+    private static SchemaElementComplex process(String complexElementName, String complexElementNamespace, XSComplexTypeDefinition complexActualElement, boolean isArray, ElementPathNode node)
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Processing complex " + complexElementNamespace + " " + complexElementName + " stack " + nameNamespaceStack);
+            log.debug("Processing complex " + complexElementNamespace + " " + complexElementName + " stack " + node.toString()); //TODO JC 2015-12-15: fix toString();
         }
 
         List<SchemaItemAttribute> attributes = new ArrayList<SchemaItemAttribute>();
@@ -253,14 +249,14 @@ public class XSDSchemaMapper
             XSParticle particle = complexActualElement.getParticle();
             if (particle.getTerm() instanceof XSModelGroup )
             {
-                return processModelGroup(particle, simpleElements, complexElements, nameNamespaceStack, complexActualElement, maxRecursiveDepth, complexElement);
+                return processModelGroup(particle, simpleElements, complexElements, node, complexActualElement, complexElement);
             }
         }
 
         return complexElement;
     }
 
-    private static SchemaElementComplex processModelGroup(XSObject xsObject, List<SchemaElementSimple> simpleElements, List<SchemaElementComplex> complexElements, Stack<NamespaceNamePair> nameNamespaceStack, XSComplexTypeDefinition complexActualElement, int maxRecursiveDepth, SchemaElementComplex complexElement){
+    private static SchemaElementComplex processModelGroup(XSObject xsObject, List<SchemaElementSimple> simpleElements, List<SchemaElementComplex> complexElements, ElementPathNode node, XSComplexTypeDefinition complexActualElement, SchemaElementComplex complexElement){
         XSTerm term = null;
         if(xsObject instanceof XSParticle){
             term = ((XSParticle)xsObject).getTerm();
@@ -291,35 +287,14 @@ public class XSDSchemaMapper
                     {
                         String name = decl.getName();
                         String namespace = decl.getNamespace();
-                        NamespaceNamePair nameNamespace = new NamespaceNamePair(namespace, name);
-                        nameNamespaceStack.add(nameNamespace);
+                        ElementPathNode newChild = node.addChild(name);
 
-                        // if the stack contains
-                        if (maxRecursiveDepth != Integer.MAX_VALUE)
-                        {
-                            int containsCount = 0;
-                            for (NamespaceNamePair pair : nameNamespaceStack)
-                            {
-                                if (nameNamespace.equals(pair))
-                                {
-                                    containsCount++;
-                                }
-                            }
-
-
-                            if (containsCount >= maxRecursiveDepth)
-                            {
-                                continue;
-                            }
-                        }
-                        else{
-                            System.out.println("Wat?"); //Does get hit.
+                        if(newChild.doesNameAlreadyExistInHierarchy()){
+                        	continue;
                         }
 
                         complexActualElement = (XSComplexTypeDefinition) decl.getTypeDefinition();
-                        SchemaElementComplex innerComplex = process(name, namespace, complexActualElement, isArrayFlag, nameNamespaceStack, maxRecursiveDepth);
-
-                        nameNamespaceStack.pop();
+                        SchemaElementComplex innerComplex = process(name, namespace, complexActualElement, isArrayFlag, newChild);
 
                         if (log.isDebugEnabled())
                         {
@@ -328,7 +303,8 @@ public class XSDSchemaMapper
                         complexElements.add(innerComplex);
                     }
                 }
-                processModelGroup(childParticle.getTerm(), simpleElements, complexElements, nameNamespaceStack, complexActualElement, maxRecursiveDepth, complexElement);
+
+                processModelGroup(childParticle.getTerm(), simpleElements, complexElements, node, complexActualElement, complexElement);
             }
 
         }
@@ -477,3 +453,4 @@ public class XSDSchemaMapper
         }
     }
 }
+

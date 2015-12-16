@@ -16,7 +16,6 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.xpath.XPathEvaluator;
 
 import com.espertech.esper.util.ResourceLoader;
 import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
@@ -45,7 +44,7 @@ public class TestXSDSchemaMapper extends TestCase
         URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/simpleSchema.xsd");
         String schemaUri = url.toURI().toString();
 
-        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null, 2);
+        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null);
         assertEquals(1, model.getComponents().size());
 
         SchemaElementComplex component = model.getComponents().get(0);
@@ -147,6 +146,45 @@ public class TestXSDSchemaMapper extends TestCase
         printSchemaDef(complexActualElement, 2);
     }
 
+    public void testExtendedElements() throws Exception
+    {
+        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/schemaWithExtensions.xsd");
+        String schemaUri = url.toURI().toString();
+        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null);
+
+        SchemaElementComplex complexEvent = model.getComponents().get(0);
+        verifyComplexElement(complexEvent, "complexEvent", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(complexEvent, 0, 0, 1);
+        
+        SchemaElementComplex mainElement = complexEvent.getChildren().get(0);
+        verifyComplexElement(mainElement, "mainElement", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(mainElement, 0, 0, 4);
+        
+        SchemaElementComplex baseType4 = mainElement.getChildren().get(0);
+        verifyComplexElement(baseType4, "baseType4", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(baseType4, 0, 0, 0);
+        
+        SchemaElementComplex aType2 = mainElement.getChildren().get(1);
+        verifyComplexElement(aType2, "aType2", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(aType2, 0, 2, 1);
+        
+        SchemaElementComplex aType3 = mainElement.getChildren().get(2);
+        verifyComplexElement(aType3, "aType3", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(aType3, 0, 1, 2);
+        
+        SchemaElementComplex aType3baseType4 = aType3.getChildren().get(0);
+        verifyComplexElement(aType3baseType4, "baseType4", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(aType3baseType4, 0, 0, 0);
+        
+        SchemaElementComplex aType3type2 = aType3.getChildren().get(1);
+        verifyComplexElement(aType3type2, "aType2", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(aType3type2, 0, 2, 1);
+        
+        SchemaElementComplex aType4 = mainElement.getChildren().get(3);
+        verifyComplexElement(aType4, "aType4", XSSimpleType.COMPLEX_TYPE);
+        verifySizes(aType4, 0, 0, 1);
+     }
+
     private void printSchemaDef(XSComplexTypeDefinition complexActualElement, int indent)
     {
         XSObjectList attrs = complexActualElement.getAttributeUses();
@@ -200,13 +238,6 @@ public class TestXSDSchemaMapper extends TestCase
         }
     }
 
-    private static void verifySimpleElement(SchemaElementSimple simpleEement, String name, short type){
-        assertEquals(name, simpleEement.getName());
-        assertEquals("samples:schemas:simpleSchema", simpleEement.getNamespace());
-        assertEquals(type, simpleEement.getXsSimpleType());
-        assertTrue(simpleEement.isArray());
-    }
-
     private String print(XSParticle particle)
     {
         String text = " min " + particle.getMinOccurs();
@@ -224,5 +255,27 @@ public class TestXSDSchemaMapper extends TestCase
     private String indent(int count)
     {
         return String.format("%" + count + "s", "");
-    }    
+    }
+    
+
+    private static void verifySimpleElement(SchemaElementSimple element, String name, short type){
+        assertEquals(type, element.getXsSimpleType());
+        verifyElement(element, name);
+    }
+
+    private static void verifyComplexElement(SchemaElementComplex element, String name, short type){
+        assertNull(element.getOptionalSimpleType());
+        verifyElement(element, name);
+    }
+
+    private static void verifyElement(SchemaElement element, String name){
+        assertEquals(name, element.getName());
+        assertEquals("samples:schemas:simpleSchema", element.getNamespace());
+    }
+
+    private static void verifySizes(SchemaElementComplex element, int expectedNumberOfAttributes, int expectedNumberOfSimpleElements, int expectedNumberOfChildren){
+        assertEquals(expectedNumberOfAttributes, element.getAttributes().size());
+        assertEquals(expectedNumberOfSimpleElements, element.getSimpleElements().size());
+        assertEquals(expectedNumberOfChildren, element.getChildren().size());
+    }
 }

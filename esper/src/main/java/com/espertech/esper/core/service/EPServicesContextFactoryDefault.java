@@ -370,7 +370,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             {
                 try
                 {
-                    schemaModel = XSDSchemaMapper.loadAndMap(entry.getValue().getSchemaResource(), entry.getValue().getSchemaText(), 2);
+                    schemaModel = XSDSchemaMapper.loadAndMap(entry.getValue().getSchemaResource(), entry.getValue().getSchemaText());
                 }
                 catch (Exception ex)
                 {
