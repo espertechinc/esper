@@ -37,14 +37,16 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
 {
     private final NamedWindowRootViewInstance rootViewInstance;
     private final NamedWindowTailView tailView;
+    private final NamedWindowProcessor namedWindowProcessor;
     private final AgentInstanceContext agentInstanceContext;
 
     private volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext;  // handles as copy-on-write
     private volatile long numberOfEvents;
 
-    public NamedWindowTailViewInstance(NamedWindowRootViewInstance rootViewInstance, NamedWindowTailView tailView, AgentInstanceContext agentInstanceContext) {
+    public NamedWindowTailViewInstance(NamedWindowRootViewInstance rootViewInstance, NamedWindowTailView tailView, NamedWindowProcessor namedWindowProcessor, AgentInstanceContext agentInstanceContext) {
         this.rootViewInstance = rootViewInstance;
         this.tailView = tailView;
+        this.namedWindowProcessor = namedWindowProcessor;
         this.agentInstanceContext = agentInstanceContext;
         this.consumersInContext = NamedWindowUtil.createConsumerMap(tailView.isPrioritized());
     }
@@ -85,7 +87,12 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     {
         NamedWindowConsumerCallback consumerCallback = new NamedWindowConsumerCallback() {
             public Iterator<EventBean> getIterator() {
-                return NamedWindowTailViewInstance.this.iterator();
+                NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
+                if (instance == null) {
+                    // this can happen on context-partition "output when terminated"
+                    return NamedWindowTailViewInstance.this.iterator();
+                }
+                return instance.getTailViewInstance().iterator();
             }
 
             public void stopped(NamedWindowConsumerView namedWindowConsumerView) {
