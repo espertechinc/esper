@@ -39,20 +39,20 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecycle, FilterHandleCallback {
 
     @DataFlowOpParameter
-    private ExprNode filter;
+    protected ExprNode filter;
 
     @DataFlowOpParameter
-    private EPDataFlowEventBeanCollector collector;
+    protected EPDataFlowEventBeanCollector collector;
 
     @DataFlowContext
-    private EPDataFlowEmitter graphContext;
+    protected EPDataFlowEmitter graphContext;
 
-    private EventType eventType;
-    private AgentInstanceContext agentInstanceContext;
-    private EPStatementHandleCallback callbackHandle;
-    private FilterServiceEntry filterServiceEntry;
-    private LinkedBlockingDeque<Object> emittables = new LinkedBlockingDeque<Object>();
-    private boolean submitEventBean;
+    protected EventType eventType;
+    protected AgentInstanceContext agentInstanceContext;
+    protected EPStatementHandleCallback callbackHandle;
+    protected FilterServiceEntry filterServiceEntry;
+    protected LinkedBlockingDeque<Object> emittables = new LinkedBlockingDeque<Object>();
+    protected boolean submitEventBean;
 
     private ThreadLocal<EPDataFlowEventBeanCollectorContext> collectorDataTL = new ThreadLocal<EPDataFlowEventBeanCollectorContext>() {
         protected synchronized EPDataFlowEventBeanCollectorContext initialValue() {
