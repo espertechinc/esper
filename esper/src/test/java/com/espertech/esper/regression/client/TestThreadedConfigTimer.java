@@ -27,6 +27,10 @@ public class TestThreadedConfigTimer extends TestCase
 
     public void testOp() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestThreadedConfigTimer.class)) {
+            return;
+        }
+
         Configuration config = SupportConfigFactory.getConfiguration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         config.getEngineDefaults().getExpression().setUdfCache(false);
