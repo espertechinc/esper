@@ -317,7 +317,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         for (FilterSpecCompiled filter : filterSpecAll) {
             if (filter.getParameters().length > 1) {
                 needDedup = true;
-                break;
             }
             StatementLifecycleSvcUtil.assignFilterSpecIds(filter, filterSpecAll);
             registerNonPropertyGetters(filter, statementName, services.getFilterNonPropertyRegisteryService());
