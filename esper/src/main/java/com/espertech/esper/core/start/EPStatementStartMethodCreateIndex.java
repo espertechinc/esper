@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexUtil;
@@ -122,6 +123,12 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                     stopCallback.stop();
                 }
             };
+
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(result);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(result, isRecoveringResilient);
+            }
         }
 
         if (tableMetadata != null) {
