@@ -57,6 +57,10 @@ public class NamedWindowRootViewInstance extends ViewSupport
         this.tablePerMultiLookup = new HashMap<SubordWMatchExprLookupStrategy, EventTable[]>();
     }
 
+    public AgentInstanceContext getAgentInstanceContext() {
+        return agentInstanceContext;
+    }
+
     public EventTableIndexRepository getIndexRepository() {
         return indexRepository;
     }
