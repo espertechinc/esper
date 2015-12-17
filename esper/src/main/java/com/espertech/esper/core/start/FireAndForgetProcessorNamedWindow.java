@@ -81,6 +81,6 @@ public class FireAndForgetProcessorNamedWindow extends FireAndForgetProcessor {
         if (processorInstance == null) {
             return new String[0][];
         }
-        return namedWindowProcessor.getUniqueIndexes(((FireAndForgetInstanceNamedWindow) processorInstance).getProcessorInstance());
+        return namedWindowProcessor.getUniqueIndexes();
     }
 }

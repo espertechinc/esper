@@ -400,8 +400,7 @@ public class EPStatementStartMethodSelectUtil
                 }
                 analysisResult.setNamedWindow(i);
                 final NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(nwSpec.getWindowName());
-                NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(defaultAgentInstanceContext);
-                String[][] uniqueIndexes = processor.getUniqueIndexes(processorInstance);
+                String[][] uniqueIndexes = processor.getUniqueIndexes();
                 analysisResult.getUniqueKeys()[i] = uniqueIndexes;
                 if (processor.isVirtualDataWindow()) {
                     analysisResult.getViewExternal()[i] = new VirtualDWViewProviderForAgentInstance() {

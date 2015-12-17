@@ -211,20 +211,19 @@ public class NamedWindowProcessor
         return namedWindowName;
     }
 
-    public String[][] getUniqueIndexes(NamedWindowProcessorInstance processorInstance) {
+    public String[][] getUniqueIndexes() {
         List<String[]> unique = null;
-        if (processorInstance != null) {
-            IndexMultiKey[] indexDescriptors = processorInstance.getIndexDescriptors();
-            for (IndexMultiKey index : indexDescriptors) {
-                if (!index.isUnique()) {
-                    continue;
-                }
-                String[] uniqueKeys = IndexedPropDesc.getIndexProperties(index.getHashIndexedProps());
-                if (unique == null) {
-                    unique = new ArrayList<String[]>();
-                }
-                unique.add(uniqueKeys);
+
+        Set<IndexMultiKey> indexDescriptors = getEventTableIndexMetadataRepo().getIndexes().keySet();
+        for (IndexMultiKey index : indexDescriptors) {
+            if (!index.isUnique()) {
+                continue;
             }
+            String[] uniqueKeys = IndexedPropDesc.getIndexProperties(index.getHashIndexedProps());
+            if (unique == null) {
+                unique = new ArrayList<String[]>();
+            }
+            unique.add(uniqueKeys);
         }
         if (optionalUniqueKeyProps != null) {
             if (unique == null) {
