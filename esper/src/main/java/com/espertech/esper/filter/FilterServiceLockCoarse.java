@@ -20,7 +20,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public FilterServiceLockCoarse(boolean allowIsolation) {
-        super(new FilterServiceGranularLockFactoryNone(), allowIsolation);
+        super(FilterServiceGranularLockFactoryNone.INSTANCE, allowIsolation);
     }
 
     public void acquireWriteLock() {
