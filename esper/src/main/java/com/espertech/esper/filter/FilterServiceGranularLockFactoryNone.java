@@ -17,6 +17,9 @@ public class FilterServiceGranularLockFactoryNone implements FilterServiceGranul
 {
     public static final FilterServiceGranularLockFactoryNone INSTANCE = new FilterServiceGranularLockFactoryNone();
 
+    private FilterServiceGranularLockFactoryNone() {
+    }
+
     private static Lock LOCKNONE = new Lock() {
         public void lock() {
         }
