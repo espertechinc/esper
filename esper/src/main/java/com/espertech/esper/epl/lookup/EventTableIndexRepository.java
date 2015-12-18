@@ -196,4 +196,11 @@ public class EventTableIndexRepository
         }
         return null;
     }
+
+    public void removeExplicitIndex(String indexName) {
+        EventTable eventTable = explicitIndexes.remove(indexName);
+        if (eventTable != null) {
+            eventTable.destroy();
+        }
+    }
 }

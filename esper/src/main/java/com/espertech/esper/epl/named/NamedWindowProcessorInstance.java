@@ -79,4 +79,8 @@ public class NamedWindowProcessorInstance
     public void removeIndex(IndexMultiKey index) {
         rootViewInstance.getIndexRepository().removeIndex(index);
     }
+
+    public void removeExplicitIndex(String indexName) {
+        rootViewInstance.getIndexRepository().removeExplicitIndex(indexName);
+    }
 }

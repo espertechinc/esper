@@ -90,4 +90,8 @@ public abstract class TableStateInstance {
         }
         // no action
     }
+
+    public void removeExplicitIndex(String indexName) {
+        indexRepository.removeExplicitIndex(indexName);
+    }
 }

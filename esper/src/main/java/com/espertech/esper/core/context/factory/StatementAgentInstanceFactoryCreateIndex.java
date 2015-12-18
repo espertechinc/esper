@@ -14,11 +14,11 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
+import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.Viewable;
@@ -42,6 +42,8 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
     public StatementAgentInstanceFactoryCreateIndexResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
     {
         StopCallback stopCallback;
+        final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
+
         if (namedWindowProcessor != null) {
             // handle named window index
             final NamedWindowProcessorInstance processorInstance = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
@@ -62,8 +64,13 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                 catch (ExprValidationException e) {
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
                 }
+
                 stopCallback = new StopCallback() {
                     public void stop() {
+                        NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceId);
+                        if (instance != null) {
+                            instance.removeExplicitIndex(spec.getIndexName());
+                        }
                     }
                 };
             }
@@ -77,8 +84,13 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             catch (ExprValidationException ex) {
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);
             }
+
             stopCallback = new StopCallback() {
                 public void stop() {
+                    TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceId);
+                    if (instance != null) {
+                        instance.removeExplicitIndex(spec.getIndexName());
+                    }
                 }
             };
         }
