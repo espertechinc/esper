@@ -37,7 +37,6 @@ import com.espertech.esper.epl.spec.OnTriggerWindowDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.util.StopCallback;
-import com.espertech.esper.view.StatementStopCallback;
 import com.espertech.esper.view.View;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
 
     private final SubordinateWMatchExprQueryPlanResult queryPlan;
 
-    public StatementAgentInstanceFactoryOnTriggerNamedWindow(final StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, ExprNode validatedJoin, ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype, NamedWindowOnExprFactory onExprFactory, OutputProcessViewFactory outputProcessViewFactory, EventType activatorResultEventType, final NamedWindowProcessor processor)
+    public StatementAgentInstanceFactoryOnTriggerNamedWindow(final StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, ExprNode validatedJoin, ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype, NamedWindowOnExprFactory onExprFactory, OutputProcessViewFactory outputProcessViewFactory, EventType activatorResultEventType, final NamedWindowProcessor processor, List<StopCallback> stopCallbacks)
             throws ExprValidationException
     {
         super(statementContext, statementSpec, services, activator, subSelectStrategyCollection);
@@ -71,8 +70,8 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
                 processor.getOptionalUniqueKeyProps(), false, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
         if (queryPlan.getIndexDescs() != null) {
             SubordinateQueryPlannerUtil.addIndexMetaAndRef(queryPlan.getIndexDescs(), processor.getEventTableIndexMetadataRepo(), statementContext.getStatementName());
-            statementContext.getStatementStopService().addSubscriber(new StatementStopCallback() {
-                public void statementStopped() {
+            stopCallbacks.add(new StopCallback() {
+                public void stop() {
                     for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
                         boolean last = processor.getEventTableIndexMetadataRepo().removeIndexReference(queryPlan.getIndexDescs()[i].getIndexMultiKey(), statementContext.getStatementName());
                         if (last) {

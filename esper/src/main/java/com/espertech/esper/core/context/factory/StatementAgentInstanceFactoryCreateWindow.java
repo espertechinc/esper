@@ -126,20 +126,24 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             }
             final StopCallback environmentStopCallback = envStopCallback;
 
-            // create stop method using statement stream specs
-            StopCallback allInOneStopMethod = new StopCallback()
-            {
-                public void stop()
-                {
+            // Only if we are context-allocated: destroy the instance
+            final String contextName = processor.getContextName();
+            final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
+            StopCallback allInOneStopMethod = new StopCallback() {
+                public void stop() {
                     String windowName = statementSpec.getCreateWindowDesc().getWindowName();
                     NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(windowName);
                     if (processor == null) {
                         log.warn("Named window processor by name '" + windowName + "' has not been found");
-                    }
-                    else {
-                        NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceContext);
+                    } else {
+                        NamedWindowProcessorInstance instance = processor.getProcessorInstanceAllowUnpartitioned(agentInstanceId);
                         if (instance != null) {
-                            instance.getRootViewInstance().destroy();
+                            if (contextName != null) {
+                                instance.destroy();
+                            }
+                            else {
+                                instance.stop();
+                            }
                         }
                     }
                     if (environmentStopCallback != null) {

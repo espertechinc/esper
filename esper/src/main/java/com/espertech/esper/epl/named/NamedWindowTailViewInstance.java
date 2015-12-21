@@ -354,4 +354,8 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     private void releaseTableLocks(AgentInstanceContext agentInstanceContext) {
         agentInstanceContext.getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
     }
+
+    public void stop() {
+        // no action
+    }
 }

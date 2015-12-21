@@ -122,7 +122,8 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
                 services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
             }
             else if (services.getNamedWindowMgmtService().getProcessor(onTriggerDesc.getWindowName()) != null) {
-                contextFactoryResult = handleContextFactoryOnTriggerNamedWindow(services, statementContext, onTriggerDesc, contextName, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult, optionalStreamSelector);
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), onTriggerDesc.getWindowName());
+                contextFactoryResult = handleContextFactoryOnTriggerNamedWindow(services, statementContext, onTriggerDesc, contextName, streamSpec, contextPropertyRegistry, subSelectStreamDesc, activatorResult, optionalStreamSelector, stopCallbacks);
             }
             else {
                 throw new ExprValidationException("A named window or variable by name '" + onTriggerDesc.getWindowName() + "' does not exist");
@@ -395,7 +396,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         return null;
     }
 
-    private ContextFactoryResult handleContextFactoryOnTriggerNamedWindow(EPServicesContext services, StatementContext statementContext, OnTriggerWindowDesc onTriggerDesc, String contextName, StreamSpecCompiled streamSpec, ContextPropertyRegistry contextPropertyRegistry, SubSelectActivationCollection subSelectStreamDesc, ActivatorResult activatorResult, StreamSelector optionalStreamSelector)
+    private ContextFactoryResult handleContextFactoryOnTriggerNamedWindow(EPServicesContext services, StatementContext statementContext, OnTriggerWindowDesc onTriggerDesc, String contextName, StreamSpecCompiled streamSpec, ContextPropertyRegistry contextPropertyRegistry, SubSelectActivationCollection subSelectStreamDesc, ActivatorResult activatorResult, StreamSelector optionalStreamSelector, List<StopCallback> stopCallbacks)
             throws ExprValidationException
     {
         NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(onTriggerDesc.getWindowName());
@@ -448,7 +449,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
         EventType resultEventType = validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType();
         OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultEventType, null, services.getTableService(), validationResult.resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
-        StatementAgentInstanceFactoryOnTriggerNamedWindow contextFactory = new StatementAgentInstanceFactoryOnTriggerNamedWindow(statementContext, statementSpec, services, activatorResult.activator, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype, validationResult.validatedJoin, outputResultSetProcessorPrototype, onExprFactory, outputViewFactory, activatorResult.activatorResultEventType, processor);
+        StatementAgentInstanceFactoryOnTriggerNamedWindow contextFactory = new StatementAgentInstanceFactoryOnTriggerNamedWindow(statementContext, statementSpec, services, activatorResult.activator, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype, validationResult.validatedJoin, outputResultSetProcessorPrototype, onExprFactory, outputViewFactory, activatorResult.activatorResultEventType, processor, stopCallbacks);
         return new ContextFactoryResult(contextFactory, validationResult.subSelectStrategyCollection, validationResult.resultSetProcessorPrototype);
     }
 

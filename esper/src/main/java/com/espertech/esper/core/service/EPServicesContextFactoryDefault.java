@@ -156,7 +156,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         valueAddEventService.init(configSnapshot.getRevisionEventTypes(), configSnapshot.getVariantStreams(), eventAdapterService, eventTypeIdGenerator);
 
         StatementEventTypeRef statementEventTypeRef = new StatementEventTypeRefImpl();
-        StatementVariableRef statementVariableRef = new StatementVariableRefImpl(variableService, tableService);
+        StatementVariableRef statementVariableRef = new StatementVariableRefImpl(variableService, tableService, namedWindowMgmtService);
 
         ThreadingService threadingService = new ThreadingServiceImpl(configSnapshot.getEngineDefaults().getThreading());
 

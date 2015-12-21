@@ -222,4 +222,10 @@ public class NamedWindowRootViewInstance extends ViewSupport
     public boolean isQueryPlanLogging() {
         return rootView.isQueryPlanLogging();
     }
+
+    public void stop() {
+        if (isVirtualDataWindow()) {
+            getVirtualDataWindow().handleStopWindow();
+        }
+    }
 }

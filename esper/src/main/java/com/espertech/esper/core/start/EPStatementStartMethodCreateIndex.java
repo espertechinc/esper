@@ -134,6 +134,9 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
         if (tableMetadata != null) {
             services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
         }
+        else {
+            services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), namedWindowProcessor.getNamedWindowType().getName());
+        }
 
         return new EPStatementStartResult(viewable, stopMethod, destroyMethod);
     }

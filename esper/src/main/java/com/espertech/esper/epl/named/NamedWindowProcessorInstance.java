@@ -56,6 +56,11 @@ public class NamedWindowProcessorInstance
         rootViewInstance.destroy();
     }
 
+    public void stop() {
+        tailViewInstance.stop();
+        rootViewInstance.stop();
+    }
+
     public IndexMultiKey[] getIndexDescriptors() {
         return rootViewInstance.getIndexes();
     }

@@ -102,6 +102,15 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
         return processor.getProcessorInstance(null).getIndexDescriptors();
     }
 
+    public void removeNamedWindowIfFound(String namedWindowName) {
+        NamedWindowProcessor processor = processors.get(namedWindowName);
+        if (processor == null) {
+            return;
+        }
+        processor.clearProcessorInstances();
+        removeProcessor(namedWindowName);
+    }
+
     public NamedWindowProcessor addProcessor(String name, String contextName, EventType eventType, StatementResultService statementResultService,
                                              ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized,
                                              boolean isEnableSubqueryIndexShare, boolean isBatchingDataWindow,

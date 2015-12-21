@@ -199,6 +199,8 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             throw ex;
         }
 
+        services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), windowName);
+
         return new EPStatementStartResult(finalViewable, stopStatementMethod, destroyStatementMethod);
     }
 

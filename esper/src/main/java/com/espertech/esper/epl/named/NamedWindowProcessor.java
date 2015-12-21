@@ -15,6 +15,7 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableIndexMetadata;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
@@ -91,6 +92,14 @@ public class NamedWindowProcessor
     }
 
     public NamedWindowProcessorInstance getProcessorInstance(int agentInstanceId) {
+        StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getPartitioned(agentInstanceId);
+        return holder == null ? null : holder.getNamedWindowProcessorInstance();
+    }
+
+    public NamedWindowProcessorInstance getProcessorInstanceAllowUnpartitioned(int agentInstanceId) {
+        if (agentInstanceId == EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID) {
+            return getProcessorInstanceNoContext();
+        }
         StatementResourceHolder holder = statementContextCreateWindow.getStatementExtensionServicesContext().getStmtResources().getPartitioned(agentInstanceId);
         return holder == null ? null : holder.getNamedWindowProcessorInstance();
     }
@@ -276,6 +285,24 @@ public class NamedWindowProcessor
         if (last) {
             eventTableIndexMetadataRepo.removeIndex(imk);
             removeAllInstanceIndexes(imk);
+        }
+    }
+
+    public void clearProcessorInstances() {
+        if (contextName == null) {
+            NamedWindowProcessorInstance instance = getProcessorInstanceNoContext();
+            if (instance != null) {
+                instance.destroy();
+            }
+            return;
+        }
+        Collection<Integer> cpids = getProcessorInstancesAll();
+        for (int cpid : cpids) {
+            NamedWindowProcessorInstance instance = getProcessorInstance(cpid);
+            if (instance != null) {
+                instance.destroy();
+            }
+            return;
         }
     }
 }

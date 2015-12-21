@@ -67,10 +67,6 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
 
                 stopCallback = new StopCallback() {
                     public void stop() {
-                        NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceId);
-                        if (instance != null) {
-                            instance.removeExplicitIndex(spec.getIndexName());
-                        }
                     }
                 };
             }
@@ -87,10 +83,6 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
 
             stopCallback = new StopCallback() {
                 public void stop() {
-                    TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceId);
-                    if (instance != null) {
-                        instance.removeExplicitIndex(spec.getIndexName());
-                    }
                 }
             };
         }

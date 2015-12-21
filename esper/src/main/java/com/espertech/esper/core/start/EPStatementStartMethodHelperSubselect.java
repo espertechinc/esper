@@ -152,6 +152,7 @@ public class EPStatementStartMethodHelperSubselect
                     subselect.setRawEventType(processor.getNamedWindowType());
                     ViewableActivator activator = services.getViewableActivatorFactory().makeSubqueryNWIndexShare();
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activator, streamSpec));
+                    services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), processor.getNamedWindowType().getName());
                 }
             }
         }

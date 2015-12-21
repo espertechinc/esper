@@ -135,4 +135,10 @@ public interface NamedWindowMgmtService
      * @return indexes
      */
     public IndexMultiKey[] getNamedWindowIndexes(String windowName);
+
+    /**
+     * Remove the named window instance(s), when found
+     * @param namedWindowName to remove
+     */
+    void removeNamedWindowIfFound(String namedWindowName);
 }
