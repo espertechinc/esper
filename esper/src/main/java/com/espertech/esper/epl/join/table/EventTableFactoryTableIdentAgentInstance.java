@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.core.service.StatementContext;
 
 public class EventTableFactoryTableIdentAgentInstance implements EventTableFactoryTableIdent
 {
@@ -20,5 +21,9 @@ public class EventTableFactoryTableIdentAgentInstance implements EventTableFacto
 
     public AgentInstanceContext getAgentInstanceContext() {
         return agentInstanceContext;
+    }
+
+    public StatementContext getStatementContext() {
+        return agentInstanceContext.getStatementContext();
     }
 }

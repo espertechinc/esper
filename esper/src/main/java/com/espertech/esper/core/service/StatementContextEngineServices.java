@@ -164,4 +164,8 @@ public final class StatementContextEngineServices
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
         return filterBooleanExpressionFactory;
     }
+
+    public EngineSettingsService getEngineSettingsService() {
+        return engineSettingsService;
+    }
 }

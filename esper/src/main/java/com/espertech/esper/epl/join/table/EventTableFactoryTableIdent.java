@@ -8,6 +8,9 @@
  **************************************************************************************/
 package com.espertech.esper.epl.join.table;
 
+import com.espertech.esper.core.service.StatementContext;
+
 public interface EventTableFactoryTableIdent
 {
+    StatementContext getStatementContext();
 }

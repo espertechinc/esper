@@ -15,6 +15,7 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
@@ -583,6 +584,10 @@ public final class StatementContext
     public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory()
     {
         return stmtEngineServices.getFilterBooleanExpressionFactory();
+    }
+
+    public EngineSettingsService getEngineSettingsService() {
+        return stmtEngineServices.getEngineSettingsService();
     }
 
     public int getPriority() {
