@@ -69,7 +69,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
 
         // allocate context factory
         Viewable viewable = new ViewableDefaultImpl(indexedEventType);
-        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName());
+        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName(), statementSpec.getOptionalContextName());
         statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         // provide destroy method which de-registers interest in this index

@@ -30,13 +30,15 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
     private final Viewable finalView;
     private final NamedWindowProcessor namedWindowProcessor;
     private final String tableName;
+    private final String contextName;
 
-    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName) {
+    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName, String contextName) {
         this.services = services;
         this.spec = spec;
         this.finalView = finalView;
         this.namedWindowProcessor = namedWindowProcessor;
         this.tableName = tableName;
+        this.contextName = contextName;
     }
 
     public StatementAgentInstanceFactoryCreateIndexResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
@@ -67,6 +69,14 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
 
                 stopCallback = new StopCallback() {
                     public void stop() {
+                        // we remove the index when context partitioned.
+                        // when not context partition the index gets removed when the last reference to the named window gets destroyed.
+                        if (contextName != null) {
+                            NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceId);
+                            if (instance != null) {
+                                instance.removeExplicitIndex(spec.getIndexName());
+                            }
+                        }
                     }
                 };
             }
@@ -83,6 +93,14 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
 
             stopCallback = new StopCallback() {
                 public void stop() {
+                    // we remove the index when context partitioned.
+                    // when not context partition the index gets removed when the last reference to the table gets destroyed.
+                    if (contextName != null) {
+                        TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceId);
+                        if (instance != null) {
+                            instance.removeExplicitIndex(spec.getIndexName());
+                        }
+                    }
                 }
             };
         }
