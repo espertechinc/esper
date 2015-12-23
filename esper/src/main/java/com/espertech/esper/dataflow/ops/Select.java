@@ -212,7 +212,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
                 throw new UnsupportedOperationException();
             }
 
-            public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec) {
+            public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec, StatementContext statementContext) {
                 throw new UnsupportedOperationException();
             }
 

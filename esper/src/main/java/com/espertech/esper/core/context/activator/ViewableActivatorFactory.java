@@ -59,7 +59,8 @@ public interface ViewableActivatorFactory {
                                     boolean isCanIterateUnbound);
 
     ViewableActivator createNamedWindow(NamedWindowProcessor processor,
-                                        NamedWindowConsumerStreamSpec streamSpec);
+                                        NamedWindowConsumerStreamSpec streamSpec,
+                                        StatementContext statementContext);
 
     ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters);
 

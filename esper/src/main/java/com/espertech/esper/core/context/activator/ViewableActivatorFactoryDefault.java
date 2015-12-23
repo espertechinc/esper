@@ -47,7 +47,7 @@ public class ViewableActivatorFactoryDefault implements ViewableActivatorFactory
         return new ViewableActivatorPattern(patternContext, rootFactoryNode, eventType, consumingFilters, suppressSameEventMatches, discardPartialsOnMatch, isCanIterateUnbound);
     }
 
-    public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec) {
+    public ViewableActivator createNamedWindow(NamedWindowProcessor processor, NamedWindowConsumerStreamSpec streamSpec, StatementContext statementContext) {
         return new ViewableActivatorNamedWindow(processor, streamSpec.getFilterExpressions(), streamSpec.getOptPropertyEvaluator());
     }
 

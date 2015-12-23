@@ -140,7 +140,7 @@ public class EPStatementStartMethodHelperSubselect
                     disableIndexShare = false;
                 }
                 if (!namedSpec.getFilterExpressions().isEmpty() || !processor.isEnableSubqueryIndexShare() || disableIndexShare) {
-                    ViewableActivator activatorNamedWindow = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec);
+                    ViewableActivator activatorNamedWindow = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(viewFactoryChain.getEventType());
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activatorNamedWindow, streamSpec));

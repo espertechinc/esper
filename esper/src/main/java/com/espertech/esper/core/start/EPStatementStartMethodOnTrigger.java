@@ -254,7 +254,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             throw new ExprValidationException("A named window by name '" + namedSpec.getWindowName() + "' does not exist");
         }
         String triggerEventTypeName = namedSpec.getWindowName();
-        ViewableActivator activator = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec);
+        ViewableActivator activator = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
         EventType activatorResultEventType = processor.getNamedWindowType();
         if (namedSpec.getOptPropertyEvaluator() != null) {
             activatorResultEventType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
