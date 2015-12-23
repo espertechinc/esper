@@ -112,11 +112,6 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
     public StatementAgentInstanceFactorySelectResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
     {
-        // register agent instance resources for use in HA
-        if (services.getSchedulableAgentInstanceDirectory() != null) {
-            services.getSchedulableAgentInstanceDirectory().add(agentInstanceContext.getEpStatementAgentInstanceHandle());
-        }
-
         final List<StopCallback> stopCallbacks = new ArrayList<StopCallback>(2);
 
         Viewable finalView;

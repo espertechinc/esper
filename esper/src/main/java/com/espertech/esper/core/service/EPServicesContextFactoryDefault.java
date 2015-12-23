@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvcIm
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryServiceImpl;
-import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.deploy.DeploymentStateServiceImpl;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
@@ -176,8 +175,6 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 
         ContextManagementService contextManagementService = new ContextManagementServiceImpl();
 
-        SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory = null;     // not required for Non-HA.
-
         PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc = null;
         if (configSnapshot.getEngineDefaults().getPatterns().getMaxSubexpressions() != null) {
             patternSubexpressionPoolSvc = new PatternSubexpressionPoolEngineSvc(configSnapshot.getEngineDefaults().getPatterns().getMaxSubexpressions(),
@@ -198,7 +195,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 namedWindowMgmtService, namedWindowDispatchService, variableService, tableService, timeSourceService, valueAddEventService, metricsReporting, statementEventTypeRef,
                 statementVariableRef, configSnapshot, threadingService, internalEventRouterImpl, statementIsolationService, schedulingMgmtService,
                 deploymentStateService, exceptionHandlingService, new PatternNodeFactoryImpl(), eventTypeIdGenerator, stmtMetadataFactory,
-                contextManagementService, schedulableAgentInstanceDirectory, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
+                contextManagementService, patternSubexpressionPoolSvc, matchRecognizeStatePoolEngineSvc,
                 new DataFlowServiceImpl(epServiceProvider, new DataFlowConfigurationStateServiceImpl()),
                 new ExprDeclaredServiceImpl(),
                 new ContextControllerFactoryFactorySvcImpl(), new ContextManagerFactoryServiceImpl(),

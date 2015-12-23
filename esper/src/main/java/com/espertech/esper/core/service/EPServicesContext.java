@@ -13,7 +13,6 @@ import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
-import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.thread.ThreadingService;
@@ -95,7 +94,6 @@ public final class EPServicesContext
     private PatternNodeFactory patternNodeFactory;
     private StatementMetadataFactory statementMetadataFactory;
     private ContextManagementService contextManagementService;
-    private SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory;
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private TableService tableService;
@@ -190,7 +188,6 @@ public final class EPServicesContext
                              EventTypeIdGenerator eventTypeIdGenerator,
                              StatementMetadataFactory statementMetadataFactory,
                              ContextManagementService contextManagementService,
-                             SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory,
                              PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
                              MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                              DataFlowService dataFlowService,
@@ -248,7 +245,6 @@ public final class EPServicesContext
         this.eventTypeIdGenerator = eventTypeIdGenerator;
         this.statementMetadataFactory = statementMetadataFactory;
         this.contextManagementService = contextManagementService;
-        this.schedulableAgentInstanceDirectory = schedulableAgentInstanceDirectory;
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
         this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.dataFlowService = dataFlowService;
@@ -705,10 +701,6 @@ public final class EPServicesContext
 
     public ContextManagementService getContextManagementService() {
         return contextManagementService;
-    }
-
-    public SchedulableAgentInstanceDirectory getSchedulableAgentInstanceDirectory() {
-        return schedulableAgentInstanceDirectory;
     }
 
     public PatternSubexpressionPoolEngineSvc getPatternSubexpressionPoolSvc() {

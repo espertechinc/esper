@@ -61,12 +61,6 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         // determine context
         final String contextName = statementSpec.getOptionalContextName();
 
-        // register agent instance resources for use in HA
-        EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = getDefaultAgentInstanceHandle(statementContext);
-        if (services.getSchedulableAgentInstanceDirectory() != null) {
-            services.getSchedulableAgentInstanceDirectory().add(epStatementAgentInstanceHandle);
-        }
-
         // Create view factories and parent view based on a filter specification
         // Since only for non-joins we get the existing stream's lock and try to reuse it's views
         final FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[0];

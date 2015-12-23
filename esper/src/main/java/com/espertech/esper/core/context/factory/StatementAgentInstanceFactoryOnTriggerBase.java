@@ -68,10 +68,6 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         final ViewableActivationResult activationResult;
 
         try {
-            if (services.getSchedulableAgentInstanceDirectory() != null) {
-                services.getSchedulableAgentInstanceDirectory().add(agentInstanceContext.getEpStatementAgentInstanceHandle());
-            }
-
             OnExprViewResult onExprViewResult = determineOnExprView(agentInstanceContext, stopCallbacks, isRecoveringResilient);
             view = onExprViewResult.getOnExprView();
             aggregationService = onExprViewResult.getOptionalAggregationService();

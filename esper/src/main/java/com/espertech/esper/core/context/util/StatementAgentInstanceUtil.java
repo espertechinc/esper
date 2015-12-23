@@ -108,10 +108,6 @@ public class StatementAgentInstanceUtil {
 
             stopSafe(stopCallback, agentInstanceContext.getStatementContext());
 
-            if (servicesContext.getSchedulableAgentInstanceDirectory() != null) {
-                servicesContext.getSchedulableAgentInstanceDirectory().remove(agentInstanceContext.getStatementContext().getStatementId(), agentInstanceContext.getAgentInstanceId());
-            }
-
             // indicate method resolution
             agentInstanceContext.getStatementContext().getMethodResolutionService().destroyedAgentInstance(agentInstanceContext.getAgentInstanceId());
 
