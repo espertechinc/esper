@@ -120,7 +120,11 @@ public class EventTableIndexRepository
         }
 
         EventTableCreateIndexDesc desc = EventTableIndexUtil.validateCompileExplicitIndex(unique, columns, eventType);
-        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(unique, desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, indexName, agentInstanceContext, optionalSerde);
+        addExplicitIndex(indexName, desc, eventType, dataWindowContents, agentInstanceContext, optionalSerde);
+    }
+
+    public void addExplicitIndex(String indexName, EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
+        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc.isUnique(), desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, indexName, agentInstanceContext, optionalSerde);
         explicitIndexes.put(indexName, pair.getSecond().getEventTable());
     }
 
