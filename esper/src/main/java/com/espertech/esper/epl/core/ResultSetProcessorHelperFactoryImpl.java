@@ -41,4 +41,11 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public OutputConditionFactory makeOutputConditionCrontab(List<ExprNode> crontabAtSchedule, StatementContext statementContext, boolean isStartConditionOnCreation) throws ExprValidationException {
         return new OutputConditionCrontabFactory(crontabAtSchedule, statementContext, isStartConditionOnCreation);
     }
+
+    public OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, AgentInstanceContext agentInstanceContext) {
+        if (afterConditionSatisfied) {
+            return OutputProcessViewAfterStateNone.INSTANCE;
+        }
+        return new OutputProcessViewAfterStateImpl(afterConditionTime, afterConditionNumberOfEvents);
+    }
 }

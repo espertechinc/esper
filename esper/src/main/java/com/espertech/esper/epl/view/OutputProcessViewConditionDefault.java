@@ -41,8 +41,8 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
 
 	private static final Log log = LogFactory.getLog(OutputProcessViewConditionDefault.class);
 
-    public OutputProcessViewConditionDefault(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, boolean isJoin, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
+    public OutputProcessViewConditionDefault(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, boolean isJoin) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
         OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
@@ -220,6 +220,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
 	}
 
     public void stop() {
+        super.stop();
         deltaSet.destroy();
     }
 

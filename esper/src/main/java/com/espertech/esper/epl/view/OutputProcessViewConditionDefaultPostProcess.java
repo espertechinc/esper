@@ -25,7 +25,7 @@ public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessV
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, boolean isJoin, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, isJoin, resultSetProcessorHelperFactory);
+        super(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, isJoin);
         this.postProcessor = postProcessor;
     }
 

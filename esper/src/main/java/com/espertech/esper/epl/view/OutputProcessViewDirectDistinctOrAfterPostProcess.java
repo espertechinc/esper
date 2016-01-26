@@ -10,8 +10,10 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.UpdateDispatchView;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
 /**
  * Output process view that does not enforce any output policies and may simply
@@ -21,8 +23,8 @@ public class OutputProcessViewDirectDistinctOrAfterPostProcess extends OutputPro
 {
     private final OutputStrategyPostProcess postProcessor;
 
-    public OutputProcessViewDirectDistinctOrAfterPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewDirectDistinctOrAfterFactory parent, OutputStrategyPostProcess postProcessor) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent);
+    public OutputProcessViewDirectDistinctOrAfterPostProcess(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewDirectDistinctOrAfterFactory parent, OutputStrategyPostProcess postProcessor) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent);
         this.postProcessor = postProcessor;
     }
 

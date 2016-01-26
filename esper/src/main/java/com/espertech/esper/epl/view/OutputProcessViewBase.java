@@ -22,8 +22,6 @@ import org.apache.commons.logging.LogFactory;
 
 public abstract class OutputProcessViewBase implements View, JoinSetIndicator, OutputProcessViewTerminable, StopCallback
 {
-    private static final Log log = LogFactory.getLog(OutputProcessViewBase.class);
-
     protected final ResultSetProcessor resultSetProcessor;
     protected JoinExecutionStrategy joinExecutionStrategy;
     protected UpdateDispatchView childView;

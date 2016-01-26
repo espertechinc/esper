@@ -95,16 +95,16 @@ public class OutputProcessViewFactoryFactory
         {
             if (!isDistinct)
             {
-                outputProcessViewFactory = new OutputProcessViewDirectFactory(statementContext, outputStrategyPostProcessFactory);
+                outputProcessViewFactory = new OutputProcessViewDirectFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory);
             }
             else
             {
-                outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, null, null, resultEventType);
+                outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, null, null, resultEventType);
             }
         }
         else if (outputLimitSpec.getRateType() == OutputLimitRateType.AFTER)
         {
-            outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
+            outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
         }
         else
         {

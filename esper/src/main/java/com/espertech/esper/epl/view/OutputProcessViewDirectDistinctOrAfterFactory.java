@@ -12,12 +12,11 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.event.EventBeanReader;
 import com.espertech.esper.event.EventBeanReaderDefaultImpl;
 import com.espertech.esper.event.EventTypeSPI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Output process view that does not enforce any output policies and may simply
@@ -25,16 +24,14 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcessViewDirectFactory
 {
-	private static final Log log = LogFactory.getLog(OutputProcessViewDirectDistinctOrAfterFactory.class);
-
     private final boolean isDistinct;
     protected final ExprTimePeriod afterTimePeriod;
     protected final Integer afterConditionNumberOfEvents;
 
     private EventBeanReader eventBeanReader;
 
-    public OutputProcessViewDirectDistinctOrAfterFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType) {
-        super(statementContext, postProcessFactory);
+    public OutputProcessViewDirectDistinctOrAfterFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, boolean distinct, ExprTimePeriod afterTimePeriod, Integer afterConditionNumberOfEvents, EventType resultEventType) {
+        super(statementContext, postProcessFactory, resultSetProcessorHelperFactory);
         isDistinct = distinct;
         this.afterTimePeriod = afterTimePeriod;
         this.afterConditionNumberOfEvents = afterConditionNumberOfEvents;
@@ -70,10 +67,10 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
         }
 
         if (super.postProcessFactory == null) {
-            return new OutputProcessViewDirectDistinctOrAfter(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this);
+            return new OutputProcessViewDirectDistinctOrAfter(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this);
         }
         OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
-        return new OutputProcessViewDirectDistinctOrAfterPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, postProcess);
+        return new OutputProcessViewDirectDistinctOrAfterPostProcess(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, postProcess);
     }
 
     public boolean isDistinct() {

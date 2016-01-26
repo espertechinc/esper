@@ -11,8 +11,10 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.UpdateDispatchView;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
@@ -33,8 +35,8 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
 
     private final OutputProcessViewDirectDistinctOrAfterFactory parent;
 
-    public OutputProcessViewDirectDistinctOrAfter(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewDirectDistinctOrAfterFactory parent) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
+    public OutputProcessViewDirectDistinctOrAfter(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewDirectDistinctOrAfterFactory parent) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
     }
 
@@ -157,10 +159,6 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
     }
 
     public void terminated() {
-        // Not applicable
-    }
-
-    public void stop() {
         // Not applicable
     }
 }
