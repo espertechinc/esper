@@ -132,7 +132,7 @@ public class HistoricalStreamIndexList
                             tables[i] = indexingStrategies[i].index(pollResult, isActiveCache, statementContext)[0];
                         }
 
-                        EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganization.EventTableOrganizationType.MULTIINDEX);
+                        EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.MULTIINDEX);
                         return new EventTable[] {new MultiIndexEventTable(tables, organization)};
                     }
 

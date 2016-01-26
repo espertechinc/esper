@@ -92,7 +92,7 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, optKeyCoercedTypes != null || optRangeCoercedTypes != null, streamNum, combinedPropertyLists(optionalKeyedProps, rangeProps), EventTableOrganization.EventTableOrganizationType.COMPOSITE);
+        return new EventTableOrganization(null, false, optKeyCoercedTypes != null || optRangeCoercedTypes != null, streamNum, combinedPropertyLists(optionalKeyedProps, rangeProps), EventTableOrganizationType.COMPOSITE);
     }
 
     private String[] combinedPropertyLists(String[] optionalKeyedProps, String[] rangeProps) {

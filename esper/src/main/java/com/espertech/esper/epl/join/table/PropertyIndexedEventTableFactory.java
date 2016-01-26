@@ -106,7 +106,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
 
     protected EventTableOrganization getOrganization() {
         return new EventTableOrganization(optionalIndexName, unique, false,
-                streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
+                streamNum, propertyNames, EventTableOrganizationType.HASH);
     }
 
     private static Log log = LogFactory.getLog(PropertyIndexedEventTableFactory.class);

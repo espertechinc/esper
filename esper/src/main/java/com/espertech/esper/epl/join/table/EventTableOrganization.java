@@ -52,12 +52,4 @@ public class EventTableOrganization {
         return coercing;
     }
 
-    public static enum EventTableOrganizationType {
-        UNORGANIZED,
-        HASH,
-        BTREE,
-        COMPOSITE,
-        MULTIINDEX,
-        VDW
-    }
 }

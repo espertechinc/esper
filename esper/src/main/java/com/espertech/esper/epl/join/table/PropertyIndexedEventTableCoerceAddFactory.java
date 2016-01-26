@@ -53,6 +53,6 @@ public class PropertyIndexedEventTableCoerceAddFactory extends PropertyIndexedEv
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
+        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, propertyNames, EventTableOrganizationType.HASH);
     }
 }

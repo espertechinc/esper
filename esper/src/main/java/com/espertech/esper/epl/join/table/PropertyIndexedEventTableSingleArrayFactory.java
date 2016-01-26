@@ -52,13 +52,13 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
         EventTable[] tables = new EventTable[propertyGetters.length];
         if (unique) {
             for (int i = 0; i < tables.length; i++) {
-                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganization.EventTableOrganizationType.HASH);
+                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganizationType.HASH);
                 tables[i] = new PropertyIndexedEventTableSingleUnique(propertyGetters[i], organization);
             }
         }
         else {
             for (int i = 0; i < tables.length; i++) {
-                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganization.EventTableOrganizationType.HASH);
+                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganizationType.HASH);
                 tables[i] = new PropertyIndexedEventTableSingleUnadorned(propertyGetters[i], organization);
             }
         }

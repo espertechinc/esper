@@ -42,6 +42,6 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
+        return new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.BTREE);
     }
 }

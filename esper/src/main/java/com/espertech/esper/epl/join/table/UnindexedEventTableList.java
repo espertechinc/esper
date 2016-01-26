@@ -135,7 +135,7 @@ public class UnindexedEventTableList implements EventTable
     }
 
     public EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganization.EventTableOrganizationType.UNORGANIZED);
+        return new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.UNORGANIZED);
     }
 
     public Class getProviderClass() {

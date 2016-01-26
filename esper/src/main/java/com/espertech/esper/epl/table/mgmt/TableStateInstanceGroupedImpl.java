@@ -19,10 +19,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.join.table.EventTableOrganization;
-import com.espertech.esper.epl.join.table.PropertyIndexedEventTableSingleUnique;
-import com.espertech.esper.epl.join.table.PropertyIndexedEventTableUnique;
+import com.espertech.esper.epl.join.table.*;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.lookup.EventTableIndexRepositoryEntry;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
@@ -51,7 +48,7 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         }
 
         String tableName = "primary-" + tableMetadata.getTableName();
-        EventTableOrganization organization = new EventTableOrganization(tableName, true, false, 0, CollectionUtil.toArray(keyNames), EventTableOrganization.EventTableOrganizationType.HASH);
+        EventTableOrganization organization = new EventTableOrganization(tableName, true, false, 0, CollectionUtil.toArray(keyNames), EventTableOrganizationType.HASH);
 
         EventTable table;
         if (indexGetters.size() == 1) {

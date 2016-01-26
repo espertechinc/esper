@@ -22,6 +22,7 @@ import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueRange;
 import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
+import com.espertech.esper.epl.join.table.EventTableOrganizationType;
 import com.espertech.esper.epl.lookup.SubordPropHashKey;
 import com.espertech.esper.epl.lookup.SubordPropPlan;
 import com.espertech.esper.epl.lookup.SubordPropRangeKey;
@@ -41,7 +42,7 @@ import java.util.*;
 
 public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
 
-    private static EventTableOrganization TABLE_ORGANIZATION = new EventTableOrganization(null, false, false, 0, null, EventTableOrganization.EventTableOrganizationType.VDW);
+    private static EventTableOrganization TABLE_ORGANIZATION = new EventTableOrganization(null, false, false, 0, null, EventTableOrganizationType.VDW);
 
     private static final Log log = LogFactory.getLog(VirtualDWViewImpl.class);
 

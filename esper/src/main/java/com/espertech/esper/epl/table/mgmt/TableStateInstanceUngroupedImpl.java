@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
+import com.espertech.esper.epl.join.table.EventTableOrganizationType;
 import com.espertech.esper.epl.join.table.SingleReferenceEventTable;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
@@ -73,7 +74,7 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
     public EventTable getIndex(String indexName) {
         if (indexName.equals(tableMetadata.getTableName())) {
             EventTableOrganization org = new EventTableOrganization(tableMetadata.getTableName(),
-                    true, false, 0, new String[0], EventTableOrganization.EventTableOrganizationType.UNORGANIZED);
+                    true, false, 0, new String[0], EventTableOrganizationType.UNORGANIZED);
             return new SingleReferenceEventTable(org, eventReference);
         }
         throw new IllegalStateException("Invalid index requested '" + indexName + "'");

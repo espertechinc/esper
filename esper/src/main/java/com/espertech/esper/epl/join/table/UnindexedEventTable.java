@@ -45,6 +45,6 @@ public abstract class UnindexedEventTable implements EventTable
     }
 
     public EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganization.EventTableOrganizationType.UNORGANIZED);
+        return new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.UNORGANIZED);
     }
 }

@@ -11,8 +11,6 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Index that organizes events by the event property values into a single TreeMap sortable non-nested index
@@ -68,6 +66,6 @@ public class PropertySortedEventTableFactory implements EventTableFactory
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
+        return new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganizationType.BTREE);
     }
 }
