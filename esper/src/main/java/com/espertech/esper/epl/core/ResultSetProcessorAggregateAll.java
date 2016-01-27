@@ -41,13 +41,13 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
     private ResultSetProcessorAggregateAllOutputLastHelper outputLastUnordHelper;
     private ResultSetProcessorAggregateAllOutputAllHelper outputAllUnordHelper;
 
-    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
-        this.exprEvaluatorContext = exprEvaluatorContext;
-        this.outputLastUnordHelper = prototype.isOutputLast() ? new ResultSetProcessorAggregateAllOutputLastHelper(this) : null;
+        this.exprEvaluatorContext = agentInstanceContext;
+        this.outputLastUnordHelper = prototype.isOutputLast() ? resultSetProcessorHelperFactory.getAggregateAllOutputLastHelper(this, agentInstanceContext) : null;
         this.outputAllUnordHelper = prototype.isOutputAll() ? new ResultSetProcessorAggregateAllOutputAllHelper(this) : null;
     }
 
@@ -709,5 +709,8 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
 
     public void stop() {
         // no action required
+        if (outputLastUnordHelper != null) {
+            outputLastUnordHelper.destroy();
+        }
     }
 }

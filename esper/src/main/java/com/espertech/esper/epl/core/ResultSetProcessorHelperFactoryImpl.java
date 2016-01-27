@@ -48,4 +48,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         }
         return new OutputProcessViewAfterStateImpl(afterConditionTime, afterConditionNumberOfEvents);
     }
+
+    public ResultSetProcessorAggregateAllOutputLastHelperImpl getAggregateAllOutputLastHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
+        return new ResultSetProcessorAggregateAllOutputLastHelperImpl(processor);
+    }
 }
