@@ -27,6 +27,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
     private final OutputLimitSpec outputLimitSpec;
+    private final boolean enableOutputLimitOpt;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
     /**
@@ -42,6 +43,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
                                                  boolean isUnidirectional,
                                                  boolean isHistoricalOnly,
                                                  OutputLimitSpec outputLimitSpec,
+                                                 boolean enableOutputLimitOpt,
                                                  ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
     {
         this.selectExprProcessor = selectExprProcessor;
@@ -50,6 +52,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputLimitSpec = outputLimitSpec;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
@@ -88,6 +91,10 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
 
     public boolean isOutputAll() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
     }
 
     public ResultSetProcessorType getResultSetProcessorType() {

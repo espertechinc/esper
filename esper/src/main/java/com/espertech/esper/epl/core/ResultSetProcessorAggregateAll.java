@@ -47,8 +47,8 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = agentInstanceContext;
-        this.outputLastUnordHelper = prototype.isOutputLast() ? resultSetProcessorHelperFactory.getAggregateAllOutputLastHelper(this, agentInstanceContext) : null;
-        this.outputAllUnordHelper = prototype.isOutputAll() ? new ResultSetProcessorAggregateAllOutputAllHelper(this) : null;
+        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? resultSetProcessorHelperFactory.getAggregateAllOutputLastHelper(this, agentInstanceContext) : null;
+        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? resultSetProcessorHelperFactory.getAggregateAllOutputAllHelper(this, agentInstanceContext) : null;
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {
@@ -708,9 +708,11 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
     }
 
     public void stop() {
-        // no action required
         if (outputLastUnordHelper != null) {
             outputLastUnordHelper.destroy();
+        }
+        if (outputAllUnordHelper != null) {
+            outputAllUnordHelper.destroy();
         }
     }
 }

@@ -31,4 +31,5 @@ public interface ResultSetProcessorHelperFactory {
     OutputConditionFactory makeOutputConditionCrontab(List<ExprNode> crontabAtSchedule, StatementContext statementContext, boolean isStartConditionOnCreation) throws ExprValidationException;
     OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, AgentInstanceContext agentInstanceContext);
     ResultSetProcessorAggregateAllOutputLastHelper getAggregateAllOutputLastHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorAggregateAllOutputAllHelper getAggregateAllOutputAllHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext);
 }

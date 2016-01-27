@@ -52,4 +52,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public ResultSetProcessorAggregateAllOutputLastHelperImpl getAggregateAllOutputLastHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorAggregateAllOutputLastHelperImpl(processor);
     }
+
+    public ResultSetProcessorAggregateAllOutputAllHelper getAggregateAllOutputAllHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
+        return new ResultSetProcessorAggregateAllOutputAllHelperImpl(processor);
+    }
 }
