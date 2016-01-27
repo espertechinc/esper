@@ -41,11 +41,11 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.exprEvaluatorContext = agentInstanceContext;
-        if (prototype.isOutputLast() && prototype.isEnableOutputLimitOpt()) {
-            outputLastHelper = resultSetProcessorHelperFactory.makeSimpleAndLast(prototype, this, agentInstanceContext);
+        if (prototype.isOutputLast()) { // output-last always uses this mechanism
+            outputLastHelper = resultSetProcessorHelperFactory.makeRSSimpleOutputLast(prototype, this, agentInstanceContext);
         }
         else if (prototype.isOutputAll() && prototype.isEnableOutputLimitOpt()) {
-            outputAllHelper = resultSetProcessorHelperFactory.makeSimpleAndAll(prototype, this, agentInstanceContext, numStreams);
+            outputAllHelper = resultSetProcessorHelperFactory.makeRSSimpleOutputAll(prototype, this, agentInstanceContext, numStreams);
         }
     }
 

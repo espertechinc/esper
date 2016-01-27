@@ -17,67 +17,11 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 
-public class ResultSetProcessorRowForAllOutputAllHelper
+public interface ResultSetProcessorRowForAllOutputAllHelper
 {
-    private final ResultSetProcessorRowForAll processor;
-    private final Deque<EventBean> eventsOld = new ArrayDeque<EventBean>(2);
-    private final Deque<EventBean> eventsNew = new ArrayDeque<EventBean>(2);
-
-    public ResultSetProcessorRowForAllOutputAllHelper(ResultSetProcessorRowForAll processor) {
-        this.processor = processor;
-    }
-
-    public void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        if (processor.prototype.isSelectRStream()) {
-            EventBean[] events = processor.getSelectListEvents(false, isGenerateSynthetic, false);
-            EventBeanUtility.addToCollection(events, eventsOld);
-        }
-
-        EventBean[] eventsPerStream = new EventBean[1];
-        ResultSetProcessorUtil.applyAggViewResult(processor.aggregationService, processor.exprEvaluatorContext, newData, oldData, eventsPerStream);
-
-        EventBean[] events = processor.getSelectListEvents(true, isGenerateSynthetic, false);
-        EventBeanUtility.addToCollection(events, eventsNew);
-    }
-
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
-        if (processor.prototype.isSelectRStream()) {
-            EventBean[] events = processor.getSelectListEvents(false, isGenerateSynthetic, true);
-            EventBeanUtility.addToCollection(events, eventsOld);
-        }
-
-        ResultSetProcessorUtil.applyAggJoinResult(processor.aggregationService, processor.exprEvaluatorContext, newEvents, oldEvents);
-
-        EventBean[] events = processor.getSelectListEvents(true, isGenerateSynthetic, true);
-        EventBeanUtility.addToCollection(events, eventsNew);
-    }
-
-    public UniformPair<EventBean[]> outputView(boolean isGenerateSynthetic) {
-        return output(isGenerateSynthetic, false);
-    }
-
-    public UniformPair<EventBean[]> outputJoin(boolean isGenerateSynthetic) {
-        return output(isGenerateSynthetic, true);
-    }
-
-    private UniformPair<EventBean[]> output(boolean isGenerateSynthetic, boolean isJoin) {
-        EventBean[] oldEvents = EventBeanUtility.toArrayNullIfEmpty(eventsOld);
-        EventBean[] newEvents = EventBeanUtility.toArrayNullIfEmpty(eventsNew);
-
-        if (newEvents == null) {
-            newEvents = processor.getSelectListEvents(true, isGenerateSynthetic, isJoin);
-        }
-        if (oldEvents == null && processor.prototype.isSelectRStream()) {
-            oldEvents = processor.getSelectListEvents(false, isGenerateSynthetic, isJoin);
-        }
-
-        UniformPair<EventBean[]> result = null;
-        if (oldEvents != null || newEvents != null) {
-            result = new UniformPair<EventBean[]>(newEvents, oldEvents);
-        }
-
-        eventsOld.clear();
-        eventsNew.clear();
-        return result;
-    }
+    void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
+    void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
+    UniformPair<EventBean[]> outputView(boolean isGenerateSynthetic);
+    UniformPair<EventBean[]> outputJoin(boolean isGenerateSynthetic);
+    void destroy();
 }

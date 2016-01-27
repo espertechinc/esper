@@ -47,8 +47,8 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = agentInstanceContext;
-        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? resultSetProcessorHelperFactory.getAggregateAllOutputLastHelper(this, agentInstanceContext) : null;
-        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? resultSetProcessorHelperFactory.getAggregateAllOutputAllHelper(this, agentInstanceContext) : null;
+        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? resultSetProcessorHelperFactory.makeRSAggregateAllOutputLast(this, agentInstanceContext) : null;
+        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? resultSetProcessorHelperFactory.makeRSAggregateAllOutputAll(this, agentInstanceContext) : null;
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {

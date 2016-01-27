@@ -22,11 +22,11 @@ import com.espertech.esper.epl.view.*;
 import java.util.List;
 
 public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHelperFactory {
-    public ResultSetProcessorSimpleOutputLastHelper makeSimpleAndLast(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorSimpleOutputLastHelperImpl(simple);
     }
 
-    public ResultSetProcessorSimpleOutputAllHelper makeSimpleAndAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext, int numStreams) {
+    public ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext, int numStreams) {
         return new ResultSetProcessorSimpleOutputAllHelperImpl(resultSetProcessorSimple);
     }
 
@@ -53,11 +53,19 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new OutputProcessViewAfterStateImpl(afterConditionTime, afterConditionNumberOfEvents);
     }
 
-    public ResultSetProcessorAggregateAllOutputLastHelperImpl getAggregateAllOutputLastHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorAggregateAllOutputLastHelperImpl makeRSAggregateAllOutputLast(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorAggregateAllOutputLastHelperImpl(processor);
     }
 
-    public ResultSetProcessorAggregateAllOutputAllHelper getAggregateAllOutputAllHelper(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorAggregateAllOutputAllHelper makeRSAggregateAllOutputAll(ResultSetProcessorAggregateAll processor, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorAggregateAllOutputAllHelperImpl(processor);
+    }
+
+    public ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ResultSetProcessorRowForAllFactory prototype, AgentInstanceContext agentInstanceContext) {
+        return new ResultSetProcessorRowForAllOutputLastHelperImpl(processor);
+    }
+
+    public ResultSetProcessorRowForAllOutputAllHelper makeRSRowForAllOutputAll(ResultSetProcessorRowForAll processor, ResultSetProcessorRowForAllFactory prototype, AgentInstanceContext agentInstanceContext) {
+        return new ResultSetProcessorRowForAllOutputAllHelperImpl(processor);
     }
 }

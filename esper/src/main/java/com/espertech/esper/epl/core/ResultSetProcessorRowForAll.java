@@ -45,17 +45,17 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
     private ResultSetProcessorRowForAllOutputLastHelper outputLastHelper;
     private ResultSetProcessorRowForAllOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorRowForAll(ResultSetProcessorRowForAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorRowForAll(ResultSetProcessorRowForAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
-        this.exprEvaluatorContext = exprEvaluatorContext;
+        this.exprEvaluatorContext = agentInstanceContext;
         if (prototype.isOutputLast()) {
-            outputLastHelper = new ResultSetProcessorRowForAllOutputLastHelper(this);
+            outputLastHelper = resultSetProcessorHelperFactory.makeRSRowForAllOutputLast(this, prototype, agentInstanceContext);
         }
         else if (prototype.isOutputAll()) {
-            outputAllHelper = new ResultSetProcessorRowForAllOutputAllHelper(this);
+            outputAllHelper = resultSetProcessorHelperFactory.makeRSRowForAllOutputAll(this, prototype, agentInstanceContext);
         }
     }
 
@@ -524,7 +524,12 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
     }
 
     public void stop() {
-        // no action required
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
+        }
     }
 
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {

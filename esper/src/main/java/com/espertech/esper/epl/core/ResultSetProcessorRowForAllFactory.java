@@ -27,6 +27,7 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingNode;
     private final OutputLimitSpec outputLimitSpec;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
     /**
      * Ctor.
@@ -40,7 +41,8 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
                                               boolean isSelectRStream,
                                               boolean isUnidirectional,
                                               boolean isHistoricalOnly,
-                                              OutputLimitSpec outputLimitSpec)
+                                              OutputLimitSpec outputLimitSpec,
+                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNode = optionalHavingNode;
@@ -48,10 +50,11 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputLimitSpec = outputLimitSpec;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorRowForAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+        return new ResultSetProcessorRowForAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
     }
 
     public EventType getResultEventType()
