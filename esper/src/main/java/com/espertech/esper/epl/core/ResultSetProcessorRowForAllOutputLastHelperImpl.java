@@ -66,5 +66,4 @@ public class ResultSetProcessorRowForAllOutputLastHelperImpl implements ResultSe
 
         return result;
     }
-
 }

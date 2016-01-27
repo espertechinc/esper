@@ -124,7 +124,7 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
     }
 
-    protected EventBean[] getSelectListEvents(boolean isNewData, boolean isSynthesize, boolean join)
+    public EventBean[] getSelectListEvents(boolean isNewData, boolean isSynthesize, boolean join)
     {
         if (prototype.getOptionalHavingNode() != null)
         {
@@ -521,6 +521,10 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
 
     public void applyJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
         ResultSetProcessorUtil.applyAggJoinResult(aggregationService, exprEvaluatorContext, newEvents, oldEvents);
+    }
+
+    public AggregationService getAggregationService() {
+        return aggregationService;
     }
 
     public void stop() {
