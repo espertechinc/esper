@@ -26,6 +26,10 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new ResultSetProcessorSimpleOutputLastHelperImpl(simple);
     }
 
+    public ResultSetProcessorSimpleOutputAllHelper makeSimpleAndAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext, int numStreams) {
+        return new ResultSetProcessorSimpleOutputAllHelperImpl(resultSetProcessorSimple);
+    }
+
     public OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(boolean isJoin, AgentInstanceContext agentInstanceContext) {
         return new OutputProcessViewConditionDeltaSetImpl(isJoin);
     }

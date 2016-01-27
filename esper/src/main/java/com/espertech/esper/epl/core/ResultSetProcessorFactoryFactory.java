@@ -122,6 +122,9 @@ public class ResultSetProcessorFactoryFactory
             }
         }
 
+        // determine join or number of streams
+        int numStreams = typeService.getEventTypes().length;
+
         // Expand any instances of select-clause names in the
         // order-by clause with the full expression
         List<OrderByItem> orderByList = expandColumnNames(selectClauseSpec.getSelectExprList(), orderByListUnexpanded);
@@ -378,7 +381,7 @@ public class ResultSetProcessorFactoryFactory
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, resultSetProcessorHelperFactory);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -389,7 +392,7 @@ public class ResultSetProcessorFactoryFactory
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst)
         {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, resultSetProcessorHelperFactory);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 

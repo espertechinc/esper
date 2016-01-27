@@ -36,16 +36,16 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     private ResultSetProcessorSimpleOutputLastHelper outputLastHelper;
     private ResultSetProcessorSimpleOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, int numStreams) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.exprEvaluatorContext = agentInstanceContext;
-        if (prototype.isOutputLast()) {
+        if (prototype.isOutputLast() && prototype.isEnableOutputLimitOpt()) {
             outputLastHelper = resultSetProcessorHelperFactory.makeSimpleAndLast(prototype, this, agentInstanceContext);
         }
-        else if (prototype.isOutputAll()) {
-            outputAllHelper = new ResultSetProcessorSimpleOutputAllHelper(this);
+        else if (prototype.isOutputAll() && prototype.isEnableOutputLimitOpt()) {
+            outputAllHelper = resultSetProcessorHelperFactory.makeSimpleAndAll(prototype, this, agentInstanceContext, numStreams);
         }
     }
 
@@ -271,6 +271,9 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     public void stop() {
         if (outputLastHelper != null) {
             outputLastHelper.destroy();
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
         }
     }
 }

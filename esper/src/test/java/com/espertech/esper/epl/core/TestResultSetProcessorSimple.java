@@ -17,14 +17,14 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.epl.SupportSelectExprFactory;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class TestResultSetProcessorSimple extends TestCase
         selectExprProcessor = factory.getEvaluator();
         orderByProcessor = null;
 
-        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null, null);
+        ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null, false, null, 1);
 		outputProcessorAll = (ResultSetProcessorSimple) prototype.instantiate(null, null, null);
     }
 
