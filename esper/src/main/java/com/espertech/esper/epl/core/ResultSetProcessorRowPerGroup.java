@@ -65,11 +65,11 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         aggregationService.setRemovedCallback(this);
 
         if (prototype.isOutputLast()) {
-            outputLastHelper = new ResultSetProcessorRowPerGroupOutputLastHelper(this);
+            outputLastHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputLastOpt(agentInstanceContext, this, prototype);
         }
         else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
-                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllNoOpt(agentInstanceContext, prototype.getNumStreams(), prototype.getGroupKeyNodes());
+                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllNoOpt(agentInstanceContext, prototype);
             }
             else {
                 outputAllHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);
@@ -330,7 +330,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    protected void generateOutputBatchedArr(boolean join, Iterator<Map.Entry<Object, EventBean[]>> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedArr(boolean join, Iterator<Map.Entry<Object, EventBean[]>> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         while (keysAndEvents.hasNext()) {
             Map.Entry<Object, EventBean[]> entry = keysAndEvents.next();
@@ -363,7 +363,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    protected void generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents)
+    public EventBean generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize)
     {
         // Set the current row of aggregation states
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
@@ -374,13 +374,12 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]); else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
             Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
             if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result); else InstrumentationHelper.get().aHavingClauseJoin(result);}
-            if ((result == null) || (!result))
-            {
-                return;
+            if ((result == null) || (!result)) {
+                return null;
             }
         }
 
-        resultEvents.put(mk, selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
+        return selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
     }
 
     private EventBean[] generateOutputEventsJoin(Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize)
@@ -660,7 +659,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         outputState.remove(key);
     }
 
-    protected Object generateGroupKey(EventBean[] eventsPerStream, boolean isNewData) {
+    public Object generateGroupKey(EventBean[] eventsPerStream, boolean isNewData) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qResultSetProcessComputeGroupKeys(isNewData, prototype.getGroupKeyNodeExpressions(), eventsPerStream);
             Object keyObject;
@@ -732,6 +731,13 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         if (outputAllHelper != null) {
             outputAllHelper.destroy();
         }
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
+    }
+
+    public AggregationService getAggregationService() {
+        return aggregationService;
     }
 
     private UniformPair<EventBean[]> processOutputLimitedJoinLast(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {

@@ -13,7 +13,6 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
@@ -70,11 +69,15 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new ResultSetProcessorRowForAllOutputAllHelperImpl(processor);
     }
 
-    public ResultSetProcessorRowPerGroupOutputAllGroupReps makeRSRowPerGroupOutputAllNoOpt(AgentInstanceContext agentInstanceContext, int numStreams, ExprEvaluator[] groupExpressions) {
+    public ResultSetProcessorRowPerGroupOutputAllGroupReps makeRSRowPerGroupOutputAllNoOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
         return new ResultSetProcessorRowPerGroupOutputAllGroupRepsImpl();
     }
 
     public ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype) {
         return new ResultSetProcessorRowPerGroupOutputAllHelperImpl(resultSetProcessorRowPerGroup);
+    }
+
+    public ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype) {
+        return new ResultSetProcessorRowPerGroupOutputLastHelperImpl(resultSetProcessorRowPerGroup);
     }
 }
