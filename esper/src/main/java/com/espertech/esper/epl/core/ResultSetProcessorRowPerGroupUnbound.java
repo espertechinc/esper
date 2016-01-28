@@ -9,21 +9,23 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.view.Viewable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowPerGroup implements AggregationRowRemovedCallback {
 
     protected final Map<Object, EventBean> groupReps = new LinkedHashMap<Object, EventBean>();
 
-    public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+    public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+        super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
 
         aggregationService.setRemovedCallback(this);
     }
@@ -34,6 +36,7 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
             for (EventBean aNewData : newData) {
                 eventsPerStream[0] = aNewData;
                 Object mk = generateGroupKey(eventsPerStream, true);
+                // TODO test this case
                 groupReps.put(mk, eventsPerStream[0]);
                 aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
             }

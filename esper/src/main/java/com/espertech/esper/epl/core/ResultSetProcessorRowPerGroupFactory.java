@@ -34,6 +34,9 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     private final OutputLimitSpec outputLimitSpec;
     private final boolean noDataWindowSingleSnapshot;
     private final boolean isHistoricalOnly;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final boolean enableOutputLimitOpt;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -54,7 +57,10 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
                                                 boolean isSorting,
                                                 boolean noDataWindowSingleStream,
                                                 boolean isHistoricalOnly,
-                                                boolean iterateUnbounded)
+                                                boolean iterateUnbounded,
+                                                ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                boolean enableOutputLimitOpt,
+                                                int numStreams)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.selectExprProcessor = selectExprProcessor;
@@ -72,13 +78,16 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
         this.outputLimitSpec = outputLimitSpec;
         this.noDataWindowSingleSnapshot = iterateUnbounded || (outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT && noDataWindowSingleStream);
         this.isHistoricalOnly = isHistoricalOnly;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         if (noDataWindowSingleSnapshot && !isHistoricalOnly) {
-            return new ResultSetProcessorRowPerGroupUnbound(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+            return new ResultSetProcessorRowPerGroupUnbound(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
         }
-        return new ResultSetProcessorRowPerGroup(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+        return new ResultSetProcessorRowPerGroup(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
     }
 
     public EventType getResultEventType()
@@ -136,5 +145,13 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
 
     public boolean isOutputAll() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }

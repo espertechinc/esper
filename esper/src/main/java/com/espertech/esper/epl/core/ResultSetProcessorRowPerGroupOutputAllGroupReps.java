@@ -9,16 +9,14 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKey;
-import com.espertech.esper.collection.UniformPair;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
 
-public interface ResultSetProcessorRowPerGroupOutputAllHelper {
+public interface ResultSetProcessorRowPerGroupOutputAllGroupReps {
 
-    void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
-    void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic);
-    UniformPair<EventBean[]> outputView(boolean isSynthesize);
-    UniformPair<EventBean[]> outputJoin(boolean isSynthesize);
+    Object put(Object mk, EventBean[] array);
+    void remove(Object key);
+    Iterator<Map.Entry<Object,EventBean[]>> entryIterator();
     void destroy();
 }

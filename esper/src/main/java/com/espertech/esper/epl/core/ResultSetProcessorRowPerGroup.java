@@ -49,13 +49,13 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
     // For output rate limiting, keep a representative event for each group for
     // representing each group in an output limit clause
-    protected final Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
+    protected ResultSetProcessorRowPerGroupOutputAllGroupReps outputAllGroupReps;
 
     private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
     private ResultSetProcessorRowPerGroupOutputLastHelper outputLastHelper;
     private ResultSetProcessorRowPerGroupOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
@@ -68,7 +68,12 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             outputLastHelper = new ResultSetProcessorRowPerGroupOutputLastHelper(this);
         }
         else if (prototype.isOutputAll()) {
-            outputAllHelper = new ResultSetProcessorRowPerGroupOutputAllHelper(this);
+            if (!prototype.isEnableOutputLimitOpt()) {
+                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllNoOpt(agentInstanceContext, prototype.getNumStreams(), prototype.getGroupKeyNodes());
+            }
+            else {
+                outputAllHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);
+            }
         }
     }
 
@@ -325,10 +330,10 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    protected void generateOutputBatchedArr(boolean join, Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    protected void generateOutputBatchedArr(boolean join, Iterator<Map.Entry<Object, EventBean[]>> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
-        for (Map.Entry<Object, EventBean[]> entry : keysAndEvents.entrySet())
-        {
+        while (keysAndEvents.hasNext()) {
+            Map.Entry<Object, EventBean[]> entry = keysAndEvents.next();
             generateOutputBatchedRow(join, entry.getKey(), entry.getValue(), isNewData, isSynthesize, resultEvents, optSortKeys);
         }
     }
@@ -649,7 +654,9 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     }
 
     public void removed(Object key) {
-        groupRepsView.remove(key);
+        if (outputAllGroupReps != null) {
+            outputAllGroupReps.remove(key);
+        }
         outputState.remove(key);
     }
 
@@ -719,7 +726,12 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     }
 
     public void stop() {
-        // no action required
+        if (outputAllGroupReps != null) {
+            outputAllGroupReps.destroy();
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
+        }
     }
 
     private UniformPair<EventBean[]> processOutputLimitedJoinLast(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
@@ -741,7 +753,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        groupRepsView.clear();
+        Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
         {
             Set<MultiKey<EventBean>> newData = pair.getFirst();
@@ -790,7 +802,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(true, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(true, groupRepsView.entrySet().iterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
@@ -837,7 +849,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        groupRepsView.clear();
+        Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         if (prototype.getOptionalHavingNode() == null) {
             for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
             {
@@ -1027,7 +1039,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(true, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(true, groupRepsView.entrySet().iterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
@@ -1075,7 +1087,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         if (prototype.isSelectRStream())
         {
-            generateOutputBatchedArr(true, groupRepsView, false, generateSynthetic, oldEvents, oldEventsSortKey);
+            generateOutputBatchedArr(true, outputAllGroupReps.entryIterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
         }
 
         for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
@@ -1096,7 +1108,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     Object mk = generateGroupKey(aNewData.getArray(), true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (groupRepsView.put(mk, aNewData.getArray()) == null)
+                    if (outputAllGroupReps.put(mk, aNewData.getArray()) == null)
                     {
                         if (prototype.isSelectRStream())
                         {
@@ -1113,7 +1125,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                 {
                     Object mk = generateGroupKey(anOldData.getArray(), true);
 
-                    if (groupRepsView.put(mk, anOldData.getArray()) == null)
+                    if (outputAllGroupReps.put(mk, anOldData.getArray()) == null)
                     {
                         if (prototype.isSelectRStream())
                         {
@@ -1126,7 +1138,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(true, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(true, outputAllGroupReps.entryIterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
@@ -1190,7 +1202,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedArr(true, keysAndEvents, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                generateOutputBatchedArr(true, keysAndEvents.entrySet().iterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
 
             if (newData != null)
@@ -1214,7 +1226,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                 }
             }
 
-            generateOutputBatchedArr(true, keysAndEvents, true, generateSynthetic, newEvents, newEventsSortKey);
+            generateOutputBatchedArr(true, keysAndEvents.entrySet().iterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
             keysAndEvents.clear();
         }
@@ -1263,7 +1275,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        groupRepsView.clear();
+        Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         for (UniformPair<EventBean[]> pair : viewEventsList)
         {
             EventBean[] newData = pair.getFirst();
@@ -1309,7 +1321,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(false, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(false, groupRepsView.entrySet().iterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
@@ -1355,9 +1367,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
+        Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         if (prototype.getOptionalHavingNode() == null) {
-
-            groupRepsView.clear();
             for (UniformPair<EventBean[]> pair : viewEventsList)
             {
                 EventBean[] newData = pair.getFirst();
@@ -1431,7 +1442,6 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
         else { // having clause present, having clause evaluates at the level of individual posts
             EventBean[] eventsPerStreamOneStream = new EventBean[1];
-            groupRepsView.clear();
             for (UniformPair<EventBean[]> pair : viewEventsList)
             {
                 EventBean[] newData = pair.getFirst();
@@ -1545,7 +1555,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(false, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(false, groupRepsView.entrySet().iterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
@@ -1595,7 +1605,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         if (prototype.isSelectRStream())
         {
-            generateOutputBatchedArr(false, groupRepsView, false, generateSynthetic, oldEvents, oldEventsSortKey);
+            generateOutputBatchedArr(false, outputAllGroupReps.entryIterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
         }
 
         for (UniformPair<EventBean[]> pair : viewEventsList)
@@ -1612,7 +1622,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     Object mk = generateGroupKey(eventsPerStream, true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (groupRepsView.put(mk, new EventBean[] {aNewData}) == null)
+                    if (outputAllGroupReps.put(mk, new EventBean[] {aNewData}) == null)
                     {
                         if (prototype.isSelectRStream())
                         {
@@ -1630,7 +1640,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     eventsPerStream[0] = anOldData;
                     Object mk = generateGroupKey(eventsPerStream, true);
 
-                    if (groupRepsView.put(mk, new EventBean[] {anOldData}) == null)
+                    if (outputAllGroupReps.put(mk, new EventBean[] {anOldData}) == null)
                     {
                         if (prototype.isSelectRStream())
                         {
@@ -1643,7 +1653,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        generateOutputBatchedArr(false, groupRepsView, true, generateSynthetic, newEvents, newEventsSortKey);
+        generateOutputBatchedArr(false, outputAllGroupReps.entryIterator(), true, generateSynthetic, newEvents, newEventsSortKey);
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
