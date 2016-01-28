@@ -80,4 +80,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype) {
         return new ResultSetProcessorRowPerGroupOutputLastHelperImpl(resultSetProcessorRowPerGroup);
     }
+
+    public ResultSetProcessorRowPerGroupOutputFirstHelper makeRSRowPerGroupOutputFirst(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
+        return new ResultSetProcessorRowPerGroupOutputFirstHelperImpl();
+    }
 }

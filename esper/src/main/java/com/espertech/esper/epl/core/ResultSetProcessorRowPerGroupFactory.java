@@ -154,4 +154,8 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     public int getNumStreams() {
         return numStreams;
     }
+
+    public boolean isOutputFirst() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
+    }
 }
