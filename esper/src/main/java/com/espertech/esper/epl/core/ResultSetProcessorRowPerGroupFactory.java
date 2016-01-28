@@ -15,6 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 /**
  * Result set processor prototype for the fully-grouped case:
@@ -37,6 +38,7 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
     private final boolean enableOutputLimitOpt;
     private final int numStreams;
+    private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
 
     /**
      * Ctor.
@@ -60,7 +62,8 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
                                                 boolean iterateUnbounded,
                                                 ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
                                                 boolean enableOutputLimitOpt,
-                                                int numStreams)
+                                                int numStreams,
+                                                OutputConditionPolledFactory optionalOutputFirstConditionFactory)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.selectExprProcessor = selectExprProcessor;
@@ -81,6 +84,7 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.enableOutputLimitOpt = enableOutputLimitOpt;
         this.numStreams = numStreams;
+        this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -157,5 +161,9 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
 
     public boolean isOutputFirst() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
+    }
+
+    public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
+        return optionalOutputFirstConditionFactory;
     }
 }

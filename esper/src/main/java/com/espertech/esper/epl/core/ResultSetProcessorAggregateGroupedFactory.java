@@ -15,6 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 /**
  * Result-set processor prototype for the aggregate-grouped case:
@@ -33,6 +34,7 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     private final boolean isUnidirectional;
     private final OutputLimitSpec outputLimitSpec;
     private final boolean isHistoricalOnly;
+    private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
 
     /**
      * Ctor.
@@ -52,7 +54,8 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
                                                      boolean isUnidirectional,
                                                      OutputLimitSpec outputLimitSpec,
                                                      boolean isSorting,
-                                                     boolean isHistoricalOnly)
+                                                     boolean isHistoricalOnly,
+                                                     OutputConditionPolledFactory optionalOutputFirstConditionFactory)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -69,6 +72,7 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
         this.isUnidirectional = isUnidirectional;
         this.outputLimitSpec = outputLimitSpec;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -130,5 +134,9 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.AGGREGATED_GROUPED;
+    }
+
+    public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
+        return optionalOutputFirstConditionFactory;
     }
 }

@@ -8,10 +8,19 @@
  **************************************************************************************/
 package com.espertech.esper.epl.view;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
-
-public interface OutputConditionPolledFactory
+public final class OutputConditionPolledTimeState implements OutputConditionPolledState
 {
-    OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext);
-    OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state);
+    private Long lastUpdate;
+
+    public OutputConditionPolledTimeState(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }

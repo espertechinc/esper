@@ -74,22 +74,6 @@ public class OutputProcessViewFactoryFactory
         boolean isDistinct = statementSpec.getSelectClauseSpec().isDistinct();
         boolean isGrouped = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByNodes().length > 0;
 
-        if (outputLimitSpec != null) {
-            ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getMethodResolutionService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-            if (outputLimitSpec.getAfterTimePeriodExpr() != null) {
-                ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
-                outputLimitSpec.setAfterTimePeriodExpr(timePeriodExpr);
-            }
-            if (outputLimitSpec.getTimePeriodExpr() != null) {
-                ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getTimePeriodExpr(), validationContext);
-                outputLimitSpec.setTimePeriodExpr(timePeriodExpr);
-                if (timePeriodExpr.isConstantResult() && timePeriodExpr.evaluateAsSeconds(null, true, new ExprEvaluatorContextStatement(statementContext, false)) <= 0) {
-                    throw new ExprValidationException("Invalid time period expression returns a zero or negative time interval");
-                }
-            }
-        }
-
         OutputProcessViewFactory outputProcessViewFactory;
         if (outputLimitSpec == null)
         {

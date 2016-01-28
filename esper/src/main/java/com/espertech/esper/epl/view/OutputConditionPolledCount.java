@@ -10,6 +10,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.sun.org.apache.xpath.internal.operations.Variable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -20,67 +21,48 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class OutputConditionPolledCount implements OutputConditionPolled
 {
-    private long eventRate;
-    private int newEventsCount;
-    private int oldEventsCount;
-    private final VariableReader variableReader;
-    private boolean isFirst = true;
+    private final OutputConditionPolledCountFactory factory;
+    private final OutputConditionPolledCountState state;
+    private final VariableReader optionalVariableReader;
 
-    /**
-     * Constructor.
-     * @param eventRate is the number of old or new events that
-     * must arrive in order for the condition to be satisfied
-     * @param variableReader is for reading the variable value, if a variable was supplied, else null
-     */
-    public OutputConditionPolledCount(int eventRate, VariableReader variableReader)
-    {
-        if ((eventRate < 1) && (variableReader == null))
-        {
-            throw new IllegalArgumentException("Limiting output by event count requires an event count of at least 1 or a variable name");
-        }
-        this.eventRate = eventRate;
-        this.variableReader = variableReader;
-        newEventsCount = eventRate;
-        oldEventsCount = eventRate;
+    public OutputConditionPolledCount(OutputConditionPolledCountFactory factory, OutputConditionPolledCountState state, VariableReader optionalVariableReader) {
+        this.factory = factory;
+        this.state = state;
+        this.optionalVariableReader = optionalVariableReader;
+    }
+
+    public OutputConditionPolledCountState getState() {
+        return state;
     }
 
     public final boolean updateOutputCondition(int newDataCount, int oldDataCount)
     {
-        if (variableReader != null)
-        {
-            Object value = variableReader.getValue();
-            if (value != null)
-            {
-                eventRate = ((Number) value).longValue();
+        if (optionalVariableReader != null) {
+            Object value = optionalVariableReader.getValue();
+            if (value != null) {
+                state.setEventRate(((Number) value).longValue());
             }
         }
 
-        this.newEventsCount += newDataCount;
-        this.oldEventsCount += oldDataCount;
+        state.setNewEventsCount(state.getNewEventsCount() + newDataCount);
+        state.setOldEventsCount(state.getOldEventsCount() + oldDataCount);
 
-        if (isSatisfied() || isFirst)
-        {
-        	if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-            {
+        if (isSatisfied() || state.isFirst()) {
+        	if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug(".updateOutputCondition() condition satisfied");
             }
-            this.isFirst = false;
-            this.newEventsCount = 0;
-            this.oldEventsCount = 0;
+            state.setIsFirst(false);
+            state.setNewEventsCount(0);
+            state.setOldEventsCount(0);
             return true;
         }
-        return false;
-    }
 
-    public final String toString()
-    {
-        return this.getClass().getName() +
-                " eventRate=" + eventRate;
+        return false;
     }
 
     private boolean isSatisfied()
     {
-    	return (newEventsCount >= eventRate) || (oldEventsCount >= eventRate);
+    	return (state.getNewEventsCount() >= state.getEventRate()) || (state.getOldEventsCount() >= state.getEventRate());
     }
 
     private static final Log log = LogFactory.getLog(OutputConditionPolledCount.class);

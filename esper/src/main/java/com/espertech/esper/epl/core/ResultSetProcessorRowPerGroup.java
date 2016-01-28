@@ -18,14 +18,10 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.view.OutputConditionPolled;
-import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 
@@ -39,8 +35,6 @@ import java.util.*;
  * for each distinct group-by key.
  */
 public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, AggregationRowRemovedCallback {
-    private static final Log log = LogFactory.getLog(ResultSetProcessorRowPerGroup.class);
-
     protected final ResultSetProcessorRowPerGroupFactory prototype;
     protected final SelectExprProcessor selectExprProcessor;
     protected final OrderByProcessor orderByProcessor;
@@ -885,12 +879,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -916,12 +905,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -992,12 +976,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -1035,12 +1014,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -1404,12 +1378,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -1436,12 +1405,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -1509,12 +1473,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -1551,12 +1510,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputFirstHelper.put(mk, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);

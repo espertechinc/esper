@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 /**
  * Result set processor prototype for the fully-grouped case:
@@ -37,6 +38,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final AggregationGroupByRollupDesc groupByRollupDesc;
     private final boolean isJoin;
     private final boolean isHistoricalOnly;
+    private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
 
     /**
      * Ctor.
@@ -56,7 +58,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       AggregationGroupByRollupDesc groupByRollupDesc,
                                                       boolean isJoin,
                                                       boolean isHistoricalOnly,
-                                                      boolean iterateUnbounded)
+                                                      boolean iterateUnbounded,
+                                                      OutputConditionPolledFactory optionalOutputFirstConditionFactory)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
@@ -75,6 +78,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         this.groupByRollupDesc = groupByRollupDesc;
         this.isJoin = isJoin;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -139,5 +143,9 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.FULLYAGGREGATED_GROUPED_ROLLUP;
+    }
+
+    public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
+        return optionalOutputFirstConditionFactory;
     }
 }

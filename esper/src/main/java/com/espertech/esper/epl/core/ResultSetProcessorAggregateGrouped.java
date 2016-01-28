@@ -18,14 +18,10 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.view.OutputConditionPolled;
-import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 
@@ -40,7 +36,6 @@ import java.util.*;
  * Aggregation state is a table of rows held by {@link AggregationService} where the row key is the group-by MultiKey.
  */
 public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, AggregationRowRemovedCallback {
-    private static final Log log = LogFactory.getLog(ResultSetProcessorAggregateGrouped.class);
 
     protected final ResultSetProcessorAggregateGroupedFactory prototype;
     private final SelectExprProcessor selectExprProcessor;
@@ -769,12 +764,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             Object mk = newDataMultiKey[count];
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(newDataMultiKey[count], outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -795,12 +785,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             Object mk = oldDataMultiKey[count];
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(oldDataMultiKey[count], outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -869,12 +854,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(mk, outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -906,12 +886,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(mk, outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -1260,12 +1235,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             Object mk = newDataMultiKey[i];
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(newDataMultiKey[i], outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -1285,12 +1255,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             Object mk = oldDataMultiKey[i];
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(oldDataMultiKey[i], outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(0, 1);
@@ -1355,12 +1320,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(mk, outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -1390,12 +1350,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                             OutputConditionPolled outputStateGroup = outputState.get(mk);
                             if (outputStateGroup == null) {
-                                try {
-                                    outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                                }
-                                catch (ExprValidationException e) {
-                                    log.error("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "'");
-                                }
+                                outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                                 outputState.put(oldDataMultiKey[i], outputStateGroup);
                             }
                             boolean pass = outputStateGroup.updateOutputCondition(0, 1);

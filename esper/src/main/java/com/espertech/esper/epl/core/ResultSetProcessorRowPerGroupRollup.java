@@ -8,7 +8,6 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
-import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -22,20 +21,14 @@ import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.view.OutputConditionPolled;
-import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 
 public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, AggregationRowRemovedCallback {
-
-    private static final Log log = LogFactory.getLog(ResultSetProcessorRowPerGroupRollup.class);
 
     protected final ResultSetProcessorRowPerGroupRollupFactory prototype;
     protected final OrderByProcessor orderByProcessor;
@@ -486,12 +479,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -523,12 +511,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -569,12 +552,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -599,12 +577,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -674,12 +647,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -710,12 +678,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -757,12 +720,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -788,12 +746,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
                         OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
                         if (outputStateGroup == null) {
-                            try {
-                                outputStateGroup = OutputConditionPolledFactory.createCondition(prototype.getOutputLimitSpec(), agentInstanceContext);
-                            }
-                            catch (ExprValidationException e) {
-                                throw handleConditionValidationException(e);
-                            }
+                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
                             outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
                         }
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
@@ -1464,10 +1417,6 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
-    }
-
-    private EPException handleConditionValidationException(ExprValidationException e) {
-        return new EPException("Error starting output limit for group for statement '" + agentInstanceContext.getStatementContext().getStatementName() + "': " + e.getMessage(), e);
     }
 
     private Object[] generateGroupKeysNonJoin(EventBean[] eventsPerStream, boolean isNewData) {
