@@ -104,6 +104,10 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
         // no action required
     }
 
+    public void remove(Object key) {
+        groupReps.remove(key);
+    }
+
     private UniformPair<EventBean[]> output(boolean isSynthesize, boolean join) {
         List<EventBean> newEvents = new ArrayList<EventBean>(4);
         processor.generateOutputBatchedArr(join, groupReps.entrySet().iterator(), true, isSynthesize, newEvents, null);

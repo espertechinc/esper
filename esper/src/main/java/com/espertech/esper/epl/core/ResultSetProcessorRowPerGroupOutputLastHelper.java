@@ -19,5 +19,6 @@ public interface ResultSetProcessorRowPerGroupOutputLastHelper {
     void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic);
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
     UniformPair<EventBean[]> outputJoin(boolean isSynthesize);
+    void remove(Object key);
     void destroy();
 }

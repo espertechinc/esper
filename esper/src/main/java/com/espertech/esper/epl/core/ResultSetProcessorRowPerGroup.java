@@ -656,6 +656,12 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         if (outputAllGroupReps != null) {
             outputAllGroupReps.remove(key);
         }
+        if (outputLastHelper != null) {
+            outputLastHelper.remove(key);
+        }
+        if (outputAllGroupReps != null) {
+            outputAllGroupReps.remove(key);
+        }
         outputState.remove(key);
     }
 
