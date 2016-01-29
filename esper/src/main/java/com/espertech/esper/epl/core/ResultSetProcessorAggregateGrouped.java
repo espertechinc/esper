@@ -75,7 +75,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                 outputAllGroupReps = resultSetProcessorHelperFactory.makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
             }
             else {
-                outputAllHelper = new ResultSetProcessorAggregateGroupedOutputAllHelper(this);
+                outputAllHelper = resultSetProcessorHelperFactory.makeRSAggregateGroupedOutputAll(agentInstanceContext, this, prototype);
             }
         }
     }
@@ -87,6 +87,14 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     public EventType getResultEventType()
     {
         return prototype.getResultEventType();
+    }
+
+    public EventBean[] getEventsPerStreamOneStream() {
+        return eventsPerStreamOneStream;
+    }
+
+    public AggregationService getAggregationService() {
+        return aggregationService;
     }
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData) {
@@ -298,7 +306,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return events;
     }
 
-    protected Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, boolean isNewData)
+    public Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, boolean isNewData)
     {
         if (resultSet.isEmpty())
         {
@@ -317,7 +325,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return keys;
     }
 
-    protected Object[] generateGroupKeys(EventBean[] events, boolean isNewData)
+    public Object[] generateGroupKeys(EventBean[] events, boolean isNewData)
     {
         if (events == null) {
             return null;
@@ -587,9 +595,12 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         if (outputAllGroupReps != null) {
             outputAllGroupReps.destroy();
         }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
+        }
     }
 
-    protected void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {
@@ -626,7 +637,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    protected EventBean generateOutputBatchedSingle(Object groupByKey, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize)
+    public EventBean generateOutputBatchedSingle(Object groupByKey, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize)
     {
         aggregationService.setCurrentAccess(groupByKey, agentInstanceContext.getAgentInstanceId(), null);
 
@@ -724,6 +735,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     public void removed(Object key) {
         if (outputAllGroupReps != null) {
             outputAllGroupReps.remove(key);
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.remove(key);
         }
     }
 
@@ -1722,7 +1736,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    protected void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {

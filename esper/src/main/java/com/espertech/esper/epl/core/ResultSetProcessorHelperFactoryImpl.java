@@ -94,4 +94,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public ResultSetProcessorRowPerGroupUnboundGroupRep makeRSRowPerGroupUnboundGroupRep(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
         return new ResultSetProcessorRowPerGroupUnboundGroupRepImpl();
     }
+
+    public ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, ResultSetProcessorAggregateGroupedFactory prototype) {
+        return new ResultSetProcessorAggregateGroupedOutputAllHelperImpl(processor);
+    }
 }
