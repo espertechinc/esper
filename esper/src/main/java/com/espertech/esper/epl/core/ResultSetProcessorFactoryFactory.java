@@ -499,7 +499,7 @@ public class ResultSetProcessorFactoryFactory
         // There is a group-by clause, and one or more event properties in the select clause that are not under an aggregation
         // function are not listed in the group-by clause (output one row per event, not one row per group)
         log.debug(".getProcessor Using ResultSetProcessorAggregateGrouped");
-        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, optionalOutputFirstConditionFactory);
+        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, resultSetProcessorHelperFactory, optionalOutputFirstConditionFactory, hasOutputLimitOptHint, numStreams);
         return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
     }
 

@@ -34,7 +34,10 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     private final boolean isUnidirectional;
     private final OutputLimitSpec outputLimitSpec;
     private final boolean isHistoricalOnly;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
     private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
+    private final boolean enableOutputLimitOpt;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -55,7 +58,10 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
                                                      OutputLimitSpec outputLimitSpec,
                                                      boolean isSorting,
                                                      boolean isHistoricalOnly,
-                                                     OutputConditionPolledFactory optionalOutputFirstConditionFactory)
+                                                     ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                     OutputConditionPolledFactory optionalOutputFirstConditionFactory,
+                                                     boolean enableOutputLimitOpt,
+                                                     int numStreams)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -72,11 +78,14 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
         this.isUnidirectional = isUnidirectional;
         this.outputLimitSpec = outputLimitSpec;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorAggregateGrouped(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+        return new ResultSetProcessorAggregateGrouped(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
     }
 
     public EventType getResultEventType()
@@ -138,5 +147,13 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
 
     public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
         return optionalOutputFirstConditionFactory;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }

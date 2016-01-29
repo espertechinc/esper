@@ -43,7 +43,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
     // For output rate limiting, keep a representative event for each group for
     // representing each group in an output limit clause
-    protected ResultSetProcessorRowPerGroupOutputAllGroupReps outputAllGroupReps;
+    protected ResultSetProcessorGroupedOutputAllGroupReps outputAllGroupReps;
 
     private ResultSetProcessorRowPerGroupOutputFirstHelper outputFirstHelper;
     private ResultSetProcessorRowPerGroupOutputLastHelper outputLastHelper;
@@ -63,7 +63,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
         else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
-                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllNoOpt(agentInstanceContext, prototype);
+                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
             }
             else {
                 outputAllHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);

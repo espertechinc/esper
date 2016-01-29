@@ -13,6 +13,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
@@ -74,8 +75,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new ResultSetProcessorRowForAllOutputAllHelperImpl(processor);
     }
 
-    public ResultSetProcessorRowPerGroupOutputAllGroupReps makeRSRowPerGroupOutputAllNoOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
-        return new ResultSetProcessorRowPerGroupOutputAllGroupRepsImpl();
+    public ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(AgentInstanceContext agentInstanceContext, ExprEvaluator[] groupKeyExpressions, int numStreams) {
+        return new ResultSetProcessorGroupedOutputAllGroupRepsImpl();
     }
 
     public ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype) {

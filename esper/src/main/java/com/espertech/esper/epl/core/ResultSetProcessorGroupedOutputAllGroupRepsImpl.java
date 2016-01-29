@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ResultSetProcessorRowPerGroupOutputAllGroupRepsImpl implements ResultSetProcessorRowPerGroupOutputAllGroupReps {
+public class ResultSetProcessorGroupedOutputAllGroupRepsImpl implements ResultSetProcessorGroupedOutputAllGroupReps {
 
     private final Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
 

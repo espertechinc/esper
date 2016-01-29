@@ -46,7 +46,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     protected final EventBean[] eventsPerStreamOneStream = new EventBean[1];
 
     // For output limiting, keep a representative of each group-by group
-    private final Map<Object, EventBean[]> eventGroupReps = new HashMap<Object, EventBean[]>();
+    private ResultSetProcessorGroupedOutputAllGroupReps outputAllGroupReps;
     private final Map<Object, EventBean[]> workCollection = new LinkedHashMap<Object, EventBean[]>();
     private final Map<Object, EventBean[]> workCollectionTwo = new LinkedHashMap<Object, EventBean[]>();
 
@@ -58,7 +58,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     private ResultSetProcessorAggregateGroupedOutputLastHelper outputLastHelper;
     private ResultSetProcessorAggregateGroupedOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
@@ -71,7 +71,12 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             outputLastHelper = new ResultSetProcessorAggregateGroupedOutputLastHelper(this);
         }
         else if (prototype.isOutputAll()) {
-            outputAllHelper = new ResultSetProcessorAggregateGroupedOutputAllHelper(this);
+            if (!prototype.isEnableOutputLimitOpt()) {
+                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
+            }
+            else {
+                outputAllHelper = new ResultSetProcessorAggregateGroupedOutputAllHelper(this);
+            }
         }
     }
 
@@ -579,7 +584,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     }
 
     public void stop() {
-        // no action required
+        if (outputAllGroupReps != null) {
+            outputAllGroupReps.destroy();
+        }
     }
 
     protected void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
@@ -715,7 +722,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     }
 
     public void removed(Object key) {
-        eventGroupReps.remove(key);
+        if (outputAllGroupReps != null) {
+            outputAllGroupReps.remove(key);
+        }
     }
 
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
@@ -1081,7 +1090,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                     // keep the new event as a representative for the group
                     workCollection.put(mk, aNewData.getArray());
-                    eventGroupReps.put(mk, aNewData.getArray());
+                    outputAllGroupReps.put(mk, aNewData.getArray());
                 }
             }
             if (oldData != null)
@@ -1103,8 +1112,10 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
 
         // For any group representatives not in the work collection, generate a row
-        for (Map.Entry<Object, EventBean[]> entry : eventGroupReps.entrySet())
+        Iterator<Map.Entry<Object,EventBean[]>> entryIterator = outputAllGroupReps.entryIterator();
+        while (entryIterator.hasNext())
         {
+            Map.Entry<Object, EventBean[]> entry = entryIterator.next();
             if (!workCollection.containsKey(entry.getKey()))
             {
                 workCollectionTwo.put(entry.getKey(), entry.getValue());
@@ -1539,7 +1550,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
                     // keep the new event as a representative for the group
                     workCollection.put(mk, eventsPerStream);
-                    eventGroupReps.put(mk, new EventBean[] {aNewData});
+                    outputAllGroupReps.put(mk, new EventBean[] {aNewData});
                 }
             }
             if (oldData != null)
@@ -1562,8 +1573,10 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
 
         // For any group representatives not in the work collection, generate a row
-        for (Map.Entry<Object, EventBean[]> entry : eventGroupReps.entrySet())
+        Iterator<Map.Entry<Object,EventBean[]>> entryIterator = outputAllGroupReps.entryIterator();
+        while (entryIterator.hasNext())
         {
+            Map.Entry<Object, EventBean[]> entry = entryIterator.next();
             if (!workCollection.containsKey(entry.getKey()))
             {
                 workCollectionTwo.put(entry.getKey(), entry.getValue());
