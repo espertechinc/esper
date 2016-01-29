@@ -92,7 +92,7 @@ public class OutputConditionFactoryFactory
             {
                 rate = outputLimitSpec.getRate().intValue();
             }
-            return new OutputConditionCountFactory(rate, variableMetaData);
+            return resultSetProcessorHelperFactory.makeOutputConditionCount(rate, variableMetaData, statementContext);
 		}
 		else if (outputLimitSpec.getRateType() == OutputLimitRateType.TERM)
 		{

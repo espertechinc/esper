@@ -98,5 +98,9 @@ public final class OutputConditionCount extends OutputConditionBase implements O
         outputCallback.continueOutputProcessing(true, true);
     }
 
+    public void stop() {
+        // no action required
+    }
+
     private static final Log log = LogFactory.getLog(OutputConditionCount.class);
 }

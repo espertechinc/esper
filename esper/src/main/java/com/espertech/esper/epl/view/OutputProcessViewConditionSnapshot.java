@@ -42,6 +42,12 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
     	this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        outputCondition.stop();
+    }
+
     public int getNumChangesetRows() {
         return 0;
     }

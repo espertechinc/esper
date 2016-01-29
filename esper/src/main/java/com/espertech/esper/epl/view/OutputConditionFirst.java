@@ -54,6 +54,10 @@ public class OutputConditionFirst extends OutputConditionBase implements OutputC
         outputCallback.continueOutputProcessing(true, true);
     }
 
+	public void stop() {
+		// no action required
+	}
+
 	private void continueOutputProcessing(boolean forceUpdate)
 	{
 		boolean doOutput = !witnessedFirst;

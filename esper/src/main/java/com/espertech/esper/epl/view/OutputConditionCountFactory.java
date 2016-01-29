@@ -12,10 +12,10 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 
-public final class OutputConditionCountFactory implements OutputConditionFactory
+public class OutputConditionCountFactory implements OutputConditionFactory
 {
-    private final long eventRate;
-    private final VariableMetaData variableMetaData;
+    protected final long eventRate;
+    protected final VariableMetaData variableMetaData;
 
     /**
      * Constructor.

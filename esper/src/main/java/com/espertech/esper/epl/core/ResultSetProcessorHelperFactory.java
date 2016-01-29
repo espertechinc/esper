@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
+import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.view.OutputConditionFactory;
 import com.espertech.esper.epl.view.OutputProcessViewAfterState;
 import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSet;
@@ -29,6 +30,7 @@ public interface ResultSetProcessorHelperFactory {
     OutputConditionFactory makeOutputConditionTime(ExprTimePeriod timePeriodExpr, boolean isStartConditionOnCreation);
     OutputConditionFactory makeOutputConditionExpression(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> thenExpressions, StatementContext statementContext, ExprNode andAfterTerminateExpr, List<OnTriggerSetAssignment> andAfterTerminateThenExpressions, boolean isStartConditionOnCreation) throws ExprValidationException;
     OutputConditionFactory makeOutputConditionCrontab(List<ExprNode> crontabAtSchedule, StatementContext statementContext, boolean isStartConditionOnCreation) throws ExprValidationException;
+    OutputConditionFactory makeOutputConditionCount(int rate, VariableMetaData variableMetaData, StatementContext statementContext);
     OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, AgentInstanceContext agentInstanceContext);
     ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext);
     ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext, int numStreams);
@@ -40,4 +42,5 @@ public interface ResultSetProcessorHelperFactory {
     ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype);
     ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype);
     ResultSetProcessorRowPerGroupOutputFirstHelper makeRSRowPerGroupOutputFirst(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype);
+    ResultSetProcessorRowPerGroupUnboundGroupRep makeRSRowPerGroupUnboundGroupRep(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype);
 }

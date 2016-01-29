@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
+import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.view.*;
 
 import java.util.List;
@@ -44,6 +45,10 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
 
     public OutputConditionFactory makeOutputConditionCrontab(List<ExprNode> crontabAtSchedule, StatementContext statementContext, boolean isStartConditionOnCreation) throws ExprValidationException {
         return new OutputConditionCrontabFactory(crontabAtSchedule, statementContext, isStartConditionOnCreation);
+    }
+
+    public OutputConditionFactory makeOutputConditionCount(int rate, VariableMetaData variableMetaData, StatementContext statementContext) {
+        return new OutputConditionCountFactory(rate, variableMetaData);
     }
 
     public OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, AgentInstanceContext agentInstanceContext) {
@@ -83,5 +88,9 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
 
     public ResultSetProcessorRowPerGroupOutputFirstHelper makeRSRowPerGroupOutputFirst(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
         return new ResultSetProcessorRowPerGroupOutputFirstHelperImpl();
+    }
+
+    public ResultSetProcessorRowPerGroupUnboundGroupRep makeRSRowPerGroupUnboundGroupRep(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
+        return new ResultSetProcessorRowPerGroupUnboundGroupRepImpl();
     }
 }

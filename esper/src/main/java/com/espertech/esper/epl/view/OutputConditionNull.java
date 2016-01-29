@@ -32,4 +32,8 @@ public class OutputConditionNull extends OutputConditionBase implements OutputCo
     public void terminated() {
         outputCallback.continueOutputProcessing(true, true);
     }
+
+	public void stop() {
+		// no action required
+	}
 }

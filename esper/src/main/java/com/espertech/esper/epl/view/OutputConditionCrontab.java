@@ -105,5 +105,9 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
         outputCallback.continueOutputProcessing(true, true);
     }
 
+    public void stop() {
+        // no action required
+    }
+
     private static final Log log = LogFactory.getLog(OutputConditionCrontab.class);
 }

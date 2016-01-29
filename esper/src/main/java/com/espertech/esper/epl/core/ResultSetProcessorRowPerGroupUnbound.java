@@ -17,17 +17,16 @@ import com.espertech.esper.view.Viewable;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowPerGroup implements AggregationRowRemovedCallback {
 
-    protected final Map<Object, EventBean> groupReps = new LinkedHashMap<Object, EventBean>();
+    protected final ResultSetProcessorRowPerGroupUnboundGroupRep groupReps;
 
     public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
-
-        aggregationService.setRemovedCallback(this);
+        groupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupUnboundGroupRep(agentInstanceContext, prototype);
+        aggregationService.setRemovedCallback(groupReps);
     }
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData) {
@@ -36,7 +35,6 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
             for (EventBean aNewData : newData) {
                 eventsPerStream[0] = aNewData;
                 Object mk = generateGroupKey(eventsPerStream, true);
-                // TODO test this case
                 groupReps.put(mk, eventsPerStream[0]);
                 aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
             }
@@ -100,14 +98,15 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
     public Iterator<EventBean> getIterator(Viewable parent) {
         if (orderByProcessor == null)
         {
-            Iterator<EventBean> it = groupReps.values().iterator();
+            Iterator<EventBean> it = groupReps.valueIterator();
             return new ResultSetRowPerGroupIterator(it, this, aggregationService, agentInstanceContext);
         }
-        return getIteratorSorted(groupReps.values().iterator());
+        return getIteratorSorted(groupReps.valueIterator());
     }
 
-
-    public void removed(Object optionalGroupKeyPerRow) {
-        groupReps.remove(optionalGroupKeyPerRow);
+    @Override
+    public void stop() {
+        super.stop();
+        groupReps.destroy();
     }
 }

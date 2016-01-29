@@ -14,6 +14,9 @@ public final class OutputConditionTerm extends OutputConditionBase implements Ou
         super(outputCallback);
     }
 
-    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {}
+
+    public void stop() {
+        // no action required
     }
 }
