@@ -39,10 +39,7 @@ public final class OutputConditionPolledCountFactory implements OutputConditionP
     }
 
     public OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext) {
-        OutputConditionPolledCountState state = new OutputConditionPolledCountState();
-        state.setEventRate(eventRate);
-        state.setNewEventsCount(eventRate);
-        state.setOldEventsCount(eventRate);
+        OutputConditionPolledCountState state = new OutputConditionPolledCountState(eventRate, eventRate, eventRate, true);
         return new OutputConditionPolledCount(this, state, getVariableReader(agentInstanceContext));
     }
 

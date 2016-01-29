@@ -15,6 +15,13 @@ public class OutputConditionPolledCountState implements OutputConditionPolledSta
     private int oldEventsCount;
     private boolean isFirst = true;
 
+    public OutputConditionPolledCountState(long eventRate, int newEventsCount, int oldEventsCount, boolean isFirst) {
+        this.eventRate = eventRate;
+        this.newEventsCount = newEventsCount;
+        this.oldEventsCount = oldEventsCount;
+        this.isFirst = isFirst;
+    }
+
     public long getEventRate() {
         return eventRate;
     }
