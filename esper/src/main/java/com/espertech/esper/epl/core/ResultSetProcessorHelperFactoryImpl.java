@@ -98,4 +98,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, ResultSetProcessorAggregateGroupedFactory prototype) {
         return new ResultSetProcessorAggregateGroupedOutputAllHelperImpl(processor);
     }
+
+    public ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, ResultSetProcessorAggregateGroupedFactory prototype) {
+        return new ResultSetProcessorAggregateGroupedOutputLastHelperImpl(resultSetProcessorAggregateGrouped);
+    }
 }

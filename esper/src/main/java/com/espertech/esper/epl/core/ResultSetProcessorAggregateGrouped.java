@@ -67,8 +67,8 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
         aggregationService.setRemovedCallback(this);
 
-        if (prototype.isOutputLast()) {
-            outputLastHelper = new ResultSetProcessorAggregateGroupedOutputLastHelper(this);
+        if (prototype.isOutputLast() && prototype.isEnableOutputLimitOpt()) {
+            outputLastHelper = resultSetProcessorHelperFactory.makeRSAggregateGroupedOutputLastOpt(agentInstanceContext, this, prototype);
         }
         else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
@@ -598,9 +598,12 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         if (outputAllHelper != null) {
             outputAllHelper.destroy();
         }
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
     }
 
-    public void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedJoinUnkeyed(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {
@@ -655,7 +658,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
     }
 
-    protected void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys)
+    public void generateOutputBatchedViewPerKey(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys)
     {
         if (outputEvents == null)
         {
@@ -693,7 +696,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    protected void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys)
+    public void generateOutputBatchedJoinPerKey(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents, Map<Object, Object> optSortKeys)
     {
         if (outputEvents == null)
         {
@@ -738,6 +741,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
         if (outputAllHelper != null) {
             outputAllHelper.remove(key);
+        }
+        if (outputLastHelper != null) {
+            outputLastHelper.remove(key);
         }
     }
 
@@ -830,9 +836,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedJoin(oldData, oldDataMultiKey, false, generateSynthetic, lastPerGroupOld, oldEventsSortKey);
+                generateOutputBatchedJoinPerKey(oldData, oldDataMultiKey, false, generateSynthetic, lastPerGroupOld, oldEventsSortKey);
             }
-            generateOutputBatchedJoin(newData, newDataMultiKey, false, generateSynthetic, lastPerGroupNew, newEventsSortKey);
+            generateOutputBatchedJoinPerKey(newData, newDataMultiKey, false, generateSynthetic, lastPerGroupNew, newEventsSortKey);
         }
 
         EventBean[] newEventsArr = (lastPerGroupNew.isEmpty()) ? null : lastPerGroupNew.values().toArray(new EventBean[lastPerGroupNew.size()]);
@@ -1120,9 +1126,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedJoin(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                generateOutputBatchedJoinUnkeyed(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
-            generateOutputBatchedJoin(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
+            generateOutputBatchedJoinUnkeyed(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
         }
 
         // For any group representatives not in the work collection, generate a row
@@ -1218,9 +1224,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedJoin(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                generateOutputBatchedJoinUnkeyed(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
-            generateOutputBatchedJoin(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
+            generateOutputBatchedJoinUnkeyed(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
         }
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
@@ -1301,9 +1307,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedView(oldData, oldDataMultiKey, false, generateSynthetic, lastPerGroupOld, oldEventsSortKey);
+                generateOutputBatchedViewPerKey(oldData, oldDataMultiKey, false, generateSynthetic, lastPerGroupOld, oldEventsSortKey);
             }
-            generateOutputBatchedView(newData, newDataMultiKey, false, generateSynthetic, lastPerGroupNew, newEventsSortKey);
+            generateOutputBatchedViewPerKey(newData, newDataMultiKey, false, generateSynthetic, lastPerGroupNew, newEventsSortKey);
         }
 
         EventBean[] newEventsArr = (lastPerGroupNew.isEmpty()) ? null : lastPerGroupNew.values().toArray(new EventBean[lastPerGroupNew.size()]);
@@ -1581,9 +1587,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedView(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                generateOutputBatchedViewUnkeyed(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
-            generateOutputBatchedView(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
+            generateOutputBatchedViewUnkeyed(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
         }
 
         // For any group representatives not in the work collection, generate a row
@@ -1676,9 +1682,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
 
             if (prototype.isSelectRStream())
             {
-                generateOutputBatchedView(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
+                generateOutputBatchedViewUnkeyed(oldData, oldDataMultiKey, false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
-            generateOutputBatchedView(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
+            generateOutputBatchedViewUnkeyed(newData, newDataMultiKey, true, generateSynthetic, newEvents, newEventsSortKey);
         }
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
@@ -1736,7 +1742,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    public void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedViewUnkeyed(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {
