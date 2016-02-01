@@ -600,7 +600,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    public void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedJoin(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {
@@ -1736,7 +1736,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
     }
 
-    public void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
+    public void generateOutputBatchedView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
     {
         if (outputEvents == null)
         {
