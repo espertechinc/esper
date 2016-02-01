@@ -28,7 +28,7 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new ResultSetProcessorSimpleOutputLastHelperImpl(simple);
     }
 
-    public ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext, int numStreams) {
+    public ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimpleFactory prototype, ResultSetProcessorSimple resultSetProcessorSimple, AgentInstanceContext agentInstanceContext) {
         return new ResultSetProcessorSimpleOutputAllHelperImpl(resultSetProcessorSimple);
     }
 
@@ -101,5 +101,9 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
 
     public ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, ResultSetProcessorAggregateGroupedFactory prototype) {
         return new ResultSetProcessorAggregateGroupedOutputLastHelperImpl(resultSetProcessorAggregateGrouped);
+    }
+
+    public ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollup(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup resultSetProcessorRowPerGroupRollup, ResultSetProcessorRowPerGroupRollupFactory prototype) {
+        return new ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl(resultSetProcessorRowPerGroupRollup, prototype.getGroupByRollupDesc().getLevels().length);
     }
 }

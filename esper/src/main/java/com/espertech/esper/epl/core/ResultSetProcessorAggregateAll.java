@@ -41,14 +41,14 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
     private ResultSetProcessorAggregateAllOutputLastHelper outputLastUnordHelper;
     private ResultSetProcessorAggregateAllOutputAllHelper outputAllUnordHelper;
 
-    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = agentInstanceContext;
-        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? resultSetProcessorHelperFactory.makeRSAggregateAllOutputLast(this, agentInstanceContext) : null;
-        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? resultSetProcessorHelperFactory.makeRSAggregateAllOutputAll(this, agentInstanceContext) : null;
+        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? prototype.getResultSetProcessorHelperFactory().makeRSAggregateAllOutputLast(this, agentInstanceContext) : null;
+        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? prototype.getResultSetProcessorHelperFactory().makeRSAggregateAllOutputAll(this, agentInstanceContext) : null;
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {

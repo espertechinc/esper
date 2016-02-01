@@ -54,7 +54,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     private ResultSetProcessorAggregateGroupedOutputAllHelper outputAllHelper;
     private ResultSetProcessorGroupedOutputFirstHelper outputFirstHelper;
 
-    public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+    public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
@@ -64,18 +64,18 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         aggregationService.setRemovedCallback(this);
 
         if (prototype.isOutputLast() && prototype.isEnableOutputLimitOpt()) {
-            outputLastHelper = resultSetProcessorHelperFactory.makeRSAggregateGroupedOutputLastOpt(agentInstanceContext, this, prototype);
+            outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSAggregateGroupedOutputLastOpt(agentInstanceContext, this, prototype);
         }
         else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
-                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
+                outputAllGroupReps = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
             }
             else {
-                outputAllHelper = resultSetProcessorHelperFactory.makeRSAggregateGroupedOutputAll(agentInstanceContext, this, prototype);
+                outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSAggregateGroupedOutputAll(agentInstanceContext, this, prototype);
             }
         }
         else if (prototype.isOutputFirst()) {
-            outputFirstHelper = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
+            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
         }
     }
 

@@ -57,7 +57,7 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorAggregateAll(this, selectExprProcessor, orderByProcessor, aggregationService, resultSetProcessorHelperFactory, agentInstanceContext);
+        return new ResultSetProcessorAggregateAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
     }
 
     public EventType getResultEventType()
@@ -99,5 +99,9 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.AGGREGATED_UNGROUPED;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }

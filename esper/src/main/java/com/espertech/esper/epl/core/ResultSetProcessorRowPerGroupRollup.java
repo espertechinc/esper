@@ -77,8 +77,8 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                 outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
             }
 
-            if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
-                outputLastHelper = new ResultSetProcessorRowPerGroupRollupOutputLastHelper(this, outputLimitGroupRepsPerLevel.length);
+            if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST && prototype.isEnableOutputLimitOpt()) {
+                outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollup(agentInstanceContext, this, prototype);
                 outputAllHelper = null;
             }
             else if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {

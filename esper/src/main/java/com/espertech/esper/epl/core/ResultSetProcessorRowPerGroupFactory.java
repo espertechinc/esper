@@ -89,9 +89,9 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         if (noDataWindowSingleSnapshot && !isHistoricalOnly) {
-            return new ResultSetProcessorRowPerGroupUnbound(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
+            return new ResultSetProcessorRowPerGroupUnbound(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
         }
-        return new ResultSetProcessorRowPerGroup(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
+        return new ResultSetProcessorRowPerGroup(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
     }
 
     public EventType getResultEventType()
@@ -165,5 +165,9 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
 
     public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
         return optionalOutputFirstConditionFactory;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }

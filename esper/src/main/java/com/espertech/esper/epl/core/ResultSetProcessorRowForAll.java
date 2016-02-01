@@ -45,17 +45,17 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
     private ResultSetProcessorRowForAllOutputLastHelper outputLastHelper;
     private ResultSetProcessorRowForAllOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorRowForAll(ResultSetProcessorRowForAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+    public ResultSetProcessorRowForAll(ResultSetProcessorRowForAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
         this.exprEvaluatorContext = agentInstanceContext;
         if (prototype.isOutputLast()) {
-            outputLastHelper = resultSetProcessorHelperFactory.makeRSRowForAllOutputLast(this, prototype, agentInstanceContext);
+            outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowForAllOutputLast(this, prototype, agentInstanceContext);
         }
         else if (prototype.isOutputAll()) {
-            outputAllHelper = resultSetProcessorHelperFactory.makeRSRowForAllOutputAll(this, prototype, agentInstanceContext);
+            outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowForAllOutputAll(this, prototype, agentInstanceContext);
         }
     }
 

@@ -54,7 +54,7 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorRowForAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
+        return new ResultSetProcessorRowForAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
     }
 
     public EventType getResultEventType()
@@ -92,5 +92,9 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
 
     public boolean isOutputAll() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }

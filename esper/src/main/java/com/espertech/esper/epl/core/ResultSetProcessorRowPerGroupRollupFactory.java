@@ -39,6 +39,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final boolean isJoin;
     private final boolean isHistoricalOnly;
     private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final boolean enableOutputLimitOpt;
 
     /**
      * Ctor.
@@ -59,7 +61,9 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       boolean isJoin,
                                                       boolean isHistoricalOnly,
                                                       boolean iterateUnbounded,
-                                                      OutputConditionPolledFactory optionalOutputFirstConditionFactory)
+                                                      OutputConditionPolledFactory optionalOutputFirstConditionFactory,
+                                                      ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                      boolean enableOutputLimitOpt)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
@@ -79,6 +83,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         this.isJoin = isJoin;
         this.isHistoricalOnly = isHistoricalOnly;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -147,5 +153,13 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
 
     public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
         return optionalOutputFirstConditionFactory;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }

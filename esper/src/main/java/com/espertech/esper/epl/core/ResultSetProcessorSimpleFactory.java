@@ -56,7 +56,7 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorSimple(this, selectExprProcessor, orderByProcessor, agentInstanceContext, resultSetProcessorHelperFactory, numStreams);
+        return new ResultSetProcessorSimple(this, selectExprProcessor, orderByProcessor, agentInstanceContext);
     }
 
     public EventType getResultEventType()
@@ -86,5 +86,13 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
 
     public boolean isEnableOutputLimitOpt() {
         return enableOutputLimitOpt;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }

@@ -23,9 +23,9 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
 
     protected final ResultSetProcessorRowPerGroupUnboundGroupRep groupReps;
 
-    public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
-        super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext, resultSetProcessorHelperFactory);
-        groupReps = resultSetProcessorHelperFactory.makeRSRowPerGroupUnboundGroupRep(agentInstanceContext, prototype);
+    public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
+        super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
+        groupReps = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupUnboundGroupRep(agentInstanceContext, prototype);
         aggregationService.setRemovedCallback(groupReps);
     }
 

@@ -49,7 +49,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private ResultSetProcessorRowPerGroupOutputLastHelper outputLastHelper;
     private ResultSetProcessorRowPerGroupOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+    public ResultSetProcessorRowPerGroup(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
@@ -59,18 +59,18 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         aggregationService.setRemovedCallback(this);
 
         if (prototype.isOutputLast()) {
-            outputLastHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputLastOpt(agentInstanceContext, this, prototype);
+            outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupOutputLastOpt(agentInstanceContext, this, prototype);
         }
         else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
-                outputAllGroupReps = resultSetProcessorHelperFactory.makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
+                outputAllGroupReps = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
             }
             else {
-                outputAllHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);
+                outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);
             }
         }
         else if (prototype.isOutputFirst()) {
-            outputFirstHelper = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
+            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
         }
     }
 
