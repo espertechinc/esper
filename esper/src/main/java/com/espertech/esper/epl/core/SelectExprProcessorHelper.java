@@ -255,7 +255,7 @@ public class SelectExprProcessorHelper
             }
 
             // handle select-clause expressions that match group-by expressions with rollup and therefore should be boxed types as rollup can produce a null value
-            if (groupByRollupInfo != null) {
+            if (groupByRollupInfo != null && groupByRollupInfo.getRollupDesc() != null) {
                 Class returnType = evaluator.getType();
                 Class returnTypeBoxed = JavaClassHelper.getBoxedType(returnType);
                 if (returnType != returnTypeBoxed && isGroupByRollupNullableExpression(expr, groupByRollupInfo)) {
