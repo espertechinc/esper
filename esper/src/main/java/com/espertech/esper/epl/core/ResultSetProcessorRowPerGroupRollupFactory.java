@@ -41,6 +41,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
     private final boolean enableOutputLimitOpt;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -63,7 +64,8 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       boolean iterateUnbounded,
                                                       OutputConditionPolledFactory optionalOutputFirstConditionFactory,
                                                       ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
-                                                      boolean enableOutputLimitOpt)
+                                                      boolean enableOutputLimitOpt,
+                                                      int numStreams)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
@@ -85,6 +87,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
         this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -161,5 +164,9 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
 
     public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
         return resultSetProcessorHelperFactory;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }
