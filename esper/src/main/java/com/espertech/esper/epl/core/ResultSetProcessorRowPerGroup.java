@@ -45,7 +45,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     // representing each group in an output limit clause
     protected ResultSetProcessorGroupedOutputAllGroupReps outputAllGroupReps;
 
-    private ResultSetProcessorRowPerGroupOutputFirstHelper outputFirstHelper;
+    private ResultSetProcessorGroupedOutputFirstHelper outputFirstHelper;
     private ResultSetProcessorRowPerGroupOutputLastHelper outputLastHelper;
     private ResultSetProcessorRowPerGroupOutputAllHelper outputAllHelper;
 
@@ -70,7 +70,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
         else if (prototype.isOutputFirst()) {
-            outputFirstHelper = resultSetProcessorHelperFactory.makeRSRowPerGroupOutputFirst(agentInstanceContext, prototype);
+            outputFirstHelper = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
         }
     }
 
@@ -876,12 +876,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     for (MultiKey<EventBean> aNewData : newData)
                     {
                         Object mk = generateGroupKey(aNewData.getArray(), true);
-
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             // if this is a newly encountered group, generate the remove stream event
@@ -902,12 +897,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     for (MultiKey<EventBean> anOldData : oldData)
                     {
                         Object mk = generateGroupKey(anOldData.getArray(), true);
-
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             if (groupRepsView.put(mk, anOldData.getArray()) == null)
@@ -974,11 +964,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (groupRepsView.put(mk, aNewData.getArray()) == null)
@@ -1012,11 +998,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             if (groupRepsView.put(mk, anOldData.getArray()) == null)
@@ -1375,12 +1357,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     {
                         EventBean[] eventsPerStream = new EventBean[] {aNewData};
                         Object mk = generateGroupKey(eventsPerStream, true);
-
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             // if this is a newly encountered group, generate the remove stream event
@@ -1402,12 +1379,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     {
                         EventBean[] eventsPerStream = new EventBean[] {anOldData};
                         Object mk = generateGroupKey(eventsPerStream, true);
-
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             if (groupRepsView.put(mk, eventsPerStream) == null)
@@ -1471,11 +1443,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             EventBean[] eventsPerStream = new EventBean[] {newData[i]};
@@ -1508,11 +1476,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputFirstHelper.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputFirstHelper.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             EventBean[] eventsPerStream = new EventBean[] {oldData[i]};

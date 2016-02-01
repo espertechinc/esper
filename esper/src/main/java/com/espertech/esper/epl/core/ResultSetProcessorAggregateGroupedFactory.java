@@ -156,4 +156,8 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     public int getNumStreams() {
         return numStreams;
     }
+
+    public boolean isOutputFirst() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
+    }
 }

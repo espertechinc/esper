@@ -8,27 +8,12 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.view.OutputConditionPolled;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class ResultSetProcessorRowPerGroupOutputFirstHelperImpl implements ResultSetProcessorRowPerGroupOutputFirstHelper {
-    private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
-
-    public void remove(Object key) {
-        outputState.remove(key);
-    }
-
-    public OutputConditionPolled get(Object mk) {
-        return outputState.get(mk);
-    }
-
-    public void put(Object mk, OutputConditionPolled outputStateGroup) {
-        outputState.put(mk, outputStateGroup);
-    }
-
-    public void destroy() {
-        // no action required
-    }
+public interface ResultSetProcessorGroupedOutputFirstHelper {
+    OutputConditionPolled getOrAllocate(Object mk, AgentInstanceContext agentInstanceContext, OutputConditionPolledFactory optionalOutputFirstConditionFactory);
+    void remove(Object key);
+    void destroy();
 }

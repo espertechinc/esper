@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.view.OutputConditionFactory;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 import com.espertech.esper.epl.view.OutputProcessViewAfterState;
 import com.espertech.esper.epl.view.OutputProcessViewConditionDeltaSet;
 
@@ -41,8 +42,8 @@ public interface ResultSetProcessorHelperFactory {
     ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(AgentInstanceContext agentInstanceContext, ExprEvaluator[] groupKeyExpressions, int numStreams);
     ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype);
     ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup resultSetProcessorRowPerGroup, ResultSetProcessorRowPerGroupFactory prototype);
-    ResultSetProcessorRowPerGroupOutputFirstHelper makeRSRowPerGroupOutputFirst(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype);
     ResultSetProcessorRowPerGroupUnboundGroupRep makeRSRowPerGroupUnboundGroupRep(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype);
     ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, ResultSetProcessorAggregateGroupedFactory prototype);
     ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped resultSetProcessorAggregateGrouped, ResultSetProcessorAggregateGroupedFactory prototype);
+    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(AgentInstanceContext agentInstanceContext, ExprEvaluator[] groupKeyNodes, OutputConditionPolledFactory optionalOutputFirstConditionFactory);
 }

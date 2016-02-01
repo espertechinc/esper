@@ -87,8 +87,8 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
         return new ResultSetProcessorRowPerGroupOutputLastHelperImpl(resultSetProcessorRowPerGroup);
     }
 
-    public ResultSetProcessorRowPerGroupOutputFirstHelper makeRSRowPerGroupOutputFirst(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {
-        return new ResultSetProcessorRowPerGroupOutputFirstHelperImpl();
+    public ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(AgentInstanceContext agentInstanceContext, ExprEvaluator[] groupKeyNodes, OutputConditionPolledFactory optionalOutputFirstConditionFactory) {
+        return new ResultSetProcessorGroupedOutputFirstHelperImpl();
     }
 
     public ResultSetProcessorRowPerGroupUnboundGroupRep makeRSRowPerGroupUnboundGroupRep(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupFactory prototype) {

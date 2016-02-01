@@ -54,9 +54,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     private final Map<Object, EventBean[]> newGenerators = new HashMap<Object, EventBean[]>();
 	private final Map<Object, EventBean[]> oldGenerators = new HashMap<Object, EventBean[]>();
 
-    private final Map<Object, OutputConditionPolled> outputState = new HashMap<Object, OutputConditionPolled>();
     private ResultSetProcessorAggregateGroupedOutputLastHelper outputLastHelper;
     private ResultSetProcessorAggregateGroupedOutputAllHelper outputAllHelper;
+    private ResultSetProcessorGroupedOutputFirstHelper outputFirstHelper;
 
     public ResultSetProcessorAggregateGrouped(ResultSetProcessorAggregateGroupedFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.prototype = prototype;
@@ -77,6 +77,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             else {
                 outputAllHelper = resultSetProcessorHelperFactory.makeRSAggregateGroupedOutputAll(agentInstanceContext, this, prototype);
             }
+        }
+        else if (prototype.isOutputFirst()) {
+            outputFirstHelper = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
         }
     }
 
@@ -601,6 +604,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         if (outputLastHelper != null) {
             outputLastHelper.destroy();
         }
+        if (outputFirstHelper != null) {
+            outputFirstHelper.destroy();
+        }
     }
 
     public void generateOutputBatchedJoinUnkeyed(Set<MultiKey<EventBean>> outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize, Collection<EventBean> resultEvents, List<Object> optSortKeys)
@@ -898,11 +904,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                     for (MultiKey<EventBean> aNewData : newData)
                     {
                         Object mk = newDataMultiKey[count];
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(newDataMultiKey[count], outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             workCollection.put(mk, aNewData.getArray());
@@ -919,11 +921,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                     for (MultiKey<EventBean> aOldData : oldData)
                     {
                         Object mk = oldDataMultiKey[count];
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(oldDataMultiKey[count], outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             workCollection.put(mk, aOldData.getArray());
@@ -988,11 +986,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             workCollection.put(mk, aNewData.getArray());
@@ -1020,11 +1014,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             workCollection.put(mk, aOldData.getArray());
@@ -1368,11 +1358,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                     {
                         eventsPerStreamOneStream[0] = newData[i];
                         Object mk = newDataMultiKey[i];
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(newDataMultiKey[i], outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             workCollection.put(mk, new EventBean[]{newData[i]});
@@ -1388,11 +1374,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                     {
                         eventsPerStreamOneStream[0] = oldData[i];
                         Object mk = oldDataMultiKey[i];
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(oldDataMultiKey[i], outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             workCollection.put(mk, new EventBean[]{oldData[i]});
@@ -1453,11 +1435,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(mk, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             workCollection.put(mk, new EventBean[]{newData[i]});
@@ -1483,11 +1461,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState.get(mk);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState.put(oldDataMultiKey[i], outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
                             workCollection.put(mk, new EventBean[]{oldData[i]});
