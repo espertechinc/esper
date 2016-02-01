@@ -1,15 +1,4 @@
 Manifest-Version: 1.0
-Export-Package: com.espertech.esperio,
- com.espertech.esperio.socket
-Bundle-Name: Esper CEP engine for Java - Input Output Adapters
-Bundle-RequiredExecutionEnvironment: J2SE-1.6, J2SE-1.7
-Bundle-Vendor: EsperTech
-Built-By: EsperTech
-Build-Jdk: 1.6.0_45
-Bundle-Version: 4.9.0
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: com.espertech.esperio-socket
-Eclipse-BuddyPolicy: dependent
 Import-Package: com.espertech.esper.client,
  com.espertech.esper.client.time,
  com.espertech.esper.adapter,
@@ -22,10 +11,17 @@ Import-Package: com.espertech.esper.client,
  com.espertech.esper.plugin,
  com.espertech.esper.schedule,
  com.espertech.esper.util,
- javax.jms,
- javax.xml.namespace,
- javax.xml.parsers,
- javax.xml.xpath,
- net.sf.cglib.reflect,
- org.apache.commons.beanutils,
  org.apache.commons.logging
+Export-Package: com.espertech.esperio,
+ com.espertech.esperio.socket,
+ com.espertech.esperio.socket.config,
+ com.espertech.esperio.socket.core
+Bundle-Name: Esper CEP engine for Java - Input Output Adapters
+Bundle-RequiredExecutionEnvironment: J2SE-1.6, J2SE-1.7
+Bundle-Vendor: EsperTech
+Built-By: EsperTech
+Build-Jdk: 1.6.0_45
+Bundle-Version: 5.3.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.espertech.esperio-socket
+Eclipse-BuddyPolicy: dependent
