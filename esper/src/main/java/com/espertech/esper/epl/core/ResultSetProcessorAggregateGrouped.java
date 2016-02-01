@@ -751,6 +751,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         if (outputLastHelper != null) {
             outputLastHelper.remove(key);
         }
+        if (outputFirstHelper != null) {
+            outputFirstHelper.remove(key);
+        }
     }
 
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
@@ -834,7 +837,6 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                 int count = 0;
                 for (MultiKey<EventBean> anOldData : oldData)
                 {
-                    workCollection.put(oldDataMultiKey[count], anOldData.getArray());
                     aggregationService.applyLeave(anOldData.getArray(), oldDataMultiKey[count], agentInstanceContext);
                     count++;
                 }
