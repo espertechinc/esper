@@ -220,9 +220,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         EventBean[] selectOldEvents = null;
         if (prototype.isSelectRStream())
         {
-            selectOldEvents = generateOutputEventsView(oldData, oldDataGroupByKeys, oldGenerators, false, isSynthesize);
+            selectOldEvents = generateOutputEventsView(oldData, oldDataGroupByKeys, false, isSynthesize);
         }
-        EventBean[] selectNewEvents = generateOutputEventsView(newData, newDataGroupByKeys, newGenerators, true, isSynthesize);
+        EventBean[] selectNewEvents = generateOutputEventsView(newData, newDataGroupByKeys, true, isSynthesize);
 
         if ((selectNewEvents != null) || (selectOldEvents != null))
         {
@@ -233,7 +233,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return null;
     }
 
-	private EventBean[] generateOutputEventsView(EventBean[] outputEvents, Object[] groupByKeys, Map<Object, EventBean[]> generators, boolean isNewData, boolean isSynthesize)
+	private EventBean[] generateOutputEventsView(EventBean[] outputEvents, Object[] groupByKeys, boolean isNewData, boolean isSynthesize)
     {
         if (outputEvents == null)
         {
@@ -271,7 +271,6 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             if(prototype.isSorting())
             {
             	EventBean[] currentEventsPerStream = new EventBean[] { outputEvents[countInputRows] };
-            	generators.put(keys[countOutputRows], currentEventsPerStream);
             	currentGenerators[countOutputRows] = currentEventsPerStream;
             }
 
