@@ -50,10 +50,6 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     private final Map<Object, EventBean[]> workCollection = new LinkedHashMap<Object, EventBean[]>();
     private final Map<Object, EventBean[]> workCollectionTwo = new LinkedHashMap<Object, EventBean[]>();
 
-    // For sorting, keep the generating events for each outgoing event
-    private final Map<Object, EventBean[]> newGenerators = new HashMap<Object, EventBean[]>();
-	private final Map<Object, EventBean[]> oldGenerators = new HashMap<Object, EventBean[]>();
-
     private ResultSetProcessorAggregateGroupedOutputLastHelper outputLastHelper;
     private ResultSetProcessorAggregateGroupedOutputAllHelper outputAllHelper;
     private ResultSetProcessorGroupedOutputFirstHelper outputFirstHelper;
@@ -175,9 +171,9 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         EventBean[] selectOldEvents = null;
         if (prototype.isSelectRStream())
         {
-            selectOldEvents = generateOutputEventsJoin(oldEvents, oldDataGroupByKeys, oldGenerators, false, isSynthesize);
+            selectOldEvents = generateOutputEventsJoin(oldEvents, oldDataGroupByKeys, false, isSynthesize);
         }
-        EventBean[] selectNewEvents = generateOutputEventsJoin(newEvents, newDataGroupByKeys, newGenerators, true, isSynthesize);
+        EventBean[] selectNewEvents = generateOutputEventsJoin(newEvents, newDataGroupByKeys, true, isSynthesize);
 
         if ((selectNewEvents != null) || (selectOldEvents != null))
         {
@@ -386,7 +382,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return new MultiKeyUntyped(keys);
     }
 
-    private EventBean[] generateOutputEventsJoin(Set<MultiKey<EventBean>> resultSet, Object[] groupByKeys, Map<Object, EventBean[]> generators, boolean isNewData, boolean isSynthesize)
+    private EventBean[] generateOutputEventsJoin(Set<MultiKey<EventBean>> resultSet, Object[] groupByKeys, boolean isNewData, boolean isSynthesize)
     {
         if (resultSet.isEmpty())
         {
@@ -426,7 +422,6 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             keys[countOutputRows] = groupByKeys[countInputRows];
             if(prototype.isSorting())
             {
-            	generators.put(keys[countOutputRows], eventsPerStream);
             	currentGenerators[countOutputRows] = eventsPerStream;
             }
 
@@ -546,7 +541,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
     {
         // Generate group-by keys for all events
         Object[] groupByKeys = generateGroupKeys(joinSet, true);
-        EventBean[] result = generateOutputEventsJoin(joinSet, groupByKeys, newGenerators, true, true);
+        EventBean[] result = generateOutputEventsJoin(joinSet, groupByKeys, true, true);
         return new ArrayEventIterator(result);
     }
 
