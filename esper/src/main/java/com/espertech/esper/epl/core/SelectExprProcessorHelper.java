@@ -10,6 +10,7 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.core.eval.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -63,6 +64,7 @@ public class SelectExprProcessorHelper
     private final ConfigurationInformation configuration;
     private final NamedWindowMgmtService namedWindowMgmtService;
     private final TableService tableService;
+    private final GroupByRollupInfo groupByRollupInfo;
 
     /**
      * Ctor.
@@ -91,7 +93,8 @@ public class SelectExprProcessorHelper
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
                                      NamedWindowMgmtService namedWindowMgmtService,
-                                     TableService tableService) throws ExprValidationException
+                                     TableService tableService,
+                                     GroupByRollupInfo groupByRollupInfo) throws ExprValidationException
     {
         this.assignedTypeNumberStack = assignedTypeNumberStack;
         this.selectionList = selectionList;
@@ -109,6 +112,7 @@ public class SelectExprProcessorHelper
         this.configuration = configuration;
         this.namedWindowMgmtService = namedWindowMgmtService;
         this.tableService = tableService;
+        this.groupByRollupInfo = groupByRollupInfo;
     }
 
     public SelectExprProcessor getEvaluator() throws ExprValidationException {
@@ -248,6 +252,17 @@ public class SelectExprProcessorHelper
                 expressionReturnTypes[i] = pair.getType();
                 exprEvaluators[i] = pair.getFunction();
                 continue;
+            }
+
+            // handle select-clause expressions that match group-by expressions with rollup and therefore should be boxed types as rollup can produce a null value
+            if (groupByRollupInfo != null) {
+                Class returnType = evaluator.getType();
+                Class returnTypeBoxed = JavaClassHelper.getBoxedType(returnType);
+                if (returnType != returnTypeBoxed && isGroupByRollupNullableExpression(expr, groupByRollupInfo)) {
+                    exprEvaluators[i] = evaluator;
+                    expressionReturnTypes[i] = returnTypeBoxed;
+                    continue;
+                }
             }
 
             // assign normal expected return type
@@ -958,6 +973,27 @@ public class SelectExprProcessorHelper
             log.debug("Exception provided by event adapter: " + ex.getMessage(), ex);
             throw new ExprValidationException(ex.getMessage(), ex);
         }
+    }
+
+    private boolean isGroupByRollupNullableExpression(ExprNode expr, GroupByRollupInfo groupByRollupInfo) {
+        // if all levels include this key, we are fine
+        for (AggregationGroupByRollupLevel level : groupByRollupInfo.getRollupDesc().getLevels()) {
+            if (level.isAggregationTop()) {
+                return true;
+            }
+            boolean found = false;
+            for (int rollupKeyIndex : level.getRollupKeys()) {
+                ExprNode groupExpression = groupByRollupInfo.getExprNodes()[rollupKeyIndex];
+                if (ExprNodeUtility.deepEquals(groupExpression, expr)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private SelectExprProcessor makeObjectArrayConsiderReorder(SelectExprContext selectExprContext, ObjectArrayEventType resultEventType)

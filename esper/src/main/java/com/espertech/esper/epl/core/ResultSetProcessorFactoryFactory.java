@@ -309,9 +309,9 @@ public class ResultSetProcessorFactoryFactory
         }
 
         // Analyze rollup
-        GroupByRollupInfo groupByInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
-        ExprNode[] groupByNodesValidated = groupByInfo == null ? new ExprNode[0] : groupByInfo.getExprNodes();
-        AggregationGroupByRollupDesc groupByRollupDesc = groupByInfo == null ? null : groupByInfo.getRollupDesc();
+        GroupByRollupInfo groupByRollupInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
+        ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? new ExprNode[0] : groupByRollupInfo.getExprNodes();
+        AggregationGroupByRollupDesc groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
 
         // Construct the appropriate aggregation service
         boolean hasGroupBy = groupByNodesValidated.length > 0;
@@ -336,7 +336,7 @@ public class ResultSetProcessorFactoryFactory
         // Construct the processor for evaluating the select clause
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(stmtContext.getStatementName(), stmtContext.getStatementEventTypeRef());
         SelectExprProcessor selectExprProcessor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClauseSpec.getSelectExprList(), isUsingWildcard, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
-                stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec());
+                stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
         // Get a list of event properties being aggregated in the select clause, if any
         ExprNodePropOrStreamSet propertiesGroupBy = ExprNodeUtility.getGroupByPropertiesValidateHasOne(groupByNodesValidated);
@@ -482,7 +482,7 @@ public class ResultSetProcessorFactoryFactory
             log.debug(".getProcessor Using ResultSetProcessorRowPerGroup");
             ResultSetProcessorFactory factory;
             if (groupByRollupDesc != null) {
-                GroupByRollupPerLevelExpression perLevelExpression = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext);
+                GroupByRollupPerLevelExpression perLevelExpression = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext, groupByRollupInfo);
                 factory = new ResultSetProcessorRowPerGroupRollupFactory(perLevelExpression, groupByNodesValidated, groupByEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, optionalOutputFirstConditionFactory, resultSetProcessorHelperFactory, hasOutputLimitOptHint);
             }
             else {
@@ -576,7 +576,7 @@ public class ResultSetProcessorFactoryFactory
         return new GroupByRollupInfo(validated, rollup);
     }
 
-    private static GroupByRollupPerLevelExpression getRollUpPerLevelExpressions(StatementSpecCompiled statementSpec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDesc groupByRollupDesc, StatementContext stmtContext, SelectExprEventTypeRegistry selectExprEventTypeRegistry, ExprEvaluatorContextStatement evaluatorContextStmt, InsertIntoDesc insertIntoDesc, StreamTypeService typeService, ExprValidationContext validationContext)
+    private static GroupByRollupPerLevelExpression getRollUpPerLevelExpressions(StatementSpecCompiled statementSpec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDesc groupByRollupDesc, StatementContext stmtContext, SelectExprEventTypeRegistry selectExprEventTypeRegistry, ExprEvaluatorContextStatement evaluatorContextStmt, InsertIntoDesc insertIntoDesc, StreamTypeService typeService, ExprValidationContext validationContext, GroupByRollupInfo groupByRollupInfo)
             throws ExprValidationException
     {
         int numLevels = groupByRollupDesc.getLevels().length;
@@ -609,7 +609,7 @@ public class ResultSetProcessorFactoryFactory
             ExprNode[] selectClauseLevel = groupByExpressions.getSelectClausePerLevel()[i];
             SelectClauseElementCompiled[] selectClause = getRollUpSelectClause(statementSpec.getSelectClauseSpec(), selectClauseLevel, level, rolledupProps, groupByNodesValidated, validationContext);
             processors[i] = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClause, false, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
-                    stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec());
+                    stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
             if (havingClauses != null) {
                 havingClauses[i] = rewriteRollupValidateExpression(ExprNodeOrigin.HAVING, groupByExpressions.getOptHavingNodePerLevel()[i], validationContext, rolledupProps, groupByNodesValidated, level).getExprEvaluator();
@@ -898,24 +898,6 @@ public class ResultSetProcessorFactoryFactory
             result = 2*result;
         }
         return result;
-    }
-
-    private static class GroupByRollupInfo {
-        private final ExprNode[] exprNodes;
-        private final AggregationGroupByRollupDesc rollupDesc;
-
-        private GroupByRollupInfo(ExprNode[] exprNodes, AggregationGroupByRollupDesc rollupDesc) {
-            this.exprNodes = exprNodes;
-            this.rollupDesc = rollupDesc;
-        }
-
-        public ExprNode[] getExprNodes() {
-            return exprNodes;
-        }
-
-        public AggregationGroupByRollupDesc getRollupDesc() {
-            return rollupDesc;
-        }
     }
 
     private static final Log log = LogFactory.getLog(ResultSetProcessorFactoryFactory.class);

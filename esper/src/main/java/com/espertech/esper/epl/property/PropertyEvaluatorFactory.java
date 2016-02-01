@@ -270,7 +270,7 @@ public class PropertyEvaluatorFactory
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
-            SelectExprProcessor selectExpr = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, methodResolutionService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null);
+            SelectExprProcessor selectExpr = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, methodResolutionService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null, null);
             return new PropertyEvaluatorSelect(selectExpr, accumulative);
         }
     }

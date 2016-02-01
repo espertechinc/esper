@@ -79,8 +79,10 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     public void testGroupByWithComputation() {
-        epService.getEPAdministrator().createEPL("select longPrimitive as c0, sum(intPrimitive) as c1 " +
-                "from SupportBean group by rollup(case when longPrimitive > 0 then 1 else 0 end)").addListener(listener);
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select longPrimitive as c0, sum(intPrimitive) as c1 " +
+                "from SupportBean group by rollup(case when longPrimitive > 0 then 1 else 0 end)");
+        stmt.addListener(listener);
+        assertEquals(Long.class, stmt.getEventType().getPropertyType("c0"));
         String[] fields = "c0,c1".split(",");
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 10));
@@ -199,9 +201,12 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     private void runAssertionUnboundRollupUnenclosed(String groupBy) {
 
         String[] fields = "c0,c1,c2,c3".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, longPrimitive as c2, sum(doublePrimitive) as c3 from SupportBean " +
-                "group by " + groupBy).addListener(listener);
+                "group by " + groupBy);
+        stmt.addListener(listener);
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
+        assertEquals(Long.class, stmt.getEventType().getPropertyType("c2"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100, 1000));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields,
@@ -230,9 +235,12 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     private void runAssertionUnboundGroupingSet2LevelUnenclosed(String groupBy) {
 
         String[] fields = "c0,c1,c2,c3".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, longPrimitive as c2, sum(doublePrimitive) as c3 from SupportBean " +
-                "group by " + groupBy).addListener(listener);
+                "group by " + groupBy);
+        stmt.addListener(listener);
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
+        assertEquals(Long.class, stmt.getEventType().getPropertyType("c2"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100, 1000));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields,
@@ -255,9 +263,11 @@ public class TestAggregateWithRollupDimensionality extends TestCase
 
     public void testBoundGroupingSet2LevelNoTopNoDetail() {
         String[] fields = "c0,c1,c2".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean.win:length(4) " +
-                "group by grouping sets(theString, intPrimitive)").addListener(listener);
+                "group by grouping sets(theString, intPrimitive)");
+        stmt.addListener(listener);
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
@@ -287,9 +297,11 @@ public class TestAggregateWithRollupDimensionality extends TestCase
 
     public void testBoundGroupingSet2LevelTopAndDetail() {
         String[] fields = "c0,c1,c2".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean.win:length(4) " +
-                "group by grouping sets((), (theString, intPrimitive))").addListener(listener);
+                "group by grouping sets((), (theString, intPrimitive))");
+        stmt.addListener(listener);
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
@@ -314,9 +326,13 @@ public class TestAggregateWithRollupDimensionality extends TestCase
 
     public void testUnboundCube4Dim() {
         String[] fields = "c0,c1,c2,c3,c4".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, longPrimitive as c2, doublePrimitive as c3, sum(intBoxed) as c4 from SupportBean " +
-                "group by cube(theString, intPrimitive, longPrimitive, doublePrimitive)").addListener(listener);
+                "group by cube(theString, intPrimitive, longPrimitive, doublePrimitive)");
+        stmt.addListener(listener);
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
+        assertEquals(Long.class, stmt.getEventType().getPropertyType("c2"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("c3"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 10, 100, 1000));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields,
@@ -754,9 +770,12 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     public void testUnboundRollup2Dim()
     {
         String[] fields = "c0,c1,c2".split(",");
-        epService.getEPAdministrator().createEPL("@Name('s1')" +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean " +
-                "group by rollup(theString, intPrimitive)").addListener(listener);
+                "group by rollup(theString, intPrimitive)");
+        stmt.addListener(listener);
+
+        assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields,
@@ -931,6 +950,24 @@ public class TestAggregateWithRollupDimensionality extends TestCase
                 new Object[][]{{7, null, new Object[] {eventThree, eventFour}}, {4, "E1", new Object[] {eventFour}}});
     }
 
+    public void testNonBoxedTypeWithRollup() {
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by intPrimitive, rollup(doublePrimitive, longPrimitive)");
+        assertTypesC0C1C2(stmtOne, int.class, Double.class, Long.class);
+
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive))");
+        assertTypesC0C1C2(stmtTwo, int.class, double.class, long.class);
+
+        EPStatement stmtThree = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive), (intPrimitive, doublePrimitive))");
+        assertTypesC0C1C2(stmtThree, int.class, double.class, Long.class);
+
+        EPStatement stmtFour = epService.getEPAdministrator().createEPL("select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((doublePrimitive, intPrimitive), (longPrimitive, intPrimitive))");
+        assertTypesC0C1C2(stmtFour, int.class, Double.class, Long.class);
+    }
+
     public void testInvalid() {
         String prefix = "select theString, sum(intPrimitive) from SupportBean group by ";
 
@@ -1002,5 +1039,11 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         sb.setDoublePrimitive(doublePrimitive);
         sb.setIntBoxed(intBoxed);
         return sb;
+    }
+
+    private void assertTypesC0C1C2(EPStatement stmtOne, Class expectedC0, Class expectedC1, Class expectedC2) {
+        assertEquals(expectedC0, stmtOne.getEventType().getPropertyType("c0"));
+        assertEquals(expectedC1, stmtOne.getEventType().getPropertyType("c1"));
+        assertEquals(expectedC2, stmtOne.getEventType().getPropertyType("c2"));
     }
 }

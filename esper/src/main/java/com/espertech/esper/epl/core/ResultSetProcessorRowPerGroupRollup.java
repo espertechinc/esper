@@ -77,7 +77,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                 outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
             }
 
-            if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST && prototype.isEnableOutputLimitOpt()) {
+            if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
                 outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollup(agentInstanceContext, this, prototype);
                 outputAllHelper = null;
             }
@@ -128,6 +128,14 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
     public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
         this.agentInstanceContext = agentInstanceContext;
+    }
+
+    public Map<Object, EventBean[]>[] getOutputLimitGroupRepsPerLevel() {
+        return outputLimitGroupRepsPerLevel;
+    }
+
+    public AggregationService getAggregationService() {
+        return aggregationService;
     }
 
     public EventType getResultEventType()
@@ -873,7 +881,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         throw new UnsupportedOperationException();
     }
 
-    protected Object generateGroupKey(EventBean[] eventsPerStream, boolean isNewData) {
+    public Object generateGroupKey(EventBean[] eventsPerStream, boolean isNewData) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qResultSetProcessComputeGroupKeys(isNewData, prototype.getGroupKeyNodeExpressions(), eventsPerStream);
             Object keyObject;
@@ -912,7 +920,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         generateOutputBatched(join, mk, level, eventsPerStream, isNewData, isSynthesize, resultList, sortKeys);
     }
 
-    protected void generateOutputBatched(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
+    public void generateOutputBatched(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null)
@@ -932,7 +940,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         }
     }
 
-    protected void generateOutputBatchedMapUnsorted(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents) {
+    public void generateOutputBatchedMapUnsorted(boolean join, Object mk, AggregationGroupByRollupLevel level, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, Map<Object, EventBean> resultEvents) {
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), level);
 
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() != null)
@@ -1394,7 +1402,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     }
 
     public void stop() {
-        // no action required
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
     }
 
     private UniformPair<EventBean[]> convertToArrayMaySort(List<EventBean> newEvents, List<Object> newEventsSortKey, List<EventBean> oldEvents, List<Object> oldEventsSortKey) {

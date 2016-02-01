@@ -46,7 +46,7 @@ public class JavaClassHelper
     {
         if (clazz == null)
         {
-            return clazz;
+            return null;
         }
         if (!clazz.isPrimitive())
         {

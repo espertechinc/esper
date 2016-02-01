@@ -16,6 +16,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
@@ -24,9 +26,7 @@ import com.espertech.esper.support.epl.SupportAggregationService;
 import com.espertech.esper.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.support.epl.SupportSelectExprFactory;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class TestResultSetProcessorRowPerGroup extends TestCase
 
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeSelectListFromIdent("theString", "s0"),
-        		Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getMethodResolutionService(), null, null, new Configuration(), null, new TableServiceImpl());
+        		Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getMethodResolutionService(), null, null, new Configuration(), null, new TableServiceImpl(), null);
         SelectExprProcessor selectProcessor = factory.getEvaluator();
         supportAggregationService = new SupportAggregationService();
 
