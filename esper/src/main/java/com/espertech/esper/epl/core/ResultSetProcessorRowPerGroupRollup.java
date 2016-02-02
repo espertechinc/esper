@@ -77,11 +77,11 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
 
             if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
-                outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollup(agentInstanceContext, this, prototype);
+                outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollupLast(agentInstanceContext, this, prototype);
                 outputAllHelper = null;
             }
             else if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
-                outputAllHelper = new ResultSetProcessorRowPerGroupRollupOutputAllHelper(this, outputLimitGroupRepsPerLevel.length);
+                outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollupAll(agentInstanceContext, this, prototype);
                 outputLastHelper = null;
             }
             else {
@@ -1376,6 +1376,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             for (ResultSetProcessorGroupedOutputFirstHelper helper : outputFirstHelpers) {
                 helper.destroy();
             }
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
         }
     }
 
