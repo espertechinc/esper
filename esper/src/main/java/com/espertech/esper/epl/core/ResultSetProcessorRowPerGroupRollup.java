@@ -38,14 +38,13 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     // For output rate limiting, as temporary buffer of to keep a representative event for each group
     protected final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
 
-    private final Map<Object, OutputConditionPolled>[] outputState;
-
     protected final Map<Object, EventBean>[] eventPerGroupBuf;
     private final Map<Object, EventBean[]>[] eventPerGroupJoinBuf;
 
     private final EventArrayAndSortKeyArray rstreamEventSortArrayPair;
     private final ResultSetProcessorRowPerGroupRollupOutputLastHelper outputLastHelper;
     private final ResultSetProcessorRowPerGroupRollupOutputAllHelper outputAllHelper;
+    private final ResultSetProcessorGroupedOutputFirstHelper[] outputFirstHelpers;
 
     public ResultSetProcessorRowPerGroupRollup(ResultSetProcessorRowPerGroupRollupFactory prototype, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
@@ -98,13 +97,13 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
         // Allocate output state for output-first
         if (prototype.getOutputLimitSpec() != null && prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.FIRST) {
-            outputState = (Map<Object, OutputConditionPolled>[]) new Map[levelCount];
+            outputFirstHelpers = new ResultSetProcessorGroupedOutputFirstHelper[levelCount];
             for (int i = 0; i < levelCount; i++) {
-                outputState[i] = new HashMap<Object, OutputConditionPolled>();
+                outputFirstHelpers[i] = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), prototype.getGroupByRollupDesc(), i);
             }
         }
         else {
-            outputState = null;
+            outputFirstHelpers = null;
         }
 
         if (prototype.getOutputLimitSpec() != null && (prototype.isSelectRStream() || prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.FIRST)) {
@@ -485,11 +484,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
@@ -517,11 +512,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
@@ -558,11 +549,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
@@ -583,11 +570,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
@@ -653,11 +636,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
@@ -684,11 +663,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                             continue;
                         }
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
@@ -726,11 +701,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
@@ -752,11 +723,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                        OutputConditionPolled outputStateGroup = outputState[level.getLevelNumber()].get(groupKey);
-                        if (outputStateGroup == null) {
-                            outputStateGroup = prototype.getOptionalOutputFirstConditionFactory().makeNew(agentInstanceContext);
-                            outputState[level.getLevelNumber()].put(groupKey, outputStateGroup);
-                        }
+                        OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
@@ -1404,6 +1371,11 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     public void stop() {
         if (outputLastHelper != null) {
             outputLastHelper.destroy();
+        }
+        if (outputFirstHelpers != null) {
+            for (ResultSetProcessorGroupedOutputFirstHelper helper : outputFirstHelpers) {
+                helper.destroy();
+            }
         }
     }
 

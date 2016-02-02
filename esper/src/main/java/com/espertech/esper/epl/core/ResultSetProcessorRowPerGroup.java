@@ -70,7 +70,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
         else if (prototype.isOutputFirst()) {
-            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
+            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), null, -1);
         }
     }
 

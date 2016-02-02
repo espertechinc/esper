@@ -75,7 +75,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             }
         }
         else if (prototype.isOutputFirst()) {
-            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory());
+            outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), null, -1);
         }
     }
 
