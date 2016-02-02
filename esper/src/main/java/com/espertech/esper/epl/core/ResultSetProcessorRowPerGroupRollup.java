@@ -36,7 +36,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     protected AgentInstanceContext agentInstanceContext;
 
     private final Map<Object, EventBean[]>[] groupRepsPerLevelBuf;
-    protected final Map<Object, EventBean>[] eventPerGroupBuf;
+    private final Map<Object, EventBean>[] eventPerGroupBuf;
     private final Map<Object, EventBean[]>[] eventPerGroupJoinBuf;
     private final EventArrayAndSortKeyArray rstreamEventSortArrayBuf;
 
@@ -535,7 +535,6 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
             // apply to aggregates
             Object[] groupKeysPerLevel = new Object[prototype.getGroupByRollupDesc().getLevels().length];
-            EventBean[] eventsPerStream;
             if (newData != null) {
                 for (MultiKey<EventBean> aNewData : newData) {
                     Object groupKeyComplete = generateGroupKey(aNewData.getArray(), true);
@@ -594,7 +593,6 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
             // apply to aggregates
             Object[] groupKeysPerLevel = new Object[prototype.getGroupByRollupDesc().getLevels().length];
-            EventBean[] eventsPerStream;
             if (newData != null) {
                 for (MultiKey<EventBean> aNewData : newData) {
                     Object groupKeyComplete = generateGroupKey(aNewData.getArray(), true);

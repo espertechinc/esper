@@ -111,4 +111,9 @@ public class ResultSetProcessorHelperFactoryImpl implements ResultSetProcessorHe
     public ResultSetProcessorRowPerGroupRollupOutputAllHelper makeRSRowPerGroupRollupAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup resultSetProcessorRowPerGroupRollup, ResultSetProcessorRowPerGroupRollupFactory prototype) {
         return new ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl(resultSetProcessorRowPerGroupRollup, prototype.getGroupByRollupDesc().getLevels().length);
     }
+
+    public ResultSetProcessorRowPerGroupRollupUnboundHelper makeRSRowPerGroupRollupSnapshotUnbound(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollupFactory prototype) {
+        int levelCount = prototype.getGroupByRollupDesc().getLevels().length;
+        return new ResultSetProcessorRowPerGroupRollupUnboundHelperImpl(levelCount);
+    }
 }

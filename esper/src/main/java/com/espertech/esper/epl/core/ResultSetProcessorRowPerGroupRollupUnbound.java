@@ -20,13 +20,22 @@ import java.util.Iterator;
 
 public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcessorRowPerGroupRollup {
 
+    private final ResultSetProcessorRowPerGroupRollupUnboundHelper unboundHelper;
+
     public ResultSetProcessorRowPerGroupRollupUnbound(ResultSetProcessorRowPerGroupRollupFactory prototype, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         super(prototype, orderByProcessor, aggregationService, agentInstanceContext);
+        unboundHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupRollupSnapshotUnbound(agentInstanceContext, prototype);
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        unboundHelper.destroy();
     }
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData) {
-        Object[][] newDataMultiKey = generateGroupKeysView(newData, eventPerGroupBuf, true);
-        Object[][] oldDataMultiKey = generateGroupKeysView(oldData, eventPerGroupBuf, false);
+        Object[][] newDataMultiKey = generateGroupKeysView(newData, unboundHelper.getBuffer(), true);
+        Object[][] oldDataMultiKey = generateGroupKeysView(oldData, unboundHelper.getBuffer(), false);
 
         // update aggregates
         EventBean[] eventsPerStream = new EventBean[1];
@@ -49,12 +58,12 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();}
 
-        Object[][] newDataMultiKey = generateGroupKeysView(newData, eventPerGroupBuf, true);
-        Object[][] oldDataMultiKey = generateGroupKeysView(oldData, eventPerGroupBuf, false);
+        Object[][] newDataMultiKey = generateGroupKeysView(newData, unboundHelper.getBuffer(), true);
+        Object[][] oldDataMultiKey = generateGroupKeysView(oldData, unboundHelper.getBuffer(), false);
 
         EventBean[] selectOldEvents = null;
         if (prototype.isSelectRStream()) {
-            selectOldEvents = generateOutputEventsView(eventPerGroupBuf, false, isSynthesize);
+            selectOldEvents = generateOutputEventsView(unboundHelper.getBuffer(), false, isSynthesize);
         }
 
         // update aggregates
@@ -73,7 +82,7 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         }
 
         // generate new events using select expressions
-        EventBean[] selectNewEvents = generateOutputEventsView(eventPerGroupBuf, true, isSynthesize);
+        EventBean[] selectNewEvents = generateOutputEventsView(unboundHelper.getBuffer(), true, isSynthesize);
 
         if ((selectNewEvents != null) || (selectOldEvents != null)) {
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);}
@@ -85,7 +94,7 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
 
     @Override
     public Iterator<EventBean> getIterator(Viewable parent) {
-        EventBean[] output = generateOutputEventsView(eventPerGroupBuf, true, true);
+        EventBean[] output = generateOutputEventsView(unboundHelper.getBuffer(), true, true);
         return new ArrayEventIterator(output);
     }
 }

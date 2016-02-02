@@ -222,6 +222,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
     public void stop() {
         super.stop();
         deltaSet.destroy();
+        outputCondition.stop();
     }
 
 	private void resetEventBatches()
