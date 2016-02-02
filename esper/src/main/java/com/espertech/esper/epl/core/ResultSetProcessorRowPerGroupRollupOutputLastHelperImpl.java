@@ -18,14 +18,25 @@ import java.util.*;
 public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements ResultSetProcessorRowPerGroupRollupOutputLastHelper {
 
     private final ResultSetProcessorRowPerGroupRollup processor;
+    private final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
     private final Map<Object, EventBean>[] groupRepsOutputLastUnordRStream;
 
     public ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl(ResultSetProcessorRowPerGroupRollup processor, int levelCount) {
         this.processor = processor;
 
-        groupRepsOutputLastUnordRStream = (LinkedHashMap<Object, EventBean>[]) new LinkedHashMap[levelCount];
+        outputLimitGroupRepsPerLevel = (LinkedHashMap<Object, EventBean[]>[]) new LinkedHashMap[levelCount];
         for (int i = 0; i < levelCount; i++) {
-            groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
+            outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
+        }
+
+        if (processor.prototype.isSelectRStream()) {
+            groupRepsOutputLastUnordRStream = (LinkedHashMap<Object, EventBean>[]) new LinkedHashMap[levelCount];
+            for (int i = 0; i < levelCount; i++) {
+                groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
+            }
+        }
+        else {
+            groupRepsOutputLastUnordRStream = null;
         }
     }
 
@@ -41,7 +52,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                    processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
+                    outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
                     if (processor.prototype.isSelectRStream() && !groupRepsOutputLastUnordRStream[level.getLevelNumber()].containsKey(groupKey)) {
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
@@ -57,7 +68,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                    processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
+                    outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
                     if (processor.prototype.isSelectRStream() && !groupRepsOutputLastUnordRStream[level.getLevelNumber()].containsKey(groupKey)) {
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
@@ -78,7 +89,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                    processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData);
+                    outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData);
                     if (processor.prototype.isSelectRStream() && !groupRepsOutputLastUnordRStream[level.getLevelNumber()].containsKey(groupKey)) {
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, aNewData, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
@@ -94,7 +105,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
 
-                    processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aOldData);
+                    outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aOldData);
                     if (processor.prototype.isSelectRStream() && !groupRepsOutputLastUnordRStream[level.getLevelNumber()].containsKey(groupKey)) {
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, aOldData, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
@@ -120,13 +131,13 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
 
         List<EventBean> newEvents = new ArrayList<EventBean>(4);
         for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
-            Map<Object, EventBean[]> groupGenerators = processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()];
+            Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
                 processor.generateOutputBatched(isJoin, entry.getKey(), level, entry.getValue(), true, isSynthesize, newEvents, null);
             }
         }
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
-        for (Map<Object, EventBean[]> outputLimitGroupRepsPerLevelItem : processor.outputLimitGroupRepsPerLevel) {
+        for (Map<Object, EventBean[]> outputLimitGroupRepsPerLevelItem : outputLimitGroupRepsPerLevel) {
             outputLimitGroupRepsPerLevelItem.clear();
         }
 

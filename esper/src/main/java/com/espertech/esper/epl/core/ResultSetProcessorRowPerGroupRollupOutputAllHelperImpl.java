@@ -18,15 +18,26 @@ import java.util.*;
 public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements ResultSetProcessorRowPerGroupRollupOutputAllHelper {
 
     private final ResultSetProcessorRowPerGroupRollup processor;
+    private final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
     private final Map<Object, EventBean>[] groupRepsOutputLastUnordRStream;
     private boolean first;
 
     public ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl(ResultSetProcessorRowPerGroupRollup processor, int levelCount) {
         this.processor = processor;
 
-        groupRepsOutputLastUnordRStream = (LinkedHashMap<Object, EventBean>[]) new LinkedHashMap[levelCount];
+        outputLimitGroupRepsPerLevel = (LinkedHashMap<Object, EventBean[]>[]) new LinkedHashMap[levelCount];
         for (int i = 0; i < levelCount; i++) {
-            groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
+            outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
+        }
+
+        if (processor.prototype.isSelectRStream()) {
+            groupRepsOutputLastUnordRStream = (LinkedHashMap<Object, EventBean>[]) new LinkedHashMap[levelCount];
+            for (int i = 0; i < levelCount; i++) {
+                groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
+            }
+        }
+        else {
+            groupRepsOutputLastUnordRStream = null;
         }
     }
 
@@ -43,7 +54,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                         if (processor.prototype.isSelectRStream()) {
                             processor.generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                         }
@@ -59,7 +70,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                         if (processor.prototype.isSelectRStream()) {
                             processor.generateOutputBatchedMapUnsorted(true, groupKey, level, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                         }
@@ -82,7 +93,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData) == null) {
+                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData) == null) {
                         if (processor.prototype.isSelectRStream()) {
                             processor.generateOutputBatchedMapUnsorted(false, groupKey, level, aNewData, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                         }
@@ -98,7 +109,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);
                     groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                    if (processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aOldData) == null) {
+                    if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aOldData) == null) {
                         if (processor.prototype.isSelectRStream()) {
                             processor.generateOutputBatchedMapUnsorted(true, groupKey, level, aOldData, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                         }
@@ -127,7 +138,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
 
         List<EventBean> newEvents = new ArrayList<EventBean>(4);
         for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
-            Map<Object, EventBean[]> groupGenerators = processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()];
+            Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
             for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
                 processor.generateOutputBatched(isJoin, entry.getKey(), level, entry.getValue(), true, isSynthesize, newEvents, null);
             }
@@ -157,7 +168,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
     private void generateRemoveStreamJustOnce(boolean isSynthesize, boolean join) {
         if (first && processor.prototype.isSelectRStream()) {
             for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
-                for (Map.Entry<Object, EventBean[]> groupRep : processor.outputLimitGroupRepsPerLevel[level.getLevelNumber()].entrySet()) {
+                for (Map.Entry<Object, EventBean[]> groupRep : outputLimitGroupRepsPerLevel[level.getLevelNumber()].entrySet()) {
                     Object groupKeyPartial = processor.generateGroupKey(groupRep.getValue(), false);
                     Object groupKey = level.computeSubkey(groupKeyPartial);
                     processor.generateOutputBatchedMapUnsorted(join, groupKey, level, groupRep.getValue(), false, isSynthesize, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);

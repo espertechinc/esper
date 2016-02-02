@@ -35,13 +35,11 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     protected final AggregationService aggregationService;
     protected AgentInstanceContext agentInstanceContext;
 
-    // For output rate limiting, as temporary buffer of to keep a representative event for each group
-    protected final Map<Object, EventBean[]>[] outputLimitGroupRepsPerLevel;
-
+    private final Map<Object, EventBean[]>[] groupRepsPerLevelBuf;
     protected final Map<Object, EventBean>[] eventPerGroupBuf;
     private final Map<Object, EventBean[]>[] eventPerGroupJoinBuf;
+    private final EventArrayAndSortKeyArray rstreamEventSortArrayBuf;
 
-    private final EventArrayAndSortKeyArray rstreamEventSortArrayPair;
     private final ResultSetProcessorRowPerGroupRollupOutputLastHelper outputLastHelper;
     private final ResultSetProcessorRowPerGroupRollupOutputAllHelper outputAllHelper;
     private final ResultSetProcessorGroupedOutputFirstHelper[] outputFirstHelpers;
@@ -71,9 +69,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         }
 
         if (prototype.getOutputLimitSpec() != null) {
-            outputLimitGroupRepsPerLevel = (LinkedHashMap<Object, EventBean[]>[]) new LinkedHashMap[levelCount];
+            groupRepsPerLevelBuf = (LinkedHashMap<Object, EventBean[]>[]) new LinkedHashMap[levelCount];
             for (int i = 0; i < levelCount; i++) {
-                outputLimitGroupRepsPerLevel[i] = new LinkedHashMap<Object, EventBean[]>();
+                groupRepsPerLevelBuf[i] = new LinkedHashMap<Object, EventBean[]>();
             }
 
             if (prototype.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
@@ -90,7 +88,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
         }
         else {
-            outputLimitGroupRepsPerLevel = null;
+            groupRepsPerLevelBuf = null;
             outputLastHelper = null;
             outputAllHelper = null;
         }
@@ -118,19 +116,15 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     sortKeyPerLevel[level.getLevelNumber()] = new ArrayList<Object>();
                 }
             }
-            rstreamEventSortArrayPair = new EventArrayAndSortKeyArray(eventsPerLevel, sortKeyPerLevel);
+            rstreamEventSortArrayBuf = new EventArrayAndSortKeyArray(eventsPerLevel, sortKeyPerLevel);
         }
         else {
-            rstreamEventSortArrayPair = null;
+            rstreamEventSortArrayBuf = null;
         }
     }
 
     public void setAgentInstanceContext(AgentInstanceContext agentInstanceContext) {
         this.agentInstanceContext = agentInstanceContext;
-    }
-
-    public Map<Object, EventBean[]>[] getOutputLimitGroupRepsPerLevel() {
-        return outputLimitGroupRepsPerLevel;
     }
 
     public AggregationService getAggregationService() {
@@ -397,40 +391,40 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
 
     private UniformPair<EventBean[]> handleOutputLimitFirstView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
 
-        for (Map<Object, EventBean[]> aGroupRepsView : outputLimitGroupRepsPerLevel) {
+        for (Map<Object, EventBean[]> aGroupRepsView : groupRepsPerLevelBuf) {
             aGroupRepsView.clear();
         }
 
-        rstreamEventSortArrayPair.reset();
+        rstreamEventSortArrayBuf.reset();
 
         int oldEventCount;
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() == null) {
-            oldEventCount = handleOutputLimitFirstViewNoHaving(viewEventsList, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+            oldEventCount = handleOutputLimitFirstViewNoHaving(viewEventsList, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
         }
         else {
-            oldEventCount = handleOutputLimitFirstViewHaving(viewEventsList, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+            oldEventCount = handleOutputLimitFirstViewHaving(viewEventsList, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private UniformPair<EventBean[]> handleOutputLimitFirstJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
 
-        for (Map<Object, EventBean[]> aGroupRepsView : outputLimitGroupRepsPerLevel) {
+        for (Map<Object, EventBean[]> aGroupRepsView : groupRepsPerLevelBuf) {
             aGroupRepsView.clear();
         }
 
-        rstreamEventSortArrayPair.reset();
+        rstreamEventSortArrayBuf.reset();
 
         int oldEventCount;
         if (prototype.getPerLevelExpression().getOptionalHavingNodes() == null) {
-            oldEventCount = handleOutputLimitFirstJoinNoHaving(joinEventsSet, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+            oldEventCount = handleOutputLimitFirstJoinNoHaving(joinEventsSet, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
         }
         else {
-            oldEventCount = handleOutputLimitFirstJoinHaving(joinEventsSet, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+            oldEventCount = handleOutputLimitFirstJoinHaving(joinEventsSet, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private int handleOutputLimitFirstViewHaving(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, List<EventBean>[] oldEventsPerLevel, List<Object>[] oldEventsSortKeyPerLevel) {
@@ -487,7 +481,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -515,7 +509,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, eventsPerStream, false, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -552,7 +546,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -573,7 +567,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, anOldData.getArray(), false, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -639,7 +633,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -666,7 +660,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, anOldData.getArray(), false, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -704,7 +698,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -726,7 +720,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                         OutputConditionPolled outputStateGroup = outputFirstHelpers[level.getLevelNumber()].getOrAllocate(groupKey, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                            if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                                 if (prototype.isSelectRStream()) {
                                     generateOutputBatched(false, groupKey, level, eventsPerStream, false, generateSynthetic, oldEventsPerLevel, oldEventsSortKeyPerLevel);
                                     oldEventCount++;
@@ -926,10 +920,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
     private UniformPair<EventBean[]> handleOutputLimitLastView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
         int oldEventCount = 0;
         if (prototype.isSelectRStream()) {
-            rstreamEventSortArrayPair.reset();
+            rstreamEventSortArrayBuf.reset();
         }
 
-        for (Map<Object, EventBean[]> aGroupRepsView : outputLimitGroupRepsPerLevel) {
+        for (Map<Object, EventBean[]> aGroupRepsView : groupRepsPerLevelBuf) {
             aGroupRepsView.clear();
         }
 
@@ -949,9 +943,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                        if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                             if (prototype.isSelectRStream()) {
-                                generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                                generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                                 oldEventCount++;
                             }
                         }
@@ -966,9 +960,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
+                        if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream) == null) {
                             if (prototype.isSelectRStream()) {
-                                generateOutputBatched(true, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                                generateOutputBatched(true, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                                 oldEventCount++;
                             }
                         }
@@ -978,16 +972,16 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private UniformPair<EventBean[]> handleOutputLimitLastJoin(List<UniformPair<Set<MultiKey<EventBean>>>> viewEventsList, boolean generateSynthetic) {
         int oldEventCount = 0;
         if (prototype.isSelectRStream()) {
-            rstreamEventSortArrayPair.reset();
+            rstreamEventSortArrayBuf.reset();
         }
 
-        for (Map<Object, EventBean[]> aGroupRepsView : outputLimitGroupRepsPerLevel) {
+        for (Map<Object, EventBean[]> aGroupRepsView : groupRepsPerLevelBuf) {
             aGroupRepsView.clear();
         }
 
@@ -1005,9 +999,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
+                        if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, aNewData.getArray()) == null) {
                             if (prototype.isSelectRStream()) {
-                                generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                                generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                                 oldEventCount++;
                             }
                         }
@@ -1021,9 +1015,9 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        if (outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
+                        if (groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, anOldData.getArray()) == null) {
                             if (prototype.isSelectRStream()) {
-                                generateOutputBatched(true, groupKey, level, anOldData.getArray(), true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                                generateOutputBatched(true, groupKey, level, anOldData.getArray(), true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                                 oldEventCount++;
                             }
                         }
@@ -1033,19 +1027,19 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private UniformPair<EventBean[]> handleOutputLimitAllView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
 
         int oldEventCount = 0;
         if (prototype.isSelectRStream()) {
-            rstreamEventSortArrayPair.reset();
+            rstreamEventSortArrayBuf.reset();
 
             for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
+                Map<Object, EventBean[]> groupGenerators = groupRepsPerLevelBuf[level.getLevelNumber()];
                 for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
-                    generateOutputBatched(false, entry.getKey(), level, entry.getValue(), false, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                    generateOutputBatched(false, entry.getKey(), level, entry.getValue(), false, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                     oldEventCount++;
                 }
             }
@@ -1066,10 +1060,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        Object existing = outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
+                        Object existing = groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream);
 
                         if (existing == null && prototype.isSelectRStream()) {
-                            generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                            generateOutputBatched(false, groupKey, level, eventsPerStream, true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                             oldEventCount++;
                         }
                     }
@@ -1083,10 +1077,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        Object existing = outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, eventsPerStream);
+                        Object existing = groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, eventsPerStream);
 
                         if (existing == null && prototype.isSelectRStream()) {
-                            generateOutputBatched(false, groupKey, level, eventsPerStream, false, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                            generateOutputBatched(false, groupKey, level, eventsPerStream, false, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                             oldEventCount++;
                         }
                     }
@@ -1095,19 +1089,19 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private UniformPair<EventBean[]> handleOutputLimitAllJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
 
         int oldEventCount = 0;
         if (prototype.isSelectRStream()) {
-            rstreamEventSortArrayPair.reset();
+            rstreamEventSortArrayBuf.reset();
 
             for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
-                Map<Object, EventBean[]> groupGenerators = outputLimitGroupRepsPerLevel[level.getLevelNumber()];
+                Map<Object, EventBean[]> groupGenerators = groupRepsPerLevelBuf[level.getLevelNumber()];
                 for (Map.Entry<Object, EventBean[]> entry : groupGenerators.entrySet()) {
-                    generateOutputBatched(false, entry.getKey(), level, entry.getValue(), false, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                    generateOutputBatched(false, entry.getKey(), level, entry.getValue(), false, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                     oldEventCount++;
                 }
             }
@@ -1127,10 +1121,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        Object existing = outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, aNewData.getArray());
+                        Object existing = groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, aNewData.getArray());
 
                         if (existing == null && prototype.isSelectRStream()) {
-                            generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                            generateOutputBatched(false, groupKey, level, aNewData.getArray(), true, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                             oldEventCount++;
                         }
                     }
@@ -1143,10 +1137,10 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
                     for (AggregationGroupByRollupLevel level : prototype.getGroupByRollupDesc().getLevels()) {
                         Object groupKey = level.computeSubkey(groupKeyComplete);
                         groupKeysPerLevel[level.getLevelNumber()] = groupKey;
-                        Object existing = outputLimitGroupRepsPerLevel[level.getLevelNumber()].put(groupKey, anOldData.getArray());
+                        Object existing = groupRepsPerLevelBuf[level.getLevelNumber()].put(groupKey, anOldData.getArray());
 
                         if (existing == null && prototype.isSelectRStream()) {
-                            generateOutputBatched(false, groupKey, level, anOldData.getArray(), false, generateSynthetic, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+                            generateOutputBatched(false, groupKey, level, anOldData.getArray(), false, generateSynthetic, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
                             oldEventCount++;
                         }
                     }
@@ -1155,7 +1149,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
             }
         }
 
-        return generateAndSort(outputLimitGroupRepsPerLevel, generateSynthetic, oldEventCount);
+        return generateAndSort(groupRepsPerLevelBuf, generateSynthetic, oldEventCount);
     }
 
     private void generateOutputBatchedCollectNonJoin(Map<Object, EventBean>[] eventPairs, boolean isNewData, boolean generateSynthetic, List<EventBean> events, List<Object> sortKey) {
@@ -1270,7 +1264,7 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         EventBean[] oldEventsArr = null;
         Object[] oldEventSortKeys = null;
         if (prototype.isSelectRStream() && oldEventCount > 0) {
-            EventsAndSortKeysPair pair = getOldEventsSortKeys(oldEventCount, rstreamEventSortArrayPair.getEventsPerLevel(), rstreamEventSortArrayPair.getSortKeyPerLevel());
+            EventsAndSortKeysPair pair = getOldEventsSortKeys(oldEventCount, rstreamEventSortArrayBuf.getEventsPerLevel(), rstreamEventSortArrayBuf.getSortKeyPerLevel());
             oldEventsArr = pair.getEvents();
             oldEventSortKeys = pair.getSortKeys();
         }
