@@ -34,22 +34,22 @@ public class TestMTDeterminismInsertInto extends TestCase
 
     public void testSceneOneSuspend() throws Exception
     {
-        trySendCountFollowedBy(4, 10000, ConfigurationEngineDefaults.Threading.Locking.SUSPEND);
+        trySendCountFollowedBy(4, 100, ConfigurationEngineDefaults.Threading.Locking.SUSPEND);
     }
 
     public void testSceneOneSpin() throws Exception
     {
-        trySendCountFollowedBy(4, 10000, ConfigurationEngineDefaults.Threading.Locking.SPIN);
+        trySendCountFollowedBy(4, 100, ConfigurationEngineDefaults.Threading.Locking.SPIN);
     }
 
     public void testSceneTwo() throws Exception
     {
-        tryChainedCountSum(3, 10000);
+        tryChainedCountSum(3, 100);
     }
 
     public void testSceneThree() throws Exception
     {
-        tryMultiInsertGroup(3, 10, 1000);
+        tryMultiInsertGroup(3, 10, 100);
     }
 
     private void tryMultiInsertGroup(int numThreads, int numStatements, int numEvents) throws Exception
