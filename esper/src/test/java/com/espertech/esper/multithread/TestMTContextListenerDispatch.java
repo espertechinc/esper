@@ -15,6 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.concurrent.*;
  */
 public class TestMTContextListenerDispatch extends TestCase
 {
+    private static final Log log = LogFactory.getLog(TestMTContextListenerDispatch.class);
     private EPServiceProvider engine;
 
     public void setUp()
@@ -49,12 +52,14 @@ public class TestMTContextListenerDispatch extends TestCase
         engine.getEPAdministrator().getStatement("select").addListener(listener);
 
         List<Object>[] events = new ArrayList[numThreads];
+        int eventId = 0;
         for (int threadNum = 0; threadNum < numThreads; threadNum++) {
             events[threadNum] = new ArrayList<Object>();
             for (int eventNum = 0; eventNum < numRepeats; eventNum++) {
                 // range: 1 to 1000
                 int partition = (int) (Math.random() * 50);
-                events[threadNum].add(new SupportBean(new Integer(partition).toString(), 0));
+                eventId++;
+                events[threadNum].add(new SupportBean(new Integer(partition).toString(), eventId));
             }
         }
 
@@ -75,22 +80,31 @@ public class TestMTContextListenerDispatch extends TestCase
         threadPool.shutdown();
         threadPool.awaitTermination(10, TimeUnit.SECONDS);
 
-        assertEquals(numRepeats * numThreads, listener.getCount());
+        // print those events not received
+        for (List<Object> eventList : events) {
+            for (Object event : eventList) {
+                if (!listener.getBeans().contains(event)) {
+                    log.info("Expected event was not received, event " + event);
+                }
+            }
+        }
+
+        assertEquals(numRepeats * numThreads, listener.getBeans().size());
         assertTrue("delta=" + delta, delta < 500);
     }
 
     public class MyListener implements UpdateListener {
-        private int count;
+        private List<SupportBean> beans = new ArrayList<SupportBean>();
 
         public synchronized void update(EventBean[] newEvents, EventBean[] oldEvents) {
             if (newEvents.length > 1) {
                 assertEquals(1, newEvents.length);
             }
-            count += 1;
+            beans.add((SupportBean) newEvents[0].getUnderlying());
         }
 
-        public int getCount() {
-            return count;
+        public List<SupportBean> getBeans() {
+            return beans;
         }
     }
 }
