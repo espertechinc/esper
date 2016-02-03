@@ -160,7 +160,7 @@ public class StatementAgentInstanceUtil {
         StatementAgentInstanceFilterVersion filterVersion = new StatementAgentInstanceFilterVersion();
 
         // create handle that comtains lock for use in scheduling and filter callbacks
-        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceLock, agentInstanceId, filterVersion);
+        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceLock, agentInstanceId, filterVersion, statementContext.getFilterFaultHandlerFactory());
 
         // create agent instance context
         AgentInstanceScriptContext agentInstanceScriptContext = null;

@@ -35,7 +35,7 @@ public class TestStreamFactorySvcImpl extends TestCase
     private FilterSpecCompiled[] filterSpecs;
     private EventStream[] streams;
     private EPStatementHandle handle = new EPStatementHandle("id", "name", "text", StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
-    private EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(handle, new StatementAgentInstanceRWLockImpl(false), -1, null);
+    private EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(handle, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
 
     public void setUp()
     {
@@ -115,7 +115,7 @@ public class TestStreamFactorySvcImpl extends TestCase
     public void testCreateNoJoin()
     {
         EPStatementHandle stmtHande = new EPStatementHandle("id", "id", null, StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
-        EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null);
+        EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
 
         streams = new EventStream[4];
         streams[0] = streamFactoryService.createStream("id1", filterSpecs[0], supportFilterService, stmtAgentHandle, false, null, false, false, null, false, 0, false).getFirst();
@@ -138,7 +138,7 @@ public class TestStreamFactorySvcImpl extends TestCase
     public void testDropNoJoin()
     {
         EPStatementHandle stmtHande = new EPStatementHandle("id", "id", null, StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
-        EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null);
+        EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
         streams = new EventStream[4];
         streams[0] = streamFactoryService.createStream("id1", filterSpecs[0], supportFilterService, stmtAgentHandle, false, null, false, false, null, false, 0, false).getFirst();
         streams[1] = streamFactoryService.createStream("id2", filterSpecs[0], supportFilterService, stmtAgentHandle, false, null, false, false, null, false, 0, false).getFirst();

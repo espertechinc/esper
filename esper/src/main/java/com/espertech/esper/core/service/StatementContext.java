@@ -28,6 +28,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterBooleanExpressionFactory;
+import com.espertech.esper.filter.FilterFaultHandlerFactory;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.pattern.PatternContextFactory;
 import com.espertech.esper.pattern.PatternNodeFactory;
@@ -87,6 +88,7 @@ public final class StatementContext
     private StatementSpecCompiled statementSpecCompiled;
     private StatementAgentInstanceFactory statementAgentInstanceFactory;
     private EPStatementSPI statement;
+    private FilterFaultHandlerFactory filterFaultHandlerFactory;
 
     /**
      * Constructor.
@@ -592,5 +594,13 @@ public final class StatementContext
 
     public int getPriority() {
         return priority;
+    }
+
+    public FilterFaultHandlerFactory getFilterFaultHandlerFactory() {
+        return filterFaultHandlerFactory;
+    }
+
+    public void setFilterFaultHandlerFactory(FilterFaultHandlerFactory filterFaultHandlerFactory) {
+        this.filterFaultHandlerFactory = filterFaultHandlerFactory;
     }
 }

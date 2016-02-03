@@ -67,7 +67,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextScheduledEval();}
             }
         };
-        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
         scheduleHandle = new EPStatementHandleCallback(agentHandle, scheduleCallback);
         SchedulingService schedulingService = statementContext.getSchedulingService();
         long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(spec.getSchedule(), schedulingService.getTime(), statementContext.getMethodResolutionService().getEngineImportService().getTimeZone());

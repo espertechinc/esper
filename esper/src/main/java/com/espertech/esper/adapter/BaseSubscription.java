@@ -102,7 +102,7 @@ public abstract class BaseSubscription implements Subscription, FilterHandleCall
         String name = "subscription:" + subscriptionName;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(name, name);
         EPStatementHandle statementHandle = new EPStatementHandle(name, name, name, StatementType.ESPERIO, name, false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
-        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion(), null);
         EPStatementHandleCallback registerHandle = new EPStatementHandleCallback(agentHandle, this);
         spi.getFilterService().add(fvs, registerHandle);
     }

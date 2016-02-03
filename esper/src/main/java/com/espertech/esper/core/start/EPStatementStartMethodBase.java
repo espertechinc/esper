@@ -60,7 +60,7 @@ public abstract class EPStatementStartMethodBase implements EPStatementStartMeth
     protected EPStatementAgentInstanceHandle getDefaultAgentInstanceHandle(StatementContext statementContext)
         throws ExprValidationException
     {
-        return new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion());
+        return new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
     }
 
     protected AgentInstanceContext getDefaultAgentInstanceContext(StatementContext statementContext)

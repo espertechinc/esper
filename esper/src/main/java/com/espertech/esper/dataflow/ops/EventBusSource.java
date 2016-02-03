@@ -127,7 +127,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
             throw new EPException("Failed to open filter: " + ex.getMessage(), ex);
         }
 
-        EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getAgentInstanceLock(), 0, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getAgentInstanceLock(), 0, new StatementAgentInstanceFilterVersion(), agentInstanceContext.getStatementContext().getFilterFaultHandlerFactory());
         callbackHandle = new EPStatementHandleCallback(handle, this);
         filterServiceEntry = agentInstanceContext.getStatementContext().getFilterService().add(valueSet, callbackHandle);
     }
