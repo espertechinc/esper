@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.expression.accessagg;
 
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
@@ -49,7 +50,7 @@ public class SortedAggregationStateFactoryFactory {
         if (ever) {
             final AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator, criteriaKeyBinding);
             factory = new AggregationStateFactory() {
-                public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey) {
+                public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
                     return methodResolutionService.makeAccessAggMinMaxEver(agentInstanceId, groupId, aggregationId, spec);
                 }
 
@@ -61,7 +62,7 @@ public class SortedAggregationStateFactoryFactory {
         else {
             final AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, comparator, criteriaKeyBinding);
             factory = new AggregationStateFactory() {
-                public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey) {
+                public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
                     if (join) {
                         return methodResolutionService.makeAccessAggSortedJoin(agentInstanceId, groupId, aggregationId, spec);
                     }

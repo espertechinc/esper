@@ -62,6 +62,6 @@ public class TableStateRowFactory {
 
     public AggregationRowPair makeAggs(int agentInstanceId, Object groupByKey, Object groupKeyBinding) {
         AggregationMethod[] methods = methodResolutionService.newAggregators(methodFactories, agentInstanceId, groupByKey, groupKeyBinding, null);
-        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, false, stateFactories, groupByKey, groupKeyBinding, null);   return new AggregationRowPair(methods, states);
+        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, false, stateFactories, groupByKey, groupKeyBinding, null, null);   return new AggregationRowPair(methods, states);
     }
 }

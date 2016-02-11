@@ -197,12 +197,12 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
         final ExprNode me = this;
         final int theStreamNum = streamNum;
-        AggregationStateFactory stateFactory =  new AggregationStateFactory() {
-            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey) {
+        AggregationStateFactory stateFactory = new AggregationStateFactory() {
+            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
                 if (join) {
                     return methodResolutionService.makeAccessAggLinearJoin(agentInstanceId, groupId, aggregationId, theStreamNum);
                 }
-                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, theStreamNum);
+                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, theStreamNum, passThru);
             }
 
             public ExprNode getAggregationExpression() {
@@ -232,8 +232,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
         final ExprNode me = this;
         AggregationStateFactory stateFactory = new AggregationStateFactory() {
-            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey) {
-                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, 0);
+            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, 0, passThru);
             }
             public ExprNode getAggregationExpression() {
                 return me;

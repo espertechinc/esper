@@ -71,7 +71,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         if (localGroupByPlan.getOptionalLevelTop() != null) {
             if (aggregatorsTopLevel == null) {
                 aggregatorsTopLevel = methodResolutionService.newAggregators(localGroupByPlan.getOptionalLevelTop().getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), null, null, null);
-                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null);
+                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null, null);
             }
             aggregateIntoEnter(localGroupByPlan.getOptionalLevelTop(), aggregatorsTopLevel, statesTopLevel, eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedTop();
@@ -84,7 +84,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             AggregationMethodPairRow row = aggregatorsPerLevelAndGroup[levelNum].get(groupByKey);
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
-                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null);
+                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
                 row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
@@ -104,7 +104,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         if (localGroupByPlan.getOptionalLevelTop() != null) {
             if (aggregatorsTopLevel == null) {
                 aggregatorsTopLevel = methodResolutionService.newAggregators(localGroupByPlan.getOptionalLevelTop().getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), null, null, null);
-                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null);
+                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null, null);
             }
             aggregateIntoLeave(localGroupByPlan.getOptionalLevelTop(), aggregatorsTopLevel, statesTopLevel, eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedTop();
@@ -117,7 +117,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             AggregationMethodPairRow row = aggregatorsPerLevelAndGroup[levelNum].get(groupByKey);
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
-                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null);
+                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
                 row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
