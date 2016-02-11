@@ -200,7 +200,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationStateFactory stateFactory = new AggregationStateFactory() {
             public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
                 if (join) {
-                    return methodResolutionService.makeAccessAggLinearJoin(agentInstanceId, groupId, aggregationId, theStreamNum);
+                    return methodResolutionService.makeAccessAggLinearJoin(agentInstanceId, groupId, aggregationId, theStreamNum, passThru);
                 }
                 return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, theStreamNum, passThru);
             }

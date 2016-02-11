@@ -51,7 +51,7 @@ public class SortedAggregationStateFactoryFactory {
             final AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator, criteriaKeyBinding);
             factory = new AggregationStateFactory() {
                 public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
-                    return methodResolutionService.makeAccessAggMinMaxEver(agentInstanceId, groupId, aggregationId, spec);
+                    return methodResolutionService.makeAccessAggMinMaxEver(agentInstanceId, groupId, aggregationId, spec, passThru);
                 }
 
                 public ExprNode getAggregationExpression() {
@@ -64,9 +64,9 @@ public class SortedAggregationStateFactoryFactory {
             factory = new AggregationStateFactory() {
                 public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
                     if (join) {
-                        return methodResolutionService.makeAccessAggSortedJoin(agentInstanceId, groupId, aggregationId, spec);
+                        return methodResolutionService.makeAccessAggSortedJoin(agentInstanceId, groupId, aggregationId, spec, passThru);
                     }
-                    return methodResolutionService.makeAccessAggSortedNonJoin(agentInstanceId, groupId, aggregationId, spec);
+                    return methodResolutionService.makeAccessAggSortedNonJoin(agentInstanceId, groupId, aggregationId, spec, passThru);
                 }
 
                 public ExprNode getAggregationExpression() {
