@@ -13,6 +13,7 @@ package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -42,6 +43,7 @@ public abstract class TableStateInstance {
     public abstract ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
     public abstract Collection<EventBean> getEventCollection();
     public abstract int getRowCount();
+    public abstract AggregationServicePassThru getAggregationServicePassThru();
 
     public void handleRowUpdated(ObjectArrayBackedEventBean row) {
         if (InstrumentationHelper.ENABLED) {
@@ -51,7 +53,7 @@ public abstract class TableStateInstance {
 
     public void addEventUnadorned(EventBean event) {
         ObjectArrayBackedEventBean oa = (ObjectArrayBackedEventBean) event;
-        AggregationRowPair aggs = tableMetadata.getRowFactory().makeAggs(agentInstanceContext.getAgentInstanceId(), null, null);
+        AggregationRowPair aggs = tableMetadata.getRowFactory().makeAggs(agentInstanceContext.getAgentInstanceId(), null, null, getAggregationServicePassThru());
         oa.getProperties()[0] = aggs;
         addEvent(oa);
     }

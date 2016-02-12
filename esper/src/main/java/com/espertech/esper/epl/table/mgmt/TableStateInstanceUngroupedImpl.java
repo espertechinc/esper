@@ -16,6 +16,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.SingleEventIterable;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -109,8 +110,12 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
         if (bean != null) {
             return bean;
         }
-        ObjectArrayBackedEventBean row = tableMetadata.getRowFactory().makeOA(exprEvaluatorContext.getAgentInstanceId(), groupByKey, null);
+        ObjectArrayBackedEventBean row = tableMetadata.getRowFactory().makeOA(exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, getAggregationServicePassThru());
         addEvent(row);
         return row;
+    }
+
+    public AggregationServicePassThru getAggregationServicePassThru() {
+        return null;
     }
 }

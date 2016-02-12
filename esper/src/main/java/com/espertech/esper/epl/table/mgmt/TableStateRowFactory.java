@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -40,8 +41,8 @@ public class TableStateRowFactory {
         this.eventAdapterService = eventAdapterService;
     }
 
-    public ObjectArrayBackedEventBean makeOA(int agentInstanceId, Object groupByKey, Object groupKeyBinding) {
-        AggregationRowPair row = makeAggs(agentInstanceId, groupByKey, groupKeyBinding);
+    public ObjectArrayBackedEventBean makeOA(int agentInstanceId, Object groupByKey, Object groupKeyBinding, AggregationServicePassThru passThru) {
+        AggregationRowPair row = makeAggs(agentInstanceId, groupByKey, groupKeyBinding, passThru);
         Object[] data = new Object[objectArrayEventType.getPropertyDescriptors().length];
         data[0] = row;
 
@@ -60,8 +61,9 @@ public class TableStateRowFactory {
         return (ObjectArrayBackedEventBean) eventAdapterService.adapterForType(data, objectArrayEventType);
     }
 
-    public AggregationRowPair makeAggs(int agentInstanceId, Object groupByKey, Object groupKeyBinding) {
+    public AggregationRowPair makeAggs(int agentInstanceId, Object groupByKey, Object groupKeyBinding, AggregationServicePassThru passThru) {
         AggregationMethod[] methods = methodResolutionService.newAggregators(methodFactories, agentInstanceId, groupByKey, groupKeyBinding, null);
-        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, false, stateFactories, groupByKey, groupKeyBinding, null, null);   return new AggregationRowPair(methods, states);
+        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, false, stateFactories, groupByKey, groupKeyBinding, null, passThru);
+        return new AggregationRowPair(methods, states);
     }
 }
