@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CompositeIndexQuery {
-    public void add(EventBean theEvent, Map value, Set<EventBean> result);
-    public void add(EventBean[] eventsPerStream, Map value, Collection<EventBean> result);
-    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context);
-    public Collection<EventBean> get(EventBean eventsPerStream[], Map parent, ExprEvaluatorContext context);
-    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys);
-    public Collection<EventBean> getCollectKeys(EventBean eventsPerStream[], Map parent, ExprEvaluatorContext context, ArrayList<Object> keys);
+    public void add(EventBean theEvent, Map value, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor);
+    public void add(EventBean[] eventsPerStream, Map value, Collection<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor);
+    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor);
+    public Collection<EventBean> get(EventBean eventsPerStream[], Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor);
+    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor);
+    public Collection<EventBean> getCollectKeys(EventBean eventsPerStream[], Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor);
     public void setNext(CompositeIndexQuery next);
 }

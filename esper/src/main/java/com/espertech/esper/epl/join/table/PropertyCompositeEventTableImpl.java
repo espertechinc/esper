@@ -10,6 +10,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemove;
+import com.espertech.esper.epl.join.exec.composite.CompositeIndexQueryResultPostProcessor;
 
 import java.util.*;
 
@@ -85,5 +86,9 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
 
     public Class getProviderClass() {
         return PropertyCompositeEventTable.class;
+    }
+
+    public CompositeIndexQueryResultPostProcessor getPostProcessor() {
+        return null;
     }
 }

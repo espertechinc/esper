@@ -51,17 +51,17 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         this.next = next;
     }
 
-    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context) {
+    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor) {
         events[lookupStream] = theEvent;
         MultiKeyUntyped mk = EventBeanUtility.getMultiKey(events, evaluators, context, keyCoercionTypes);
         Map innerIndex = (Map) parent.get(mk);
         if (innerIndex == null) {
             return null;
         }
-        return next.get(theEvent, innerIndex, context);
+        return next.get(theEvent, innerIndex, context, postProcessor);
     }
 
-    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys) {
+    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor) {
         events[lookupStream] = theEvent;
         MultiKeyUntyped mk = EventBeanUtility.getMultiKey(events, evaluators, context, keyCoercionTypes);
         Collections.addAll(keys, mk.getKeys());
@@ -69,10 +69,10 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         if (innerIndex == null) {
             return null;
         }
-        return next.getCollectKeys(theEvent, innerIndex, context, keys);
+        return next.getCollectKeys(theEvent, innerIndex, context, keys, postProcessor);
     }
 
-    public Collection<EventBean> get(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context) {
+    public Collection<EventBean> get(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor) {
 
         EventBean[] eventsToUse;
         if (isNWOnTrigger) {
@@ -88,10 +88,10 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         if (innerIndex == null) {
             return null;
         }
-        return next.get(eventsPerStream, innerIndex, context);
+        return next.get(eventsPerStream, innerIndex, context, postProcessor);
     }
 
-    public Collection<EventBean> getCollectKeys(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys) {
+    public Collection<EventBean> getCollectKeys(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor) {
 
         EventBean[] eventsToUse;
         if (isNWOnTrigger) {
@@ -108,14 +108,14 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         if (innerIndex == null) {
             return null;
         }
-        return next.getCollectKeys(eventsPerStream, innerIndex, context, keys);
+        return next.getCollectKeys(eventsPerStream, innerIndex, context, keys, postProcessor);
     }
 
-    public void add(EventBean theEvent, Map value, Set<EventBean> result) {
+    public void add(EventBean theEvent, Map value, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean[] eventsPerStream, Map value, Collection<EventBean> result) {
+    public void add(EventBean[] eventsPerStream, Map value, Collection<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
         throw new UnsupportedOperationException();
     }
 }

@@ -27,7 +27,7 @@ public class CompositeAccessStrategyRangeNormal extends CompositeAccessStrategyR
         this.allowReverseRange = allowReverseRange;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Map parent, Set<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector) {
+    public Set<EventBean> lookup(EventBean theEvent, Map parent, Set<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector, CompositeIndexQueryResultPostProcessor postProcessor) {
         Object comparableStart = super.evaluateLookupStart(theEvent, context);
         if (optionalKeyCollector != null) {
             optionalKeyCollector.add(comparableStart);
@@ -59,10 +59,10 @@ public class CompositeAccessStrategyRangeNormal extends CompositeAccessStrategyR
             }
         }
 
-        return CompositeIndexQueryRange.handle(theEvent, submap, null, result, next);
+        return CompositeIndexQueryRange.handle(theEvent, submap, null, result, next, postProcessor);
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventPerStream, Map parent, Collection<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector) {
+    public Collection<EventBean> lookup(EventBean[] eventPerStream, Map parent, Collection<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector, CompositeIndexQueryResultPostProcessor postProcessor) {
         Object comparableStart = super.evaluatePerStreamStart(eventPerStream, context);
         if (optionalKeyCollector != null) {
             optionalKeyCollector.add(comparableStart);
@@ -94,6 +94,6 @@ public class CompositeAccessStrategyRangeNormal extends CompositeAccessStrategyR
             }
         }
 
-        return CompositeIndexQueryRange.handle(eventPerStream, submap, null, result, next);
+        return CompositeIndexQueryRange.handle(eventPerStream, submap, null, result, next, postProcessor);
     }
 }

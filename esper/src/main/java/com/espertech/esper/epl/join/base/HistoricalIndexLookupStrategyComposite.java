@@ -41,7 +41,7 @@ public class HistoricalIndexLookupStrategyComposite implements HistoricalIndexLo
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) indexTable[0];
             Map<Object, Object> index = table.getIndex();
 
-            Set<EventBean> events = chain.get(lookupEvent, index, context);
+            Set<EventBean> events = chain.get(lookupEvent, index, context, table.getPostProcessor());
             if (events != null)
             {
                 return events.iterator();

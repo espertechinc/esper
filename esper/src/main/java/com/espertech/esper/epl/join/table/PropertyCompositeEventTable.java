@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.join.exec.composite.CompositeIndexQueryResultPostProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Map;
@@ -20,6 +21,7 @@ public abstract class PropertyCompositeEventTable implements EventTable
     private final EventTableOrganization organization;
 
     public abstract Map<Object, Object> getIndex();
+    public abstract CompositeIndexQueryResultPostProcessor getPostProcessor();
 
     public PropertyCompositeEventTable(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization)
     {
