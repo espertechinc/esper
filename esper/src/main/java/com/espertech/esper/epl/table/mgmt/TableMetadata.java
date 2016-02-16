@@ -252,7 +252,7 @@ public class TableMetadata {
         for (int agentInstanceId : getAgentInstanceIds()) {
             TableStateInstance state = getState(agentInstanceId);
             if (state != null) {
-                state.clearEvents();
+                state.destroyInstance();
             }
         }
     }

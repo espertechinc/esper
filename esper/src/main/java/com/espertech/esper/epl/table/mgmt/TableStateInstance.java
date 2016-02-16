@@ -36,7 +36,8 @@ public abstract class TableStateInstance {
     public abstract Iterable<EventBean> getIterableTableScan();
     public abstract void addEvent(EventBean theEvent);
     public abstract void deleteEvent(EventBean matchingEvent);
-    public abstract void clearEvents();
+    public abstract void clearInstance();
+    public abstract void destroyInstance();
     public abstract void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient) throws ExprValidationException;
     public abstract String[] getSecondaryIndexes();
     public abstract EventTable getIndex(String indexName);

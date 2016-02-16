@@ -51,7 +51,8 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         ExprTableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().writeLock(), delete.getServices().getTableService().getTableExprEvaluatorContext());
 
         if (delete.getOptionalWhereClause() == null) {
-            instance.clearEvents();
+            instance.clearInstance();
+            return CollectionUtil.EVENTBEANARRAY_EMPTY;
         }
 
         Collection<EventBean> found = snapshotAndApplyFilter(delete.getFilter(), delete.getAnnotations(), delete.getOptionalWhereClause(), instance.getAgentInstanceContext());

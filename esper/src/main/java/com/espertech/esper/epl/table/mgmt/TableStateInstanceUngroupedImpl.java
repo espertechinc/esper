@@ -89,8 +89,12 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
         return new SingleEventIterator(eventReference.get());
     }
 
-    public void clearEvents() {
-        eventReference.set(null);
+    public void clearInstance() {
+        clearEvents();
+    }
+
+    public void destroyInstance() {
+        clearEvents();
     }
 
     public Collection<EventBean> getEventCollection() {
@@ -117,5 +121,9 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
 
     public AggregationServicePassThru getAggregationServicePassThru() {
         return null;
+    }
+
+    private void clearEvents() {
+        eventReference.set(null);
     }
 }

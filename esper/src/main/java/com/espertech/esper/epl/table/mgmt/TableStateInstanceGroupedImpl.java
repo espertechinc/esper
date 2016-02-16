@@ -133,14 +133,18 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
     }
 
     public void clear() {
-        clearEvents();
+        clearInstance();
     }
 
-    public void clearEvents() {
+    public void clearInstance() {
         rows.clear();
         for (EventTable table : indexRepository.getTables()) {
             table.destroy();
         }
+    }
+
+    public void destroyInstance() {
+        clearInstance();
     }
 
     public ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
