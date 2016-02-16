@@ -85,7 +85,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             // handle table access
             try {
                 TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
-                instance.addExplicitIndex(spec, isRecoveringResilient);
+                instance.addExplicitIndex(spec, isRecoveringResilient, contextName != null);
             }
             catch (ExprValidationException ex) {
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);

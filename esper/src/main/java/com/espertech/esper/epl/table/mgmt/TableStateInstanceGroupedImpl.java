@@ -108,8 +108,8 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         return new PrimaryIndexIterable(rows);
     }
 
-    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient, null);
+    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
+        indexRepository.validateAddExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient || allowIndexExists, null);
     }
 
     public String[] getSecondaryIndexes() {

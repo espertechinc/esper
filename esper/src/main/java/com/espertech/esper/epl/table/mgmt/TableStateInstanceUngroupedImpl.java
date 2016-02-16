@@ -68,7 +68,7 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
         return eventReference.get();
     }
 
-    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient) throws ExprValidationException {
+    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
         throw new ExprValidationException("Tables without primary key column(s) do not allow creating an index");
     }
 
