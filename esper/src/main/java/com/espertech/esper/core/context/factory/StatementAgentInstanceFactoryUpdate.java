@@ -80,9 +80,15 @@ public class StatementAgentInstanceFactoryUpdate extends StatementAgentInstanceF
             throw ex;
         }
 
-        log.debug(".start Statement start completed");
+        StatementAgentInstanceFactoryUpdateResult result = new StatementAgentInstanceFactoryUpdateResult(onExprView, null, agentInstanceContext, subselectStrategies);
+        if (statementContext.getStatementExtensionServicesContext() != null) {
+            statementContext.getStatementExtensionServicesContext().contributeStopCallback(result, stopCallbacks);
+        }
+
         StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
-        return new StatementAgentInstanceFactoryUpdateResult(onExprView, stopCallback, agentInstanceContext, subselectStrategies);
+        result.setStopCallback(stopCallback);
+
+        return result;
     }
 
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {
