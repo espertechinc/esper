@@ -587,7 +587,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7000, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}}, new Object[][] {{"IBM", 72d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion34(String stmtText, String outputLimit)
@@ -604,7 +604,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7000, 0, null, new Object[][] {{"IBM", 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion13_14(String stmtText, String outputLimit)
@@ -624,7 +624,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{"IBM", 48d}, {"MSFT", null}, {"YAH", 6d}}, new Object[][] {{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion15_16(String stmtText, String outputLimit)
@@ -644,7 +644,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, null, new Object[][] {{"IBM", 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion78(String stmtText, String outputLimit)
@@ -664,7 +664,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, null, new Object[][] {{"IBM", 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion56(String stmtText, String outputLimit)
@@ -684,7 +684,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{"IBM", 48d}, {"MSFT", null}, {"YAH", 6d}}, new Object[][] {{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion9_10(String stmtText, String outputLimit)
@@ -704,7 +704,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{"IBM", 48d}, {"MSFT", null}, {"YAH", 6d}}, new Object[][] {{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion11_12(String stmtText, String outputLimit)
@@ -724,7 +724,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7200, 0, null, new Object[][] {{"IBM", 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion17(String stmtText, String outputLimit)
@@ -748,7 +748,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsRem(7000, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}}, new Object[][] {{"IBM", 72d}, {"YAH", 7d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion18(String stmtText, String outputLimit)
@@ -768,7 +768,7 @@ public class TestOutputLimitEventPerGroup extends TestCase
         expected.addResultInsert(7200, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void testJoinSortWindow()

@@ -439,7 +439,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultRemove(7000, 0, new Object[][] {{"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion34(String stmtText, String outputLimit)
@@ -455,7 +455,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultRemove(5700, 0, new Object[][] {{"IBM", 100L, 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion13_14(String stmtText, String outputLimit)
@@ -475,7 +475,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultRemove(7200, 0, new Object[][] {{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion15_16(String stmtText, String outputLimit)
@@ -495,7 +495,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion78(String stmtText, String outputLimit)
@@ -515,7 +515,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion56(String stmtText, String outputLimit)
@@ -535,7 +535,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultRemove(7200, 0, new Object[][] {{"MSFT", 5000L, null}, {"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion9_10(String stmtText, String outputLimit)
@@ -555,7 +555,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10500L, 6d}}, new Object[][] {{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion11_12(String stmtText, String outputLimit)
@@ -575,7 +575,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion17(String stmtText, String outputLimit)
@@ -599,7 +599,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsert(7000, 0, new Object[][] {{"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion18(String stmtText, String outputLimit)
@@ -619,7 +619,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         expected.addResultInsert(7200, 0, new Object[][] {{"IBM", 155L, 48d}, {"YAH", 11000L, 6d}, {"IBM", 150L, 48d}, {"YAH", 11500L, 6d}, {"YAH", 10500L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void testHaving()

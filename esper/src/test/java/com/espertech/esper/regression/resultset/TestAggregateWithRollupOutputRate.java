@@ -160,7 +160,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         expected.addResultInsRem(7000, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}, {null, 54d}}, new Object[][] {{"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void test2OutputLimitDefault()
@@ -196,7 +196,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
                 new Object[][] {{"MSFT", 9d}, {null, 88d}, {"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void test3OutputLimitAll() {
@@ -243,7 +243,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
                 new Object[][] {{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}, {null, 88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(true);
     }
 
     public void test4OutputLimitLast() {
@@ -288,7 +288,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
                 new Object[][] {{"MSFT", 9d}, {"IBM", 72d}, {"YAH", 7d}, {null, 88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(true);
     }
 
     public void test5OutputLimitFirst()
@@ -316,7 +316,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         expected.addResultInsRem(7000, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}, {null, 54d}}, new Object[][] {{"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void test6OutputLimitSnapshot()
@@ -340,7 +340,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         expected.addResultInsert(7200, 0, new Object[][] {{"IBM", 48d}, {"YAH", 6d}, {null, 54.0}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertionOutputFirstHaving(boolean join) {

@@ -326,7 +326,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7000, 0, new Object[][] {{54d}}, new Object[][] {{79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion34(String stmtText, String outputLimit)
@@ -342,7 +342,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(5700, 0, null, new Object[][] {{112d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion13_14(String stmtText, String outputLimit)
@@ -362,7 +362,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{54d}}, new Object[][] {{88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion15_16(String stmtText, String outputLimit)
@@ -382,7 +382,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion78(String stmtText, String outputLimit)
@@ -402,7 +402,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion56(String stmtText, String outputLimit)
@@ -422,7 +422,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{79d}, {54d}}, new Object[][] {{88d}, {79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion17(String stmtText, String outputLimit)
@@ -441,7 +441,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(6300, 0, new Object[][] {{79d}}, new Object[][] {{88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion18(String stmtText, String outputLimit)
@@ -461,7 +461,7 @@ public class TestOutputLimitRowForAll extends TestCase
         expected.addResultInsRem(7200, 0, new Object[][] {{54d}}, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void testAggAllHaving()

@@ -310,7 +310,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultRemove(7000, 0, new Object[][] {{"IBM", 54d}, {"YAH", 54d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion34(String stmtText, String outputLimit)
@@ -325,7 +325,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultInsert(4900, 1, new Object[][] {{"YAH", 112d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion13_14(String stmtText, String outputLimit)
@@ -345,7 +345,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultRemove(7200, 0, new Object[][] {{"YAH", 54d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion15_16(String stmtText, String outputLimit)
@@ -365,7 +365,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion78(String stmtText, String outputLimit)
@@ -385,7 +385,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion56(String stmtText, String outputLimit)
@@ -405,7 +405,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultRemove(7200, 0, new Object[][] {{"MSFT", 79d}, {"IBM", 54d}, {"YAH", 54d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion17IStreamOnly(String stmtText, String outputLimit)
@@ -423,7 +423,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultInsert(5900, 1, new Object[][]{{"YAH", 88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion17IRStream(String stmtText, String outputLimit)
@@ -442,7 +442,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultRemove(6300, 0, new Object[][]{{"MSFT", 79d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
-        execution.execute();
+        execution.execute(false);
     }
 
     private void runAssertion18(String stmtText, String outputLimit)
@@ -462,7 +462,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         expected.addResultInsert(7200, 0, new Object[][] {{"IBM", 54d}, {"YAH", 54d}, {"IBM", 54d}, {"YAH", 54d}, {"YAH", 54d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(epService, stmt, listener, expected);
-        execution.execute();
+        execution.execute(false);
     }
 
     public void testHaving()
