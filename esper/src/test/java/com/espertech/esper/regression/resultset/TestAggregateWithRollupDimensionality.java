@@ -72,7 +72,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         assertFalse(listener.isInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "c0,c1".split(","),
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), "c0,c1".split(","),
                 new Object[][] {{"E2", 4}, {"E1", 11}, {null, 15}});
 
         epService.getEPAdministrator().destroyAllStatements();
