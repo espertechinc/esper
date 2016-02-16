@@ -622,31 +622,10 @@ public class TestGroupByEventPerGroup extends TestCase
                               Double oldSumTwo, Double oldAvgTwo,
                               double newSumTwo, double newAvgTwo)
     {
-        EventBean[] oldData = listener.getLastOldData();
-        EventBean[] newData = listener.getLastNewData();
-
-        assertEquals(2, oldData.length);
-        assertEquals(2, newData.length);
-
-        int indexOne = 0;
-        int indexTwo = 1;
-        if (oldData[0].get("symbol").equals(symbolTwo))
-        {
-            indexTwo = 0;
-            indexOne = 1;
-        }
-        assertEquals(newSumOne, newData[indexOne].get("mySum"));
-        assertEquals(newSumTwo, newData[indexTwo].get("mySum"));
-        assertEquals(oldSumOne, oldData[indexOne].get("mySum"));
-        assertEquals(oldSumTwo, oldData[indexTwo].get("mySum"));
-
-        assertEquals(newAvgOne, newData[indexOne].get("myAvg"));
-        assertEquals(newAvgTwo, newData[indexTwo].get("myAvg"));
-        assertEquals(oldAvgOne, oldData[indexOne].get("myAvg"));
-        assertEquals(oldAvgTwo, oldData[indexTwo].get("myAvg"));
-
-        listener.reset();
-        assertFalse(listener.isInvoked());
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(),
+                "mySum,myAvg".split(","),
+                new Object[][] {{newSumOne, newAvgOne}, {newSumTwo, newAvgTwo}},
+                new Object[][] {{oldSumOne, oldAvgOne}, {oldSumTwo, oldAvgTwo}});
     }
 
     private void sendEvent(String symbol, double price)

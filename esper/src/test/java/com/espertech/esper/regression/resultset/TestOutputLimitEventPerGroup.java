@@ -911,10 +911,10 @@ public class TestOutputLimitEventPerGroup extends TestCase
     	assertTrue(updateListener.getAndClearIsInvoked());
     	EventBean[] newData = updateListener.getLastNewData();
     	assertEquals(3, newData.length);
-        EPAssertionUtil.assertPropsPerRow(newData, fields, new Object[][]{
+        EPAssertionUtil.assertPropsPerRowAnyOrder(newData, fields, new Object[][]{
                 {"IBM", 6d}, {"HP", 1d}, {"MAC", 1d}});
     	EventBean[] oldData = updateListener.getLastOldData();
-        EPAssertionUtil.assertPropsPerRow(oldData, fields, new Object[][]{
+        EPAssertionUtil.assertPropsPerRowAnyOrder(oldData, fields, new Object[][]{
                 {"IBM", null}, {"HP", null}, {"MAC", null}});
     }
 
@@ -1218,31 +1218,10 @@ public class TestOutputLimitEventPerGroup extends TestCase
                               Double oldSumTwo, Double oldAvgTwo,
                               double newSumTwo, double newAvgTwo)
     {
-        EventBean[] oldData = listener.getLastOldData();
-        EventBean[] newData = listener.getLastNewData();
-
-        assertEquals(2, oldData.length);
-        assertEquals(2, newData.length);
-
-        int indexOne = 0;
-        int indexTwo = 1;
-        if (oldData[0].get("symbol").equals(symbolTwo))
-        {
-            indexTwo = 0;
-            indexOne = 1;
-        }
-        assertEquals(newSumOne, newData[indexOne].get("mySum"));
-        assertEquals(newSumTwo, newData[indexTwo].get("mySum"));
-        assertEquals(oldSumOne, oldData[indexOne].get("mySum"));
-        assertEquals(oldSumTwo, oldData[indexTwo].get("mySum"));
-
-        assertEquals(newAvgOne, newData[indexOne].get("myAvg"));
-        assertEquals(newAvgTwo, newData[indexTwo].get("myAvg"));
-        assertEquals(oldAvgOne, oldData[indexOne].get("myAvg"));
-        assertEquals(oldAvgTwo, oldData[indexTwo].get("myAvg"));
-
-        listener.reset();
-        assertFalse(listener.isInvoked());
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(),
+                "mySum,myAvg".split(","),
+                new Object[][] {{newSumOne, newAvgOne}, {newSumTwo, newAvgTwo}},
+                new Object[][] {{oldSumOne, oldAvgOne}, {oldSumTwo, oldAvgTwo}});
     }
 
     private void sendMDEvent(String symbol, double price)
