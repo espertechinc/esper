@@ -356,7 +356,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             fastClass = null;
             try
             {
-                fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), clazz);
+                fastClass = FastClass.create(clazz);
             }
             catch (Throwable ex)
             {
