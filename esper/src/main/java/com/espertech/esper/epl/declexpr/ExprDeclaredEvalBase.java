@@ -145,14 +145,14 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
         return null;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (innerEvaluatorLambda != null) {
             return innerEvaluatorLambda.getEventTypeCollection(eventAdapterService, statementId);
         }
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (innerEvaluatorLambda != null) {
             return innerEvaluatorLambda.getEventTypeSingle(eventAdapterService, statementId);
         }

@@ -59,7 +59,7 @@ public class SelectExprProcessorHelper
     private final ValueAddEventService valueAddEventService;
     private final SelectExprEventTypeRegistry selectExprEventTypeRegistry;
     private final MethodResolutionService methodResolutionService;
-    private final String statementId;
+    private final int statementId;
     private final Annotation[] annotations;
     private final ConfigurationInformation configuration;
     private final NamedWindowMgmtService namedWindowMgmtService;
@@ -89,7 +89,7 @@ public class SelectExprProcessorHelper
                                      ValueAddEventService valueAddEventService,
                                      SelectExprEventTypeRegistry selectExprEventTypeRegistry,
                                      MethodResolutionService methodResolutionService,
-                                     String statementId,
+                                     int statementId,
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
                                      NamedWindowMgmtService namedWindowMgmtService,

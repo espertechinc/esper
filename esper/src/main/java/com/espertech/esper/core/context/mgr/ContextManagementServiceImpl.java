@@ -81,7 +81,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         entry.getContextManager().addStatement(statement, isRecoveringResilient);
     }
 
-    public void destroyedStatement(String contextName, String statementName, String statementId) {
+    public void destroyedStatement(String contextName, String statementName, int statementId) {
         ContextManagerEntry entry = contexts.get(contextName);
         if (entry == null) {
             log.warn("Destroy statement for statement '" + statementName + "' failed to locate corresponding context manager '" + contextName + "'");
@@ -95,7 +95,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
     }
 
-    public void stoppedStatement(String contextName, String statementName, String statementId, String epl, ExceptionHandlingService exceptionHandlingService) {
+    public void stoppedStatement(String contextName, String statementName, int statementId, String epl, ExceptionHandlingService exceptionHandlingService) {
         ContextManagerEntry entry = contexts.get(contextName);
         if (entry == null) {
             log.warn("Stop statement for statement '" + statementName + "' failed to locate corresponding context manager '" + contextName + "'");

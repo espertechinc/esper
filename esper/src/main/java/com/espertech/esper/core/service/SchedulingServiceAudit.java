@@ -36,7 +36,7 @@ public class SchedulingServiceAudit implements SchedulingServiceSPI {
         return spi.isScheduled(handle);
     }
 
-    public ScheduleSet take(Set<String> statementId) {
+    public ScheduleSet take(Set<Integer> statementId) {
         return spi.take(statementId);
     }
 

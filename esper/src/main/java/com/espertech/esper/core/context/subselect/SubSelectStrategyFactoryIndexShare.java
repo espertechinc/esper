@@ -54,7 +54,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
     private final TableService tableService;
     private SubordinateQueryPlanDesc queryPlan;
 
-    public SubSelectStrategyFactoryIndexShare(final String statementName, String statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService) throws ExprValidationException {
+    public SubSelectStrategyFactoryIndexShare(final String statementName, int statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService) throws ExprValidationException {
         this.optionalNamedWindowProcessor = optionalNamedWindowProcessor;
         this.optionalTableMetadata = optionalTableMetadata;
         this.filterExprEval = filterExprEval;

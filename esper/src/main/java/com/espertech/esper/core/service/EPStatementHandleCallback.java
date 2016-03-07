@@ -49,7 +49,7 @@ public class EPStatementHandleCallback implements FilterHandle, ScheduleHandle
         this.scheduleCallback = callback;
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
         return agentInstanceHandle.getStatementId();
     }

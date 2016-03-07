@@ -49,7 +49,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         return evalFilterNode;
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
         return evalFilterNode.getContext().getPatternContext().getStatementId();
     }

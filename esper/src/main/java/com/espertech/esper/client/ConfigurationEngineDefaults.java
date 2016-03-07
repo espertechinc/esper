@@ -1747,7 +1747,6 @@ public class ConfigurationEngineDefaults implements Serializable
         private String eventTypeIdGeneratorFactory;
         private String virtualDataWindowViewFactory;
         private String statementMetadataFactory;
-        private String statementIdGeneratorFactory;
         private Object userConfiguration;
         private String memberName;
 
@@ -1833,22 +1832,6 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setStatementMetadataFactory(String factory) {
             this.statementMetadataFactory = factory;
-        }
-
-        /**
-         * Returns the class name of the class for statement id generation, or null if using default.
-         * @return class
-         */
-        public String getStatementIdGeneratorFactory() {
-            return statementIdGeneratorFactory;
-        }
-
-        /**
-         * Sets the class name of the class for statement id generation, or null if using default.
-         * @param statementIdGeneratorFactory class
-         */
-        public void setStatementIdGeneratorFactory(String statementIdGeneratorFactory) {
-            this.statementIdGeneratorFactory = statementIdGeneratorFactory;
         }
 
         /**

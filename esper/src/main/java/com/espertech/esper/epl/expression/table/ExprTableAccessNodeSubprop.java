@@ -86,7 +86,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return subpropName;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return EPTypeHelper.optionalIsEventTypeColl(optionalEnumerationType);
     }
 
@@ -102,7 +102,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
         return strategy.evaluateGetROCollectionScalar(eventsPerStream, isNewData, context);
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return EPTypeHelper.optionalIsEventTypeSingle(optionalEnumerationType);
     }
 

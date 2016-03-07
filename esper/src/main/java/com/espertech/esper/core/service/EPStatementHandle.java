@@ -25,7 +25,7 @@ public class EPStatementHandle implements MetaDefItem, Serializable
     private static final long serialVersionUID = 0L;
 
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final String statementText;
     private final StatementType statementType;
     private final int hashCode;
@@ -50,7 +50,7 @@ public class EPStatementHandle implements MetaDefItem, Serializable
      * @param priority priority, zero is default
      * @param preemptive true for drop after done
      */
-    public EPStatementHandle(String statementId, String statementName, String statementText, StatementType statementType, String expressionText, boolean hasVariables, StatementMetricHandle metricsHandle, int priority, boolean preemptive, boolean hasTableAccess, MultiMatchHandler multiMatchHandler)
+    public EPStatementHandle(int statementId, String statementName, String statementText, StatementType statementType, String expressionText, boolean hasVariables, StatementMetricHandle metricsHandle, int priority, boolean preemptive, boolean hasTableAccess, MultiMatchHandler multiMatchHandler)
     {
         this.statementId = statementId;
         this.statementName = statementName;
@@ -62,7 +62,7 @@ public class EPStatementHandle implements MetaDefItem, Serializable
         this.preemptive = preemptive;
         this.hasTableAccess = hasTableAccess;
         this.multiMatchHandler = multiMatchHandler;
-        hashCode = expressionText.hashCode() ^ statementName.hashCode() ^ statementId.hashCode();
+        hashCode = expressionText.hashCode() ^ statementName.hashCode() ^ statementId;
     }
 
     /**
@@ -81,7 +81,7 @@ public class EPStatementHandle implements MetaDefItem, Serializable
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId() {
+    public int getStatementId() {
         return statementId;
     }
 
@@ -146,11 +146,7 @@ public class EPStatementHandle implements MetaDefItem, Serializable
         }
 
         EPStatementHandle other = (EPStatementHandle) otherObj;
-        if (other.statementId.equals(this.statementId))
-        {
-            return true;
-        }
-        return false;
+        return other.statementId == this.statementId;
     }
 
     public int hashCode()

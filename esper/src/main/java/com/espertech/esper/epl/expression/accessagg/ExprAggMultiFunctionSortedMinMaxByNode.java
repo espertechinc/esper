@@ -276,7 +276,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         return null;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         if (!sortedwin) {
             return null;
         }
@@ -287,7 +287,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (sortedwin) {
             return null;
         }

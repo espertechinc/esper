@@ -38,7 +38,7 @@ public class OnSetVariableViewFactory
      * @param exprEvaluatorContext context for expression evalauation
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the assignment expressions are invalid
      */
-    public OnSetVariableViewFactory(String statementId, OnTriggerSetDesc desc, EventAdapterService eventAdapterService, VariableService variableService, StatementResultService statementResultService, ExprEvaluatorContext exprEvaluatorContext)
+    public OnSetVariableViewFactory(int statementId, OnTriggerSetDesc desc, EventAdapterService eventAdapterService, VariableService variableService, StatementResultService statementResultService, ExprEvaluatorContext exprEvaluatorContext)
             throws ExprValidationException
     {
         this.eventAdapterService = eventAdapterService;

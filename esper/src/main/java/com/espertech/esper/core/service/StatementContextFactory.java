@@ -36,7 +36,7 @@ public interface StatementContextFactory
      * @param subselectNodes
      * @return statement context
      */
-    public StatementContext makeContext(String statementId,
+    public StatementContext makeContext(int statementId,
                                         String statementName,
                                         String expression,
                                         StatementType statementType,

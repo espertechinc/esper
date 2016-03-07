@@ -115,9 +115,9 @@ public class EsperIOHTTPSubscription extends BaseSubscription
         return false;
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
-        return uuid;
+        return -1;
     }
 
     private static Map<String, String> formPairs(String[] properties, Object[] values, String... additional) {

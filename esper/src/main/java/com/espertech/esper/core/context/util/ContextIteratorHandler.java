@@ -18,8 +18,8 @@ import com.espertech.esper.client.context.ContextPartitionSelector;
 import java.util.Iterator;
 
 public interface ContextIteratorHandler {
-    public Iterator<EventBean> iterator(String statementId);
-    public SafeIterator<EventBean> safeIterator(String statementId);
-    public Iterator<EventBean> iterator(String statementId, ContextPartitionSelector selector);
-    public SafeIterator<EventBean> safeIterator(String statementId, ContextPartitionSelector selector);
+    public Iterator<EventBean> iterator(int statementId);
+    public SafeIterator<EventBean> safeIterator(int statementId);
+    public Iterator<EventBean> iterator(int statementId, ContextPartitionSelector selector);
+    public SafeIterator<EventBean> safeIterator(int statementId, ContextPartitionSelector selector);
 }

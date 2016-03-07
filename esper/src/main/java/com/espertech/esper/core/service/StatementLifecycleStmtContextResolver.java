@@ -10,5 +10,5 @@ package com.espertech.esper.core.service;
 
 public interface StatementLifecycleStmtContextResolver
 {
-    public StatementContext getStatementContextById(String id);
+    public StatementContext getStatementContextById(int statementId);
 }

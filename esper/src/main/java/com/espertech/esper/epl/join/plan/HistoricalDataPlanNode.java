@@ -58,7 +58,7 @@ public class HistoricalDataPlanNode extends QueryPlanNode
         this.outerJoinExprNode = exprNode;
     }
 
-    public ExecNode makeExec(String statementName, String statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
+    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
     {
         Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> pair = historicalStreamIndexLists[streamNum].getStrategy(lookupStreamNum);
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[streamNum];

@@ -29,7 +29,7 @@ public class ExprDotEvalNoOp extends ExprDotEvalEnumMethodBase {
         return new EventType[] {};
     }
 
-    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, String statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) {
+    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) {
         super.setTypeInfo(EPTypeHelper.collectionOfEvents(inputEventType));
         resultEventType = inputEventType;
         return new EnumEvalNoOp(numStreamsIncoming);

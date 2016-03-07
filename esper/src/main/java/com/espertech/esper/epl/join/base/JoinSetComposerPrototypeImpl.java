@@ -48,7 +48,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private static final Log log = LogFactory.getLog(JoinSetComposerPrototypeFactory.class);
 
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final OuterJoinDesc[] outerJoinDescList;
     private final ExprNode optionalFilterNode;
     private final EventType[] streamTypes;
@@ -66,7 +66,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private final EventTableIndexService eventTableIndexService;
 
     public JoinSetComposerPrototypeImpl(String statementName,
-                                        String statementId,
+                                        int statementId,
                                         OuterJoinDesc[] outerJoinDescList,
                                         ExprNode optionalFilterNode,
                                         EventType[] streamTypes,

@@ -43,7 +43,7 @@ public interface FilterService
      * @param statementId statement for which to return results for
      * @return filter current version
      */
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, String statementId);
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId);
 
     /**
      * Add a filter for events as defined by the filter specification, and register a

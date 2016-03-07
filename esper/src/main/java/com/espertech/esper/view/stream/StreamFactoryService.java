@@ -41,7 +41,7 @@ public interface StreamFactoryService
      * @param hasOrderBy if the consumer has order-by
      * @return event stream representing active filter
      */
-    public Pair<EventStream, StatementAgentInstanceLock> createStream(final String statementId,
+    public Pair<EventStream, StatementAgentInstanceLock> createStream(final int statementId,
                                                          FilterSpecCompiled filterSpec,
                                                          FilterService filterService,
                                                          EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,

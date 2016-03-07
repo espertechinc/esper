@@ -33,7 +33,7 @@ public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext
         return context.getEngineURI();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return context.getStatementId();
     }
 

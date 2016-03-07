@@ -173,7 +173,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             }
 
             boolean hasAggregations = !resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getExpressions().isEmpty();
-            joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, null,
+            joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, -1,
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typesPerStream, namesPerStream,
                     streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true, services.getEventTableIndexService().allowInitIndex(false));
         }

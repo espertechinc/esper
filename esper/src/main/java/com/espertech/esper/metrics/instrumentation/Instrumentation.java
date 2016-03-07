@@ -455,13 +455,13 @@ public interface Instrumentation {
     void qInfraMergeWhenThenActionItem(int count, String actionName);
     void aInfraMergeWhenThenActionItem(boolean applies);
 
-    void qEngineManagementStmtCompileStart(String engineURI, String statementId, String statementName, String epl, long engineTime);
+    void qEngineManagementStmtCompileStart(String engineURI, int statementId, String statementName, String epl, long engineTime);
     void aEngineManagementStmtCompileStart(boolean success, String message);
-    void qaEngineManagementStmtStarted(String engineURI, String statementId, String statementName, String epl, long engineTime);
-    void qEngineManagementStmtStop(EPStatementState targetState, String engineURI, String statementId, String statementName, String epl, long engineTime);
+    void qaEngineManagementStmtStarted(String engineURI, int statementId, String statementName, String epl, long engineTime);
+    void qEngineManagementStmtStop(EPStatementState targetState, String engineURI, int statementId, String statementName, String epl, long engineTime);
     void aEngineManagementStmtStop();
 
-    void qaStatementResultExecute(UniformPair<EventBean[]> events, String statementId, String statementName, int agentInstanceId, long threadId);
+    void qaStatementResultExecute(UniformPair<EventBean[]> events, int statementId, String statementName, int agentInstanceId, long threadId);
 
     void qSplitStream(boolean all, EventBean theEvent, ExprEvaluator[] whereClauses);
     void aSplitStream(boolean all, boolean handled);

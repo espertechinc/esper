@@ -183,7 +183,7 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         stmtMetricRepository.accountOutput(handle, numIStream, numRStream);
     }
 
-    public StatementMetricHandle getStatementHandle(String statementId, String statementName)
+    public StatementMetricHandle getStatementHandle(int statementId, String statementName)
     {
         if (!MetricReportingPath.isMetricsEnabled)
         {

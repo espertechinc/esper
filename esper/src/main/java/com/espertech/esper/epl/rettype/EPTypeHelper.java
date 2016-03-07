@@ -250,7 +250,7 @@ public class EPTypeHelper {
         throw new IllegalArgumentException("Unrecognized type " + theType);
     }
 
-    public static EPType optionalFromEnumerationExpr(String statementId, EventAdapterService eventAdapterService, ExprNode exprNode)
+    public static EPType optionalFromEnumerationExpr(int statementId, EventAdapterService eventAdapterService, ExprNode exprNode)
         throws ExprValidationException
     {
         if (!(exprNode instanceof ExprEvaluatorEnumeration)) {

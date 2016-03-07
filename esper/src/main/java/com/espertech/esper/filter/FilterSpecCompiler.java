@@ -121,7 +121,7 @@ public final class FilterSpecCompiler
                                             String optionalStreamName,
                                             Collection<Integer> assignedTypeNumberStack,
                                             ExprEvaluatorContext exprEvaluatorContext,
-                                            String statementId,
+                                            int statementId,
                                             String statementName,
                                             Annotation[] annotations,
                                             ContextDescriptor contextDescriptor,

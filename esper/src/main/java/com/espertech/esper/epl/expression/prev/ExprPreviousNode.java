@@ -179,14 +179,14 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return evaluator.evaluateGetCollScalar(eventsPerStream, context);
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (previousType == ExprPreviousNodePreviousType.PREV || previousType == ExprPreviousNodePreviousType.PREVTAIL) {
             return null;
         }
         return enumerationMethodType;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (previousType == ExprPreviousNodePreviousType.PREV || previousType == ExprPreviousNodePreviousType.PREVTAIL) {
             return enumerationMethodType;
         }

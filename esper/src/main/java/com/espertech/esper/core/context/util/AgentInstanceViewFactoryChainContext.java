@@ -157,7 +157,7 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
         return agentInstanceContext.getEngineURI();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return agentInstanceContext.getStatementId();
     }
 

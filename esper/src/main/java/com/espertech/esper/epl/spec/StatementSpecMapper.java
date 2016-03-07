@@ -1155,7 +1155,7 @@ public class StatementSpecMapper
             ExprTimePeriod timePeriod = (ExprTimePeriod) mapExpressionDeep(clause.getIntervalClause().getExpression(), mapContext);
             try
             {
-                timePeriod.validate(new ExprValidationContext(null, null, null, null, null, null, null, null, null, null, null, null, false, false, false, false, null, false));
+                timePeriod.validate(new ExprValidationContext(null, null, null, null, null, null, null, null, null, -1, null, null, false, false, false, false, null, false));
             }
             catch (ExprValidationException e)
             {

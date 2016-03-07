@@ -56,7 +56,7 @@ public class JoinSetComposerPrototypeFactory
      * validation of view use in joins failed.
      */
     public static JoinSetComposerPrototype makeComposerPrototype(String statementName,
-                                                          String statementId,
+                                                          int statementId,
                                                           OuterJoinDesc[] outerJoinDescList,
                                                           ExprNode optionalFilterNode,
                                                           EventType[] streamTypes,

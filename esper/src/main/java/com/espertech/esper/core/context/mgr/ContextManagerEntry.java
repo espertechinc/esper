@@ -16,18 +16,18 @@ import java.util.Set;
 
 public class ContextManagerEntry {
     private final ContextManager contextManager;
-    private final Set<String> referringStatements;
+    private final Set<Integer> referringStatements;
 
     public ContextManagerEntry(ContextManager contextManager) {
         this.contextManager = contextManager;
-        this.referringStatements = new HashSet<String>();
+        this.referringStatements = new HashSet<Integer>();
     }
 
     public ContextManager getContextManager() {
         return contextManager;
     }
 
-    public void addStatement(String statementId) {
+    public void addStatement(int statementId) {
         referringStatements.add(statementId);
     }
 
@@ -35,7 +35,7 @@ public class ContextManagerEntry {
         return referringStatements.size();
     }
 
-    public void removeStatement(String statementId) {
+    public void removeStatement(int statementId) {
         referringStatements.remove(statementId);
     }
 }

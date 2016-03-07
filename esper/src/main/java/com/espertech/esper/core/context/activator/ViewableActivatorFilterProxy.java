@@ -55,14 +55,14 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
         EventStream inputStream = EventStreamProxy.getAuditProxy(agentInstanceContext.getStatementContext().getEngineURI(), agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementHandle().getStatementName(), annotations, filterSpec, zeroDepthStream);
 
         final EventStream eventStream = inputStream;
-        final String statementId = agentInstanceContext.getStatementContext().getStatementId();
+        final int statementId = agentInstanceContext.getStatementContext().getStatementId();
 
         FilterHandleCallback filterCallback;
         if (filterSpec.getOptionalPropertyEvaluator() != null)
         {
             filterCallback = new FilterHandleCallback()
             {
-                public String getStatementId()
+                public int getStatementId()
                 {
                     return statementId;
                 }
@@ -87,7 +87,7 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
         {
             filterCallback = new FilterHandleCallback()
             {
-                public String getStatementId()
+                public int getStatementId()
                 {
                     return statementId;
                 }

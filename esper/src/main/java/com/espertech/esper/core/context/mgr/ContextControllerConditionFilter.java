@@ -48,7 +48,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
 
     public void activate(EventBean optionalTriggeringEvent, MatchedEventMap priorMatches, long timeOffset, boolean isRecoveringResilient) {
         FilterHandleCallback filterCallback = new FilterHandleCallback() {
-            public String getStatementId() {
+            public int getStatementId() {
                 return agentInstanceContext.getStatementContext().getStatementId();
             }
 

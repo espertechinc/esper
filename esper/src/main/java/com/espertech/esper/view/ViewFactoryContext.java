@@ -93,13 +93,9 @@ public class ViewFactoryContext
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId()
+    public int getStatementId()
     {
         return statementContext.getStatementId();
-    }
-
-    public byte[] getStatementIdBytes() {
-        return statementContext.getStatementIdBytes();
     }
 
     /**

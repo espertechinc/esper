@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class VirtualDataWindowLookupContext {
     private String statementName;
-    private String statementId;
+    private int statementId;
     private Annotation[] statementAnnotations;
     private boolean isFireAndForget;
     private String namedWindowName;
@@ -44,7 +44,7 @@ public class VirtualDataWindowLookupContext {
      * @param fireAndForget true for fire-and-forget queries
      * @param statementId statement id
      */
-    public VirtualDataWindowLookupContext(String statementName, String statementId, Annotation[] statementAnnotations, boolean fireAndForget, String namedWindowName, List<VirtualDataWindowLookupFieldDesc> hashFields, List<VirtualDataWindowLookupFieldDesc> btreeFields) {
+    public VirtualDataWindowLookupContext(String statementName, int statementId, Annotation[] statementAnnotations, boolean fireAndForget, String namedWindowName, List<VirtualDataWindowLookupFieldDesc> hashFields, List<VirtualDataWindowLookupFieldDesc> btreeFields) {
         this.statementName = statementName;
         this.statementId = statementId;
         this.statementAnnotations = statementAnnotations;
@@ -87,10 +87,10 @@ public class VirtualDataWindowLookupContext {
     }
 
     /**
-     * Returns the statement id of the statement to be performing the lookup, or null for fire-and-forget statements.
+     * Returns the statement id of the statement to be performing the lookup, or -1 for fire-and-forget statements.
      * @return statement name
      */
-    public String getStatementId() {
+    public int getStatementId() {
         return statementId;
     }
 

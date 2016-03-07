@@ -330,8 +330,8 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 	{
 		ScheduleHandleCallback nextScheduleCallback = new ScheduleHandleCallback() { public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) { continueSendingEvents(); } };
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
-        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
-        EPStatementHandle stmtHandle = new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, StatementType.ESPERIO, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
+        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(-1, "AbstractCoordinatedAdapter");
+        EPStatementHandle stmtHandle = new EPStatementHandle(-1, "AbstractCoordinatedAdapter", null, StatementType.ESPERIO, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
         EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion(), null);
         EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(agentInstanceHandle, nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;

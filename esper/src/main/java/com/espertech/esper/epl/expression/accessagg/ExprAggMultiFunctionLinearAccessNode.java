@@ -401,7 +401,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         return super.aggregationResultFuture.getCollectionScalar(column, eventsPerStream, isNewData, context);
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         if (stateType == AggregationStateType.FIRST || stateType == AggregationStateType.LAST) {
             return null;
         }
@@ -412,7 +412,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         return scalarCollectionComponentType;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (stateType == AggregationStateType.FIRST || stateType == AggregationStateType.LAST) {
             return containedType;
         }

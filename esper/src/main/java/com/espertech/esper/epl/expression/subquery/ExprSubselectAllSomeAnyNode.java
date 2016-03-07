@@ -112,7 +112,7 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
         return null;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         return null;
     }
 
@@ -124,7 +124,7 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

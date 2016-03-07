@@ -32,7 +32,7 @@ public class TestSelectExprJoinWildcardProcessor extends TestCase
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SupportStreamTypeSvc3Stream supportTypes = new SupportStreamTypeSvc3Stream();
 
-        processor = SelectExprJoinWildcardProcessorFactory.create(Collections.<Integer>emptyList(), "id", supportTypes.getStreamNames(), supportTypes.getEventTypes(),
+        processor = SelectExprJoinWildcardProcessorFactory.create(Collections.<Integer>emptyList(), 1, supportTypes.getStreamNames(), supportTypes.getEventTypes(),
                 SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, null, null, new Configuration(), new TableServiceImpl());
     }
 

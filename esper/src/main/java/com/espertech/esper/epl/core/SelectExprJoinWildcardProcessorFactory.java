@@ -39,7 +39,7 @@ public class SelectExprJoinWildcardProcessorFactory
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression validation failed
      */
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
-                                                  String statementId,
+                                                  int statementId,
                                                   String[] streamNames,
                                                   EventType[] streamTypes,
                                                   EventAdapterService eventAdapterService,

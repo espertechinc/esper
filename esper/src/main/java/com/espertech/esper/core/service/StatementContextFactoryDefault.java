@@ -17,8 +17,6 @@ import com.espertech.esper.core.context.mgr.ContextControllerFactoryServiceImpl;
 import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
@@ -108,7 +106,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 );
     }
 
-    public StatementContext makeContext(String statementId,
+    public StatementContext makeContext(int statementId,
                                         String statementName,
                                         String expression,
                                         StatementType statementType,
@@ -251,7 +249,6 @@ public class StatementContextFactoryDefault implements StatementContextFactory
 
         // Create statement context
         return new StatementContext(stmtEngineServices,
-                null,
                 schedulingService,
                 scheduleBucket,
                 epStatementHandle,

@@ -26,7 +26,7 @@ public class VirtualDataWindowLookupContextSPI extends VirtualDataWindowLookupCo
     private String accessedByStatementName;
     private int accessedByStatementSequenceNum;
 
-    public VirtualDataWindowLookupContextSPI(String statementName, String statementId, Annotation[] statementAnnotations, boolean fireAndForget, String namedWindowName, List<VirtualDataWindowLookupFieldDesc> hashFields, List<VirtualDataWindowLookupFieldDesc> btreeFields, SubordPropPlan joinDesc, boolean forceTableScan, EventType[] outerTypePerStream, String accessedByStatementName, int accessedByStatementSequenceNum) {
+    public VirtualDataWindowLookupContextSPI(String statementName, int statementId, Annotation[] statementAnnotations, boolean fireAndForget, String namedWindowName, List<VirtualDataWindowLookupFieldDesc> hashFields, List<VirtualDataWindowLookupFieldDesc> btreeFields, SubordPropPlan joinDesc, boolean forceTableScan, EventType[] outerTypePerStream, String accessedByStatementName, int accessedByStatementSequenceNum) {
         super(statementName, statementId, statementAnnotations, fireAndForget, namedWindowName, hashFields, btreeFields);
         this.joinDesc = joinDesc;
         this.forceTableScan = forceTableScan;

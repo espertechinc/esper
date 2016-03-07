@@ -32,7 +32,7 @@ public class FilterSpecCompilerArgs {
     public final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
     public final ExprEvaluatorContext exprEvaluatorContext;
     public final String statementName;
-    public final String statementId;
+    public final int statementId;
     public final StreamTypeService streamTypeService;
     public final MethodResolutionService methodResolutionService;
     public final TimeProvider timeProvider;
@@ -44,7 +44,7 @@ public class FilterSpecCompilerArgs {
     public final ContextDescriptor contextDescriptor;
     public final ConfigurationInformation configurationInformation;
 
-    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, String statementId, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
+    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, int statementId, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;

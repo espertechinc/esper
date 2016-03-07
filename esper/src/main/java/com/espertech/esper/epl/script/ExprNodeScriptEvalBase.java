@@ -57,7 +57,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvalu
         return returnType;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 
@@ -80,7 +80,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvalu
         return new ArrayWrappingCollection(result);
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

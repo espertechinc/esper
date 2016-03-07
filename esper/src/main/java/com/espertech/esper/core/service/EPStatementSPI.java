@@ -21,7 +21,7 @@ public interface EPStatementSPI extends EPStatement
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId();
+    public int getStatementId();
 
     /**
      * Set the statement's isolated service name, or null to clear.

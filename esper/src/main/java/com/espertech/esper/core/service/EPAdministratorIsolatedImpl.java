@@ -53,11 +53,11 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
         return createEPLStatementId(eplStatement, statementName, userObject, null)  ;
     }
 
-    public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, String statementId) throws EPException
+    public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, Integer optionalStatementId) throws EPException
     {
         SelectClauseStreamSelectorEnum defaultStreamSelector = SelectClauseStreamSelectorEnum.mapFromSODA(unisolatedServices.getConfigSnapshot().getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         StatementSpecRaw statementSpec = EPAdministratorHelper.compileEPL(eplStatement, eplStatement, true, statementName, unisolatedServices, defaultStreamSelector);
-        EPStatement statement = unisolatedServices.getStatementLifecycleSvc().createAndStart(statementSpec, eplStatement, false, statementName, userObject, services, statementId, null);
+        EPStatement statement = unisolatedServices.getStatementLifecycleSvc().createAndStart(statementSpec, eplStatement, false, statementName, userObject, services, optionalStatementId, null);
         EPStatementSPI stmtSpi = (EPStatementSPI) statement;
         stmtSpi.getStatementContext().setInternalEventEngineRouteDest(isolatedRuntime);
         stmtSpi.setServiceIsolated(isolatedServiceName);
@@ -91,7 +91,7 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
             long delta = toTime - fromTime;
 
             // perform checking
-            Set<String> statementIds = new HashSet<String>();
+            Set<Integer> statementIds = new HashSet<Integer>();
             for (EPStatement aStmt : stmt)
             {
                 if (aStmt == null)
@@ -163,7 +163,7 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
             long toTime = unisolatedServices.getSchedulingService().getTime();
             long delta = toTime - fromTime;
 
-            Set<String> statementIds = new HashSet<String>();
+            Set<Integer> statementIds = new HashSet<Integer>();
             for (EPStatement aStmt : stmt)
             {
                 if (aStmt == null)

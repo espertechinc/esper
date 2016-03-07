@@ -36,10 +36,10 @@ import java.util.Set;
 
 public interface VirtualDWView {
     public Pair<IndexMultiKey,EventTable> getSubordinateQueryDesc(boolean unique, List<IndexedPropDesc> hashedProps, List<IndexedPropDesc> btreeProps);
-    public SubordTableLookupStrategy getSubordinateLookupStrategy(String accessedByStatementName, String accessedByStatementId, Annotation[] accessedByStmtAnnotations, EventType[] outerStreamTypes, List<SubordPropHashKey> hashKeys, CoercionDesc hashKeyCoercionTypes, List<SubordPropRangeKey> rangeKeys, CoercionDesc rangeKeyCoercionTypes, boolean nwOnTrigger, EventTable eventTable, SubordPropPlan joinDesc, boolean forceTableScan);
+    public SubordTableLookupStrategy getSubordinateLookupStrategy(String accessedByStatementName, int accessedByStatementId, Annotation[] accessedByStmtAnnotations, EventType[] outerStreamTypes, List<SubordPropHashKey> hashKeys, CoercionDesc hashKeyCoercionTypes, List<SubordPropRangeKey> rangeKeys, CoercionDesc rangeKeyCoercionTypes, boolean nwOnTrigger, EventTable eventTable, SubordPropPlan joinDesc, boolean forceTableScan);
 
     public EventTable getJoinIndexTable(QueryPlanIndexItem queryPlanIndexItem);
-    public JoinExecTableLookupStrategy getJoinLookupStrategy(String accessedByStatementName, String accessedByStatementId, Annotation[] accessedByStmtAnnotations, EventTable[] eventTable, TableLookupKeyDesc keyDescriptor, int lookupStreamNum);
+    public JoinExecTableLookupStrategy getJoinLookupStrategy(String accessedByStatementName, int accessedByStatementId, Annotation[] accessedByStmtAnnotations, EventTable[] eventTable, TableLookupKeyDesc keyDescriptor, int lookupStreamNum);
 
     public Pair<IndexMultiKey,EventTable> getFireAndForgetDesc(Set<String> keysAvailable, Set<String> rangesAvailable);
     public Collection<EventBean> getFireAndForgetData(EventTable eventTable, Object[] keyValues, RangeIndexLookupValue[] rangeValues, Annotation[] accessedByStmtAnnotations);

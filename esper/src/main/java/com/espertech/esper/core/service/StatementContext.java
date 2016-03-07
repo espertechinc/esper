@@ -54,7 +54,6 @@ import java.net.URI;
 public final class StatementContext
 {
     private final StatementContextEngineServices stmtEngineServices;
-    private final byte[] statementIdBytes;
     private SchedulingService schedulingService;
     private final ScheduleBucket scheduleBucket;
     private final EPStatementHandle epStatementHandle;
@@ -107,7 +106,6 @@ public final class StatementContext
      * @param internalEventEngineRouteDest routing destination
      */
     public StatementContext(StatementContextEngineServices stmtEngineServices,
-                              byte[] statementIdBytes,
                               SchedulingService schedulingService,
                               ScheduleBucket scheduleBucket,
                               EPStatementHandle epStatementHandle,
@@ -136,7 +134,6 @@ public final class StatementContext
                               int priority)
     {
         this.stmtEngineServices = stmtEngineServices;
-        this.statementIdBytes = statementIdBytes;
         this.schedulingService = schedulingService;
         this.scheduleBucket = scheduleBucket;
         this.epStatementHandle = epStatementHandle;
@@ -176,7 +173,7 @@ public final class StatementContext
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId()
+    public int getStatementId()
     {
         return epStatementHandle.getStatementId();
     }
@@ -481,10 +478,6 @@ public final class StatementContext
 
     public ContextDescriptor getContextDescriptor() {
         return contextDescriptor;
-    }
-    
-    public byte[] getStatementIdBytes() {
-        return statementIdBytes;
     }
 
     public void setDefaultAgentInstanceLock(StatementAgentInstanceLock defaultAgentInstanceLock) {

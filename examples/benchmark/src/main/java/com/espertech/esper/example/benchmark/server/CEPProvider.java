@@ -22,7 +22,7 @@ public class CEPProvider {
 
         public void init(int sleepListenerMillis);
 
-        public void registerStatement(String statement, String statementID);
+        public void registerStatement(String statementName, Object userObject);
 
         public void sendEvent(Object theEvent);
     }
@@ -92,8 +92,8 @@ public class CEPProvider {
             epRuntime = epService.getEPRuntime();
         }
 
-        public void registerStatement(String statement, String statementID) {
-            EPStatement stmt = epAdministrator.createEPL(statement, statementID);
+        public void registerStatement(String statementName, Object userObject) {
+            EPStatement stmt = epAdministrator.createEPL(statementName, userObject);
             if (System.getProperty("esper.benchmark.ul") != null) {
                 stmt.addListener(updateListener);
             } else {

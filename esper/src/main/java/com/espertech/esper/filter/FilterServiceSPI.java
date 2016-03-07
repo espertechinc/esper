@@ -22,7 +22,7 @@ public interface FilterServiceSPI extends FilterService
      * @param statementId statement ids to remove
      * @return filters
      */
-    public FilterSet take(Set<String> statementId);
+    public FilterSet take(Set<Integer> statementId);
 
     /**
      * Apply a set of previously taken filters.

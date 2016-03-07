@@ -13,7 +13,7 @@ package com.espertech.esper.schedule;
 
 public class ScheduleVisit {
     private long timestamp;
-    private String statementId;
+    private int statementId;
     private int agentInstanceId;
 
     public int getAgentInstanceId() {
@@ -32,11 +32,11 @@ public class ScheduleVisit {
         this.timestamp = timestamp;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementId;
     }
 
-    public void setStatementId(String statementId) {
+    public void setStatementId(int statementId) {
         this.statementId = statementId;
     }
 }

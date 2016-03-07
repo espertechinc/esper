@@ -1456,7 +1456,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qEngineManagementStmtCompileStart(String engineURI, String statementId, String statementName, String epl, long engineTime) {
+    public void qEngineManagementStmtCompileStart(String engineURI, int statementId, String statementName, String epl, long engineTime) {
 
     }
 
@@ -1464,11 +1464,11 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qaEngineManagementStmtStarted(String engineURI, String statementId, String statementName, String epl, long engineTime) {
+    public void qaEngineManagementStmtStarted(String engineURI, int statementId, String statementName, String epl, long engineTime) {
 
     }
 
-    public void qEngineManagementStmtStop(EPStatementState targetState, String engineURI, String statementId, String statementName, String epl, long engineTime) {
+    public void qEngineManagementStmtStop(EPStatementState targetState, String engineURI, int statementId, String statementName, String epl, long engineTime) {
 
     }
 
@@ -1476,7 +1476,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qaStatementResultExecute(UniformPair<EventBean[]> events, String statementId, String statementName, int agentInstanceId, long threadId) {
+    public void qaStatementResultExecute(UniformPair<EventBean[]> events, int statementId, String statementName, int agentInstanceId, long threadId) {
 
     }
 

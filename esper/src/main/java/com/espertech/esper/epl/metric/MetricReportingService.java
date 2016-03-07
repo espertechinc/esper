@@ -56,7 +56,7 @@ public interface MetricReportingService
      * @param statementName statement name
      * @return handle
      */
-    public StatementMetricHandle getStatementHandle(String statementId, String statementName);
+    public StatementMetricHandle getStatementHandle(int statementId, String statementName);
 
     /**
      * Change the reporting interval for the given statement group name.

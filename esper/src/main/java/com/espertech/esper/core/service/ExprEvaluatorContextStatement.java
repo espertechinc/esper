@@ -61,7 +61,7 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
         return statementContext.getEngineURI();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementContext.getStatementId();
     }
 

@@ -75,17 +75,17 @@ public class SupportStatementContextFactory
         return makeContext(sched);
     }
 
-    public static StatementContext makeContext(String statementId)
+    public static StatementContext makeContext(int statementId)
     {
         SupportSchedulingServiceImpl sched = new SupportSchedulingServiceImpl();
         return makeContext(statementId, sched);
     }
 
     public static StatementContext makeContext(SchedulingService stub) {
-        return makeContext("id1", stub);
+        return makeContext(1, stub);
     }
 
-    public static StatementContext makeContext(String statementId, SchedulingService stub)
+    public static StatementContext makeContext(int statementId, SchedulingService stub)
     {
         Configuration config = new Configuration();
         config.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);
@@ -104,7 +104,6 @@ public class SupportStatementContextFactory
                 new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl());
 
         return new StatementContext(stmtEngineServices,
-                null,
                 stub,
                 new ScheduleBucket(1),
                 new EPStatementHandle(statementId, "name1", "epl1", StatementType.SELECT, "epl1", false, null, 0, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler()),

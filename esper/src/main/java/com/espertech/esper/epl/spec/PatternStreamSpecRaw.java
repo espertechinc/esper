@@ -563,7 +563,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         return validated;
     }
 
-    private static StreamTypeService getStreamTypeService(String engineURI, String statementId, EventAdapterService eventAdapterService, Map<String, Pair<EventType, String>> taggedEventTypes, Map<String, Pair<EventType, String>> arrayEventTypes, Deque<Integer> subexpressionIdStack, String objectType, StatementContext statementContext)
+    private static StreamTypeService getStreamTypeService(String engineURI, int statementId, EventAdapterService eventAdapterService, Map<String, Pair<EventType, String>> taggedEventTypes, Map<String, Pair<EventType, String>> arrayEventTypes, Deque<Integer> subexpressionIdStack, String objectType, StatementContext statementContext)
     {
         LinkedHashMap<String, Pair<EventType, String>> filterTypes = new LinkedHashMap<String, Pair<EventType, String>>();
         filterTypes.putAll(taggedEventTypes);
@@ -588,9 +588,9 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         return new StreamTypeServiceImpl(filterTypes, engineURI, true, false);
     }
 
-    private static String getPatternSubexEventType(String statementId, String objectType, Deque<Integer> subexpressionIdStack) {
+    private static String getPatternSubexEventType(int statementId, String objectType, Deque<Integer> subexpressionIdStack) {
         StringWriter writer = new StringWriter();
-        writer.append(statementId);
+        writer.append(Integer.toString(statementId));
         writer.append("_");
         writer.append(objectType);
         for (Integer num : subexpressionIdStack) {

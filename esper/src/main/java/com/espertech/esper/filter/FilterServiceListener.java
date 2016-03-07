@@ -23,5 +23,5 @@ public interface FilterServiceListener
      * @param matches matches found
      * @param statementId optional statement id if for a statement
      */
-    public void filtering(EventBean theEvent, Collection<FilterHandle> matches, String statementId);
+    public void filtering(EventBean theEvent, Collection<FilterHandle> matches, Integer statementId);
 }

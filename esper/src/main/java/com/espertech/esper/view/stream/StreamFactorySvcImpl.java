@@ -92,7 +92,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
      * @param epStatementAgentInstanceHandle is the statement resource lock
      * @return newly createdStatement event stream, not reusing existing instances
      */
-    public Pair<EventStream, StatementAgentInstanceLock> createStream(final String statementId,
+    public Pair<EventStream, StatementAgentInstanceLock> createStream(final int statementId,
                                                                       final FilterSpecCompiled filterSpec,
                                                                       FilterService filterService,
                                                                       EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
@@ -156,7 +156,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
         {
             filterCallback = new FilterHandleCallback()
             {
-                public String getStatementId()
+                public int getStatementId()
                 {
                     return statementId;
                 }
@@ -181,7 +181,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
         {
             filterCallback = new FilterHandleCallback()
             {
-                public String getStatementId()
+                public int getStatementId()
                 {
                     return statementId;
                 }

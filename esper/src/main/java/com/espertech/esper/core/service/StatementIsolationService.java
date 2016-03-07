@@ -92,5 +92,5 @@ public interface StatementIsolationService
      * @param stmtName statement name
      * @param isolatedServices isolated services
      */
-    public void newStatement(String stmtId, String stmtName, EPIsolationUnitServices isolatedServices);
+    public void newStatement(int stmtId, String stmtName, EPIsolationUnitServices isolatedServices);
 }

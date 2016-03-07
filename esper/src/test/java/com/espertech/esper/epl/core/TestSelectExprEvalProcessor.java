@@ -47,13 +47,13 @@ public class TestSelectExprEvalProcessor extends TestCase
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null);
 
-        methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl(), null);
+        methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, 1, null, new Configuration(), null, new TableServiceImpl(), null);
 
         InsertIntoDesc insertIntoDesc = new InsertIntoDesc(SelectClauseStreamSelectorEnum.ISTREAM_ONLY, "Hello");
         insertIntoDesc.add("a");
         insertIntoDesc.add("b");
 
-        methodTwo = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), insertIntoDesc, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl(), null);
+        methodTwo = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), insertIntoDesc, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, 1, null, new Configuration(), null, new TableServiceImpl(), null);
     }
 
     public void testGetResultEventType() throws Exception

@@ -49,7 +49,7 @@ public class PropertyExprEvaluatorEventSingle implements ExprEvaluatorEnumeratio
         return (EventBean) getter.getFragment(event);
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         return fragmentType;
     }
 
@@ -57,7 +57,7 @@ public class PropertyExprEvaluatorEventSingle implements ExprEvaluatorEnumeratio
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

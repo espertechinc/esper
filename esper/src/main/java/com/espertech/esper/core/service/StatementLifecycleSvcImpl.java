@@ -85,7 +85,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
     /**
      * Maps of statement id to descriptor.
      */
-    protected final Map<String, EPStatementDesc> stmtIdToDescMap;
+    protected final Map<Integer, EPStatementDesc> stmtIdToDescMap;
 
     /**
      * Map of statement name to statement.
@@ -95,10 +95,11 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
     private final EPServiceProviderSPI epServiceProvider;
     private final ManagedReadWriteLock eventProcessingRWLock;
 
-    private final Map<String, String> stmtNameToIdMap;
+    private final Map<String, Integer> stmtNameToIdMap;
 
     // Observers to statement-related events
     private final Set<StatementLifecycleObserver> observers;
+    private int lastStatementId;
 
     /**
      * Ctor.
@@ -113,9 +114,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         // lock for starting and stopping statements
         this.eventProcessingRWLock = services.getEventProcessingRWLock();
 
-        this.stmtIdToDescMap = new HashMap<String, EPStatementDesc>();
+        this.stmtIdToDescMap = new HashMap<Integer, EPStatementDesc>();
         this.stmtNameToStmtMap = new HashMap<String, EPStatement>();
-        this.stmtNameToIdMap = new LinkedHashMap<String, String>();
+        this.stmtNameToIdMap = new LinkedHashMap<String, Integer>();
 
         observers = new CopyOnWriteArraySet<StatementLifecycleObserver>();
     }
@@ -144,11 +145,15 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return stmtNameToStmtMap;
     }
 
-    public synchronized EPStatement createAndStart(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, Object userObject, EPIsolationUnitServices isolationUnitServices, String statementId, EPStatementObjectModel optionalModel)
+    public synchronized EPStatement createAndStart(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, Object userObject, EPIsolationUnitServices isolationUnitServices, Integer optionalStatementId, EPStatementObjectModel optionalModel)
     {
-        String assignedStatementId = statementId;
+        Integer assignedStatementId = optionalStatementId;
         if (assignedStatementId == null) {
-            assignedStatementId = UuidGenerator.generate();
+            do {
+                lastStatementId++;
+                assignedStatementId = lastStatementId;
+            }
+            while (stmtIdToDescMap.containsKey(assignedStatementId));
         }
 
         EPStatementDesc desc = createStoppedAssignName(statementSpec, expression, isPattern, optStatementName, assignedStatementId, null, userObject, isolationUnitServices, optionalModel);
@@ -168,10 +173,10 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
      * @param isolationUnitServices isolated service services
      * @return started statement
      */
-    protected synchronized EPStatementDesc createStoppedAssignName(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, String statementId, Map<String, Object> optAdditionalContext, Object userObject, EPIsolationUnitServices isolationUnitServices, EPStatementObjectModel optionalModel)
+    protected synchronized EPStatementDesc createStoppedAssignName(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, int statementId, Map<String, Object> optAdditionalContext, Object userObject, EPIsolationUnitServices isolationUnitServices, EPStatementObjectModel optionalModel)
     {
         boolean nameProvided = false;
-        String statementName = statementId;
+        String statementName = "stmt_" + Integer.toString(statementId);
 
         // compile annotations, can produce a null array
         Annotation[] annotations = AnnotationUtil.compileAnnotations(statementSpec.getAnnotations(), services.getEngineImportService(), expression);
@@ -220,7 +225,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                                                          boolean isPattern,
                                                          String statementName,
                                                          boolean nameProvided,
-                                                         String statementId,
+                                                         int statementId,
                                                          Map<String, Object> optAdditionalContext,
                                                          Object statementUserObject,
                                                          EPIsolationUnitServices isolationUnitServices,
@@ -557,20 +562,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         // analyze subselect types
         if (!optSubselectTypes.isEmpty())
         {
-            for (int i = 0; i < filteredTypes.size(); i++)
-            {
-                EventType typeOne = filteredTypes.get(i);
-                if (optSubselectTypes.contains(typeOne))
-                {
+            for (EventType typeOne : filteredTypes) {
+                if (optSubselectTypes.contains(typeOne)) {
                     return true;
                 }
 
-                if (typeOne.getSuperTypes() != null)
-                {
-                    for (EventType typeOneSuper : typeOne.getSuperTypes())
-                    {
-                        if (optSubselectTypes.contains(typeOneSuper))
-                        {
+                if (typeOne.getSuperTypes() != null) {
+                    for (EventType typeOneSuper : typeOne.getSuperTypes()) {
+                        if (optSubselectTypes.contains(typeOneSuper)) {
                             return true;
                         }
                     }
@@ -614,12 +613,12 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
         if (set == null)
         {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         return set;
     }
 
-    public synchronized void start(String statementId)
+    public synchronized void start(int statementId)
     {
         if (log.isDebugEnabled())
         {
@@ -652,7 +651,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
      * @param isRecoveringStatement if the statement is recovering or new
      * @param isResilient true if recovering a resilient stmt
      */
-    public void start(String statementId, EPStatementDesc desc, boolean isNewStatement, boolean isRecoveringStatement, boolean isResilient)
+    public void start(int statementId, EPStatementDesc desc, boolean isNewStatement, boolean isRecoveringStatement, boolean isResilient)
     {
         if (log.isDebugEnabled())
         {
@@ -682,7 +681,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
     }
 
-    private void startInternal(String statementId, EPStatementDesc desc, boolean isNewStatement, boolean isRecoveringStatement, boolean isResilient)
+    private void startInternal(int statementId, EPStatementDesc desc, boolean isNewStatement, boolean isRecoveringStatement, boolean isResilient)
     {
         if (log.isDebugEnabled())
         {
@@ -746,7 +745,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         dispatchStatementLifecycleEvent(new StatementLifecycleEvent(statement, StatementLifecycleEvent.LifecycleEventType.STATECHANGE));
     }
 
-    private void handleRemove(String statementId, String statementName) {
+    private void handleRemove(int statementId, String statementName) {
         stmtIdToDescMap.remove(statementId);
         stmtNameToIdMap.remove(statementName);
         stmtNameToStmtMap.remove(statementName);
@@ -756,7 +755,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         services.getNamedWindowConsumerMgmtService().removeReferences(statementName);
     }
 
-    public synchronized void stop(String statementId)
+    public synchronized void stop(int statementId)
     {
         // Acquire a lock for event processing as threads may be in the views used by the statement
         // and that could conflict with the destroy of views
@@ -809,7 +808,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
     }
 
-    public synchronized void destroy(String statementId)
+    public synchronized void destroy(int statementId)
     {
         // Acquire a lock for event processing as threads may be in the views used by the statement
         // and that could conflict with the destroy of views
@@ -835,7 +834,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return stmtNameToStmtMap.get(name);
     }
 
-    public synchronized StatementSpecCompiled getStatementSpec(String statementId) {
+    public synchronized StatementSpecCompiled getStatementSpec(int statementId) {
         EPStatementDesc desc = stmtIdToDescMap.get(statementId);
         if (desc != null) {
             return desc.getStartMethod().getStatementSpec();
@@ -845,22 +844,22 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
     /**
      * Returns the statement given a statement id.
-     * @param id is the statement id
+     * @param statementId is the statement id
      * @return statement
      */
-    public EPStatementSPI getStatementById(String id)
+    public EPStatementSPI getStatementById(int statementId)
     {
-        EPStatementDesc statementDesc = this.stmtIdToDescMap.get(id);
+        EPStatementDesc statementDesc = this.stmtIdToDescMap.get(statementId);
         if (statementDesc == null)
         {
-            log.warn("Could not locate statement descriptor for statement id '" + id + "'");
+            log.warn("Could not locate statement descriptor for statement id '" + statementId + "'");
             return null;
         }
         return statementDesc.getEpStatement();
     }
 
-    public StatementContext getStatementContextById(String id) {
-        EPStatementDesc statementDesc = this.stmtIdToDescMap.get(id);
+    public StatementContext getStatementContextById(int statementId) {
+        EPStatementDesc statementDesc = this.stmtIdToDescMap.get(statementId);
         if (statementDesc == null) {
             return null;
         }
@@ -880,7 +879,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
     public synchronized void startAllStatements() throws EPException
     {
-        String[] statementIds = getStatementIds();
+        int[] statementIds = getStatementIds();
         for (int i = 0; i < statementIds.length; i++)
         {
             EPStatement statement = stmtIdToDescMap.get(statementIds[i]).getEpStatement();
@@ -893,7 +892,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
     public synchronized void stopAllStatements() throws EPException
     {
-        String[] statementIds = getStatementIds();
+        int[] statementIds = getStatementIds();
         for (int i = 0; i < statementIds.length; i++)
         {
             EPStatement statement = stmtIdToDescMap.get(statementIds[i]).getEpStatement();
@@ -910,8 +909,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         // and that could conflict with the destroy of views
         eventProcessingRWLock.acquireWriteLock();
         try {
-            String[] statementIds = getStatementIds();
-            for (String statementId : statementIds) {
+            int[] statementIds = getStatementIds();
+            for (int statementId : statementIds) {
                 EPStatementDesc desc = stmtIdToDescMap.get(statementId);
                 if (desc == null) {
                     continue;
@@ -930,18 +929,18 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
     }
 
-    private String[] getStatementIds()
+    private int[] getStatementIds()
     {
-        String[] statementIds = new String[stmtNameToIdMap.size()];
+        int[] statementIds = new int[stmtNameToIdMap.size()];
         int count = 0;
-        for (String id : stmtNameToIdMap.values())
+        for (int id : stmtNameToIdMap.values())
         {
             statementIds[count++] = id;
         }
         return statementIds;
     }
 
-    private String getUniqueStatementName(String statementName, String statementId)
+    private String getUniqueStatementName(String statementName, int statementId)
     {
         String finalStatementName;
 
@@ -972,8 +971,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
     }
 
     @Override
-    public String getStatementNameById(String id) {
-        EPStatementDesc desc = stmtIdToDescMap.get(id);
+    public String getStatementNameById(int statementId) {
+        EPStatementDesc desc = stmtIdToDescMap.get(statementId);
         if (desc != null) {
             return desc.getEpStatement().getName();
         }
@@ -1452,7 +1451,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return new Pair<FilterSpecCompiled, SelectClauseSpecRaw>(filter, newSelectClauseSpecRaw);
     }
 
-    private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, String statementName, String statementId, Annotation[] annotations)
+    private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, String statementName, int statementId, Annotation[] annotations)
     {
         List<NamedWindowSelectedProps> selectProps = new LinkedList<NamedWindowSelectedProps>();
         StreamTypeService streams = new StreamTypeServiceImpl(new EventType[] {singleType}, new String[] {"stream_0"}, new boolean[] {false}, engineURI, false);

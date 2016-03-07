@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.UpdateDispatchView;
+import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 
 import java.util.Iterator;

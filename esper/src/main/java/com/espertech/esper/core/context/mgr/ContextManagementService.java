@@ -28,8 +28,8 @@ public interface ContextManagementService {
     public ContextDescriptor getContextDescriptor(String contextName);
 
     public void addStatement(String contextName, ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
-    public void stoppedStatement(String contextName, String statementName, String statementId, String epl, ExceptionHandlingService exceptionHandlingService);
-    public void destroyedStatement(String contextName, String statementName, String statementId);
+    public void stoppedStatement(String contextName, String statementName, int statementId, String epl, ExceptionHandlingService exceptionHandlingService);
+    public void destroyedStatement(String contextName, String statementName, int statementId);
 
     public void destroyedContext(String contextName);
 

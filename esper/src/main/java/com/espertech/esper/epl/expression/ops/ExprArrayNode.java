@@ -253,7 +253,7 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         return resultList;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 
@@ -261,7 +261,7 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

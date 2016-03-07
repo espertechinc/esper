@@ -53,7 +53,7 @@ public class PropertyEvaluatorFactory
                                                   VariableService variableService,
                                                   TableService tableService,
                                                   String engineURI,
-                                                  String statementId,
+                                                  int statementId,
                                                   String statementName,
                                                   Annotation[] annotations,
                                                   Collection<Integer> assignedTypeNumberStack,

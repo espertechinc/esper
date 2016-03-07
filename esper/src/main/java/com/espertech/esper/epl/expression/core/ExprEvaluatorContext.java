@@ -26,7 +26,7 @@ public interface ExprEvaluatorContext
 
     public String getEngineURI();
 
-    public String getStatementId();
+    public int getStatementId();
 
     public StatementType getStatementType();
 

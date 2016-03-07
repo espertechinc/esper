@@ -63,8 +63,8 @@ public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext
         return null;
     }
 
-    public String getStatementId() {
-        return null;
+    public int getStatementId() {
+        return -1;
     }
 
     public StatementAgentInstanceLock getAgentInstanceLock() {

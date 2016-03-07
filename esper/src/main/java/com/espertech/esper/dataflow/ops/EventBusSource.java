@@ -108,7 +108,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
         return false;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return agentInstanceContext.getStatementId();
     }
 

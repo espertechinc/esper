@@ -98,7 +98,7 @@ public class EPStatementAgentInstanceHandle {
         }
 
         EPStatementAgentInstanceHandle other = (EPStatementAgentInstanceHandle) otherObj;
-        return other.getStatementHandle().getStatementId().equals(this.getStatementHandle().getStatementId()) && other.agentInstanceId == this.agentInstanceId;
+        return other.getStatementHandle().getStatementId() == this.getStatementHandle().getStatementId() && other.agentInstanceId == this.agentInstanceId;
     }
 
     public int hashCode()
@@ -154,7 +154,7 @@ public class EPStatementAgentInstanceHandle {
         this.filterFaultHandler = filterFaultHandler;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementHandle.getStatementId();
     }
 

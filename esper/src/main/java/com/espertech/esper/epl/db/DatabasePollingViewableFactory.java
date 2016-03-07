@@ -59,7 +59,7 @@ public class DatabasePollingViewableFactory
      * @return viewable providing poll functionality
      * @throws ExprValidationException if the validation failed
      */
-    public static HistoricalEventViewable createDBStatementView( String statementId,
+    public static HistoricalEventViewable createDBStatementView( int statementId,
                                                                  int streamNumber,
                                                                  DBStatementStreamSpec databaseStreamSpec,
                                                                  DatabaseConfigService databaseConfigService,

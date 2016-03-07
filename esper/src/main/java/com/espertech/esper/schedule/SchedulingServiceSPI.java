@@ -23,7 +23,7 @@ public interface SchedulingServiceSPI extends SchedulingService
      * @param statementId statements to take out
      * @return schedules
      */
-    public ScheduleSet take(Set<String> statementId);
+    public ScheduleSet take(Set<Integer> statementId);
 
     /**
      * Apply the set of schedules.

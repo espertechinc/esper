@@ -146,9 +146,9 @@ public class TestFilterServiceImpl extends TestCase
         final AtomicReference<FilterServiceEntry> filterServiceEntryOne = new AtomicReference<FilterServiceEntry>();
         FilterHandleCallback callbackOne = new FilterHandleCallback()
         {
-            public String getStatementId()
+            public int getStatementId()
             {
-                return "";
+                return 1;
             }
 
             public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)

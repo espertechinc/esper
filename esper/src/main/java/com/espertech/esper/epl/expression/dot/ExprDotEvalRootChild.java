@@ -114,7 +114,7 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
         return null;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return innerEvaluator.getEventTypeCollection();
     }
 
@@ -122,7 +122,7 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
         return innerEvaluator.getComponentTypeCollection();
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

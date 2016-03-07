@@ -69,7 +69,7 @@ public class ExprNodeAdapterBase
         return evaluatorContext.getStatementName();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return evaluatorContext.getStatementId();
     }
 

@@ -129,8 +129,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 return null;
             }
 
-            public String getStatementId() {
-                return null;
+            public int getStatementId() {
+                return -1;
             }
 
             public StatementAgentInstanceLock getAgentInstanceLock() {
@@ -1611,7 +1611,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     private EPPreparedExecuteMethod getExecuteMethod(String epl, EPStatementObjectModel model, EPOnDemandPreparedQueryParameterized parameterizedQuery)
     {
         String stmtName = UuidGenerator.generate();
-        String stmtId = UuidGenerator.generate();
+        int stmtId = -1;
 
         try
         {
@@ -1706,7 +1706,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     }
 
     protected static Map<String, Long> getStatementNearestSchedulesInternal(SchedulingServiceSPI schedulingService, StatementLifecycleSvc statementLifecycleSvc) {
-        final Map<String, Long> schedulePerStatementId = new HashMap<String, Long>();
+        final Map<Integer, Long> schedulePerStatementId = new HashMap<Integer, Long>();
         schedulingService.visitSchedules(new ScheduleVisitor() {
             public void visit(ScheduleVisit visit) {
                 if (schedulePerStatementId.containsKey(visit.getStatementId())) {
@@ -1717,7 +1717,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         });
 
         Map<String, Long> result = new HashMap<String, Long>();
-        for (Map.Entry<String, Long> schedule : schedulePerStatementId.entrySet()) {
+        for (Map.Entry<Integer, Long> schedule : schedulePerStatementId.entrySet()) {
             String stmtName = statementLifecycleSvc.getStatementNameById(schedule.getKey());
             if (stmtName != null) {
                 result.put(stmtName, schedule.getValue());

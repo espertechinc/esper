@@ -280,7 +280,7 @@ public class StatementAgentInstanceUtil {
         // there is a single callback and a single context, if they match we are done
         if (agentInstances.size() == 1 && callbacks.size() == 1) {
             AgentInstance agentInstance = agentInstances.get(0);
-            if (agentInstance.getAgentInstanceContext().getStatementId().equals(callbacks.getFirst().getStatementId())) {
+            if (agentInstance.getAgentInstanceContext().getStatementId() == callbacks.getFirst().getStatementId()) {
                 process(agentInstance, servicesContext, callbacks, theEvent);
             }
             return;
@@ -300,10 +300,10 @@ public class StatementAgentInstanceUtil {
         for (FilterHandle filterHandle : callbacks)
         {
             // determine if this filter entry applies to any of the affected agent instances
-            String statementId = filterHandle.getStatementId();
+            int statementId = filterHandle.getStatementId();
             AgentInstance agentInstanceFound = null;
             for (AgentInstance agentInstance : agentInstances) {
-                if (agentInstance.getAgentInstanceContext().getStatementId().equals(statementId)) {
+                if (agentInstance.getAgentInstanceContext().getStatementId() == statementId) {
                     agentInstanceFound = agentInstance;
                     break;
                 }

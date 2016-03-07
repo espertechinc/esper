@@ -13,7 +13,9 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProviderIsolated;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.deploy.*;
-import com.espertech.esper.core.service.*;
+import com.espertech.esper.core.service.EPAdministratorSPI;
+import com.espertech.esper.core.service.StatementEventTypeRef;
+import com.espertech.esper.core.service.StatementIsolationService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.util.DependencyGraph;
@@ -38,7 +40,6 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
     private final StatementEventTypeRef statementEventTypeRef;
     private final EventAdapterService eventAdapterService;
     private final StatementIsolationService statementIsolationService;
-    private final StatementIdGenerator optionalStatementIdGenerator;
     private final FilterService filterService;
     private final TimeZone timeZone;
     private final ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy;
@@ -51,13 +52,12 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
      * @param eventAdapterService event wrap service
      * @param statementIsolationService for isolated statement execution
      */
-    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, StatementIdGenerator optionalStatementIdGenerator, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
+    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
         this.epService = epService;
         this.deploymentStateService = deploymentStateService;
         this.statementEventTypeRef = statementEventTypeRef;
         this.eventAdapterService = eventAdapterService;
         this.statementIsolationService = statementIsolationService;
-        this.optionalStatementIdGenerator = optionalStatementIdGenerator;
         this.filterService = filterService;
         this.timeZone = timeZone;
         this.undeployRethrowPolicy = undeployRethrowPolicy;
@@ -174,25 +174,12 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
 
             try {
                 EPStatement stmt;
-                if (optionalStatementIdGenerator == null) {
-                    if (options.getIsolatedServiceProvider() == null) {
-                        stmt = epService.createEPL(item.getExpression(), statementName, userObject);
-                    }
-                    else {
-                        EPServiceProviderIsolated unit = statementIsolationService.getIsolationUnit(options.getIsolatedServiceProvider(), -1);
-                        stmt = unit.getEPAdministrator().createEPL(item.getExpression(), statementName, userObject);
-                    }
+                if (options.getIsolatedServiceProvider() == null) {
+                    stmt = epService.createEPL(item.getExpression(), statementName, userObject);
                 }
                 else {
-                    String statementId = optionalStatementIdGenerator.getNextStatementId();
-                    if (options.getIsolatedServiceProvider() == null) {
-                        stmt = epService.createEPLStatementId(item.getExpression(), statementName, userObject, statementId);
-                    }
-                    else {
-                        EPServiceProviderIsolated unit = statementIsolationService.getIsolationUnit(options.getIsolatedServiceProvider(), -1);
-                        EPAdministratorIsolatedSPI spi = (EPAdministratorIsolatedSPI) unit.getEPAdministrator();
-                        stmt = spi.createEPLStatementId(item.getExpression(), statementName, userObject, statementId);
-                    }
+                    EPServiceProviderIsolated unit = statementIsolationService.getIsolationUnit(options.getIsolatedServiceProvider(), -1);
+                    stmt = unit.getEPAdministrator().createEPL(item.getExpression(), statementName, userObject);
                 }
                 statementNames.add(new DeploymentInformationItem(stmt.getName(), stmt.getText()));
                 statements.add(stmt);
