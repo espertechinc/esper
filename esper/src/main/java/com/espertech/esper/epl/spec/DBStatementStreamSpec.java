@@ -72,7 +72,7 @@ public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecR
     public StreamSpecCompiled compile(StatementContext statementContext,
                                       Set<String> eventTypeReferences,
                                       boolean isInsertInto,
-                                      Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger)
+                                      Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName)
     {
         return this;
     }

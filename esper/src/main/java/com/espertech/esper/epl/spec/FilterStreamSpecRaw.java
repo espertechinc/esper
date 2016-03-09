@@ -73,7 +73,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
         return rawFilterSpec;
     }
 
-    public StreamSpecCompiled compile(StatementContext context, Set<String> eventTypeReferences, boolean isInsertInto, Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger)
+    public StreamSpecCompiled compile(StatementContext context, Set<String> eventTypeReferences, boolean isInsertInto, Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName)
             throws ExprValidationException
     {
         // Determine the event type
@@ -87,7 +87,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
                 throw new ExprValidationException("Contained-event expressions are not supported with tables");
             }
             TableMetadata tableMetadata = context.getTableService().getTableMetadata(eventName);
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {tableMetadata.getInternalEventType()}, new String[] {"s0"}, new boolean[] {true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {tableMetadata.getInternalEventType()}, new String[] {optionalStreamName}, new boolean[] {true}, context.getEngineURI(), false);
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
             return new TableQueryStreamSpec(this.getOptionalStreamName(), this.getViewSpecs(), this.getOptions(), eventName, validatedNodes);
         }
@@ -96,7 +96,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
         if (context.getNamedWindowMgmtService().isNamedWindow(eventName))
         {
             EventType namedWindowType = context.getNamedWindowMgmtService().getProcessor(eventName).getTailView().getEventType();
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {namedWindowType}, new String[] {"s0"}, new boolean[] {true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {namedWindowType}, new String[] {optionalStreamName}, new boolean[] {true}, context.getEngineURI(), false);
 
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
 

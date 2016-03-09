@@ -83,7 +83,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                                              Collection<Integer> assignedTypeNumberStack,
                                              boolean isJoin,
                                              boolean isContextDeclaration,
-                                             boolean isOnTrigger)
+                                             boolean isOnTrigger, String optionalStreamName)
             throws ExprValidationException
     {
         return compileInternal(context, eventTypeReferences, isInsertInto, assignedTypeNumberStack, null, null, isJoin, isContextDeclaration, isOnTrigger);

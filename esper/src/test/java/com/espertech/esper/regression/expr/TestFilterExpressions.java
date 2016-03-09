@@ -160,6 +160,14 @@ public class TestFilterExpressions extends TestCase
     public void testRewriteWhere() {
         runAssertionRewriteWhere("");
         runAssertionRewriteWhere("@Hint('DISABLE_WHEREEXPR_MOVETO_FILTER')");
+        runAssertionRewriteWhereNamedWindow();
+    }
+
+    private void runAssertionRewriteWhereNamedWindow() {
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window NamedWindowA.win:length(1) as SupportBean");
+        EPStatement stmtWithMethod = epService.getEPAdministrator().createEPL("select * from NamedWindowA mywindow WHERE (mywindow.theString.trim() is 'abc')");
+        stmtWindow.destroy();
+        stmtWithMethod.destroy();
     }
 
     private void runAssertionRewriteWhere(String prefix) {

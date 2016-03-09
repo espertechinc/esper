@@ -31,6 +31,7 @@ public interface StreamSpecRaw extends StreamSpec
      * @param isJoin indicates whether a join or not a join
      * @param isContextDeclaration indicates whether declared as part of the context declarations, if any
      * @param isOnTrigger
+     * @param optionalStreamName
      * @return compiled stream
      * @throws ExprValidationException to indicate validation errors
      */
@@ -40,7 +41,8 @@ public interface StreamSpecRaw extends StreamSpec
                                       Collection<Integer> assignedTypeNumberStack,
                                       boolean isJoin,
                                       boolean isContextDeclaration,
-                                      boolean isOnTrigger)
+                                      boolean isOnTrigger,
+                                      String optionalStreamName)
         throws ExprValidationException;
 
 }

@@ -284,7 +284,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                             if (!namedSpec.getFilterExpressions().isEmpty()) {
                                 namedWindowFilters[streamNum] = namedSpec.getFilterExpressions();
                                 try {
-                                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
+                                    String streamName = streamSpec.getOptionalStreamName() != null ? streamSpec.getOptionalStreamName() : consumerView.getEventType().getName();
+                                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), streamName, false, services.getEngineURI());
                                     LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
                                     namedWindowPostloadFilters[i] = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
                                             namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, statementContext, Collections.singleton(0));

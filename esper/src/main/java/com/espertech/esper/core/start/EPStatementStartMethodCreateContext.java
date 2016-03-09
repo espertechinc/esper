@@ -76,7 +76,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             for (ContextDetailPartitionItem partition : segmented.getItems()) {
                 validateNotTable(servicesContext, partition.getFilterSpecRaw().getEventTypeName());
                 FilterStreamSpecRaw raw = new FilterStreamSpecRaw(partition.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
-                StreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false);
+                StreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 if (!(compiled instanceof FilterStreamSpecCompiled)) {
                     throw new ExprValidationException("Partition criteria may not include named windows");
                 }
@@ -90,7 +90,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             ContextDetailCategory category = (ContextDetailCategory) contextDetail;
             validateNotTable(servicesContext, category.getFilterSpecRaw().getEventTypeName());
             FilterStreamSpecRaw raw = new FilterStreamSpecRaw(category.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
-            FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false);
+            FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
             category.setFilterSpecCompiled(result.getFilterSpec());
             servicesContext.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), CollectionUtil.toArray(eventTypesReferenced));
 
@@ -99,7 +99,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 validateNotTable(servicesContext, category.getFilterSpecRaw().getEventTypeName());
                 FilterSpecRaw filterSpecRaw = new FilterSpecRaw(category.getFilterSpecRaw().getEventTypeName(), Collections.singletonList(item.getExpression()), null);
                 FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
-                FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false);
+                FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 item.setCompiledFilter(compiled.getFilterSpec());
             }
         }
@@ -108,7 +108,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             for (ContextDetailHashItem hashItem : hashed.getItems()) {
                 FilterStreamSpecRaw raw = new FilterStreamSpecRaw(hashItem.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
                 validateNotTable(servicesContext, hashItem.getFilterSpecRaw().getEventTypeName());
-                FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false);
+                FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 hashItem.setFilterSpecCompiled(result.getFilterSpec());
 
                 // validate parameters
@@ -195,7 +195,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             // compile as filter if there are no prior match to consider
             if (priorMatches == null || (priorMatches.getArrayEventTypes().isEmpty() && priorMatches.getTaggedEventTypes().isEmpty())) {
                 FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filter.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
-                FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false);
+                FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, filter.getOptionalFilterAsName());
                 filter.setFilterSpecCompiled(compiled.getFilterSpec());
                 MatchEventSpec matchEventSpec = new MatchEventSpec();
                 EventType filterForType = compiled.getFilterSpec().getFilterForEventType();
