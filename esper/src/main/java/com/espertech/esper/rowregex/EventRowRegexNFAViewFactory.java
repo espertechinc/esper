@@ -30,10 +30,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
-import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
-import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
-import com.espertech.esper.epl.expression.visitor.ExprNodePreviousVisitorWParent;
-import com.espertech.esper.epl.expression.visitor.ExprNodeStreamUseCollectVisitor;
+import com.espertech.esper.epl.expression.visitor.*;
 import com.espertech.esper.epl.spec.MatchRecognizeDefineItem;
 import com.espertech.esper.epl.spec.MatchRecognizeMeasureItem;
 import com.espertech.esper.epl.spec.MatchRecognizeSpec;
@@ -175,7 +172,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
             }
 
             // determine access to event properties from multi-matches
-            ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
+            ExprNodeStreamRequiredVisitor visitor = new ExprNodeStreamRequiredVisitor();
             validated.accept(visitor);
             Set<Integer> streamsRequired = visitor.getStreamsRequired();
             for (int streamRequired : streamsRequired) {

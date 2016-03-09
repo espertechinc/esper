@@ -78,7 +78,7 @@ public class TestRowPatternRecognitionEmptyPartition extends TestCase {
          */
         for (int i = 0; i < 10000; i++) {
             epService.getEPRuntime().sendEvent(new SupportRecogBean("A", i));
-            System.out.println(i);
+            //System.out.println(i);
             //epService.getEPRuntime().sendEvent(new SupportRecogBean("B", i));
             //EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {i});
         }
