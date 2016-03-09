@@ -54,7 +54,7 @@ public class ContextPropertyRegistryImpl implements ContextPropertyRegistry {
     }
 
     public boolean isContextPropertyPrefix(String prefixName) {
-        return prefixName.toLowerCase().equals(CONTEXT_PREFIX);
+        return prefixName != null && prefixName.toLowerCase().equals(CONTEXT_PREFIX);
     }
 
     public EventType getContextEventType() {

@@ -37,6 +37,22 @@ public class TestExpressionDefAliasFor extends TestCase {
         listener = null;
     }
 
+    public void testContextPartition() throws Exception {
+        String epl =
+                "create expression the_expr alias for {theString='a' and intPrimitive=1};\n" +
+                "create context the_context start @now end after 10 minutes;\n" +
+                "@name('s0') context the_context select * from SupportBean(the_expr)\n";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+
+        epService.getEPAdministrator().getStatement("s0").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("a", 1));
+        assertTrue(listener.getIsInvokedAndReset());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("b", 1));
+        assertFalse(listener.getIsInvokedAndReset());
+    }
+
     public void testDocSamples() {
         epService.getEPAdministrator().createEPL("create schema SampleEvent()");
         epService.getEPAdministrator().createEPL("expression twoPI alias for {Math.PI * 2}\n" +
