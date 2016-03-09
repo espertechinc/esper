@@ -11,6 +11,9 @@
 
 package com.espertech.esperio.amqp;
 
+import java.util.Map;
+
 public interface AMQPEmitter {
     public void send(byte[] bytes);
+    public void send(byte[] bytes, Map<String, Object> headers);
 }

@@ -18,8 +18,10 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.AMQP.BasicProperties.Builder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import java.util.Map;
 
 import java.io.IOException;
 
@@ -109,6 +111,19 @@ public class AMQPSink implements DataFlowOpLifecycle {
                             throw new RuntimeException(message, e);
                         }
                     }
+                    
+                    public void send(byte[] bytes, Map<String, Object> headers) {
+                        try {
+                        	Builder builder = new Builder();
+                            channel.basicPublish(settings.getExchange(), settings.getRoutingKey(), builder.headers(headers).build(), bytes);
+                        }
+                        catch (IOException e) {
+                            String message = "Failed to publish to AMQP: " + e.getMessage();
+                            log.error(message, e);
+                            throw new RuntimeException(message, e);
+                        }
+                    }
+                    
                 }, event);
             }
             else {
@@ -126,6 +141,19 @@ public class AMQPSink implements DataFlowOpLifecycle {
                             throw new RuntimeException(message, e);
                         }
                     }
+                    
+                    public void send(byte[] bytes, Map<String, Object> headers) {
+                        try {
+                        	Builder builder = new Builder();
+                        	channel.basicPublish("", settings.getQueueName(), builder.headers(headers).build(), bytes);
+                        }
+                        catch (IOException e) {
+                            String message = "Failed to publish to AMQP: " + e.getMessage();
+                            log.error(message, e);
+                            throw new RuntimeException(message, e);
+                        }
+                    }
+                    
                 }, event);
             }
             collectorDataTL.set(holder);
