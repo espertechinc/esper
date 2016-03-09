@@ -50,6 +50,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testInvalid()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('A') select * from SupportBean");
         EPServiceProviderIsolated unitOne = epService.getEPServiceIsolated("i1");
         EPServiceProviderIsolated unitTwo = epService.getEPServiceIsolated("i2");
@@ -112,6 +116,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testIsolateFilter()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from pattern [every a=SupportBean -> b=SupportBean(theString=a.theString)]");
         stmt.addListener(listener);
 
@@ -156,6 +164,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testDestroy()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') select * from SupportBean", null, null);
         stmtOne.addListener(listener);
 
@@ -182,6 +194,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testIsolatedSchedule()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         sendTimerUnisolated(100000);
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from pattern [every a=SupportBean -> timer:interval(10)]");
         stmt.addListener(listener);
@@ -221,6 +237,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testInsertInto()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyStream select * from SupportBean");
         SupportUpdateListener listenerInsert = new SupportUpdateListener();
         stmtInsert.addListener(listenerInsert);
@@ -265,6 +285,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testIsolateMultiple()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         String[] fields = new String[] {"theString", "sumi"};
         int count = 4;
         SupportUpdateListener[] listeners = new SupportUpdateListener[count];
@@ -330,6 +354,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testStartStop()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         String[] fields = new String[] {"theString"};
         String epl = "select theString from SupportBean.win:time(60)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -372,6 +400,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testNamedWindowTakeCreate()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         String[] fields = new String[] {"theString"};
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow.win:keepall() as SupportBean");
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
@@ -420,6 +452,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testNamedWindowTimeCatchup()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         sendTimerUnisolated(100000);
         String[] fields = new String[] {"theString"};
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow.win:time(10) as SupportBean");
@@ -465,6 +501,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testCurrentTimestamp()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         sendTimerUnisolated(5000);
         String[] fields = new String[] {"ct"};
         EPStatement stmt = epService.getEPAdministrator().createEPL("select current_timestamp() as ct from SupportBean");
@@ -513,6 +553,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testUpdate()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         sendTimerUnisolated(5000);
         String[] fields = new String[] {"theString"};
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into NewStream select * from SupportBean");
@@ -550,6 +594,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testSuspend()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         sendTimerUnisolated(1000);
         String[] fields = new String[] {"theString"};
         String epl = "select irstream theString from SupportBean.win:time(10)";
@@ -610,6 +658,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testCreateStmt()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPServiceProviderIsolated unit = epService.getEPServiceIsolated("i1");
         sendTimerUnisolated(100000);
         sendTimerIso(1000, unit);
@@ -639,6 +691,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testSubscriberNamedWindowConsumerIterate()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -664,6 +720,10 @@ public class TestIsolationUnit extends TestCase
 
     public void testEventSender()
     {
+        if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
+            return;
+        }
+
         EPServiceProviderIsolated unit = epService.getEPServiceIsolated("i1");
         EventSender sender = unit.getEPRuntime().getEventSender("SupportBean");
         epService.getEPAdministrator().createEPL("select * from SupportBean").addListener(listener);

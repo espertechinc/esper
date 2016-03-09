@@ -47,7 +47,7 @@ public class TestSchemaXMLEvent extends TestCase
         eventTypeMeta.setSchemaText(schemaText);
         config.addEventType("OrderEvent", eventTypeMeta);
 
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -83,7 +83,7 @@ public class TestSchemaXMLEvent extends TestCase
         eventTypeMeta.addXPathProperty("url", "/ss:event-page-visit/ss:url", XPathConstants.STRING);
         config.addEventType("PageVisitEvent", eventTypeMeta);
 
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -120,7 +120,7 @@ public class TestSchemaXMLEvent extends TestCase
 
     public void testSchemaXMLQuery_XPathBacked() throws Exception
     {
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", getConfig(true));
+        epService = EPServiceProviderManager.getDefaultProvider(getConfig(true));
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -192,7 +192,7 @@ public class TestSchemaXMLEvent extends TestCase
 
     public void testSchemaXMLQuery_DOMGetterBacked() throws Exception
     {
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", getConfig(false));
+        epService = EPServiceProviderManager.getDefaultProvider(getConfig(false));
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -264,7 +264,7 @@ public class TestSchemaXMLEvent extends TestCase
 
     public void testAddRemoveType()
     {
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", getConfig(false));
+        epService = EPServiceProviderManager.getDefaultProvider(getConfig(false));
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
@@ -341,7 +341,7 @@ public class TestSchemaXMLEvent extends TestCase
 
     public void testInvalid()
     {
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", getConfig(false));
+        epService = EPServiceProviderManager.getDefaultProvider(getConfig(false));
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

@@ -12,6 +12,7 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
@@ -307,19 +308,19 @@ public interface MethodResolutionService
 
     public EngineImportService getEngineImportService();
 
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs);
+    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru);
 
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel);
+    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel, AggregationServicePassThru passThru);
 
-    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum);
+    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru);
 
-    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum);
+    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru);
 
-    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec);
+    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru);
 
-    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec);
+    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru);
 
-    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec);
+    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec, AggregationServicePassThru passThru);
 
     public AggregationState makeAccessAggPlugin(int agentInstanceId, int groupId, int aggregationId, boolean join, PlugInAggregationMultiFunctionStateFactory providerFactory, Object groupKey);
 

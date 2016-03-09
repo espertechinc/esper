@@ -486,6 +486,11 @@ public class EPAssertionUtil
         safeIterator.close();
     }
 
+    public static void assertPropsPerRowAnyOrder(UniformPair<EventBean[]> pair, String[] propertyNames, Object[][] expectedNew, Object[][] expectedOld) {
+        assertPropsPerRowAnyOrder(pair.getFirst(), propertyNames, expectedNew);
+        assertPropsPerRowAnyOrder(pair.getSecond(), propertyNames, expectedOld);
+    }
+
     /**
      * Compare the property values returned by events of the iterator with the expected values, using any-order semantics.
      * @param safeIterator provides events
@@ -1437,18 +1442,6 @@ public class EPAssertionUtil
 
     private static EventAdapterService getEventAdapterService() {
         return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0);
-    }
-
-    private static String dump(Map<EventBean, Object[]> valuesEachEvent)
-    {
-        StringWriter buf = new StringWriter();
-        PrintWriter writer = new PrintWriter(buf);
-        for (Map.Entry<EventBean, Object[]> entry : valuesEachEvent.entrySet())
-        {
-            String values = Arrays.toString(entry.getValue());
-            writer.println(values);
-        }
-        return buf.toString();
     }
 
     /**

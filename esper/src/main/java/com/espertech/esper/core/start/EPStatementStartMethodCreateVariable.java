@@ -10,14 +10,18 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateVariable;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCreateVariableResult;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelectResult;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateVariableDesc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
+import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.CreateVariableDesc;
@@ -28,7 +32,10 @@ import com.espertech.esper.epl.variable.*;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.view.OutputProcessViewFactoryFactory;
+import com.espertech.esper.rowregex.EventRowRegexHelper;
+import com.espertech.esper.rowregex.EventRowRegexNFAViewService;
 import com.espertech.esper.util.DestroyCallback;
+import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.StatementStopCallback;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
@@ -99,10 +106,11 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
 
         VariableMetaData variableMetaData = services.getVariableService().getVariableMetaData(createDesc.getVariableName());
         Viewable outputView;
+        EventType eventType = CreateVariableView.getEventType(statementContext.getStatementId(), services.getEventAdapterService(), variableMetaData);
+        StatementAgentInstanceFactoryCreateVariable contextFactory = new StatementAgentInstanceFactoryCreateVariable(createDesc, statementSpec, statementContext, services, variableMetaData, eventType);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         if (statementSpec.getOptionalContextName() != null) {
-            EventType eventType = CreateVariableView.getEventType(statementContext.getStatementId(), services.getEventAdapterService(), variableMetaData);
-            StatementAgentInstanceFactoryCreateVariable contextFactory = new StatementAgentInstanceFactoryCreateVariable(statementContext, services, variableMetaData, eventType);
             ContextMergeView mergeView = new ContextMergeView(eventType);
             outputView = mergeView;
             ContextManagedStatementCreateVariableDesc statement = new ContextManagedStatementCreateVariableDesc(statementSpec, statementContext, mergeView, contextFactory);
@@ -116,32 +124,14 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
                 });
         }
         else {
-            // allocate
-            services.getVariableService().allocateVariableState(createDesc.getVariableName(), VariableService.NOCONTEXT_AGENTINSTANCEID, statementContext.getStatementExtensionServicesContext());
-            final CreateVariableView createView = new CreateVariableView(statementContext.getStatementId(), services.getEventAdapterService(), services.getVariableService(), createDesc.getVariableName(), statementContext.getStatementResultService());
+            StatementAgentInstanceFactoryCreateVariableResult resultOfStart = (StatementAgentInstanceFactoryCreateVariableResult) contextFactory.newContext(getDefaultAgentInstanceContext(statementContext), isRecoveringResilient);
+            outputView = resultOfStart.getFinalView();
 
-            services.getVariableService().registerCallback(createDesc.getVariableName(), 0, createView);
-            statementContext.getStatementStopService().addSubscriber(new StatementStopCallback() {
-                public void statementStopped()
-                {
-                    services.getVariableService().unregisterCallback(createDesc.getVariableName(), 0, createView);
-                }
-            });
-
-            // Create result set processor, use wildcard selection
-            statementSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
-            statementSpec.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
-            StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {createView.getEventType()}, new String[] {"create_variable"}, new boolean[] {true}, services.getEngineURI(), false);
-            AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
-            ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                    statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot());
-            ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
-
-            // Attach output view
-            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), agentInstanceContext.getStatementContext(), resultSetProcessor.getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType());
-            OutputProcessViewBase outputViewBase = outputViewFactory.makeView(resultSetProcessor, agentInstanceContext);
-            createView.addView(outputViewBase);
-            outputView = outputViewBase;
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(resultOfStart);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
+            }
         }
 
         services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), Collections.singleton(createDesc.getVariableName()), null);

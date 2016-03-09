@@ -14,6 +14,7 @@ package com.espertech.esper.core.context.util;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
 import com.espertech.esper.filter.FilterFaultHandler;
+import com.espertech.esper.filter.FilterFaultHandlerFactory;
 
 public class EPStatementAgentInstanceHandle {
     private final EPStatementHandle statementHandle;
@@ -26,12 +27,15 @@ public class EPStatementAgentInstanceHandle {
     private final int hashCode;
     private FilterFaultHandler filterFaultHandler;
 
-    public EPStatementAgentInstanceHandle(EPStatementHandle statementHandle, StatementAgentInstanceLock statementAgentInstanceLock, int agentInstanceId, StatementAgentInstanceFilterVersion statementFilterVersion) {
+    public EPStatementAgentInstanceHandle(EPStatementHandle statementHandle, StatementAgentInstanceLock statementAgentInstanceLock, int agentInstanceId, StatementAgentInstanceFilterVersion statementFilterVersion, FilterFaultHandlerFactory filterFaultHandlerFactory) {
         this.statementHandle = statementHandle;
         this.statementAgentInstanceLock = statementAgentInstanceLock;
         this.agentInstanceId = agentInstanceId;
         hashCode = 31 * statementHandle.hashCode() + agentInstanceId;
         this.statementFilterVersion = statementFilterVersion;
+        if (filterFaultHandlerFactory != null) {
+            filterFaultHandler = filterFaultHandlerFactory.makeFilterFaultHandler();
+        }
     }
 
     public EPStatementHandle getStatementHandle() {
@@ -94,7 +98,7 @@ public class EPStatementAgentInstanceHandle {
         }
 
         EPStatementAgentInstanceHandle other = (EPStatementAgentInstanceHandle) otherObj;
-        return other.getStatementHandle().getStatementId().equals(this.getStatementHandle().getStatementId()) && other.agentInstanceId == this.agentInstanceId;
+        return other.getStatementHandle().getStatementId() == this.getStatementHandle().getStatementId() && other.agentInstanceId == this.agentInstanceId;
     }
 
     public int hashCode()
@@ -150,7 +154,7 @@ public class EPStatementAgentInstanceHandle {
         this.filterFaultHandler = filterFaultHandler;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementHandle.getStatementId();
     }
 

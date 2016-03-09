@@ -20,6 +20,7 @@ import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.view.Viewable;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class StatementResourceHolder {
@@ -28,7 +29,7 @@ public class StatementResourceHolder {
     private Viewable[] eventStreamViewables;
     private EvalRootState[] patternRoots;
     private AggregationService aggregationService;
-    private Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
+    private Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies = Collections.EMPTY_MAP;
     private StatementAgentInstancePostLoad postLoad;
     private NamedWindowProcessorInstance namedWindowProcessorInstance;
     private StatementResourceExtension statementResourceExtension;

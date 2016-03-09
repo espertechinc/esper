@@ -47,7 +47,7 @@ public class StatementAgentInstancePostLoadSelect implements StatementAgentInsta
     }
 
     public void executePostLoad() {
-        if (joinSetComposer == null) {
+        if (joinSetComposer == null || !joinSetComposer.getJoinSetComposer().allowsInit()) {
             return;
         }
         EventBean[][] events = new EventBean[streamViews.length][];

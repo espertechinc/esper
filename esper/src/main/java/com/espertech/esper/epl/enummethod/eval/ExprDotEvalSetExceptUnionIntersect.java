@@ -32,7 +32,7 @@ public class ExprDotEvalSetExceptUnionIntersect extends ExprDotEvalEnumMethodBas
         return new EventType[] {};
     }
 
-    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, String statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
+    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
         ExprDotEvalParam first = bodiesAndParameters.get(0);
 
         ExprDotEnumerationSource enumSrc = ExprDotNodeUtility.getEnumerationSource(first.getBody(), streamTypeService, eventAdapterService, statementId, true, disablePropertyExpressionEventCollCache);

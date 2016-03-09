@@ -12,6 +12,7 @@
 package com.espertech.esper.support.epl;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.*;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -29,9 +30,9 @@ import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.core.SupportExprEvaluatorContext;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.MathArithTypeEnum;
@@ -417,11 +418,11 @@ public class SupportExprNodeFactory
 
         VariableService variableService = new VariableServiceImpl(0, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
         variableService.createNewVariable(null, "intPrimitive", Integer.class.getName(), false, false, false, 10, null);
-        variableService.allocateVariableState("intPrimitive", 0, null);
+        variableService.allocateVariableState("intPrimitive", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         variableService.createNewVariable(null, "var1", String.class.getName(), false, false, false, "my_variable_value", null);
-        variableService.allocateVariableState("var1", 0, null);
+        variableService.allocateVariableState("var1", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, getMethodResService(), viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, null, null, null, false, false, false, false, null, false));
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, getMethodResService(), viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false));
     }
 
     public static void validate1StreamBean(ExprNode topNode) throws Exception

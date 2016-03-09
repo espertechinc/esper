@@ -70,7 +70,7 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
         return false;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return agentInstanceContextCreateContext.getStatementContext().getStatementId();
     }
 

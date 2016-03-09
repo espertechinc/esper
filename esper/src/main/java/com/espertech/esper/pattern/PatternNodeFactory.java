@@ -31,4 +31,6 @@ public interface PatternNodeFactory {
     public EvalFactoryNode makeObserverNode(PatternObserverSpec patternObserverSpec);
     public EvalFactoryNode makeOrNode();
     public EvalRootFactoryNode makeRootNode(EvalFactoryNode childNode);
+    public EvalFactoryNode makeAuditNode(boolean auditPattern, boolean auditPatternInstance, String expressionText, EvalAuditInstanceCount instanceCount, boolean filterChildNonQuitting);
+    public boolean isAuditSupported();
 }

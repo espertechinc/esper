@@ -263,7 +263,7 @@ public class TestEPAdministrator extends TestCase
         assertEquals("5 seconds", buf.toString());
 
         EvalFactoryNode pattern = spi.compilePatternToNode("every A -> B");
-        assertEquals(EvalFollowedByFactoryNode.class, pattern.getClass());
+        assertTrue(pattern instanceof EvalFollowedByFactoryNode);
 
         PatternExpr patternExpr = spi.compilePatternToSODA("every A -> B");
         assertEquals(PatternFollowedByExpr.class, patternExpr.getClass());

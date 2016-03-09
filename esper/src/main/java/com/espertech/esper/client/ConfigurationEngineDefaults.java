@@ -1747,7 +1747,6 @@ public class ConfigurationEngineDefaults implements Serializable
         private String eventTypeIdGeneratorFactory;
         private String virtualDataWindowViewFactory;
         private String statementMetadataFactory;
-        private String statementIdGeneratorFactory;
         private Object userConfiguration;
         private String memberName;
 
@@ -1836,22 +1835,6 @@ public class ConfigurationEngineDefaults implements Serializable
         }
 
         /**
-         * Returns the class name of the class for statement id generation, or null if using default.
-         * @return class
-         */
-        public String getStatementIdGeneratorFactory() {
-            return statementIdGeneratorFactory;
-        }
-
-        /**
-         * Sets the class name of the class for statement id generation, or null if using default.
-         * @param statementIdGeneratorFactory class
-         */
-        public void setStatementIdGeneratorFactory(String statementIdGeneratorFactory) {
-            this.statementIdGeneratorFactory = statementIdGeneratorFactory;
-        }
-
-        /**
          * Returns the application-provided configurarion object carried as part of the configurations.
          * @return config user object
          */
@@ -1890,6 +1873,7 @@ public class ConfigurationEngineDefaults implements Serializable
     public static class ExceptionHandling implements Serializable {
         private static final long serialVersionUID = -708367341332718634L;
         private List<String> handlerFactories;
+        private UndeployRethrowPolicy undeployRethrowPolicy = UndeployRethrowPolicy.WARN;
 
         /**
          * Returns the list of exception handler factory class names,
@@ -1936,6 +1920,40 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void addClass(Class exceptionHandlerFactoryClass) {
             addClass(exceptionHandlerFactoryClass.getName());
+        }
+
+        /**
+         * Returns the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
+         * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         * @return indicator
+         */
+        public UndeployRethrowPolicy getUndeployRethrowPolicy() {
+            return undeployRethrowPolicy;
+        }
+
+        /**
+         * Sets the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
+         * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         * @param undeployRethrowPolicy indicator
+         */
+        public void setUndeployRethrowPolicy(UndeployRethrowPolicy undeployRethrowPolicy) {
+            this.undeployRethrowPolicy = undeployRethrowPolicy;
+        }
+
+        /**
+         * Enumeration of blocking techniques.
+         */
+        public enum UndeployRethrowPolicy
+        {
+            /**
+             * Warn.
+             */
+            WARN,
+
+            /**
+             * Rethrow First Encountered Exception.
+             */
+            RETHROW_FIRST
         }
     }
 

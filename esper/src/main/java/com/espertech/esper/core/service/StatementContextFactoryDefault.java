@@ -17,7 +17,6 @@ import com.espertech.esper.core.context.mgr.ContextControllerFactoryServiceImpl;
 import com.espertech.esper.core.context.mgr.ContextStateCache;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
@@ -84,7 +83,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         return new StatementContextEngineServices(
                 services.getEngineURI(),
                 services.getEventAdapterService(),
-                services.getNamedWindowService(),
+                services.getNamedWindowMgmtService(),
                 services.getVariableService(),
                 services.getTableService(),
                 services.getEngineSettingsService(),
@@ -98,11 +97,16 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getTableService().getTableExprEvaluatorContext(),
                 services.getEngineLevelExtensionServicesContext(),
                 services.getRegexHandlerFactory(),
-                services.getStatementLockFactory()
+                services.getStatementLockFactory(),
+                services.getContextManagementService(),
+                services.getViewServicePreviousFactory(),
+                services.getEventTableIndexService(),
+                services.getPatternNodeFactory(),
+                services.getFilterBooleanExpressionFactory()
                 );
     }
 
-    public StatementContext makeContext(String statementId,
+    public StatementContext makeContext(int statementId,
                                         String statementName,
                                         String expression,
                                         StatementType statementType,
@@ -130,7 +134,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         if ((optOnTriggerDesc != null) && (optOnTriggerDesc instanceof OnTriggerWindowDesc)) {
             String windowName = ((OnTriggerWindowDesc) optOnTriggerDesc).getWindowName();
             if (engineServices.getTableService().getTableMetadata(windowName) == null) {
-                defaultStatementAgentInstanceLock = engineServices.getNamedWindowService().getNamedWindowLock(windowName);
+                defaultStatementAgentInstanceLock = engineServices.getNamedWindowMgmtService().getNamedWindowLock(windowName);
                 if (defaultStatementAgentInstanceLock == null) {
                     throw new EPStatementException("Named window or table '" + windowName + "' has not been declared", expression);
                 }
@@ -142,11 +146,11 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         // For creating a named window, save the lock for use with on-delete/on-merge/on-update etc. statements
         else if (optCreateWindowDesc != null)
         {
-            defaultStatementAgentInstanceLock = engineServices.getNamedWindowService().getNamedWindowLock(optCreateWindowDesc.getWindowName());
+            defaultStatementAgentInstanceLock = engineServices.getNamedWindowMgmtService().getNamedWindowLock(optCreateWindowDesc.getWindowName());
             if (defaultStatementAgentInstanceLock == null)
             {
                 defaultStatementAgentInstanceLock = engineServices.getStatementLockFactory().getStatementLock(statementName, annotations, false);
-                engineServices.getNamedWindowService().addNamedWindowLock(optCreateWindowDesc.getWindowName(), defaultStatementAgentInstanceLock, statementName);
+                engineServices.getNamedWindowMgmtService().addNamedWindowLock(optCreateWindowDesc.getWindowName(), defaultStatementAgentInstanceLock, statementName);
             }
         }
         else
@@ -163,7 +167,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         AnnotationAnalysisResult annotationData = AnnotationAnalysisResult.analyzeAnnotations(annotations);
         boolean hasVariables = statementSpecRaw.isHasVariables() || (statementSpecRaw.getCreateContextDesc() != null);
         boolean hasTableAccess = StatementContextFactoryUtil.determineHasTableAccess(subselectNodes, statementSpecRaw, engineServices);
-        EPStatementHandle epStatementHandle = new EPStatementHandle(statementId, statementName, expression, statementType, expression, hasVariables, stmtMetric, annotationData.getPriority(), annotationData.isPremptive(), hasTableAccess, MultiMatchHandlerFactory.getDefaultHandler());
+        EPStatementHandle epStatementHandle = new EPStatementHandle(statementId, statementName, expression, statementType, expression, hasVariables, stmtMetric, annotationData.getPriority(), annotationData.isPremptive(), hasTableAccess, engineServices.getMultiMatchHandlerFactory().getDefaultHandler());
 
         MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(engineServices.getEngineImportService(), engineServices.getSchedulingService());
 
@@ -245,7 +249,6 @@ public class StatementContextFactoryDefault implements StatementContextFactory
 
         // Create statement context
         return new StatementContext(stmtEngineServices,
-                null,
                 schedulingService,
                 scheduleBucket,
                 epStatementHandle,
@@ -269,7 +272,9 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 defaultAgentInstanceScriptContext,
                 AggregationServiceFactoryServiceImpl.DEFAULT_FACTORY,
                 writesToTables,
-                statementUserObject);
+                statementUserObject,
+                StatementSemiAnonymousTypeRegistryImpl.INSTANCE,
+                annotationData.getPriority());
     }
 
     private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations) {

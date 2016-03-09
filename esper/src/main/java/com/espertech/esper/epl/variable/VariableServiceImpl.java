@@ -13,6 +13,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.VariableValueException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventAdapterService;
@@ -203,7 +204,7 @@ public class VariableServiceImpl implements VariableService
         }
 
         if (metaData.getContextPartitionName() == null) {
-            agentInstanceId = 0;
+            agentInstanceId = EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID;
         }
 
         Set<VariableChangeCallback> callbacks = cps.get(agentInstanceId);
@@ -312,7 +313,7 @@ public class VariableServiceImpl implements VariableService
         // check if it exists
         VariableMetaData metaData = variables.get(variableName);
         if (metaData != null) {
-            throw new VariableExistsException(VariableServiceUtil.getAlreadyDeclaredEx(variableName));
+            throw new VariableExistsException(VariableServiceUtil.getAlreadyDeclaredEx(variableName, false));
         }
 
         // find empty spot
@@ -385,8 +386,7 @@ public class VariableServiceImpl implements VariableService
         variables.put(variableName, metaData);
     }
 
-    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext)
-    {
+    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext, boolean isRecoveringResilient) {
         VariableMetaData metaData = variables.get(variableName);
         if (metaData == null) {
             throw new IllegalArgumentException("Failed to find variable '" + variableName + "'");
@@ -395,9 +395,14 @@ public class VariableServiceImpl implements VariableService
         // Check current state - see if the variable exists in the state handler
         Object initialState = metaData.getVariableStateFactory().getInitialState();
         if (optionalStateHandler != null) {
-            Pair<Boolean, Object> priorValue = optionalStateHandler.getHasState(variableName, metaData.getVariableNumber(), agentInstanceId, metaData.getType(), metaData.getEventType(), extensionServicesContext);
-            if (priorValue.getFirst()) {
-                initialState = priorValue.getSecond();
+            Pair<Boolean, Object> priorValue = optionalStateHandler.getHasState(variableName, metaData.getVariableNumber(), agentInstanceId, metaData.getType(), metaData.getEventType(), extensionServicesContext, metaData.isConstant());
+            if (isRecoveringResilient) {
+                if (priorValue.getFirst()) {
+                    initialState = priorValue.getSecond();
+                }
+            }
+            else {
+                optionalStateHandler.setState(variableName, metaData.getVariableNumber(), agentInstanceId, initialState);
             }
         }
 
@@ -435,7 +440,7 @@ public class VariableServiceImpl implements VariableService
         }
         Map<Integer, VariableReader> cps = variableVersionsPerCP.get(metaData.getVariableNumber());
         if (metaData.getContextPartitionName() == null) {
-            return cps.get(0);
+            return cps.get(EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
         return cps.get(agentInstanceIdAccessor);
     }
@@ -507,7 +512,7 @@ public class VariableServiceImpl implements VariableService
             if (optionalStateHandler != null)
             {
                 String name = versions.getName();
-                int agentInstanceId = reader.getVariableMetaData().getContextPartitionName() == null ? NOCONTEXT_AGENTINSTANCEID : uncommittedEntry.getValue().getFirst();
+                int agentInstanceId = reader.getVariableMetaData().getContextPartitionName() == null ? EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID : uncommittedEntry.getValue().getFirst();
                 optionalStateHandler.setState(name, uncommittedEntry.getKey(), agentInstanceId, newValue);
             }
         }

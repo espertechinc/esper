@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Handles statement management.
  */
-public interface StatementLifecycleSvc
+public interface StatementLifecycleSvc extends StatementLifecycleStmtContextResolver
 {
     /**
      * Initialized the service before use.
@@ -57,25 +57,25 @@ public interface StatementLifecycleSvc
      * @param isolationUnitServices isolated service services
      * @return started statement
      */
-    public EPStatement createAndStart(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, Object userObject, EPIsolationUnitServices isolationUnitServices, String statementId, EPStatementObjectModel optionalModel);
+    public EPStatement createAndStart(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, Object userObject, EPIsolationUnitServices isolationUnitServices, Integer optionalStatementId, EPStatementObjectModel optionalModel);
 
     /**
      * Start statement by statement id.
      * @param statementId of the statement to start.
      */
-    public void start(String statementId);
+    public void start(int statementId);
 
     /**
      * Stop statement by statement id.
      * @param statementId of the statement to stop.
      */
-    public void stop(String statementId);
+    public void stop(int statementId);
 
     /**
      * Destroy statement by statement id.
      * @param statementId statementId of the statement to destroy
      */
-    public void destroy(String statementId);
+    public void destroy(int statementId);
 
     /**
      * Returns the statement by the given name, or null if no such statement exists.
@@ -122,11 +122,11 @@ public interface StatementLifecycleSvc
      */
     public void destroy();
 
-    public String getStatementNameById(String id);
-
-    public EPStatementSPI getStatementById(String id);
+    public String getStatementNameById(int statementId);
 
     public Map<String, EPStatement> getStmtNameToStmt();
 
-    StatementSpecCompiled getStatementSpec(String statementName);
+    public EPStatementSPI getStatementById(int statementId);
+
+    StatementSpecCompiled getStatementSpec(int statementId);
 }

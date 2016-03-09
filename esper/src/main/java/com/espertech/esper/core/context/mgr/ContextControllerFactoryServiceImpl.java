@@ -29,7 +29,7 @@ public class ContextControllerFactoryServiceImpl implements ContextControllerFac
         return ContextControllerFactoryHelper.getFactory(serviceContext, cache);
     }
 
-    public ContextPartitionIdManager allocatePartitionIdMgr(String contextName, String contextStmtId) {
+    public ContextPartitionIdManager allocatePartitionIdMgr(String contextName, int contextStmtId) {
         return new ContextPartitionIdManagerImpl();
     }
 }

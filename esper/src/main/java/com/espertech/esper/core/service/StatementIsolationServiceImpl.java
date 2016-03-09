@@ -127,7 +127,7 @@ public class StatementIsolationServiceImpl implements StatementIsolationService
         }
     }
 
-    public void newStatement(String stmtId, String stmtName, EPIsolationUnitServices isolatedServices)
+    public void newStatement(int stmtId, String stmtName, EPIsolationUnitServices isolatedServices)
     {
         log.info("New statement '" + stmtName + "' unit " + isolatedServices.getName());
     }

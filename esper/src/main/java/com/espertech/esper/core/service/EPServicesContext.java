@@ -13,24 +13,31 @@ import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryFactorySvc;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManagerFactoryService;
-import com.espertech.esper.core.context.schedule.SchedulableAgentInstanceDirectory;
 import com.espertech.esper.core.deploy.DeploymentStateService;
+import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.dataflow.core.DataFlowService;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.DispatchServiceProvider;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
+import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowConsumerMgmtService;
+import com.espertech.esper.epl.named.NamedWindowDispatchService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.filter.FilterBooleanExpressionFactory;
+import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolEngineSvc;
@@ -42,6 +49,7 @@ import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimerService;
 import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.view.ViewService;
+import com.espertech.esper.view.ViewServicePreviousFactory;
 import com.espertech.esper.view.ViewServiceProvider;
 import com.espertech.esper.view.stream.StreamFactoryService;
 
@@ -68,7 +76,8 @@ public final class EPServicesContext
     private EngineEnvContext engineEnvContext;
     private StatementContextFactory statementContextFactory;
     private PluggableObjectCollection plugInPatternObjects;
-    private NamedWindowService namedWindowService;
+    private NamedWindowMgmtService namedWindowMgmtService;
+    private NamedWindowDispatchService namedWindowDispatchService;
     private VariableService variableService;
     private TimeSourceService timeSourceService;
     private ValueAddEventService valueAddEventService;
@@ -85,7 +94,6 @@ public final class EPServicesContext
     private PatternNodeFactory patternNodeFactory;
     private StatementMetadataFactory statementMetadataFactory;
     private ContextManagementService contextManagementService;
-    private SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory;
     private PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private TableService tableService;
@@ -94,6 +102,15 @@ public final class EPServicesContext
     private ContextManagerFactoryService contextManagerFactoryService;
     private RegexHandlerFactory regexHandlerFactory;
     private ViewableActivatorFactory viewableActivatorFactory;
+    private FilterNonPropertyRegisteryService filterNonPropertyRegisteryService;
+    private ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private ViewServicePreviousFactory viewServicePreviousFactory;
+    private EventTableIndexService eventTableIndexService;
+    private EPRuntimeIsolatedFactory epRuntimeIsolatedFactory;
+    private FilterBooleanExpressionFactory filterBooleanExpressionFactory;
+    private DataCacheFactory dataCacheFactory;
+    private MultiMatchHandlerFactory multiMatchHandlerFactory;
+    private NamedWindowConsumerMgmtService namedWindowConsumerMgmtService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -122,7 +139,7 @@ public final class EPServicesContext
      * @param timerService is the timer service
      * @param filterService the filter service
      * @param streamFactoryService is hooking up filters to streams
-     * @param namedWindowService is holding information about the named windows active in the system
+     * @param namedWindowMgmtService is holding information about the named windows active in the system
      * @param variableService provides access to variable values
      * @param valueAddEventService handles update events
      * @param timeSourceService time source provider class
@@ -151,7 +168,8 @@ public final class EPServicesContext
                              TimerService timerService,
                              FilterServiceSPI filterService,
                              StreamFactoryService streamFactoryService,
-                             NamedWindowService namedWindowService,
+                             NamedWindowMgmtService namedWindowMgmtService,
+                             NamedWindowDispatchService namedWindowDispatchService,
                              VariableService variableService,
                              TableService tableService,
                              TimeSourceService timeSourceService,
@@ -170,7 +188,6 @@ public final class EPServicesContext
                              EventTypeIdGenerator eventTypeIdGenerator,
                              StatementMetadataFactory statementMetadataFactory,
                              ContextManagementService contextManagementService,
-                             SchedulableAgentInstanceDirectory schedulableAgentInstanceDirectory,
                              PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
                              MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
                              DataFlowService dataFlowService,
@@ -179,7 +196,16 @@ public final class EPServicesContext
                              ContextManagerFactoryService contextManagerFactoryService,
                              EPStatementFactory epStatementFactory,
                              RegexHandlerFactory regexHandlerFactory,
-                             ViewableActivatorFactory viewableActivatorFactory)
+                             ViewableActivatorFactory viewableActivatorFactory,
+                             FilterNonPropertyRegisteryService filterNonPropertyRegisteryService,
+                             ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                             ViewServicePreviousFactory viewServicePreviousFactory,
+                             EventTableIndexService eventTableIndexService,
+                             EPRuntimeIsolatedFactory epRuntimeIsolatedFactory,
+                             FilterBooleanExpressionFactory filterBooleanExpressionFactory,
+                             DataCacheFactory dataCacheFactory,
+                             MultiMatchHandlerFactory multiMatchHandlerFactory,
+                             NamedWindowConsumerMgmtService namedWindowConsumerMgmtService)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -199,7 +225,8 @@ public final class EPServicesContext
         this.engineEnvContext = engineEnvContext;
         this.statementContextFactory = statementContextFactory;
         this.plugInPatternObjects = plugInPatternObjects;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
+        this.namedWindowDispatchService = namedWindowDispatchService;
         this.variableService = variableService;
         this.tableService = tableService;
         this.timeSourceService = timeSourceService;
@@ -218,7 +245,6 @@ public final class EPServicesContext
         this.eventTypeIdGenerator = eventTypeIdGenerator;
         this.statementMetadataFactory = statementMetadataFactory;
         this.contextManagementService = contextManagementService;
-        this.schedulableAgentInstanceDirectory = schedulableAgentInstanceDirectory;
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
         this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.dataFlowService = dataFlowService;
@@ -229,6 +255,15 @@ public final class EPServicesContext
         this.epStatementFactory = epStatementFactory;
         this.regexHandlerFactory = regexHandlerFactory;
         this.viewableActivatorFactory = viewableActivatorFactory;
+        this.filterNonPropertyRegisteryService = filterNonPropertyRegisteryService;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.viewServicePreviousFactory = viewServicePreviousFactory;
+        this.eventTableIndexService = eventTableIndexService;
+        this.epRuntimeIsolatedFactory = epRuntimeIsolatedFactory;
+        this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
+        this.dataCacheFactory = dataCacheFactory;
+        this.multiMatchHandlerFactory = multiMatchHandlerFactory;
+        this.namedWindowConsumerMgmtService = namedWindowConsumerMgmtService;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -466,9 +501,13 @@ public final class EPServicesContext
         {
             streamFactoryService.destroy();
         }
-        if (namedWindowService != null)
+        if (namedWindowMgmtService != null)
         {
-            namedWindowService.destroy();
+            namedWindowMgmtService.destroy();
+        }
+        if (namedWindowDispatchService != null)
+        {
+            namedWindowDispatchService.destroy();
         }
         if (engineLevelExtensionServicesContext != null)
         {
@@ -506,7 +545,7 @@ public final class EPServicesContext
         this.engineEnvContext = null;
         this.statementContextFactory = null;
         this.plugInPatternObjects = null;
-        this.namedWindowService = null;
+        this.namedWindowMgmtService = null;
         this.valueAddEventService = null;
         this.metricsReportingService = null;
         this.statementEventTypeRef = null;
@@ -549,9 +588,9 @@ public final class EPServicesContext
      * Returns the named window management service.
      * @return service for managing named windows
      */
-    public NamedWindowService getNamedWindowService()
+    public NamedWindowMgmtService getNamedWindowMgmtService()
     {
-        return namedWindowService;
+        return namedWindowMgmtService;
     }
 
     /**
@@ -664,10 +703,6 @@ public final class EPServicesContext
         return contextManagementService;
     }
 
-    public SchedulableAgentInstanceDirectory getSchedulableAgentInstanceDirectory() {
-        return schedulableAgentInstanceDirectory;
-    }
-
     public PatternSubexpressionPoolEngineSvc getPatternSubexpressionPoolSvc() {
         return patternSubexpressionPoolSvc;
     }
@@ -710,5 +745,45 @@ public final class EPServicesContext
 
     public ViewableActivatorFactory getViewableActivatorFactory() {
         return viewableActivatorFactory;
+    }
+
+    public FilterNonPropertyRegisteryService getFilterNonPropertyRegisteryService() {
+        return filterNonPropertyRegisteryService;
+    }
+
+    public NamedWindowDispatchService getNamedWindowDispatchService() {
+        return namedWindowDispatchService;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
+    }
+
+    public ViewServicePreviousFactory getViewServicePreviousFactory() {
+        return viewServicePreviousFactory;
+    }
+
+    public EventTableIndexService getEventTableIndexService() {
+        return eventTableIndexService;
+    }
+
+    public EPRuntimeIsolatedFactory getEpRuntimeIsolatedFactory() {
+        return epRuntimeIsolatedFactory;
+    }
+
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
+        return filterBooleanExpressionFactory;
+    }
+
+    public DataCacheFactory getDataCacheFactory() {
+        return dataCacheFactory;
+    }
+
+    public MultiMatchHandlerFactory getMultiMatchHandlerFactory() {
+        return multiMatchHandlerFactory;
+    }
+
+    public NamedWindowConsumerMgmtService getNamedWindowConsumerMgmtService() {
+        return namedWindowConsumerMgmtService;
     }
 }

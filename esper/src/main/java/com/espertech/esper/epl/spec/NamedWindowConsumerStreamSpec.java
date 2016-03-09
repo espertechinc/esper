@@ -8,7 +8,9 @@
  **************************************************************************************/
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.named.NamedWindowConsumerDesc;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 
 import java.util.List;
@@ -61,5 +63,14 @@ public class NamedWindowConsumerStreamSpec extends StreamSpecBase implements Str
     public PropertyEvaluator getOptPropertyEvaluator()
     {
         return optPropertyEvaluator;
+    }
+
+    public int getConsumerSpecIndexAmongAll(NamedWindowConsumerStreamSpec[] consumerSpecAll) {
+        for (int i = 0; i < consumerSpecAll.length; i++) {
+            if (this == consumerSpecAll[i]) {
+                return i;
+            }
+        }
+        throw new EPException("Failed to find find named window consumer spec among list of known consumers");
     }
 }

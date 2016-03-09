@@ -13,8 +13,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.*;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerSubqueryPreevalNoDedup;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.filter.FilterHandleCallback;
 import com.espertech.esper.filter.FilterSpecCompiled;
@@ -99,9 +97,9 @@ public abstract class BaseSubscription implements Subscription, FilterHandleCall
         FilterValueSet fvs = new FilterSpecCompiled(eventType, null, new List[0], null).getValueSet(null, null, null);
 
         String name = "subscription:" + subscriptionName;
-        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(name, name);
-        EPStatementHandle statementHandle = new EPStatementHandle(name, name, name, StatementType.ESPERIO, name, false, metricsHandle, 0, false, false, MultiMatchHandlerFactory.getDefaultHandler());
-        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion());
+        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(-1, name);
+        EPStatementHandle statementHandle = new EPStatementHandle(-1, name, name, StatementType.ESPERIO, name, false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
+        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion(), null);
         EPStatementHandleCallback registerHandle = new EPStatementHandleCallback(agentHandle, this);
         spi.getFilterService().add(fvs, registerHandle);
     }

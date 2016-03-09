@@ -12,6 +12,7 @@
 package com.espertech.esper.core.context.util;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePreload;
 import com.espertech.esper.core.context.mgr.AgentInstance;
@@ -61,15 +62,15 @@ public class StatementAgentInstanceUtil {
             return;
         }
         for (AgentInstance instance : agentInstances) {
-            stopAgentInstance(instance, terminationProperties, servicesContext, isStatementStop, leaveLocksAcquired);
+            stopAgentInstanceRemoveResources(instance, terminationProperties, servicesContext, isStatementStop, leaveLocksAcquired);
         }
     }
 
-    public static void stopAgentInstance(AgentInstance agentInstance, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stopAgentInstanceRemoveResources(AgentInstance agentInstance, Map<String, Object> terminationProperties, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
         if (terminationProperties != null) {
             agentInstance.getAgentInstanceContext().getContextProperties().getProperties().putAll(terminationProperties);
         }
-        StatementAgentInstanceUtil.stop(agentInstance.getStopCallback(), agentInstance.getAgentInstanceContext(), agentInstance.getFinalView(), servicesContext, isStatementStop, leaveLocksAcquired);
+        StatementAgentInstanceUtil.stop(agentInstance.getStopCallback(), agentInstance.getAgentInstanceContext(), agentInstance.getFinalView(), servicesContext, isStatementStop, leaveLocksAcquired, true);
     }
 
     public static void stopSafe(Collection<StopCallback> terminationCallbacks, StopCallback[] stopCallbacks, StatementContext statementContext) {
@@ -89,12 +90,11 @@ public class StatementAgentInstanceUtil {
             stopMethod.stop();
         }
         catch (RuntimeException e) {
-            log.warn("Failed to perform statement stop for statement '" + statementContext.getStatementName() +
-                    "' expression '" + statementContext.getExpression() + "' : " + e.getMessage(), e);
+            statementContext.getExceptionHandlingService().handleException(e, statementContext.getStatementName(), statementContext.getExpression(), ExceptionHandlerExceptionType.STOP);
         }
     }
 
-    public static void stop(StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired) {
+    public static void stop(StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired, boolean removedStatementResources) {
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextPartitionDestroy(agentInstanceContext);}
         // obtain statement lock
@@ -108,10 +108,6 @@ public class StatementAgentInstanceUtil {
 
             stopSafe(stopCallback, agentInstanceContext.getStatementContext());
 
-            if (servicesContext.getSchedulableAgentInstanceDirectory() != null) {
-                servicesContext.getSchedulableAgentInstanceDirectory().remove(agentInstanceContext.getStatementContext().getStatementId(), agentInstanceContext.getAgentInstanceId());
-            }
-
             // indicate method resolution
             agentInstanceContext.getStatementContext().getMethodResolutionService().destroyedAgentInstance(agentInstanceContext.getAgentInstanceId());
 
@@ -124,7 +120,9 @@ public class StatementAgentInstanceUtil {
             // cause any filters, that may concide with the caller's filters, to be ignored
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(Long.MAX_VALUE);
 
-            if (agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null && agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
+            if (removedStatementResources &&
+                    agentInstanceContext.getStatementContext().getStatementExtensionServicesContext() != null &&
+                    agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
                 agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().deallocatePartitioned(agentInstanceContext.getAgentInstanceId());
             }
         }
@@ -162,7 +160,7 @@ public class StatementAgentInstanceUtil {
         StatementAgentInstanceFilterVersion filterVersion = new StatementAgentInstanceFilterVersion();
 
         // create handle that comtains lock for use in scheduling and filter callbacks
-        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceLock, agentInstanceId, filterVersion);
+        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceLock, agentInstanceId, filterVersion, statementContext.getFilterFaultHandlerFactory());
 
         // create agent instance context
         AgentInstanceScriptContext agentInstanceScriptContext = null;
@@ -282,7 +280,7 @@ public class StatementAgentInstanceUtil {
         // there is a single callback and a single context, if they match we are done
         if (agentInstances.size() == 1 && callbacks.size() == 1) {
             AgentInstance agentInstance = agentInstances.get(0);
-            if (agentInstance.getAgentInstanceContext().getStatementId().equals(callbacks.getFirst().getStatementId())) {
+            if (agentInstance.getAgentInstanceContext().getStatementId() == callbacks.getFirst().getStatementId()) {
                 process(agentInstance, servicesContext, callbacks, theEvent);
             }
             return;
@@ -302,10 +300,10 @@ public class StatementAgentInstanceUtil {
         for (FilterHandle filterHandle : callbacks)
         {
             // determine if this filter entry applies to any of the affected agent instances
-            String statementId = filterHandle.getStatementId();
+            int statementId = filterHandle.getStatementId();
             AgentInstance agentInstanceFound = null;
             for (AgentInstance agentInstance : agentInstances) {
-                if (agentInstance.getAgentInstanceContext().getStatementId().equals(statementId)) {
+                if (agentInstance.getAgentInstanceContext().getStatementId() == statementId) {
                     agentInstanceFound = agentInstance;
                     break;
                 }
@@ -375,7 +373,7 @@ public class StatementAgentInstanceUtil {
             // sub-selects always go first
             for (FilterHandle handle : callbacks)
             {
-                if (handle == filterHandle) {
+                if (handle.equals(filterHandle)) {
                     return true;
                 }
             }
@@ -384,7 +382,7 @@ public class StatementAgentInstanceUtil {
 
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle());
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
 
         return false;
@@ -421,7 +419,7 @@ public class StatementAgentInstanceUtil {
             agentInstanceContext.getEpStatementAgentInstanceHandle().internalDispatch();
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle());
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
         finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {

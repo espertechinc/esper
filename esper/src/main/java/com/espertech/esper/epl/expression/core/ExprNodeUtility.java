@@ -710,7 +710,7 @@ public class ExprNodeUtility {
                                                                              List<ExprNode> parameters,
                                                                              MethodResolutionService methodResolutionService,
                                                                              EventAdapterService eventAdapterService,
-                                                                             String statementId,
+                                                                             int statementId,
                                                                              boolean allowWildcard,
                                                                              final EventType wildcardType,
                                                                              ExprNodeUtilResolveExceptionHandler exceptionHandler,

@@ -28,7 +28,7 @@ public class AggSvcGroupByNoAccessFactory extends AggregationServiceFactoryBase
         super(evaluators, prototypes, groupKeyBinding);
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByNoAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService);
     }
 }

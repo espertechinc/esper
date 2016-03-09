@@ -60,14 +60,14 @@ public abstract class EPStatementStartMethodBase implements EPStatementStartMeth
     protected EPStatementAgentInstanceHandle getDefaultAgentInstanceHandle(StatementContext statementContext)
         throws ExprValidationException
     {
-        return new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion());
+        return new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
     }
 
     protected AgentInstanceContext getDefaultAgentInstanceContext(StatementContext statementContext)
             throws ExprValidationException
     {
         EPStatementAgentInstanceHandle handle = getDefaultAgentInstanceHandle(statementContext);
-        return new AgentInstanceContext(statementContext, handle, -1, null, null, statementContext.getDefaultAgentInstanceScriptContext());
+        return new AgentInstanceContext(statementContext, handle, DEFAULT_AGENT_INSTANCE_ID, null, null, statementContext.getDefaultAgentInstanceScriptContext());
     }
 
     protected boolean isQueryPlanLogging(EPServicesContext services) {

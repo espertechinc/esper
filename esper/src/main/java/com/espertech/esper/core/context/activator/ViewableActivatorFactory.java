@@ -15,30 +15,30 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
+import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationAgent;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
+import com.espertech.esper.view.HistoricalEventViewable;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 
 public interface ViewableActivatorFactory {
     ViewableActivator createActivatorSimple(FilterStreamSpecCompiled filterStreamSpec);
 
-
-
     ViewableActivator createFilterProxy(EPServicesContext services,
-                                               FilterSpecCompiled filterSpec,
-                                               Annotation[] annotations,
-                                               boolean subselect,
-                                               InstrumentationAgent instrumentationAgentSubquery,
-                                               boolean isCanIterate);
+                                        FilterSpecCompiled filterSpec,
+                                        Annotation[] annotations,
+                                        boolean subselect,
+                                        InstrumentationAgent instrumentationAgentSubquery,
+                                        boolean isCanIterate,
+                                        Integer streamNumFromClause);
 
     ViewableActivator createStreamReuseView(EPServicesContext services,
                                             StatementContext statementContext,
@@ -59,6 +59,12 @@ public interface ViewableActivatorFactory {
                                     boolean isCanIterateUnbound);
 
     ViewableActivator createNamedWindow(NamedWindowProcessor processor,
-                                        List<ExprNode> filterExpressions,
-                                        PropertyEvaluator optPropertyEvaluator);
+                                        NamedWindowConsumerStreamSpec streamSpec,
+                                        StatementContext statementContext);
+
+    ViewableActivator createTable(TableMetadata metadata, ExprEvaluator[] optionalTableFilters);
+
+    ViewableActivator makeHistorical(HistoricalEventViewable historicalEventViewable);
+
+    ViewableActivator makeSubqueryNWIndexShare();
 }

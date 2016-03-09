@@ -60,4 +60,6 @@ public interface RegexPartitionStateRepo
     public void setEventSequenceNum(int num);
 
     public RegexPartitionStateRepoScheduleState getScheduleState();
+
+    public void destroy();
 }

@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
@@ -39,7 +40,8 @@ public class OutputConditionFactoryFactory
 										 	  	  StatementContext statementContext,
                                                   boolean isGrouped,
                                                   boolean isWithHavingClause,
-                                                  boolean isStartConditionOnCreation)
+                                                  boolean isStartConditionOnCreation,
+                                                  ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
             throws ExprValidationException
     {
 		if(outputLimitSpec == null)
@@ -67,11 +69,11 @@ public class OutputConditionFactoryFactory
 
         if(outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB)
         {
-            return new OutputConditionCrontabFactory(outputLimitSpec.getCrontabAtSchedule(), statementContext, isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionCrontab(outputLimitSpec.getCrontabAtSchedule(), statementContext, isStartConditionOnCreation);
         }
         else if(outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION)
         {
-            return new OutputConditionExpressionFactory(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionExpression(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
         }
         else if(outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS)
 		{
@@ -90,7 +92,7 @@ public class OutputConditionFactoryFactory
             {
                 rate = outputLimitSpec.getRate().intValue();
             }
-            return new OutputConditionCountFactory(rate, variableMetaData);
+            return resultSetProcessorHelperFactory.makeOutputConditionCount(rate, variableMetaData, statementContext);
 		}
 		else if (outputLimitSpec.getRateType() == OutputLimitRateType.TERM)
 		{
@@ -98,7 +100,7 @@ public class OutputConditionFactoryFactory
                 return new OutputConditionTermFactory();
             }
             else {
-                return new OutputConditionExpressionFactory(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
+                return resultSetProcessorHelperFactory.makeOutputConditionExpression(new ExprConstantNodeImpl(false), Collections.<OnTriggerSetAssignment>emptyList(), statementContext, outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions(), isStartConditionOnCreation);
             }
 		}
         else {
@@ -111,7 +113,7 @@ public class OutputConditionFactoryFactory
                 throw new IllegalArgumentException("Variable named '" + outputLimitSpec.getVariableName() + "' must be of numeric type");
             }
 
-            return new OutputConditionTimeFactory(outputLimitSpec.getTimePeriodExpr(), isStartConditionOnCreation);
+            return resultSetProcessorHelperFactory.makeOutputConditionTime(outputLimitSpec.getTimePeriodExpr(), isStartConditionOnCreation);
         }
 	}
 }

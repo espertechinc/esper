@@ -37,7 +37,7 @@ public class SubordinateQueryPlanner
             Set<String> optionalUniqueKeyProps,
             boolean onlyUseExistingIndexes,
             String statementName,
-            String statementId,
+            int statementId,
             Annotation[] annotations)
     {
         EventType[] allStreamsZeroIndexed = new EventType[] {eventTypeIndexed, filterEventType};
@@ -78,7 +78,7 @@ public class SubordinateQueryPlanner
                                                         Set<String> optionalUniqueKeyProps,
                                                         boolean onlyUseExistingIndexes,
                                                         String statementName,
-                                                        String statementId,
+                                                        int statementId,
                                                         Annotation[] annotations) {
         if (isVirtualDataWindow) {
             SubordinateQueryPlannerIndexPropDesc indexProps = getIndexPropDesc(joinDesc.getHashProps(), joinDesc.getRangeProps());

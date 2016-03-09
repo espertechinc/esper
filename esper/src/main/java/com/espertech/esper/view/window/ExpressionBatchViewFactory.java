@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.view.window;
 
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -21,7 +22,7 @@ import java.util.List;
  */
 public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implements DataWindowBatchingViewFactory
 {
-    private boolean includeTriggeringEvent = true;
+    protected boolean includeTriggeringEvent = true;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
@@ -40,12 +41,12 @@ public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implem
     public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        return new ExpressionBatchView(this, relativeAccessByEvent, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
+        ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        return new ExpressionBatchView(this, viewUpdatedCollection, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexMap();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public boolean isIncludeTriggeringEvent() {

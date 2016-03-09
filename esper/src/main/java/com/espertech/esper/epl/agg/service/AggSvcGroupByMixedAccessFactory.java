@@ -44,7 +44,7 @@ public class AggSvcGroupByMixedAccessFactory extends AggregationServiceFactoryBa
         this.isJoin = isJoin;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByMixedAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin);
     }
 }

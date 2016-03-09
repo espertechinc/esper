@@ -28,8 +28,8 @@ public interface ContextManager extends FilterFaultHandler {
     public int getNumNestingLevels();
 
     public void addStatement(ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
-    public void stopStatement(String statementName, String statementId);
-    public void destroyStatement(String statementName, String statementId);
+    public void stopStatement(String statementName, int statementId);
+    public void destroyStatement(String statementName, int statementId);
 
     public void safeDestroy();
 
@@ -42,5 +42,5 @@ public interface ContextManager extends FilterFaultHandler {
     public Map<Integer, ContextPartitionDescriptor> startPaths(ContextPartitionSelector contextPartitionSelector);
 
     public Collection<Integer> getAgentInstanceIds(ContextPartitionSelector contextPartitionSelector);
-    public Map<String, ContextControllerStatementDesc> getStatements();
+    public Map<Integer, ContextControllerStatementDesc> getStatements();
 }

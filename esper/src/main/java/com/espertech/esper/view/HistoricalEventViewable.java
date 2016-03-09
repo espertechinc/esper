@@ -57,4 +57,6 @@ public interface HistoricalEventViewable extends Viewable, ValidatedView, StopCa
      * @return array of lists with one list for each event-per-stream row
      */
     public EventTable[][] poll(EventBean[][] lookupEventsPerStream, PollResultIndexingStrategy indexingStrategy, ExprEvaluatorContext exprEvaluatorContext);
+
+    public DataCache getOptionalDataCache();
 }

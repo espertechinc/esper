@@ -70,7 +70,7 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return accessor.getValue(state, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return ((ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode).getEventTypeCollection(eventAdapterService, statementId);
     }
 
@@ -94,7 +94,7 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return accessor.getEnumerableScalar(state, eventsPerStream, isNewData, context);
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return ((ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode).getEventTypeSingle(eventAdapterService, statementId);
     }
 

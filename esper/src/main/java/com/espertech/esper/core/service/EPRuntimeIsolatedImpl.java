@@ -15,6 +15,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventSender;
 import com.espertech.esper.client.EventTypeException;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
@@ -41,17 +42,17 @@ import java.util.*;
  */
 public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEventRouteDest, EPRuntimeEventSender
 {
-    private EPServicesContext unisolatedServices;
-    private EPIsolationUnitServices services;
-    private boolean isSubselectPreeval;
-    private boolean isPrioritized;
-    private boolean isLatchStatementInsertStream;
-    private ThreadWorkQueue threadWorkQueue;
+    protected EPServicesContext unisolatedServices;
+    protected EPIsolationUnitServices services;
+    protected boolean isSubselectPreeval;
+    protected boolean isPrioritized;
+    protected boolean isLatchStatementInsertStream;
+    protected ThreadWorkQueue threadWorkQueue;
 
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>> matchesPerStmtThreadLocal;
-    private ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
-    private ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>> matchesPerStmtThreadLocal;
+    protected ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>> schedulePerStmtThreadLocal;
+    protected ThreadLocal<ArrayBackedCollection<FilterHandle>> matchesArrayThreadLocal;
+    protected ThreadLocal<ArrayBackedCollection<ScheduleHandle>> scheduleArrayThreadLocal;
 
     /**
      * Ctor.
@@ -353,7 +354,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
     }
 
-    private void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
+    protected void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
     {
         if (ThreadLogUtil.ENABLED_TRACE)
         {
@@ -437,7 +438,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         DualWorkQueue queues = threadWorkQueue.getThreadQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 // Dispatch results to listeners
@@ -467,7 +468,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -496,7 +497,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = unisolatedServices.getNamedWindowService().dispatch();
+            boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -582,7 +583,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         dispatch();
     }
 
-    private void processMatches(EventBean theEvent)
+    protected void processMatches(EventBean theEvent)
     {
         // get matching filters
         ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
@@ -666,7 +667,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -700,7 +701,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {

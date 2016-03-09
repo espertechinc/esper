@@ -105,7 +105,7 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
             iterables.add(dataView);
         }
 
-        return new IterablesListIterator(iterables);
+        return new IterablesListIterator(iterables.iterator());
     }
 
     public final String toString()

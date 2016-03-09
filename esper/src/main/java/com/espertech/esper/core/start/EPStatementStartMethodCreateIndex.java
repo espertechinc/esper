@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexUtil;
@@ -45,7 +46,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
 
     public EPStatementStartResult startInternal(EPServicesContext services, final StatementContext statementContext, boolean isNewStatement, boolean isRecoveringStatement, boolean isRecoveringResilient) throws ExprValidationException, ViewProcessingException {
         CreateIndexDesc spec = statementSpec.getCreateIndexDesc();
-        final NamedWindowProcessor namedWindowProcessor = services.getNamedWindowService().getProcessor(spec.getWindowName());
+        final NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(spec.getWindowName());
         final TableMetadata tableMetadata = services.getTableService().getTableMetadata(spec.getWindowName());
         if (namedWindowProcessor == null && tableMetadata == null) {
             throw new ExprValidationException("A named window or table by name '" + spec.getWindowName() + "' does not exist");
@@ -68,7 +69,8 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
 
         // allocate context factory
         Viewable viewable = new ViewableDefaultImpl(indexedEventType);
-        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName());
+        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName(), statementSpec.getOptionalContextName());
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         // provide destroy method which de-registers interest in this index
         final TableService finalTableService = services.getTableService();
@@ -107,7 +109,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateIndexResult result;
             try {
-                result = contextFactory.newContext(defaultAgentInstanceContext, false);
+                result = contextFactory.newContext(defaultAgentInstanceContext, isRecoveringResilient);
             }
             catch (EPException ex) {
                 if (ex.getCause() instanceof ExprValidationException) {
@@ -115,12 +117,25 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                 }
                 throw ex;
             }
-            final StopCallback stopCallback = result.getStopCallback();
+            final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(result);
             stopMethod = new EPStatementStopMethod() {
                 public void stop() {
                     stopCallback.stop();
                 }
             };
+
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(result);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(result, isRecoveringResilient);
+            }
+        }
+
+        if (tableMetadata != null) {
+            services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
+        }
+        else {
+            services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), namedWindowProcessor.getNamedWindowType().getName());
         }
 
         return new EPStatementStartResult(viewable, stopMethod, destroyMethod);

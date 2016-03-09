@@ -16,7 +16,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
 import com.espertech.esper.support.bean.SupportBeanCombinedProps;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;

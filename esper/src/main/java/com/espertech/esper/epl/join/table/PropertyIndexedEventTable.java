@@ -13,10 +13,9 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Index that organizes events by the event property values into hash buckets. Based on a HashMap
@@ -25,16 +24,16 @@ import java.util.*;
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTable implements EventTable
+public abstract class PropertyIndexedEventTable implements EventTable
 {
     protected final EventPropertyGetter[] propertyGetters;
     protected final EventTableOrganization organization;
-    protected final Map<MultiKeyUntyped, Set<EventBean>> propertyIndex;
+
+    public abstract Set<EventBean> lookup(Object[] keys);
 
     public PropertyIndexedEventTable(EventPropertyGetter[] propertyGetters, EventTableOrganization organization) {
         this.propertyGetters = propertyGetters;
         this.organization = organization;
-        propertyIndex = new HashMap<MultiKeyUntyped, Set<EventBean>>();
     }
 
     /**
@@ -111,69 +110,6 @@ public class PropertyIndexedEventTable implements EventTable
         }
     }
 
-    /**
-     * Returns the set of events that have the same property value as the given event.
-     * @param keys to compare against
-     * @return set of events with property value, or null if none found (never returns zero-sized set)
-     */
-    public Set<EventBean> lookup(Object[] keys)
-    {
-        MultiKeyUntyped key = new MultiKeyUntyped(keys);
-        return propertyIndex.get(key);
-    }
-
-    public void add(EventBean theEvent)
-    {
-        MultiKeyUntyped key = getMultiKey(theEvent);
-
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
-            events = new LinkedHashSet<EventBean>();
-            propertyIndex.put(key, events);
-        }
-
-        events.add(theEvent);
-    }
-
-    public void remove(EventBean theEvent)
-    {
-        MultiKeyUntyped key = getMultiKey(theEvent);
-
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
-            return;
-        }
-
-        if (!events.remove(theEvent))
-        {
-            // Not an error, its possible that an old-data event is artificial (such as for statistics) and
-            // thus did not correspond to a new-data event raised earlier.
-            return;
-        }
-
-        if (events.isEmpty())
-        {
-            propertyIndex.remove(key);
-        }
-    }
-
-    public boolean isEmpty()
-    {
-        return propertyIndex.isEmpty();
-    }
-
-    public Iterator<EventBean> iterator()
-    {
-        return new PropertyIndexedEventTableIterator<MultiKeyUntyped>(propertyIndex);
-    }
-
-    public void clear()
-    {
-        propertyIndex.clear();
-    }
-
     public String toQueryPlan()
     {
         return this.getClass().getSimpleName() +
@@ -181,21 +117,7 @@ public class PropertyIndexedEventTable implements EventTable
                 " propertyGetters=" + Arrays.toString(propertyGetters);
     }
 
-    public Integer getNumberOfEvents() {
-        return null;
-    }
-
-    public int getNumKeys() {
-        return propertyIndex.size();
-    }
-
-    public Object getIndex() {
-        return propertyIndex;
-    }
-
     public EventTableOrganization getOrganization() {
         return organization;
     }
-
-    private static Log log = LogFactory.getLog(PropertyIndexedEventTable.class);
 }

@@ -32,7 +32,6 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     private final AgentInstanceFilterProxy agentInstanceFilterProxy;
     private final MappedEventBean agentInstanceProperties;
     private final AgentInstanceScriptContext agentInstanceScriptContext;
-    private final ExpressionResultCacheService expressionResultCacheService;
     private Object terminationCallbacks;
 
     public AgentInstanceContext(StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, int agentInstanceId, AgentInstanceFilterProxy agentInstanceFilterProxy, MappedEventBean agentInstanceProperties, AgentInstanceScriptContext agentInstanceScriptContext) {
@@ -42,12 +41,6 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
         this.agentInstanceFilterProxy = agentInstanceFilterProxy;
         this.agentInstanceProperties = agentInstanceProperties;
         this.agentInstanceScriptContext = agentInstanceScriptContext;
-        if (statementContext.isStatelessSelect()) {
-            this.expressionResultCacheService = statementContext.getExpressionResultCacheServiceSharable();
-        }
-        else {
-            this.expressionResultCacheService = new ExpressionResultCacheServiceAgentInstance();
-        }
         this.terminationCallbacks = null;
     }
 
@@ -64,7 +57,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     }
 
     public ExpressionResultCacheService getExpressionResultCacheService() {
-        return expressionResultCacheService;
+        return statementContext.getExpressionResultCacheServiceSharable();
     }
 
     public int getAgentInstanceId() {
@@ -133,7 +126,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
         return statementContext.getEngineURI();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementContext.getStatementId();
     }
 

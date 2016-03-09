@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.IterablesArrayIterator;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.PollExecStrategy;
 import com.espertech.esper.epl.expression.core.*;
@@ -32,7 +33,6 @@ import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -53,6 +53,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
 
     private SortedSet<Integer> requiredStreams;
     private ExprEvaluator[] validatedExprNodes;
+    private StatementContext statementContext;
 
     private static final EventBean[][] NULL_ROWS;
     static {
@@ -61,7 +62,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
     }
     private static final PollResultIndexingStrategy iteratorIndexingStrategy = new PollResultIndexingStrategy()
     {
-        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
         {
             return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
         }
@@ -112,12 +113,18 @@ public class MethodPollingViewable implements HistoricalEventViewable
         return dataCacheThreadLocal;
     }
 
+    public DataCache getOptionalDataCache() {
+        return dataCache;
+    }
+
     public void validate(EngineImportService engineImportService, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider,
                          VariableService variableService, TableService tableService, ExprEvaluatorContext exprEvaluatorContext, ConfigurationInformation configSnapshot,
-                         SchedulingService schedulingService, String engineURI, Map<Integer, List<ExprNode>> sqlParameters, EventAdapterService eventAdapterService, String statementName, String statementId, Annotation[] annotations) throws ExprValidationException {
+                         SchedulingService schedulingService, String engineURI, Map<Integer, List<ExprNode>> sqlParameters, EventAdapterService eventAdapterService, StatementContext statementContext) throws ExprValidationException {
+
+        this.statementContext = statementContext;
 
         // validate and visit
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
         for (ExprNode exprNode : inputParameters) {
@@ -147,7 +154,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
 
         ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
                 methodProviderClass.getName(), isStaticMethod ? null : methodProviderClass,
-                methodStreamSpec.getMethodName(), validatedInputParameters, methodResolutionService, eventAdapterService, statementId,
+                methodStreamSpec.getMethodName(), validatedInputParameters, methodResolutionService, eventAdapterService, statementContext.getStatementId(),
                 false, null, handler, methodStreamSpec.getMethodName(), tableService);
         validatedExprNodes = desc.getChildEvals();
     }
@@ -207,7 +214,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
                     List<EventBean> pollResult = pollExecStrategy.poll(lookupValues, exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
-                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive());
+                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext);
 
                     // assign to row
                     resultPerInputRow[row] = indexTable;

@@ -63,4 +63,12 @@ public class PatternNodeFactoryImpl implements PatternNodeFactory {
     public EvalRootFactoryNode makeRootNode(EvalFactoryNode childNode) {
         return new EvalRootFactoryNode(childNode);
     }
+
+    public EvalFactoryNode makeAuditNode(boolean auditPattern, boolean auditPatternInstance, String expressionText, EvalAuditInstanceCount instanceCount, boolean filterChildNonQuitting) {
+        return new EvalAuditFactoryNode(auditPattern, auditPatternInstance, expressionText, instanceCount, filterChildNonQuitting);
+    }
+
+    public boolean isAuditSupported() {
+        return true;
+    }
 }

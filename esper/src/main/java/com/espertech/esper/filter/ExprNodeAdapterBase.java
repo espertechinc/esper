@@ -69,7 +69,7 @@ public class ExprNodeAdapterBase
         return evaluatorContext.getStatementName();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return evaluatorContext.getStatementId();
     }
 
@@ -83,5 +83,9 @@ public class ExprNodeAdapterBase
 
     public int getFilterSpecParamPathNum() {
         return filterSpecParamPathNum;
+    }
+
+    public ExprEvaluatorContext getEvaluatorContext() {
+        return evaluatorContext;
     }
 }

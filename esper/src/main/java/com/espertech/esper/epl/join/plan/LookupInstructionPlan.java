@@ -78,7 +78,7 @@ public class LookupInstructionPlan
      * @param streamViews the viewable representing each stream
      * @param historicalStreamIndexLists index management for historical streams     @return executable instruction
      */
-    public LookupInstructionExec makeExec(String statementName, String statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal)
+    public LookupInstructionExec makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal)
     {
         JoinExecTableLookupStrategy strategies[] = new JoinExecTableLookupStrategy[lookupPlans.length];
         for (int i = 0; i < lookupPlans.length; i++)

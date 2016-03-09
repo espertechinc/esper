@@ -43,12 +43,18 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
      */
     protected boolean[] isDescendingValues;
 
+
+    protected ExprEvaluator[] uniqueEvals;
+    protected ExprEvaluator[] sortEvals;
+
     /**
      * The sort window size.
      */
     protected int sortWindowSize;
 
     private EventType eventType;
+
+    protected boolean useCollatorSort;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParams) throws ViewParameterException
     {
@@ -126,20 +132,18 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
             }
             count++;
         }
+
+        this.uniqueEvals = ExprNodeUtility.getEvaluators(uniqueCriteriaExpressions);
+        this.sortEvals = ExprNodeUtility.getEvaluators(sortCriteriaExpressions);
+
+        if (statementContext.getConfigSnapshot() != null) {
+            useCollatorSort = statementContext.getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
+        }
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamSortRankRandomAccess rankedRandomAccess = ViewServiceHelper.getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
-
-        boolean useCollatorSort = false;
-        if (agentInstanceViewFactoryContext.getAgentInstanceContext().getStatementContext().getConfigSnapshot() != null)
-        {
-            useCollatorSort = agentInstanceViewFactoryContext.getAgentInstanceContext().getStatementContext().getConfigSnapshot().getEngineDefaults().getLanguage().isSortUsingCollator();
-        }
-
-        ExprEvaluator[] uniqueEvals = ExprNodeUtility.getEvaluators(uniqueCriteriaExpressions);
-        ExprEvaluator[] sortEvals = ExprNodeUtility.getEvaluators(sortCriteriaExpressions);
+        IStreamSortRankRandomAccess rankedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
         return new RankWindowView(this, uniqueCriteriaExpressions, uniqueEvals, sortCriteriaExpressions, sortEvals, isDescendingValues, sortWindowSize, rankedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
     }
 
@@ -190,5 +194,25 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public String getViewName() {
         return NAME;
+    }
+
+    public boolean[] getIsDescendingValues() {
+        return isDescendingValues;
+    }
+
+    public ExprEvaluator[] getUniqueEvals() {
+        return uniqueEvals;
+    }
+
+    public ExprEvaluator[] getSortEvals() {
+        return sortEvals;
+    }
+
+    public int getSortWindowSize() {
+        return sortWindowSize;
+    }
+
+    public boolean isUseCollatorSort() {
+        return useCollatorSort;
     }
 }

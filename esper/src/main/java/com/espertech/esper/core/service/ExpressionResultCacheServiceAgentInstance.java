@@ -192,5 +192,4 @@ public class ExpressionResultCacheServiceAgentInstance implements ExpressionResu
     public void popContext() {
         lastValueCacheStack.remove();
     }
-
 }

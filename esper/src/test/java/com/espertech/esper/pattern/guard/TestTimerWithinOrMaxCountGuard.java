@@ -16,12 +16,11 @@ import com.espertech.esper.support.pattern.SupportPatternContextFactory;
 import junit.framework.TestCase;
 
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.guard.SupportQuitable;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 
 public class TestTimerWithinOrMaxCountGuard extends TestCase {

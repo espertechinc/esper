@@ -40,8 +40,9 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
     private final Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies;
     private final boolean isAllHistoricalNoSubordinate;
     private final OuterJoinDesc[] outerJoinDescList;
+    private final boolean allowIndexInit;
 
-    public JoinSetComposerPrototypeHistorical2StreamImpl(ExprNode optionalFilterNode, EventType[] streamTypes, ExprEvaluatorContext exprEvaluatorContext, int polledViewNum, int streamViewNum, boolean outerJoin, ExprNode outerJoinEqualsNode, Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies, boolean allHistoricalNoSubordinate, OuterJoinDesc[] outerJoinDescList) {
+    public JoinSetComposerPrototypeHistorical2StreamImpl(ExprNode optionalFilterNode, EventType[] streamTypes, ExprEvaluatorContext exprEvaluatorContext, int polledViewNum, int streamViewNum, boolean outerJoin, ExprNode outerJoinEqualsNode, Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies, boolean allHistoricalNoSubordinate, OuterJoinDesc[] outerJoinDescList, boolean allowIndexInit) {
         this.optionalFilterNode = optionalFilterNode;
         this.streamTypes = streamTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -52,9 +53,10 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
         this.indexStrategies = indexStrategies;
         isAllHistoricalNoSubordinate = allHistoricalNoSubordinate;
         this.outerJoinDescList = outerJoinDescList;
+        this.allowIndexInit = allowIndexInit;
     }
 
-    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext) {
+    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         QueryStrategy[] queryStrategies = new QueryStrategy[streamTypes.length];
 
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[polledViewNum];
@@ -89,7 +91,7 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
                     new HistoricalIndexLookupStrategyNoIndex(), new PollResultIndexingStrategyNoIndex());
         }
 
-        JoinSetComposer composer = new JoinSetComposerHistoricalImpl(null, queryStrategies, streamViews, exprEvaluatorContext);
+        JoinSetComposer composer = new JoinSetComposerHistoricalImpl(allowIndexInit, null, queryStrategies, streamViews, exprEvaluatorContext);
         ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
         return new JoinSetComposerDesc(composer, postJoinEval);
     }

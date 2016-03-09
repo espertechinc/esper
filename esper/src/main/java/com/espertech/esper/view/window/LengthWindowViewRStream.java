@@ -88,15 +88,7 @@ public class LengthWindowViewRStream extends ViewSupport implements DataWindowVi
                 indexedEvents.remove(anOldData);
                 internalHandleRemoved(anOldData);
             }
-
-            if (expiredArr == null)
-            {
-                expiredArr = oldData;
-            }
-            else
-            {
-                expiredArr = CollectionUtil.addArrayWithSetSemantics(expiredArr, oldData);
-            }
+            expiredArr = oldData;
         }
 
         // add data points to the window

@@ -60,8 +60,8 @@ public class JMSSubscription extends BaseSubscription
         return false; 
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
-        return null;
+        return -1;
     }
 }

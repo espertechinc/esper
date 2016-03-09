@@ -16,7 +16,7 @@ public interface EventTableFactory
 {
     public Class getEventTableClass();
 
-    public EventTable[] makeEventTables();
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent);
 
     public String toQueryPlan();
 }

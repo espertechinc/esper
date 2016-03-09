@@ -589,8 +589,8 @@ public class TestEveryDistinct extends TestCase implements SupportBeanConstants
 
         engine.getEPRuntime().sendEvent(new SupportBean("B7", 3));
         EventBean[] events = listener.getAndResetLastNewData();
-        EPAssertionUtil.assertProps(events[0], "a.theString,b.theString".split(","), new Object[]{"A1", "B7"});
-        EPAssertionUtil.assertProps(events[1], "a.theString,b.theString".split(","), new Object[]{"A3", "B7"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(events, "a.theString,b.theString".split(","),
+                new Object[][] {{"A1", "B7"}, {"A3", "B7"}});
     }
 
     public void testInvalid() throws Exception

@@ -269,8 +269,8 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
         sendTime(isolated, startTime);
         isolated.getEPAdministrator().createEPL(epl, "S0", null).addListener(listener);
         runSequence(isolated, times);
-        isolated.destroy();
         epService.getEPAdministrator().destroyAllStatements();
+        isolated.destroy();
     }
 
     private void runSequence(EPServiceProviderIsolated epService, String[] times) {

@@ -17,19 +17,20 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import java.util.List;
 
 public class ContextControllerFactoryFactorySvcImpl implements ContextControllerFactoryFactorySvc {
-    public ContextControllerFactory make(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested, ContextStateCache contextStateCache) {
+
+    public ContextControllerFactory make(ContextControllerFactoryContext factoryContext, ContextDetail detail, List<FilterSpecCompiled> optFiltersNested) {
         ContextControllerFactory factory;
         if (detail instanceof ContextDetailInitiatedTerminated) {
-            factory = new ContextControllerInitTermFactory(factoryContext, (ContextDetailInitiatedTerminated) detail, contextStateCache);
+            factory = new ContextControllerInitTermFactoryImpl(factoryContext, (ContextDetailInitiatedTerminated) detail);
         }
         else if (detail instanceof ContextDetailPartitioned) {
-            factory = new ContextControllerPartitionedFactory(factoryContext, (ContextDetailPartitioned) detail, optFiltersNested, contextStateCache);
+            factory = new ContextControllerPartitionedFactoryImpl(factoryContext, (ContextDetailPartitioned) detail, optFiltersNested);
         }
         else if (detail instanceof ContextDetailCategory) {
-            factory = new ContextControllerCategoryFactory(factoryContext, (ContextDetailCategory) detail, optFiltersNested, contextStateCache);
+            factory = new ContextControllerCategoryFactoryImpl(factoryContext, (ContextDetailCategory) detail, optFiltersNested);
         }
         else if (detail instanceof ContextDetailHash) {
-            factory = new ContextControllerHashFactory(factoryContext, (ContextDetailHash) detail, optFiltersNested, contextStateCache);
+            factory = new ContextControllerHashFactoryImpl(factoryContext, (ContextDetailHash) detail, optFiltersNested);
         }
         else {
             throw new UnsupportedOperationException("Context detail " + detail + " is not yet supported in a nested context");

@@ -14,6 +14,7 @@ package com.espertech.esper.epl.table.mgmt;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.agg.service.AggregationServiceTable;
@@ -38,8 +39,7 @@ public class TableMetadata {
     private final Map<String, TableMetadataColumn> tableColumns;
     private final TableStateRowFactory rowFactory;
     private final int numberMethodAggregations;
-    private final StatementResourceService createTableResources;
-    private final String contextName;
+    private final StatementContext statementContextCreateTable;
     private final ObjectArrayEventType internalEventType;
     private final ObjectArrayEventType publicEventType;
     private final TableMetadataInternalEventToPublic eventToPublic;
@@ -52,7 +52,7 @@ public class TableMetadata {
     private TableMetadataContext tableMetadataContext;
     private TableRowKeyFactory tableRowKeyFactory;
 
-    public TableMetadata(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory rowFactory, int numberMethodAggregations, StatementResourceService createTableResources, String contextName, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging, String createTableStatementName)
+    public TableMetadata(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory rowFactory, int numberMethodAggregations, StatementContext createTableStatementContext, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging)
             throws ExprValidationException
     {
         this.tableName = tableName;
@@ -62,8 +62,7 @@ public class TableMetadata {
         this.tableColumns = tableColumns;
         this.rowFactory = rowFactory;
         this.numberMethodAggregations = numberMethodAggregations;
-        this.createTableResources = createTableResources;
-        this.contextName = contextName;
+        this.statementContextCreateTable = createTableStatementContext;
         this.internalEventType = internalEventType;
         this.publicEventType = publicEventType;
         this.eventToPublic = eventToPublic;
@@ -71,7 +70,7 @@ public class TableMetadata {
 
         if (keyTypes.length > 0) {
             Pair<int[], IndexMultiKey> pair = TableServiceUtil.getIndexMultikeyForKeys(tableColumns, internalEventType);
-            eventTableIndexMetadataRepo.addIndex(true, pair.getSecond(), tableName, createTableStatementName, true);
+            eventTableIndexMetadataRepo.addIndex(true, pair.getSecond(), tableName, createTableStatementContext.getStatementName(), true, null);
             tableRowKeyFactory = new TableRowKeyFactory(pair.getFirst());
         }
     }
@@ -97,7 +96,7 @@ public class TableMetadata {
     }
 
     public String getContextName() {
-        return contextName;
+        return statementContextCreateTable.getContextName();
     }
 
     public ObjectArrayEventType getInternalEventType() {
@@ -144,7 +143,7 @@ public class TableMetadata {
 
     public void validateAddIndexAssignUpdateStrategies(String createIndexStatementName, IndexMultiKey imk, String indexName) throws ExprValidationException {
         // add index - for now
-        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, createIndexStatementName, true);
+        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, createIndexStatementName, true, null);
 
         // validate strategies, rollback if required
         for (Map.Entry<String, List<TableUpdateStrategyReceiverDesc>> stmtEntry : stmtNameToUpdateStrategyReceivers.entrySet()) {
@@ -202,8 +201,10 @@ public class TableMetadata {
     }
 
     public TableStateInstance getState(int agentInstanceId) {
+        StatementResourceService createTableResources = statementContextCreateTable.getStatementExtensionServicesContext().getStmtResources();
+
         StatementResourceHolder holder = null;
-        if (contextName == null) {
+        if (statementContextCreateTable.getContextName() == null) {
             holder = createTableResources.getResourcesUnpartitioned();
         }
         else {
@@ -220,7 +221,9 @@ public class TableMetadata {
     }
 
     public Collection<Integer> getAgentInstanceIds() {
-        if (contextName == null) {
+        StatementResourceService createTableResources = statementContextCreateTable.getStatementExtensionServicesContext().getStmtResources();
+
+        if (statementContextCreateTable.getContextName() == null) {
             return Collections.singleton(-1);
         }
         if (createTableResources.getResourcesPartitioned() != null) {
@@ -249,7 +252,7 @@ public class TableMetadata {
         for (int agentInstanceId : getAgentInstanceIds()) {
             TableStateInstance state = getState(agentInstanceId);
             if (state != null) {
-                state.clearEvents();
+                state.destroyInstance();
             }
         }
     }
@@ -260,5 +263,9 @@ public class TableMetadata {
 
     public String getStatementName() {
         return statementName;
+    }
+
+    public StatementContext getStatementContextCreateTable() {
+        return statementContextCreateTable;
     }
 }

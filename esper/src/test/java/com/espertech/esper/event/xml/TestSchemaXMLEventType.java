@@ -16,7 +16,7 @@ import javax.xml.xpath.XPathConstants;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 
 import org.w3c.dom.Document;
 import junit.framework.TestCase;

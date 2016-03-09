@@ -9,6 +9,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -77,13 +78,13 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexMap();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        return new ExternallyTimedBatchView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, optionalReferencePoint, relativeAccessByEvent, agentInstanceViewFactoryContext);
+        ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        return new ExternallyTimedBatchView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, optionalReferencePoint, viewUpdatedCollection, agentInstanceViewFactoryContext);
     }
 
     public EventType getEventType()
@@ -109,6 +110,18 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
 
     public String getViewName() {
         return "Externally-timed-batch";
+    }
+
+    public ExprEvaluator getTimestampExpressionEval() {
+        return timestampExpressionEval;
+    }
+
+    public Long getOptionalReferencePoint() {
+        return optionalReferencePoint;
+    }
+
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

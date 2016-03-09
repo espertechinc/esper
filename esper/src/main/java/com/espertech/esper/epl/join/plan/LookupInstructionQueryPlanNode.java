@@ -63,7 +63,7 @@ public class LookupInstructionQueryPlanNode extends QueryPlanNode
         this.assemblyInstructionFactories = assemblyInstructionFactories;
     }
 
-    public ExecNode makeExec(String statementName, String statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
+    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
     {
         LookupInstructionExec execs[] = new LookupInstructionExec[lookupInstructions.size()];
 

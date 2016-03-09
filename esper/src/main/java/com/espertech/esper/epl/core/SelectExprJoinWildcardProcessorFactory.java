@@ -39,7 +39,7 @@ public class SelectExprJoinWildcardProcessorFactory
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression validation failed
      */
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
-                                                  String statementId,
+                                                  int statementId,
                                                   String[] streamNames,
                                                   EventType[] streamTypes,
                                                   EventAdapterService eventAdapterService,
@@ -99,7 +99,7 @@ public class SelectExprJoinWildcardProcessorFactory
             }
             else {
                 if (useMap) {
-                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap);
+                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap, true);
                 }
                 else {
                     resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap);

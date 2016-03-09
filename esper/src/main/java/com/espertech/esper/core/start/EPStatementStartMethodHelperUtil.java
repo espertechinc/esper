@@ -26,10 +26,10 @@ import com.espertech.esper.view.ViewFactoryChain;
 
 public class EPStatementStartMethodHelperUtil
 {
-    public static Pair<ResultSetProcessor, AggregationService> startResultSetAndAggregation(ResultSetProcessorFactoryDesc resultSetProcessorPrototype, AgentInstanceContext agentInstanceContext) {
+    public static Pair<ResultSetProcessor, AggregationService> startResultSetAndAggregation(ResultSetProcessorFactoryDesc resultSetProcessorPrototype, AgentInstanceContext agentInstanceContext, boolean isSubquery, Integer subqueryNumber) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
-            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), isSubquery, subqueryNumber);
         }
 
         OrderByProcessor orderByProcessor = null;

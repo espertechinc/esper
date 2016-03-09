@@ -12,7 +12,7 @@
 package com.espertech.esper.event.property;
 
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

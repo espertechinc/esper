@@ -247,7 +247,7 @@ public class TestFollowedByOperator extends TestCase implements SupportBeanConst
         statement.addListener(listener);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
 
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 10; i++)
         {
             /*
             if (i % 1000 == 0)

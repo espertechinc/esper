@@ -81,7 +81,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return aggType;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 
@@ -97,7 +97,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

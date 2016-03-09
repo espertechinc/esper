@@ -27,7 +27,7 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl
     private final boolean isOuterJoins;
 
     public JoinSetComposerFAFImpl(Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin, ExprEvaluatorContext exprEvaluatorContext, boolean joinRemoveStream, boolean outerJoins) {
-        super(repositories, queryStrategies, isPureSelfJoin, exprEvaluatorContext, joinRemoveStream);
+        super(false, repositories, queryStrategies, isPureSelfJoin, exprEvaluatorContext, joinRemoveStream);
         isOuterJoins = outerJoins;
     }
 

@@ -50,19 +50,24 @@ public class VariableServiceUtil {
             throws ExprValidationException
     {
         if (variableService.getVariableMetaData(variableName) != null) {
-            throw new ExprValidationException(getAlreadyDeclaredEx(variableName));
+            throw new ExprValidationException(getAlreadyDeclaredEx(variableName, false));
         }
     }
 
-    public static void checkAlreadyDeclaredTable(String variableName, TableService tableService)
+    public static void checkAlreadyDeclaredTable(String tableName, TableService tableService)
             throws ExprValidationException
     {
-        if (tableService.getTableMetadata(variableName) != null) {
-            throw new ExprValidationException(getAlreadyDeclaredEx(variableName));
+        if (tableService.getTableMetadata(tableName) != null) {
+            throw new ExprValidationException(getAlreadyDeclaredEx(tableName, true));
         }
     }
 
-    public static String getAlreadyDeclaredEx(String variableName) {
-        return "Variable by name '" + variableName + "' has already been created";
+    public static String getAlreadyDeclaredEx(String variableOrTableName, boolean isTable) {
+        if (isTable) {
+            return "Table by name '" + variableOrTableName + "' has already been created";
+        }
+        else {
+            return "Variable by name '" + variableOrTableName + "' has already been created";
+        }
     }
 }

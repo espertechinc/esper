@@ -15,12 +15,12 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
 import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.lookup.EventTableIndexRepository;
-import com.espertech.esper.epl.lookup.IndexMultiKey;
-import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
+import com.espertech.esper.epl.join.table.EventTableUtil;
+import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
 
@@ -42,12 +42,23 @@ public class NamedWindowRootViewInstance extends ViewSupport
 
     private Iterable<EventBean> dataWindowContents;
 
-    public NamedWindowRootViewInstance(NamedWindowRootView rootView, AgentInstanceContext agentInstanceContext) {
+    public NamedWindowRootViewInstance(NamedWindowRootView rootView, AgentInstanceContext agentInstanceContext, EventTableIndexMetadata eventTableIndexMetadata) {
         this.rootView = rootView;
         this.agentInstanceContext = agentInstanceContext;
 
         this.indexRepository = new EventTableIndexRepository();
+        for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry : eventTableIndexMetadata.getIndexes().entrySet()) {
+            if (entry.getValue().getQueryPlanIndexItem() != null) {
+                EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName(), null, false);
+                indexRepository.addIndex(entry.getKey(), new EventTableIndexRepositoryEntry(entry.getValue().getOptionalIndexName(), index));
+            }
+        }
+
         this.tablePerMultiLookup = new HashMap<SubordWMatchExprLookupStrategy, EventTable[]>();
+    }
+
+    public AgentInstanceContext getAgentInstanceContext() {
+        return agentInstanceContext;
     }
 
     public EventTableIndexRepository getIndexRepository() {
@@ -149,6 +160,9 @@ public class NamedWindowRootViewInstance extends ViewSupport
     {
         indexRepository.destroy();
         tablePerMultiLookup.clear();
+        if (isVirtualDataWindow()) {
+            getVirtualDataWindow().handleStopWindow();
+        }
     }
 
     /**
@@ -174,8 +188,10 @@ public class NamedWindowRootViewInstance extends ViewSupport
      * @param columns properties indexed
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
-    public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), dataWindowContents);
+    public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {
+        boolean initIndex = agentInstanceContext.getStatementContext().getEventTableIndexService().allowInitIndex(isRecoveringResilient);
+        Iterable<EventBean> initializeFrom = initIndex ? this.dataWindowContents : CollectionUtil.NULL_EVENT_ITERABLE;
+        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
     }
 
     public boolean isVirtualDataWindow() {
@@ -205,5 +221,11 @@ public class NamedWindowRootViewInstance extends ViewSupport
 
     public boolean isQueryPlanLogging() {
         return rootView.isQueryPlanLogging();
+    }
+
+    public void stop() {
+        if (isVirtualDataWindow()) {
+            getVirtualDataWindow().handleStopWindow();
+        }
     }
 }

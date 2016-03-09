@@ -65,7 +65,7 @@ public class NestedIterationNode extends QueryPlanNode
         return childNodes;
     }
 
-    public ExecNode makeExec(String statementName, String statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexList, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
+    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexList, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
     {
         if (childNodes.isEmpty())
         {

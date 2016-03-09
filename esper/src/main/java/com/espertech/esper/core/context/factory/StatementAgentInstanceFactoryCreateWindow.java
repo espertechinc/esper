@@ -84,7 +84,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             eventStreamParentViewable = viewableActivationResult.getViewable();
 
             // Obtain processor for this named window
-            NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(windowName);
+            NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(windowName);
 
             if (processor == null) {
                 throw new RuntimeException("Failed to obtain named window processor for named window '" + windowName + "'");
@@ -96,10 +96,13 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             eventStreamParentViewable.addView(rootView);
 
             // Materialize views
-            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null);
+            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null, 0, false, -1);
             ViewServiceCreateResult createResult = services.getViewService().createViews(rootView, unmaterializedViewChain.getViewFactoryChain(), viewFactoryChainContext, false);
             topView = createResult.getTopViewable();
             finalView = createResult.getFinalViewable();
+
+            // add views to stop callback if applicable
+            StatementAgentInstanceFactorySelect.addViewStopCallback(stopCallbacks, createResult.getNewViews());
 
             // If this is a virtual data window implementation, bind it to the context for easy lookup
             StopCallback envStopCallback = null;
@@ -123,20 +126,24 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             }
             final StopCallback environmentStopCallback = envStopCallback;
 
-            // create stop method using statement stream specs
-            StopCallback allInOneStopMethod = new StopCallback()
-            {
-                public void stop()
-                {
+            // Only if we are context-allocated: destroy the instance
+            final String contextName = processor.getContextName();
+            final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
+            StopCallback allInOneStopMethod = new StopCallback() {
+                public void stop() {
                     String windowName = statementSpec.getCreateWindowDesc().getWindowName();
-                    NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(windowName);
+                    NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(windowName);
                     if (processor == null) {
                         log.warn("Named window processor by name '" + windowName + "' has not been found");
-                    }
-                    else {
-                        NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceContext);
-                        if (instance != null && instance.getRootViewInstance().isVirtualDataWindow()) {
-                            instance.getRootViewInstance().getVirtualDataWindow().handleStopWindow();
+                    } else {
+                        NamedWindowProcessorInstance instance = processor.getProcessorInstanceAllowUnpartitioned(agentInstanceId);
+                        if (instance != null) {
+                            if (contextName != null) {
+                                instance.destroy();
+                            }
+                            else {
+                                instance.stop();
+                            }
                         }
                     }
                     if (environmentStopCallback != null) {
@@ -152,7 +159,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             finalView = tailView;
 
             // obtain result set processor
-            ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
+            ResultSetProcessor resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, false);
 
             // Attach output view
             View outputView = outputProcessViewFactory.makeView(resultSetProcessor, agentInstanceContext);
@@ -163,10 +170,10 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             postLoad = processorInstance.getPostLoad();
 
             // Handle insert case
-            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement)
+            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement && !isRecoveringResilient)
             {
                 String insertFromWindow = statementSpec.getCreateWindowDesc().getInsertFromWindow();
-                NamedWindowProcessor namedWindowProcessor = services.getNamedWindowService().getProcessor(insertFromWindow);
+                NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(insertFromWindow);
                 NamedWindowProcessorInstance sourceWindowInstances = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
                 List<EventBean> events = new ArrayList<EventBean>();
                 if (statementSpec.getCreateWindowDesc().getInsertFilter() != null)

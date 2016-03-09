@@ -90,4 +90,7 @@ public class AIRegistryAggregationSingle implements AIRegistryAggregation, Aggre
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return service.getGroupKeys(exprEvaluatorContext);
     }
+
+    public void stop() {
+    }
 }

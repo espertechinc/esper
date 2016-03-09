@@ -41,8 +41,8 @@ public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCa
         SupportScheduleCallback.orderAllCallbacks = orderAllCallbacks;
     }
 
-    public String getStatementId() {
-        return null;
+    public int getStatementId() {
+        return 1;
     }
 
     public int getAgentInstanceId() {

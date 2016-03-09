@@ -10,12 +10,13 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.util.StopCallback;
 
 /**
  * Service for maintaining aggregation state. Processes events entering (a window, a join etc,) and
  * events leaving. Answers questions about current aggregation state for a given row.
  */
-public interface AggregationService extends AggregationResultFuture
+public interface AggregationService extends AggregationResultFuture, StopCallback
 {
     /**
      * Apply events as entering a window (new events).

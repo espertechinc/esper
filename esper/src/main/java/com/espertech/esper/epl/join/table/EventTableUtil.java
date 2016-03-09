@@ -9,7 +9,9 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.util.CollectionUtil;
 
 public class EventTableUtil
@@ -22,18 +24,21 @@ public class EventTableUtil
      * @param optionalIndexName
      * @return table build
      */
-    public static EventTable buildIndex(int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean coerceOnAddOnly, boolean unique, String optionalIndexName)
+    public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean coerceOnAddOnly, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget)
     {
         String[] indexProps = item.getIndexProps();
         Class[] indexCoercionTypes = normalize(item.getOptIndexCoercionTypes());
         String[] rangeProps = item.getRangeProps();
         Class[] rangeCoercionTypes = normalize(item.getOptRangeCoercionTypes());
+        EventTableFactoryTableIdentAgentInstance ident = new EventTableFactoryTableIdentAgentInstance(agentInstanceContext);
+        EventTableIndexService eventTableIndexService = agentInstanceContext.getStatementContext().getEventTableIndexService();
 
         EventTable table;
         if (rangeProps == null || rangeProps.length == 0) {
             if (indexProps == null || indexProps.length == 0)
             {
-                table = new UnindexedEventTable(indexedStreamNum);
+                EventTableFactory factory = eventTableIndexService.createUnindexed(indexedStreamNum, optionalSerde, isFireAndForget);
+                table = factory.makeEventTables(ident)[0];
             }
             else
             {
@@ -41,18 +46,18 @@ public class EventTableUtil
                 if (indexProps.length == 1) {
                     if (indexCoercionTypes == null || indexCoercionTypes.length == 0)
                     {
-                        PropertyIndexedEventTableSingleFactory factory = new PropertyIndexedEventTableSingleFactory(indexedStreamNum, eventType, indexProps[0], unique, optionalIndexName);
-                        table = factory.makeEventTables()[0];
+                        EventTableFactory factory = eventTableIndexService.createSingle(indexedStreamNum, eventType, indexProps[0], unique, optionalIndexName, optionalSerde, isFireAndForget);
+                        table = factory.makeEventTables(ident)[0];
                     }
                     else
                     {
                         if (coerceOnAddOnly) {
-                            PropertyIndexedEventTableSingleCoerceAddFactory factory = new PropertyIndexedEventTableSingleCoerceAddFactory(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0]);
-                            table = factory.makeEventTables()[0];
+                            EventTableFactory factory = eventTableIndexService.createSingleCoerceAdd(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0], optionalSerde, isFireAndForget);
+                            table = factory.makeEventTables(ident)[0];
                         }
                         else {
-                            PropertyIndexedEventTableSingleCoerceAllFactory factory = new PropertyIndexedEventTableSingleCoerceAllFactory(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0]);
-                            table = factory.makeEventTables()[0];
+                            EventTableFactory factory = eventTableIndexService.createSingleCoerceAll(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0], optionalSerde, isFireAndForget);
+                            table = factory.makeEventTables(ident)[0];
                         }
                     }
                 }
@@ -60,18 +65,18 @@ public class EventTableUtil
                 else {
                     if (indexCoercionTypes == null || indexCoercionTypes.length == 0)
                     {
-                        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(indexedStreamNum, eventType, indexProps, unique, optionalIndexName);
-                        table = factory.makeEventTables()[0];
+                        EventTableFactory factory = eventTableIndexService.createMultiKey(indexedStreamNum, eventType, indexProps, unique, optionalIndexName, optionalSerde, isFireAndForget);
+                        table = factory.makeEventTables(ident)[0];
                     }
                     else
                     {
                         if (coerceOnAddOnly) {
-                            PropertyIndexedEventTableCoerceAddFactory factory = new PropertyIndexedEventTableCoerceAddFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
-                            table = factory.makeEventTables()[0];
+                            EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAdd(indexedStreamNum, eventType, indexProps, indexCoercionTypes, isFireAndForget);
+                            table = factory.makeEventTables(ident)[0];
                         }
                         else {
-                            PropertyIndexedEventTableCoerceAllFactory factory = new PropertyIndexedEventTableCoerceAllFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes);
-                            table = factory.makeEventTables()[0];
+                            EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAll(indexedStreamNum, eventType, indexProps, indexCoercionTypes, isFireAndForget);
+                            table = factory.makeEventTables(ident)[0];
                         }
                     }
                 }
@@ -80,17 +85,17 @@ public class EventTableUtil
         else {
             if ((rangeProps.length == 1) && (indexProps == null || indexProps.length == 0)) {
                 if (rangeCoercionTypes == null) {
-                    PropertySortedEventTableFactory factory = new PropertySortedEventTableFactory(indexedStreamNum, eventType, rangeProps[0]);
-                    return factory.makeEventTables()[0];
+                    EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], isFireAndForget);
+                    return factory.makeEventTables(ident)[0];
                 }
                 else {
-                    PropertySortedEventTableCoercedFactory factory = new PropertySortedEventTableCoercedFactory(indexedStreamNum, eventType, rangeProps[0], rangeCoercionTypes[0]);
-                    return factory.makeEventTables()[0];
+                    EventTableFactory factory = eventTableIndexService.createSortedCoerce(indexedStreamNum, eventType, rangeProps[0], rangeCoercionTypes[0], isFireAndForget);
+                    return factory.makeEventTables(ident)[0];
                 }
             }
             else {
-                PropertyCompositeEventTableFactory factory = new PropertyCompositeEventTableFactory(indexedStreamNum, eventType, indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes);
-                return factory.makeEventTables()[0];
+                EventTableFactory factory = eventTableIndexService.createComposite(indexedStreamNum, eventType, indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, isFireAndForget);
+                return factory.makeEventTables(ident)[0];
             }
         }
         return table;

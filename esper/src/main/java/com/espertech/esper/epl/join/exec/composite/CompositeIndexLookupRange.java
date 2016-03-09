@@ -35,7 +35,7 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
         this.coercionType = coercionType;
     }
 
-    public void lookup(Map parent, Set<EventBean> result) {
+    public void lookup(Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (lookupValue instanceof RangeIndexLookupValueEquals) {
             RangeIndexLookupValueEquals equals = (RangeIndexLookupValueEquals) lookupValue;
             Object inner = parent.get(equals.getValue());
@@ -44,7 +44,7 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
             }
             else {
                 Map innerMap = (Map) inner;
-                next.lookup(innerMap, result);
+                next.lookup(innerMap, result, postProcessor);
             }
             return;
         }
@@ -55,54 +55,54 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
         Object rangeValue = lookup.getValue();
         if (lookup.getOperator() == QueryGraphRangeEnum.RANGE_CLOSED) {
             Range range = (Range) rangeValue;
-            lookupRange(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), true, true);
+            lookupRange(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), true, true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.RANGE_HALF_OPEN) {
             Range range = (Range) rangeValue;
-            lookupRange(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), false, true);
+            lookupRange(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), false, true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.RANGE_HALF_CLOSED) {
             Range range = (Range) rangeValue;
-            lookupRange(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), true, true);
+            lookupRange(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), true, true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.RANGE_OPEN) {
             Range range = (Range) rangeValue;
-            lookupRange(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), false, true);
+            lookupRange(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), false, true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.NOT_RANGE_CLOSED) {
             Range range = (Range) rangeValue;
-            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), true);
+            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_OPEN) {
             Range range = (Range) rangeValue;
-            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), false);
+            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), true, range.getHighEndpoint(), false, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_CLOSED) {
             Range range = (Range) rangeValue;
-            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), true);
+            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), true, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.NOT_RANGE_OPEN) {
             Range range = (Range) rangeValue;
-            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), false);
+            lookupRangeInverted(result, treeMap, range.getLowEndpoint(), false, range.getHighEndpoint(), false, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.GREATER) {
-            lookupGreater(result, treeMap, rangeValue);
+            lookupGreater(result, treeMap, rangeValue, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
-            lookupGreaterEqual(result, treeMap, rangeValue);
+            lookupGreaterEqual(result, treeMap, rangeValue, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.LESS) {
-            lookupLess(result, treeMap, rangeValue);
+            lookupLess(result, treeMap, rangeValue, postProcessor);
         }
         else if (lookup.getOperator() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
-            lookupLessEqual(result, treeMap, rangeValue);
+            lookupLessEqual(result, treeMap, rangeValue, postProcessor);
         }
         else {
             throw new IllegalArgumentException("Unrecognized operator '" + lookup.getOperator() + "'");
         }
     }
 
-    public void lookupRange(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, boolean includeStart, Object keyEnd, boolean includeEnd, boolean allowRangeReversal) {
+    public void lookupRange(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, boolean includeStart, Object keyEnd, boolean includeEnd, boolean allowRangeReversal, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null || keyEnd == null) {
             return;
         }
@@ -120,10 +120,10 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
                 return;
             }
         }
-        normalize(result, submap);
+        normalize(result, submap, postProcessor);
     }
 
-    public void lookupRangeInverted(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, boolean includeStart, Object keyEnd, boolean includeEnd) {
+    public void lookupRangeInverted(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, boolean includeStart, Object keyEnd, boolean includeEnd, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null || keyEnd == null) {
             return;
         }
@@ -131,66 +131,73 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
         keyEnd = coerce(keyEnd);
         SortedMap<Object,Object> submapOne = propertyIndex.headMap(keyStart, !includeStart);
         SortedMap<Object,Object> submapTwo = propertyIndex.tailMap(keyEnd, !includeEnd);
-        normalize(result, submapOne, submapTwo);
+        normalize(result, submapOne, submapTwo, postProcessor);
     }
 
-    public void lookupLess(Set<EventBean> result, TreeMap propertyIndex, Object keyStart) {
+    public void lookupLess(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null) {
             return;
         }
         keyStart = coerce(keyStart);
-        normalize(result, propertyIndex.headMap(keyStart));
+        normalize(result, propertyIndex.headMap(keyStart), postProcessor);
     }
 
-    public void lookupLessEqual(Set<EventBean> result, TreeMap propertyIndex, Object keyStart) {
+    public void lookupLessEqual(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null) {
             return;
         }
         keyStart = coerce(keyStart);
-        normalize(result, propertyIndex.headMap(keyStart, true));
+        normalize(result, propertyIndex.headMap(keyStart, true), postProcessor);
     }
 
-    public void lookupGreaterEqual(Set<EventBean> result, TreeMap propertyIndex, Object keyStart) {
+    public void lookupGreaterEqual(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null) {
             return;
         }
         keyStart = coerce(keyStart);
-        normalize(result, propertyIndex.tailMap(keyStart));
+        normalize(result, propertyIndex.tailMap(keyStart), postProcessor);
     }
 
-    public void lookupGreater(Set<EventBean> result, TreeMap propertyIndex, Object keyStart) {
+    public void lookupGreater(Set<EventBean> result, TreeMap propertyIndex, Object keyStart, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (keyStart == null) {
             return;
         }
         keyStart = coerce(keyStart);
-        normalize(result, propertyIndex.tailMap(keyStart, false));
+        normalize(result, propertyIndex.tailMap(keyStart, false), postProcessor);
     }
 
     private Object coerce(Object key) {
         return EventBeanUtility.coerce(key, coercionType);
     }
 
-    private void normalize(Set<EventBean> result, Map<Object, Object> submap) {
+    private void normalize(Set<EventBean> result, Map<Object, Object> submap, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (submap.size() == 0) {
             return;
         }
         if (next == null) {
-            for (Map.Entry<Object, Object> entry : submap.entrySet()) {
-                Set<EventBean> set = (Set<EventBean>) entry.getValue();
-                result.addAll(set);
+            if (postProcessor != null) {
+                for (Map.Entry<Object, Object> entry : submap.entrySet()) {
+                    postProcessor.add(entry.getValue(), result);
+                }
+            }
+            else {
+                for (Map.Entry<Object, Object> entry : submap.entrySet()) {
+                    Set<EventBean> set = (Set<EventBean>) entry.getValue();
+                    result.addAll(set);
+                }
             }
         }
         else {
             for (Map.Entry<Object,Object> entry : submap.entrySet()) {
                 TreeMap index = (TreeMap) entry.getValue();
-                next.lookup(index, result);
+                next.lookup(index, result, postProcessor);
             }
         }
     }
 
-    private void normalize(Set<EventBean> result, SortedMap<Object,Object> submapOne, SortedMap<Object,Object> submapTwo) {
-        normalize(result, submapTwo);
-        normalize(result, submapOne);
+    private void normalize(Set<EventBean> result, SortedMap<Object,Object> submapOne, SortedMap<Object,Object> submapTwo, CompositeIndexQueryResultPostProcessor postProcessor) {
+        normalize(result, submapTwo, postProcessor);
+        normalize(result, submapOne, postProcessor);
     }
 
     public void setNext(CompositeIndexLookup next) {

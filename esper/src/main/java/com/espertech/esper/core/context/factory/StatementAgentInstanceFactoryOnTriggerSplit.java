@@ -40,7 +40,7 @@ public class StatementAgentInstanceFactoryOnTriggerSplit extends StatementAgentI
         this.insertIntoTableNames = insertIntoTableNames;
     }
 
-    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
+    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
         ResultSetProcessor[] processors = new ResultSetProcessor[splitDesc.getProcessorFactories().length];
         for (int i = 0; i < processors.length; i++) {
             ResultSetProcessorFactoryDesc factory = splitDesc.getProcessorFactories()[i];

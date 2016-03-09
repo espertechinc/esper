@@ -13,10 +13,8 @@ import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.annotation.IterableUnbound;
 import com.espertech.esper.client.hook.SQLColumnTypeConversion;
 import com.espertech.esper.client.hook.SQLOutputRowConversion;
-import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.activator.ViewableActivatorFactory;
-import com.espertech.esper.core.context.activator.ViewableActivatorTable;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.subselect.SubSelectActivationCollection;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyCollection;
@@ -36,9 +34,9 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.base.HistoricalViewableDesc;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
-import com.espertech.esper.epl.named.NamedWindowService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.util.EPLValidationUtil;
@@ -53,7 +51,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
-import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.HistoricalEventViewable;
@@ -106,7 +103,7 @@ public class EPStatementStartMethodSelectUtil
         HistoricalEventViewable[] historicalEventViewables = new HistoricalEventViewable[numStreams];
 
         // verify for joins that required views are present
-        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowService(), defaultAgentInstanceContext);
+        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowMgmtService(), defaultAgentInstanceContext);
         final ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
 
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
@@ -153,7 +150,7 @@ public class EPStatementStartMethodSelectUtil
                             };
                         }
 
-                        activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), false, instrumentationAgentFilter, isCanIterateUnbound);
+                        activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), false, instrumentationAgentFilter, isCanIterateUnbound, i);
                     }
                 }
                 eventStreamParentViewableActivators[i] = activatorDeactivator;
@@ -185,15 +182,11 @@ public class EPStatementStartMethodSelectUtil
                 SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, statementContext.getMethodResolutionService());
                 SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) JavaClassHelper.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getMethodResolutionService());
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
-                final HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
-                        statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC());
+                HistoricalEventViewable historicalEventViewable = DatabasePollingViewableFactory.createDBStatementView(statementContext.getStatementId(), i, sqlStreamSpec, services.getDatabaseRefService(), services.getEventAdapterService(), epStatementAgentInstanceHandle, typeConversionHook, outputRowConversionHook,
+                        statementContext.getConfigSnapshot().getEngineDefaults().getLogging().isEnableJDBC(), services.getDataCacheFactory(), statementContext);
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
-                eventStreamParentViewableActivators[i] = new ViewableActivator() {
-                    public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, null, false, false, null);
-                    }
-                };
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);
                 stopCallbacks.add(historicalEventViewable);
             }
             else if (streamSpec instanceof MethodStreamSpec)
@@ -201,14 +194,10 @@ public class EPStatementStartMethodSelectUtil
                 validateNoViews(streamSpec, "Method data");
                 MethodStreamSpec methodStreamSpec = (MethodStreamSpec) streamSpec;
                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = defaultAgentInstanceContext.getEpStatementAgentInstanceHandle();
-                final HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName());
+                HistoricalEventViewable historicalEventViewable = MethodPollingViewableFactory.createPollMethodView(i, methodStreamSpec, services.getEventAdapterService(), epStatementAgentInstanceHandle, statementContext.getMethodResolutionService(), services.getEngineImportService(), statementContext.getSchedulingService(), statementContext.getScheduleBucket(), evaluatorContextStmt, statementContext.getVariableService(), statementContext.getContextName(), services.getDataCacheFactory(), statementContext);
                 historicalEventViewables[i] = historicalEventViewable;
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(historicalEventViewable.getEventType());
-                eventStreamParentViewableActivators[i] = new ViewableActivator() {
-                    public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(historicalEventViewable, CollectionUtil.STOP_CALLBACK_NONE, null, null, null, false, false, null);
-                    }
-                };
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().makeHistorical(historicalEventViewable);
                 stopCallbacks.add(historicalEventViewable);
             }
             else if (streamSpec instanceof TableQueryStreamSpec)
@@ -224,7 +213,7 @@ public class EPStatementStartMethodSelectUtil
                     tableFilterEvals = ExprNodeUtility.getEvaluators(tableStreamSpec.getFilterExpressions());
                 }
                 EPLValidationUtil.validateContextName(true, metadata.getTableName(), metadata.getContextName(), statementSpec.getOptionalContextName(), false);
-                eventStreamParentViewableActivators[i] = new ViewableActivatorTable(metadata, tableFilterEvals);
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createTable(metadata, tableFilterEvals);
                 unmaterializedViewChain[i] = ViewFactoryChain.fromTypeNoViews(metadata.getInternalEventType());
                 eventTypeNames[i] = tableStreamSpec.getTableName();
                 joinAnalysisResult.setTablesForStream(i, metadata);
@@ -237,17 +226,19 @@ public class EPStatementStartMethodSelectUtil
                 if (isJoin) {
                     destroyCallbacks.addCallback(new EPStatementDestroyCallbackTableIdxRef(services.getTableService(), metadata, statementContext.getStatementName()));
                 }
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), metadata.getTableName());
             }
             else if (streamSpec instanceof NamedWindowConsumerStreamSpec)
             {
                 final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
-                final NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                final NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
                 }
 
-                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec.getFilterExpressions(), namedSpec.getOptPropertyEvaluator());
+                eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
+                services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
                 unmaterializedViewChain[i] = services.getViewService().createFactories(i, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                 joinAnalysisResult.setNamedWindow(i);
                 eventTypeNames[i] = namedSpec.getWindowName();
@@ -311,7 +302,7 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt,
                     services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(),
                     statementSpec.getSqlParameters(),
-                    statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
+                    statementContext.getEventAdapterService(), statementContext);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream))
             {
@@ -327,7 +318,7 @@ public class EPStatementStartMethodSelectUtil
         // Construct a processor for results posted by views and joins, which takes care of aggregation if required.
         // May return null if we don't need to post-process results posted by views or joins.
         ResultSetProcessorFactoryDesc resultSetProcessorPrototypeDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                statementSpec, statementContext, typeService, viewResourceDelegateUnverified, joinAnalysisResult.getUnidirectionalInd(), true, contextPropertyRegistry, selectExprProcessorDeliveryCallback, services.getConfigSnapshot());
+                statementSpec, statementContext, typeService, viewResourceDelegateUnverified, joinAnalysisResult.getUnidirectionalInd(), true, contextPropertyRegistry, selectExprProcessorDeliveryCallback, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
 
         // Validate where-clause filter tree, outer join clause and output limit expression
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, viewResourceDelegateUnverified);
@@ -345,11 +336,11 @@ public class EPStatementStartMethodSelectUtil
                     statementContext.getStatementName(), statementContext.getStatementId(),
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typeService.getEventTypes(), streamNames,
                     joinAnalysisResult, queryPlanLogging, statementContext, historicalViewableDesc, defaultAgentInstanceContext,
-                    selectsRemoveStream, hasAggregations, services.getTableService(), false);
+                    selectsRemoveStream, hasAggregations, services.getTableService(), false, services.getEventTableIndexService().allowInitIndex(recoveringResilient));
         }
 
         // obtain factory for output limiting
-        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType());
+        OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultEventType(), optionalOutputProcessViewCallback, services.getTableService(), resultSetProcessorPrototypeDesc.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
         // Factory for statement-context instances
         StatementAgentInstanceFactorySelect factory = new StatementAgentInstanceFactorySelect(
@@ -371,7 +362,7 @@ public class EPStatementStartMethodSelectUtil
         }
     }
 
-    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowService namedWindowService, AgentInstanceContext defaultAgentInstanceContext)
+    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowMgmtService namedWindowMgmtService, AgentInstanceContext defaultAgentInstanceContext)
             throws ExprValidationException
     {
         StreamSpecCompiled[] streamSpecs = statementSpec.getStreamSpecs();
@@ -408,9 +399,8 @@ public class EPStatementStartMethodSelectUtil
                     throw new ExprValidationException("Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");
                 }
                 analysisResult.setNamedWindow(i);
-                final NamedWindowProcessor processor = namedWindowService.getProcessor(nwSpec.getWindowName());
-                NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(defaultAgentInstanceContext);
-                String[][] uniqueIndexes = processor.getUniqueIndexes(processorInstance);
+                final NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(nwSpec.getWindowName());
+                String[][] uniqueIndexes = processor.getUniqueIndexes();
                 analysisResult.getUniqueKeys()[i] = uniqueIndexes;
                 if (processor.isVirtualDataWindow()) {
                     analysisResult.getViewExternal()[i] = new VirtualDWViewProviderForAgentInstance() {

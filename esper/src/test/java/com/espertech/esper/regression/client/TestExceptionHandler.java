@@ -97,6 +97,29 @@ public class TestExceptionHandler extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
+    /**
+     * Excercise the configuration that does not have an exception handler.
+     */
+    public void testNoHandler()
+    {
+        Configuration config = SupportConfigFactory.getConfiguration();
+        config.getEngineDefaults().getExceptionHandling().getHandlerFactories().clear();
+        config.addPlugInAggregationFunctionFactory("myinvalidagg", InvalidAggTestFactory.class.getName());
+
+        epService = EPServiceProviderManager.getDefaultProvider(config);
+        epService.initialize();
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
+
+        String epl = "@Name('ABCName') select myinvalidagg() from SupportBean";
+        epService.getEPAdministrator().createEPL(epl);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
     public static class InvalidAggTestFactory implements AggregationFunctionFactory {
 
         @Override

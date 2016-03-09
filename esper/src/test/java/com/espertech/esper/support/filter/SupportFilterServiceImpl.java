@@ -33,7 +33,7 @@ public class SupportFilterServiceImpl implements FilterService
         throw new UnsupportedOperationException();
     }
 
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, String statementId)
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId)
     {
         throw new UnsupportedOperationException();
     }

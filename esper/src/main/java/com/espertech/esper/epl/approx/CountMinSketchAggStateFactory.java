@@ -8,21 +8,12 @@
  **************************************************************************************/
 package com.espertech.esper.epl.approx;
 
-import com.espertech.esper.epl.agg.access.AggregationAccessor;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.approx.CountMinSketchAggAccessorDefault;
-import com.espertech.esper.epl.approx.CountMinSketchAggType;
-import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.util.JavaClassHelper;
-
-import java.util.Arrays;
 
 public class CountMinSketchAggStateFactory implements AggregationStateFactory
 {
@@ -34,7 +25,7 @@ public class CountMinSketchAggStateFactory implements AggregationStateFactory
         this.specification = specification;
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey) {
+    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         return methodResolutionService.makeCountMinSketch(agentInstanceId, groupId, aggregationId, specification);
     }
 

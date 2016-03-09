@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
 /**
  * A view that prepares output events, batching incoming
@@ -23,8 +24,8 @@ public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessV
 {
     private final OutputStrategyPostProcess postProcessor;
 
-    public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext);
+    public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, boolean isJoin, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
+        super(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, isJoin);
         this.postProcessor = postProcessor;
     }
 

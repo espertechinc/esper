@@ -12,7 +12,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
 import com.espertech.esper.view.std.FirstElementView;

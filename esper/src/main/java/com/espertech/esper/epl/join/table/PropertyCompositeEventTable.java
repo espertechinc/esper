@@ -9,52 +9,25 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemove;
+import com.espertech.esper.epl.join.exec.composite.CompositeIndexQueryResultPostProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
+import java.util.Map;
 
-/**
- * For use when the index comprises of either two or more ranges or a unique key in combination with a range.
- * Organizes into a TreeMap<key, TreeMap<key2, Set<EventBean>>, for short. The top level can also be just Map<MultiKeyUntyped, TreeMap...>.
- * Expected at least either (A) one key and one range or (B) zero keys and 2 ranges.
- * <p>
- * An alternative implementatation could have been based on "TreeMap<ComparableMultiKey, Set<EventBean>>>", however the following implication arrive
- * - not applicable for range-only lookups (since there the key can be the value itself
- * - not applicable for multiple nested range as ordering not nested
- * - each add/remove and lookup would also need to construct a key object.
- */
-public class PropertyCompositeEventTable implements EventTable
+public abstract class PropertyCompositeEventTable implements EventTable
 {
-    private final CompositeIndexEnterRemove chain;
     private final Class[] optKeyCoercedTypes;
     private final Class[] optRangeCoercedTypes;
     private final EventTableOrganization organization;
 
-    /**
-     * Index table (sorted and/or keyed, always nested).
-     */
-    protected final Map<Object, Object> index;
+    public abstract Map<Object, Object> getIndex();
+    public abstract CompositeIndexQueryResultPostProcessor getPostProcessor();
 
-    public PropertyCompositeEventTable(boolean isHashKeyed, CompositeIndexEnterRemove chain, Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization)
+    public PropertyCompositeEventTable(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization)
     {
-        this.chain = chain;
         this.optKeyCoercedTypes = optKeyCoercedTypes;
         this.optRangeCoercedTypes = optRangeCoercedTypes;
         this.organization = organization;
-
-        if (isHashKeyed) {
-            index = new HashMap<Object, Object>();
-        }
-        else {
-            index = new TreeMap<Object, Object>();
-        }
-    }
-
-    public Map<Object, Object> getIndex() {
-        return index;
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
@@ -121,33 +94,6 @@ public class PropertyCompositeEventTable implements EventTable
         }
     }
 
-    public void add(EventBean theEvent)
-    {
-        chain.enter(theEvent, index);
-    }
-
-    public void remove(EventBean theEvent)
-    {
-        chain.remove(theEvent, index);
-    }
-
-    public boolean isEmpty()
-    {
-        return index.isEmpty();
-    }
-
-    public Iterator<EventBean> iterator()
-    {
-        HashSet<EventBean> result = new LinkedHashSet<EventBean>();
-        chain.getAll(result, index);
-        return result.iterator();
-    }
-
-    public void clear()
-    {
-        index.clear();
-    }
-
     public String toString() {
         return toQueryPlan();
     }
@@ -169,13 +115,7 @@ public class PropertyCompositeEventTable implements EventTable
         return null;
     }
 
-    public int getNumKeys() {
-        return index.size();
-    }
-
     public EventTableOrganization getOrganization() {
         return organization;
     }
-
-    private static Log log = LogFactory.getLog(PropertyCompositeEventTable.class);
 }

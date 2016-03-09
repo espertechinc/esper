@@ -45,6 +45,6 @@ public class TestFilterSpecParamConstant extends TestCase
     }
 
     private FilterSpecLookupable make(String name) {
-        return new FilterSpecLookupable(name, null, null);
+        return new FilterSpecLookupable(name, null, null, false);
     }
 }

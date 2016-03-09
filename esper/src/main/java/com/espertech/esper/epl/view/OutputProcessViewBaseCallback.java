@@ -33,6 +33,10 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
         return 0;
     }
 
+    public OutputCondition getOptionalOutputCondition() {
+        return null;
+    }
+
     public Iterator<EventBean> iterator() {
         return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false);
     }
@@ -48,5 +52,9 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
     public void update(EventBean[] newData, EventBean[] oldData) {
         UniformPair<EventBean[]> pair = resultSetProcessor.processViewResult(newData, oldData, false);
         callback.outputViaCallback(pair.getFirst());
+    }
+
+    public void stop() {
+        // Not applicable
     }
 }

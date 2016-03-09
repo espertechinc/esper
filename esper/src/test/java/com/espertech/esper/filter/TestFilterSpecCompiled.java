@@ -17,7 +17,7 @@ import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.MatchedEventMapImpl;
 import com.espertech.esper.pattern.MatchedEventMapMeta;
 import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.support.filter.SupportFilterSpecBuilder;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -102,7 +102,7 @@ public class TestFilterSpecCompiled extends TestCase
     }
 
     private FilterSpecLookupable makeLookupable(String fieldName) {
-        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName));
+        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 
     public void testPresortParameters()

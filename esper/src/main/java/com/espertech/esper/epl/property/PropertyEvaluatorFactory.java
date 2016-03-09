@@ -15,7 +15,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.*;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.*;
@@ -53,12 +53,12 @@ public class PropertyEvaluatorFactory
                                                   VariableService variableService,
                                                   TableService tableService,
                                                   String engineURI,
-                                                  String statementId,
+                                                  int statementId,
                                                   String statementName,
                                                   Annotation[] annotations,
                                                   Collection<Integer> assignedTypeNumberStack,
                                                   ConfigurationInformation configuration,
-                                                  NamedWindowService namedWindowService)
+                                                  NamedWindowMgmtService namedWindowMgmtService)
             throws ExprValidationException
     {
         int length = spec.getAtoms().size();
@@ -270,7 +270,7 @@ public class PropertyEvaluatorFactory
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(whereTypes, whereStreamNames, isIStreamOnly, engineURI, false);
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
-            SelectExprProcessor selectExpr = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, methodResolutionService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowService, null);
+            SelectExprProcessor selectExpr = SelectExprProcessorFactory.getProcessor(assignedTypeNumberStack, cumulativeSelectArr, false, null, null, null, streamTypeService, eventAdapterService, null, null, null, methodResolutionService, validateContext, variableService, tableService, timeProvider, engineURI, statementId, statementName, annotations, null, configuration, null, namedWindowMgmtService, null, null);
             return new PropertyEvaluatorSelect(selectExpr, accumulative);
         }
     }

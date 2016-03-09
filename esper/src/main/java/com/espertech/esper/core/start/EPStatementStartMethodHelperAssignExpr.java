@@ -29,6 +29,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.rowregex.RegexExprPreviousEvalStrategy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,9 +72,23 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignMatchRecognizePreviousStrategies(Collection<ExprPreviousMatchRecognizeNode> matchRecognizeNodes) {
+        if (matchRecognizeNodes != null) {
+            for (ExprPreviousMatchRecognizeNode node : matchRecognizeNodes) {
+                node.setStrategy(null);
+            }
+        }
+    }
+
     public static void assignAggregations(AggregationResultFuture aggregationService, List<AggregationServiceAggExpressionDesc> aggregationExpressions) {
         for (AggregationServiceAggExpressionDesc aggregation : aggregationExpressions) {
             aggregation.assignFuture(aggregationService);
+        }
+    }
+
+    public static void unassignAggregations(List<AggregationServiceAggExpressionDesc> aggregationExpressions) {
+        for (AggregationServiceAggExpressionDesc aggregation : aggregationExpressions) {
+            aggregation.assignFuture(null);
         }
     }
 
@@ -83,16 +98,28 @@ public class EPStatementStartMethodHelperAssignExpr
         }
     }
 
+    public static void unassignPreviousStrategies(Collection<ExprPreviousNode> nodes) {
+        for (ExprPreviousNode node : nodes) {
+            node.setEvaluator(null);
+        }
+    }
+
     public static void assignPriorStrategies(Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategyInstances) {
         for (Map.Entry<ExprPriorNode, ExprPriorEvalStrategy> pair : priorStrategyInstances.entrySet()) {
             pair.getKey().setPriorStrategy(pair.getValue());
         }
     }
 
-    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype) {
+    public static void unassignPriorStrategies(Collection<ExprPriorNode> priorStrategyInstances) {
+        for (ExprPriorNode node : priorStrategyInstances) {
+            node.setPriorStrategy(null);
+        }
+    }
+
+    public static ResultSetProcessor getAssignResultSetProcessor(AgentInstanceContext agentInstanceContext, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, boolean isSubquery, Integer subqueryNumber, boolean isFireAndForget) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
-            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), isSubquery, subqueryNumber);
         }
 
         OrderByProcessor orderByProcessor = null;
@@ -110,6 +137,13 @@ public class EPStatementStartMethodHelperAssignExpr
         }
 
         return processor;
+    }
+
+    public static void unassignSubqueryStrategies(Collection<ExprSubselectNode> subselects) {
+        for (ExprSubselectNode subselectNode : subselects) {
+            subselectNode.setStrategy(null);
+            subselectNode.setSubselectAggregationService(null);
+        }
     }
 
     public static void assignSubqueryStrategies(SubSelectStrategyCollection subSelectStrategyCollection, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategyInstances) {

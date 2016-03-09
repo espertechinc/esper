@@ -9,52 +9,33 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 
 public final class OutputConditionPolledTime implements OutputConditionPolled
 {
-    private ExprTimePeriod timePeriod;
-    private AgentInstanceContext context;
-    private Long lastUpdate;
+    private final OutputConditionPolledTimeFactory factory;
+    private final AgentInstanceContext context;
+    private final OutputConditionPolledTimeState state;
 
-    /**
-     * Constructor.
-     * @param timePeriod is the number of minutes or seconds to batch events for, may include variables
-     * @param context is the view context for time scheduling
-     */
-    public OutputConditionPolledTime(ExprTimePeriod timePeriod,
-                               AgentInstanceContext context)
-    {
-        if (context == null)
-        {
-            String message = "OutputConditionTime requires a non-null view context";
-            throw new NullPointerException(message);
-        }
-
+    public OutputConditionPolledTime(OutputConditionPolledTimeFactory factory, AgentInstanceContext context, OutputConditionPolledTimeState state) {
+        this.factory = factory;
         this.context = context;
-        this.timePeriod = timePeriod;
+        this.state = state;
+    }
 
-        double numSeconds = timePeriod.evaluateAsSeconds(null, true, context);
-        if ((numSeconds < 0.001) && (!timePeriod.hasVariable())) {
-            throw new IllegalArgumentException("Output condition by time requires a interval size of at least 1 msec or a variable");
-        }
+    public OutputConditionPolledState getState() {
+        return state;
     }
 
     public boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
     {
         // If we pull the interval from a variable, then we may need to reschedule
-        long msecIntervalSize = timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(null, context);
+        long msecIntervalSize = factory.getTimePeriod().nonconstEvaluator().deltaMillisecondsUseEngineTime(null, context);
 
         long current = context.getTimeProvider().getTime();
-        if (lastUpdate == null || current - lastUpdate >= msecIntervalSize) {
-            this.lastUpdate = current;
+        if (state.getLastUpdate() == null || current - state.getLastUpdate() >= msecIntervalSize) {
+            state.setLastUpdate(current);
             return true;
         }
         return false;
-    }
-
-    public final String toString()
-    {
-        return this.getClass().getName();
     }
 }

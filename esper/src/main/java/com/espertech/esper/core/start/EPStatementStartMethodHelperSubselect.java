@@ -12,13 +12,15 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.context.activator.*;
+import com.espertech.esper.core.context.activator.ViewableActivationResult;
+import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.subselect.*;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -57,6 +59,7 @@ import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
+import com.espertech.esper.view.StoppableView;
 import com.espertech.esper.view.ViewFactoryChain;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.ViewServiceHelper;
@@ -104,7 +107,7 @@ public class EPStatementStartMethodHelperSubselect
                 }
 
                 // Register filter, create view factories
-                ViewableActivator activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), true, instrumentationAgentSubquery, false);
+                ViewableActivator activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), true, instrumentationAgentSubquery, false, null);
                 ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(subselectStreamNumber, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
                 subselect.setRawEventType(viewFactoryChain.getEventType());
 
@@ -115,14 +118,17 @@ public class EPStatementStartMethodHelperSubselect
                 TableQueryStreamSpec table = (TableQueryStreamSpec) streamSpec;
                 TableMetadata metadata = services.getTableService().getTableMetadata(table.getTableName());
                 ViewFactoryChain viewFactoryChain = ViewFactoryChain.fromTypeNoViews(metadata.getInternalEventType());
-                subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, metadata.getInternalEventType(), viewFactoryChain, new ViewableActivatorTable(metadata, null), streamSpec));
+                ViewableActivator viewableActivator = services.getViewableActivatorFactory().createTable(metadata, null);
+                subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, metadata.getInternalEventType(), viewFactoryChain, viewableActivator, streamSpec));
                 subselect.setRawEventType(metadata.getInternalEventType());
                 destroyCallbacks.addCallback(new EPStatementDestroyCallbackTableIdxRef(services.getTableService(), metadata, statementContext.getStatementName()));
+                services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), metadata.getTableName());
             }
             else
             {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
-                NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
+
                 EventType namedWindowType = processor.getTailView().getEventType();
                 if (namedSpec.getOptPropertyEvaluator() != null) {
                     namedWindowType = namedSpec.getOptPropertyEvaluator().getFragmentEventType();
@@ -134,17 +140,19 @@ public class EPStatementStartMethodHelperSubselect
                     disableIndexShare = false;
                 }
                 if (!namedSpec.getFilterExpressions().isEmpty() || !processor.isEnableSubqueryIndexShare() || disableIndexShare) {
-                    ViewableActivator activatorNamedWindow = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec.getFilterExpressions(), namedSpec.getOptPropertyEvaluator());
+                    ViewableActivator activatorNamedWindow = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(viewFactoryChain.getEventType());
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activatorNamedWindow, streamSpec));
+                    services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
                 }
                 // else if there are no named window stream filter expressions and index sharing is enabled
                 else {
                     ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
                     subselect.setRawEventType(processor.getNamedWindowType());
-                    ViewableActivatorSubselectNone activator = new ViewableActivatorSubselectNone();
+                    ViewableActivator activator = services.getViewableActivatorFactory().makeSubqueryNWIndexShare();
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activator, streamSpec));
+                    services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), processor.getNamedWindowType().getName());
                 }
             }
         }
@@ -196,7 +204,8 @@ public class EPStatementStartMethodHelperSubselect
             EPServicesContext services,
             SubSelectStrategyCollection subSelectStrategyCollection,
             final AgentInstanceContext agentInstanceContext,
-            List<StopCallback> stopCallbackList) {
+            List<StopCallback> stopCallbackList,
+            boolean isRecoveringResilient) {
 
         Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies = new HashMap<ExprSubselectNode, SubSelectStrategyHolder>();
 
@@ -206,12 +215,25 @@ public class EPStatementStartMethodHelperSubselect
             SubSelectStrategyFactoryDesc factoryDesc = subselectEntry.getValue();
             SubSelectActivationHolder holder = factoryDesc.getSubSelectActivationHolder();
 
-            // activate view
-            ViewableActivationResult subselectActivationResult = holder.getActivator().activate(agentInstanceContext, true, false);
+            // activate viewable
+            ViewableActivationResult subselectActivationResult = holder.getActivator().activate(agentInstanceContext, true, isRecoveringResilient);
             stopCallbackList.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
-            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList);
+            SubSelectStrategyRealization result = factoryDesc.getFactory().instantiate(services, subselectActivationResult.getViewable(), agentInstanceContext, stopCallbackList, factoryDesc.getSubqueryNumber(), isRecoveringResilient);
+
+            // handle stoppable view
+            if (result.getSubselectView() instanceof StoppableView) {
+                stopCallbackList.add((StoppableView) result.getSubselectView());
+            }
+            if (result.getSubselectAggregationService() != null) {
+                final AggregationService subselectAggregationService = result.getSubselectAggregationService();
+                stopCallbackList.add(new StopCallback() {
+                    public void stop() {
+                        subselectAggregationService.stop();
+                    }
+                });
+            }
 
             // set aggregation
             final SubordTableLookupStrategy lookupStrategy = result.getStrategy();
@@ -241,7 +263,8 @@ public class EPStatementStartMethodHelperSubselect
                     result.getPriorNodeStrategies(),
                     result.getPreviousNodeStrategies(),
                     result.getSubselectView(),
-                    result.getPostLoad());
+                    result.getPostLoad(),
+                    subselectActivationResult);
             subselectStrategies.put(subselectNode, instance);
         }
 
@@ -290,9 +313,9 @@ public class EPStatementStartMethodHelperSubselect
         // No filter expression means full table scan
         if ((filterExpr == null) || fullTableScan)
         {
-            UnindexedEventTableFactory table = new UnindexedEventTableFactory(0);
+            EventTableFactory tableFactory = statementContext.getEventTableIndexService().createUnindexed(0, null, false);
             SubordFullTableScanLookupStrategyFactory strategy = new SubordFullTableScanLookupStrategyFactory();
-            return new Pair<EventTableFactory, SubordTableLookupStrategyFactory>(table, strategy);
+            return new Pair<EventTableFactory, SubordTableLookupStrategyFactory>(tableFactory, strategy);
         }
 
         // Build a list of streams and indexes
@@ -341,18 +364,18 @@ public class EPStatementStartMethodHelperSubselect
 
             if (hashKeys.size() == 1) {
                 if (!hashCoercionDesc.isCoerce()) {
-                    eventTableFactory = new PropertyIndexedEventTableSingleFactory(0, viewableEventType, indexedProps[0], unique, null);
+                    eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, indexedProps[0], unique, null, null, false);
                 }
                 else {
-                    eventTableFactory = new PropertyIndexedEventTableSingleCoerceAddFactory(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0]);
+                    eventTableFactory = statementContext.getEventTableIndexService().createSingleCoerceAdd(0, viewableEventType, indexedProps[0], hashCoercionDesc.getCoercionTypes()[0], null, false);
                 }
             }
             else {
                 if (!hashCoercionDesc.isCoerce()) {
-                    eventTableFactory = new PropertyIndexedEventTableFactory(0, viewableEventType, indexedProps, unique, null);
+                    eventTableFactory = statementContext.getEventTableIndexService().createMultiKey(0, viewableEventType, indexedProps, unique, null, null, false);
                 }
                 else {
-                    eventTableFactory = new PropertyIndexedEventTableCoerceAddFactory(0, viewableEventType, indexedProps, hashCoercionDesc.getCoercionTypes());
+                    eventTableFactory = statementContext.getEventTableIndexService().createMultiKeyCoerceAdd(0, viewableEventType, indexedProps, hashCoercionDesc.getCoercionTypes(), false);
                 }
             }
         }
@@ -361,15 +384,15 @@ public class EPStatementStartMethodHelperSubselect
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = new CoercionDesc(false, null);
             if (joinPropDesc.getInKeywordSingleIndex() != null) {
-                eventTableFactory = new PropertyIndexedEventTableSingleFactory(0, viewableEventType, joinPropDesc.getInKeywordSingleIndex().getIndexedProp(), unique, null);
+                eventTableFactory = statementContext.getEventTableIndexService().createSingle(0, viewableEventType, joinPropDesc.getInKeywordSingleIndex().getIndexedProp(), unique, null, null, false);
                 inKeywordSingleIdxKeys = joinPropDesc.getInKeywordSingleIndex().getExpressions();
             }
             else if (joinPropDesc.getInKeywordMultiIndex() != null) {
-                eventTableFactory = new PropertyIndexedEventTableSingleArrayFactory(0, viewableEventType, joinPropDesc.getInKeywordMultiIndex().getIndexedProp(), unique, null);
+                eventTableFactory = statementContext.getEventTableIndexService().createInArray(0, viewableEventType, joinPropDesc.getInKeywordMultiIndex().getIndexedProp(), unique);
                 inKeywordMultiIdxKey = joinPropDesc.getInKeywordMultiIndex().getExpression();
             }
             else {
-                eventTableFactory = new UnindexedEventTableFactory(0);
+                eventTableFactory = statementContext.getEventTableIndexService().createUnindexed(0, null, false);
             }
         }
         else if (hashKeys.isEmpty() && rangeKeys.size() == 1)
@@ -377,10 +400,10 @@ public class EPStatementStartMethodHelperSubselect
             String indexedProp = rangeKeys.keySet().iterator().next();
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
             if (!coercionRangeTypes.isCoerce()) {
-                eventTableFactory = new PropertySortedEventTableFactory(0, viewableEventType, indexedProp);
+                eventTableFactory = statementContext.getEventTableIndexService().createSorted(0, viewableEventType, indexedProp, false);
             }
             else {
-                eventTableFactory = new PropertySortedEventTableCoercedFactory(0, viewableEventType, indexedProp, coercionRangeTypes.getCoercionTypes()[0]);
+                eventTableFactory = statementContext.getEventTableIndexService().createSortedCoerce(0, viewableEventType, indexedProp, coercionRangeTypes.getCoercionTypes()[0], false);
             }
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = coercionRangeTypes;
@@ -390,7 +413,7 @@ public class EPStatementStartMethodHelperSubselect
             Class[] coercionKeyTypes = SubordPropUtil.getCoercionTypes(hashKeys.values());
             String[] indexedRangeProps = rangeKeys.keySet().toArray(new String[rangeKeys.keySet().size()]);
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
-            eventTableFactory = new PropertyCompositeEventTableFactory(0, viewableEventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes.getCoercionTypes());
+            eventTableFactory = statementContext.getEventTableIndexService().createComposite(0, viewableEventType, indexedKeyProps, coercionKeyTypes, indexedRangeProps, coercionRangeTypes.getCoercionTypes(), false);
             hashCoercionDesc = CoercionUtil.getCoercionTypesHash(viewableEventType, indexedKeyProps, hashKeyList);
             rangeCoercionDesc = coercionRangeTypes;
         }
@@ -714,7 +737,7 @@ public class EPStatementStartMethodHelperSubselect
 
             List<ExprAggregateNode> havingAgg = Collections.emptyList();
             List<ExprAggregateNode> orderByAgg = Collections.emptyList();
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null);
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), statementContext.getMethodResolutionService(), null, statementSpec.getOptionalContextName(), null, null, false, false, false);
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {
@@ -803,7 +826,7 @@ public class EPStatementStartMethodHelperSubselect
         if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
             if (namedSpec.getFilterExpressions().isEmpty()) {
-                NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+                NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 if (processor == null) {
                     throw new ExprValidationException("A named window by name '" + namedSpec.getWindowName() + "' does not exist");
                 }
@@ -823,7 +846,7 @@ public class EPStatementStartMethodHelperSubselect
                     SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
                     SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
                             processor, null, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
-                    return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+                    return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
                 }
             }
         }
@@ -842,7 +865,7 @@ public class EPStatementStartMethodHelperSubselect
             SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
             SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
                     null, metadata, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
-            return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+            return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
         }
 
         // determine unique keys, if any
@@ -852,7 +875,7 @@ public class EPStatementStartMethodHelperSubselect
         }
         if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
-            NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
+            NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
             optionalUniqueProps = processor.getOptionalUniqueKeyProps();
         }
 
@@ -862,7 +885,7 @@ public class EPStatementStartMethodHelperSubselect
                 outerEventTypes, subselectTypeService, fullTableScan, queryPlanLogging, optionalUniqueProps, statementContext, subqueryNum);
 
         SubSelectStrategyFactory factory = new SubSelectStrategyFactoryLocalViewPreloaded(subqueryNum, subSelectActivation, indexPair, filterExpr, filterExprEval, correlatedSubquery, aggregationServiceFactoryDesc, viewResourceDelegateVerified, groupByEvaluators);
-        return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes);
+        return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
     }
 
     public static String getSubqueryInfoText(int subqueryNum, ExprSubselectNode subselect) {

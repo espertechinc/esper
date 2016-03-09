@@ -157,7 +157,7 @@ public class TestTimerAtObserver extends TestCase implements SupportBeanConstant
         testCase = new EventExpressionCase("timer:at(22, 8, *, *, *, 1) where timer:within(1 second)");
         testCaseList.addTest(testCase);
 
-        testCase = new EventExpressionCase("timer:at(22, 8, *, *, *, 1) where timer:within(30 minutes)");
+        testCase = new EventExpressionCase("timer:at(22, 8, *, *, *, 1) where timer:within(31 minutes)");
         testCase.add("C1");
         testCaseList.addTest(testCase);
 

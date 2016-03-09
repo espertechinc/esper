@@ -34,7 +34,7 @@ public class TestDeadPattern extends TestCase
         config.addEventType("B", SupportBean_B.class.getName());
         config.addEventType("C", SupportBean_C.class.getName());
 
-        epService = EPServiceProviderManager.getProvider("TestDeadPattern", config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
     }

@@ -78,7 +78,7 @@ public interface StatementResultService
 
     public String getStatementName();
 
-    public String getStatementId();
+    public int getStatementId();
 
     public EPStatementListenerSet getStatementListenerSet();
 }

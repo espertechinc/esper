@@ -39,20 +39,20 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecycle, FilterHandleCallback {
 
     @DataFlowOpParameter
-    private ExprNode filter;
+    protected ExprNode filter;
 
     @DataFlowOpParameter
-    private EPDataFlowEventBeanCollector collector;
+    protected EPDataFlowEventBeanCollector collector;
 
     @DataFlowContext
-    private EPDataFlowEmitter graphContext;
+    protected EPDataFlowEmitter graphContext;
 
-    private EventType eventType;
-    private AgentInstanceContext agentInstanceContext;
-    private EPStatementHandleCallback callbackHandle;
-    private FilterServiceEntry filterServiceEntry;
-    private LinkedBlockingDeque<Object> emittables = new LinkedBlockingDeque<Object>();
-    private boolean submitEventBean;
+    protected EventType eventType;
+    protected AgentInstanceContext agentInstanceContext;
+    protected EPStatementHandleCallback callbackHandle;
+    protected FilterServiceEntry filterServiceEntry;
+    protected LinkedBlockingDeque<Object> emittables = new LinkedBlockingDeque<Object>();
+    protected boolean submitEventBean;
 
     private ThreadLocal<EPDataFlowEventBeanCollectorContext> collectorDataTL = new ThreadLocal<EPDataFlowEventBeanCollectorContext>() {
         protected synchronized EPDataFlowEventBeanCollectorContext initialValue() {
@@ -108,7 +108,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
         return false;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return agentInstanceContext.getStatementId();
     }
 
@@ -127,7 +127,7 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
             throw new EPException("Failed to open filter: " + ex.getMessage(), ex);
         }
 
-        EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getAgentInstanceLock(), 0, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getAgentInstanceLock(), 0, new StatementAgentInstanceFilterVersion(), agentInstanceContext.getStatementContext().getFilterFaultHandlerFactory());
         callbackHandle = new EPStatementHandleCallback(handle, this);
         filterServiceEntry = agentInstanceContext.getStatementContext().getFilterService().add(valueSet, callbackHandle);
     }

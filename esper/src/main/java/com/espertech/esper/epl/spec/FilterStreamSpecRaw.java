@@ -93,16 +93,16 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
         }
 
         // Could be a named window
-        if (context.getNamedWindowService().isNamedWindow(eventName))
+        if (context.getNamedWindowMgmtService().isNamedWindow(eventName))
         {
-            EventType namedWindowType = context.getNamedWindowService().getProcessor(eventName).getTailView().getEventType();
+            EventType namedWindowType = context.getNamedWindowMgmtService().getProcessor(eventName).getTailView().getEventType();
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {namedWindowType}, new String[] {"s0"}, new boolean[] {true}, context.getEngineURI(), false);
 
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
 
             PropertyEvaluator optionalPropertyEvaluator = null;
             if (rawFilterSpec.getOptionalPropertyEvalSpec() != null) {
-                optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(rawFilterSpec.getOptionalPropertyEvalSpec(), namedWindowType, this.getOptionalStreamName(), context.getEventAdapterService(), context.getMethodResolutionService(), context.getTimeProvider(), context.getVariableService(), context.getTableService(), context.getEngineURI(), context.getStatementId(), context.getStatementName(), context.getAnnotations(), assignedTypeNumberStack, context.getConfigSnapshot(), context.getNamedWindowService());
+                optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(rawFilterSpec.getOptionalPropertyEvalSpec(), namedWindowType, this.getOptionalStreamName(), context.getEventAdapterService(), context.getMethodResolutionService(), context.getTimeProvider(), context.getVariableService(), context.getTableService(), context.getEngineURI(), context.getStatementId(), context.getStatementName(), context.getAnnotations(), assignedTypeNumberStack, context.getConfigSnapshot(), context.getNamedWindowMgmtService());
             }
             eventTypeReferences.add(((EventTypeSPI) namedWindowType).getMetadata().getPrimaryName());
             return new NamedWindowConsumerStreamSpec(eventName, this.getOptionalStreamName(), this.getViewSpecs(), validatedNodes, this.getOptions(), optionalPropertyEvaluator);

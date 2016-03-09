@@ -13,6 +13,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -33,24 +34,28 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
 {
     private final OutputProcessViewConditionFactory parent;
     private final OutputCondition outputCondition;
+    private final OutputProcessViewConditionDeltaSet deltaSet;
 
     // Posted events in ordered form (for applying to aggregates) and summarized per type
     // Using ArrayList as random access is a requirement.
-    private List<UniformPair<EventBean[]>> viewEventsList = new ArrayList<UniformPair<EventBean[]>>();
-	private List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet = new ArrayList<UniformPair<Set<MultiKey<EventBean>>>>();
 
 	private static final Log log = LogFactory.getLog(OutputProcessViewConditionDefault.class);
 
-    public OutputProcessViewConditionDefault(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
+    public OutputProcessViewConditionDefault(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, boolean isJoin) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
         OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
         this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
+        this.deltaSet = resultSetProcessorHelperFactory.makeOutputConditionChangeSet(isJoin, agentInstanceContext);
     }
 
     public int getNumChangesetRows() {
-        return Math.max(viewEventsList.size(), joinEventsSet.size());
+        return deltaSet.getNumChangesetRows();
+    }
+
+    public OutputCondition getOptionalOutputCondition() {
+        return outputCondition;
     }
 
     /**
@@ -74,17 +79,17 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
             boolean afterSatisfied = super.checkAfterCondition(newData, parent.getStatementContext());
             if (!afterSatisfied) {
                 if (!parent.isUnaggregatedUngrouped()) {
-                    viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
+                    deltaSet.addView(new UniformPair<EventBean[]>(newData, oldData));
                 }
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
                 return;
             }
             else {
-                viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
+                deltaSet.addView(new UniformPair<EventBean[]>(newData, oldData));
             }
         }
         else {
-            viewEventsList.add(new UniformPair<EventBean[]>(newData, oldData));
+            deltaSet.addView(new UniformPair<EventBean[]>(newData, oldData));
         }
 
         int newDataLength = 0;
@@ -126,17 +131,17 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
             boolean afterSatisfied = super.checkAfterCondition(newEvents, parent.getStatementContext());
             if (!afterSatisfied) {
                 if (!parent.isUnaggregatedUngrouped()) {
-                    addToChangeset(newEvents, oldEvents, joinEventsSet);
+                    addToChangeset(newEvents, oldEvents, deltaSet);
                 }
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWConditionJoin(false);}
                 return;
             }
             else {
-                addToChangeset(newEvents, oldEvents, joinEventsSet);
+                addToChangeset(newEvents, oldEvents, deltaSet);
             }
         }
         else {
-            addToChangeset(newEvents, oldEvents, joinEventsSet);
+            addToChangeset(newEvents, oldEvents, deltaSet);
         }
 
         int newEventsSize = 0;
@@ -178,7 +183,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         // Process the events and get the result
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(viewEventsList, isGenerateSynthetic, parent.getOutputLimitLimitType());
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedView(deltaSet.getViewEventsSet(), isGenerateSynthetic, parent.getOutputLimitLimitType());
 
         if (parent.isDistinct() && newOldEvents != null)
         {
@@ -214,10 +219,15 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         }
 	}
 
+    public void stop() {
+        super.stop();
+        deltaSet.destroy();
+        outputCondition.stop();
+    }
+
 	private void resetEventBatches()
 	{
-		viewEventsList.clear();
-		joinEventsSet.clear();
+        deltaSet.clear();
     }
 
 	/**
@@ -240,7 +250,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         // Process the events and get the result
-        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(joinEventsSet, isGenerateSynthetic, parent.getOutputLimitLimitType());
+        UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processOutputLimitedJoin(deltaSet.getJoinEventsSet(), isGenerateSynthetic, parent.getOutputLimitLimitType());
 
         if (parent.isDistinct() && newOldEvents != null)
         {
@@ -303,7 +313,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         }
     }
 
-    private static void addToChangeset(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet) {
+    private static void addToChangeset(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, OutputProcessViewConditionDeltaSet joinEventsSet) {
         // add the incoming events to the event batches
         Set<MultiKey<EventBean>> copyNew;
         if (newEvents != null) {
@@ -321,6 +331,6 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
             copyOld = new LinkedHashSet<MultiKey<EventBean>>();
         }
 
-        joinEventsSet.add(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
+        joinEventsSet.addJoin(new UniformPair<Set<MultiKey<EventBean>>>(copyNew, copyOld));
     }
 }

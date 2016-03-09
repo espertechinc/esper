@@ -234,7 +234,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
     public FilterSpecLookupable getFilterLookupable() {
 
-        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(exprEvaluator), exprEvaluator.getType());
+        return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(exprEvaluator), exprEvaluator.getType(), true);
     }
 
     public boolean isConstantResult()

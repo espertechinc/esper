@@ -151,7 +151,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
         return getRowType();
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (selectClause == null) {
             return null;
         }
@@ -161,7 +161,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
         return getAssignAnonymousType(eventAdapterService, statementId);
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         if (selectClause == null) {   // wildcards allowed
             return rawEventType;
         }
@@ -188,9 +188,9 @@ public class ExprSubselectRowNode extends ExprSubselectNode
         return getAssignAnonymousType(eventAdapterService, statementId);
     }
 
-    private EventType getAssignAnonymousType(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    private EventType getAssignAnonymousType(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         Map<String, Object> rowType = getRowType();
-        EventType resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_subquery_" + this.getSubselectNumber(), rowType);
+        EventType resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_subquery_" + this.getSubselectNumber(), rowType, true);
         subselectMultirowType = new SubselectMultirowType(resultEventType, eventAdapterService);
         return resultEventType;
     }

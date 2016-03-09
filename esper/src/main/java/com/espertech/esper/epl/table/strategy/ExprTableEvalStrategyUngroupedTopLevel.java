@@ -16,21 +16,19 @@ import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
+import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ExprTableEvalStrategyUngroupedTopLevel extends ExprTableEvalStrategyUngroupedBase implements ExprTableAccessEvalStrategy {
 
     private final Map<String, TableMetadataColumn> items;
 
-    public ExprTableEvalStrategyUngroupedTopLevel(Lock lock, AtomicReference<ObjectArrayBackedEventBean> aggregationState, Map<String, TableMetadataColumn> items) {
-        super(lock, aggregationState);
+    public ExprTableEvalStrategyUngroupedTopLevel(TableAndLockProviderUngrouped provider, Map<String, TableMetadataColumn> items) {
+        super(provider);
         this.items = items;
     }
 

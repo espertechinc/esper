@@ -25,8 +25,8 @@ public class NamedWindowProcessorInstance
 
     public NamedWindowProcessorInstance(Integer agentInstanceId, NamedWindowProcessor processor, AgentInstanceContext agentInstanceContext) {
         this.agentInstanceId = agentInstanceId;
-        rootViewInstance = new NamedWindowRootViewInstance(processor.getRootView(), agentInstanceContext);
-        tailViewInstance = new NamedWindowTailViewInstance(rootViewInstance, processor.getTailView(), agentInstanceContext);
+        rootViewInstance = new NamedWindowRootViewInstance(processor.getRootView(), agentInstanceContext, processor.getEventTableIndexMetadataRepo());
+        tailViewInstance = new NamedWindowTailViewInstance(rootViewInstance, processor.getTailView(), processor, agentInstanceContext);
         rootViewInstance.setDataWindowContents(tailViewInstance);   // for iteration used for delete without index
     }
 
@@ -56,6 +56,11 @@ public class NamedWindowProcessorInstance
         rootViewInstance.destroy();
     }
 
+    public void stop() {
+        tailViewInstance.stop();
+        rootViewInstance.stop();
+    }
+
     public IndexMultiKey[] getIndexDescriptors() {
         return rootViewInstance.getIndexes();
     }
@@ -78,5 +83,9 @@ public class NamedWindowProcessorInstance
 
     public void removeIndex(IndexMultiKey index) {
         rootViewInstance.getIndexRepository().removeIndex(index);
+    }
+
+    public void removeExplicitIndex(String indexName) {
+        rootViewInstance.getIndexRepository().removeExplicitIndex(indexName);
     }
 }

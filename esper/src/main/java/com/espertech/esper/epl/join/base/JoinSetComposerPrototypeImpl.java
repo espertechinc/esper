@@ -26,6 +26,7 @@ import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableUtil;
 import com.espertech.esper.epl.join.table.HistoricalStreamIndexList;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -47,7 +48,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private static final Log log = LogFactory.getLog(JoinSetComposerPrototypeFactory.class);
 
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final OuterJoinDesc[] outerJoinDescList;
     private final ExprNode optionalFilterNode;
     private final EventType[] streamTypes;
@@ -62,9 +63,10 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
     private final boolean joinRemoveStream;
     private final boolean isOuterJoins;
     private final TableService tableService;
+    private final EventTableIndexService eventTableIndexService;
 
     public JoinSetComposerPrototypeImpl(String statementName,
-                                        String statementId,
+                                        int statementId,
                                         OuterJoinDesc[] outerJoinDescList,
                                         ExprNode optionalFilterNode,
                                         EventType[] streamTypes,
@@ -78,7 +80,8 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                                         HistoricalStreamIndexList[] historicalStreamIndexLists,
                                         boolean joinRemoveStream,
                                         boolean isOuterJoins,
-                                        TableService tableService) {
+                                        TableService tableService,
+                                        EventTableIndexService eventTableIndexService) {
         this.statementName = statementName;
         this.statementId = statementId;
         this.outerJoinDescList = outerJoinDescList;
@@ -95,9 +98,10 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         this.joinRemoveStream = joinRemoveStream;
         this.isOuterJoins = isOuterJoins;
         this.tableService = tableService;
+        this.eventTableIndexService = eventTableIndexService;
     }
 
-    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext) {
+    public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
 
         // Build indexes
         Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream = new HashMap[indexSpecs.length];
@@ -135,7 +139,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                         index = view.getJoinIndexTable(items.get(entry.getKey()));
                     }
                     else {
-                        index = EventTableUtil.buildIndex(streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null);
+                        index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null, null, isFireAndForget);
                     }
                     indexesPerStream[streamNo].put(entry.getKey(), index);
                 }
@@ -187,7 +191,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             JoinSetComposer composer;
             if (historicalViewableDesc.isHasHistorical())
             {
-                composer = new JoinSetComposerHistoricalImpl(indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
+                composer = new JoinSetComposerHistoricalImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
             }
             else
             {
@@ -195,7 +199,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                     composer = new JoinSetComposerFAFImpl(indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream, isOuterJoins);
                 }
                 else {
-                    composer = new JoinSetComposerImpl(indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream);
+                    composer = new JoinSetComposerImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream);
                 }
             }
 
@@ -220,53 +224,47 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                 driver = queryStrategies[0];
             }
 
-            JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
+            JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
                     unidirectionalStream, driver, streamJoinAnalysisResult.getUnidirectionalNonDriving());
             ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
             joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
         }
 
-        // compile prior events per stream to preload any indexes
-        EventBean[][] eventsPerStream = new EventBean[streamNames.length][];
-        ArrayList<EventBean> events = new ArrayList<EventBean>();
-        for (int i = 0; i < eventsPerStream.length; i++)
-        {
-            // For named windows and tables, we don't need to preload indexes from the iterators as this is always done already
-            if (streamJoinAnalysisResult.getNamedWindow()[i] || streamJoinAnalysisResult.getTablesPerStream()[i] != null)
-            {
-                continue;
+        // init if the join-set-composer allows it
+        if (joinSetComposerDesc.getJoinSetComposer().allowsInit()) {
+
+            // compile prior events per stream to preload any indexes
+            EventBean[][] eventsPerStream = new EventBean[streamNames.length][];
+            ArrayList<EventBean> events = new ArrayList<EventBean>();
+            for (int i = 0; i < eventsPerStream.length; i++) {
+                // For named windows and tables, we don't need to preload indexes from the iterators as this is always done already
+                if (streamJoinAnalysisResult.getNamedWindow()[i] || streamJoinAnalysisResult.getTablesPerStream()[i] != null) {
+                    continue;
+                }
+
+                Iterator<EventBean> it = null;
+                if (!(streamViews[i] instanceof HistoricalEventViewable) && !(streamViews[i] instanceof DerivedValueView)) {
+                    try {
+                        it = streamViews[i].iterator();
+                    } catch (UnsupportedOperationException ex) {
+                        // Joins do not support the iterator
+                    }
+                }
+
+                if (it != null) {
+                    for (; it.hasNext(); ) {
+                        events.add(it.next());
+                    }
+                    eventsPerStream[i] = events.toArray(new EventBean[events.size()]);
+                    events.clear();
+                } else {
+                    eventsPerStream[i] = new EventBean[0];
+                }
             }
 
-            Iterator<EventBean> it = null;
-            if (!(streamViews[i] instanceof HistoricalEventViewable) && !(streamViews[i] instanceof DerivedValueView))
-            {
-                try
-                {
-                    it = streamViews[i].iterator();
-                }
-                catch (UnsupportedOperationException ex)
-                {
-                    // Joins do not support the iterator
-                }
-            }
-
-            if (it != null)
-            {
-                for (;it.hasNext();)
-                {
-                    events.add(it.next());
-                }
-                eventsPerStream[i] = events.toArray(new EventBean[events.size()]);
-                events.clear();
-            }
-            else
-            {
-                eventsPerStream[i] = new EventBean[0];
-            }
+            // init
+            joinSetComposerDesc.getJoinSetComposer().init(eventsPerStream);
         }
-
-        // init
-        joinSetComposerDesc.getJoinSetComposer().init(eventsPerStream);
 
         return joinSetComposerDesc;
     }

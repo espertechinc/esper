@@ -15,9 +15,10 @@ import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.table.*;
-import com.espertech.esper.epl.table.mgmt.*;
-
-import java.util.concurrent.locks.Lock;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
+import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+import com.espertech.esper.epl.table.mgmt.TableMetadataColumnPlain;
 
 public class ExprTableEvalStrategyFactory {
 
@@ -30,44 +31,41 @@ public class ExprTableEvalStrategyFactory {
         }
     }
 
-    public static ExprTableAccessEvalStrategy getTableAccessEvalStrategy(boolean writesToTables, ExprTableAccessNode tableNode, TableStateInstance state, TableMetadata tableMetadata) {
+    public static ExprTableAccessEvalStrategy getTableAccessEvalStrategy(ExprTableAccessNode tableNode, TableAndLockProvider provider, TableMetadata tableMetadata) {
         ExprEvaluator[] groupKeyEvals = tableNode.getGroupKeyEvaluators();
 
-        TableStateInstanceUngrouped ungrouped;
-        TableStateInstanceGroupBy grouped;
-        Lock lock;
-        if (state instanceof TableStateInstanceUngrouped) {
-            ungrouped = (TableStateInstanceUngrouped) state;
+        TableAndLockProviderUngrouped ungrouped;
+        TableAndLockProviderGrouped grouped;
+        if (provider instanceof TableAndLockProviderUngrouped) {
+            ungrouped = (TableAndLockProviderUngrouped) provider;
             grouped = null;
-            lock = writesToTables ? ungrouped.getTableLevelRWLock().writeLock() : ungrouped.getTableLevelRWLock().readLock();
         }
         else {
-            grouped = (TableStateInstanceGroupBy) state;
+            grouped = (TableAndLockProviderGrouped) provider;
             ungrouped = null;
-            lock = writesToTables ? grouped.getTableLevelRWLock().writeLock() : grouped.getTableLevelRWLock().readLock();
         }
 
         // handle sub-property access
         if (tableNode instanceof ExprTableAccessNodeSubprop) {
             ExprTableAccessNodeSubprop subprop = (ExprTableAccessNodeSubprop) tableNode;
             TableMetadataColumn column = tableMetadata.getTableColumns().get(subprop.getSubpropName());
-            return getTableAccessSubprop(lock, subprop, column, grouped, ungrouped);
+            return getTableAccessSubprop(subprop, column, ungrouped, grouped);
         }
 
         // handle top-level access
         if (tableNode instanceof ExprTableAccessNodeTopLevel) {
             if (ungrouped != null) {
-                return new ExprTableEvalStrategyUngroupedTopLevel(lock, ungrouped.getEventReference(), tableMetadata.getTableColumns());
+                return new ExprTableEvalStrategyUngroupedTopLevel(ungrouped, tableMetadata.getTableColumns());
             }
             if (tableNode.getGroupKeyEvaluators().length > 1) {
-                return new ExprTableEvalStrategyGroupByTopLevelMulti(lock, grouped.getRows(), tableMetadata.getTableColumns(), groupKeyEvals);
+                return new ExprTableEvalStrategyGroupByTopLevelMulti(grouped, tableMetadata.getTableColumns(), groupKeyEvals);
             }
-            return new ExprTableEvalStrategyGroupByTopLevelSingle(lock, grouped.getRows(), tableMetadata.getTableColumns(), groupKeyEvals[0]);
+            return new ExprTableEvalStrategyGroupByTopLevelSingle(grouped, tableMetadata.getTableColumns(), groupKeyEvals[0]);
         }
 
         // handle "keys" function access
         if (tableNode instanceof ExprTableAccessNodeKeys) {
-            return new ExprTableEvalStrategyGroupByKeys(lock, grouped.getRows());
+            return new ExprTableEvalStrategyGroupByKeys(grouped);
         }
 
         // handle access-aggregator accessors
@@ -76,51 +74,51 @@ public class ExprTableEvalStrategyFactory {
             TableMetadataColumnAggregation column = (TableMetadataColumnAggregation) tableMetadata.getTableColumns().get(accessorProvider.getSubpropName());
             if (ungrouped != null) {
                 AggregationAccessorSlotPair pair = column.getAccessAccessorSlotPair();
-                return new ExprTableEvalStrategyUngroupedAccess(lock, ungrouped.getEventReference(), pair.getSlot(), accessorProvider.getAccessor());
+                return new ExprTableEvalStrategyUngroupedAccess(ungrouped, pair.getSlot(), accessorProvider.getAccessor());
             }
 
             AggregationAccessorSlotPair pair = new AggregationAccessorSlotPair(column.getAccessAccessorSlotPair().getSlot(), accessorProvider.getAccessor());
             if (tableNode.getGroupKeyEvaluators().length > 1) {
-                return new ExprTableEvalStrategyGroupByAccessMulti(lock, grouped.getRows(), pair, groupKeyEvals);
+                return new ExprTableEvalStrategyGroupByAccessMulti(grouped, pair, groupKeyEvals);
             }
-            return new ExprTableEvalStrategyGroupByAccessSingle(lock, grouped.getRows(), pair, groupKeyEvals[0]);
+            return new ExprTableEvalStrategyGroupByAccessSingle(grouped, pair, groupKeyEvals[0]);
         }
 
         throw new IllegalStateException("Unrecognized table access node " + tableNode);
     }
 
-    private static ExprTableAccessEvalStrategy getTableAccessSubprop(Lock lock, ExprTableAccessNodeSubprop subprop, TableMetadataColumn column, TableStateInstanceGroupBy grouped, TableStateInstanceUngrouped ungrouped) {
+    private static ExprTableAccessEvalStrategy getTableAccessSubprop(ExprTableAccessNodeSubprop subprop, TableMetadataColumn column, TableAndLockProviderUngrouped ungrouped, TableAndLockProviderGrouped grouped) {
 
         if (column instanceof TableMetadataColumnPlain) {
             TableMetadataColumnPlain plain = (TableMetadataColumnPlain) column;
             if (ungrouped != null) {
-                return new ExprTableEvalStrategyUngroupedProp(lock, ungrouped.getEventReference(), plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator());
+                return new ExprTableEvalStrategyUngroupedProp(ungrouped, plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator());
             }
             if (subprop.getGroupKeyEvaluators().length > 1) {
-                return new ExprTableEvalStrategyGroupByPropMulti(lock, grouped.getRows(), plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator(), subprop.getGroupKeyEvaluators());
+                return new ExprTableEvalStrategyGroupByPropMulti(grouped, plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator(), subprop.getGroupKeyEvaluators());
             }
-            return new ExprTableEvalStrategyGroupByPropSingle(lock, grouped.getRows(), plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator(), subprop.getGroupKeyEvaluators()[0]);
+            return new ExprTableEvalStrategyGroupByPropSingle(grouped, plain.getIndexPlain(), subprop.getOptionalPropertyEnumEvaluator(), subprop.getGroupKeyEvaluators()[0]);
         }
 
         TableMetadataColumnAggregation aggcol = (TableMetadataColumnAggregation) column;
         if (ungrouped != null) {
             if (!aggcol.getFactory().isAccessAggregation()) {
-                return new ExprTableEvalStrategyUngroupedMethod(lock, ungrouped.getEventReference(), aggcol.getMethodOffset());
+                return new ExprTableEvalStrategyUngroupedMethod(ungrouped, aggcol.getMethodOffset());
             }
             AggregationAccessorSlotPair pair = aggcol.getAccessAccessorSlotPair();
-            return new ExprTableEvalStrategyUngroupedAccess(lock, ungrouped.getEventReference(), pair.getSlot(), pair.getAccessor());
+            return new ExprTableEvalStrategyUngroupedAccess(ungrouped, pair.getSlot(), pair.getAccessor());
         }
 
         TableMetadataColumnAggregation columnAggregation = (TableMetadataColumnAggregation) column;
         if (!columnAggregation.getFactory().isAccessAggregation()) {
             if (subprop.getGroupKeyEvaluators().length > 1) {
-                return new ExprTableEvalStrategyGroupByMethodMulti(lock, grouped.getRows(), columnAggregation.getMethodOffset(), subprop.getGroupKeyEvaluators());
+                return new ExprTableEvalStrategyGroupByMethodMulti(grouped, columnAggregation.getMethodOffset(), subprop.getGroupKeyEvaluators());
             }
-            return new ExprTableEvalStrategyGroupByMethodSingle(lock, grouped.getRows(), columnAggregation.getMethodOffset(), subprop.getGroupKeyEvaluators()[0]);
+            return new ExprTableEvalStrategyGroupByMethodSingle(grouped, columnAggregation.getMethodOffset(), subprop.getGroupKeyEvaluators()[0]);
         }
         if (subprop.getGroupKeyEvaluators().length > 1) {
-            return new ExprTableEvalStrategyGroupByAccessMulti(lock, grouped.getRows(), columnAggregation.getAccessAccessorSlotPair(), subprop.getGroupKeyEvaluators());
+            return new ExprTableEvalStrategyGroupByAccessMulti(grouped, columnAggregation.getAccessAccessorSlotPair(), subprop.getGroupKeyEvaluators());
         }
-        return new ExprTableEvalStrategyGroupByAccessSingle(lock, grouped.getRows(), columnAggregation.getAccessAccessorSlotPair(), subprop.getGroupKeyEvaluators()[0]);
+        return new ExprTableEvalStrategyGroupByAccessSingle(grouped, columnAggregation.getAccessAccessorSlotPair(), subprop.getGroupKeyEvaluators()[0]);
     }
 }

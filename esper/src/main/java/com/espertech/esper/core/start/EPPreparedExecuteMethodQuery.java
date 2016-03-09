@@ -134,8 +134,8 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         StreamTypeService typeService = new StreamTypeServiceImpl(typesPerStream, namesPerStream, isIStreamOnly, services.getEngineURI(), true);
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
-        ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot());
-        resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype);
+        ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), true, false);
+        resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, true);
 
         if (statementSpec.getSelectClauseSpec().isDistinct())
         {
@@ -144,6 +144,13 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             }
             if (eventBeanReader == null) {
                 eventBeanReader = new EventBeanReaderDefaultImpl(resultSetProcessor.getResultEventType());
+            }
+        }
+
+        // check context partition use
+        if (statementSpec.getOptionalContextName() != null) {
+            if (numStreams > 1) {
+                throw new ExprValidationException("Joins in runtime queries for context partitions are not supported");
             }
         }
 
@@ -166,16 +173,9 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             }
 
             boolean hasAggregations = !resultSetProcessorPrototype.getAggregationServiceFactoryDesc().getExpressions().isEmpty();
-            joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, null,
+            joinSetComposerPrototype = JoinSetComposerPrototypeFactory.makeComposerPrototype(null, -1,
                     statementSpec.getOuterJoinDescList(), statementSpec.getFilterRootNode(), typesPerStream, namesPerStream,
-                    streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true);
-        }
-
-        // check context partition use
-        if (statementSpec.getOptionalContextName() != null) {
-            if (numStreams > 1) {
-                throw new ExprValidationException("Joins in runtime queries for context partitions are not supported");
-            }
+                    streamJoinAnalysisResult, queryPlanLogging, statementContext, new HistoricalViewableDesc(numStreams), agentInstanceContext, false, hasAggregations, services.getTableService(), true, services.getEventTableIndexService().allowInitIndex(false));
         }
     }
 
@@ -323,7 +323,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
                 viewablePerStream[i] = instance.getTailViewInstance();
             }
 
-            JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(viewablePerStream, true, agentInstanceContext);
+            JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(viewablePerStream, true, agentInstanceContext, false);
             JoinSetComposer joinComposer = joinSetComposerDesc.getJoinSetComposer();
             JoinSetFilter joinFilter;
             if (joinSetComposerDesc.getPostJoinFilterEvaluator() != null) {

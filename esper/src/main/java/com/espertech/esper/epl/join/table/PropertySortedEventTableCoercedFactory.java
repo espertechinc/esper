@@ -9,12 +9,10 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class PropertySortedEventTableCoercedFactory extends PropertySortedEventTableFactory
 {
-    private Class coercionType;
+    protected Class coercionType;
 
    /**
      * Ctor.
@@ -30,8 +28,8 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     }
 
     @Override
-    public EventTable[] makeEventTables() {
-        EventTableOrganization organization = new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.BTREE);
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+        EventTableOrganization organization = getOrganization();
         return new EventTable[] {new PropertySortedEventTableCoerced(propertyGetter, organization, coercionType)};
     }
 
@@ -43,5 +41,7 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
                 " coercionType=" + coercionType;
     }
 
-    private static Log log = LogFactory.getLog(PropertySortedEventTableCoercedFactory.class);
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.BTREE);
+    }
 }

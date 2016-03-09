@@ -19,7 +19,7 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -234,7 +234,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().createEPL("create index idx1 on MyInfraTwo (theString, intPrimitive)");
         epService.getEPAdministrator().createEPL("on SupportBean sb select * from MyInfraTwo w where w.theString = sb.theString and w.intPrimitive = sb.intPrimitive");
         epService.getEPAdministrator().createEPL("on SupportBean sb select * from MyInfraTwo w where w.intPrimitive = sb.intPrimitive and w.theString = sb.theString");
-        assertEquals(1, epService.getNamedWindowService().getNamedWindowIndexes("MyInfraTwo").length);
+        assertEquals(1, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyInfraTwo").length);
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);
@@ -423,7 +423,7 @@ public class TestInfraCreateIndex extends TestCase
 
     private EventTableIndexRepository getIndexInstanceRepo(boolean namedWindow) {
         if (namedWindow) {
-            NamedWindowProcessorInstance instance = getNamedWindowService().getProcessor("MyInfra").getProcessorInstanceNoContext();
+            NamedWindowProcessorInstance instance = getNamedWindowMgmtService().getProcessor("MyInfra").getProcessorInstanceNoContext();
             return instance.getRootViewInstance().getIndexRepository();
         }
         TableMetadata metadata = getTableService().getTableMetadata("MyInfra");
@@ -449,7 +449,7 @@ public class TestInfraCreateIndex extends TestCase
 
     private EventTableIndexMetadata getIndexMetaRepo(boolean namedWindow) {
         if (namedWindow) {
-            NamedWindowProcessor processor = getNamedWindowService().getProcessor("MyInfra");
+            NamedWindowProcessor processor = getNamedWindowMgmtService().getProcessor("MyInfra");
             return processor.getEventTableIndexMetadataRepo();
         }
         else {
@@ -462,8 +462,8 @@ public class TestInfraCreateIndex extends TestCase
         return epService.getServicesContext().getTableService();
     }
 
-    private NamedWindowService getNamedWindowService() {
-        return epService.getServicesContext().getNamedWindowService();
+    private NamedWindowMgmtService getNamedWindowMgmtService() {
+        return epService.getServicesContext().getNamedWindowMgmtService();
     }
 
     private void runAssertionCompositeIndex(boolean isNamedWindow)

@@ -13,6 +13,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.IterablesArrayIterator;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -30,7 +31,6 @@ import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -49,6 +49,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
     private ExprEvaluator[] evaluators;
     private SortedSet<Integer> subordinateStreams;
     private ExprEvaluatorContext exprEvaluatorContext;
+    private StatementContext statementContext;
 
     private static final EventBean[][] NULL_ROWS;
     static {
@@ -57,7 +58,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
     }
     private static final PollResultIndexingStrategy iteratorIndexingStrategy = new PollResultIndexingStrategy()
     {
-        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
         {
             return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
         }
@@ -93,6 +94,10 @@ public class DatabasePollingViewable implements HistoricalEventViewable
         pollExecStrategy.destroy();
     }
 
+    public DataCache getOptionalDataCache() {
+        return dataCache;
+    }
+
     public void validate(EngineImportService engineImportService,
                          StreamTypeService streamTypeService,
                          MethodResolutionService methodResolutionService,
@@ -105,16 +110,15 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                          String engineURI,
                          Map<Integer, List<ExprNode>> sqlParameters,
                          EventAdapterService eventAdapterService,
-                         String statementName,
-                         String statementId,
-                         Annotation[] annotations) throws ExprValidationException
+                         StatementContext statementContext) throws ExprValidationException
     {
+        this.statementContext = statementContext;
         evaluators = new ExprEvaluator[inputParameters.size()];
         subordinateStreams = new TreeSet<Integer>();
         this.exprEvaluatorContext = exprEvaluatorContext;
 
         int count = 0;
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         for (String inputParam : inputParameters)
         {
             ExprNode raw = findSQLExpressionNode(myStreamNumber, count, sqlParameters);
@@ -196,7 +200,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
                     List<EventBean> pollResult = pollExecStrategy.poll(lookupValues, exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
-                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive());
+                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext);
 
                     // assign to row
                     resultPerInputRow[row] = indexTable;

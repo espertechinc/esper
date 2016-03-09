@@ -17,9 +17,9 @@ import com.espertech.esper.epl.core.MethodResolutionService;
 
 public class AggSvcGroupByLocalGroupByFactory implements AggregationServiceFactory {
 
-    private final boolean join;
-    private final AggregationLocalGroupByPlan localGroupByPlan;
-    private final Object groupKeyBinding;
+    protected final boolean join;
+    protected final AggregationLocalGroupByPlan localGroupByPlan;
+    protected final Object groupKeyBinding;
 
     public AggSvcGroupByLocalGroupByFactory(boolean join, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding) {
         this.join = join;
@@ -27,7 +27,7 @@ public class AggSvcGroupByLocalGroupByFactory implements AggregationServiceFacto
         this.groupKeyBinding = groupKeyBinding;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByLocalGroupBy(methodResolutionService, join, localGroupByPlan, groupKeyBinding);
     }
 }

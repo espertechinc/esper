@@ -371,8 +371,7 @@ public class TestViewTimeOrder extends TestCase
         assertNull(listener.getLastNewData());
         assertEquals(1, listener.getOldDataList().size());
         assertEquals(2, listener.getLastOldData().length);
-        assertEquals("E4", listener.getLastOldData()[0].get("id"));
-        assertEquals("E3", listener.getLastOldData()[1].get("id"));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastOldData(), "id".split(","), new Object[][] {{"E4"}, {"E3"}});
         listener.reset();
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), new String[]{"id"}, null);
 

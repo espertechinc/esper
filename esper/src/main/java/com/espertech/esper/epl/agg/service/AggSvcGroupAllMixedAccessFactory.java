@@ -31,8 +31,8 @@ public class AggSvcGroupAllMixedAccessFactory extends AggregationServiceFactoryB
         isJoin = join;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
-        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations);
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations, null);
         AggregationMethod[] aggregatorsAgentInstance = methodResolutionService.newAggregators(super.aggregators, agentInstanceContext.getAgentInstanceId());
         return new AggSvcGroupAllMixedAccessImpl(evaluators, aggregatorsAgentInstance, accessors, states, aggregators, accessAggregations);
     }

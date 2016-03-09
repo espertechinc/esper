@@ -18,12 +18,13 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.view.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Factory for union-views.
  */
-public class UnionViewFactory implements ViewFactory, DataWindowViewFactory
+public class UnionViewFactory implements ViewFactory, DataWindowViewFactory, ViewFactoryContainer
 {
     /**
      * The event type.
@@ -96,5 +97,9 @@ public class UnionViewFactory implements ViewFactory, DataWindowViewFactory
 
     public String getViewName() {
         return IntersectViewFactory.getViewNameUnionIntersect(false, viewFactories);
+    }
+
+    public Collection<ViewFactory> getViewFactoriesContained() {
+        return viewFactories;
     }
 }

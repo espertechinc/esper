@@ -44,7 +44,8 @@ public class TestMTStmtPatternFollowedBy extends TestCase {
                 "select sa.id,sb.id,sc.id,sd.id from pattern [(sa=S0(id=8)->sb=S0(id=9)) or (sc=S0(id=9)->sd=S0(id=8))]"
         };
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
+            System.out.println("i=" + i);
             SupportMTUpdateListener listener = new SupportMTUpdateListener();
             EPStatement[] stmts = new EPStatement[epls.length];
             for (int j = 0; j < epls.length; j++) {

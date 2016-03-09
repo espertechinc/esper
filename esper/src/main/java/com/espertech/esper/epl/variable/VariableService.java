@@ -23,8 +23,6 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public interface VariableService
 {
-    public final static int NOCONTEXT_AGENTINSTANCEID = 0;
-
     /**
      * Sets the variable version that subsequent reads consider.
      */
@@ -111,7 +109,7 @@ public interface VariableService
 
     public String isContextVariable(String propertyName);
 
-    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext);
+    public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext, boolean isRecoveringResilient);
     public void deallocateVariableState(String variableName, int agentInstanceId);
 
     public ConcurrentHashMap<Integer,VariableReader> getReadersPerCP(String variableName);

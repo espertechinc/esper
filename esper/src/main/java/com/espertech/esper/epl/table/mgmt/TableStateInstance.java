@@ -13,6 +13,7 @@ package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -35,13 +36,15 @@ public abstract class TableStateInstance {
     public abstract Iterable<EventBean> getIterableTableScan();
     public abstract void addEvent(EventBean theEvent);
     public abstract void deleteEvent(EventBean matchingEvent);
-    public abstract void clearEvents();
-    public abstract void addExplicitIndex(CreateIndexDesc spec) throws ExprValidationException;
+    public abstract void clearInstance();
+    public abstract void destroyInstance();
+    public abstract void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException;
     public abstract String[] getSecondaryIndexes();
     public abstract EventTable getIndex(String indexName);
     public abstract ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
     public abstract Collection<EventBean> getEventCollection();
     public abstract int getRowCount();
+    public abstract AggregationServicePassThru getAggregationServicePassThru();
 
     public void handleRowUpdated(ObjectArrayBackedEventBean row) {
         if (InstrumentationHelper.ENABLED) {
@@ -51,7 +54,7 @@ public abstract class TableStateInstance {
 
     public void addEventUnadorned(EventBean event) {
         ObjectArrayBackedEventBean oa = (ObjectArrayBackedEventBean) event;
-        AggregationRowPair aggs = tableMetadata.getRowFactory().makeAggs(agentInstanceContext.getAgentInstanceId(), null, null);
+        AggregationRowPair aggs = tableMetadata.getRowFactory().makeAggs(agentInstanceContext.getAgentInstanceId(), null, null, getAggregationServicePassThru());
         oa.getProperties()[0] = aggs;
         addEvent(oa);
     }
@@ -89,5 +92,9 @@ public abstract class TableStateInstance {
             InstrumentationHelper.get().qaTableUpdatedEventWKeyAfter(updatedEvent);
         }
         // no action
+    }
+
+    public void removeExplicitIndex(String indexName) {
+        indexRepository.removeExplicitIndex(indexName);
     }
 }

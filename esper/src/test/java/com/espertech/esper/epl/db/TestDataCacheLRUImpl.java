@@ -13,6 +13,7 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
+import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import junit.framework.TestCase;
 
 public class TestDataCacheLRUImpl extends TestCase
@@ -25,7 +26,7 @@ public class TestDataCacheLRUImpl extends TestCase
         cache = new DataCacheLRUImpl(3);
         for (int i = 0; i < lists.length; i++)
         {
-            lists[i] = new UnindexedEventTable(0);
+            lists[i] = new UnindexedEventTableImpl(0);
         }
     }
 

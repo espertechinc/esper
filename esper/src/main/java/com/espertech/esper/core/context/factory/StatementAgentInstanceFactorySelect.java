@@ -14,6 +14,7 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.activator.ViewableActivatorStreamReuseView;
@@ -33,6 +34,7 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
+import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
@@ -110,11 +112,6 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
     public StatementAgentInstanceFactorySelectResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
     {
-        // register agent instance resources for use in HA
-        if (services.getSchedulableAgentInstanceDirectory() != null) {
-            services.getSchedulableAgentInstanceDirectory().add(agentInstanceContext.getEpStatementAgentInstanceHandle());
-        }
-
         final List<StopCallback> stopCallbacks = new ArrayList<StopCallback>(2);
 
         Viewable finalView;
@@ -146,6 +143,11 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 stopCallbacks.add(activationResult.getStopCallback());
                 suppressSameEventMatches = activationResult.isSuppressSameEventMatches();
                 discardPartialsOnMatch = activationResult.isDiscardPartialsOnMatch();
+
+                // add stop callback for any stream-level viewable when applicable
+                if (activationResult.getViewable() instanceof StopCallback) {
+                    stopCallbacks.add((StopCallback) activationResult.getViewable());
+                }
 
                 eventStreamParentViewable[stream] = activationResult.getViewable();
                 patternRoots[stream] = activationResult.getOptionalPatternRoot();
@@ -179,7 +181,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             AgentInstanceViewFactoryChainContext viewFactoryChainContexts[] = new AgentInstanceViewFactoryChainContext[numStreams];
             for (int i = 0; i < numStreams; i++)
             {
-                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i]);
+                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i], i, false, -1);
             }
 
             // handle "prior" nodes and their strategies
@@ -208,6 +210,9 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                     };
                     stopCallbacks.add(stopCallback);
                 }
+
+                // add views to stop callback if applicable
+                addViewStopCallback(stopCallbacks, createResult.getNewViews());
             }
 
             // determine match-recognize "previous"-node strategy (none if not present, or one handling and number of nodes)
@@ -218,15 +223,17 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             }
 
             // start subselects
-            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks);
+            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
             // plan table access
             tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());
 
             // obtain result set processor and aggregation services
-            Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext);
+            Pair<ResultSetProcessor, AggregationService> processorPair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorFactoryDesc, agentInstanceContext, false, null);
             final ResultSetProcessor resultSetProcessor = processorPair.getFirst();
             aggregationService = processorPair.getSecond();
+            stopCallbacks.add(aggregationService);
+            stopCallbacks.add(resultSetProcessor);
 
             // for just 1 event stream without joins, handle the one-table process separately.
             final JoinPreloadMethod joinPreloadMethod;
@@ -239,110 +246,117 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             else
             {
                 JoinPlanResult joinPlanResult = handleJoin(typeService.getStreamNames(), streamViews, resultSetProcessor,
-                        agentInstanceContext, stopCallbacks, joinAnalysisResult);
+                        agentInstanceContext, stopCallbacks, joinAnalysisResult, isRecoveringResilient);
                 finalView = joinPlanResult.getViewable();
                 joinPreloadMethod = joinPlanResult.getPreloadMethod();
                 joinSetComposer = joinPlanResult.getJoinSetComposerDesc();
             }
 
+            // for stoppable final views, add callback
+            if (finalView instanceof StopCallback) {
+                stopCallbacks.add((StopCallback) finalView);
+            }
+
             // Replay any named window data, for later consumers of named data windows
-            boolean hasNamedWindow = false;
-            FilterSpecCompiled[] namedWindowPostloadFilters = new FilterSpecCompiled[statementSpec.getStreamSpecs().length];
-            NamedWindowTailViewInstance[] namedWindowTailViews = new NamedWindowTailViewInstance[statementSpec.getStreamSpecs().length];
-            List<ExprNode>[] namedWindowFilters = new List[statementSpec.getStreamSpecs().length];
+            if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
+                boolean hasNamedWindow = false;
+                FilterSpecCompiled[] namedWindowPostloadFilters = new FilterSpecCompiled[statementSpec.getStreamSpecs().length];
+                NamedWindowTailViewInstance[] namedWindowTailViews = new NamedWindowTailViewInstance[statementSpec.getStreamSpecs().length];
+                List<ExprNode>[] namedWindowFilters = new List[statementSpec.getStreamSpecs().length];
 
-            for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
-            {
-                final int streamNum = i;
-                StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
-
-                if (streamSpec instanceof NamedWindowConsumerStreamSpec)
+                for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
                 {
-                    hasNamedWindow = true;
-                    final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
-                    NamedWindowProcessor processor = services.getNamedWindowService().getProcessor(namedSpec.getWindowName());
-                    NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(agentInstanceContext);
-                    if (processorInstance != null) {
-                        final NamedWindowTailViewInstance consumerView = processorInstance.getTailViewInstance();
-                        namedWindowTailViews[i] = consumerView;
-                        final NamedWindowConsumerView view = (NamedWindowConsumerView) viewableActivationResult[i].getViewable();
+                    final int streamNum = i;
+                    StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
 
-                        // determine preload/postload filter for index access
-                        if (!namedSpec.getFilterExpressions().isEmpty()) {
-                            namedWindowFilters[streamNum] = namedSpec.getFilterExpressions();
-                            try {
-                                StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
-                                LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
-                                namedWindowPostloadFilters[i] = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
-                                        namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, statementContext, Collections.singleton(0));
+                    if (streamSpec instanceof NamedWindowConsumerStreamSpec)
+                    {
+                        hasNamedWindow = true;
+                        final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
+                        NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
+                        NamedWindowProcessorInstance processorInstance = processor.getProcessorInstance(agentInstanceContext);
+                        if (processorInstance != null) {
+                            final NamedWindowTailViewInstance consumerView = processorInstance.getTailViewInstance();
+                            namedWindowTailViews[i] = consumerView;
+                            final NamedWindowConsumerView view = (NamedWindowConsumerView) viewableActivationResult[i].getViewable();
+
+                            // determine preload/postload filter for index access
+                            if (!namedSpec.getFilterExpressions().isEmpty()) {
+                                namedWindowFilters[streamNum] = namedSpec.getFilterExpressions();
+                                try {
+                                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
+                                    LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
+                                    namedWindowPostloadFilters[i] = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
+                                            namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, statementContext, Collections.singleton(0));
+                                }
+                                catch (Exception ex) {
+                                    log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
+                                }
                             }
-                            catch (Exception ex) {
-                                log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
+
+                            // preload view for stream unless the expiry policy is batch window
+                            Iterator<EventBean> consumerViewIterator = consumerView.iterator();
+                            boolean preload = !consumerView.getTailView().isParentBatchWindow() && consumerViewIterator.hasNext();
+                            if (preload) {
+                                if (isRecoveringResilient && numStreams < 2) {
+                                    preload = false;
+                                }
+                            }
+                            if (preload) {
+                                final boolean yesRecoveringResilient = isRecoveringResilient;
+                                final FilterSpecCompiled preloadFilterSpec = namedWindowPostloadFilters[i];
+                                preloadList.add(new StatementAgentInstancePreload() {
+                                    public void executePreload() {
+                                        Collection<EventBean> snapshot = consumerView.snapshot(preloadFilterSpec, statementContext.getAnnotations());
+                                        List<EventBean> eventsInWindow = new ArrayList<EventBean>(snapshot.size());
+                                        ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
+                                        EventBean[] newEvents = eventsInWindow.toArray(new EventBean[eventsInWindow.size()]);
+                                        view.update(newEvents, null);
+                                        if (!yesRecoveringResilient && joinPreloadMethod != null && !joinPreloadMethod.isPreloading() && agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
+                                            agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
+                                        }
+                                    }
+                                });
                             }
                         }
-
-                        // preload view for stream unless the expiry policy is batch window
-                        Iterator<EventBean> consumerViewIterator = consumerView.iterator();
-                        boolean preload = !consumerView.getTailView().isParentBatchWindow() && consumerViewIterator.hasNext();
-                        if (preload) {
-                            if (isRecoveringResilient && numStreams < 2) {
-                                preload = false;
-                            }
+                        else {
+                            log.info("Named window access is out-of-context, the named window '" + namedSpec.getWindowName() + "' has been declared for a different context then the current statement, the aggregation and join state will not be initialized for statement expression [" + statementContext.getExpression() + "]");
                         }
-                        if (preload) {
-                            final boolean yesRecoveringResilient = isRecoveringResilient;
-                            final FilterSpecCompiled preloadFilterSpec = namedWindowPostloadFilters[i];
-                            preloadList.add(new StatementAgentInstancePreload() {
-                                public void executePreload() {
-                                    Collection<EventBean> snapshot = consumerView.snapshot(preloadFilterSpec, statementContext.getAnnotations());
-                                    List<EventBean> eventsInWindow = new ArrayList<EventBean>(snapshot.size());
-                                    ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
-                                    EventBean[] newEvents = eventsInWindow.toArray(new EventBean[eventsInWindow.size()]);
-                                    view.update(newEvents, null);
-                                    if (!yesRecoveringResilient && joinPreloadMethod != null && !joinPreloadMethod.isPreloading() && agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
+
+                        preloadList.add(new StatementAgentInstancePreload() {
+                            public void executePreload() {
+                                // in a join, preload indexes, if any
+                                if (joinPreloadMethod != null)
+                                {
+                                    joinPreloadMethod.preloadFromBuffer(streamNum);
+                                }
+                                else
+                                {
+                                    if (agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
                                         agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
-                    else {
-                        log.info("Named window access is out-of-context, the named window '" + namedSpec.getWindowName() + "' has been declared for a different context then the current statement, the aggregation and join state will not be initialized for statement expression [" + statementContext.getExpression() + "]");
-                    }
+                }
 
+                // last, for aggregation we need to send the current join results to the result set processor
+                if ((hasNamedWindow) && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation())
+                {
                     preloadList.add(new StatementAgentInstancePreload() {
                         public void executePreload() {
-                            // in a join, preload indexes, if any
-                            if (joinPreloadMethod != null)
-                            {
-                                joinPreloadMethod.preloadFromBuffer(streamNum);
-                            }
-                            else
-                            {
-                                if (agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
-                                    agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
-                                }
-                            }
+                            joinPreloadMethod.preloadAggregation(resultSetProcessor);
                         }
                     });
                 }
-            }
-            
-            // last, for aggregation we need to send the current join results to the result set processor
-            if ((hasNamedWindow) && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation())
-            {
-                preloadList.add(new StatementAgentInstancePreload() {
-                    public void executePreload() {
-                        joinPreloadMethod.preloadAggregation(resultSetProcessor);
-                    }
-                });
-            }
 
-            if (isRecoveringResilient) {
-                postLoadJoin = new StatementAgentInstancePostLoadSelect(streamViews, joinSetComposer, namedWindowTailViews, namedWindowPostloadFilters, namedWindowFilters, statementContext.getAnnotations(), agentInstanceContext);
-            }
-            else if (joinSetComposer != null) {
-                postLoadJoin = new StatementAgentInstancePostLoadIndexVisiting(joinSetComposer.getJoinSetComposer());
+                if (isRecoveringResilient) {
+                    postLoadJoin = new StatementAgentInstancePostLoadSelect(streamViews, joinSetComposer, namedWindowTailViews, namedWindowPostloadFilters, namedWindowFilters, statementContext.getAnnotations(), agentInstanceContext);
+                }
+                else if (joinSetComposer != null) {
+                    postLoadJoin = new StatementAgentInstancePostLoadIndexVisiting(joinSetComposer.getJoinSetComposer());
+                }
             }
         }
         catch (RuntimeException ex) {
@@ -363,13 +377,37 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         return selectResult;
     }
 
+    protected static void addViewStopCallback(List<StopCallback> stopCallbacks, List<View> topViews) {
+        for (View view : topViews) {
+            if (view instanceof StoppableView) {
+                stopCallbacks.add((StoppableView) view);
+            }
+        }
+    }
+
     public void assignExpressions(StatementAgentInstanceFactoryResult result) {
         StatementAgentInstanceFactorySelectResult selectResult = (StatementAgentInstanceFactorySelectResult) result;
         EPStatementStartMethodHelperAssignExpr.assignAggregations(selectResult.getOptionalAggegationService(), resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.assignSubqueryStrategies(subSelectStrategyCollection, result.getSubselectStrategies());
+        EPStatementStartMethodHelperAssignExpr.assignPriorStrategies(result.getPriorNodeStrategies());
+        EPStatementStartMethodHelperAssignExpr.assignPreviousStrategies(result.getPreviousNodeStrategies());
+        Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes = viewResourceDelegate.getPerStream()[0].getMatchRecognizePreviousRequests();
+        EPStatementStartMethodHelperAssignExpr.assignMatchRecognizePreviousStrategies(matchRecognizeNodes, result.getRegexExprPreviousEvalStrategy());
     }
 
     public void unassignExpressions() {
-        EPStatementStartMethodHelperAssignExpr.assignAggregations(null, resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.unassignAggregations(resultSetProcessorFactoryDesc.getAggregationServiceFactoryDesc().getExpressions());
+        EPStatementStartMethodHelperAssignExpr.unassignSubqueryStrategies(subSelectStrategyCollection.getSubqueries().keySet());
+        for (int streamNum = 0; streamNum < viewResourceDelegate.getPerStream().length; streamNum++) {
+            ViewResourceDelegateVerifiedStream viewResourceStream = viewResourceDelegate.getPerStream()[streamNum];
+            SortedMap<Integer, List<ExprPriorNode>> callbacksPerIndex = viewResourceStream.getPriorRequests();
+            for (Map.Entry<Integer, List<ExprPriorNode>> priorItem : callbacksPerIndex.entrySet()) {
+                EPStatementStartMethodHelperAssignExpr.unassignPriorStrategies(priorItem.getValue());
+            }
+            EPStatementStartMethodHelperAssignExpr.unassignPreviousStrategies(viewResourceStream.getPreviousRequests());
+        }
+        Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes = viewResourceDelegate.getPerStream()[0].getMatchRecognizePreviousRequests();
+        EPStatementStartMethodHelperAssignExpr.unassignMatchRecognizePreviousStrategies(matchRecognizeNodes);
     }
 
     public ViewableActivator[] getEventStreamParentViewableActivators() {
@@ -488,9 +526,10 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                                          ResultSetProcessor resultSetProcessor,
                                                          AgentInstanceContext agentInstanceContext,
                                                          List<StopCallback> stopCallbacks,
-                                                         StreamJoinAnalysisResult joinAnalysisResult)
+                                                         StreamJoinAnalysisResult joinAnalysisResult,
+                                                         boolean isRecoveringResilient)
     {
-        final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext);
+        final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext, isRecoveringResilient);
 
         stopCallbacks.add(new StopCallback(){
             public void stop()
@@ -513,13 +552,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         agentInstanceContext.getEpStatementAgentInstanceHandle().setOptionalDispatchable(joinStatementDispatch);
 
         JoinPreloadMethod preloadMethod;
-        if (joinAnalysisResult.getUnidirectionalStreamNumber() >= 0)
-        {
+        if (joinAnalysisResult.getUnidirectionalStreamNumber() >= 0) {
             preloadMethod = new JoinPreloadMethodNull();
         }
-        else
-        {
-            preloadMethod = new JoinPreloadMethodImpl(streamNames.length, joinSetComposerDesc.getJoinSetComposer());
+        else {
+            if (!joinSetComposerDesc.getJoinSetComposer().allowsInit()) {
+                preloadMethod = new JoinPreloadMethodNull();
+            }
+            else {
+                preloadMethod = new JoinPreloadMethodImpl(streamNames.length, joinSetComposerDesc.getJoinSetComposer());
+            }
         }
 
         // Create buffer for each view. Point buffer to dispatchable for join.

@@ -9,6 +9,7 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdate;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdateResult;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementOnTriggerDesc;
@@ -20,6 +21,7 @@ import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
 import com.espertech.esper.core.service.*;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
@@ -118,6 +120,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
 
         // create context factory
         StatementAgentInstanceFactoryUpdate contextFactory = new StatementAgentInstanceFactoryUpdate(statementContext, services, streamEventType, updateSpec, onExprView, routerDesc, subSelectStrategyCollection);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         // perform start of hook-up to start
         Viewable finalViewable;
@@ -134,7 +137,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             for (ExprSubselectNode node : subSelectStrategyCollection.getSubqueries().keySet()) {
                 AIRegistrySubselect specificService = aiRegistryExpr.allocateSubselect(node);
                 node.setStrategy(specificService);
-                subselectStrategyInstances.put(node, new SubSelectStrategyHolder(null, null, null, null, null, null));
+                subselectStrategyInstances.put(node, new SubSelectStrategyHolder(null, null, null, null, null, null, null));
             }
 
             ContextMergeView mergeView = new ContextMergeView(onExprView.getEventType());
@@ -145,7 +148,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             stopStatementMethod = new EPStatementStopMethod(){
                 public void stop()
                 {
-                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                     stopMethod.stop();
                 }
             };
@@ -157,13 +160,20 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
             AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             final StatementAgentInstanceFactoryUpdateResult resultOfStart = (StatementAgentInstanceFactoryUpdateResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
+            final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(resultOfStart);
             stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
-                    resultOfStart.getStopCallback().stop();
+                    stopCallback.stop();
                     stopMethod.stop();
                 }
             };
             subselectStrategyInstances = resultOfStart.getSubselectStrategies();
+
+            if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
+                StatementResourceHolder holder = statementContext.getStatementExtensionServicesContext().extractStatementResourceHolder(resultOfStart);
+                statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
+                statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
+            }
         }
 
         // assign subquery nodes

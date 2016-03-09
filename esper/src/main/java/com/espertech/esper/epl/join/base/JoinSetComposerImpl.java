@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public class JoinSetComposerImpl implements JoinSetComposer
 {
+    private final boolean allowInitIndex;
     protected final EventTable[][] repositories;
     protected final QueryStrategy[] queryStrategies;
     private final boolean isPureSelfJoin;
@@ -45,9 +46,10 @@ public class JoinSetComposerImpl implements JoinSetComposer
      * @param isPureSelfJoin - for self-join only
      * @param exprEvaluatorContext expression evaluation context
      */
-    public JoinSetComposerImpl(Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin,
+    public JoinSetComposerImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin,
                                ExprEvaluatorContext exprEvaluatorContext, boolean joinRemoveStream)
     {
+        this.allowInitIndex = allowInitIndex;
         this.repositories = JoinSetComposerUtil.toArray(repositories);
         this.queryStrategies = queryStrategies;
         this.isPureSelfJoin = isPureSelfJoin;
@@ -55,8 +57,16 @@ public class JoinSetComposerImpl implements JoinSetComposer
         this.joinRemoveStream = joinRemoveStream;
     }
 
+    public boolean allowsInit() {
+        return allowInitIndex;
+    }
+
     public void init(EventBean[][] eventsPerStream)
     {
+        if (!allowInitIndex) {
+            throw new IllegalStateException("Initialization by events not supported");
+        }
+
         for (int i = 0; i < eventsPerStream.length; i++)
         {
             if (eventsPerStream[i] != null)
@@ -77,7 +87,7 @@ public class JoinSetComposerImpl implements JoinSetComposer
             {
                 for (EventTable table : repositories[i])
                 {
-                    table.clear();
+                    table.destroy();
                 }
             }
         }

@@ -13,6 +13,8 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.service.StatementVariableRef;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.ResultSetProcessorType;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
@@ -30,7 +32,7 @@ import com.espertech.esper.epl.util.EPLValidationUtil;
  */
 public class OutputProcessViewFactoryFactory
 {
-    public static OutputProcessViewFactory make(StatementSpecCompiled statementSpec, InternalEventRouter internalEventRouter, StatementContext statementContext, EventType resultEventType, OutputProcessViewCallback optionalOutputProcessViewCallback, TableService tableService, ResultSetProcessorType resultSetProcessorType)
+    public static OutputProcessViewFactory make(StatementSpecCompiled statementSpec, InternalEventRouter internalEventRouter, StatementContext statementContext, EventType resultEventType, OutputProcessViewCallback optionalOutputProcessViewCallback, TableService tableService, ResultSetProcessorType resultSetProcessorType, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, StatementVariableRef statementVariableRef)
             throws ExprValidationException
     {
         // determine direct-callback
@@ -44,7 +46,7 @@ public class OutputProcessViewFactoryFactory
         if (statementSpec.getInsertIntoDesc() != null)
         {
             isRouted = true;
-            routeToFront = statementContext.getNamedWindowService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
+            routeToFront = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
         }
 
         OutputStrategyPostProcessFactory outputStrategyPostProcessFactory = null;
@@ -59,6 +61,7 @@ public class OutputProcessViewFactoryFactory
                 if (tableMetadata != null) {
                     tableName = tableMetadata.getTableName();
                     EPLValidationUtil.validateContextName(true, tableName, tableMetadata.getContextName(), statementSpec.getOptionalContextName(), true);
+                    statementVariableRef.addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
                 }
             }
 
@@ -71,44 +74,28 @@ public class OutputProcessViewFactoryFactory
         boolean isDistinct = statementSpec.getSelectClauseSpec().isDistinct();
         boolean isGrouped = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByNodes().length > 0;
 
-        if (outputLimitSpec != null) {
-            ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getMethodResolutionService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-            if (outputLimitSpec.getAfterTimePeriodExpr() != null) {
-                ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
-                outputLimitSpec.setAfterTimePeriodExpr(timePeriodExpr);
-            }
-            if (outputLimitSpec.getTimePeriodExpr() != null) {
-                ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getTimePeriodExpr(), validationContext);
-                outputLimitSpec.setTimePeriodExpr(timePeriodExpr);
-                if (timePeriodExpr.isConstantResult() && timePeriodExpr.evaluateAsSeconds(null, true, new ExprEvaluatorContextStatement(statementContext, false)) <= 0) {
-                    throw new ExprValidationException("Invalid time period expression returns a zero or negative time interval");
-                }
-            }
-        }
-
         OutputProcessViewFactory outputProcessViewFactory;
         if (outputLimitSpec == null)
         {
             if (!isDistinct)
             {
-                outputProcessViewFactory = new OutputProcessViewDirectFactory(statementContext, outputStrategyPostProcessFactory);
+                outputProcessViewFactory = new OutputProcessViewDirectFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory);
             }
             else
             {
-                outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, null, null, resultEventType);
+                outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, null, null, resultEventType);
             }
         }
         else if (outputLimitSpec.getRateType() == OutputLimitRateType.AFTER)
         {
-            outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
+            outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
         }
         else
         {
             try {
                 boolean isWithHavingClause = statementSpec.getHavingExprRootNode() != null;
                 boolean isStartConditionOnCreation = hasOnlyTables(statementSpec.getStreamSpecs());
-                OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation);
+                OutputConditionFactory outputConditionFactory = OutputConditionFactoryFactory.createCondition(outputLimitSpec, statementContext, isGrouped, isWithHavingClause, isStartConditionOnCreation, resultSetProcessorHelperFactory);
                 boolean hasOrderBy = statementSpec.getOrderByList() != null && statementSpec.getOrderByList().length > 0;
                 OutputProcessViewConditionFactory.ConditionType conditionType;
                 boolean hasAfter = outputLimitSpec.getAfterNumberOfEvents() != null || outputLimitSpec.getAfterTimePeriodExpr() != null;
@@ -144,7 +131,7 @@ public class OutputProcessViewFactoryFactory
 
                 SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum = statementSpec.getSelectStreamSelectorEnum();
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
-                outputProcessViewFactory = new OutputProcessViewConditionFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType, outputConditionFactory, streamCount, conditionType, outputLimitSpec.getDisplayLimit(), terminable, hasAfter, isUnaggregatedUngrouped, selectClauseStreamSelectorEnum);
+                outputProcessViewFactory = new OutputProcessViewConditionFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType, outputConditionFactory, streamCount, conditionType, outputLimitSpec.getDisplayLimit(), terminable, hasAfter, isUnaggregatedUngrouped, selectClauseStreamSelectorEnum, resultSetProcessorHelperFactory);
             }
             catch (Exception ex) {
                 throw new ExprValidationException("Error in the output rate limiting clause: " + ex.getMessage(), ex);

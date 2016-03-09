@@ -17,11 +17,11 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaNonConst;
  * Output condition that is satisfied at the end
  * of every time interval of a given length.
  */
-public final class OutputConditionTimeFactory implements OutputConditionFactory
+public class OutputConditionTimeFactory implements OutputConditionFactory
 {
     private final ExprTimePeriod timePeriod;
     private final ExprTimePeriodEvalDeltaNonConst timePeriodDeltaComputation;
-    private final boolean isStartConditionOnCreation;
+    protected final boolean isStartConditionOnCreation;
 
     /**
      * Constructor.

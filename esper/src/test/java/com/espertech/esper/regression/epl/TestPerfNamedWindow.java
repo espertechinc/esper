@@ -102,11 +102,11 @@ public class TestPerfNamedWindow extends TestCase
     }
 
     private void runOnDemandAssertion(String epl, int numIndexes, Object theEvent, Integer expected) {
-        assertEquals(0, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(0, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
-        assertEquals(numIndexes, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(numIndexes, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
 
         long start = System.currentTimeMillis();
         int loops = 1000;
@@ -120,7 +120,7 @@ public class TestPerfNamedWindow extends TestCase
         assertTrue("delta=" + delta, delta < 1000);
 
         stmt.destroy();
-        assertEquals(0, epService.getNamedWindowService().getNamedWindowIndexes("MyWindow").length);
+        assertEquals(0, epService.getNamedWindowMgmtService().getNamedWindowIndexes("MyWindow").length);
     }
 
     public void testDeletePerformance()
@@ -197,6 +197,10 @@ public class TestPerfNamedWindow extends TestCase
 
     public void testDeletePerformanceTwoDeleters()
     {
+        if (SupportConfigFactory.skipTest(TestPerfNamedWindow.class)) {
+            return;
+        }
+
         // create window
         String stmtTextCreate = "create window MyWindow.win:keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
@@ -229,7 +233,7 @@ public class TestPerfNamedWindow extends TestCase
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;
-        assertTrue("Delta=" + delta, delta < 500);
+        assertTrue("Delta=" + delta, delta < 1500);
 
         // assert they are all deleted
         assertEquals(0, EPAssertionUtil.iteratorCount(stmtCreate.iterator()));

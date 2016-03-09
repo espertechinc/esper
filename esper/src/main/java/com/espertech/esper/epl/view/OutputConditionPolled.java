@@ -11,6 +11,8 @@ package com.espertech.esper.epl.view;
 
 public interface OutputConditionPolled
 {
+	public OutputConditionPolledState getState();
+
 	/**
 	 * Update the output condition.
 	 * @param newEventsCount - number of new events incoming

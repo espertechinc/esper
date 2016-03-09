@@ -158,7 +158,7 @@ public class EventTypeIndexBuilder
      * @param statementIds ids to take
      * @return set of filters for taken statements
      */
-    public final FilterSet take(Set<String> statementIds)
+    public final FilterSet take(Set<Integer> statementIds)
     {
         if (isolatableCallbacks == null) {
             throw new EPException("Operation not supported, please enable isolation in the engine configuration");
@@ -207,5 +207,9 @@ public class EventTypeIndexBuilder
         for (FilterSetEntry entry : filterSet.getFilters()) {
             add(entry.getFilterValueSet(), entry.getHandle(), lockFactory);
         }
+    }
+
+    public boolean isSupportsTakeApply() {
+        return isolatableCallbacks != null;
     }
 }

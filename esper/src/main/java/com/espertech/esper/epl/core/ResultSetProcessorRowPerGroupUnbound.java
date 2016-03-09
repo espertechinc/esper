@@ -9,23 +9,24 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.view.Viewable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowPerGroup implements AggregationRowRemovedCallback {
 
-    protected final Map<Object, EventBean> groupReps = new LinkedHashMap<Object, EventBean>();
+    protected final ResultSetProcessorRowPerGroupUnboundGroupRep groupReps;
 
     public ResultSetProcessorRowPerGroupUnbound(ResultSetProcessorRowPerGroupFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         super(prototype, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
-
-        aggregationService.setRemovedCallback(this);
+        groupReps = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupUnboundGroupRep(agentInstanceContext, prototype);
+        aggregationService.setRemovedCallback(groupReps);
     }
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData) {
@@ -97,14 +98,15 @@ public class ResultSetProcessorRowPerGroupUnbound extends ResultSetProcessorRowP
     public Iterator<EventBean> getIterator(Viewable parent) {
         if (orderByProcessor == null)
         {
-            Iterator<EventBean> it = groupReps.values().iterator();
+            Iterator<EventBean> it = groupReps.valueIterator();
             return new ResultSetRowPerGroupIterator(it, this, aggregationService, agentInstanceContext);
         }
-        return getIteratorSorted(groupReps.values().iterator());
+        return getIteratorSorted(groupReps.valueIterator());
     }
 
-
-    public void removed(Object optionalGroupKeyPerRow) {
-        groupReps.remove(optionalGroupKeyPerRow);
+    @Override
+    public void stop() {
+        super.stop();
+        groupReps.destroy();
     }
 }

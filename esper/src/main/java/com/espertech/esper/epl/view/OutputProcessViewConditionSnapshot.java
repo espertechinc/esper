@@ -13,6 +13,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.apache.commons.logging.Log;
@@ -33,16 +34,26 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
 
 	private static final Log log = LogFactory.getLog(OutputProcessViewConditionSnapshot.class);
 
-    public OutputProcessViewConditionSnapshot(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
+    public OutputProcessViewConditionSnapshot(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
     	OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
     	this.outputCondition = parent.getOutputConditionFactory().make(agentInstanceContext, outputCallback);
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        outputCondition.stop();
+    }
+
     public int getNumChangesetRows() {
         return 0;
+    }
+
+    public OutputCondition getOptionalOutputCondition() {
+        return outputCondition;
     }
 
     /**

@@ -160,7 +160,7 @@ public class TestLegacyBeanEvents extends TestCase
     private void tryPublicAccessors(ConfigurationEventTypeLegacy.CodeGeneration codeGeneration)
     {
         Configuration config = SupportConfigFactory.getConfiguration();
-        epService = EPServiceProviderManager.getProvider(this.getClass().getName() + ".test1" + codeGeneration, config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -304,7 +304,7 @@ public class TestLegacyBeanEvents extends TestCase
         legacyDef.setCodeGeneration(codeGeneration);
         config.addEventType("MySupportBean", SupportBean.class.getName(), legacyDef);
 
-        epService = EPServiceProviderManager.getProvider(this.getClass().getName() + ".test2" + codeGeneration, config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -352,7 +352,7 @@ public class TestLegacyBeanEvents extends TestCase
         legacyDef.addMethodProperty("explicitMReadInt", "readIntPrimitive");
         config.addEventType("MyLegacyEvent", SupportLegacyBeanInt.class.getName(), legacyDef);
 
-        epService = EPServiceProviderManager.getProvider(this.getClass().getName() + ".test3" + codeGeneration, config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
@@ -385,7 +385,7 @@ public class TestLegacyBeanEvents extends TestCase
         legacyDef.setCodeGeneration(codeGeneration);
         config.addEventType("MyFinalEvent", SupportBeanFinal.class.getName(), legacyDef);
 
-        epService = EPServiceProviderManager.getProvider(this.getClass().getName() + ".test4" + codeGeneration, config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

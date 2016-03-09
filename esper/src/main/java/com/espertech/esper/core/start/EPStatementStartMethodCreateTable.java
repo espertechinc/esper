@@ -68,23 +68,6 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             throw new ExprValidationException("An event type or schema by name '" + createDesc.getTableName() + "' already exists");
         }
 
-        EPStatementDestroyMethod destroyMethod = new EPStatementDestroyMethod() {
-            public void destroy() {
-                try {
-                    services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
-                }
-                catch (RuntimeException ex) {
-                    log.error("Error removing table '" + createDesc.getTableName() + "': " + ex.getMessage());
-                }
-            }
-        };
-
-        EPStatementStopMethod stopMethod = new EPStatementStopMethod(){
-            public void stop()
-            {
-            }
-        };
-
         // Determine event type names
         String internalTypeName = "table_" + createDesc.getTableName() + "__internal";
         String publicTypeName = "table_" + createDesc.getTableName() + "__public";
@@ -114,13 +97,30 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
 
         // allocate context factory
         StatementAgentInstanceFactoryCreateTable contextFactory = new StatementAgentInstanceFactoryCreateTable(metadata);
+        statementContext.setStatementAgentInstanceFactory(contextFactory);
         Viewable outputView;
+        EPStatementStopMethod stopStatementMethod;
+        EPStatementDestroyMethod destroyStatementMethod;
 
         if (statementSpec.getOptionalContextName() != null) {
+            final String contextName = statementSpec.getOptionalContextName();
             ContextMergeView mergeView = new ContextMergeView(metadata.getPublicEventType());
             outputView = mergeView;
             ContextManagedStatementCreateAggregationVariableDesc statement = new ContextManagedStatementCreateAggregationVariableDesc(statementSpec, statementContext, mergeView, contextFactory);
             services.getContextManagementService().addStatement(statementSpec.getOptionalContextName(), statement, isRecoveringResilient);
+
+            stopStatementMethod = new EPStatementStopMethod(){
+                public void stop() {
+                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
+                }
+            };
+
+            destroyStatementMethod = new EPStatementDestroyMethod(){
+                public void destroy() {
+                    services.getContextManagementService().destroyedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                    services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
+                }
+            };
         }
         else {
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
@@ -130,11 +130,21 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
                 statementContext.getStatementExtensionServicesContext().getStmtResources().setUnpartitioned(holder);
             }
             outputView = result.getFinalView();
+
+            stopStatementMethod = new EPStatementStopMethod() {
+                public void stop() {
+                }
+            };
+            destroyStatementMethod = new EPStatementDestroyMethod(){
+                public void destroy() {
+                    services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
+                }
+            };
         }
 
         services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), createDesc.getTableName());
 
-        return new EPStatementStartResult(outputView, stopMethod, destroyMethod);
+        return new EPStatementStartResult(outputView, stopStatementMethod, destroyStatementMethod);
     }
 
     private Class[] getKeyTypes(List<CreateTableColumn> columns, EngineImportService engineImportService)

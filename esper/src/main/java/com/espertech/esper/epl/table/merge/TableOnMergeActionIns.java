@@ -45,7 +45,7 @@ public class TableOnMergeActionIns extends TableOnMergeAction {
     public void apply(EventBean matchingEvent, EventBean[] eventsPerStream, TableStateInstance tableStateInstance, TableOnMergeViewChangeHandler changeHandlerAdded, TableOnMergeViewChangeHandler changeHandlerRemoved, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = insertHelper.process(eventsPerStream, true, true, exprEvaluatorContext);
         if (internalEventRouter == null) {
-            AggregationRowPair aggs = tableStateRowFactory.makeAggs(exprEvaluatorContext.getAgentInstanceId(), null, null);
+            AggregationRowPair aggs = tableStateRowFactory.makeAggs(exprEvaluatorContext.getAgentInstanceId(), null, null, tableStateInstance.getAggregationServicePassThru());
             ((Object[]) theEvent.getUnderlying())[0] = aggs;
             tableStateInstance.addEvent(theEvent);
             if (changeHandlerAdded != null) {

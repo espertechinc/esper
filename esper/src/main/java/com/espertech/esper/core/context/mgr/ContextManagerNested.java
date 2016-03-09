@@ -44,7 +44,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
     private final EPServicesContext servicesContext;
 
     private final ContextControllerFactory[] nestedContextFactories;
-    private final Map<String, ContextControllerStatementDesc> statements = new LinkedHashMap<String, ContextControllerStatementDesc>(); // retain order of statement creation
+    private final Map<Integer, ContextControllerStatementDesc> statements = new LinkedHashMap<Integer, ContextControllerStatementDesc>(); // retain order of statement creation
     private final ContextDescriptor contextDescriptor;
 
     /**
@@ -81,12 +81,12 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         for (ContextControllerFactory factory : nestedContextFactories) {
             contextProps.put(factory.getFactoryContext().getContextName(), factory.getContextBuiltinProps());
         }
-        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps);
+        EventType contextPropsType = servicesContext.getEventAdapterService().createAnonymousMapType(contextName, contextProps, true);
         ContextPropertyRegistryImpl registry = new ContextPropertyRegistryImpl(Collections.<ContextDetailPartitionItem>emptyList(), contextPropsType);
         contextDescriptor = new ContextDescriptor(contextName, false, registry, resourceRegistryFactory, this, factoryServiceContext.getDetail());
     }
 
-    public Map<String, ContextControllerStatementDesc> getStatements() {
+    public Map<Integer, ContextControllerStatementDesc> getStatements() {
         return statements;
     }
 
@@ -98,12 +98,12 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         return nestedContextFactories.length;
     }
 
-    public synchronized Iterator<EventBean> iterator(String statementId, ContextPartitionSelector selector) {
+    public synchronized Iterator<EventBean> iterator(int statementId, ContextPartitionSelector selector) {
         AgentInstance[] instances = getAgentInstancesForStmt(statementId, selector);
         return new AgentInstanceArrayIterator(instances);
     }
 
-    public synchronized SafeIterator<EventBean> safeIterator(String statementId, ContextPartitionSelector selector) {
+    public synchronized SafeIterator<EventBean> safeIterator(int statementId, ContextPartitionSelector selector) {
         AgentInstance[] instances = getAgentInstancesForStmt(statementId, selector);
         return new AgentInstanceArraySafeIterator(instances);
     }
@@ -156,7 +156,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
                 list.clearAgentInstances();
                 leaf.getValue().setState(ContextPartitionState.STOPPED);
-                rootContext.getFactory().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
+                rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
             }
         }
         return new ContextStatePathDescriptor(visitor.getStates(), visitor.getAgentInstanceInfo());
@@ -170,7 +170,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 int agentInstanceId = leaf.getValue().getOptionalContextPartitionId();
                 ContextControllerTreeAgentInstanceList list = treeEntry.getAgentInstances().get(agentInstanceId);
                 StatementAgentInstanceUtil.stopAgentInstances(list.getAgentInstances(), null, servicesContext, false, false);
-                rootContext.getFactory().getStateCache().removeContextPath(contextName, leaf.getKey().getLevel(), leaf.getKey().getParentPath(), leaf.getKey().getSubPath());
+                rootContext.getFactory().getFactoryContext().getStateCache().removeContextPath(contextName, leaf.getKey().getLevel(), leaf.getKey().getParentPath(), leaf.getKey().getSubPath());
                 ContextPartitionDescriptor descriptor = visitor.getAgentInstanceInfo().get(agentInstanceId);
                 ContextPartitionIdentifierNested nestedIdent = (ContextPartitionIdentifierNested) descriptor.getIdentifier();
                 entry.getKey().deletePath(nestedIdent.getIdentifiers()[nestedContextFactories.length - 1]);
@@ -190,13 +190,13 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 if (list.getState() == ContextPartitionState.STARTED) {
                     continue;
                 }
-                for (Map.Entry<String, ContextControllerStatementDesc> statement : statements.entrySet()) {
+                for (Map.Entry<Integer, ContextControllerStatementDesc> statement : statements.entrySet()) {
                     AgentInstance instance = startStatement(agentInstanceId, statement.getValue(), rootContext, list.getInitPartitionKey(), list.getInitContextProperties(), false);
                     list.getAgentInstances().add(instance);
                 }
                 list.setState(ContextPartitionState.STARTED);
                 leaf.getValue().setState(ContextPartitionState.STARTED);
-                rootContext.getFactory().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
+                rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, leaf.getKey(), leaf.getValue());
             }
         }
         ContextManagerImpl.setState(visitor.getAgentInstanceInfo(), ContextPartitionState.STARTED);
@@ -261,11 +261,11 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         }
     }
 
-    public synchronized void stopStatement(String statementName, String statementId) {
+    public synchronized void stopStatement(String statementName, int statementId) {
         destroyStatement(statementName, statementId);
     }
 
-    public synchronized void destroyStatement(String statementName, String statementId) {
+    public synchronized void destroyStatement(String statementName, int statementId) {
         if (!statements.containsKey(statementId)) {
             return;
         }
@@ -280,7 +280,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
     public void safeDestroy() {
         if (rootContext != null) {
             recursiveDeactivateStop(rootContext, false, null);
-            nestedContextFactories[0].getStateCache().removeContext(contextName);
+            nestedContextFactories[0].getFactoryContext().getStateCache().removeContext(contextName);
             rootContext = null;
             statements.clear();
             subcontexts.clear();
@@ -311,13 +311,13 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
             if (cpEntry.getValue().getState() == ContextPartitionState.STOPPED) {
                 cpEntry.getValue().setState(ContextPartitionState.STARTED);
                 entry.getAgentInstances().clear();
-                for (Map.Entry<String, ContextControllerStatementDesc> statement : statements.entrySet()) {
+                for (Map.Entry<Integer, ContextControllerStatementDesc> statement : statements.entrySet()) {
                     AgentInstance instance = startStatement(existingHandle.getContextPartitionOrPathId(), statement.getValue(), originator, cpEntry.getValue().getInitPartitionKey(), entry.getInitContextProperties(), false);
                     cpEntry.getValue().getAgentInstances().add(instance);
                 }
                 ContextStatePathKey key = new ContextStatePathKey(nestedContextFactories.length, originator.getPathId(), existingHandle.getSubPathId());
                 ContextStatePathValue value = new ContextStatePathValue(existingHandle.getContextPartitionOrPathId(), payload, ContextPartitionState.STARTED);
-                originator.getFactory().getStateCache().updateContextPath(contextName, key, value);
+                originator.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, key, value);
             }
             else {
                 List<AgentInstance> removed = new ArrayList<AgentInstance>(2);
@@ -330,7 +330,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                     }
 
                     // remove
-                    StatementAgentInstanceUtil.stopAgentInstance(agentInstance, null, servicesContext, false, false);
+                    StatementAgentInstanceUtil.stopAgentInstanceRemoveResources(agentInstance, null, servicesContext, false, false);
                     removed.add(agentInstance);
 
                     // start
@@ -421,7 +421,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         // handle leaf creation
         List<AgentInstance> newInstances = new ArrayList<AgentInstance>();
         if (state == ContextPartitionState.STARTED) {
-            for (Map.Entry<String, ContextControllerStatementDesc> statementEntry : statements.entrySet()) {
+            for (Map.Entry<Integer, ContextControllerStatementDesc> statementEntry : statements.entrySet()) {
                 ContextControllerStatementDesc statementDesc = statementEntry.getValue();
                 AgentInstance instance = startStatement(assignedContextId, statementDesc, originator, partitionKey, contextProperties, isRecoveringResilient);
                 newInstances.add(instance);
@@ -496,12 +496,12 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         }
     }
 
-    public synchronized Iterator<EventBean> iterator(String statementId) {
+    public synchronized Iterator<EventBean> iterator(int statementId) {
         AgentInstance[] instances = getAgentInstancesForStmt(statementId);
         return new AgentInstanceArrayIterator(instances);
     }
 
-    public synchronized SafeIterator<EventBean> safeIterator(String statementId) {
+    public synchronized SafeIterator<EventBean> safeIterator(int statementId) {
         AgentInstance[] instances = getAgentInstancesForStmt(statementId);
         return new AgentInstanceArraySafeIterator(instances);
     }
@@ -568,7 +568,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         rootContext.activate(null, null, null, null, null);
     }
 
-    private void removeStatement(String statementId) {
+    private void removeStatement(int statementId) {
         ContextControllerStatementDesc statementDesc = statements.get(statementId);
         if (statementDesc == null) {
             return;
@@ -587,10 +587,10 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 Iterator<AgentInstance> instanceIt = contextPartitionEntry.getValue().getAgentInstances().iterator();
                 for (;instanceIt.hasNext();) {
                     AgentInstance instance = instanceIt.next();
-                    if (!instance.getAgentInstanceContext().getStatementContext().getStatementId().equals(statementId)) {
+                    if (instance.getAgentInstanceContext().getStatementContext().getStatementId() != statementId) {
                         continue;
                     }
-                    StatementAgentInstanceUtil.stop(instance.getStopCallback(), instance.getAgentInstanceContext(), instance.getFinalView(), servicesContext, true, false);
+                    StatementAgentInstanceUtil.stop(instance.getStopCallback(), instance.getAgentInstanceContext(), instance.getFinalView(), servicesContext, true, false, true);
                     instanceIt.remove();
                 }
             }
@@ -636,7 +636,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         }
     }
 
-    private AgentInstance[] getAgentInstancesForStmt(String statementId) {
+    private AgentInstance[] getAgentInstancesForStmt(int statementId) {
         List<AgentInstance> instances = new ArrayList<AgentInstance>();
         for (Map.Entry<ContextController, ContextControllerTreeEntry> subcontext : subcontexts.entrySet()) {
             if (subcontext.getKey().getFactory().getFactoryContext().getNestingLevel() != nestedContextFactories.length) {
@@ -648,7 +648,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
 
             for (Map.Entry<Integer, ContextControllerTreeAgentInstanceList> entry : subcontext.getValue().getAgentInstances().entrySet()) {
                 for (AgentInstance ai : entry.getValue().getAgentInstances()) {
-                    if (ai.getAgentInstanceContext().getStatementContext().getStatementId().equals(statementId)) {
+                    if (ai.getAgentInstanceContext().getStatementContext().getStatementId() == statementId) {
                         instances.add(ai);
                     }
                 }
@@ -657,7 +657,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         return instances.toArray(new AgentInstance[instances.size()]);
     }
 
-    private AgentInstance[] getAgentInstancesForStmt(String statementId, ContextPartitionSelector selector) {
+    private AgentInstance[] getAgentInstancesForStmt(int statementId, ContextPartitionSelector selector) {
         Collection<Integer> agentInstanceIds = getAgentInstancesForSelector(selector);
         if (agentInstanceIds == null || agentInstanceIds.isEmpty()) {
             return new AgentInstance[0];
@@ -678,7 +678,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                     Iterator<AgentInstance> instanceIt = instancesList.getAgentInstances().iterator();
                     for (; instanceIt.hasNext(); ) {
                         AgentInstance instance = instanceIt.next();
-                        if (instance.getAgentInstanceContext().getStatementContext().getStatementId().equals(statementId)) {
+                        if (instance.getAgentInstanceContext().getStatementContext().getStatementId() == statementId) {
                             instances.add(instance);
                         }
                     }

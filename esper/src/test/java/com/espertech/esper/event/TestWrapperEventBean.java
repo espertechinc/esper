@@ -15,7 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.support.bean.SupportBeanCombinedProps;
 import com.espertech.esper.support.bean.SupportBeanSimple;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 import java.util.HashMap;

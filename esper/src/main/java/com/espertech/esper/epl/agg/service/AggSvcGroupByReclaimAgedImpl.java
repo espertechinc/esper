@@ -29,7 +29,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 {
     private static final Log log = LogFactory.getLog(AggSvcGroupByReclaimAgedImpl.class);
 
-    private static final long DEFAULT_MAX_AGE_MSEC = 60000L;
+    public static final long DEFAULT_MAX_AGE_MSEC = 60000L;
 
     private final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
@@ -97,7 +97,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         if (row == null)
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
             row = new AggregationMethodRowAged(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -186,7 +186,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         else
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
             row = new AggregationMethodRowAged(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -232,7 +232,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 
         if (currentAggregatorMethods == null) {
             currentAggregatorMethods = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, null);
-            currentAggregatorStates = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            currentAggregatorStates = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
         }
 
         this.currentGroupKey = groupByKey;

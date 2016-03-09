@@ -26,8 +26,6 @@ import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -358,41 +356,41 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         // To be overridden by implementations that care when aggregators get removed
     }
 
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs) {
-        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, null);
+    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru) {
+        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, null, passThru);
     }
 
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel) {
-        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, groupKey);
+    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel, AggregationServicePassThru passThru) {
+        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, groupKey, passThru);
     }
 
-    private AggregationState[] newAccessInternal(int agentInstanceId, AggregationStateFactory[] accessAggSpecs, boolean isJoin, Object groupKey) {
+    private AggregationState[] newAccessInternal(int agentInstanceId, AggregationStateFactory[] accessAggSpecs, boolean isJoin, Object groupKey, AggregationServicePassThru passThru) {
         AggregationState[] row = new AggregationState[accessAggSpecs.length];
         int i = 0;
         for (AggregationStateFactory spec : accessAggSpecs) {
-            row[i] = spec.createAccess(this, agentInstanceId, 0, i, isJoin, groupKey);   // no group id assigned
+            row[i] = spec.createAccess(this, agentInstanceId, 0, i, isJoin, groupKey, passThru);   // no group id assigned
             i++;
         }
         return row;
     }
 
-    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum) {
+    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru) {
         return new AggregationStateImpl(streamNum);
     }
 
-    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum) {
+    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru) {
         return new AggregationStateJoinImpl(streamNum);
     }
 
-    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec) {
+    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru) {
         return new AggregationStateSortedImpl(spec);
     }
 
-    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec) {
+    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru) {
         return new AggregationStateSortedJoin(spec);
     }
 
-    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec) {
+    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec, AggregationServicePassThru passThru) {
         return new AggregationStateMinMaxByEver(spec);
     }
 

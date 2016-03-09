@@ -59,8 +59,8 @@ public class SupportFilterHandle implements FilterHandleCallback
         return count;
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
-        return "";
+        return 1;
     }
 }

@@ -10,27 +10,32 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactory;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactorySelect;
 import com.espertech.esper.core.context.mgr.ContextControllerFactoryService;
+import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.lookup.EventTableIndexService;
+import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
-import com.espertech.esper.epl.core.MethodResolutionService;
-import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
-import com.espertech.esper.epl.named.NamedWindowService;
-import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
+import com.espertech.esper.filter.FilterBooleanExpressionFactory;
+import com.espertech.esper.filter.FilterFaultHandlerFactory;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.pattern.PatternContextFactory;
+import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.pattern.PatternObjectResolutionService;
 import com.espertech.esper.pattern.pool.PatternSubexpressionPoolStmtSvc;
-import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.rowregex.MatchRecognizeStatePoolStmtSvc;
+import com.espertech.esper.rowregex.RegexHandlerFactory;
 import com.espertech.esper.schedule.ScheduleAdjustmentService;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
@@ -38,6 +43,7 @@ import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.view.StatementStopService;
 import com.espertech.esper.view.ViewResolutionService;
 import com.espertech.esper.view.ViewService;
+import com.espertech.esper.view.ViewServicePreviousFactory;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;
@@ -48,7 +54,6 @@ import java.net.URI;
 public final class StatementContext
 {
     private final StatementContextEngineServices stmtEngineServices;
-    private final byte[] statementIdBytes;
     private SchedulingService schedulingService;
     private final ScheduleBucket scheduleBucket;
     private final EPStatementHandle epStatementHandle;
@@ -72,6 +77,8 @@ public final class StatementContext
     private final AggregationServiceFactoryService aggregationServiceFactoryService;
     private final boolean writesToTables;
     private final Object statementUserObject;
+    private final StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry;
+    private final int priority;
 
     // settable for view-sharing
     private StatementAgentInstanceLock defaultAgentInstanceLock;
@@ -80,6 +87,7 @@ public final class StatementContext
     private StatementSpecCompiled statementSpecCompiled;
     private StatementAgentInstanceFactory statementAgentInstanceFactory;
     private EPStatementSPI statement;
+    private FilterFaultHandlerFactory filterFaultHandlerFactory;
 
     /**
      * Constructor.
@@ -98,7 +106,6 @@ public final class StatementContext
      * @param internalEventEngineRouteDest routing destination
      */
     public StatementContext(StatementContextEngineServices stmtEngineServices,
-                              byte[] statementIdBytes,
                               SchedulingService schedulingService,
                               ScheduleBucket scheduleBucket,
                               EPStatementHandle epStatementHandle,
@@ -122,10 +129,11 @@ public final class StatementContext
                               AgentInstanceScriptContext defaultAgentInstanceScriptContext,
                               AggregationServiceFactoryService aggregationServiceFactoryService,
                               boolean writesToTables,
-                              Object statementUserObject)
+                              Object statementUserObject,
+                              StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry,
+                              int priority)
     {
         this.stmtEngineServices = stmtEngineServices;
-        this.statementIdBytes = statementIdBytes;
         this.schedulingService = schedulingService;
         this.scheduleBucket = scheduleBucket;
         this.epStatementHandle = epStatementHandle;
@@ -151,6 +159,8 @@ public final class StatementContext
         this.aggregationServiceFactoryService = aggregationServiceFactoryService;
         this.writesToTables = writesToTables;
         this.statementUserObject = statementUserObject;
+        this.statementSemiAnonymousTypeRegistry = statementSemiAnonymousTypeRegistry;
+        this.priority = priority;
     }
 
     public StatementType getStatementType()
@@ -163,7 +173,7 @@ public final class StatementContext
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId()
+    public int getStatementId()
     {
         return epStatementHandle.getStatementId();
     }
@@ -298,9 +308,9 @@ public final class StatementContext
      * Returns the named window management service.
      * @return service for managing named windows
      */
-    public NamedWindowService getNamedWindowService()
+    public NamedWindowMgmtService getNamedWindowMgmtService()
     {
-        return stmtEngineServices.getNamedWindowService();
+        return stmtEngineServices.getNamedWindowMgmtService();
     }
 
     /**
@@ -435,6 +445,10 @@ public final class StatementContext
         return stmtEngineServices.getTableExprEvaluatorContext();
     }
 
+    public ContextManagementService getContextManagementService() {
+        return stmtEngineServices.getContextManagementService();
+    }
+
     public Annotation[] getAnnotations()
     {
         return annotations;
@@ -464,10 +478,6 @@ public final class StatementContext
 
     public ContextDescriptor getContextDescriptor() {
         return contextDescriptor;
-    }
-    
-    public byte[] getStatementIdBytes() {
-        return statementIdBytes;
     }
 
     public void setDefaultAgentInstanceLock(StatementAgentInstanceLock defaultAgentInstanceLock) {
@@ -522,6 +532,18 @@ public final class StatementContext
         return stmtEngineServices.getRegexHandlerFactory();
     }
 
+    public ViewServicePreviousFactory getViewServicePreviousFactory() {
+        return stmtEngineServices.getViewServicePreviousFactory();
+    }
+
+    public PatternNodeFactory getPatternNodeFactory() {
+        return stmtEngineServices.getPatternNodeFactory();
+    }
+
+    public EventTableIndexService getEventTableIndexService() {
+        return stmtEngineServices.getEventTableIndexService();
+    }
+
     public StatementLockFactory getStatementLockFactory() {
         return stmtEngineServices.getStatementLockFactory();
     }
@@ -548,5 +570,30 @@ public final class StatementContext
 
     public void setStatement(EPStatementSPI statement) {
         this.statement = statement;
+    }
+
+    public StatementSemiAnonymousTypeRegistry getStatementSemiAnonymousTypeRegistry() {
+        return statementSemiAnonymousTypeRegistry;
+    }
+
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory()
+    {
+        return stmtEngineServices.getFilterBooleanExpressionFactory();
+    }
+
+    public EngineSettingsService getEngineSettingsService() {
+        return stmtEngineServices.getEngineSettingsService();
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public FilterFaultHandlerFactory getFilterFaultHandlerFactory() {
+        return filterFaultHandlerFactory;
+    }
+
+    public void setFilterFaultHandlerFactory(FilterFaultHandlerFactory filterFaultHandlerFactory) {
+        this.filterFaultHandlerFactory = filterFaultHandlerFactory;
     }
 }

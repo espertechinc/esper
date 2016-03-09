@@ -84,12 +84,12 @@ public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexJoinLookup(this, index);
             ArrayList<Object> keys = new ArrayList<Object>(2);
-            Set<EventBean> result = chain.getCollectKeys(theEvent, index.getIndex(), context, keys);
+            Set<EventBean> result = chain.getCollectKeys(theEvent, index.getIndex(), context, keys, index.getPostProcessor());
             InstrumentationHelper.get().aIndexJoinLookup(result, keys.size() > 1 ? keys.toArray() : keys.get(0));
             return result;
         }
 
-        Set<EventBean> result = chain.get(theEvent, index.getIndex(), context);
+        Set<EventBean> result = chain.get(theEvent, index.getIndex(), context, index.getPostProcessor());
         if (result != null && result.isEmpty()) {
             return null;
         }

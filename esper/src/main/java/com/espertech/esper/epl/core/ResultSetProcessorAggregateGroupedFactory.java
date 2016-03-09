@@ -15,6 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 /**
  * Result-set processor prototype for the aggregate-grouped case:
@@ -33,6 +34,10 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
     private final boolean isUnidirectional;
     private final OutputLimitSpec outputLimitSpec;
     private final boolean isHistoricalOnly;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
+    private final boolean enableOutputLimitOpt;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -52,7 +57,11 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
                                                      boolean isUnidirectional,
                                                      OutputLimitSpec outputLimitSpec,
                                                      boolean isSorting,
-                                                     boolean isHistoricalOnly)
+                                                     boolean isHistoricalOnly,
+                                                     ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                     OutputConditionPolledFactory optionalOutputFirstConditionFactory,
+                                                     boolean enableOutputLimitOpt,
+                                                     int numStreams)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -69,6 +78,10 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
         this.isUnidirectional = isUnidirectional;
         this.outputLimitSpec = outputLimitSpec;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -130,5 +143,25 @@ public class ResultSetProcessorAggregateGroupedFactory implements ResultSetProce
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.AGGREGATED_GROUPED;
+    }
+
+    public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
+        return optionalOutputFirstConditionFactory;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
+    }
+
+    public boolean isOutputFirst() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
     }
 }

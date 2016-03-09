@@ -32,7 +32,7 @@ public class TestPerf2StreamSimpleJoin extends TestCase
     public void setUp()
     {
         Configuration configuration = SupportConfigFactory.getConfiguration();
-        epService = EPServiceProviderManager.getProvider("TestPerf2StreamSimpleJoin", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         updateListener = new SupportUpdateListener();
 

@@ -36,7 +36,7 @@ public class TestPropertyIndexedEventTable extends TestCase
         propertyNames = new String[] { "intPrimitive", "theString" };
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, eventType, propertyNames, false, null);
-        index = (PropertyIndexedEventTable) factory.makeEventTables()[0];
+        index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
 
         // Populate with testEvents
         int intValues[] = new int[] {0, 1, 1, 2, 1, 0};
@@ -105,7 +105,7 @@ public class TestPropertyIndexedEventTable extends TestCase
     public void testAddArray()
     {
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, eventType, propertyNames, false, null);
-        index = (PropertyIndexedEventTable) factory.makeEventTables()[0];
+        index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
 
         // Add just 2
         EventBean[] events = new EventBean[2];

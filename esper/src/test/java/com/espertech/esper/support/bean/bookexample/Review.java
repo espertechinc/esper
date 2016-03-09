@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean.bookexample;
 
-public class Review
+import java.io.Serializable;
+
+public class Review implements Serializable
 {
     private int reviewId;
     private String comment;

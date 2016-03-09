@@ -16,7 +16,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 public class TestIndexedProperty extends TestCase

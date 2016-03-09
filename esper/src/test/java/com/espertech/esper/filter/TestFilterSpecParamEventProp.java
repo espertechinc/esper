@@ -60,6 +60,6 @@ public class TestFilterSpecParamEventProp extends TestCase
     }
 
     private FilterSpecLookupable makeLookupable(String fieldName) {
-        return new FilterSpecLookupable(fieldName, null, null);
+        return new FilterSpecLookupable(fieldName, null, null, false);
     }
 }

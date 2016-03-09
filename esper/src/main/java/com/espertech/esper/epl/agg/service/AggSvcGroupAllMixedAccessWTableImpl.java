@@ -115,7 +115,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 
-        ObjectArrayBackedEventBean event = tableStateInstance.getEventReference().get();
+        ObjectArrayBackedEventBean event = tableStateInstance.getEventUngrouped();
         if (event == null) {
             return null;
         }
@@ -134,7 +134,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), context);
 
-        ObjectArrayBackedEventBean event = tableStateInstance.getEventReference().get();
+        ObjectArrayBackedEventBean event = tableStateInstance.getEventUngrouped();
         if (event == null) {
             return null;
         }
@@ -153,7 +153,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), context);
 
-        ObjectArrayBackedEventBean event = tableStateInstance.getEventReference().get();
+        ObjectArrayBackedEventBean event = tableStateInstance.getEventUngrouped();
         if (event == null) {
             return null;
         }
@@ -172,7 +172,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), context);
 
-        ObjectArrayBackedEventBean event = tableStateInstance.getEventReference().get();
+        ObjectArrayBackedEventBean event = tableStateInstance.getEventUngrouped();
         if (event == null) {
             return null;
         }
@@ -193,7 +193,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 
-        ObjectArrayBackedEventBean event = tableStateInstance.getEventReference().get();
+        ObjectArrayBackedEventBean event = tableStateInstance.getEventUngrouped();
         if (event == null) {
             return;
         }
@@ -229,5 +229,8 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
 
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return null;
+    }
+
+    public void stop() {
     }
 }

@@ -46,7 +46,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
     private final ViewableActivator activator;
     private final SubSelectStrategyCollection subSelectStrategyCollection;
 
-    public abstract OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks);
+    public abstract OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient);
     public abstract View determineFinalOutputView(AgentInstanceContext agentInstanceContext, View onExprView);
 
     public StatementAgentInstanceFactoryOnTriggerBase(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection) {
@@ -68,11 +68,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         final ViewableActivationResult activationResult;
 
         try {
-            if (services.getSchedulableAgentInstanceDirectory() != null) {
-                services.getSchedulableAgentInstanceDirectory().add(agentInstanceContext.getEpStatementAgentInstanceHandle());
-            }
-
-            OnExprViewResult onExprViewResult = determineOnExprView(agentInstanceContext, stopCallbacks);
+            OnExprViewResult onExprViewResult = determineOnExprView(agentInstanceContext, stopCallbacks, isRecoveringResilient);
             view = onExprViewResult.getOnExprView();
             aggregationService = onExprViewResult.getOptionalAggregationService();
 
@@ -86,7 +82,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             view = determineFinalOutputView(agentInstanceContext, view);
 
             // start subselects
-            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks);
+            subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
             // plan table access
             tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());

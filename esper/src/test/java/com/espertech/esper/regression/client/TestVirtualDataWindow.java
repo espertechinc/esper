@@ -338,7 +338,7 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
         EPOnDemandQueryResult result = epService.getEPRuntime().executeQuery("select col1 from MyVDW vdw");
         assertIndexSpec(window.getLastRequestedIndex(), "", "");
         assertEquals("MyVDW", window.getLastRequestedIndex().getNamedWindowName());
-        assertNull(window.getLastRequestedIndex().getStatementId());
+        assertEquals(-1, window.getLastRequestedIndex().getStatementId());
         assertNull(window.getLastRequestedIndex().getStatementName());
         assertNotNull(window.getLastRequestedIndex().getStatementAnnotations());
         assertTrue(window.getLastRequestedIndex().isFireAndForget());

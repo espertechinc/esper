@@ -60,16 +60,16 @@ public class TestMTStmtMgmt extends TestCase
         Object[][] statements;
 
         statements = new Object[][] {STMT[10]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
 
         statements = new Object[][] {STMT[10], STMT[11]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
 
         statements = new Object[][] {STMT[10], STMT[11], STMT[12]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
 
         statements = new Object[][] {STMT[10], STMT[11], STMT[12], STMT[13]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
     }
 
     public void testEachStatementAlone() throws Exception
@@ -78,7 +78,7 @@ public class TestMTStmtMgmt extends TestCase
         for (int i = 0; i < STMT.length; i++)
         {
             Object[][] statements = new Object[][] {STMT[i]};
-            tryStatementCreateSendAndStop(numThreads, statements, 250);
+            tryStatementCreateSendAndStop(numThreads, statements, 10);
         }
     }
 
@@ -86,16 +86,16 @@ public class TestMTStmtMgmt extends TestCase
     {
         int numThreads = 2;
         Object[][] statements = new Object[][] {STMT[1], STMT[4], STMT[6], STMT[7], STMT[8]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
 
         statements = new Object[][] {STMT[1], STMT[7], STMT[8], STMT[11], STMT[12]};
-        tryStatementCreateSendAndStop(numThreads, statements, 500);
+        tryStatementCreateSendAndStop(numThreads, statements, 10);
     }
 
     public void testStatementsAll() throws Exception
     {
         int numThreads = 3;
-        tryStatementCreateSendAndStop(numThreads, STMT, 100);
+        tryStatementCreateSendAndStop(numThreads, STMT, 10);
     }
 
     private void tryStatementCreateSendAndStop(int numThreads, Object[][] statements, int numRepeats) throws Exception

@@ -15,12 +15,12 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
 import com.espertech.esper.support.view.SupportMapView;
 import com.espertech.esper.support.view.SupportSchemaNeutralView;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 
 import java.util.HashMap;
 import java.util.Map;

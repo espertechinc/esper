@@ -15,6 +15,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public class FilterServiceGranularLockFactoryNone implements FilterServiceGranularLockFactory
 {
+    public static final FilterServiceGranularLockFactoryNone INSTANCE = new FilterServiceGranularLockFactoryNone();
+
+    private FilterServiceGranularLockFactoryNone() {
+    }
+
     private static Lock LOCKNONE = new Lock() {
         public void lock() {
         }

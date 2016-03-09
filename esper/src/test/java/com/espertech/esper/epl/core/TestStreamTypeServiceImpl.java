@@ -17,7 +17,7 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_A;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.collection.Pair;
 
 import java.util.LinkedHashMap;

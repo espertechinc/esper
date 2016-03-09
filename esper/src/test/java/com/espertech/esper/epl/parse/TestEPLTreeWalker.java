@@ -28,7 +28,7 @@ import com.espertech.esper.rowregex.RowRegexExprNodePrecedenceEnum;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.epl.parse.SupportParserHelper;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
@@ -233,7 +233,7 @@ public class TestEPLTreeWalker extends TestCase
     {
         VariableService variableService = new VariableServiceImpl(0, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
         variableService.createNewVariable(null, "var1", Long.class.getName(), false, false, false, 100L, null);
-        variableService.allocateVariableState("var1", 0, null);
+        variableService.allocateVariableState("var1", 0, null, false);
 
         String expression = "on com.MyClass as myevent set var1 = 'a', var2 = 2*3, var3 = var1";
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression, null, variableService);

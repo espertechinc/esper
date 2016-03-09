@@ -30,12 +30,10 @@ public final class IterablesListIterator implements Iterator<EventBean>
 
     /**
      * Constructor - takes a list of Iterable that supply the iterators to iterate over.
-     * @param iterables is a list of Iterable instances for which iterators to iterator over
      */
-    public IterablesListIterator(Collection<Iterable<EventBean>> iterables)
+    public IterablesListIterator(Iterator<Iterable<EventBean>> iteratorOfIterables)
     {
-        listIterator = iterables.iterator();
-
+        listIterator = iteratorOfIterables;
         nextIterable();
     }
 

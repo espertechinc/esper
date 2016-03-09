@@ -71,7 +71,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         if (localGroupByPlan.getOptionalLevelTop() != null) {
             if (aggregatorsTopLevel == null) {
                 aggregatorsTopLevel = methodResolutionService.newAggregators(localGroupByPlan.getOptionalLevelTop().getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), null, null, null);
-                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null);
+                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null, null);
             }
             aggregateIntoEnter(localGroupByPlan.getOptionalLevelTop(), aggregatorsTopLevel, statesTopLevel, eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedTop();
@@ -84,7 +84,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             AggregationMethodPairRow row = aggregatorsPerLevelAndGroup[levelNum].get(groupByKey);
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
-                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null);
+                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
                 row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
@@ -104,7 +104,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         if (localGroupByPlan.getOptionalLevelTop() != null) {
             if (aggregatorsTopLevel == null) {
                 aggregatorsTopLevel = methodResolutionService.newAggregators(localGroupByPlan.getOptionalLevelTop().getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), null, null, null);
-                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null);
+                statesTopLevel = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, localGroupByPlan.getOptionalLevelTop().getStateFactories(), null, null, null, null);
             }
             aggregateIntoLeave(localGroupByPlan.getOptionalLevelTop(), aggregatorsTopLevel, statesTopLevel, eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedTop();
@@ -117,7 +117,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             AggregationMethodPairRow row = aggregatorsPerLevelAndGroup[levelNum].get(groupByKey);
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
-                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null);
+                AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
                 row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
@@ -219,7 +219,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         throw new UnsupportedOperationException();
     }
 
-    protected static Object computeGroupKey(ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean b, ExprEvaluatorContext exprEvaluatorContext) {
+    public static Object computeGroupKey(ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean b, ExprEvaluatorContext exprEvaluatorContext) {
         if (partitionEval.length == 1) {
             return partitionEval[0].evaluate(eventsPerStream, true, exprEvaluatorContext);
         }
@@ -230,7 +230,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         return new MultiKeyUntyped(keys);
     }
 
-    protected static void aggregateIntoEnter(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void aggregateIntoEnter(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < level.getMethodEvaluators().length; i++) {
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());}
             Object value = level.getMethodEvaluators()[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
@@ -244,7 +244,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         }
     }
 
-    protected static void aggregateIntoLeave(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+    public static void aggregateIntoLeave(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < level.getMethodEvaluators().length; i++) {
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());}
             Object value = level.getMethodEvaluators()[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
@@ -302,6 +302,9 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
 
     public void setRemovedKeys(List<Pair<Integer, Object>> removedKeys) {
         this.removedKeys = removedKeys;
+    }
+
+    public void stop() {
     }
 
     private int getNumGroups() {

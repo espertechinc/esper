@@ -76,7 +76,7 @@ public class PropertyExprEvaluatorEventCollection implements ExprEvaluatorEnumer
         return coll;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         return fragmentType;
     }
 
@@ -88,7 +88,7 @@ public class PropertyExprEvaluatorEventCollection implements ExprEvaluatorEnumer
         return null;
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return null;
     }
 

@@ -17,15 +17,13 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 public abstract class ExprTableEvalStrategyGroupByMethodBase extends ExprTableEvalStrategyGroupByBase implements ExprTableAccessEvalStrategy {
 
     private final int index;
 
-    protected ExprTableEvalStrategyGroupByMethodBase(Lock lock, Map<Object, ObjectArrayBackedEventBean> aggregationState, int index) {
-        super(lock, aggregationState);
+    protected ExprTableEvalStrategyGroupByMethodBase(TableAndLockProviderGrouped provider, int index) {
+        super(provider);
         this.index = index;
     }
 

@@ -39,7 +39,7 @@ public class TestIStreamSortedRandomAccess extends TestCase
             {
             }
         };
-        access = new IStreamSortRankRandomAccess(updateObserver);
+        access = new IStreamSortRankRandomAccessImpl(updateObserver);
         sortedEvents = new TreeMap<Object, Object>(new MultiKeyCastingComparator(new MultiKeyComparator(new boolean[] {false})));
 
         events = new EventBean[100];

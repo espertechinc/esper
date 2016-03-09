@@ -12,11 +12,9 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.event.bean.PropertyHelper;
-import com.espertech.esper.event.bean.InternalEventPropDescriptor;
 import com.espertech.esper.support.bean.SupportBeanPropertyNames;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import net.sf.cglib.reflect.FastClass;

@@ -11,28 +11,20 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
 import java.util.Set;
 
 public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
 {
-    private static final Log log = LogFactory.getLog(OutputProcessViewBaseWAfter.class);
+    private final OutputProcessViewAfterState afterConditionState;
 
-    private final Long afterConditionTime;
-    private final Integer afterConditionNumberOfEvents;
-    protected boolean isAfterConditionSatisfied;
-
-    private int afterConditionEventsFound;
-
-    protected OutputProcessViewBaseWAfter(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied) {
+    protected OutputProcessViewBaseWAfter(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied) {
         super(resultSetProcessor);
-        this.afterConditionTime = afterConditionTime;
-        this.afterConditionNumberOfEvents = afterConditionNumberOfEvents;
-        isAfterConditionSatisfied = afterConditionSatisfied;
+        afterConditionState = resultSetProcessorHelperFactory.makeOutputConditionAfter(afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, agentInstanceContext);
     }
 
     /**
@@ -42,7 +34,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
      */
     public boolean checkAfterCondition(EventBean[] newEvents, StatementContext statementContext)
     {
-        return isAfterConditionSatisfied || checkAfterCondition(newEvents == null ? 0 : newEvents.length, statementContext);
+        return afterConditionState.checkUpdateAfterCondition(newEvents, statementContext);
     }
 
     /**
@@ -52,7 +44,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
      */
     public boolean checkAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext)
     {
-        return isAfterConditionSatisfied || checkAfterCondition(newEvents == null ? 0 : newEvents.size(), statementContext);
+        return afterConditionState.checkUpdateAfterCondition(newEvents, statementContext);
     }
 
     /**
@@ -62,37 +54,10 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
      */
     public boolean checkAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext)
     {
-        return isAfterConditionSatisfied || checkAfterCondition(newOldEvents == null ? 0 : (newOldEvents.getFirst() == null ? 0 : newOldEvents.getFirst().length), statementContext);
+        return afterConditionState.checkUpdateAfterCondition(newOldEvents, statementContext);
     }
 
-    private boolean checkAfterCondition(int numOutputEvents, StatementContext statementContext)
-    {
-        if (afterConditionTime != null)
-        {
-            long time = statementContext.getTimeProvider().getTime();
-            if (time < afterConditionTime)
-            {
-                return false;
-            }
-
-            isAfterConditionSatisfied = true;
-            return true;
-        }
-        else if (afterConditionNumberOfEvents != null)
-        {
-            afterConditionEventsFound += numOutputEvents;
-            if (afterConditionEventsFound <= afterConditionNumberOfEvents)
-            {
-                return false;
-            }
-
-            isAfterConditionSatisfied = true;
-            return true;
-        }
-        else
-        {
-            isAfterConditionSatisfied = true;
-            return true;
-        }
+    public void stop() {
+        afterConditionState.destroy();
     }
 }

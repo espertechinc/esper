@@ -30,6 +30,10 @@ public class TestSchemaXMLEventReplace extends TestCase
 
     public void testSchemaReplace() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestSchemaXMLEventReplace.class)) {
+            return;
+        }
+
         ConfigurationEventTypeXMLDOM eventTypeMeta = new ConfigurationEventTypeXMLDOM();
         eventTypeMeta.setRootElementName("simpleEvent");
         String schemaUri = TestSchemaXMLEventReplace.class.getClassLoader().getResource(CLASSLOADER_SCHEMA_URI).toString();
@@ -40,7 +44,7 @@ public class TestSchemaXMLEventReplace extends TestCase
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.addEventType("TestXMLSchemaType", eventTypeMeta);
 
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

@@ -10,10 +10,11 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.core.eval.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.rettype.EventEPType;
@@ -58,11 +59,12 @@ public class SelectExprProcessorHelper
     private final ValueAddEventService valueAddEventService;
     private final SelectExprEventTypeRegistry selectExprEventTypeRegistry;
     private final MethodResolutionService methodResolutionService;
-    private final String statementId;
+    private final int statementId;
     private final Annotation[] annotations;
     private final ConfigurationInformation configuration;
-    private final NamedWindowService namedWindowService;
+    private final NamedWindowMgmtService namedWindowMgmtService;
     private final TableService tableService;
+    private final GroupByRollupInfo groupByRollupInfo;
 
     /**
      * Ctor.
@@ -87,11 +89,12 @@ public class SelectExprProcessorHelper
                                      ValueAddEventService valueAddEventService,
                                      SelectExprEventTypeRegistry selectExprEventTypeRegistry,
                                      MethodResolutionService methodResolutionService,
-                                     String statementId,
+                                     int statementId,
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
-                                     NamedWindowService namedWindowService,
-                                     TableService tableService) throws ExprValidationException
+                                     NamedWindowMgmtService namedWindowMgmtService,
+                                     TableService tableService,
+                                     GroupByRollupInfo groupByRollupInfo) throws ExprValidationException
     {
         this.assignedTypeNumberStack = assignedTypeNumberStack;
         this.selectionList = selectionList;
@@ -107,8 +110,9 @@ public class SelectExprProcessorHelper
         this.statementId = statementId;
         this.annotations = annotations;
         this.configuration = configuration;
-        this.namedWindowService = namedWindowService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
         this.tableService = tableService;
+        this.groupByRollupInfo = groupByRollupInfo;
     }
 
     public SelectExprProcessor getEvaluator() throws ExprValidationException {
@@ -248,6 +252,17 @@ public class SelectExprProcessorHelper
                 expressionReturnTypes[i] = pair.getType();
                 exprEvaluators[i] = pair.getFunction();
                 continue;
+            }
+
+            // handle select-clause expressions that match group-by expressions with rollup and therefore should be boxed types as rollup can produce a null value
+            if (groupByRollupInfo != null && groupByRollupInfo.getRollupDesc() != null) {
+                Class returnType = evaluator.getType();
+                Class returnTypeBoxed = JavaClassHelper.getBoxedType(returnType);
+                if (returnType != returnTypeBoxed && isGroupByRollupNullableExpression(expr, groupByRollupInfo)) {
+                    exprEvaluators[i] = evaluator;
+                    expressionReturnTypes[i] = returnTypeBoxed;
+                    continue;
+                }
             }
 
             // assign normal expected return type
@@ -433,7 +448,7 @@ public class SelectExprProcessorHelper
         // We'd like to maintain 'A' and 'B' EventType in the Map type, and 'a' and 'b' EventBeans in the event bean
         for (int i = 0; i < selectionList.size(); i++)
         {
-            Pair<ExprEvaluator, Object> pair = handleUnderlyingStreamInsert(exprEvaluators[i], namedWindowService, eventAdapterService);
+            Pair<ExprEvaluator, Object> pair = handleUnderlyingStreamInsert(exprEvaluators[i], namedWindowMgmtService, eventAdapterService);
             if (pair != null) {
                 exprEvaluators[i] = pair.getFirst();
                 expressionReturnTypes[i] = pair.getSecond();
@@ -580,7 +595,7 @@ public class SelectExprProcessorHelper
                 }
                 else
                 {
-                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_mapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_mapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
                     return new EvalSelectStreamNoUnderlyingMap(selectExprContext, resultEventType, namedStreams, isUsingWildcard);
                 }
             }
@@ -602,7 +617,7 @@ public class SelectExprProcessorHelper
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
             }
             else {
-                resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
             }
             if (selectExprContext.getExpressionNodes().length == 0) {
                 return new EvalSelectNoWildcardEmptyProps(selectExprContext, resultEventType);
@@ -884,7 +899,7 @@ public class SelectExprProcessorHelper
                 {
                     // Use an anonymous type if the target is not a variant stream
                     if (valueAddEventService.getValueAddProcessor(insertIntoDesc.getEventTypeName()) == null) {
-                        resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_vae_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+                        resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_vae_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
                     }
                     else {
                         String statementName = "stmt_" + statementId + "_insert";
@@ -960,6 +975,27 @@ public class SelectExprProcessorHelper
         }
     }
 
+    private boolean isGroupByRollupNullableExpression(ExprNode expr, GroupByRollupInfo groupByRollupInfo) {
+        // if all levels include this key, we are fine
+        for (AggregationGroupByRollupLevel level : groupByRollupInfo.getRollupDesc().getLevels()) {
+            if (level.isAggregationTop()) {
+                return true;
+            }
+            boolean found = false;
+            for (int rollupKeyIndex : level.getRollupKeys()) {
+                ExprNode groupExpression = groupByRollupInfo.getExprNodes()[rollupKeyIndex];
+                if (ExprNodeUtility.deepEquals(groupExpression, expr)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private SelectExprProcessor makeObjectArrayConsiderReorder(SelectExprContext selectExprContext, ObjectArrayEventType resultEventType)
             throws ExprValidationException
     {
@@ -1005,14 +1041,14 @@ public class SelectExprProcessorHelper
         return "type '" + resultEventType.getName() + "'";
     }
 
-    private Pair<ExprEvaluator, Object> handleUnderlyingStreamInsert(ExprEvaluator exprEvaluator, NamedWindowService namedWindowService, final EventAdapterService eventAdapterService) {
+    private Pair<ExprEvaluator, Object> handleUnderlyingStreamInsert(ExprEvaluator exprEvaluator, NamedWindowMgmtService namedWindowMgmtService, final EventAdapterService eventAdapterService) {
         if (!(exprEvaluator instanceof ExprStreamUnderlyingNode)) {
             return null;
         }
         final ExprStreamUnderlyingNode undNode = (ExprStreamUnderlyingNode) exprEvaluator;
         final int streamNum = undNode.getStreamId();
         final Class returnType = undNode.getExprEvaluator().getType();
-        final EventType namedWindowAsType = getNamedWindowUnderlyingType(namedWindowService, eventAdapterService, typeService.getEventTypes()[streamNum]);
+        final EventType namedWindowAsType = getNamedWindowUnderlyingType(namedWindowMgmtService, eventAdapterService, typeService.getEventTypes()[streamNum]);
         final TableMetadata tableMetadata = tableService.getTableMetadataFromEventType(typeService.getEventTypes()[streamNum]);
 
         EventType eventTypeStream;
@@ -1077,11 +1113,11 @@ public class SelectExprProcessorHelper
         return new Pair<ExprEvaluator, Object>(evaluator, eventTypeStream);
     }
 
-    private EventType getNamedWindowUnderlyingType(NamedWindowService namedWindowService, EventAdapterService eventAdapterService, EventType eventType) {
-        if (!namedWindowService.isNamedWindow(eventType.getName())) {
+    private EventType getNamedWindowUnderlyingType(NamedWindowMgmtService namedWindowMgmtService, EventAdapterService eventAdapterService, EventType eventType) {
+        if (!namedWindowMgmtService.isNamedWindow(eventType.getName())) {
             return null;
         }
-        NamedWindowProcessor processor = namedWindowService.getProcessor(eventType.getName());
+        NamedWindowProcessor processor = namedWindowMgmtService.getProcessor(eventType.getName());
         if (processor.getEventTypeAsName() == null) {
             return null;
         }
@@ -1138,7 +1174,7 @@ public class SelectExprProcessorHelper
             return null;
         }
 
-        final EventType mapType = eventAdapterService.createAnonymousMapType(statementId + "_innereval_" + CollectionUtil.toString(assignedTypeNumberStack, "_") + "_" + expressionNum, eventTypeExpr);
+        final EventType mapType = eventAdapterService.createAnonymousMapType(statementId + "_innereval_" + CollectionUtil.toString(assignedTypeNumberStack, "_") + "_" + expressionNum, eventTypeExpr, true);
         final ExprEvaluator innerEvaluator = exprEvaluator;
         ExprEvaluator evaluatorFragment = new ExprEvaluator() {
             public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)

@@ -98,7 +98,7 @@ public class TestIterablesListIterator extends TestCase
     {
         List<Iterable<EventBean>> iterables = new LinkedList<Iterable<EventBean>>();
         iterables.add(EventFactoryHelper.makeList(events, new String[] { "a", "b", "c" } ));
-        IterablesListIterator iterator = new IterablesListIterator(iterables);
+        IterablesListIterator iterator = new IterablesListIterator(iterables.iterator());
 
         try
         {
@@ -113,7 +113,7 @@ public class TestIterablesListIterator extends TestCase
 
     private void checkResults(List<Iterable<EventBean>> iterables, EventBean[] expectedValues)
     {
-        IterablesListIterator iterator = new IterablesListIterator(iterables);
+        IterablesListIterator iterator = new IterablesListIterator(iterables.iterator());
         EPAssertionUtil.assertEqualsExactOrder(expectedValues, iterator);
     }
 }

@@ -54,6 +54,6 @@ public class TestFilterSpecParamRange extends TestCase
     }
 
     private FilterSpecLookupable makeLookupable(String fieldName) {
-        return new FilterSpecLookupable(fieldName, null, Double.class);
+        return new FilterSpecLookupable(fieldName, null, Double.class, false);
     }
 }

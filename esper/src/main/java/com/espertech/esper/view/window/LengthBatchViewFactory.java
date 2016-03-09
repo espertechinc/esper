@@ -9,6 +9,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -62,19 +63,19 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
     }
 
     public Object makePreviousGetter() {
-        return new RelativeAccessByEventNIndexMap();
+        return new RelativeAccessByEventNIndexGetterImpl();
     }
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
+        ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream())
         {
             return new LengthBatchViewRStream(agentInstanceViewFactoryContext, this, size);
         }
         else
         {
-            return new LengthBatchView(agentInstanceViewFactoryContext, this, size, relativeAccessByEvent);
+            return new LengthBatchView(agentInstanceViewFactoryContext, this, size, viewUpdatedCollection);
         }
     }
 

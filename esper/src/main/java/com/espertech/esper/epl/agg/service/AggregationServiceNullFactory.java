@@ -21,7 +21,7 @@ public class AggregationServiceNullFactory implements AggregationServiceFactory 
 
     private final static AggregationServiceNull AGGREGATION_SERVICE_NULL = new AggregationServiceNull();
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return AGGREGATION_SERVICE_NULL;
     }
 }

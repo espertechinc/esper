@@ -22,4 +22,8 @@ public class ContextManagerFactoryServiceImpl implements ContextManagerFactorySe
         }
         return new ContextManagerImpl(factoryServiceContext);
     }
+
+    public boolean isSupportsExtract() {
+        return true;
+    }
 }

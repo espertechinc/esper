@@ -42,7 +42,7 @@ public class TestPatternExpressionText extends TestCase {
         config.addEventType("F", SupportBean_F.class.getName());
         config.addEventType("G", SupportBean_G.class.getName());
 
-        epService = EPServiceProviderManager.getProvider(TestPatternExpressionText.class.getSimpleName(), config);
+        epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
     }

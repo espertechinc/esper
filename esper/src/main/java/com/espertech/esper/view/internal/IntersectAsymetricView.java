@@ -25,7 +25,7 @@ import java.util.*;
  * view retains all events that is in all of the data windows at the same time (an intersection)
  * and removes all events that leave any of the data windows.
  */
-public class IntersectAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer
+public class IntersectAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
 {
     private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final IntersectViewFactory intersectViewFactory;
@@ -62,6 +62,10 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
             views[i].addView(view);
             view.setObserver(this);
         }
+    }
+
+    public View[] getViewContained() {
+        return views;
     }
 
     public View cloneView()
@@ -264,10 +268,10 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
     }
 
     @Override
-    public void stopView() {
+    public void stop() {
         for (View view : views) {
             if (view instanceof StoppableView) {
-                ((StoppableView) view).stopView();
+                ((StoppableView) view).stop();
             }
         }
     }

@@ -16,9 +16,9 @@ public class EPStatementDestroyCallbackContext implements DestroyCallback
     private final ContextManagementService contextManagementService;
     private final String contextName;
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
 
-    public EPStatementDestroyCallbackContext(ContextManagementService contextManagementService, String optionalContextName, String statementName, String statementId) {
+    public EPStatementDestroyCallbackContext(ContextManagementService contextManagementService, String optionalContextName, String statementName, int statementId) {
         this.contextManagementService = contextManagementService;
         this.contextName = optionalContextName;
         this.statementName = statementName;

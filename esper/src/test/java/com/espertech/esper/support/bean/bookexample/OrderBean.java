@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean.bookexample;
 
-public class OrderBean
+import java.io.Serializable;
+
+public class OrderBean implements Serializable
 {
     private Order orderdetail;
     private BookDesc[] books;

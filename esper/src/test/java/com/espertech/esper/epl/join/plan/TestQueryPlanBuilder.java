@@ -19,7 +19,7 @@ import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.support.epl.SupportOuterJoinDescFactory;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.DependencyGraph;
 import junit.framework.TestCase;

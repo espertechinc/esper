@@ -15,14 +15,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 public class EsperIODBBaseSubscription extends BaseSubscription
 {
     private static Log log = LogFactory.getLog(EsperIODBBaseSubscription.class);
-
-    private String uuid = UUID.randomUUID().toString();
 
     private final RunnableFactory runnableFactory;
     private final Executor executor;
@@ -49,8 +46,8 @@ public class EsperIODBBaseSubscription extends BaseSubscription
         return false;
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
-        return uuid;
+        return -1;
     }
 }

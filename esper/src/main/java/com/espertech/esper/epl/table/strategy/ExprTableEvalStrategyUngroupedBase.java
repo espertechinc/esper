@@ -14,21 +14,17 @@ package com.espertech.esper.epl.table.strategy;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
-
 public abstract class ExprTableEvalStrategyUngroupedBase {
 
-    private final Lock lock;
-    protected final AtomicReference<ObjectArrayBackedEventBean> aggregationState;
+    private final TableAndLockProviderUngrouped provider;
 
-    protected ExprTableEvalStrategyUngroupedBase(Lock lock, AtomicReference<ObjectArrayBackedEventBean> aggregationState) {
-        this.lock = lock;
-        this.aggregationState = aggregationState;
+    protected ExprTableEvalStrategyUngroupedBase(TableAndLockProviderUngrouped provider) {
+        this.provider = provider;
     }
 
     protected ObjectArrayBackedEventBean lockTableReadAndGet(ExprEvaluatorContext context) {
-        ExprTableEvalLockUtil.obtainLockUnless(lock, context);
-        return aggregationState.get();
+        TableAndLockUngrouped pair = provider.get();
+        ExprTableEvalLockUtil.obtainLockUnless(pair.getLock(), context);
+        return pair.getUngrouped().getEventUngrouped();
     }
 }

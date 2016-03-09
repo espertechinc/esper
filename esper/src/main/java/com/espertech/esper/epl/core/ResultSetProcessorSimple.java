@@ -36,16 +36,16 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
     private ResultSetProcessorSimpleOutputLastHelper outputLastHelper;
     private ResultSetProcessorSimpleOutputAllHelper outputAllHelper;
 
-    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorSimple(ResultSetProcessorSimpleFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
-        this.exprEvaluatorContext = exprEvaluatorContext;
-        if (prototype.isOutputLast()) {
-            outputLastHelper = new ResultSetProcessorSimpleOutputLastHelper(this);
+        this.exprEvaluatorContext = agentInstanceContext;
+        if (prototype.isOutputLast()) { // output-last always uses this mechanism
+            outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSSimpleOutputLast(prototype, this, agentInstanceContext);
         }
-        else if (prototype.isOutputAll()) {
-            outputAllHelper = new ResultSetProcessorSimpleOutputAllHelper(this);
+        else if (prototype.isOutputAll() && prototype.isEnableOutputLimitOpt()) {
+            outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSSimpleOutputAll(prototype, this, agentInstanceContext);
         }
     }
 
@@ -266,5 +266,14 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
             return outputAllHelper.outputJoin(isSynthesize);
         }
         return outputLastHelper.outputJoin(isSynthesize);
+    }
+
+    public void stop() {
+        if (outputLastHelper != null) {
+            outputLastHelper.destroy();
+        }
+        if (outputAllHelper != null) {
+            outputAllHelper.destroy();
+        }
     }
 }

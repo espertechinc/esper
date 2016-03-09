@@ -9,6 +9,7 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -39,7 +40,7 @@ public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBas
 
         // define output event type
         String typeName = "EventType_Graph_" + createGraphDesc.getGraphName();
-        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap());
+        EventType resultType = services.getEventAdapterService().createAnonymousMapType(typeName, Collections.<String, Object>emptyMap(), true);
 
         services.getDataFlowService().addStartGraph(createGraphDesc, statementContext, services, agentInstanceContext, isNewStatement);
 
@@ -54,6 +55,9 @@ public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBas
                 services.getDataFlowService().removeGraph(createGraphDesc.getGraphName());
             }
         };
-        return new EPStatementStartResult(new ZeroDepthStreamNoIterate(resultType), stopMethod, destroyMethod);
+
+        ZeroDepthStreamNoIterate resultView = new ZeroDepthStreamNoIterate(resultType);
+        statementContext.setStatementAgentInstanceFactory(new StatementAgentInstanceFactoryNoAgentInstance(resultView));
+        return new EPStatementStartResult(resultView, stopMethod, destroyMethod);
     }
 }

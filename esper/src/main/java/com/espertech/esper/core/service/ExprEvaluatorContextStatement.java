@@ -22,6 +22,7 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
 {
     protected final StatementContext statementContext;
     private final boolean allowTableAccess;
+    private EventBean contextProperties;
 
     public ExprEvaluatorContextStatement(StatementContext statementContext, boolean allowTableAccess) {
         this.statementContext = statementContext;
@@ -45,7 +46,7 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
     }
 
     public EventBean getContextProperties() {
-        return null;
+        return contextProperties;
     }
 
     public AgentInstanceScriptContext getAgentInstanceScriptContext() {
@@ -60,7 +61,7 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
         return statementContext.getEngineURI();
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementContext.getStatementId();
     }
 
@@ -81,5 +82,9 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
 
     public Object getStatementUserObject() {
         return statementContext.getStatementUserObject();
+    }
+
+    public void setContextProperties(EventBean contextProperties) {
+        this.contextProperties = contextProperties;
     }
 }

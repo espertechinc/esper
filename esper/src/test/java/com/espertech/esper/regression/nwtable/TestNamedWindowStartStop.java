@@ -165,7 +165,7 @@ public class TestNamedWindowStartStop extends TestCase
         EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
         assertFalse(listenerSelect.isInvoked());
         EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"E3", 3}});
-        EPAssertionUtil.assertPropsPerRow(stmtSelect.iterator(), fields, new Object[][]{{"E1", 1}});
+        EPAssertionUtil.assertPropsPerRow(stmtSelect.iterator(), fields, new Object[][]{{"E3", 3}});
 
         // stop and start consumer: should pick up last event
         stmtSelect.stop();

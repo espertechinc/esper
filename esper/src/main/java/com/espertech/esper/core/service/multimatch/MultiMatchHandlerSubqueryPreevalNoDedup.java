@@ -17,7 +17,7 @@ import com.espertech.esper.filter.FilterHandleCallback;
 import java.util.Collection;
 
 public class MultiMatchHandlerSubqueryPreevalNoDedup implements MultiMatchHandler {
-    public static final MultiMatchHandlerSubqueryPreevalNoDedup INSTANCE = new MultiMatchHandlerSubqueryPreevalNoDedup();
+    protected static final MultiMatchHandlerSubqueryPreevalNoDedup INSTANCE = new MultiMatchHandlerSubqueryPreevalNoDedup();
 
     private MultiMatchHandlerSubqueryPreevalNoDedup() {
     }

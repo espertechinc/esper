@@ -24,15 +24,32 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
 
     public PropertyIndexedEventTableSingleUnique(EventPropertyGetter propertyGetter, EventTableOrganization organization)
     {
-        super(propertyGetter, organization, false);
+        super(propertyGetter, organization);
         propertyIndex = new HashMap<Object, EventBean>();
         canClear = true;
     }
 
     public PropertyIndexedEventTableSingleUnique(EventPropertyGetter propertyGetter, EventTableOrganization organization, Map<Object, EventBean> propertyIndex) {
-        super(propertyGetter, organization, false);
+        super(propertyGetter, organization);
         this.propertyIndex = propertyIndex;
         canClear = false;
+    }
+
+    public Set<EventBean> lookup(Object key)
+    {
+        EventBean event = propertyIndex.get(key);
+        if (event != null) {
+            return Collections.singleton(event);
+        }
+        return null;
+    }
+
+    public int getNumKeys() {
+        return propertyIndex.size();
+    }
+
+    public Object getIndex() {
+        return propertyIndex;
     }
 
     /**
@@ -56,64 +73,6 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
     }
 
-    @Override
-    public void add(EventBean[] events)
-    {
-        if (events != null) {
-
-            if (InstrumentationHelper.ENABLED && events.length > 0) {
-                InstrumentationHelper.get().qIndexAdd(this, events);
-                for (EventBean theEvent : events) {
-                    add(theEvent);
-                }
-                InstrumentationHelper.get().aIndexAdd();
-                return;
-            }
-
-            for (EventBean theEvent : events) {
-                add(theEvent);
-            }
-        }
-    }
-
-    @Override
-    public void remove(EventBean[] events)
-    {
-        if (events != null) {
-
-            if (InstrumentationHelper.ENABLED && events.length > 0) {
-                InstrumentationHelper.get().qIndexRemove(this, events);
-                for (EventBean theEvent : events) {
-                    remove(theEvent);
-                }
-                InstrumentationHelper.get().aIndexRemove();
-                return;
-            }
-
-            for (EventBean theEvent : events) {
-                remove(theEvent);
-            }
-        }
-    }
-
-    @Override
-    public Set<EventBean> lookup(Object key)
-    {
-        EventBean event = propertyIndex.get(key);
-        if (event != null) {
-            return Collections.singleton(event);
-        }
-        return null;
-    }
-
-    public int getNumKeys() {
-        return propertyIndex.size();
-    }
-
-    public Object getIndex() {
-        return propertyIndex;
-    }
-
     public void add(EventBean theEvent)
     {
         Object key = getKey(theEvent);
@@ -135,7 +94,6 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         return propertyIndex.isEmpty();
     }
 
-    @Override
     public Iterator<EventBean> iterator()
     {
         return propertyIndex.values().iterator();
@@ -148,20 +106,17 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         }
     }
 
+    public void destroy() {
+        clear();
+    }
+
     public String toString()
     {
         return toQueryPlan();
     }
 
-    @Override
     public Integer getNumberOfEvents() {
         return propertyIndex.size();
-    }
-
-    public String toQueryPlan() {
-        return this.getClass().getSimpleName() +
-                " streamNum=" + organization.getStreamNum() +
-                " propertyGetter=" + propertyGetter;
     }
 
     public Set<EventBean> allValues() {
@@ -169,5 +124,9 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
             return Collections.emptySet();
         }
         return new HashSet<EventBean>(propertyIndex.values());
+    }
+
+    public Class getProviderClass() {
+        return PropertyIndexedEventTableSingleUnique.class;
     }
 }

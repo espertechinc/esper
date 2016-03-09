@@ -10,6 +10,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
@@ -22,11 +23,11 @@ public class OutputConditionFirstFactory implements OutputConditionFactory
 {
 	private final OutputConditionFactory innerConditionFactory;
 
-	public OutputConditionFirstFactory(OutputLimitSpec outputLimitSpec, StatementContext statementContext, boolean isGrouped, boolean isWithHavingClause)
+	public OutputConditionFirstFactory(OutputLimitSpec outputLimitSpec, StatementContext statementContext, boolean isGrouped, boolean isWithHavingClause, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
             throws ExprValidationException
     {
 		OutputLimitSpec innerSpec = new OutputLimitSpec(outputLimitSpec.getRate(), outputLimitSpec.getVariableName(), outputLimitSpec.getRateType(), OutputLimitLimitType.DEFAULT, outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), outputLimitSpec.getCrontabAtSchedule(), outputLimitSpec.getTimePeriodExpr(), outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputLimitSpec.isAndAfterTerminate(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions());
-		this.innerConditionFactory = OutputConditionFactoryFactory.createCondition(innerSpec, statementContext, isGrouped, isWithHavingClause, false);
+		this.innerConditionFactory = OutputConditionFactoryFactory.createCondition(innerSpec, statementContext, isGrouped, isWithHavingClause, false, resultSetProcessorHelperFactory);
 	}
 
     public OutputCondition make(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {

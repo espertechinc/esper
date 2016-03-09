@@ -57,7 +57,7 @@ public class TestFilterCallbackSetNode extends TestCase
 
         // Add an indexOne
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
-        FilterSpecLookupable lookupable = new FilterSpecLookupable("intPrimitive", eventType.getGetter("intPrimitive"), eventType.getPropertyType("intPrimitive"));
+        FilterSpecLookupable lookupable = new FilterSpecLookupable("intPrimitive", eventType.getGetter("intPrimitive"), eventType.getPropertyType("intPrimitive"), false);
         FilterParamIndexBase indexOne = new SupportFilterParamIndex(lookupable);
         testNode.add(indexOne);
 
@@ -104,6 +104,6 @@ public class TestFilterCallbackSetNode extends TestCase
     }
 
     private FilterSpecLookupable makeLookupable(String fieldName, EventType eventType) {
-        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName));
+        return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 }

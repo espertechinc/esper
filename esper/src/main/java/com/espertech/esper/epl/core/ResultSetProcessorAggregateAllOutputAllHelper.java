@@ -17,45 +17,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 
-public class ResultSetProcessorAggregateAllOutputAllHelper
+public interface ResultSetProcessorAggregateAllOutputAllHelper
 {
-    private final ResultSetProcessorAggregateAll processor;
-    private final Deque<EventBean> eventsOld = new ArrayDeque<EventBean>(2);
-    private final Deque<EventBean> eventsNew = new ArrayDeque<EventBean>(2);
-
-    public ResultSetProcessorAggregateAllOutputAllHelper(ResultSetProcessorAggregateAll processor) {
-        this.processor = processor;
-    }
-
-    public void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
-        UniformPair<EventBean[]> pair = processor.processViewResult(newData, oldData, isGenerateSynthetic);
-        apply(pair);
-    }
-
-    public void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic) {
-        UniformPair<EventBean[]> pair = processor.processJoinResult(newEvents, oldEvents, isGenerateSynthetic);
-        apply(pair);
-    }
-
-    public UniformPair<EventBean[]> output() {
-        EventBean[] oldEvents = EventBeanUtility.toArrayNullIfEmpty(eventsOld);
-        EventBean[] newEvents = EventBeanUtility.toArrayNullIfEmpty(eventsNew);
-
-        UniformPair<EventBean[]> result = null;
-        if (oldEvents != null || newEvents != null) {
-            result = new UniformPair<EventBean[]>(newEvents, oldEvents);
-        }
-
-        eventsOld.clear();
-        eventsNew.clear();
-        return result;
-    }
-
-    private void apply(UniformPair<EventBean[]> pair) {
-        if (pair == null) {
-            return;
-        }
-        EventBeanUtility.addToCollection(pair.getFirst(), eventsNew);
-        EventBeanUtility.addToCollection(pair.getSecond(), eventsOld);
-    }
+    void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
+    void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
+    UniformPair<EventBean[]> output();
+    void destroy();
 }

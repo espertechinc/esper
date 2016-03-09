@@ -316,7 +316,7 @@ public class ExprDotNodeUtility
         return result;
     }
 
-    public static ExprDotEnumerationSource getEnumerationSource(ExprNode inputExpression, StreamTypeService streamTypeService, EventAdapterService eventAdapterService, String statementId, boolean hasEnumerationMethod, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
+    public static ExprDotEnumerationSource getEnumerationSource(ExprNode inputExpression, StreamTypeService streamTypeService, EventAdapterService eventAdapterService, int statementId, boolean hasEnumerationMethod, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
         ExprEvaluator rootNodeEvaluator = inputExpression.getExprEvaluator();
         ExprEvaluatorEnumeration rootLambdaEvaluator = null;
         EPType info = null;

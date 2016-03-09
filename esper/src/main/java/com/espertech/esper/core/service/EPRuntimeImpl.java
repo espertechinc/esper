@@ -13,6 +13,7 @@ import com.espertech.esper.client.context.ContextPartitionDescriptor;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.client.context.ContextPartitionVariableState;
 import com.espertech.esper.client.dataflow.EPDataFlowRuntime;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
@@ -128,8 +129,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 return null;
             }
 
-            public String getStatementId() {
-                return null;
+            public int getStatementId() {
+                return -1;
             }
 
             public StatementAgentInstanceLock getAgentInstanceLock() {
@@ -795,7 +796,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         DualWorkQueue queues = threadWorkQueue.getThreadQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 // Dispatch results to listeners
@@ -826,7 +827,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -855,7 +856,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 processThreadWorkQueueUnlatched(item);
             }
 
-            boolean haveDispatched = services.getNamedWindowService().dispatch();
+            boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched)
             {
                 dispatch();
@@ -1117,7 +1118,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1151,7 +1152,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle());
+            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1203,7 +1204,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1249,7 +1250,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
         }
         finally
         {
@@ -1379,7 +1380,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
         services.getVariableService().getReadWriteLock().writeLock().lock();
         try {
-            services.getVariableService().checkAndWrite(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID, variableValue);
+            services.getVariableService().checkAndWrite(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, variableValue);
             services.getVariableService().commit();
         }
         finally {
@@ -1389,7 +1390,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
     public void setVariableValue(Map<String, Object> variableValues) throws EPException
     {
-        setVariableValueInternal(variableValues, VariableService.NOCONTEXT_AGENTINSTANCEID, false);
+        setVariableValueInternal(variableValues, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, false);
     }
 
     public void setVariableValue(Map<String, Object> variableValues, int agentInstanceId) throws VariableValueException, VariableNotFoundException {
@@ -1406,7 +1407,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         if (metaData.getContextPartitionName() != null) {
             throw new VariableNotFoundException("Variable by name '" + variableName + "' has been declared for context '" + metaData.getContextPartitionName() + "' and cannot be read without context partition selector");
         }
-        VariableReader reader = services.getVariableService().getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+        VariableReader reader = services.getVariableService().getReader(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         Object value = reader.getValue();
         if (value == null || reader.getVariableMetaData().getEventType() == null) {
             return value;
@@ -1466,7 +1467,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         {
             VariableMetaData metaData = services.getVariableService().getVariableMetaData(variableName);
             checkVariable(variableName, metaData, false, false);
-            VariableReader reader = services.getVariableService().getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+            VariableReader reader = services.getVariableService().getReader(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
             if (reader == null)
             {
                 throw new VariableNotFoundException("Variable by name '" + variableName + "' has not been declared");
@@ -1561,7 +1562,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         {
             String message = "Error executing statement: " + t.getMessage();
             log.info(message, t);
-            throw new EPStatementException(message, epl);
+            throw new EPStatementException(message, t, epl);
         }
     }
 
@@ -1610,7 +1611,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     private EPPreparedExecuteMethod getExecuteMethod(String epl, EPStatementObjectModel model, EPOnDemandPreparedQueryParameterized parameterizedQuery)
     {
         String stmtName = UuidGenerator.generate();
-        String stmtId = UuidGenerator.generate();
+        int stmtId = -1;
 
         try
         {
@@ -1619,12 +1620,12 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 spec = EPAdministratorHelper.compileEPL(epl, epl, true, stmtName, services, SelectClauseStreamSelectorEnum.ISTREAM_ONLY);
             }
             else if (model != null) {
-                spec = StatementSpecMapper.map(model, services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
+                spec = StatementSpecMapper.map(model, services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowMgmtService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
                 epl = model.toEPL();
             }
             else {
                 EPPreparedStatementImpl prepared = (EPPreparedStatementImpl) parameterizedQuery;
-                spec = StatementSpecMapper.map(prepared.getModel(), services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
+                spec = StatementSpecMapper.map(prepared.getModel(), services.getEngineImportService(), services.getVariableService(), services.getConfigSnapshot(), services.getSchedulingService(), services.getEngineURI(), services.getPatternNodeFactory(), services.getNamedWindowMgmtService(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
                 epl = prepared.getOptionalEPL();
                 if (epl == null) {
                     epl = prepared.getModel().toEPL();
@@ -1705,7 +1706,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     }
 
     protected static Map<String, Long> getStatementNearestSchedulesInternal(SchedulingServiceSPI schedulingService, StatementLifecycleSvc statementLifecycleSvc) {
-        final Map<String, Long> schedulePerStatementId = new HashMap<String, Long>();
+        final Map<Integer, Long> schedulePerStatementId = new HashMap<Integer, Long>();
         schedulingService.visitSchedules(new ScheduleVisitor() {
             public void visit(ScheduleVisit visit) {
                 if (schedulePerStatementId.containsKey(visit.getStatementId())) {
@@ -1716,7 +1717,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         });
 
         Map<String, Long> result = new HashMap<String, Long>();
-        for (Map.Entry<String, Long> schedule : schedulePerStatementId.entrySet()) {
+        for (Map.Entry<Integer, Long> schedule : schedulePerStatementId.entrySet()) {
             String stmtName = statementLifecycleSvc.getStatementNameById(schedule.getKey());
             if (stmtName != null) {
                 result.put(stmtName, schedule.getValue());

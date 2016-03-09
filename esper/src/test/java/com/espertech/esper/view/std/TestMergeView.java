@@ -18,7 +18,7 @@ import com.espertech.esper.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
 import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.support.view.SupportStreamImpl;
 import com.espertech.esper.support.view.SupportViewDataChecker;
 import junit.framework.TestCase;

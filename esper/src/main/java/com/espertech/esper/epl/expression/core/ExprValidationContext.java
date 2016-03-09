@@ -34,7 +34,7 @@ public class ExprValidationContext {
     private final ExprEvaluatorContext exprEvaluatorContext;
     private final EventAdapterService eventAdapterService;
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final Annotation[] annotations;
     private final ContextDescriptor contextDescriptor;
     private final boolean disablePropertyExpressionEventCollCache;
@@ -55,7 +55,7 @@ public class ExprValidationContext {
                                  ExprEvaluatorContext exprEvaluatorContext,
                                  EventAdapterService eventAdapterService,
                                  String statementName,
-                                 String statementId,
+                                 int statementId,
                                  Annotation[] annotations,
                                  ContextDescriptor contextDescriptor,
                                  boolean disablePropertyExpressionEventCollCache,
@@ -135,7 +135,7 @@ public class ExprValidationContext {
         return isExpressionAudit;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementId;
     }
 

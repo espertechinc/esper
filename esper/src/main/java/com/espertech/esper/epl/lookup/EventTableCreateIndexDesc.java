@@ -8,6 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.epl.lookup;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EventTableCreateIndexDesc
@@ -32,5 +34,12 @@ public class EventTableCreateIndexDesc
 
     public boolean isUnique() {
         return unique;
+    }
+
+    public static EventTableCreateIndexDesc fromMultiKey(IndexMultiKey multiKey) {
+        return new EventTableCreateIndexDesc(
+                Arrays.asList(multiKey.getHashIndexedProps()),
+                Arrays.asList(multiKey.getRangeIndexedProps()),
+                multiKey.isUnique());
     }
 }

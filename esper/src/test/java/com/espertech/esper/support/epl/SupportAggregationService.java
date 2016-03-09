@@ -97,4 +97,7 @@ public class SupportAggregationService implements AggregationService
     public Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return null;
     }
+
+    public void stop() {
+    }
 }

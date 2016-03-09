@@ -23,8 +23,6 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -259,29 +257,9 @@ public class TestMapEvent extends TestCase
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.addEventType("MyPrimMapEvent", properties);
 
-        epService = EPServiceProviderManager.getProvider("testPrimitivesTypes", configuration);
-
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
         epService.destroy();
-    }
-
-    public void testInvalidConfig()
-    {
-        properties = new Properties();
-        properties.put("astring", "XXXX");
-
-        Configuration configuration = SupportConfigFactory.getConfiguration();
-        configuration.addEventType("MyInvalidEvent", properties);
-
-        try
-        {
-            epService = EPServiceProviderManager.getProvider("testInvalidConfig", configuration);
-            fail();
-        }
-        catch (ConfigurationException ex)
-        {
-            log.debug(ex);
-            // expected
-        }
     }
 
     public void testInvalidStatement()
@@ -341,6 +319,4 @@ public class TestMapEvent extends TestCase
             // expected
         }
     }
-
-    private static Log log = LogFactory.getLog(TestMapEvent.class);
 }

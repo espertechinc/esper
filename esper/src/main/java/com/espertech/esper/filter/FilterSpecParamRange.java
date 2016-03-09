@@ -8,7 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 
 /**
@@ -42,13 +42,13 @@ public final class FilterSpecParamRange extends FilterSpecParam
         }
     }
 
-    public final Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext)
+    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
     {
         if (lookupable.getReturnType() == String.class) {
-            return new StringRange((String)min.getFilterValue(matchedEvents, evaluatorContext), (String) max.getFilterValue(matchedEvents, evaluatorContext));
+            return new StringRange((String)min.getFilterValue(matchedEvents, agentInstanceContext), (String) max.getFilterValue(matchedEvents, agentInstanceContext));
         }
-        Double begin = (Double) min.getFilterValue(matchedEvents, evaluatorContext);
-        Double end = (Double) max.getFilterValue(matchedEvents, evaluatorContext);
+        Double begin = (Double) min.getFilterValue(matchedEvents, agentInstanceContext);
+        Double end = (Double) max.getFilterValue(matchedEvents, agentInstanceContext);
         return new DoubleRange(begin, end);
     }
 

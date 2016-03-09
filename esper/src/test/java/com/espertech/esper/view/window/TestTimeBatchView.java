@@ -16,9 +16,9 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.event.EventFactoryHelper;
-import com.espertech.esper.support.schedule.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.support.view.SupportViewDataChecker;
 import junit.framework.TestCase;
 

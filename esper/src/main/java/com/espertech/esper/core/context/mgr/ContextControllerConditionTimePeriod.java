@@ -75,7 +75,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
                 if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextScheduledEval();}
             }
         };
-        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getStatementContext().getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getStatementContext().getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), agentInstanceContext.getStatementContext().getFilterFaultHandlerFactory());
         scheduleHandle = new EPStatementHandleCallback(agentHandle, scheduleCallback);
 
         long msec = spec.getTimePeriod().nonconstEvaluator().deltaMillisecondsUseEngineTime(null, agentInstanceContext) - timeOffset;
@@ -90,8 +90,6 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
     }
 
     public Long getExpectedEndTime() {
-        long current = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
-        long msec = spec.getTimePeriod().nonconstEvaluator().deltaMillisecondsAdd(current, null, true, agentInstanceContext);
-        return current + msec;
+        return spec.getExpectedEndTime(agentInstanceContext);
     }
 }

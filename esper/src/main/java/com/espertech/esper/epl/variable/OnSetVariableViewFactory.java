@@ -38,7 +38,7 @@ public class OnSetVariableViewFactory
      * @param exprEvaluatorContext context for expression evalauation
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the assignment expressions are invalid
      */
-    public OnSetVariableViewFactory(String statementId, OnTriggerSetDesc desc, EventAdapterService eventAdapterService, VariableService variableService, StatementResultService statementResultService, ExprEvaluatorContext exprEvaluatorContext)
+    public OnSetVariableViewFactory(int statementId, OnTriggerSetDesc desc, EventAdapterService eventAdapterService, VariableService variableService, StatementResultService statementResultService, ExprEvaluatorContext exprEvaluatorContext)
             throws ExprValidationException
     {
         this.eventAdapterService = eventAdapterService;
@@ -47,7 +47,7 @@ public class OnSetVariableViewFactory
 
         variableReadWritePackage = new VariableReadWritePackage(desc.getAssignments(), variableService, eventAdapterService);
         String outputEventTypeName = statementId + "_outsetvar";
-        eventType = eventAdapterService.createAnonymousMapType(outputEventTypeName, variableReadWritePackage.getVariableTypes());
+        eventType = eventAdapterService.createAnonymousMapType(outputEventTypeName, variableReadWritePackage.getVariableTypes(), true);
     }
 
     public OnSetVariableView instantiate(ExprEvaluatorContext exprEvaluatorContext) {

@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.prev.*;
 import com.espertech.esper.view.DataWindowViewWithPrevious;
 import com.espertech.esper.view.ViewFactory;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
+import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,12 +68,12 @@ public class EPStatementStartMethodHelperPrevious
         }
         
         RandomAccessByIndexGetter randomAccessGetter = null;
-        RelativeAccessByEventNIndexMap relativeAccessGetter = null;
+        RelativeAccessByEventNIndexGetter relativeAccessGetter = null;
         if (previousNodeGetter instanceof RandomAccessByIndexGetter) {
             randomAccessGetter = (RandomAccessByIndexGetter) previousNodeGetter;
         }
-        else if (previousNodeGetter instanceof RelativeAccessByEventNIndexMap) {
-            relativeAccessGetter = (RelativeAccessByEventNIndexMap) previousNodeGetter;
+        else if (previousNodeGetter instanceof RelativeAccessByEventNIndexGetter) {
+            relativeAccessGetter = (RelativeAccessByEventNIndexGetter) previousNodeGetter;
         }
         else {
             throw new RuntimeException("Unexpected 'previous' handler: " + previousNodeGetter);

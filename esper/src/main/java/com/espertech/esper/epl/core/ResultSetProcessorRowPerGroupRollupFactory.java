@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.epl.spec.OutputLimitSpec;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
 /**
  * Result set processor prototype for the fully-grouped case:
@@ -37,6 +38,10 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final AggregationGroupByRollupDesc groupByRollupDesc;
     private final boolean isJoin;
     private final boolean isHistoricalOnly;
+    private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final boolean enableOutputLimitOpt;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -56,7 +61,11 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       AggregationGroupByRollupDesc groupByRollupDesc,
                                                       boolean isJoin,
                                                       boolean isHistoricalOnly,
-                                                      boolean iterateUnbounded)
+                                                      boolean iterateUnbounded,
+                                                      OutputConditionPolledFactory optionalOutputFirstConditionFactory,
+                                                      ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                      boolean enableOutputLimitOpt,
+                                                      int numStreams)
     {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
@@ -75,6 +84,10 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         this.groupByRollupDesc = groupByRollupDesc;
         this.isJoin = isJoin;
         this.isHistoricalOnly = isHistoricalOnly;
+        this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
@@ -139,5 +152,21 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
 
     public ResultSetProcessorType getResultSetProcessorType() {
         return ResultSetProcessorType.FULLYAGGREGATED_GROUPED_ROLLUP;
+    }
+
+    public OutputConditionPolledFactory getOptionalOutputFirstConditionFactory() {
+        return optionalOutputFirstConditionFactory;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }

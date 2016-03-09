@@ -112,7 +112,7 @@ public class EPStatementImpl implements EPStatementSPI
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
     }
 
-    public String getStatementId()
+    public int getStatementId()
     {
         return statementContext.getStatementId();
     }

@@ -16,7 +16,7 @@ import com.espertech.esper.pattern.MatchedEventMapMeta;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.schedule.SchedulingService;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 
 public class SupportPatternContextFactory
 {

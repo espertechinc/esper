@@ -21,15 +21,19 @@ public class ContextControllerFactoryContext {
     private final EPServicesContext servicesContext;
     private final AgentInstanceContext agentInstanceContextCreate;
     private final int nestingLevel;
+    private final int numNestingLevels;
     private final boolean isRecoveringResilient;
+    private final ContextStateCache stateCache;
 
-    public ContextControllerFactoryContext(String outermostContextName, String contextName, EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreate, int nestingLevel, boolean isRecoveringResilient) {
+    public ContextControllerFactoryContext(String outermostContextName, String contextName, EPServicesContext servicesContext, AgentInstanceContext agentInstanceContextCreate, int nestingLevel, int numNestingLevels, boolean isRecoveringResilient, ContextStateCache stateCache) {
         this.outermostContextName = outermostContextName;
         this.contextName = contextName;
         this.servicesContext = servicesContext;
         this.agentInstanceContextCreate = agentInstanceContextCreate;
         this.nestingLevel = nestingLevel;
+        this.numNestingLevels = numNestingLevels;
         this.isRecoveringResilient = isRecoveringResilient;
+        this.stateCache = stateCache;
     }
 
     public String getOutermostContextName() {
@@ -54,5 +58,13 @@ public class ContextControllerFactoryContext {
 
     public boolean isRecoveringResilient() {
         return isRecoveringResilient;
+    }
+
+    public ContextStateCache getStateCache() {
+        return stateCache;
+    }
+
+    public int getNumNestingLevels() {
+        return numNestingLevels;
     }
 }

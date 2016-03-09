@@ -173,7 +173,10 @@ public class AggregationServiceFactoryFactory
                                                            AggregationGroupByRollupDesc groupByRollupDesc,
                                                            String optionalContextName,
                                                            IntoTableSpec intoTableSpec,
-                                                           TableService tableService)
+                                                           TableService tableService,
+                                                           boolean isUnidirectional,
+                                                           boolean isFireAndForget,
+                                                           boolean isOnSelect)
             throws ExprValidationException
     {
         // No aggregates used, we do not need this service
@@ -315,16 +318,16 @@ public class AggregationServiceFactoryFactory
         if (!hasGroupByClause) {
             if (localGroupByPlan != null) {
                 Object groupKeyBinding = methodResolutionService.getGroupKeyBinding(localGroupByPlan);
-                serviceFactory = factoryService.getNoGroupLocalGroupBy(isJoin, localGroupByPlan, groupKeyBinding);
+                serviceFactory = factoryService.getNoGroupLocalGroupBy(isJoin, localGroupByPlan, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
             }
             else if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                serviceFactory = factoryService.getNoGroupNoAccess(methodAggEvaluators, methodAggFactories);
+                serviceFactory = factoryService.getNoGroupNoAccess(methodAggEvaluators, methodAggFactories, isUnidirectional, isFireAndForget, isOnSelect);
             }
             else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
-                serviceFactory = factoryService.getNoGroupAccessOnly(accessorPairs, accessAggregations, isJoin);
+                serviceFactory = factoryService.getNoGroupAccessOnly(accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
             }
             else {
-                serviceFactory = factoryService.getNoGroupAccessMixed(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin);
+                serviceFactory = factoryService.getNoGroupAccessMixed(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
             }
         }
         else {
@@ -333,7 +336,7 @@ public class AggregationServiceFactoryFactory
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             if (localGroupByPlan != null) {
                 Object groupKeyBinding = methodResolutionService.getGroupKeyBinding(localGroupByPlan);
-                serviceFactory = factoryService.getGroupLocalGroupBy(isJoin, localGroupByPlan, groupKeyBinding);
+                serviceFactory = factoryService.getGroupLocalGroupBy(isJoin, localGroupByPlan, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
             }
             else {
                 Object groupKeyBinding = methodResolutionService.getGroupKeyBinding(groupByNodes, groupByRollupDesc);
@@ -343,13 +346,13 @@ public class AggregationServiceFactoryFactory
                         throw getRollupReclaimEx();
                     }
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                        serviceFactory = factoryService.getGroupedNoReclaimNoAccess(methodAggEvaluators, methodAggFactories, groupKeyBinding);
+                        serviceFactory = factoryService.getGroupedNoReclaimNoAccess(methodAggEvaluators, methodAggFactories, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                     else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
-                        serviceFactory = factoryService.getGroupNoReclaimAccessOnly(accessorPairs, accessAggregations, groupKeyBinding, isJoin);
+                        serviceFactory = factoryService.getGroupNoReclaimAccessOnly(accessorPairs, accessAggregations, groupKeyBinding, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                     else {
-                        serviceFactory = factoryService.getGroupNoReclaimMixed(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);
+                        serviceFactory = factoryService.getGroupNoReclaimMixed(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                 }
                 else if (!isDisallowNoReclaim && reclaimGroupAged != null)
@@ -357,18 +360,18 @@ public class AggregationServiceFactoryFactory
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
-                    serviceFactory = factoryService.getGroupReclaimAged(methodAggEvaluators, methodAggFactories, reclaimGroupAged, reclaimGroupFrequency, variableService, accessorPairs, accessAggregations, isJoin, groupKeyBinding, optionalContextName);
+                    serviceFactory = factoryService.getGroupReclaimAged(methodAggEvaluators, methodAggFactories, reclaimGroupAged, reclaimGroupFrequency, variableService, accessorPairs, accessAggregations, isJoin, groupKeyBinding, optionalContextName, isUnidirectional, isFireAndForget, isOnSelect);
                 }
                 else if (groupByRollupDesc != null) {
-                    serviceFactory = factoryService.getGroupReclaimMixableRollup(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, groupByRollupDesc);
+                    serviceFactory = factoryService.getGroupReclaimMixableRollup(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, groupByRollupDesc, isUnidirectional, isFireAndForget, isOnSelect);
                 }
                 else
                 {
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
-                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);
+                        serviceFactory = factoryService.getGroupReclaimNoAccess(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                     else {
-                        serviceFactory = factoryService.getGroupReclaimMixable(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding);
+                        serviceFactory = factoryService.getGroupReclaimMixable(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupKeyBinding, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                 }
             }

@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean.bookexample;
 
-public class BookDesc
+import java.io.Serializable;
+
+public class BookDesc implements Serializable
 {
     private final String bookId;
     private final String title;

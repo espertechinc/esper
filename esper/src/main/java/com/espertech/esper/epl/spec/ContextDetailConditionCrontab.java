@@ -22,6 +22,7 @@ public class ContextDetailConditionCrontab implements ContextDetailCondition {
     private final List<ExprNode> crontab;
     private final boolean immediate;
     private ScheduleSpec schedule;
+    private int scheduleCallbackId = -1;
 
     public ContextDetailConditionCrontab(List<ExprNode> crontab, boolean immediate) {
         this.crontab = crontab;
@@ -46,5 +47,13 @@ public class ContextDetailConditionCrontab implements ContextDetailCondition {
 
     public boolean isImmediate() {
         return immediate;
+    }
+
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
+    public void setScheduleCallbackId(int scheduleCallbackId) {
+        this.scheduleCallbackId = scheduleCallbackId;
     }
 }

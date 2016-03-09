@@ -12,6 +12,7 @@
 package com.espertech.esper.support.event;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 
 import java.util.Map;
 
@@ -29,6 +30,6 @@ public class SupportEventTypeFactory
 
     public static EventType createMapType(Map<String,Object> map)
     {
-        return SupportEventAdapterService.getService().createAnonymousMapType("test", map);
+        return SupportEventAdapterService.getService().createAnonymousMapType("test", map, true);
     }
 }

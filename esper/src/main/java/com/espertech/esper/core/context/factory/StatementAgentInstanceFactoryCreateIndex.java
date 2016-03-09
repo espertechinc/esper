@@ -14,11 +14,11 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
+import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.Viewable;
@@ -30,18 +30,22 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
     private final Viewable finalView;
     private final NamedWindowProcessor namedWindowProcessor;
     private final String tableName;
+    private final String contextName;
 
-    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName) {
+    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName, String contextName) {
         this.services = services;
         this.spec = spec;
         this.finalView = finalView;
         this.namedWindowProcessor = namedWindowProcessor;
         this.tableName = tableName;
+        this.contextName = contextName;
     }
 
     public StatementAgentInstanceFactoryCreateIndexResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
     {
         StopCallback stopCallback;
+        final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
+
         if (namedWindowProcessor != null) {
             // handle named window index
             final NamedWindowProcessorInstance processorInstance = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
@@ -57,13 +61,22 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             }
             else {
                 try {
-                    processorInstance.getRootViewInstance().addExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns());
+                    processorInstance.getRootViewInstance().addExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), isRecoveringResilient);
                 }
                 catch (ExprValidationException e) {
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
                 }
+
                 stopCallback = new StopCallback() {
                     public void stop() {
+                        // we remove the index when context partitioned.
+                        // when not context partition the index gets removed when the last reference to the named window gets destroyed.
+                        if (contextName != null) {
+                            NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceId);
+                            if (instance != null) {
+                                instance.removeExplicitIndex(spec.getIndexName());
+                            }
+                        }
                     }
                 };
             }
@@ -72,13 +85,22 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             // handle table access
             try {
                 TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
-                instance.addExplicitIndex(spec);
+                instance.addExplicitIndex(spec, isRecoveringResilient, contextName != null);
             }
             catch (ExprValidationException ex) {
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);
             }
+
             stopCallback = new StopCallback() {
                 public void stop() {
+                    // we remove the index when context partitioned.
+                    // when not context partition the index gets removed when the last reference to the table gets destroyed.
+                    if (contextName != null) {
+                        TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceId);
+                        if (instance != null) {
+                            instance.removeExplicitIndex(spec.getIndexName());
+                        }
+                    }
                 }
             };
         }

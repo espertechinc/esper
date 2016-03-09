@@ -22,6 +22,11 @@ import java.util.Set;
 public interface JoinSetComposer
 {
     /**
+     * Returns true whether initialization events per stream to populate join indexes can be processed (init method).
+     */
+    public boolean allowsInit();
+
+    /**
      * Provides initialization events per stream to composer to populate join indexes, if required
      * @param eventsPerStream is an array of events for each stream, with null elements to indicate no events for a stream
      */

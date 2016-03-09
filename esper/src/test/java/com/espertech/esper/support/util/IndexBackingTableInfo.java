@@ -20,7 +20,7 @@ public interface IndexBackingTableInfo {
     public final static String BACKING_SINGLE_UNIQUE = PropertyIndexedEventTableSingleUnique.class.getSimpleName();
     public final static String BACKING_SINGLE_DUPS = PropertyIndexedEventTableSingle.class.getSimpleName();
     public final static String BACKING_MULTI_UNIQUE = PropertyIndexedEventTableUnique.class.getSimpleName();
-    public final static String BACKING_MULTI_DUPS = PropertyIndexedEventTable.class.getSimpleName();
+    public final static String BACKING_MULTI_DUPS = PropertyIndexedEventTableUnadorned.class.getSimpleName();
     public final static String BACKING_SORTED_COERCED = PropertySortedEventTableCoerced.class.getSimpleName();
     public final static String BACKING_SORTED = PropertySortedEventTable.class.getSimpleName();
     public final static String BACKING_UNINDEXED = UnindexedEventTable.class.getSimpleName();

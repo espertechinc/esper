@@ -24,8 +24,8 @@ import java.util.Iterator;
 
 public class SupportEPStatementSPI implements EPStatementSPI {
 
-    public String getStatementId() {
-        return null;
+    public int getStatementId() {
+        return 1;
     }
 
     public void setServiceIsolated(String serviceIsolated) {

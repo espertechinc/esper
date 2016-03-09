@@ -9,6 +9,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -48,7 +49,7 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamRandomAccess randomAccess = ViewServiceHelper.getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
+        ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream())
         {
             return new TimeAccumViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation);
@@ -82,6 +83,10 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public String getViewName() {
         return "Time-Accumulative-Batch";
+    }
+
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

@@ -23,8 +23,12 @@ public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyInd
         super(streamNum, eventType, propertyName, coercionType);
     }
 
-    public EventTable[] makeEventTables() {
-        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[] {propertyName}, EventTableOrganization.EventTableOrganizationType.HASH);
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+        EventTableOrganization organization = getOrganization();
         return new EventTable[] {new PropertyIndexedEventTableSingleCoerceAll(propertyGetter, organization, coercer, coercionType)};
+    }
+
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.HASH);
     }
 }

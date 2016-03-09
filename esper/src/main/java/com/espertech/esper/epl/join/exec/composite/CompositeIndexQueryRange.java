@@ -71,36 +71,36 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
         }
     }
 
-    public void add(EventBean theEvent, Map parent, Set<EventBean> result) {
-        strategy.lookup(theEvent, parent, result, next, null, null);
+    public void add(EventBean theEvent, Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+        strategy.lookup(theEvent, parent, result, next, null, null, postProcessor);
     }
 
-    public void add(EventBean[] eventsPerStream, Map parent, Collection<EventBean> result) {
-        strategy.lookup(eventsPerStream, parent, result, next, null, null);
+    public void add(EventBean[] eventsPerStream, Map parent, Collection<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+        strategy.lookup(eventsPerStream, parent, result, next, null, null, postProcessor);
     }
 
-    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context) {
-        return strategy.lookup(theEvent, parent, null, next, context, null);
+    public Set<EventBean> get(EventBean theEvent, Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor) {
+        return strategy.lookup(theEvent, parent, null, next, context, null, postProcessor);
     }
 
-    public Collection<EventBean> get(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context) {
-        return strategy.lookup(eventsPerStream, parent, null, next, context, null);
+    public Collection<EventBean> get(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, CompositeIndexQueryResultPostProcessor postProcessor) {
+        return strategy.lookup(eventsPerStream, parent, null, next, context, null, postProcessor);
     }
 
-    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys) {
-        return strategy.lookup(theEvent, parent, null, next, context, keys);
+    public Set<EventBean> getCollectKeys(EventBean theEvent, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor) {
+        return strategy.lookup(theEvent, parent, null, next, context, keys, postProcessor);
     }
 
-    public Collection<EventBean> getCollectKeys(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys) {
-        return strategy.lookup(eventsPerStream, parent, null, next, context, keys);
+    public Collection<EventBean> getCollectKeys(EventBean[] eventsPerStream, Map parent, ExprEvaluatorContext context, ArrayList<Object> keys, CompositeIndexQueryResultPostProcessor postProcessor) {
+        return strategy.lookup(eventsPerStream, parent, null, next, context, keys, postProcessor);
     }
 
-    protected static Set<EventBean> handle(EventBean theEvent, SortedMap sortedMapOne, SortedMap sortedMapTwo, Set<EventBean> result, CompositeIndexQuery next) {
+    protected static Set<EventBean> handle(EventBean theEvent, SortedMap sortedMapOne, SortedMap sortedMapTwo, Set<EventBean> result, CompositeIndexQuery next, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (next == null) {
             if (result == null) {
                 result = new HashSet<EventBean>();
             }
-            addResults(sortedMapOne, sortedMapTwo, result);
+            addResults(sortedMapOne, sortedMapTwo, result, postProcessor);
             return result;
         }
         else {
@@ -109,24 +109,24 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             }
             Map<Object, Map> map = (Map<Object, Map>) sortedMapOne;
             for (Map.Entry<Object, Map> entry : map.entrySet()) {
-                next.add(theEvent, entry.getValue(), result);
+                next.add(theEvent, entry.getValue(), result, postProcessor);
             }
             if (sortedMapTwo != null) {
                 map = (Map<Object, Map>) sortedMapTwo;
                 for (Map.Entry<Object, Map> entry : map.entrySet()) {
-                    next.add(theEvent, entry.getValue(), result);
+                    next.add(theEvent, entry.getValue(), result, postProcessor);
                 }
             }
             return result;
         }
     }
 
-    protected static Collection<EventBean> handle(EventBean[] eventsPerStream, SortedMap sortedMapOne, SortedMap sortedMapTwo, Collection<EventBean> result, CompositeIndexQuery next) {
+    protected static Collection<EventBean> handle(EventBean[] eventsPerStream, SortedMap sortedMapOne, SortedMap sortedMapTwo, Collection<EventBean> result, CompositeIndexQuery next, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (next == null) {
             if (result == null) {
                 result = new HashSet<EventBean>();
             }
-            addResults(sortedMapOne, sortedMapTwo, result);
+            addResults(sortedMapOne, sortedMapTwo, result, postProcessor);
             return result;
         }
         else {
@@ -135,26 +135,34 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             }
             Map<Object, Map> map = (Map<Object, Map>) sortedMapOne;
             for (Map.Entry<Object, Map> entry : map.entrySet()) {
-                next.add(eventsPerStream, entry.getValue(), result);
+                next.add(eventsPerStream, entry.getValue(), result, postProcessor);
             }
             if (sortedMapTwo != null) {
                 map = (Map<Object, Map>) sortedMapTwo;
                 for (Map.Entry<Object, Map> entry : map.entrySet()) {
-                    next.add(eventsPerStream, entry.getValue(), result);
+                    next.add(eventsPerStream, entry.getValue(), result, postProcessor);
                 }
             }
             return result;
         }
     }
 
-    private static void addResults(SortedMap sortedMapOne, SortedMap sortedMapTwo, Collection<EventBean> result) {
-        Map<Object, Set<EventBean>> map = (Map<Object, Set<EventBean>>) sortedMapOne;
-        for (Map.Entry<Object, Set<EventBean>> entry : map.entrySet()) {
-            result.addAll(entry.getValue());
-        }
-
+    private static void addResults(SortedMap sortedMapOne, SortedMap sortedMapTwo, Collection<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+        addResults(sortedMapOne, result, postProcessor);
         if (sortedMapTwo != null) {
-            map = (Map<Object, Set<EventBean>>) sortedMapTwo;
+            addResults(sortedMapTwo, result, postProcessor);
+        }
+    }
+
+    private static void addResults(SortedMap sortedMapOne, Collection<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+        Map<Object, Set<EventBean>> map = (Map<Object, Set<EventBean>>) sortedMapOne;
+
+        if (postProcessor != null) {
+            for (Map.Entry<Object, Set<EventBean>> entry : map.entrySet()) {
+                postProcessor.add(entry.getValue(), result);
+            }
+        }
+        else {
             for (Map.Entry<Object, Set<EventBean>> entry : map.entrySet()) {
                 result.addAll(entry.getValue());
             }

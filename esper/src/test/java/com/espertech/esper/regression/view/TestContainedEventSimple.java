@@ -290,6 +290,16 @@ public class TestContainedEventSimple extends TestCase
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}});
     }
 
+    public void testArrayProperty() {
+        epService.getEPAdministrator().getConfiguration().addEventType(MyBeanWithArray.class);
+        epService.getEPAdministrator().createEPL("create objectarray schema ContainedId(id string)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from MyBeanWithArray[select topId, * from containedIds @type(ContainedId)]");
+        stmt.addListener(listener);
+        epService.getEPRuntime().sendEvent(new MyBeanWithArray("A", "one,two,three".split(",")));
+        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "topId,id".split(","),
+                new Object[][] {{"A", "one"}, {"A", "two"}, {"A", "three"}});
+    }
+
     public static OrderBean makeEventOne()
     {
         Order order = new Order("PO200901",
@@ -354,5 +364,23 @@ public class TestContainedEventSimple extends TestCase
                         }),
                 new BookDesc("10022", "Stranger in a Strange Land", "Robert A Heinlein", 27.00d, new Review[0])
         };
+    }
+
+    public static class MyBeanWithArray {
+        private final String topId;
+        private final String[] containedIds;
+
+        public MyBeanWithArray(String topId, String[] containedIds) {
+            this.topId = topId;
+            this.containedIds = containedIds;
+        }
+
+        public String getTopId() {
+            return topId;
+        }
+
+        public String[] getContainedIds() {
+            return containedIds;
+        }
     }
 }

@@ -11,8 +11,11 @@
 
 package com.espertech.esper.core.service.multimatch;
 
-public class MultiMatchHandlerFactory {
-    public static MultiMatchHandler getDefaultHandler() {
-        return MultiMatchHandlerSubqueryPreevalNoDedup.INSTANCE;
-    }
+public interface MultiMatchHandlerFactory {
+    MultiMatchHandler getDefaultHandler();
+    MultiMatchHandler makeNoDedupNoSubq();
+    MultiMatchHandler makeNoDedupSubselectPreval();
+    MultiMatchHandler makeNoDedupSubselectPosteval();
+    MultiMatchHandler makeDedupNoSubq();
+    MultiMatchHandler makeDedupSubq(boolean isSubselectPreeval);
 }

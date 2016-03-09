@@ -67,6 +67,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testDestroyCtxPartitions() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         assertExtractDestroyPartitionedById();
         assertDestroyCategory();
         assertDestroyHashSegmented();
@@ -76,6 +80,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testInvalid() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         // context not found
         try {
             getSpi(epService).getContextNestingLevel("undefined");
@@ -96,6 +104,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testStopStartNestedCtxPartitions() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         String contextName = "CategoryContext";
         String createCtx = CONTEXT_CACHE_HOOK + "create context CategoryContext as " +
                 "group by intPrimitive < 0 as negative, group by intPrimitive > 0 as positive from SupportBean";
@@ -152,6 +164,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testGetContextStatementNames() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         epService.getEPAdministrator().createEPL("create context CtxA partition by theString from SupportBean");
         EPStatement stmtA = epService.getEPAdministrator().createEPL("@Name('A') context CtxA select count(*) from SupportBean");
         EPStatement stmtB = epService.getEPAdministrator().createEPL("@Name('B') context CtxA select sum(intPrimitive) from SupportBean");
@@ -168,6 +184,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testAcrossURIExtractImport() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         assertHashSegmentedImport();
         assertPartitionedImport();
         assertCategoryImport();
@@ -176,6 +196,10 @@ public class TestAdminContextPartitionSPI extends TestCase implements ContextSta
     }
 
     public void testSameURIExtractStopImportStart() {
+        if (SupportConfigFactory.skipTest(TestAdminContextPartitionSPI.class)) {
+            return;
+        }
+
         assertHashSegmentedIndividualSelector(new MySelectorHashById(Collections.singleton(HASH_MOD_E1_STRING_BY_64)));
         assertHashSegmentedIndividualSelector(new MySelectorHashFiltered(HASH_MOD_E1_STRING_BY_64));
         assertHashSegmentedIndividualSelector(new SupportSelectorById(Collections.singleton(0)));

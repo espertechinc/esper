@@ -338,7 +338,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 
         // create rowevent type
         String rowEventTypeName = statementContext.getStatementId() + "_rowrecogrow";
-        rowEventType = statementContext.getEventAdapterService().createAnonymousMapType(rowEventTypeName, rowTypeDef);
+        rowEventType = statementContext.getEventAdapterService().createAnonymousMapType(rowEventTypeName, rowTypeDef, true);
 
         // validate partition-by expressions, if any
         if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty())

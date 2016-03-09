@@ -120,7 +120,7 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
             return row;
         }
 
-        row = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggSpecs, groupKey, groupKeyBinding, null);
+        row = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggSpecs, groupKey, groupKeyBinding, null, null);
         accessMap.put(groupKey, row);
         return row;
     }
@@ -150,5 +150,8 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
 
     public Collection<Object> getGroupKeys(ExprEvaluatorContext exprEvaluatorContext) {
         return accessMap.keySet();
+    }
+
+    public void stop() {
     }
 }

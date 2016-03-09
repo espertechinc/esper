@@ -24,7 +24,7 @@ public class CompositeAccessStrategyLE extends CompositeAccessStrategyRelOpBase 
         super(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Map parent, Set<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector) {
+    public Set<EventBean> lookup(EventBean theEvent, Map parent, Set<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector, CompositeIndexQueryResultPostProcessor postProcessor) {
         TreeMap index = (TreeMap) parent;
         Object comparable = super.evaluateLookup(theEvent, context);
         if (optionalKeyCollector != null) {
@@ -34,10 +34,10 @@ public class CompositeAccessStrategyLE extends CompositeAccessStrategyRelOpBase 
             return null;
         }
         comparable = EventBeanUtility.coerce(comparable, coercionType);
-        return CompositeIndexQueryRange.handle(theEvent, index.headMap(comparable, true), null, result, next);
+        return CompositeIndexQueryRange.handle(theEvent, index.headMap(comparable, true), null, result, next, postProcessor);
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventPerStream, Map parent, Collection<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector) {
+    public Collection<EventBean> lookup(EventBean[] eventPerStream, Map parent, Collection<EventBean> result, CompositeIndexQuery next, ExprEvaluatorContext context, ArrayList<Object> optionalKeyCollector, CompositeIndexQueryResultPostProcessor postProcessor) {
         TreeMap index = (TreeMap) parent;
         Object comparable = super.evaluatePerStream(eventPerStream, context);
         if (optionalKeyCollector != null) {
@@ -47,6 +47,6 @@ public class CompositeAccessStrategyLE extends CompositeAccessStrategyRelOpBase 
             return null;
         }
         comparable = EventBeanUtility.coerce(comparable, coercionType);
-        return CompositeIndexQueryRange.handle(eventPerStream, index.headMap(comparable, true), null, result, next);
+        return CompositeIndexQueryRange.handle(eventPerStream, index.headMap(comparable, true), null, result, next, postProcessor);
     }
 }

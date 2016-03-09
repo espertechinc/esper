@@ -11,7 +11,9 @@
 
 package com.espertech.esper.support.bean.bookexample;
 
-public class GameDesc
+import java.io.Serializable;
+
+public class GameDesc implements Serializable
 {
     private final String gameId;
     private final String title;

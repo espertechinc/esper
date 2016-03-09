@@ -11,6 +11,7 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.base.HistoricalIndexLookupStrategy;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
@@ -123,15 +124,15 @@ public class HistoricalStreamIndexList
                 // create a master indexing strategy that utilizes each indexing strategy to create a set of indexes
                 final int streamNum = streamViewStreamNum;
                 masterIndexingStrategy = new PollResultIndexingStrategy() {
-                    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+                    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
                     {
                         EventTable[] tables = new EventTable[numIndexes];
                         for (int i = 0; i < numIndexes; i++)
                         {
-                            tables[i] = indexingStrategies[i].index(pollResult, isActiveCache)[0];
+                            tables[i] = indexingStrategies[i].index(pollResult, isActiveCache, statementContext)[0];
                         }
 
-                        EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganization.EventTableOrganizationType.MULTIINDEX);
+                        EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.MULTIINDEX);
                         return new EventTable[] {new MultiIndexEventTable(tables, organization)};
                     }
 

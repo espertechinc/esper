@@ -173,7 +173,7 @@ public class TestPerf2StreamRangeJoin extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBeanRange("R", "X", 2000, 3000));
         assertFalse(listener.isInvoked());
 
-        assertTrue((endTime - startTime) < 500);
+        assertTrue("delta=" + (endTime - startTime), (endTime - startTime) < 1500);
         stmt.destroy();
 
         // delete all events

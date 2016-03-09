@@ -12,7 +12,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.join.plan.CoercionDesc;
 import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.join.table.EventTableAndNamePair;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 
 import java.lang.annotation.Annotation;
@@ -25,7 +24,7 @@ import java.util.List;
 public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStrategyFactory
 {
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final Annotation[] annotations;
     private final EventType[] outerStreams;
     private final List<SubordPropHashKey> hashKeys;
@@ -37,7 +36,7 @@ public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStr
     private final boolean forceTableScan;
     private final SubordinateQueryPlannerIndexPropListPair hashAndRanges;
 
-    public SubordTableLookupStrategyFactoryVDW(String statementName, String statementId, Annotation[] annotations, EventType[] outerStreams, List<SubordPropHashKey> hashKeys, CoercionDesc hashKeyCoercionTypes, List<SubordPropRangeKey> rangeKeys, CoercionDesc rangeKeyCoercionTypes, boolean nwOnTrigger, SubordPropPlan joinDesc, boolean forceTableScan, SubordinateQueryPlannerIndexPropListPair hashAndRanges) {
+    public SubordTableLookupStrategyFactoryVDW(String statementName, int statementId, Annotation[] annotations, EventType[] outerStreams, List<SubordPropHashKey> hashKeys, CoercionDesc hashKeyCoercionTypes, List<SubordPropRangeKey> rangeKeys, CoercionDesc rangeKeyCoercionTypes, boolean nwOnTrigger, SubordPropPlan joinDesc, boolean forceTableScan, SubordinateQueryPlannerIndexPropListPair hashAndRanges) {
         this.statementName = statementName;
         this.statementId = statementId;
         this.annotations = annotations;

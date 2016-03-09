@@ -136,7 +136,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aScheduleEval(handles);}
     }
 
-    public ScheduleSet take(Set<String> statementIds)
+    public ScheduleSet take(Set<Integer> statementIds)
     {
         List<ScheduleSetEntry> list = new ArrayList<ScheduleSetEntry>();
         long currentTime = getTime();

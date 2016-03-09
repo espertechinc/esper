@@ -35,7 +35,7 @@ public abstract class TableLookupPlan
      * @param eventTypes - types of events in stream
      * @return lookup strategy instance
      */
-    public final JoinExecTableLookupStrategy makeStrategy(String statementName, String statementId, Annotation[] accessedByStmtAnnotations, Map<TableLookupIndexReqKey,EventTable>[] indexesPerStream, EventType[] eventTypes, VirtualDWView[] viewExternals) {
+    public final JoinExecTableLookupStrategy makeStrategy(String statementName, int statementId, Annotation[] accessedByStmtAnnotations, Map<TableLookupIndexReqKey,EventTable>[] indexesPerStream, EventType[] eventTypes, VirtualDWView[] viewExternals) {
         EventTable[] eventTables = new EventTable[indexNum.length];
         for (int i = 0; i < indexNum.length; i++) {
             eventTables[i] = indexesPerStream[this.getIndexedStream()].get(getIndexNum()[i]);

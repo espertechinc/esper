@@ -117,7 +117,7 @@ public class FireAndForgetQueryExec
                 hook.fireAndForget(new QueryPlanIndexDescFAF(
                         new IndexNameAndDescPair[] {
                                 new IndexNameAndDescPair(indexName, tablePair != null ?
-                                        tablePair.getSecond().getEventTable().getClass().getSimpleName() : null)
+                                        tablePair.getSecond().getEventTable().getProviderClass().getSimpleName() : null)
                         }));
             }
         }
@@ -219,7 +219,7 @@ public class FireAndForgetQueryExec
             Class[] rangeCoercion = table.getOptRangeCoercedTypes();
             CompositeIndexLookup lookup = CompositeIndexLookupFactory.make(keyValues, rangeValues, rangeCoercion);
             result = new HashSet<EventBean>();
-            lookup.lookup(table.getIndex(), result);
+            lookup.lookup(table.getIndex(), result, table.getPostProcessor());
         }
         if (result != null) {
             return result;

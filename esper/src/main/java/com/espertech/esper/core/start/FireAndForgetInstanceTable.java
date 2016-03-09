@@ -20,7 +20,6 @@ import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalLockUtil;
-import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyUtil;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.CollectionUtil;
@@ -42,7 +41,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
     public EventBean[] processInsert(EPPreparedExecuteIUDSingleStreamExecInsert insert) {
         ExprTableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().writeLock(), insert.getServices().getTableService().getTableExprEvaluatorContext());
         EventBean theEvent = insert.getInsertHelper().process(new EventBean[0], true, true, insert.getExprEvaluatorContext());
-        AggregationRowPair aggs = instance.getTableMetadata().getRowFactory().makeAggs(insert.getExprEvaluatorContext().getAgentInstanceId(), null, null);
+        AggregationRowPair aggs = instance.getTableMetadata().getRowFactory().makeAggs(insert.getExprEvaluatorContext().getAgentInstanceId(), null, null, instance.getAggregationServicePassThru());
         ((Object[]) theEvent.getUnderlying())[0] = aggs;
         instance.addEvent(theEvent);
         return CollectionUtil.EVENTBEANARRAY_EMPTY;
@@ -52,7 +51,8 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         ExprTableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().writeLock(), delete.getServices().getTableService().getTableExprEvaluatorContext());
 
         if (delete.getOptionalWhereClause() == null) {
-            instance.clearEvents();
+            instance.clearInstance();
+            return CollectionUtil.EVENTBEANARRAY_EMPTY;
         }
 
         Collection<EventBean> found = snapshotAndApplyFilter(delete.getFilter(), delete.getAnnotations(), delete.getOptionalWhereClause(), instance.getAgentInstanceContext());

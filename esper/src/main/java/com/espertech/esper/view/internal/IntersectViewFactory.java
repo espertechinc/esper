@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Factory for union-views.
  */
-public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory, DataWindowViewFactoryUniqueCandidate
+public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory, DataWindowViewFactoryUniqueCandidate, ViewFactoryContainer
 {
     /**
      * The event type.
@@ -123,6 +123,10 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
 
     public String getViewName() {
         return getViewNameUnionIntersect(true, viewFactories);
+    }
+
+    public Collection<ViewFactory> getViewFactoriesContained() {
+        return viewFactories;
     }
 
     protected static String getViewNameUnionIntersect(boolean intersect, Collection<ViewFactory> factories) {

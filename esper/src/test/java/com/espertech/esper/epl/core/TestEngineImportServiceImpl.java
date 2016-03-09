@@ -12,7 +12,7 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.ConfigurationPlugInAggregationFunction;
-import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.epl.SupportPluginAggregationMethodOneFactory;
 import junit.framework.TestCase;
 

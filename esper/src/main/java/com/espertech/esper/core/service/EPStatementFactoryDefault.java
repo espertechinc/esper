@@ -8,12 +8,18 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryResult;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.timer.TimeSourceService;
+import com.espertech.esper.util.StopCallback;
 
 public class EPStatementFactoryDefault implements EPStatementFactory
 {
     public EPStatementSPI make(String expressionNoAnnotations, boolean isPattern, DispatchService dispatchService, StatementLifecycleSvcImpl statementLifecycleSvc, long timeLastStateChange, boolean preserveDispatchOrder, boolean isSpinLocks, long blockingTimeout, TimeSourceService timeSource, StatementMetadata statementMetadata, Object statementUserObject, StatementContext statementContext, boolean isFailed, boolean nameProvided) {
         return new EPStatementImpl(expressionNoAnnotations, isPattern, dispatchService, statementLifecycleSvc, timeLastStateChange, preserveDispatchOrder, isSpinLocks, blockingTimeout, timeSource, statementMetadata, statementUserObject, statementContext, isFailed, nameProvided);
+    }
+
+    public StopCallback makeStopMethod(StatementAgentInstanceFactoryResult startResult) {
+        return startResult.getStopCallback();
     }
 }

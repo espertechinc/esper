@@ -8,7 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 
 /**
@@ -39,7 +39,7 @@ public final class FilterSpecParamConstant extends FilterSpecParam
         }
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext)
+    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
     {
         return filterConstant;
     }

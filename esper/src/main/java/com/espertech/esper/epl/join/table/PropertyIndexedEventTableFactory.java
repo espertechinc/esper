@@ -57,14 +57,13 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
         }
     }
 
-    public EventTable[] makeEventTables() {
-        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false,
-                streamNum, propertyNames, EventTableOrganization.EventTableOrganizationType.HASH);
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+        EventTableOrganization organization = getOrganization();
         if (unique) {
             return new EventTable[] {new PropertyIndexedEventTableUnique(propertyGetters, organization)};
         }
         else {
-            return new EventTable[] {new PropertyIndexedEventTable(propertyGetters, organization)};
+            return new EventTable[] {new PropertyIndexedEventTableUnadorned(propertyGetters, organization)};
         }
     }
 
@@ -73,7 +72,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
             return PropertyIndexedEventTableUnique.class;
         }
         else {
-            return PropertyIndexedEventTable.class;
+            return PropertyIndexedEventTableUnadorned.class;
         }
     }
 
@@ -83,6 +82,31 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
                 (unique ? " unique" : " non-unique") +
                 " streamNum=" + streamNum +
                 " propertyNames=" + Arrays.toString(propertyNames);
+    }
+
+    public int getStreamNum() {
+        return streamNum;
+    }
+
+    public String[] getPropertyNames() {
+        return propertyNames;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public String getOptionalIndexName() {
+        return optionalIndexName;
+    }
+
+    public EventPropertyGetter[] getPropertyGetters() {
+        return propertyGetters;
+    }
+
+    protected EventTableOrganization getOrganization() {
+        return new EventTableOrganization(optionalIndexName, unique, false,
+                streamNum, propertyNames, EventTableOrganizationType.HASH);
     }
 
     private static Log log = LogFactory.getLog(PropertyIndexedEventTableFactory.class);

@@ -12,6 +12,7 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
@@ -33,19 +34,21 @@ public class StatementVariableRefImpl implements StatementVariableRef
     private final HashMap<String, Set<String>> stmtToVariable;
     private final VariableService variableService;
     private final TableService tableService;
+    private final NamedWindowMgmtService namedWindowMgmtService;
     private final Set<String> configuredVariables;
 
     /**
      * Ctor.
      * @param variableService variables
      */
-    public StatementVariableRefImpl(VariableService variableService, TableService tableService)
+    public StatementVariableRefImpl(VariableService variableService, TableService tableService, NamedWindowMgmtService namedWindowMgmtService)
     {
         variableToStmt = new HashMap<String, Set<String>>();
         stmtToVariable = new HashMap<String, Set<String>>();
         mapLock = new ManagedReadWriteLock("StatementVariableRefImpl", false);
         this.variableService = variableService;
         this.tableService = tableService;
+        this.namedWindowMgmtService = namedWindowMgmtService;
 
         configuredVariables = new HashSet<String>();
         for (Map.Entry<String, VariableReader> entry : variableService.getVariableReadersNonCP().entrySet()) {
@@ -189,6 +192,7 @@ public class StatementVariableRefImpl implements StatementVariableRef
                 if (!configuredVariables.contains(variableName)) {
                     variableService.removeVariableIfFound(variableName);
                     tableService.removeTableIfFound(variableName);
+                    namedWindowMgmtService.removeNamedWindowIfFound(variableName);
                 }
             }
         }

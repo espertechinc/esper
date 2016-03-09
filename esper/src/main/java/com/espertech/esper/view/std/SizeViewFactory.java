@@ -69,4 +69,8 @@ public class SizeViewFactory implements ViewFactory
     public String getViewName() {
         return NAME;
     }
+
+    public StatViewAdditionalProps getAdditionalProps() {
+        return additionalProps;
+    }
 }

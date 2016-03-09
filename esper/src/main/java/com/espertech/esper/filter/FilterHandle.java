@@ -18,6 +18,6 @@ public interface FilterHandle
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId();
+    public int getStatementId();
 }
 

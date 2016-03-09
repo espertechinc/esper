@@ -41,14 +41,14 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
     private ResultSetProcessorAggregateAllOutputLastHelper outputLastUnordHelper;
     private ResultSetProcessorAggregateAllOutputAllHelper outputAllUnordHelper;
 
-    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorAggregateAll(ResultSetProcessorAggregateAllFactory prototype, SelectExprProcessor selectExprProcessor, OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
         this.prototype = prototype;
         this.selectExprProcessor = selectExprProcessor;
         this.orderByProcessor = orderByProcessor;
         this.aggregationService = aggregationService;
-        this.exprEvaluatorContext = exprEvaluatorContext;
-        this.outputLastUnordHelper = prototype.isOutputLast() ? new ResultSetProcessorAggregateAllOutputLastHelper(this) : null;
-        this.outputAllUnordHelper = prototype.isOutputAll() ? new ResultSetProcessorAggregateAllOutputAllHelper(this) : null;
+        this.exprEvaluatorContext = agentInstanceContext;
+        this.outputLastUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputLast() ? prototype.getResultSetProcessorHelperFactory().makeRSAggregateAllOutputLast(this, agentInstanceContext) : null;
+        this.outputAllUnordHelper = prototype.isEnableOutputLimitOpt() && prototype.isOutputAll() ? prototype.getResultSetProcessorHelperFactory().makeRSAggregateAllOutputAll(this, agentInstanceContext) : null;
     }
 
     public void setAgentInstanceContext(AgentInstanceContext context) {
@@ -290,384 +290,21 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
 
     public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
     {
-        if (outputLimitLimitType == OutputLimitLimitType.LAST)
-        {
-            EventBean lastOldEvent = null;
-            EventBean lastNewEvent = null;
-
-            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-            {
-                Set<MultiKey<EventBean>> newData = pair.getFirst();
-                Set<MultiKey<EventBean>> oldData = pair.getSecond();
-
-                if (prototype.isUnidirectional())
-                {
-                    this.clear();
-                }
-
-                if (newData != null)
-                {
-                    // apply new data to aggregates
-                    for (MultiKey<EventBean> eventsPerStream : newData)
-                    {
-                        aggregationService.applyEnter(eventsPerStream.getArray(), null, exprEvaluatorContext);
-                    }
-                }
-                if (oldData != null)
-                {
-                    // apply old data to aggregates
-                    for (MultiKey<EventBean> eventsPerStream : oldData)
-                    {
-                        aggregationService.applyLeave(eventsPerStream.getArray(), null, exprEvaluatorContext);
-                    }
-                }
-
-                EventBean[] selectOldEvents;
-                if (prototype.isSelectRStream())
-                {
-                    if (prototype.getOptionalHavingNode() == null)
-                    {
-                        selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, exprEvaluatorContext);
-                    }
-                    else
-                    {
-                        selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, exprEvaluatorContext);
-                    }
-                    if ((selectOldEvents != null) && (selectOldEvents.length > 0))
-                    {
-                        lastOldEvent = selectOldEvents[selectOldEvents.length - 1];
-                    }
-                }
-
-                // generate new events using select expressions
-                EventBean[] selectNewEvents;
-                if (prototype.getOptionalHavingNode() == null)
-                {
-                    selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, exprEvaluatorContext);
-                }
-                else
-                {
-                    selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, exprEvaluatorContext);
-                }
-                if ((selectNewEvents != null) && (selectNewEvents.length > 0))
-                {
-                    lastNewEvent = selectNewEvents[selectNewEvents.length - 1];
-                }
-            }
-
-            EventBean[] lastNew = (lastNewEvent != null) ? new EventBean[] {lastNewEvent} : null;
-            EventBean[] lastOld = (lastOldEvent != null) ? new EventBean[] {lastOldEvent} : null;
-
-            if ((lastNew == null) && (lastOld == null))
-            {
-                return null;
-            }
-            return new UniformPair<EventBean[]>(lastNew, lastOld);
+        if (outputLimitLimitType == OutputLimitLimitType.LAST) {
+            return processOutputLimitedJoinLast(joinEventsSet, generateSynthetic);
         }
-        else
-        {
-            List<EventBean> newEvents = new LinkedList<EventBean>();
-            List<EventBean> oldEvents = null;
-            if (prototype.isSelectRStream())
-            {
-                oldEvents = new LinkedList<EventBean>();
-            }
-
-            List<Object> newEventsSortKey = null;
-            List<Object> oldEventsSortKey = null;
-            if (orderByProcessor != null)
-            {
-                newEventsSortKey = new LinkedList<Object>();
-                if (prototype.isSelectRStream())
-                {
-                    oldEventsSortKey = new LinkedList<Object>();
-                }
-            }
-
-            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-            {
-                Set<MultiKey<EventBean>> newData = pair.getFirst();
-                Set<MultiKey<EventBean>> oldData = pair.getSecond();
-
-                if (prototype.isUnidirectional())
-                {
-                    this.clear();
-                }
-
-                if (newData != null)
-                {
-                    // apply new data to aggregates
-                    for (MultiKey<EventBean> row : newData)
-                    {
-                        aggregationService.applyEnter(row.getArray(), null, exprEvaluatorContext);
-                    }
-                }
-                if (oldData != null)
-                {
-                    // apply old data to aggregates
-                    for (MultiKey<EventBean> row : oldData)
-                    {
-                        aggregationService.applyLeave(row.getArray(), null, exprEvaluatorContext);
-                    }
-                }
-
-                // generate old events using select expressions
-                if (prototype.isSelectRStream())
-                {
-                    if (prototype.getOptionalHavingNode() == null)
-                    {
-                        if (orderByProcessor == null) {
-                            ResultSetProcessorUtil.populateSelectJoinEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, oldEvents, exprEvaluatorContext);
-                        }
-                        else {
-                            ResultSetProcessorUtil.populateSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
-                        }
-                    }
-                    // generate old events using having then select
-                    else
-                    {
-                        if (orderByProcessor == null) {
-                            ResultSetProcessorUtil.populateSelectJoinEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, exprEvaluatorContext);
-                        }
-                        else {
-                            ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
-                        }
-                    }
-                }
-
-                // generate new events using select expressions
-                if (prototype.getOptionalHavingNode() == null)
-                {
-                    if (orderByProcessor == null) {
-                        ResultSetProcessorUtil.populateSelectJoinEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, newEvents, exprEvaluatorContext);
-                    }
-                    else {
-                        ResultSetProcessorUtil.populateSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
-                    }
-                }
-                else
-                {
-                    if (orderByProcessor == null) {
-                        ResultSetProcessorUtil.populateSelectJoinEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, exprEvaluatorContext);
-                    }
-                    else {
-                        ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
-                    }
-                }
-            }
-
-            EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
-            EventBean[] oldEventsArr = null;
-            if (prototype.isSelectRStream())
-            {
-                oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
-            }
-
-            if (orderByProcessor != null)
-            {
-                Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
-                newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, exprEvaluatorContext);
-                if (prototype.isSelectRStream())
-                {
-                    Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
-                    oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, exprEvaluatorContext);
-                }
-            }
-
-            if ((newEventsArr == null) && (oldEventsArr == null))
-            {
-                return null;
-            }
-            return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+        else {
+            return processOutputLimitedJoinDefault(joinEventsSet, generateSynthetic);
         }
     }
 
     public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
     {
-        if (outputLimitLimitType == OutputLimitLimitType.LAST)
-        {
-            EventBean lastOldEvent = null;
-            EventBean lastNewEvent = null;
-            EventBean[] eventsPerStream = new EventBean[1];
-
-            for (UniformPair<EventBean[]> pair : viewEventsList)
-            {
-                EventBean[] newData = pair.getFirst();
-                EventBean[] oldData = pair.getSecond();
-
-                if (newData != null)
-                {
-                    // apply new data to aggregates
-                    for (EventBean aNewData : newData)
-                    {
-                        eventsPerStream[0] = aNewData;
-                        aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
-                    }
-                }
-                if (oldData != null)
-                {
-                    // apply old data to aggregates
-                    for (EventBean anOldData : oldData)
-                    {
-                        eventsPerStream[0] = anOldData;
-                        aggregationService.applyLeave(eventsPerStream, null,exprEvaluatorContext);
-                    }
-                }
-
-                EventBean[] selectOldEvents;
-                if (prototype.isSelectRStream())
-                {
-                    if (prototype.getOptionalHavingNode() == null)
-                    {
-                        selectOldEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, exprEvaluatorContext);
-                    }
-                    else
-                    {
-                        selectOldEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, exprEvaluatorContext);
-                    }
-                    if ((selectOldEvents != null) && (selectOldEvents.length > 0))
-                    {
-                        lastOldEvent = selectOldEvents[selectOldEvents.length - 1];
-                    }
-                }
-
-                // generate new events using select expressions
-                EventBean[] selectNewEvents;
-                if (prototype.getOptionalHavingNode() == null)
-                {
-                    selectNewEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, exprEvaluatorContext);
-                }
-                else
-                {
-                    selectNewEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, exprEvaluatorContext);
-                }
-                if ((selectNewEvents != null) && (selectNewEvents.length > 0))
-                {
-                    lastNewEvent = selectNewEvents[selectNewEvents.length - 1];
-                }
-            }
-
-            EventBean[] lastNew = (lastNewEvent != null) ? new EventBean[] {lastNewEvent} : null;
-            EventBean[] lastOld = (lastOldEvent != null) ? new EventBean[] {lastOldEvent} : null;
-
-            if ((lastNew == null) && (lastOld == null))
-            {
-                return null;
-            }
-            return new UniformPair<EventBean[]>(lastNew, lastOld);
+        if (outputLimitLimitType == OutputLimitLimitType.LAST) {
+            return processOutputLimitedViewLast(viewEventsList, generateSynthetic);
         }
-        else
-        {
-            List<EventBean> newEvents = new LinkedList<EventBean>();
-            List<EventBean> oldEvents = null;
-            if (prototype.isSelectRStream())
-            {
-                oldEvents = new LinkedList<EventBean>();
-            }
-            List<Object> newEventsSortKey = null;
-            List<Object> oldEventsSortKey = null;
-            if (orderByProcessor != null)
-            {
-                newEventsSortKey = new LinkedList<Object>();
-                if (prototype.isSelectRStream())
-                {
-                    oldEventsSortKey = new LinkedList<Object>();
-                }
-            }
-
-            for (UniformPair<EventBean[]> pair : viewEventsList)
-            {
-                EventBean[] newData = pair.getFirst();
-                EventBean[] oldData = pair.getSecond();
-
-                EventBean[] eventsPerStream = new EventBean[1];
-                if (newData != null)
-                {
-                    // apply new data to aggregates
-                    for (EventBean aNewData : newData)
-                    {
-                        eventsPerStream[0] = aNewData;
-                        aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
-                    }
-                }
-                if (oldData != null)
-                {
-                    // apply old data to aggregates
-                    for (EventBean anOldData : oldData)
-                    {
-                        eventsPerStream[0] = anOldData;
-                        aggregationService.applyLeave(eventsPerStream, null, exprEvaluatorContext);
-                    }
-                }
-
-                // generate old events using select expressions
-                if (prototype.isSelectRStream())
-                {
-                    if (prototype.getOptionalHavingNode() == null)
-                    {
-                        if (orderByProcessor == null) {
-                            ResultSetProcessorUtil.populateSelectEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, oldEvents, exprEvaluatorContext);
-                        }
-                        else {
-                            ResultSetProcessorUtil.populateSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
-                        }
-                    }
-                    // generate old events using having then select
-                    else
-                    {
-                        if (orderByProcessor == null) {
-                            ResultSetProcessorUtil.populateSelectEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, exprEvaluatorContext);
-                        }
-                        else {
-                            ResultSetProcessorUtil.populateSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
-                        }
-                    }
-                }
-
-                // generate new events using select expressions
-                if (prototype.getOptionalHavingNode() == null)
-                {
-                    if (orderByProcessor == null) {
-                        ResultSetProcessorUtil.populateSelectEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, newEvents, exprEvaluatorContext);
-                    }
-                    else {
-                        ResultSetProcessorUtil.populateSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
-                    }
-                }
-                else
-                {
-                    if (orderByProcessor == null) {
-                        ResultSetProcessorUtil.populateSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, exprEvaluatorContext);
-                    }
-                    else {
-                        ResultSetProcessorUtil.populateSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
-                    }
-                }
-            }
-
-            EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
-            EventBean[] oldEventsArr = null;
-            if (prototype.isSelectRStream())
-            {
-                oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
-            }
-            if (orderByProcessor != null)
-            {
-                Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
-                newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, exprEvaluatorContext);
-
-                if (prototype.isSelectRStream())
-                {
-                    Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
-                    oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, exprEvaluatorContext);
-                }
-            }
-
-            if ((newEventsArr == null) && (oldEventsArr == null))
-            {
-                return null;
-            }
-            return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+        else {
+            return processOutputLimitedViewDefault(viewEventsList, generateSynthetic);
         }
     }
 
@@ -705,5 +342,389 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
             return outputAllUnordHelper.output();
         }
         return outputLastUnordHelper.output();
+    }
+
+    public void stop() {
+        if (outputLastUnordHelper != null) {
+            outputLastUnordHelper.destroy();
+        }
+        if (outputAllUnordHelper != null) {
+            outputAllUnordHelper.destroy();
+        }
+    }
+
+    private UniformPair<EventBean[]> processOutputLimitedJoinDefault(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
+        List<EventBean> newEvents = new LinkedList<EventBean>();
+        List<EventBean> oldEvents = null;
+        if (prototype.isSelectRStream())
+        {
+            oldEvents = new LinkedList<EventBean>();
+        }
+
+        List<Object> newEventsSortKey = null;
+        List<Object> oldEventsSortKey = null;
+        if (orderByProcessor != null)
+        {
+            newEventsSortKey = new LinkedList<Object>();
+            if (prototype.isSelectRStream())
+            {
+                oldEventsSortKey = new LinkedList<Object>();
+            }
+        }
+
+        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
+        {
+            Set<MultiKey<EventBean>> newData = pair.getFirst();
+            Set<MultiKey<EventBean>> oldData = pair.getSecond();
+
+            if (prototype.isUnidirectional())
+            {
+                this.clear();
+            }
+
+            if (newData != null)
+            {
+                // apply new data to aggregates
+                for (MultiKey<EventBean> row : newData)
+                {
+                    aggregationService.applyEnter(row.getArray(), null, exprEvaluatorContext);
+                }
+            }
+            if (oldData != null)
+            {
+                // apply old data to aggregates
+                for (MultiKey<EventBean> row : oldData)
+                {
+                    aggregationService.applyLeave(row.getArray(), null, exprEvaluatorContext);
+                }
+            }
+
+            // generate old events using select expressions
+            if (prototype.isSelectRStream())
+            {
+                if (prototype.getOptionalHavingNode() == null)
+                {
+                    if (orderByProcessor == null) {
+                        ResultSetProcessorUtil.populateSelectJoinEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, oldEvents, exprEvaluatorContext);
+                    }
+                    else {
+                        ResultSetProcessorUtil.populateSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
+                    }
+                }
+                // generate old events using having then select
+                else
+                {
+                    if (orderByProcessor == null) {
+                        ResultSetProcessorUtil.populateSelectJoinEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, exprEvaluatorContext);
+                    }
+                    else {
+                        ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
+                    }
+                }
+            }
+
+            // generate new events using select expressions
+            if (prototype.getOptionalHavingNode() == null)
+            {
+                if (orderByProcessor == null) {
+                    ResultSetProcessorUtil.populateSelectJoinEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, newEvents, exprEvaluatorContext);
+                }
+                else {
+                    ResultSetProcessorUtil.populateSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
+                }
+            }
+            else
+            {
+                if (orderByProcessor == null) {
+                    ResultSetProcessorUtil.populateSelectJoinEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, exprEvaluatorContext);
+                }
+                else {
+                    ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
+                }
+            }
+        }
+
+        EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
+        EventBean[] oldEventsArr = null;
+        if (prototype.isSelectRStream())
+        {
+            oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
+        }
+
+        if (orderByProcessor != null)
+        {
+            Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
+            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, exprEvaluatorContext);
+            if (prototype.isSelectRStream())
+            {
+                Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
+                oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, exprEvaluatorContext);
+            }
+        }
+
+        if ((newEventsArr == null) && (oldEventsArr == null))
+        {
+            return null;
+        }
+        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+    }
+
+    private UniformPair<EventBean[]> processOutputLimitedJoinLast(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
+        EventBean lastOldEvent = null;
+        EventBean lastNewEvent = null;
+
+        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
+        {
+            Set<MultiKey<EventBean>> newData = pair.getFirst();
+            Set<MultiKey<EventBean>> oldData = pair.getSecond();
+
+            if (prototype.isUnidirectional())
+            {
+                this.clear();
+            }
+
+            if (newData != null)
+            {
+                // apply new data to aggregates
+                for (MultiKey<EventBean> eventsPerStream : newData)
+                {
+                    aggregationService.applyEnter(eventsPerStream.getArray(), null, exprEvaluatorContext);
+                }
+            }
+            if (oldData != null)
+            {
+                // apply old data to aggregates
+                for (MultiKey<EventBean> eventsPerStream : oldData)
+                {
+                    aggregationService.applyLeave(eventsPerStream.getArray(), null, exprEvaluatorContext);
+                }
+            }
+
+            EventBean[] selectOldEvents;
+            if (prototype.isSelectRStream())
+            {
+                if (prototype.getOptionalHavingNode() == null)
+                {
+                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, exprEvaluatorContext);
+                }
+                else
+                {
+                    selectOldEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, exprEvaluatorContext);
+                }
+                if ((selectOldEvents != null) && (selectOldEvents.length > 0))
+                {
+                    lastOldEvent = selectOldEvents[selectOldEvents.length - 1];
+                }
+            }
+
+            // generate new events using select expressions
+            EventBean[] selectNewEvents;
+            if (prototype.getOptionalHavingNode() == null)
+            {
+                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, exprEvaluatorContext);
+            }
+            else
+            {
+                selectNewEvents = ResultSetProcessorUtil.getSelectJoinEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, exprEvaluatorContext);
+            }
+            if ((selectNewEvents != null) && (selectNewEvents.length > 0))
+            {
+                lastNewEvent = selectNewEvents[selectNewEvents.length - 1];
+            }
+        }
+
+        EventBean[] lastNew = (lastNewEvent != null) ? new EventBean[] {lastNewEvent} : null;
+        EventBean[] lastOld = (lastOldEvent != null) ? new EventBean[] {lastOldEvent} : null;
+
+        if ((lastNew == null) && (lastOld == null))
+        {
+            return null;
+        }
+        return new UniformPair<EventBean[]>(lastNew, lastOld);
+    }
+
+    private UniformPair<EventBean[]> processOutputLimitedViewDefault(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
+        List<EventBean> newEvents = new LinkedList<EventBean>();
+        List<EventBean> oldEvents = null;
+        if (prototype.isSelectRStream())
+        {
+            oldEvents = new LinkedList<EventBean>();
+        }
+        List<Object> newEventsSortKey = null;
+        List<Object> oldEventsSortKey = null;
+        if (orderByProcessor != null)
+        {
+            newEventsSortKey = new LinkedList<Object>();
+            if (prototype.isSelectRStream())
+            {
+                oldEventsSortKey = new LinkedList<Object>();
+            }
+        }
+
+        for (UniformPair<EventBean[]> pair : viewEventsList)
+        {
+            EventBean[] newData = pair.getFirst();
+            EventBean[] oldData = pair.getSecond();
+
+            EventBean[] eventsPerStream = new EventBean[1];
+            if (newData != null)
+            {
+                // apply new data to aggregates
+                for (EventBean aNewData : newData)
+                {
+                    eventsPerStream[0] = aNewData;
+                    aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
+                }
+            }
+            if (oldData != null)
+            {
+                // apply old data to aggregates
+                for (EventBean anOldData : oldData)
+                {
+                    eventsPerStream[0] = anOldData;
+                    aggregationService.applyLeave(eventsPerStream, null, exprEvaluatorContext);
+                }
+            }
+
+            // generate old events using select expressions
+            if (prototype.isSelectRStream())
+            {
+                if (prototype.getOptionalHavingNode() == null)
+                {
+                    if (orderByProcessor == null) {
+                        ResultSetProcessorUtil.populateSelectEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, oldEvents, exprEvaluatorContext);
+                    }
+                    else {
+                        ResultSetProcessorUtil.populateSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
+                    }
+                }
+                // generate old events using having then select
+                else
+                {
+                    if (orderByProcessor == null) {
+                        ResultSetProcessorUtil.populateSelectEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, exprEvaluatorContext);
+                    }
+                    else {
+                        ResultSetProcessorUtil.populateSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, oldEvents, oldEventsSortKey, exprEvaluatorContext);
+                    }
+                }
+            }
+
+            // generate new events using select expressions
+            if (prototype.getOptionalHavingNode() == null)
+            {
+                if (orderByProcessor == null) {
+                    ResultSetProcessorUtil.populateSelectEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, newEvents, exprEvaluatorContext);
+                }
+                else {
+                    ResultSetProcessorUtil.populateSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
+                }
+            }
+            else
+            {
+                if (orderByProcessor == null) {
+                    ResultSetProcessorUtil.populateSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, exprEvaluatorContext);
+                }
+                else {
+                    ResultSetProcessorUtil.populateSelectEventsHavingWithOrderBy(selectExprProcessor, orderByProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, newEvents, newEventsSortKey, exprEvaluatorContext);
+                }
+            }
+        }
+
+        EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
+        EventBean[] oldEventsArr = null;
+        if (prototype.isSelectRStream())
+        {
+            oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
+        }
+        if (orderByProcessor != null)
+        {
+            Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
+            newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, exprEvaluatorContext);
+
+            if (prototype.isSelectRStream())
+            {
+                Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
+                oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, exprEvaluatorContext);
+            }
+        }
+
+        if ((newEventsArr == null) && (oldEventsArr == null))
+        {
+            return null;
+        }
+        return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
+    }
+
+    private UniformPair<EventBean[]> processOutputLimitedViewLast(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
+        EventBean lastOldEvent = null;
+        EventBean lastNewEvent = null;
+        EventBean[] eventsPerStream = new EventBean[1];
+
+        for (UniformPair<EventBean[]> pair : viewEventsList)
+        {
+            EventBean[] newData = pair.getFirst();
+            EventBean[] oldData = pair.getSecond();
+
+            if (newData != null)
+            {
+                // apply new data to aggregates
+                for (EventBean aNewData : newData)
+                {
+                    eventsPerStream[0] = aNewData;
+                    aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
+                }
+            }
+            if (oldData != null)
+            {
+                // apply old data to aggregates
+                for (EventBean anOldData : oldData)
+                {
+                    eventsPerStream[0] = anOldData;
+                    aggregationService.applyLeave(eventsPerStream, null,exprEvaluatorContext);
+                }
+            }
+
+            EventBean[] selectOldEvents;
+            if (prototype.isSelectRStream())
+            {
+                if (prototype.getOptionalHavingNode() == null)
+                {
+                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, oldData, false, generateSynthetic, exprEvaluatorContext);
+                }
+                else
+                {
+                    selectOldEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, oldData, prototype.getOptionalHavingNode(), false, generateSynthetic, exprEvaluatorContext);
+                }
+                if ((selectOldEvents != null) && (selectOldEvents.length > 0))
+                {
+                    lastOldEvent = selectOldEvents[selectOldEvents.length - 1];
+                }
+            }
+
+            // generate new events using select expressions
+            EventBean[] selectNewEvents;
+            if (prototype.getOptionalHavingNode() == null)
+            {
+                selectNewEvents = ResultSetProcessorUtil.getSelectEventsNoHaving(selectExprProcessor, newData, true, generateSynthetic, exprEvaluatorContext);
+            }
+            else
+            {
+                selectNewEvents = ResultSetProcessorUtil.getSelectEventsHaving(selectExprProcessor, newData, prototype.getOptionalHavingNode(), true, generateSynthetic, exprEvaluatorContext);
+            }
+            if ((selectNewEvents != null) && (selectNewEvents.length > 0))
+            {
+                lastNewEvent = selectNewEvents[selectNewEvents.length - 1];
+            }
+        }
+
+        EventBean[] lastNew = (lastNewEvent != null) ? new EventBean[] {lastNewEvent} : null;
+        EventBean[] lastOld = (lastOldEvent != null) ? new EventBean[] {lastOldEvent} : null;
+
+        if ((lastNew == null) && (lastOld == null))
+        {
+            return null;
+        }
+        return new UniformPair<EventBean[]>(lastNew, lastOld);
     }
 }

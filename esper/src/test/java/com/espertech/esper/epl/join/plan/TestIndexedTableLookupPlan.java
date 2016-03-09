@@ -35,7 +35,7 @@ public class TestIndexedTableLookupPlan extends TestCase
         types = new EventType[] { SupportEventTypeFactory.createBeanType(SupportBean.class) };
 
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, types[0], new String[] {"intBoxed"}, false, null);
-        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables()[0];
+        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
     }
 
     public void testLookup()
@@ -49,7 +49,7 @@ public class TestIndexedTableLookupPlan extends TestCase
         indexes[1] = new HashMap<TableLookupIndexReqKey,EventTable>();
         indexes[1].put(new TableLookupIndexReqKey("idx1"), propertyMapEventIndex);
 
-        JoinExecTableLookupStrategy lookupStrategy = spec.makeStrategy("ABC", "001", null, indexes, types, new VirtualDWView[2]);
+        JoinExecTableLookupStrategy lookupStrategy = spec.makeStrategy("ABC", 1, null, indexes, types, new VirtualDWView[2]);
 
         IndexedTableLookupStrategy strategy = (IndexedTableLookupStrategy) lookupStrategy;
         assertEquals(types[0], strategy.getEventType());

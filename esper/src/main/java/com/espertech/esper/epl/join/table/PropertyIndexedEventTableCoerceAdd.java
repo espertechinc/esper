@@ -22,7 +22,7 @@ import com.espertech.esper.util.SimpleNumberCoercer;
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTableCoerceAdd extends PropertyIndexedEventTable
+public class PropertyIndexedEventTableCoerceAdd extends PropertyIndexedEventTableUnadorned
 {
     private final SimpleNumberCoercer[] coercers;
     protected final Class[] coercionTypes;

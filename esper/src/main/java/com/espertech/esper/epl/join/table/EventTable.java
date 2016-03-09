@@ -76,7 +76,14 @@ public interface EventTable extends Iterable<EventBean>
      */
     public void clear();
 
+    /**
+     * Destroy index.
+     */
+    public void destroy();
+
     public String toQueryPlan();
+
+    public Class getProviderClass();
 
     /**
      * If the number of events is readily available, an implementation will return that number

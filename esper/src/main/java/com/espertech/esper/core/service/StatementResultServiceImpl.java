@@ -140,7 +140,7 @@ public class StatementResultServiceImpl implements StatementResultService
         this.groupDeliveryExpressions = groupDeliveryExpressions;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return epStatement.getStatementId();
     }
 

@@ -12,19 +12,18 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetailNested;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ContextManagementServiceImpl implements ContextManagementService {
     private static final Log log = LogFactory.getLog(ContextManagementServiceImpl.class);
@@ -82,7 +81,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         entry.getContextManager().addStatement(statement, isRecoveringResilient);
     }
 
-    public void destroyedStatement(String contextName, String statementName, String statementId) {
+    public void destroyedStatement(String contextName, String statementName, int statementId) {
         ContextManagerEntry entry = contexts.get(contextName);
         if (entry == null) {
             log.warn("Destroy statement for statement '" + statementName + "' failed to locate corresponding context manager '" + contextName + "'");
@@ -96,7 +95,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
     }
 
-    public void stoppedStatement(String contextName, String statementName, String statementId) {
+    public void stoppedStatement(String contextName, String statementName, int statementId, String epl, ExceptionHandlingService exceptionHandlingService) {
         ContextManagerEntry entry = contexts.get(contextName);
         if (entry == null) {
             log.warn("Stop statement for statement '" + statementName + "' failed to locate corresponding context manager '" + contextName + "'");
@@ -106,7 +105,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
             entry.getContextManager().stopStatement(statementName, statementId);
         }
         catch (RuntimeException ex) {
-            log.warn("Failed to stop statement '" + statementName + "' as related to context '" + contextName + "': " + ex.getMessage(), ex);
+            exceptionHandlingService.handleException(ex, statementName, epl, ExceptionHandlerExceptionType.STOP);
         }
     }
 
@@ -125,6 +124,10 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
     }
 
+    public Map<String, ContextManagerEntry> getContexts() {
+        return contexts;
+    }
+
     private void destroyContext(String contextName, ContextManagerEntry entry) {
         entry.getContextManager().safeDestroy();
         contexts.remove(contextName);
@@ -133,31 +136,5 @@ public class ContextManagementServiceImpl implements ContextManagementService {
 
     private String getNotDecaredText(String contextName) {
         return "Context by name '" + contextName + "' has not been declared";
-    }
-
-    public static class ContextManagerEntry {
-        private final ContextManager contextManager;
-        private final Set<String> referringStatements;
-
-        public ContextManagerEntry(ContextManager contextManager) {
-            this.contextManager = contextManager;
-            this.referringStatements = new HashSet<String>();
-        }
-
-        public ContextManager getContextManager() {
-            return contextManager;
-        }
-
-        public void addStatement(String statementId) {
-            referringStatements.add(statementId);
-        }
-
-        public int getStatementCount() {
-            return referringStatements.size();
-        }
-
-        public void removeStatement(String statementId) {
-            referringStatements.remove(statementId);
-        }
     }
 }

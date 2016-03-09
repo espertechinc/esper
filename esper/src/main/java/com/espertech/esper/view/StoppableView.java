@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view;
 
-public interface StoppableView {
-    public void stopView();
+import com.espertech.esper.util.StopCallback;
+
+public interface StoppableView extends StopCallback {
 }

@@ -10,6 +10,7 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.ConfigurationVariantStream;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -51,6 +52,10 @@ public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBa
             }
         };
         Viewable viewable = new ViewableDefaultImpl(eventType);
+
+        // assign agent instance factory (an empty op)
+        statementContext.setStatementAgentInstanceFactory(new StatementAgentInstanceFactoryNoAgentInstance(viewable));
+
         return new EPStatementStartResult(viewable, stopMethod, null);
     }
 

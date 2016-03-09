@@ -31,7 +31,7 @@ public class ContextDetailCategory implements ContextDetail {
         this.filterSpecRaw = filterSpecRaw;
     }
 
-    public List<FilterSpecCompiled> getFilterSpecsIfAny() {
+    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
         List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(1);
         filters.add(filterSpecCompiled);
         return filters;

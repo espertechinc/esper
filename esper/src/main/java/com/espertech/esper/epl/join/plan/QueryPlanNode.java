@@ -43,7 +43,7 @@ public abstract class QueryPlanNode
      * @param viewExternal      @return execution node matching spec
      * @param tableSecondaryIndexLocks
      */
-    public abstract ExecNode makeExec(String statementName, String statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks);
+    public abstract ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks);
 
     public abstract void addIndexes(HashSet<TableLookupIndexReqKey> usedIndexes);
 

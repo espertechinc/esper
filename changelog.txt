@@ -1,6 +1,11 @@
 Esper Changelog
 ===================
 
+Changes in version 5.4.0
+------------------------
+  - Support for exception handler to receive a callback when an exception occurs during stop of an statement agent instance
+  
+
 Changes in version 5.3.0
 ------------------------
   - Support for match recognize to have a maximum state count

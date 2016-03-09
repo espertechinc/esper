@@ -22,6 +22,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
+
 public class TestViewExternallyBatched extends TestCase {
 
     private EPServiceProvider epService;
@@ -129,7 +131,7 @@ public class TestViewExternallyBatched extends TestCase {
         stmt.destroy();
     }
 
-    public static class MyEvent {
+    public static class MyEvent implements Serializable {
         private String id;
         private long mytimestamp;
 

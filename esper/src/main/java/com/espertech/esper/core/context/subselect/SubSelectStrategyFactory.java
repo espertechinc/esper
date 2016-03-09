@@ -20,5 +20,5 @@ import java.util.List;
  */
 public interface SubSelectStrategyFactory
 {
-    public SubSelectStrategyRealization instantiate(EPServicesContext services, Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbackList);
+    public SubSelectStrategyRealization instantiate(EPServicesContext services, Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient);
 }

@@ -12,6 +12,7 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.client.annotation.IterableUnbound;
 import com.espertech.esper.collection.Pair;
@@ -33,9 +34,12 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
+import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.visitor.*;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.epl.view.OutputConditionPolledFactory;
+import com.espertech.esper.epl.view.OutputConditionPolledFactoryFactory;
 import com.espertech.esper.event.NativeEventType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
@@ -92,7 +96,10 @@ public class ResultSetProcessorFactoryFactory
                                                            boolean allowAggregation,
                                                            ContextPropertyRegistry contextPropertyRegistry,
                                                            SelectExprProcessorDeliveryCallback selectExprProcessorCallback,
-                                                           ConfigurationInformation configurationInformation
+                                                           ConfigurationInformation configurationInformation,
+                                                           ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                                           boolean isFireAndForget,
+                                                           boolean isOnSelect
     )
             throws ExprValidationException
     {
@@ -102,6 +109,9 @@ public class ResultSetProcessorFactoryFactory
         ExprNode optionalHavingNode = statementSpec.getHavingExprRootNode();
         OutputLimitSpec outputLimitSpec = statementSpec.getOutputLimitSpec();
         List<ExprDeclaredNode> declaredNodes = new ArrayList<ExprDeclaredNode>();
+
+        // validate output limit spec
+        validateOutputLimit(outputLimitSpec, stmtContext);
 
         // determine unidirectional
         boolean isUnidirectional = false;
@@ -117,6 +127,9 @@ public class ResultSetProcessorFactoryFactory
                 isHistoricalOnly = true;
             }
         }
+
+        // determine join or number of streams
+        int numStreams = typeService.getEventTypes().length;
 
         // Expand any instances of select-clause names in the
         // order-by clause with the full expression
@@ -296,9 +309,9 @@ public class ResultSetProcessorFactoryFactory
         }
 
         // Analyze rollup
-        GroupByRollupInfo groupByInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
-        ExprNode[] groupByNodesValidated = groupByInfo == null ? new ExprNode[0] : groupByInfo.getExprNodes();
-        AggregationGroupByRollupDesc groupByRollupDesc = groupByInfo == null ? null : groupByInfo.getRollupDesc();
+        GroupByRollupInfo groupByRollupInfo = analyzeValidateGroupBy(statementSpec.getGroupByExpressions(), validationContext);
+        ExprNode[] groupByNodesValidated = groupByRollupInfo == null ? new ExprNode[0] : groupByRollupInfo.getExprNodes();
+        AggregationGroupByRollupDesc groupByRollupDesc = groupByRollupInfo == null ? null : groupByRollupInfo.getRollupDesc();
 
         // Construct the appropriate aggregation service
         boolean hasGroupBy = groupByNodesValidated.length > 0;
@@ -306,7 +319,7 @@ public class ResultSetProcessorFactoryFactory
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
                 stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), stmtContext.getMethodResolutionService(), groupByRollupDesc,
-                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService());
+                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect);
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);
@@ -323,7 +336,7 @@ public class ResultSetProcessorFactoryFactory
         // Construct the processor for evaluating the select clause
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(stmtContext.getStatementName(), stmtContext.getStatementEventTypeRef());
         SelectExprProcessor selectExprProcessor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClauseSpec.getSelectExprList(), isUsingWildcard, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
-                stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowService(), statementSpec.getIntoTableSpec());
+                stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
         // Get a list of event properties being aggregated in the select clause, if any
         ExprNodePropOrStreamSet propertiesGroupBy = ExprNodeUtility.getGroupByPropertiesValidateHasOne(groupByNodesValidated);
@@ -349,6 +362,13 @@ public class ResultSetProcessorFactoryFactory
         }
 
         ExprEvaluator optionHavingEval = optionalHavingNode == null ? null : optionalHavingNode.getExprEvaluator();
+        boolean hasOutputLimitOptHint = HintEnum.ENABLE_OUTPUTLIMIT_OPT.getHint(statementSpec.getAnnotations()) != null;
+
+        // Determine output-first condition factory
+        OutputConditionPolledFactory optionalOutputFirstConditionFactory = null;
+        if (outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST) {
+            optionalOutputFirstConditionFactory = OutputConditionPolledFactoryFactory.createConditionFactory(outputLimitSpec, stmtContext);
+        }
 
         // (1)
         // There is no group-by clause and no aggregate functions with event properties in the select clause and having clause (simplest case)
@@ -373,7 +393,7 @@ public class ResultSetProcessorFactoryFactory
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -384,7 +404,7 @@ public class ResultSetProcessorFactoryFactory
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst)
         {
             log.debug(".getProcessor Using ResultSetProcessorSimple");
-            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec);
+            ResultSetProcessorSimpleFactory factory = new ResultSetProcessorSimpleFactory(selectExprProcessor, optionHavingEval, isSelectRStream, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory, numStreams);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -397,7 +417,7 @@ public class ResultSetProcessorFactoryFactory
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty()))
             {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
-                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec);
+                ResultSetProcessorRowForAllFactory factory = new ResultSetProcessorRowForAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, resultSetProcessorHelperFactory);
                 return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
             }
 
@@ -405,7 +425,7 @@ public class ResultSetProcessorFactoryFactory
             // There is no group-by clause but there are aggregate functions with event properties in the select clause (aggregation case)
             // or having clause and not all event properties are aggregated (some properties are not under aggregation functions).
             log.debug(".getProcessor Using ResultSetProcessorAggregateAll");
-            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec);
+            ResultSetProcessorAggregateAllFactory factory = new ResultSetProcessorAggregateAllFactory(selectExprProcessor, optionHavingEval, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOutputLimitOptHint, resultSetProcessorHelperFactory);
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
 
@@ -462,11 +482,11 @@ public class ResultSetProcessorFactoryFactory
             log.debug(".getProcessor Using ResultSetProcessorRowPerGroup");
             ResultSetProcessorFactory factory;
             if (groupByRollupDesc != null) {
-                GroupByRollupPerLevelExpression perLevelExpression = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext);
-                factory = new ResultSetProcessorRowPerGroupRollupFactory(perLevelExpression, groupByNodesValidated, groupByEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded);
+                GroupByRollupPerLevelExpression perLevelExpression = getRollUpPerLevelExpressions(statementSpec, groupByNodesValidated, groupByRollupDesc, stmtContext, selectExprEventTypeRegistry, evaluatorContextStmt, insertIntoDesc, typeService, validationContext, groupByRollupInfo);
+                factory = new ResultSetProcessorRowPerGroupRollupFactory(perLevelExpression, groupByNodesValidated, groupByEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, optionalOutputFirstConditionFactory, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams);
             }
             else {
-                factory = new ResultSetProcessorRowPerGroupFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded);
+                factory = new ResultSetProcessorRowPerGroupFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, isHistoricalOnly, iterateUnbounded, resultSetProcessorHelperFactory, hasOutputLimitOptHint, numStreams, optionalOutputFirstConditionFactory);
             }
             return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
         }
@@ -479,8 +499,27 @@ public class ResultSetProcessorFactoryFactory
         // There is a group-by clause, and one or more event properties in the select clause that are not under an aggregation
         // function are not listed in the group-by clause (output one row per event, not one row per group)
         log.debug(".getProcessor Using ResultSetProcessorAggregateGrouped");
-        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly);
+        ResultSetProcessorAggregateGroupedFactory factory = new ResultSetProcessorAggregateGroupedFactory(selectExprProcessor, groupByNodesValidated, groupByEval, optionHavingEval, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, isHistoricalOnly, resultSetProcessorHelperFactory, optionalOutputFirstConditionFactory, hasOutputLimitOptHint, numStreams);
         return new ResultSetProcessorFactoryDesc(factory, orderByProcessorFactory, aggregationServiceFactory);
+    }
+
+    private static void validateOutputLimit(OutputLimitSpec outputLimitSpec, StatementContext statementContext) throws ExprValidationException {
+        if (outputLimitSpec == null) {
+            return;
+        }
+        ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
+        ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getMethodResolutionService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+        if (outputLimitSpec.getAfterTimePeriodExpr() != null) {
+            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
+            outputLimitSpec.setAfterTimePeriodExpr(timePeriodExpr);
+        }
+        if (outputLimitSpec.getTimePeriodExpr() != null) {
+            ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getTimePeriodExpr(), validationContext);
+            outputLimitSpec.setTimePeriodExpr(timePeriodExpr);
+            if (timePeriodExpr.isConstantResult() && timePeriodExpr.evaluateAsSeconds(null, true, new ExprEvaluatorContextStatement(statementContext, false)) <= 0) {
+                throw new ExprValidationException("Invalid time period expression returns a zero or negative time interval");
+            }
+        }
     }
 
     private static boolean analyzeLocalGroupBy(ExprNode[] groupByNodesValidated, List<ExprAggregateNode> selectAggregateExprNodes, List<ExprAggregateNode> havingAggregateExprNodes, List<ExprAggregateNode> orderByAggregateExprNodes) {
@@ -537,7 +576,7 @@ public class ResultSetProcessorFactoryFactory
         return new GroupByRollupInfo(validated, rollup);
     }
 
-    private static GroupByRollupPerLevelExpression getRollUpPerLevelExpressions(StatementSpecCompiled statementSpec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDesc groupByRollupDesc, StatementContext stmtContext, SelectExprEventTypeRegistry selectExprEventTypeRegistry, ExprEvaluatorContextStatement evaluatorContextStmt, InsertIntoDesc insertIntoDesc, StreamTypeService typeService, ExprValidationContext validationContext)
+    private static GroupByRollupPerLevelExpression getRollUpPerLevelExpressions(StatementSpecCompiled statementSpec, ExprNode[] groupByNodesValidated, AggregationGroupByRollupDesc groupByRollupDesc, StatementContext stmtContext, SelectExprEventTypeRegistry selectExprEventTypeRegistry, ExprEvaluatorContextStatement evaluatorContextStmt, InsertIntoDesc insertIntoDesc, StreamTypeService typeService, ExprValidationContext validationContext, GroupByRollupInfo groupByRollupInfo)
             throws ExprValidationException
     {
         int numLevels = groupByRollupDesc.getLevels().length;
@@ -570,7 +609,7 @@ public class ResultSetProcessorFactoryFactory
             ExprNode[] selectClauseLevel = groupByExpressions.getSelectClausePerLevel()[i];
             SelectClauseElementCompiled[] selectClause = getRollUpSelectClause(statementSpec.getSelectClauseSpec(), selectClauseLevel, level, rolledupProps, groupByNodesValidated, validationContext);
             processors[i] = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClause, false, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
-                    stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowService(), statementSpec.getIntoTableSpec());
+                    stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
             if (havingClauses != null) {
                 havingClauses[i] = rewriteRollupValidateExpression(ExprNodeOrigin.HAVING, groupByExpressions.getOptHavingNodePerLevel()[i], validationContext, rolledupProps, groupByNodesValidated, level).getExprEvaluator();
@@ -859,24 +898,6 @@ public class ResultSetProcessorFactoryFactory
             result = 2*result;
         }
         return result;
-    }
-
-    private static class GroupByRollupInfo {
-        private final ExprNode[] exprNodes;
-        private final AggregationGroupByRollupDesc rollupDesc;
-
-        private GroupByRollupInfo(ExprNode[] exprNodes, AggregationGroupByRollupDesc rollupDesc) {
-            this.exprNodes = exprNodes;
-            this.rollupDesc = rollupDesc;
-        }
-
-        public ExprNode[] getExprNodes() {
-            return exprNodes;
-        }
-
-        public AggregationGroupByRollupDesc getRollupDesc() {
-            return rollupDesc;
-        }
     }
 
     private static final Log log = LogFactory.getLog(ResultSetProcessorFactoryFactory.class);

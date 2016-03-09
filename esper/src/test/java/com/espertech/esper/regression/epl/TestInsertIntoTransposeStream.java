@@ -62,8 +62,8 @@ public class TestInsertIntoTransposeStream extends TestCase
         epService.getEPAdministrator().createEPL("create " + representation.getOutputTypeCreateSchemaName() + " schema MySchema(p0 string, p1 int)");
 
         String generateFunction = representation == EventRepresentationEnum.MAP ? "generateMap" : "generateOA";
-        String epl = "@name('first') insert into MySchema select transpose(" + generateFunction + "(theString, intPrimitive)) from SupportBean";
-        epService.getEPAdministrator().createEPL(epl).addListener(listener);
+        String epl = "insert into MySchema select transpose(" + generateFunction + "(theString, intPrimitive)) from SupportBean";
+        epService.getEPAdministrator().createEPL(epl, "first").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 1});
@@ -72,7 +72,7 @@ public class TestInsertIntoTransposeStream extends TestCase
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E2", 2});
 
         // MySchema already exists, start second statement
-        epService.getEPAdministrator().createEPL(epl).addListener(listener);
+        epService.getEPAdministrator().createEPL(epl, "second").addListener(listener);
         epService.getEPAdministrator().getStatement("first").destroy();
 
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));

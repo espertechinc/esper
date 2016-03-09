@@ -18,22 +18,17 @@ import java.util.*;
  * Index that organizes events by the event property values into hash buckets. Based on a HashMap
  * with {@link com.espertech.esper.collection.MultiKeyUntyped} keys that store the property values.
  */
-public class PropertyIndexedEventTableSingle implements EventTable
+public abstract class PropertyIndexedEventTableSingle implements EventTable
 {
     protected final EventPropertyGetter propertyGetter;
     protected final EventTableOrganization organization;
-    protected final Map<Object, Set<EventBean>> propertyIndex;
 
-    public PropertyIndexedEventTableSingle(EventPropertyGetter propertyGetter, EventTableOrganization organization, boolean allocate)
+    public abstract Set<EventBean> lookup(Object key);
+
+    public PropertyIndexedEventTableSingle(EventPropertyGetter propertyGetter, EventTableOrganization organization)
     {
         this.propertyGetter = propertyGetter;
         this.organization = organization;
-        if (allocate) {
-            propertyIndex = new HashMap<Object, Set<EventBean>>();
-        }
-        else {
-            propertyIndex = null;
-        }
     }
 
     /**
@@ -110,68 +105,6 @@ public class PropertyIndexedEventTableSingle implements EventTable
         }
     }
 
-    /**
-     * Returns the set of events that have the same property value as the given event.
-     * @param key to compare against
-     * @return set of events with property value, or null if none found (never returns zero-sized set)
-     */
-    public Set<EventBean> lookup(Object key)
-    {
-        return propertyIndex.get(key);
-    }
-
-    public void add(EventBean theEvent)
-    {
-        Object key = getKey(theEvent);
-
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
-            events = new LinkedHashSet<EventBean>();
-            propertyIndex.put(key, events);
-        }
-
-        events.add(theEvent);
-    }
-
-    public void remove(EventBean theEvent)
-    {
-        Object key = getKey(theEvent);
-
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
-            return;
-        }
-
-        if (!events.remove(theEvent))
-        {
-            // Not an error, its possible that an old-data event is artificial (such as for statistics) and
-            // thus did not correspond to a new-data event raised earlier.
-            return;
-        }
-
-        if (events.isEmpty())
-        {
-            propertyIndex.remove(key);
-        }
-    }
-
-    public boolean isEmpty()
-    {
-        return propertyIndex.isEmpty();
-    }
-
-    public Iterator<EventBean> iterator()
-    {
-        return new PropertyIndexedEventTableIterator<Object>(propertyIndex);
-    }
-
-    public void clear()
-    {
-        propertyIndex.clear();
-    }
-
     public String toString()
     {
         return toQueryPlan();
@@ -181,18 +114,6 @@ public class PropertyIndexedEventTableSingle implements EventTable
         return this.getClass().getSimpleName() +
                 " streamNum=" + organization.getStreamNum() +
                 " propertyGetter=" + propertyGetter;
-    }
-
-    public Integer getNumberOfEvents() {
-        return null;
-    }
-
-    public int getNumKeys() {
-        return propertyIndex.size();
-    }
-
-    public Object getIndex() {
-        return propertyIndex;
     }
 
     public EventTableOrganization getOrganization() {

@@ -36,6 +36,6 @@ public class CreateContextDesc implements Serializable {
     }
 
     public List<FilterSpecCompiled> getFilterSpecs() {
-        return contextDetail.getFilterSpecsIfAny();
+        return contextDetail.getContextDetailFilterSpecs();
     }
 }

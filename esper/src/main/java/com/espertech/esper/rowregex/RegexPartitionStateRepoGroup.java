@@ -244,4 +244,7 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
         }
         return new MultiKeyUntyped(keys);
     }
+
+    public void destroy() {
+    }
 }

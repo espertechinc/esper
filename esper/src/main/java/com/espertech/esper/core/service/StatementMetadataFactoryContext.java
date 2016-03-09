@@ -20,14 +20,14 @@ import com.espertech.esper.epl.spec.StatementSpecRaw;
 public class StatementMetadataFactoryContext
 {
     private final String statementName;
-    private final String statementId;
+    private final int statementId;
     private final StatementContext statementContext;
     private final StatementSpecRaw statementSpec;
     private final String expression;
     private final boolean isPattern;
     private final EPStatementObjectModel optionalModel;
 
-    public StatementMetadataFactoryContext(String statementName, String statementId, StatementContext statementContext, StatementSpecRaw statementSpec, String expression, boolean pattern, EPStatementObjectModel optionalModel) {
+    public StatementMetadataFactoryContext(String statementName, int statementId, StatementContext statementContext, StatementSpecRaw statementSpec, String expression, boolean pattern, EPStatementObjectModel optionalModel) {
         this.statementName = statementName;
         this.statementId = statementId;
         this.statementContext = statementContext;
@@ -41,7 +41,7 @@ public class StatementMetadataFactoryContext
         return statementName;
     }
 
-    public String getStatementId() {
+    public int getStatementId() {
         return statementId;
     }
 

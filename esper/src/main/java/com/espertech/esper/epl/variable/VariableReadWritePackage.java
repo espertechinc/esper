@@ -13,6 +13,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.VariableValueException;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.event.EventAdapterService;
@@ -93,7 +94,7 @@ public class VariableReadWritePackage
                 throw new ExprValidationException("Variable by name '" + variableName + "' is declared constant and may not be set");
             }
             if (variableMetadata.getContextPartitionName() == null) {
-                readersForGlobalVars[count] = variableService.getReader(variableName, VariableService.NOCONTEXT_AGENTINSTANCEID);
+                readersForGlobalVars[count] = variableService.getReader(variableName, EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
             }
 
             if (subPropertyName != null) {
@@ -217,7 +218,7 @@ public class VariableReadWritePackage
             for (VariableTriggerSetDesc assignment : assignments)
             {
                 VariableMetaData variableMetaData = metaData[count];
-                int agentInstanceId = variableMetaData.getContextPartitionName() == null ? VariableService.NOCONTEXT_AGENTINSTANCEID : exprEvaluatorContext.getAgentInstanceId();
+                int agentInstanceId = variableMetaData.getContextPartitionName() == null ? EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID : exprEvaluatorContext.getAgentInstanceId();
                 Object value = assignment.evaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
 
                 if (writers[count] != null) {

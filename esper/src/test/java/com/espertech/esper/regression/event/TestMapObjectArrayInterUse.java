@@ -15,6 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.event.MappedEventBean;
+import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.map.MapEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -61,7 +63,7 @@ public class TestMapObjectArrayInterUse extends TestCase
         // test inserting from array to map
         epService.getEPAdministrator().createEPL("insert into MapType(im) select p0 from OAType").addListener(listener);
         epService.getEPRuntime().sendEvent(new Object[]{"E1",null,null,null}, "OAType");
-        assertTrue(listener.assertOneGetNew() instanceof MapEventBean);
+        assertTrue(listener.assertOneGetNew() instanceof MappedEventBean);
         assertEquals("E1", listener.assertOneGetNew().get("im"));
     }
 
@@ -88,7 +90,7 @@ public class TestMapObjectArrayInterUse extends TestCase
         // test inserting from map to array
         epService.getEPAdministrator().createEPL("insert into OAType select 'a' as p0, 1 as p1 from MapType").addListener(listener);
         epService.getEPRuntime().sendEvent(data, "MapType");
-        assertTrue(listener.assertOneGetNew() instanceof ObjectArrayEventBean);
+        assertTrue(listener.assertOneGetNew() instanceof ObjectArrayBackedEventBean);
         assertEquals("a", listener.assertOneGetNew().get("p0"));
         assertEquals(1, listener.assertOneGetNew().get("p1"));
     }

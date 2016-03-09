@@ -80,7 +80,7 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         if (groupAggregators == null)
         {
             AggregationMethod[] methods = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            AggregationState[] states = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            AggregationState[] states = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
             groupAggregators = new AggregationRowPair(methods, states);
             aggregatorsPerGroup.put(groupByKey, groupAggregators);
         }
@@ -115,7 +115,7 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         if (groupAggregators == null)
         {
             AggregationMethod[] methods = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            AggregationState[] states = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            AggregationState[] states = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
             groupAggregators = new AggregationRowPair(methods, states);
             aggregatorsPerGroup.put(groupByKey, groupAggregators);
         }
@@ -150,7 +150,7 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         if (currentAggregatorRow == null)
         {
             AggregationMethod[] methods = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, null);
-            AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, null);
+            AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
             currentAggregatorRow = new AggregationRowPair(methods, states);
             aggregatorsPerGroup.put(groupByKey, currentAggregatorRow);
         }

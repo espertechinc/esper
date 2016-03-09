@@ -114,7 +114,7 @@ public class NamedWindowOnMergeHelper
         SelectExprProcessor insertHelper = SelectExprProcessorFactory.getProcessor(Collections.singleton(selectClauseNumber),
                 selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), false, insertIntoDesc, null, null, streamTypeService,
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
-                statementContext.getMethodResolutionService(), exprEvaluatorContext, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowService(), null);
+                statementContext.getMethodResolutionService(), exprEvaluatorContext, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null);
         ExprEvaluator filterEval = desc.getOptionalWhereClause() == null ? null : desc.getOptionalWhereClause().getExprEvaluator();
 
         InternalEventRouter routerToUser = streamName.equals(namedWindowName) ? null : internalEventRouter;

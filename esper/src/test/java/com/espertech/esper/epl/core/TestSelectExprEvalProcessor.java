@@ -23,10 +23,10 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.core.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.support.epl.SupportSelectExprFactory;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.support.event.SupportValueAddEventService;
 import junit.framework.TestCase;
@@ -47,13 +47,13 @@ public class TestSelectExprEvalProcessor extends TestCase
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null);
 
-        methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl());
+        methodOne = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, 1, null, new Configuration(), null, new TableServiceImpl(), null);
 
         InsertIntoDesc insertIntoDesc = new InsertIntoDesc(SelectClauseStreamSelectorEnum.ISTREAM_ONLY, "Hello");
         insertIntoDesc.add("a");
         insertIntoDesc.add("b");
 
-        methodTwo = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), insertIntoDesc, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, null, null, new Configuration(), null, new TableServiceImpl());
+        methodTwo = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), insertIntoDesc, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, methodResolutionService, 1, null, new Configuration(), null, new TableServiceImpl(), null);
     }
 
     public void testGetResultEventType() throws Exception

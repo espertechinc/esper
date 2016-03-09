@@ -63,6 +63,9 @@ public class VirtualDWEventTable implements EventTable
     public void clear() {
     }
 
+    public void destroy() {
+    }
+
     public String toQueryPlan() {
         return "(external event table)";
     }
@@ -93,5 +96,9 @@ public class VirtualDWEventTable implements EventTable
 
     public EventTableOrganization getOrganization() {
         return organization;
+    }
+
+    public Class getProviderClass() {
+        return VirtualDWEventTable.class;
     }
 }

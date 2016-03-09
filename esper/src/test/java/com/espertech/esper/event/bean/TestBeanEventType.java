@@ -15,7 +15,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.event.EventTypeAssertionUtil;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 import java.io.Serializable;

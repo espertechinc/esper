@@ -250,7 +250,7 @@ public class TestInsertInto extends TestCase
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertEquals("E1", listener.assertOneGetNew().get("theString"));
-        assertTrue(listener.assertOneGetNew() instanceof BeanEventBean);
+        assertTrue(listener.assertOneGetNew().getUnderlying() instanceof SupportBean);
     }
 
     public void testVariantOneJoin()

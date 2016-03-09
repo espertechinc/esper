@@ -90,6 +90,38 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
         return service;
     }
 
+    public AIRegistryPrior getOrAllocatePrior(ExprPriorNode key) {
+        AIRegistryPrior existing = priors.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        return allocatePrior(key);
+    }
+
+    public AIRegistryPrevious getOrAllocatePrevious(ExprPreviousNode key) {
+        AIRegistryPrevious existing = previous.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        return allocatePrevious(key);
+    }
+
+    public AIRegistrySubselect getOrAllocateSubquery(ExprSubselectNode key) {
+        AIRegistrySubselect existing = subselects.get(key);
+        if (existing != null) {
+            return existing;
+        }
+        return allocateSubselect(key);
+    }
+
+    public AIRegistryAggregation getOrAllocateSubselectAggregation(ExprSubselectNode subselectNode) {
+        AIRegistryAggregation existing = subselectAggregations.get(subselectNode);
+        if (existing != null) {
+            return existing;
+        }
+        return allocateSubselectAggregation(subselectNode);
+    }
+
     public AIRegistryPrevious allocatePrevious(ExprPreviousNode previousNode) {
         AIRegistryPrevious service = allocateAIRegistryPrevious();
         previous.put(previousNode, service);
@@ -143,5 +175,9 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
         for (Map.Entry<ExprPreviousNode, AIRegistryPrevious> entry : previous.entrySet()) {
             entry.getValue().deassignService(agentInstanceId);
         }
+        for (Map.Entry<ExprTableAccessNode, AIRegistryTableAccess> entry : tableAccess.entrySet()) {
+            entry.getValue().deassignService(agentInstanceId);
+        }
+        matchRecognizePrevious.deassignService(agentInstanceId);
     }
 }

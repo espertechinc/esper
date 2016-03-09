@@ -34,6 +34,7 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.AgentInstanceAssertionUtil;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class TestContextNested extends TestCase {
@@ -207,7 +208,9 @@ public class TestContextNested extends TestCase {
         EPAssertionUtil.assertPropsPerRow(stmtUser.safeIterator(), fields, expected);
 
         // extract path
-        getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        if (getSpi(epService).isSupportsExtract()) {
+            getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        }
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -298,7 +301,7 @@ public class TestContextNested extends TestCase {
         bean = new SupportBean("E1", 2);
         bean.setLongPrimitive(3);
         epService.getEPRuntime().sendEvent(bean);
-        assertFilters(epService, isolationAllowed, "SupportBean(consistent_hash_crc32(unresolvedPropertyName=theString streamOrPropertyName=null resolvedPropertyName=theString)=33,intPrimitive>0)", spiStmt);
+        assertFilters(epService, isolationAllowed, "SupportBean(consistent_hash_crc32(theString)=33,intPrimitive>0)", spiStmt);
         assertFilters(epService, isolationAllowed, "SupportBean(intPrimitive<0),SupportBean(intPrimitive>0)", spiCtx);
         epService.getEPAdministrator().destroyAllStatements();
 
@@ -321,6 +324,9 @@ public class TestContextNested extends TestCase {
         }
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
+        if (!filterSPI.isSupportsTakeApply()) {
+            return;
+        }
         FilterSet set = filterSPI.take(Collections.singleton(spiStmt.getStatementId()));
         assertEquals(expected, set.toString());
         filterSPI.apply(set);
@@ -443,7 +449,9 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 9));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"g2", "S0_4", "S1_4", 9}});
 
-        getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        if (getSpi(epService).isSupportsExtract()) {
+            getSpi(epService).extractPaths("NestedContext", new ContextPartitionSelectorAll());
+        }
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
@@ -1058,16 +1066,15 @@ public class TestContextNested extends TestCase {
                 "context SegmentedByAString partition by theString from SupportBean");
 
         SupportUpdateListener listener = new SupportUpdateListener();
-        String[] fields = "c0,c1,c2,c3,c4,c5,c6,c7".split(",");
+        String[] fields = "c0,c1,c2,c3,c4,c5,c6".split(",");
         EPStatementSPI statement = (EPStatementSPI) epService.getEPAdministrator().createEPL("context NestedContext select " +
                 "context.EightToNine.name as c0, " +
                 "context.EightToNine.startTime as c1, " +
                 "context.SegmentedByAString.name as c2, " +
                 "context.SegmentedByAString.key1 as c3, " +
                 "context.name as c4, " +
-                "context.id as c5, " +
-                "intPrimitive as c6," +
-                "count(*) as c7 " +
+                "intPrimitive as c5," +
+                "count(*) as c6 " +
                 "from SupportBean");
         statement.addListener(listener);
         assertEquals(1, filterSPI.getFilterCountApprox());
@@ -1075,14 +1082,14 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
                 "SegmentedByAString", "E1",
-                "NestedContext", 0,
+                "NestedContext",
                 10, 1L});
         assertEquals(2, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
                 "SegmentedByAString", "E2",
-                "NestedContext", 1,
+                "NestedContext",
                 20, 1L});
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
         assertEquals(3, filterSPI.getFilterCountApprox());
@@ -1097,7 +1104,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 30));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
                 "SegmentedByAString", "E2",
-                "NestedContext", 2,
+                "NestedContext",
                 30, 1L});
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
         assertEquals(2, filterSPI.getFilterCountApprox());
@@ -1233,6 +1240,46 @@ public class TestContextNested extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
+    public void testNestedOverlappingAndPattern() {
+        EPServiceProvider epService = allocateEngine(false);
+        epService.getEPAdministrator().createEPL("create context NestedContext " +
+                "context PartitionedByKeys partition by theString from SupportBean, " +
+                "context TimedImmediate initiated @now and pattern[every timer:interval(10)] terminated after 10 seconds");
+        runAssertion(epService);
+    }
+
+    public void testNestedNonOverlapping() {
+        EPServiceProvider epService = allocateEngine(false);
+        epService.getEPAdministrator().createEPL("create context NestedContext " +
+                "context PartitionedByKeys partition by theString from SupportBean, " +
+                "context TimedImmediate start @now end after 10 seconds");
+        runAssertion(epService);
+    }
+
+    private void runAssertion(EPServiceProvider epService) {
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+        SupportUpdateListener listenerOne = new SupportUpdateListener();
+        String[] fields = "c0,c1".split(",");
+        EPStatement statementOne = epService.getEPAdministrator().createEPL("context NestedContext " +
+                "select theString as c0, sum(intPrimitive) as c1 from SupportBean \n" +
+                "output last when terminated");
+        statementOne.addListener(listenerOne);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(10000));
+        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
+                new Object[][]{{"E1", 1}, {"E2", 2}}, null);
+        listenerOne.reset();
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 4));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(20000));
+        EPAssertionUtil.assertPropsPerRow(listenerOne.getDataListsFlattened(), fields,
+                new Object[][]{{"E1", 3}, {"E3", 4}}, null);
+    }
+
     private Object makeEvent(String theString, int intPrimitive, long longPrimitive) {
         SupportBean bean = new SupportBean(theString, intPrimitive);
         bean.setLongPrimitive(longPrimitive);
@@ -1284,7 +1331,7 @@ public class TestContextNested extends TestCase {
         }
     }
 
-    public static class TestEvent {
+    public static class TestEvent implements Serializable {
         private int time;
         private int id;
 
@@ -1302,7 +1349,7 @@ public class TestContextNested extends TestCase {
         }
     }
 
-    public static class EndEvent {
+    public static class EndEvent implements Serializable {
         private int id;
 
         public EndEvent(int id) {

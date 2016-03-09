@@ -102,7 +102,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
                 }
 
                 AIRegistryAggregation subselectAggregation = aiRegistryExpr.allocateSubselectAggregation(entry.getKey());
-                SubSelectStrategyHolder strategyHolder = new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null);
+                SubSelectStrategyHolder strategyHolder = new SubSelectStrategyHolder(specificService, subselectAggregation, subselectPriorStrategies, subselectPreviousStrategies, null, null, null);
                 subselectStrategyInstances.put(entry.getKey(), strategyHolder);
             }
 
@@ -142,7 +142,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             final EPStatementStopMethod selectStop = selectDesc.getStopMethod();
             stopStatementMethod = new EPStatementStopMethod(){
                 public void stop() {
-                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                    services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                     selectStop.stop();
                 }
             };
@@ -153,14 +153,16 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
         else {
             StatementAgentInstanceFactorySelectResult resultOfStart = (StatementAgentInstanceFactorySelectResult) selectDesc.getStatementAgentInstanceFactorySelect().newContext(defaultAgentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
+
+            final StopCallback startResultStop = services.getEpStatementFactory().makeStopMethod(resultOfStart);
             final EPStatementStopMethod selectStop = selectDesc.getStopMethod();
-            final StopCallback startResultStop = resultOfStart.getStopCallback();
             stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
                     StatementAgentInstanceUtil.stopSafe(startResultStop, statementContext);
                     selectStop.stop();
                 }
             };
+
             aggregationService = resultOfStart.getOptionalAggegationService();
             subselectStrategyInstances = resultOfStart.getSubselectStrategies();
             priorStrategyInstances = resultOfStart.getPriorNodeStrategies();

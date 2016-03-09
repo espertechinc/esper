@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.agg.service;
 
+import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -21,7 +22,8 @@ public interface AggregationStateFactory {
                                          int groupId,
                                          int aggregationId,
                                          boolean join,
-                                         Object groupKey);
+                                         Object groupKey,
+                                         AggregationServicePassThru passThru);
 
     public ExprNode getAggregationExpression();
 }

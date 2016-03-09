@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 public class MultiMatchHandlerNoSubqueryWDedup implements MultiMatchHandler {
-    public static final MultiMatchHandlerNoSubqueryWDedup INSTANCE = new MultiMatchHandlerNoSubqueryWDedup();
+    protected static final MultiMatchHandlerNoSubqueryWDedup INSTANCE = new MultiMatchHandlerNoSubqueryWDedup();
 
     private MultiMatchHandlerNoSubqueryWDedup() {
     }

@@ -23,5 +23,5 @@ public interface EPAdministratorIsolatedSPI extends EPAdministratorIsolated
      */
     public void addStatement(String name);
 
-    public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, String statementId) throws EPException;
+    public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, Integer optionalStatementId) throws EPException;
 }

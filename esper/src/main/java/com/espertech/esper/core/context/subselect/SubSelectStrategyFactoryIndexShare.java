@@ -54,7 +54,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
     private final TableService tableService;
     private SubordinateQueryPlanDesc queryPlan;
 
-    public SubSelectStrategyFactoryIndexShare(final String statementName, String statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService) throws ExprValidationException {
+    public SubSelectStrategyFactoryIndexShare(final String statementName, int statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService) throws ExprValidationException {
         this.optionalNamedWindowProcessor = optionalNamedWindowProcessor;
         this.optionalTableMetadata = optionalTableMetadata;
         this.filterExprEval = filterExprEval;
@@ -101,13 +101,14 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
     public SubSelectStrategyRealization instantiate(EPServicesContext services,
                                                     Viewable viewableRoot,
                                                     AgentInstanceContext agentInstanceContext,
-                                                    List<StopCallback> stopCallbackList) {
+                                                    List<StopCallback> stopCallbackList,
+                                                    int subqueryNumber, boolean isRecoveringResilient) {
 
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService());
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), true, subqueryNumber);
             if (groupByKeys == null) {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);
@@ -138,7 +139,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
             else {
                 EventTable[] tables = null;
                 if (!optionalNamedWindowProcessor.isVirtualDataWindow()) {
-                    tables = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), instance.getRootViewInstance().getEventType(), instance.getRootViewInstance().getIndexRepository(), instance.getRootViewInstance().getDataWindowContents());
+                    tables = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), instance.getRootViewInstance().getEventType(), instance.getRootViewInstance().getIndexRepository(), instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext, isRecoveringResilient);
                 }
                 SubordTableLookupStrategy strategy = queryPlan.getLookupStrategyFactory().makeStrategy(tables, instance.getRootViewInstance().getVirtualDataWindow());
                 subqueryLookup = new SubordIndexedTableLookupStrategyLocking(strategy, instance.getTailViewInstance().getAgentInstanceContext().getAgentInstanceLock());

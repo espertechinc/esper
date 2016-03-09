@@ -49,6 +49,10 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         filterServiceListeners = new CopyOnWriteArraySet<FilterServiceListener>();
     }
 
+    public boolean isSupportsTakeApply() {
+        return indexBuilder.isSupportsTakeApply();
+    }
+
     public long getFiltersVersion() {
         return filtersVersion;
     }
@@ -94,7 +98,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         return version;
     }
 
-    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, String statementId)
+    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, int statementId)
     {
         long version = filtersVersion;
         numEventsEvaluated.incrementAndGet();
@@ -106,7 +110,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI
 
         // Add statement matches to collection passed
         for (FilterHandle match : allMatches) {
-            if (match.getStatementId().equals(statementId)) {
+            if (match.getStatementId() == statementId) {
                 matches.add(match);
             }
         }
@@ -139,7 +143,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         filterServiceListeners.remove(filterServiceListener);
     }
 
-    protected FilterSet takeInternal(Set<String> statementIds)
+    protected FilterSet takeInternal(Set<Integer> statementIds)
     {
         filtersVersion++;
         return indexBuilder.take(statementIds);

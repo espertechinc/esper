@@ -17,7 +17,6 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.*;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
@@ -331,9 +330,9 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 	{
 		ScheduleHandleCallback nextScheduleCallback = new ScheduleHandleCallback() { public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) { continueSendingEvents(); } };
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
-        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
-        EPStatementHandle stmtHandle = new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, StatementType.ESPERIO, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, false, MultiMatchHandlerFactory.getDefaultHandler());
-        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion());
+        StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle(-1, "AbstractCoordinatedAdapter");
+        EPStatementHandle stmtHandle = new EPStatementHandle(-1, "AbstractCoordinatedAdapter", null, StatementType.ESPERIO, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
+        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion(), null);
         EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(agentInstanceHandle, nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;
 

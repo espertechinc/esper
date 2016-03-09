@@ -39,7 +39,27 @@ public class TestTableLifecycle extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
-    public void testLifecycle() throws Exception {
+    public void testLifecycleIntoTable() throws Exception {
+        runAssertionIntoTable();
+    }
+
+    public void testLifecycleCreateIndex() throws Exception {
+        runAssertionDependent("create index IDX on abc (p)");
+    }
+
+    public void testLifecycleJoin() throws Exception {
+        runAssertionDependent("select * from SupportBean, abc");
+    }
+
+    public void testLifecycleSubquery() throws Exception {
+        runAssertionDependent("select * from SupportBean where exists (select * from abc)");
+    }
+
+    public void testLifecycleInsertInto() throws Exception {
+        runAssertionDependent("insert into abc select 'a' as id, 'a' as p from SupportBean");
+    }
+
+    private void runAssertionIntoTable() throws Exception {
         String eplCreate = "create table abc (total count(*))";
         String eplUse = "select abc from SupportBean";
         String eplInto = "into table abc select count(*) as total from SupportBean";
@@ -85,6 +105,21 @@ public class TestTableLifecycle extends TestCase {
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().createEPL(eplCreate);
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionDependent(String eplDependent) {
+        String eplCreate = "create table abc (id string primary key, p string)";
+
+        // typical select-use-destroy
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eplCreate);
+        EPStatement stmtDependent = epService.getEPAdministrator().createEPL(eplDependent);
+
+        stmtCreate.destroy();
+        assertFailCreate(eplCreate);
+        stmtDependent.destroy();
+        epService.getEPAdministrator().createEPL(eplCreate);
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void assertFailCreate(String create) {

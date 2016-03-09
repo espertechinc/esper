@@ -26,93 +26,44 @@ import java.util.List;
  */
 public class OutputConditionPolledExpression implements OutputConditionPolled
 {
-    private final ExprEvaluator whenExpressionNode;
+    private final OutputConditionPolledExpressionFactory factory;
+    private final OutputConditionPolledExpressionState state;
     private final AgentInstanceContext agentInstanceContext;
-    private final VariableReadWritePackage variableReadWritePackage;
 
     private ObjectArrayEventBean builtinProperties;
-    private EventBean[] eventsPerStream;
+    private EventBean[] eventsPerStream = new EventBean[1];
 
-    // ongoing builtin properties
-    private int totalNewEventsCount;
-    private int totalOldEventsCount;
-    private int totalNewEventsSum;
-    private int totalOldEventsSum;
-    private Long lastOutputTimestamp;
-
-    /**
-     * Ctor.
-     * @param whenExpressionNode the expression to evaluate, returning true when to output
-     * @param assignments is the optional then-clause variable assignments, or null or empty if none
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation fails
-     */
-    public OutputConditionPolledExpression(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, AgentInstanceContext agentInstanceContext)
-            throws ExprValidationException
-    {
-        this.whenExpressionNode = whenExpressionNode.getExprEvaluator();
+    public OutputConditionPolledExpression(OutputConditionPolledExpressionFactory factory, OutputConditionPolledExpressionState state, AgentInstanceContext agentInstanceContext, ObjectArrayEventBean builtinProperties) {
+        this.factory = factory;
+        this.state = state;
+        this.builtinProperties = builtinProperties;
         this.agentInstanceContext = agentInstanceContext;
-        this.eventsPerStream = new EventBean[1];
+    }
 
-        // determine if using properties
-        boolean containsBuiltinProperties = false;
-        if (containsBuiltinProperties(whenExpressionNode))
-        {
-            containsBuiltinProperties = true;
-        }
-        else
-        {
-            if (assignments != null)
-            {
-                for (OnTriggerSetAssignment assignment : assignments)
-                {
-                    if (containsBuiltinProperties(assignment.getExpression()))
-                    {
-                        containsBuiltinProperties = true;
-                    }
-                }
-            }
-        }
-
-        if (containsBuiltinProperties)
-        {
-            EventType oatype = agentInstanceContext.getStatementContext().getEventAdapterService().createAnonymousObjectArrayType(OutputConditionPolledExpression.class.getName(), OutputConditionExpressionTypeUtil.TYPEINFO);
-            builtinProperties = new ObjectArrayEventBean(OutputConditionExpressionTypeUtil.getOAPrototype(), oatype);
-            lastOutputTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        }
-
-        if (assignments != null)
-        {
-            variableReadWritePackage = new VariableReadWritePackage(assignments, agentInstanceContext.getStatementContext().getVariableService(), agentInstanceContext.getStatementContext().getEventAdapterService());
-        }
-        else
-        {
-            variableReadWritePackage = null;
-        }
+    public OutputConditionPolledState getState() {
+        return state;
     }
 
     public boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
     {
-        this.totalNewEventsCount += newEventsCount;
-        this.totalOldEventsCount += oldEventsCount;
-        this.totalNewEventsSum += newEventsCount;
-        this.totalOldEventsSum += oldEventsCount;
+        state.setTotalNewEventsCount(state.getTotalNewEventsCount() + newEventsCount);
+        state.setTotalOldEventsCount(state.getTotalOldEventsCount() + oldEventsCount);
+        state.setTotalNewEventsSum(state.getTotalNewEventsSum() + newEventsCount);
+        state.setTotalOldEventsSum(state.getTotalOldEventsCount() + oldEventsCount);
 
         boolean isOutput = evaluate();
-        if (isOutput)
-        {
+        if (isOutput) {
             resetBuiltinProperties();
 
             // execute assignments
-            if (variableReadWritePackage != null)
-            {
-                if (builtinProperties != null)
-                {
+            if (factory.getVariableReadWritePackage() != null) {
+                if (builtinProperties != null) {
                     populateBuiltinProperties();
                     eventsPerStream[0] = builtinProperties;
                 }
 
                 try {
-                    variableReadWritePackage.writeVariables(agentInstanceContext.getStatementContext().getVariableService(), eventsPerStream, null, agentInstanceContext);
+                    factory.getVariableReadWritePackage().writeVariables(agentInstanceContext.getStatementContext().getVariableService(), eventsPerStream, null, agentInstanceContext);
                 }
                 finally {
                 }
@@ -122,22 +73,21 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
     }
 
     private void populateBuiltinProperties() {
-        OutputConditionExpressionTypeUtil.populate(builtinProperties.getProperties(), totalNewEventsCount, totalOldEventsCount,
-                totalNewEventsSum, totalOldEventsSum, lastOutputTimestamp);
+        OutputConditionExpressionTypeUtil.populate(builtinProperties.getProperties(), state.getTotalNewEventsCount(),
+                state.getTotalOldEventsCount(), state.getTotalNewEventsSum(),
+                state.getTotalOldEventsSum(), state.getLastOutputTimestamp());
     }
 
     private boolean evaluate()
     {
-        if (builtinProperties != null)
-        {
+        if (builtinProperties != null) {
             populateBuiltinProperties();
             eventsPerStream[0] = builtinProperties;
         }
 
         boolean result = false;
-        Boolean output = (Boolean) whenExpressionNode.evaluate(eventsPerStream, true, agentInstanceContext);
-        if ((output != null) && (output))
-        {
+        Boolean output = (Boolean) factory.getWhenExpressionNode().evaluate(eventsPerStream, true, agentInstanceContext);
+        if ((output != null) && (output)) {
             result = true;
         }
 
@@ -148,16 +98,9 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
     {
         if (builtinProperties  != null)
         {
-            totalNewEventsCount = 0;
-            totalOldEventsCount = 0;
-            lastOutputTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+            state.setTotalNewEventsCount(0);
+            state.setTotalOldEventsCount(0);
+            state.setLastOutputTimestamp(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
         }
-    }
-
-    private boolean containsBuiltinProperties(ExprNode expr)
-    {
-        ExprNodeIdentifierVisitor propertyVisitor = new ExprNodeIdentifierVisitor(false);
-        expr.accept(propertyVisitor);
-        return !propertyVisitor.getExprProperties().isEmpty();
     }
 }

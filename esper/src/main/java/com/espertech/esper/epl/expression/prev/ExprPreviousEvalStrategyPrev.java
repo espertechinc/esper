@@ -14,7 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.window.RandomAccessByIndex;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
+import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,12 +25,12 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
     private final ExprEvaluator indexNode;
     private final ExprEvaluator evalNode;
     private final RandomAccessByIndexGetter randomAccessGetter;
-    private final RelativeAccessByEventNIndexMap relativeAccessGetter;
+    private final RelativeAccessByEventNIndexGetter relativeAccessGetter;
     private final boolean isConstantIndex;
     private final Integer constantIndexNumber;
     private final boolean isTail;
 
-    public ExprPreviousEvalStrategyPrev(int streamNumber, ExprEvaluator indexNode, ExprEvaluator evalNode, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexMap relativeAccessGetter, boolean constantIndex, Integer constantIndexNumber, boolean tail)
+    public ExprPreviousEvalStrategyPrev(int streamNumber, ExprEvaluator indexNode, ExprEvaluator evalNode, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter, boolean constantIndex, Integer constantIndexNumber, boolean tail)
     {
         this.streamNumber = streamNumber;
         this.indexNode = indexNode;
@@ -117,7 +117,7 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
                 substituteEvent = relativeAccess.getRelativeToEvent(evalEvent, index);
             }
             else {
-                substituteEvent = relativeAccess.getRelativeToEnd(evalEvent, index);
+                substituteEvent = relativeAccess.getRelativeToEnd(index);
             }
         }
         return substituteEvent;

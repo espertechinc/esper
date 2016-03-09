@@ -37,12 +37,12 @@ public class SubordCompositeTableLookupStrategy implements SubordTableLookupStra
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
             ArrayList<Object> keys = new ArrayList<Object>(2); // can collect nulls
-            Collection<EventBean> result = innerIndexQuery.getCollectKeys(eventsPerStream, index.getIndex(), context, keys);
+            Collection<EventBean> result = innerIndexQuery.getCollectKeys(eventsPerStream, index.getIndex(), context, keys, index.getPostProcessor());
             InstrumentationHelper.get().aIndexSubordLookup(result, keys.size() > 1 ? keys.toArray() : keys.get(0));
             return result;
         }
 
-        return innerIndexQuery.get(eventsPerStream, index.getIndex(), context);
+        return innerIndexQuery.get(eventsPerStream, index.getIndex(), context, index.getPostProcessor());
     }
 
     public String toQueryPlan() {

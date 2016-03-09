@@ -31,7 +31,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         lock.writeLock().unlock();
     }
 
-    public FilterSet take(Set<String> statementId) {
+    public FilterSet take(Set<Integer> statementId) {
         lock.readLock().lock();
         try {
             return super.takeInternal(statementId);
@@ -61,7 +61,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         }
     }
 
-    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, String statementId) {
+    public long evaluate(EventBean theEvent, Collection<FilterHandle> matches, int statementId) {
         lock.readLock().lock();
         try {
             return super.evaluateInternal(theEvent, matches, statementId);

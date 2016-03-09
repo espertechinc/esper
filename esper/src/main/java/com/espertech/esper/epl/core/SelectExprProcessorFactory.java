@@ -16,7 +16,7 @@ import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
@@ -71,14 +71,15 @@ public class SelectExprProcessorFactory
                                                    TableService tableService,
                                                    TimeProvider timeProvider,
                                                    String engineURI,
-                                                   String statementId,
+                                                   int statementId,
                                                    String statementName,
                                                    Annotation[] annotations,
                                                    ContextDescriptor contextDescriptor,
                                                    ConfigurationInformation configuration,
                                                    SelectExprProcessorDeliveryCallback selectExprProcessorCallback,
-                                                   NamedWindowService namedWindowService,
-                                                   IntoTableSpec intoTableClause)
+                                                   NamedWindowMgmtService namedWindowMgmtService,
+                                                   IntoTableSpec intoTableClause,
+                                                   GroupByRollupInfo groupByRollupInfo)
         throws ExprValidationException
     {
         if (selectExprProcessorCallback != null) {
@@ -91,7 +92,7 @@ public class SelectExprProcessorFactory
             return new SelectExprProcessorWDeliveryCallback(eventType, bindProcessor, selectExprProcessorCallback);
         }
 
-        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowService, tableService);
+        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
 
         // Handle table as an optional service
         if (statementResultService != null)
@@ -149,11 +150,12 @@ public class SelectExprProcessorFactory
                                                    ValueAddEventService valueAddEventService,
                                                    SelectExprEventTypeRegistry selectExprEventTypeRegistry,
                                                    MethodResolutionService methodResolutionService,
-                                                   String statementId,
+                                                   int statementId,
                                                    Annotation[] annotations,
                                                    ConfigurationInformation configuration,
-                                                   NamedWindowService namedWindowService,
-                                                   TableService tableService)
+                                                   NamedWindowMgmtService namedWindowMgmtService,
+                                                   TableService tableService,
+                                                   GroupByRollupInfo groupByRollupInfo)
         throws ExprValidationException
     {
         // Wildcard not allowed when insert into specifies column order
@@ -192,7 +194,7 @@ public class SelectExprProcessorFactory
         // Construct processor
         SelectExprBuckets buckets = getSelectExpressionBuckets(selectionList);
 
-        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowService, tableService);
+        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
         SelectExprProcessor processor = factory.getEvaluator();
 
         // add reference to the type obtained

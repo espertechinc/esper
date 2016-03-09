@@ -39,7 +39,7 @@ public class AggSvcGroupAllMixedAccessWTableFactory implements AggregationServic
         this.agents = agents;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         TableStateInstanceUngrouped tableState = (TableStateInstanceUngrouped) agentInstanceContext.getStatementContext().getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
         return new AggSvcGroupAllMixedAccessWTableImpl(tableState, methodPairs,
                 accessors, targetStates, accessStateExpr, agents);

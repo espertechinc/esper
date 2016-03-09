@@ -12,8 +12,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.core.ResultSetProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
 /**
  * Factory for output process view that does not enforce any output policies and may simply
@@ -21,16 +20,16 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OutputProcessViewDirectFactory implements OutputProcessViewFactory
 {
-	private static final Log log = LogFactory.getLog(OutputProcessViewDirectFactory.class);
-
     private final StatementContext statementContext;
     private final StatementResultService statementResultService;
     protected final OutputStrategyPostProcessFactory postProcessFactory;
+    protected final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
-    public OutputProcessViewDirectFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory) {
+    public OutputProcessViewDirectFactory(StatementContext statementContext, OutputStrategyPostProcessFactory postProcessFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.statementContext = statementContext;
         this.statementResultService = statementContext.getStatementResultService();
         this.postProcessFactory = postProcessFactory;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
     }
 
     public OutputProcessViewBase makeView(ResultSetProcessor resultSetProcessor, AgentInstanceContext agentInstanceContext) {

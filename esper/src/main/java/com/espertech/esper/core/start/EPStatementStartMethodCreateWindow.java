@@ -25,8 +25,8 @@ import com.espertech.esper.epl.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowService;
 import com.espertech.esper.epl.spec.FilterStreamSpecCompiled;
 import com.espertech.esper.epl.spec.SelectClauseElementWildcard;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
@@ -61,12 +61,6 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         // determine context
         final String contextName = statementSpec.getOptionalContextName();
 
-        // register agent instance resources for use in HA
-        EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = getDefaultAgentInstanceHandle(statementContext);
-        if (services.getSchedulableAgentInstanceDirectory() != null) {
-            services.getSchedulableAgentInstanceDirectory().add(epStatementAgentInstanceHandle);
-        }
-
         // Create view factories and parent view based on a filter specification
         // Since only for non-joins we get the existing stream's lock and try to reuse it's views
         final FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[0];
@@ -82,7 +76,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 }
             };
         }
-        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false);
+        ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false, 0);
 
         // create data window view factories
         ViewFactoryChain unmaterializedViewChain = services.getViewService().createFactories(0, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
@@ -103,9 +97,9 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         boolean isBatchingDataWindow = determineBatchingDataWindow(unmaterializedViewChain.getViewFactoryChain());
         final VirtualDWViewFactory virtualDataWindowFactory = determineVirtualDataWindow(unmaterializedViewChain.getViewFactoryChain());
         Set<String> optionalUniqueKeyProps = ViewServiceHelper.getUniqueCandidateProperties(unmaterializedViewChain.getViewFactoryChain(), statementSpec.getAnnotations());
-        NamedWindowProcessor processor = services.getNamedWindowService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, statementContext.getEpStatementHandle().getMetricsHandle(), optionalUniqueKeyProps,
+        NamedWindowProcessor processor = services.getNamedWindowMgmtService().addProcessor(windowName, contextName, filterStreamSpec.getFilterSpec().getResultEventType(), statementContext.getStatementResultService(), optionalRevisionProcessor, statementContext.getExpression(), statementContext.getStatementName(), isPrioritized, isEnableSubqueryIndexShare, isBatchingDataWindow, virtualDataWindowFactory != null, optionalUniqueKeyProps,
                 statementSpec.getCreateWindowDesc().getAsEventTypeName(),
-                statementContext.getStatementExtensionServicesContext().getStmtResources());
+                statementContext, services.getNamedWindowDispatchService());
 
         Viewable finalViewable;
         EPStatementStopMethod stopStatementMethod;
@@ -115,7 +109,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             // add stop callback
             stopCallbacks.add(new StopCallback() {
                 public void stop() {
-                    services.getNamedWindowService().removeProcessor(windowName);
+                    services.getNamedWindowMgmtService().removeProcessor(windowName);
                     if (virtualDataWindowFactory != null) {
                         virtualDataWindowFactory.destroyNamedWindow();
                     }
@@ -129,14 +123,15 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             // obtain result set processor factory
             StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {processor.getNamedWindowType()}, new String[] {windowName}, new boolean[] {true}, services.getEngineURI(), false);
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                    statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot());
+                    statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
 
             // obtain factory for output limiting
-            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType());
+            OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), statementContext, resultSetProcessorPrototype.getResultSetProcessorFactory().getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
 
             // create context factory
             // Factory for statement-context instances
             StatementAgentInstanceFactoryCreateWindow contextFactory = new StatementAgentInstanceFactoryCreateWindow(statementContext, statementSpec, services, activator, unmaterializedViewChain, resultSetProcessorPrototype, outputViewFactory, isRecoveringStatement);
+            statementContext.setStatementAgentInstanceFactory(contextFactory);
 
             // With context - delegate instantiation to context
             final EPStatementStopMethod stopMethod = new EPStatementStopMethodImpl(statementContext, stopCallbacks);
@@ -145,12 +140,12 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 ContextMergeView mergeView = new ContextMergeView(processor.getNamedWindowType());
                 finalViewable = mergeView;
 
-                ContextManagedStatementCreateWindowDesc statement = new ContextManagedStatementCreateWindowDesc(statementSpec, statementContext, mergeView, contextFactory);
+                final ContextManagedStatementCreateWindowDesc statement = new ContextManagedStatementCreateWindowDesc(statementSpec, statementContext, mergeView, contextFactory);
                 services.getContextManagementService().addStatement(contextName, statement, isRecoveringResilient);
                 stopStatementMethod = new EPStatementStopMethod(){
                     public void stop()
                     {
-                        services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
+                        services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                         stopMethod.stop();
                     }
                 };
@@ -169,13 +164,14 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                     resultOfStart = (StatementAgentInstanceFactoryCreateWindowResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
                 }
                 catch (RuntimeException ex) {
-                    services.getNamedWindowService().removeProcessor(windowName);
+                    services.getNamedWindowMgmtService().removeProcessor(windowName);
                     throw ex;
                 }
                 finalViewable = resultOfStart.getFinalView();
+                final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(resultOfStart);
                 stopStatementMethod = new EPStatementStopMethod() {
                     public void stop() {
-                        resultOfStart.getStopCallback().stop();
+                        stopCallback.stop();
                         stopMethod.stop();
                     }
                 };
@@ -189,13 +185,15 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             }
         }
         catch (ExprValidationException ex) {
-            services.getNamedWindowService().removeProcessor(windowName);
+            services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
         }
         catch (RuntimeException ex) {
-            services.getNamedWindowService().removeProcessor(windowName);
+            services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
         }
+
+        services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), windowName);
 
         return new EPStatementStartResult(finalViewable, stopStatementMethod, destroyStatementMethod);
     }
@@ -227,6 +225,6 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 return;
             }
         }
-        throw new ExprValidationException(NamedWindowService.ERROR_MSG_DATAWINDOWS);
+        throw new ExprValidationException(NamedWindowMgmtService.ERROR_MSG_DATAWINDOWS);
     }
 }

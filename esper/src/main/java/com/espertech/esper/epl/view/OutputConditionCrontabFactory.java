@@ -21,10 +21,10 @@ import java.util.List;
 /**
  * Output condition handling crontab-at schedule output.
  */
-public final class OutputConditionCrontabFactory implements OutputConditionFactory
+public class OutputConditionCrontabFactory implements OutputConditionFactory
 {
     private final ScheduleSpec scheduleSpec;
-    private final boolean isStartConditionOnCreation;
+    protected final boolean isStartConditionOnCreation;
 
     public OutputConditionCrontabFactory(List<ExprNode> scheduleSpecExpressionList,
                                          StatementContext statementContext,

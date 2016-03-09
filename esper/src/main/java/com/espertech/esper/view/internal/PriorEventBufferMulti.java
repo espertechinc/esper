@@ -160,25 +160,25 @@ public class PriorEventBufferMulti implements ViewUpdatedCollection, RelativeAcc
         return priorEvents[priorToIndex];
     }
 
-    public EventBean getRelativeToEnd(EventBean theEvent, int index)
+    public EventBean getRelativeToEnd(int index)
     {
         // No requirements to return events related to the end of the current buffer
         return null;
     }
 
-    public int getWindowToEventCount(EventBean evalEvent)
+    public int getWindowToEventCount()
     {
         // No requirements to return events related to the end of the current buffer
         return 0;
     }
 
-    public Iterator<EventBean> getWindowToEvent(Object evalEvent)
+    public Iterator<EventBean> getWindowToEvent()
     {
         // No requirements to return events related to the end of the current buffer
         return null;  
     }
 
-    public Collection<EventBean> getWindowToEventCollReadOnly(Object evalEvent)
+    public Collection<EventBean> getWindowToEventCollReadOnly()
     {
         // No requirements to return events related to the end of the current buffer
         return null;

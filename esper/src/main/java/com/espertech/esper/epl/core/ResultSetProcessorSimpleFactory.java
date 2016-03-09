@@ -24,6 +24,9 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     private final SelectExprProcessor selectExprProcessor;
     private final ExprEvaluator optionalHavingExpr;
     private final OutputLimitSpec outputLimitSpec;
+    private final boolean enableOutputLimitOpt;
+    private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final int numStreams;
 
     /**
      * Ctor.
@@ -34,12 +37,18 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
     public ResultSetProcessorSimpleFactory(SelectExprProcessor selectExprProcessor,
                                            ExprEvaluator optionalHavingNode,
                                            boolean isSelectRStream,
-                                           OutputLimitSpec outputLimitSpec)
+                                           OutputLimitSpec outputLimitSpec,
+                                           boolean enableOutputLimitOpt,
+                                           ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
+                                           int numStreams)
     {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingExpr = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.outputLimitSpec = outputLimitSpec;
+        this.enableOutputLimitOpt = enableOutputLimitOpt;
+        this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.numStreams = numStreams;
     }
 
     public ResultSetProcessorType getResultSetProcessorType() {
@@ -73,5 +82,17 @@ public class ResultSetProcessorSimpleFactory implements ResultSetProcessorFactor
 
     public boolean isOutputAll() {
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
+    }
+
+    public boolean isEnableOutputLimitOpt() {
+        return enableOutputLimitOpt;
+    }
+
+    public ResultSetProcessorHelperFactory getResultSetProcessorHelperFactory() {
+        return resultSetProcessorHelperFactory;
+    }
+
+    public int getNumStreams() {
+        return numStreams;
     }
 }

@@ -14,6 +14,7 @@ package com.espertech.esper.epl.db;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKey;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;
@@ -21,7 +22,8 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableList;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.epl.SupportStreamTypeSvc3Stream;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -39,7 +41,7 @@ public class TestDatabasePollingViewable extends TestCase
 
         Map<String, Object> resultProperties = new HashMap<String, Object>();
         resultProperties.put("myvarchar", String.class);
-        EventType resultEventType = SupportEventAdapterService.getService().createAnonymousMapType("test", resultProperties);
+        EventType resultEventType = SupportEventAdapterService.getService().createAnonymousMapType("test", resultProperties, true);
 
         Map<MultiKey<Object>, List<EventBean>> pollResults = new HashMap<MultiKey<Object>, List<EventBean>>();
         pollResults.put(new MultiKey<Object>(new Object[] {-1}), new LinkedList<EventBean>());
@@ -50,11 +52,11 @@ public class TestDatabasePollingViewable extends TestCase
 
         Map<Integer, List<ExprNode>> sqlParameters = new HashMap<Integer, List<ExprNode>>();
         sqlParameters.put(1, Collections.singletonList((ExprNode) new ExprIdentNodeImpl("intPrimitive", "s0")));
-        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, null, null, null);
+        pollingViewable.validate(null, new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, sqlParameters, null, SupportStatementContextFactory.makeContext());
 
         indexingStrategy = new PollResultIndexingStrategy()
         {
-            public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache)
+            public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
             {
                 return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
             }

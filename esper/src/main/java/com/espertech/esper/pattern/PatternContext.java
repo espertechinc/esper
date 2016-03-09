@@ -91,7 +91,7 @@ public class PatternContext
      * Returns the statement id.
      * @return statement id
      */
-    public String getStatementId()
+    public int getStatementId()
     {
         return statementContext.getStatementId();
     }

@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.EventType;
@@ -58,7 +59,7 @@ public class DatabasePollingViewableFactory
      * @return viewable providing poll functionality
      * @throws ExprValidationException if the validation failed
      */
-    public static HistoricalEventViewable createDBStatementView( String statementId,
+    public static HistoricalEventViewable createDBStatementView( int statementId,
                                                                  int streamNumber,
                                                                  DBStatementStreamSpec databaseStreamSpec,
                                                                  DatabaseConfigService databaseConfigService,
@@ -66,7 +67,9 @@ public class DatabasePollingViewableFactory
                                                                  EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
                                                                  SQLColumnTypeConversion columnTypeConversionHook,
                                                                  SQLOutputRowConversion outputRowConversionHook,
-                                                                 boolean enableJDBCLogging)
+                                                                 boolean enableJDBCLogging,
+                                                                 DataCacheFactory dataCacheFactory,
+                                                                 StatementContext statementContext)
             throws ExprValidationException
     {
         // Parse the SQL for placeholders and text fragments
@@ -236,7 +239,7 @@ public class DatabasePollingViewableFactory
         EventType eventType;
         if (outputRowConversionHook == null) {
             String outputEventType = statementId + "_dbpoll_" + streamNumber;
-            eventType = eventAdapterService.createAnonymousMapType(outputEventType, eventTypeFields);
+            eventType = eventAdapterService.createAnonymousMapType(outputEventType, eventTypeFields, true);
         }
         else {
             Class carrierClass = outputRowConversionHook.getOutputRowType(new SQLOutputRowTypeContext(databaseStreamSpec.getDatabaseName(), databaseStreamSpec.getSqlWithSubsParams(), eventTypeFields));
@@ -252,7 +255,7 @@ public class DatabasePollingViewableFactory
         try
         {
             connectionCache = databaseConfigService.getConnectionCache(databaseName, preparedStatementText);
-            dataCache = databaseConfigService.getDataCache(databaseName, epStatementAgentInstanceHandle);
+            dataCache = databaseConfigService.getDataCache(databaseName, statementContext, epStatementAgentInstanceHandle, dataCacheFactory, streamNumber);
         }
         catch (DatabaseConfigException e)
         {

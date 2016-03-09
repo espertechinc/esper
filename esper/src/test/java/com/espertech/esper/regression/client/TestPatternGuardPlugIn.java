@@ -43,6 +43,10 @@ public class TestPatternGuardPlugIn extends TestCase
 
     public void testGuard()
     {
+        if (SupportConfigFactory.skipTest(TestPatternGuardPlugIn.class)) {
+            return;
+        }
+
         String stmtText = "select * from pattern [(every Bean) where myplugin:count_to(10)]";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
@@ -60,6 +64,10 @@ public class TestPatternGuardPlugIn extends TestCase
 
     public void testGuardVariable()
     {
+        if (SupportConfigFactory.skipTest(TestPatternGuardPlugIn.class)) {
+            return;
+        }
+
         epService.getEPAdministrator().createEPL("create variable int COUNT_TO = 3");
         String stmtText = "select * from pattern [(every Bean) where myplugin:count_to(COUNT_TO)]";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
@@ -78,6 +86,10 @@ public class TestPatternGuardPlugIn extends TestCase
 
     public void testInvalid()
     {
+        if (SupportConfigFactory.skipTest(TestPatternGuardPlugIn.class)) {
+            return;
+        }
+
         try
         {
             Configuration configuration = SupportConfigFactory.getConfiguration();

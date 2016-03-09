@@ -89,7 +89,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return (Collection) result;
     }
 
-    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, String statementId) {
+    public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) {
         return factory.getEventTypeCollection();
     }
 
@@ -97,7 +97,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return factory.getComponentTypeCollection();
     }
 
-    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, String statementId) throws ExprValidationException {
+    public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
         return factory.getEventTypeSingle();
     }
 

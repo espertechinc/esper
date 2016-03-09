@@ -34,7 +34,7 @@ public class TestSchemaXMLEventTypes extends TestCase
         eventTypeMeta.setSchemaResource(schemaUri);
         configuration.addEventType("TestTypesEvent", eventTypeMeta);
 
-        epService = EPServiceProviderManager.getProvider("TestSchemaXML", configuration);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 

@@ -79,11 +79,11 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
                 queryPlanResult, statementContext.getAnnotations());
     }
 
-    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks) {
+    public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {
         OnTriggerWindowDesc onTriggerWindowDesc = (OnTriggerWindowDesc) statementSpec.getOnTriggerDesc();
 
         // get result set processor and aggregation services
-        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext);
+        Pair<ResultSetProcessor, AggregationService> pair = EPStatementStartMethodHelperUtil.startResultSetAndAggregation(resultSetProcessorPrototype, agentInstanceContext, false, null);
 
         TableStateInstance state = services.getTableService().getState(onTriggerWindowDesc.getWindowName(), agentInstanceContext.getAgentInstanceId());
         EventTable[] indexes;

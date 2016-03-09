@@ -14,6 +14,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
+import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.Viewable;
 
 import java.util.Iterator;
@@ -25,7 +26,7 @@ import java.util.Set;
  * And second, out of a join of event streams. The processor must apply the select-clause, grou-by-clause and having-clauses
  * as supplied. It must state what the event type of the result rows is.
  */
-public interface ResultSetProcessor
+public interface ResultSetProcessor extends StopCallback
 {
     /**
      * Returns the event type of processed results.

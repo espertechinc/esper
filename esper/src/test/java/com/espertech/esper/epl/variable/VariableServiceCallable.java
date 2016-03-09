@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.variable;
 
+import com.espertech.esper.core.start.EPStatementStartMethod;
 import org.junit.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,7 +45,7 @@ public class VariableServiceCallable implements Callable
         readers = new VariableReader[variables.length];
         for (int i = 0; i < variables.length; i++)
         {
-            readers[i] = variableService.getReader(variables[i], 0);
+            readers[i] = variableService.getReader(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
     }
 
@@ -86,7 +87,7 @@ public class VariableServiceCallable implements Callable
                 {
                     log.debug(".run Thread " + Thread.currentThread().getId() + " at mark " + mark + " write variable '" + variableName + "' new value " + newMark);
                 }
-                variableService.write(readers[variableNum].getVariableMetaData().getVariableNumber(), 0, newMark);
+                variableService.write(readers[variableNum].getVariableMetaData().getVariableNumber(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, newMark);
             }
         }
 

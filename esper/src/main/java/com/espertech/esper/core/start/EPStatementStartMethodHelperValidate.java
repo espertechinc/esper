@@ -24,7 +24,7 @@ import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
-import com.espertech.esper.epl.named.NamedWindowService;
+import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.epl.spec.OutputLimitRateType;
@@ -56,7 +56,7 @@ public class EPStatementStartMethodHelperValidate
             }
             if (viewFactory instanceof DataWindowViewFactory)
             {
-                throw new ExprValidationException(NamedWindowService.ERROR_MSG_NO_DATAWINDOW_ALLOWED);
+                throw new ExprValidationException(NamedWindowMgmtService.ERROR_MSG_NO_DATAWINDOW_ALLOWED);
             }
         }
     }

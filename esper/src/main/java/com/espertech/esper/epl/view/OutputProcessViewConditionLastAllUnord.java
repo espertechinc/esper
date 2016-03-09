@@ -13,6 +13,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.event.EventBeanUtility;
@@ -35,8 +36,8 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
 
 	private static final Log log = LogFactory.getLog(OutputProcessViewConditionLastAllUnord.class);
 
-    public OutputProcessViewConditionLastAllUnord(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
+    public OutputProcessViewConditionLastAllUnord(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
+        super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
         this.isAll = parent.getOutputLimitLimitType() == OutputLimitLimitType.ALL;
 
@@ -46,6 +47,10 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
 
     public int getNumChangesetRows() {
         return 0;
+    }
+
+    public OutputCondition getOptionalOutputCondition() {
+        return outputCondition;
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)

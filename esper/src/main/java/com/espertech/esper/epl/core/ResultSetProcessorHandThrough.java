@@ -173,4 +173,8 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
     public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll) {
         return null;
     }
+
+    public void stop() {
+        // no action required
+    }
 }

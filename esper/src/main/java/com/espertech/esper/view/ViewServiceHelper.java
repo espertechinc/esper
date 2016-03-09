@@ -18,12 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;
-import com.espertech.esper.view.ext.IStreamSortRankRandomAccess;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
-import com.espertech.esper.view.window.IStreamRandomAccess;
-import com.espertech.esper.view.window.IStreamRelativeAccess;
-import com.espertech.esper.view.window.RandomAccessByIndexGetter;
-import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -65,43 +60,6 @@ public class ViewServiceHelper
             return vdw.getUniqueKeys();
         }
         return null;
-    }
-
-    public static IStreamRandomAccess getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamRandomAccess randomAccess = null;
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            randomAccess = new IStreamRandomAccess(getter);
-            getter.updated(randomAccess);
-        }
-        return randomAccess;
-    }
-
-    public static IStreamRelativeAccess getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamRelativeAccess relativeAccessByEvent = null;
-
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RelativeAccessByEventNIndexMap getter = (RelativeAccessByEventNIndexMap) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            relativeAccessByEvent = new IStreamRelativeAccess(getter);
-            getter.updated(relativeAccessByEvent, null);
-        }
-
-        return relativeAccessByEvent;
-    }
-
-    public static IStreamSortRankRandomAccess getOptPreviousExprSortedRankedAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
-        IStreamSortRankRandomAccess rankedRandomAccess = null;
-
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
-            RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
-            rankedRandomAccess = new IStreamSortRankRandomAccess(getter);
-            getter.updated(rankedRandomAccess);
-        }
-
-        return rankedRandomAccess;
     }
 
     /**

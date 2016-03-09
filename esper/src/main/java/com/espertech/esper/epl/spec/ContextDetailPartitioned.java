@@ -29,7 +29,7 @@ public class ContextDetailPartitioned implements ContextDetail {
         return items;
     }
 
-    public List<FilterSpecCompiled> getFilterSpecsIfAny() {
+    public List<FilterSpecCompiled> getContextDetailFilterSpecs() {
         List<FilterSpecCompiled> filters = new ArrayList<FilterSpecCompiled>(items.size());
         for (ContextDetailPartitionItem item : items) {
             filters.add(item.getFilterSpecCompiled());

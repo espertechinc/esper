@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.DBStatementStreamSpec;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.support.epl.SupportDatabaseService;
-import com.espertech.esper.support.event.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.view.EventCollection;
 import junit.framework.TestCase;
 
@@ -28,9 +28,9 @@ public class TestPollingViewableFactory extends TestCase
         DBStatementStreamSpec spec = new DBStatementStreamSpec("s0", ViewSpec.EMPTY_VIEWSPEC_ARRAY,
                 "mydb_part", "select * from mytesttable where mybigint=${idnum}", null);
 
-        EventCollection eventCollection = DatabasePollingViewableFactory.createDBStatementView("id", 1, spec,
+        EventCollection eventCollection = DatabasePollingViewableFactory.createDBStatementView(1, 1, spec,
                 SupportDatabaseService.makeService(),
-                SupportEventAdapterService.getService(), null, null, null, true);
+                SupportEventAdapterService.getService(), null, null, null, true, new DataCacheFactory(), null);
         
         assertEquals(Long.class, eventCollection.getEventType().getPropertyType("mybigint"));
         assertEquals(String.class, eventCollection.getEventType().getPropertyType("myvarchar"));

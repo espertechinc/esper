@@ -11,6 +11,7 @@ package com.espertech.esper.view.ext;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
@@ -31,6 +32,8 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
      * The timestamp expression.
      */
     protected ExprNode timestampExpression;
+
+    protected ExprEvaluator timestampExpressionEvaluator;
 
     /**
      * The interval to wait for newer events to arrive.
@@ -57,6 +60,7 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
         }
         timestampExpression = validated[0];
         timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), statementContext, viewParameters.get(1), getViewParamMessage(), 1);
+        timestampExpressionEvaluator = timestampExpression.getExprEvaluator();
         eventType = parentEventType;
     }
 
@@ -66,7 +70,7 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        IStreamSortRankRandomAccess sortedRandomAccess = ViewServiceHelper.getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
+        IStreamSortRankRandomAccess sortedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
         return new TimeOrderView(agentInstanceViewFactoryContext, this, timestampExpression, timestampExpression.getExprEvaluator(), timeDeltaComputation, sortedRandomAccess);
     }
 
@@ -94,6 +98,14 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public String getViewName() {
         return "Time-Order";
+    }
+
+    public ExprEvaluator getTimestampExpressionEvaluator() {
+        return timestampExpressionEvaluator;
+    }
+
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

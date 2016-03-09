@@ -44,7 +44,7 @@ public class AggSvcGroupByRefcountedWAccessFactory extends AggregationServiceFac
         this.isJoin = isJoin;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByRefcountedWAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin);
     }
 }

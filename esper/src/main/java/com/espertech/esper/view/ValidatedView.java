@@ -9,6 +9,7 @@
 package com.espertech.esper.view;
 
 import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.MethodResolutionService;
@@ -37,6 +38,7 @@ public interface ValidatedView
      * @param timeProvider for providing current time
      * @param variableService for access to variables
      * @param exprEvaluatorContext context for expression evaluation
+     * @param statementContext
      * @throws ExprValidationException is thrown to indicate an exception in validating the view
      */
     public void validate(EngineImportService engineImportService,
@@ -51,7 +53,5 @@ public interface ValidatedView
                          String engineURI,
                          Map<Integer, List<ExprNode>> sqlParameters,
                          EventAdapterService eventAdapterService,
-                         String statementName,
-                         String statementId,
-                         Annotation[] annotations) throws ExprValidationException;
+                         StatementContext statementContext) throws ExprValidationException;
 }

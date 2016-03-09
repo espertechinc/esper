@@ -84,4 +84,16 @@ public class TimeBatchViewFactoryParams {
 		    }
 		}
 	}
+
+	public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+		return timeDeltaComputation;
+	}
+
+	public boolean isForceUpdate() {
+		return isForceUpdate;
+	}
+
+	public boolean isStartEager() {
+		return isStartEager;
+	}
 }

@@ -76,8 +76,9 @@ public class TestRowPatternRecognitionEmptyPartition extends TestCase {
         /**
          * Comment-in for testing partition removal.
          */
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 10000; i++) {
             epService.getEPRuntime().sendEvent(new SupportRecogBean("A", i));
+            System.out.println(i);
             //epService.getEPRuntime().sendEvent(new SupportRecogBean("B", i));
             //EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {i});
         }

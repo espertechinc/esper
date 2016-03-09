@@ -17,7 +17,7 @@ import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.epl.parse.SupportParserHelper;
-import com.espertech.esper.support.view.SupportStatementContextFactory;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;

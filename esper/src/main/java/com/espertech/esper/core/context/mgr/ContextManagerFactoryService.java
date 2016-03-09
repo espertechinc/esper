@@ -15,6 +15,8 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetail;
 
 public interface ContextManagerFactoryService {
-    public ContextManager make(ContextDetail contextDetail, ContextControllerFactoryServiceContext factoryServiceContext)
+    ContextManager make(ContextDetail contextDetail, ContextControllerFactoryServiceContext factoryServiceContext)
             throws ExprValidationException;
+
+    boolean isSupportsExtract();
 }

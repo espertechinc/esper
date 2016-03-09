@@ -27,6 +27,10 @@ public class TestThreadedConfigRoute extends TestCase
 
     public void testOp() throws Exception
     {
+        if (SupportConfigFactory.skipTest(TestThreadedConfigRoute.class)) {
+            return;
+        }
+
         Configuration config = SupportConfigFactory.getConfiguration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(true);
         config.getEngineDefaults().getExpression().setUdfCache(false);

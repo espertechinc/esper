@@ -134,7 +134,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         return size;
     }
 
-    protected static Object getComparable(ExprEvaluator[] criteria, EventBean[] eventsPerStream, boolean istream, ExprEvaluatorContext exprEvaluatorContext) {
+    public static Object getComparable(ExprEvaluator[] criteria, EventBean[] eventsPerStream, boolean istream, ExprEvaluatorContext exprEvaluatorContext) {
         if (criteria.length == 1) {
             return criteria[0].evaluate(eventsPerStream, istream, exprEvaluatorContext);
         }
