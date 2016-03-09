@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.dot.ExprDotEvalStaticMethod;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStatic;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
 import com.espertech.esper.epl.expression.visitor.ExprNodeContextPropertiesVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodeStreamRequiredVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.rettype.EPType;
@@ -79,14 +80,30 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     }
 
     public boolean getFilterLookupEligible() {
-        // We disallow context properties in a filter-optimizable expression if they are passed in since
-        // the evaluation is context-free and shared.
-        ExprNodeContextPropertiesVisitor visitor = new ExprNodeContextPropertiesVisitor();
-        ExprNodeUtility.acceptChain(visitor, chainSpec);
-        return !visitor.isFound() &&
-                config.getFilterOptimizable() == ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED &&
-                chainSpec.size() == 1 &&
-                !isReturnsConstantResult;
+        boolean eligible = !isReturnsConstantResult;
+        if (eligible) {
+            eligible = chainSpec.size() == 1;
+        }
+        if (eligible) {
+            eligible = config.getFilterOptimizable() == ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED;
+        }
+        if (eligible) {
+            // We disallow context properties in a filter-optimizable expression if they are passed in since
+            // the evaluation is context-free and shared.
+            ExprNodeContextPropertiesVisitor visitor = new ExprNodeContextPropertiesVisitor();
+            ExprNodeUtility.acceptChain(visitor, chainSpec);
+            eligible = !visitor.isFound();
+        }
+        if (eligible) {
+            ExprNodeStreamRequiredVisitor visitor = new ExprNodeStreamRequiredVisitor();
+            ExprNodeUtility.acceptChain(visitor, chainSpec);
+            for (int stream : visitor.getStreamsRequired()) {
+                if (stream != 0) {
+                    eligible = false;
+                }
+            }
+        }
+        return eligible;
     }
 
     public FilterSpecLookupable getFilterLookupable() {

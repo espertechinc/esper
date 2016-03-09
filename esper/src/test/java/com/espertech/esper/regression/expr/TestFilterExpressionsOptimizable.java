@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -126,6 +127,24 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         epl = "select * from SupportBean(typeof(e) = 'SupportBean') as e";
         assertFilterSingle(epl, "typeof(e)", FilterOperator.EQUAL);
+    }
+
+    public void testPatternUDFFilterOptimizable() {
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("myCustomBigDecimalEquals",
+                this.getClass().getName(), "myCustomBigDecimalEquals");
+
+        String epl = "select * from pattern[a=SupportBean() -> b=SupportBean(myCustomBigDecimalEquals(a.bigDecimal, b.bigDecimal))]";
+        epService.getEPAdministrator().createEPL(epl).addListener(listener);
+
+        SupportBean beanOne = new SupportBean("E1", 0);
+        beanOne.setBigDecimal(BigDecimal.valueOf(13));
+        epService.getEPRuntime().sendEvent(beanOne);
+
+        SupportBean beanTwo = new SupportBean("E2", 0);
+        beanTwo.setBigDecimal(BigDecimal.valueOf(13));
+        epService.getEPRuntime().sendEvent(beanTwo);
+
+        assertTrue(listener.isInvoked());
     }
 
     public void testOrToInRewrite()
@@ -794,6 +813,10 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     public FilterItem getBoolExprFilterItem() {
         return new FilterItem(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, FilterOperator.BOOLEAN_EXPRESSION);
+    }
+
+    public static boolean myCustomBigDecimalEquals(final BigDecimal first, final BigDecimal second) {
+        return first.compareTo(second) == 0;
     }
 
     public static class MyLib {
