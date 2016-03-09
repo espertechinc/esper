@@ -834,7 +834,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
 
             if (!queues.getFrontQueue().isEmpty()) {
-                processThreadWorkQueue();
+                processThreadWorkQueueFront(queues);
             }
         }
     }
