@@ -579,10 +579,10 @@ public class TestFromClauseMethod extends TestCase
 
         epService.getEPAdministrator().getConfiguration().addImport(SupportMethodInvocationJoinInvalid.class);
         tryInvalid("select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()",
-                "Unexpected exception starting statement: Could not find getter method for method invocation, expected a method by name 'readRowNoMetadataMetadata' accepting no parameters [select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()]");
+                "Error starting statement: Could not find getter method for method invocation, expected a method by name 'readRowNoMetadataMetadata' accepting no parameters [select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()]");
 
         tryInvalid("select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()",
-                "Unexpected exception starting statement: Getter method 'readRowWrongMetadataMetadata' does not return java.util.Map [select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()]");
+                "Error starting statement: Getter method 'readRowWrongMetadataMetadata' does not return java.util.Map [select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()]");
     }
 
     private void tryInvalid(String stmt, String message)

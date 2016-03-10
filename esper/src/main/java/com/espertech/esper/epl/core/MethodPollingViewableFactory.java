@@ -22,6 +22,7 @@ import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.bean.BeanEventBean;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.JavaClassHelper;
@@ -30,6 +31,7 @@ import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -161,7 +163,13 @@ public class MethodPollingViewableFactory
               (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
               (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class)))
         {
-            MethodMetadataDesc metadata = getCheckMetadata(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, Map.class);
+            MethodMetadataDesc metadata;
+            if (variableMetaData != null) {
+                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, methodResolutionService, Map.class);
+            }
+            else {
+                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, Map.class);
+            }
             mapTypeName = metadata.getTypeName();
             mapType = (Map<String, Object>) metadata.getTypeMetadata();
         }
@@ -174,7 +182,13 @@ public class MethodPollingViewableFactory
             (isCollection && collectionClass == Object[].class) ||
             (isIterator && iteratorClass == Object[].class))
         {
-            MethodMetadataDesc metadata = getCheckMetadata(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, LinkedHashMap.class);
+            MethodMetadataDesc metadata;
+            if (variableMetaData != null) {
+                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, methodResolutionService, LinkedHashMap.class);
+            }
+            else {
+                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, LinkedHashMap.class);
+            }
             oaTypeName = metadata.getTypeName();
             oaType = (LinkedHashMap<String, Object>) metadata.getTypeMetadata();
         }
@@ -246,17 +260,56 @@ public class MethodPollingViewableFactory
         return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, streamNumber, methodStreamSpec.getExpressions(), methodPollStrategy, dataCache, eventType, exprEvaluatorContext);
     }
 
-    private static MethodMetadataDesc getCheckMetadata(String methodName, String className, MethodResolutionService methodResolutionService, Class metadataClass) {
+    private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, MethodResolutionService methodResolutionService, Class metadataClass)
+            throws ExprValidationException
+    {
+        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType(), methodResolutionService, metadataClass);
+
+        if (Modifier.isStatic(typeGetterMethod.getModifiers())) {
+            return invokeMetadataMethod(null, variableMetaData.getClass().getSimpleName(), typeGetterMethod);
+        }
+
+        // if the metadata is not a static method and we don't have an instance this is a problem
+        String messagePrefix = "Failed to access variable method invocation metadata: ";
+        if (variableReader == null) {
+            throw new ExprValidationException(messagePrefix + "The metadata method is an instance method however the variable is contextual, please declare the metadata method as static or remove the context declaration for the variable");
+        }
+
+        Object value = variableReader.getValue();
+        if (value == null) {
+            throw new ExprValidationException(messagePrefix + "The variable value is null and the metadata method is an instance method");
+        }
+
+        if (value instanceof EventBean) {
+            value = ((EventBean) value).getUnderlying();
+        }
+        return invokeMetadataMethod(value, variableMetaData.getClass().getSimpleName(), typeGetterMethod);
+    }
+
+
+    private static MethodMetadataDesc getCheckMetadataNonVariable(String methodName, String className, MethodResolutionService methodResolutionService, Class metadataClass) throws ExprValidationException {
+        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, className, null, methodResolutionService, metadataClass);
+        return invokeMetadataMethod(null, className, typeGetterMethod);
+    }
+
+    private static Method getRequiredTypeGetterMethodCanNonStatic(String methodName, String classNameWhenNoClass, Class clazzWhenAvailable, MethodResolutionService methodResolutionService, Class metadataClass)
+            throws ExprValidationException
+    {
         Method typeGetterMethod;
         String getterMethodName = methodName + "Metadata";
         try {
-            typeGetterMethod = methodResolutionService.resolveMethod(className, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+            if (clazzWhenAvailable != null) {
+                typeGetterMethod = methodResolutionService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+            }
+            else {
+                typeGetterMethod = methodResolutionService.resolveMethod(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+            }
         }
         catch(Exception e) {
-            throw new EPException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");
+            throw new ExprValidationException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");
         }
 
-        boolean fail = false;
+        boolean fail;
         if (metadataClass.isInterface()) {
             fail = !JavaClassHelper.isImplementsInterface(typeGetterMethod.getReturnType(), metadataClass);
         }
@@ -264,18 +317,24 @@ public class MethodPollingViewableFactory
             fail = typeGetterMethod.getReturnType() != metadataClass;
         }
         if (fail) {
-            throw new EPException("Getter method '" + getterMethodName + "' does not return " + JavaClassHelper.getClassNameFullyQualPretty(metadataClass));
+            throw new ExprValidationException("Getter method '" + typeGetterMethod.getName() + "' does not return " + JavaClassHelper.getClassNameFullyQualPretty(metadataClass));
         }
 
+        return typeGetterMethod;
+    }
+
+    private static MethodMetadataDesc invokeMetadataMethod(Object target, String className, Method typeGetterMethod)
+            throws ExprValidationException
+    {
         Object resultType;
         try {
-            resultType = typeGetterMethod.invoke(null);
+            resultType = typeGetterMethod.invoke(target);
         }
         catch (Exception e) {
-            throw new EPException("Error invoking metadata getter method for method invocation, for method by name '" + getterMethodName + "' accepting no parameters: " + e.getMessage(), e);
+            throw new ExprValidationException("Error invoking metadata getter method for method invocation, for method by name '" + typeGetterMethod.getName() + "' accepting no parameters: " + e.getMessage(), e);
         }
         if (resultType == null) {
-            throw new EPException("Error invoking metadata getter method for method invocation, method returned a null value");
+            throw new ExprValidationException("Error invoking metadata getter method for method invocation, method returned a null value");
         }
 
         return new MethodMetadataDesc(className + "." + typeGetterMethod.getName(), resultType);

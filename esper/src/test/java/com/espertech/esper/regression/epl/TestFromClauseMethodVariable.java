@@ -22,6 +22,9 @@ import com.espertech.esper.support.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class TestFromClauseMethodVariable extends TestCase
 {
@@ -60,9 +63,35 @@ public class TestFromClauseMethodVariable extends TestCase
 
         runAssertionContextVariable();
 
+        runAssertionVariableMapAndOA();
+
         // invalid footprint
         SupportMessageAssertUtil.tryInvalid(epService, "select * from method:MyConstantServiceVariable.fetchABean() as h0",
                 "Error starting statement: Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find enumeration method, date-time method or instance method named 'fetchABean' in class 'com.espertech.esper.regression.epl.TestFromClauseMethodVariable$MyConstantServiceVariable' taking no parameters (nearest match found was 'fetchABean' taking type(s) 'int') [");
+
+        // null variable value and metadata is instance method
+        epService.getEPAdministrator().getConfiguration().addVariable("MyNullMap", MyMethodHandlerMap.class, null);
+        SupportMessageAssertUtil.tryInvalid(epService, "select field1, field2 from method:MyNullMap.getMapData()",
+                "Error starting statement: Failed to access variable method invocation metadata: The variable value is null and the metadata method is an instance method");
+
+        // variable with context and metadata is instance method
+        epService.getEPAdministrator().createEPL("create context BetweenStartAndEnd start SupportBean end SupportBean");
+        epService.getEPAdministrator().createEPL("context BetweenStartAndEnd create variable " + MyMethodHandlerMap.class.getName() + " themap");
+        SupportMessageAssertUtil.tryInvalid(epService, "context BetweenStartAndEnd select field1, field2 from method:themap.getMapData()",
+                "Error starting statement: Failed to access variable method invocation metadata: The metadata method is an instance method however the variable is contextual, please declare the metadata method as static or remove the context declaration for the variable");
+    }
+
+    private void runAssertionVariableMapAndOA() {
+        epService.getEPAdministrator().getConfiguration().addVariable("MyMethodHandlerMap", MyMethodHandlerMap.class, new MyMethodHandlerMap("a", "b"));
+        epService.getEPAdministrator().getConfiguration().addVariable("MyMethodHandlerOA", MyMethodHandlerOA.class, new MyMethodHandlerOA("a", "b"));
+
+        for (String epl : new String[] {
+                "select field1, field2 from method:MyMethodHandlerMap.getMapData()",
+                "select field1, field2 from method:MyMethodHandlerOA.getOAData()"
+        }) {
+            EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+            EPAssertionUtil.assertProps(stmt.iterator().next(), "field1,field2".split(","), new Object[] {"a", "b"});
+        }
     }
 
     private void runAssertionContextVariable() {
@@ -177,6 +206,53 @@ public class TestFromClauseMethodVariable extends TestCase
     private static class MyNonConstantServiceVariableFactory {
         public static MyNonConstantServiceVariable make() {
             return new MyNonConstantServiceVariable("context_postfix");
+        }
+    }
+
+    public static class MyMethodHandlerMap {
+        private final String field1;
+        private final String field2;
+
+        public MyMethodHandlerMap(String field1, String field2) {
+            this.field1 = field1;
+            this.field2 = field2;
+        }
+
+        public Map<String, Object> getMapDataMetadata() {
+            Map<String, Object> fields = new HashMap<String, Object>();
+            fields.put("field1", String.class);
+            fields.put("field2", String.class);
+            return fields;
+        }
+
+        public Map<String, Object>[] getMapData() {
+            Map[] maps = new Map[1];
+            HashMap<String, Object> row = new HashMap<String, Object>();
+            maps[0] = row;
+            row.put("field1", field1);
+            row.put("field2", field2);
+            return maps;
+        }
+    }
+
+    public static class MyMethodHandlerOA {
+        private final String field1;
+        private final String field2;
+
+        public MyMethodHandlerOA(String field1, String field2) {
+            this.field1 = field1;
+            this.field2 = field2;
+        }
+
+        public static LinkedHashMap<String, Object> getOADataMetadata() {
+            LinkedHashMap<String, Object> fields = new LinkedHashMap<String, Object>();
+            fields.put("field1", String.class);
+            fields.put("field2", String.class);
+            return fields;
+        }
+
+        public Object[][] getOAData() {
+            return new Object[][] {{field1, field2}};
         }
     }
 }
