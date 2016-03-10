@@ -966,6 +966,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
                     if ((isCollectMultimatches) && (currentState.getState().isMultiple()))
                     {
                         multimatches = addTag(currentState.getState().getStreamNum(), theEvent, multimatches);
+                        eventsForState[currentStateStreamNum] = null; // remove event from evaluation list
                     }
 
                     if ((currentState.getState().isGreedy() != null) && (currentState.getState().isGreedy()))
@@ -1069,6 +1070,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
 
                     if ((isCollectMultimatches) && (startState.isMultiple())) {
                         multimatches = addTag(startState.getStreamNum(), theEvent, multimatches);
+                        eventsForState[currentStateStreamNum] = null; // remove event from evaluation list
                     }
 
                     if ((startState.isGreedy() != null) && (startState.isGreedy())) {

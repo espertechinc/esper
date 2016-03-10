@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.table.mgmt;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Set;
@@ -24,4 +25,5 @@ public interface TableStateInstanceGrouped {
     ObjectArrayBackedEventBean getRowForGroupKey(Object groupKey);
     Set<Object> getGroupKeys();
     void clear();
+    EventTableIndexRepository getIndexRepository();
 }
