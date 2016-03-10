@@ -17,7 +17,8 @@
 			<groupId>com.espertech</groupId>
 			<artifactId>example-terminalsvc-mdb</artifactId>
 			<version>1.0</version>
-     		</dependency>
+			<type>war</type>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
