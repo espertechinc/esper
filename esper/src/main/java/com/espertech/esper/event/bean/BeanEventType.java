@@ -352,17 +352,22 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
         if ((optionalLegacyDef == null) ||
             (optionalLegacyDef.getCodeGeneration() != ConfigurationEventTypeLegacy.CodeGeneration.DISABLED))
         {
-            // get CGLib fast class
+            // get CGLib fast class using current thread class loader
             fastClass = null;
-            try
-            {
+            try {
                 fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), clazz);
             }
-            catch (Throwable ex)
-            {
-                log.warn(".initialize Unable to obtain CGLib fast class and/or method implementation for class " +
-                        clazz.getName() + ", error msg is " + ex.getMessage(), ex);
-                fastClass = null;
+            catch (Throwable exWithThreadClassLoader) {
+                // get CGLib fast class based on given class (for OSGI support)
+                try {
+                    fastClass = FastClass.create(clazz);
+                }
+                catch (Throwable exWithoutThreadClassLoader) {
+                    log.warn(".initialize Unable to obtain CGLib fast class and/or method implementation for class " +
+                            clazz.getName() + ", error msg is " + exWithThreadClassLoader.getMessage(), exWithThreadClassLoader);
+                    log.warn(".initialize Not using the Thread.currentThread().getContextClassLoader(), error msg is: " + exWithoutThreadClassLoader.getMessage(), exWithoutThreadClassLoader);
+                    fastClass = null;
+                }
             }
         }
 
