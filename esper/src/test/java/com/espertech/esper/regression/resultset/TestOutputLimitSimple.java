@@ -235,10 +235,28 @@ public class TestOutputLimitSimple extends TestCase
         runAssertion17IStream(stmtText, "first");
     }
 
+    public void test17FirstNoHavingJoinIStream()
+    {
+        String stmtText = "select symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec)," +
+                "SupportBean.win:keepall() where theString=symbol " +
+                "output first every 1 seconds";
+        runAssertion17IStream(stmtText, "first");
+    }
+
     public void test17FirstNoHavingNoJoinIRStream()
     {
         String stmtText = "select irstream symbol, volume, price " +
                 "from MarketData.win:time(5.5 sec) " +
+                "output first every 1 seconds";
+        runAssertion17IRStream(stmtText, "first");
+    }
+
+    public void test17FirstNoHavingJoinIRStream()
+    {
+        String stmtText = "select irstream symbol, volume, price " +
+                "from MarketData.win:time(5.5 sec), " +
+                "SupportBean.win:keepall() where theString=symbol " +
                 "output first every 1 seconds";
         runAssertion17IRStream(stmtText, "first");
     }
@@ -249,6 +267,43 @@ public class TestOutputLimitSimple extends TestCase
                             "from MarketData.win:time(5.5 sec) " +
                             "output snapshot every 1 seconds";
         runAssertion18(stmtText, "first");
+    }
+
+    public void testOutputFirstUnidirectionalJoinNamedWindow() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S1.class);
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+
+        String[] fields = "c0,c1".split(",");
+        String epl =
+                "create window MyWindow.win:keepall() as SupportBean_S0;\n" +
+                "insert into MyWindow select * from SupportBean_S0;\n" +
+                "@name('join') select myWindow.id as c0, s1.id as c1\n" +
+                "from SupportBean_S1 as s1 unidirectional, MyWindow as myWindow\n" +
+                "where myWindow.p00 = s1.p10\n" +
+                "output first every 1 minutes;";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+        epService.getEPAdministrator().getStatement("join").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(10, "a"));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(20, "b"));
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1000, "b"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {20, 1000});
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1001, "b"));
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1002, "a"));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(60*1000));
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1003, "a"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {10, 1003});
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1004, "a"));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(120*1000));
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1005, "a"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {10, 1005});
     }
 
     public void testOutputEveryTimePeriod()
