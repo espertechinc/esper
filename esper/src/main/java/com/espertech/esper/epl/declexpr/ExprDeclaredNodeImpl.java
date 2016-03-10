@@ -250,7 +250,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         }
 
         ExprDeclaredNodeImpl otherExprCaseNode = (ExprDeclaredNodeImpl) node;
-        return expressionBodyCopy.equalsNode(otherExprCaseNode.getExpressionBodyCopy());
+        return ExprNodeUtility.deepEquals(expressionBodyCopy, otherExprCaseNode);
     }
 
     public void accept(ExprNodeVisitor visitor) {

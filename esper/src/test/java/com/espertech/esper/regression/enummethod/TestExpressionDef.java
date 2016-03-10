@@ -515,6 +515,21 @@ public class TestExpressionDef extends TestCase {
         runAssertionAggregationAccess(eplAlias);
     }
 
+    public void testAggregatedResult() {
+        String[] fields = "c0,c1".split(",");
+        String epl =
+                "expression lambda1 { o => 1 * o.intPrimitive }\n" +
+                "expression lambda2 { o => 3 * o.intPrimitive }\n" +
+                "select sum(lambda1(e)) as c0, sum(lambda2(e)) as c1 from SupportBean as e";
+        epService.getEPAdministrator().createEPL(epl).addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {10, 30});
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 5));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {15, 45});
+    }
+
     private void runAssertionAggregationAccess(String epl) {
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
