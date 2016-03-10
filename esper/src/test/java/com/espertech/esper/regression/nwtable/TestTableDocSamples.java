@@ -13,12 +13,16 @@ package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
+
+import java.util.Collections;
 
 public class TestTableDocSamples extends TestCase {
 
@@ -36,6 +40,38 @@ public class TestTableDocSamples extends TestCase {
 
     public void tearDown() {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    public void testIncreasingUseCase() throws Exception {
+        String epl =
+                "create schema ValueEvent(value long);\n" +
+                "create schema ResetEvent(startThreshold long);\n" +
+                "create table CurrentMaxTable(currentThreshold long);\n" +
+                "@name('trigger') insert into ThresholdTriggered select * from ValueEvent(value >= CurrentMaxTable.currentThreshold);\n" +
+                "on ResetEvent merge CurrentMaxTable when matched then update set currentThreshold = startThreshold when not matched then insert select startThreshold as currentThreshold;\n" +
+                "on ThresholdTriggered update CurrentMaxTable set currentThreshold = value + 100;\n";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+
+        SupportUpdateListener listener = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("trigger").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("startThreshold", 100L), "ResetEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 30L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 99L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 100L), "ValueEvent");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "value".split(","), new Object[]{100L});
+
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 101L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 103L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 130L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 199L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 200L), "ValueEvent");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "value".split(","), new Object[]{200L});
+
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 201L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 260L), "ValueEvent");
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", 301L), "ValueEvent");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "value".split(","), new Object[]{301L});
     }
 
     public void testDoc() {
