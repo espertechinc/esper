@@ -497,7 +497,7 @@
 			<synopsis><emphasis>test_expression</emphasis> [not] like <emphasis>pattern_expression</emphasis> [escape <emphasis>string_literal</emphasis>]</synopsis>
 	
 			<para>
-				The <emphasis>test_expression</emphasis> is any valid expression yielding a String-type or a numeric result. The optional <literal>not</literal> keyword specifies that the result of the predicate be negated. The <literal>like</literal> keyword is followed by any valid standard SQL <emphasis>pattern_expression</emphasis> yielding a String-typed result. The optional <literal>escape</literal> keyword signals the escape character to escape <literal>'_'</literal> and <literal>'%'</literal> values in the pattern.
+				The <emphasis>test_expression</emphasis> is any valid expression yielding a String-type or a numeric result. The optional <literal>not</literal> keyword specifies that the result of the predicate be negated. The <literal>like</literal> keyword is followed by any valid standard SQL <emphasis>pattern_expression</emphasis> yielding a String-typed result. The optional <literal>escape</literal> keyword signals the escape character to escape <literal>'_'</literal> and <literal>'%'</literal> values in the pattern. The default escape character is backslash (<literal>\</literal>).
 			</para>
 				
 			<para>
