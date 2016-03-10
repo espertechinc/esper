@@ -208,7 +208,7 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 						</entry>
 					</row>
 					<row>
-						<entry><synopsis>prior(<emphasis>integer</emphasis>, <emphasis>event_property)</emphasis></synopsis></entry>
+						<entry><synopsis>prior(<emphasis>expression</emphasis>, <emphasis>event_property)</emphasis></synopsis></entry>
 						<entry>
 							<para>
 								Returns a property value of a prior event, relative to the natural order of arrival of events
@@ -1082,7 +1082,8 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<indexterm><primary>prior function</primary></indexterm>
 			<indexterm><primary>functions</primary><secondary>prior</secondary></indexterm>
 			<para>
-				The <literal>prior</literal> function returns the property value of a prior event. The first parameter is an integer value that denotes the i-th prior event in the natural order of arrival. 
+				The <literal>prior</literal> function returns the property value of a prior event. 
+				The first parameter is an expression returning a constant integer-typed value that denotes the i-th prior event in the natural order of arrival. 
 				The second parameter is a property name for which the function returns the value for the prior event.
 				The second parameter is a property name or stream name. If specifying a property name, the function returns the property value for the prior event. If specifying a stream name, the function returns the prior event underlying object.
 			</para>

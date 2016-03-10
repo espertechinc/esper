@@ -1852,10 +1852,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     }
 
     public void exitBuiltin_prior(@NotNull EsperEPL2GrammarParser.Builtin_priorContext ctx) {
-        ExprPriorNode priorNode = new ExprPriorNode();
-        ExprConstantNode number = new ExprConstantNodeImpl(ASTConstantHelper.parse(ctx.number()));
-        priorNode.addChildNode(number);
-        ASTExprHelper.exprCollectAddSubNodesAddParentNode(priorNode, ctx, astExprNodeMap);
+        ASTExprHelper.exprCollectAddSubNodesAddParentNode(new ExprPriorNode(), ctx, astExprNodeMap);
     }
 
     public void exitBuiltin_instanceof(@NotNull EsperEPL2GrammarParser.Builtin_instanceofContext ctx) {

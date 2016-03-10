@@ -809,7 +809,7 @@ builtinFunc : SUM LPAREN (ALL | DISTINCT)? expressionListWithNamed RPAREN   			#
 		| PREVIOUSTAIL LPAREN expression (COMMA expression)? RPAREN chainedFunction?	#builtin_prevtail
 		| PREVIOUSCOUNT LPAREN expression RPAREN					#builtin_prevcount
 		| PREVIOUSWINDOW LPAREN expression RPAREN chainedFunction?			#builtin_prevwindow
-		| PRIOR LPAREN number COMMA eventProperty RPAREN				#builtin_prior
+		| PRIOR LPAREN expression COMMA eventProperty RPAREN				#builtin_prior
 		| GROUPING LPAREN expression RPAREN						#builtin_grouping
 		| GROUPING_ID LPAREN expressionList RPAREN					#builtin_groupingid
 		// MIN and MAX can also be "Math.min" static function and "min(price)" aggregation function and "min(a, b, c...)" built-in function

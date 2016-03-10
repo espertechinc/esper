@@ -12914,15 +12914,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_priorContext extends BuiltinFuncContext {
-		public NumberContext number() {
-			return getRuleContext(NumberContext.class,0);
-		}
 		public TerminalNode PRIOR() { return getToken(EsperEPL2GrammarParser.PRIOR, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
 		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public Builtin_priorContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
@@ -13576,7 +13576,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				{
 				setState(2353); match(PRIOR);
 				setState(2354); match(LPAREN);
-				setState(2355); number();
+				setState(2355); expression();
 				setState(2356); match(COMMA);
 				setState(2357); eventProperty();
 				setState(2358); match(RPAREN);
@@ -21015,7 +21015,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		"\u0090\2\2\u092b\u0975\3\2\2\2\u092c\u092d\7G\2\2\u092d\u092e\7\u008f"+
 		"\2\2\u092e\u092f\5\u0118\u008d\2\u092f\u0931\7\u0090\2\2\u0930\u0932\5"+
 		"\u0134\u009b\2\u0931\u0930\3\2\2\2\u0931\u0932\3\2\2\2\u0932\u0975\3\2"+
-		"\2\2\u0933\u0934\7H\2\2\u0934\u0935\7\u008f\2\2\u0935\u0936\5\u01d6\u00ec"+
+		"\2\2\u0933\u0934\7H\2\2\u0934\u0935\7\u008f\2\2\u0935\u0936\5\u0118\u008d"+
 		"\2\u0936\u0937\7\u0096\2\2\u0937\u0938\5\u01b8\u00dd\2\u0938\u0939\7\u0090"+
 		"\2\2\u0939\u0975\3\2\2\2\u093a\u093b\7\u0085\2\2\u093b\u093c\7\u008f\2"+
 		"\2\u093c\u093d\5\u0118\u008d\2\u093d\u093e\7\u0090\2\2\u093e\u0975\3\2"+

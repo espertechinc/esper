@@ -11,10 +11,8 @@
 
 package com.espertech.esper.regression.expr;
 
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.*;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPStatementSPI;
@@ -23,6 +21,7 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Random;
@@ -62,10 +61,28 @@ public class TestPriorFunction extends TestCase
         assertEquals(2.5, listener.assertOneGetNewAndReset().get("value"));
     }
 
-    public void testPriorStream()
+    public void testPriorStreamAndVariable()
     {
+        runAssertionPriorStreamAndVariable("1");
+
+        // try variable
+        epService.getEPAdministrator().createEPL("create constant variable int NUM_PRIOR = 1");
+        runAssertionPriorStreamAndVariable("NUM_PRIOR");
+
+        // must be a constant-value expression
+        epService.getEPAdministrator().createEPL("create variable int NUM_PRIOR_NONCONST = 1");
+        try {
+            runAssertionPriorStreamAndVariable("NUM_PRIOR_NONCONST");
+            fail();
+        }
+        catch (EPStatementException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'prior(NUM_PRIOR_NONCONST,s0)': Prior function requires a constant-value integer-typed index expression as the first parameter");
+        }
+    }
+
+    private void runAssertionPriorStreamAndVariable(String priorIndex) {
         epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean_S0.class);
-        String text = "select prior(1, s0) as result from S0.win:length(2) as s0";
+        String text = "select prior(" + priorIndex + ", s0) as result from S0.win:length(2) as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -76,6 +93,8 @@ public class TestPriorFunction extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBean_S0(3));
         assertEquals(e1, listener.assertOneGetNewAndReset().get("result"));
         assertEquals(SupportBean_S0.class, stmt.getEventType().getPropertyType("result"));
+
+        stmt.destroy();
     }
 
     public void testPriorTimeWindow()

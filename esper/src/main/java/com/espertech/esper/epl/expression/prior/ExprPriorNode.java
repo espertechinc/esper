@@ -55,7 +55,7 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
         }
         if (!(this.getChildNodes()[0].isConstantResult()))
         {
-            throw new ExprValidationException("Prior function requires an integer index parameter");
+            throw new ExprValidationException("Prior function requires a constant-value integer-typed index expression as the first parameter");
         }
         ExprNode constantNode = this.getChildNodes()[0];
         if (constantNode.getExprEvaluator().getType() != Integer.class)
