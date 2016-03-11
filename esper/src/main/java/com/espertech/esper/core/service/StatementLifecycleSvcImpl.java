@@ -31,10 +31,7 @@ import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectRowNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
-import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
-import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
-import com.espertech.esper.epl.expression.visitor.ExprNodeViewResourceVisitor;
+import com.espertech.esper.epl.expression.visitor.*;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.script.jsr223.JSR223Helper;
 import com.espertech.esper.epl.script.mvel.MVELHelper;
@@ -256,6 +253,24 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             throw new EPStatementException(ex.getMessage(), expression);
         }
 
+        // Determine table access nodes
+        Set<ExprTableAccessNode> tableAccessNodes = determineTableAccessNodes(statementSpec.getTableExpressions(), visitor);
+        new HashSet<ExprTableAccessNode>();
+        if (statementSpec.getTableExpressions() != null) {
+            tableAccessNodes.addAll(statementSpec.getTableExpressions());
+        }
+        if (visitor.getDeclaredExpressions() != null) {
+            ExprNodeTableAccessVisitor tableAccessVisitor = new ExprNodeTableAccessVisitor(tableAccessNodes);
+            for (ExprDeclaredNode declared : visitor.getDeclaredExpressions()) {
+                declared.getBody().accept(tableAccessVisitor);
+            }
+        }
+        for (ExprSubselectNode subselectNode : visitor.getSubselects()) {
+            if (subselectNode.getStatementSpecRaw().getTableExpressions() != null) {
+                tableAccessNodes.addAll(subselectNode.getStatementSpecRaw().getTableExpressions());
+            }
+        }
+
         // Determine Subselects for compilation, and lambda-expression shortcut syntax for named windows
         List<ExprSubselectNode> subselectNodes = visitor.getSubselects();
         if (!visitor.getChainedExpressionsDot().isEmpty()) {
@@ -280,7 +295,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         StatementSpecCompiled compiledSpec;
         try
         {
-            compiledSpec = compile(statementSpec, expression, statementContext, false, false, annotations, visitor.getSubselects(), visitor.getDeclaredExpressions(), services);
+            compiledSpec = compile(statementSpec, expression, statementContext, false, false, annotations, visitor.getSubselects(), visitor.getDeclaredExpressions(), tableAccessNodes, services);
         }
         catch (EPStatementException ex)
         {
@@ -411,6 +426,26 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         }
 
         return statementDesc;
+    }
+
+    private Set<ExprTableAccessNode> determineTableAccessNodes(Set<ExprTableAccessNode> statementDirectTableAccess, ExprNodeSubselectDeclaredDotVisitor visitor) {
+        Set<ExprTableAccessNode> tableAccessNodes = new HashSet<ExprTableAccessNode>();
+        if (statementDirectTableAccess != null) {
+            tableAccessNodes.addAll(statementDirectTableAccess);
+        }
+        // include all declared expression usages
+        ExprNodeTableAccessVisitor tableAccessVisitor = new ExprNodeTableAccessVisitor(tableAccessNodes);
+        for (ExprDeclaredNode declared : visitor.getDeclaredExpressions()) {
+            declared.getBody().accept(tableAccessVisitor);
+        }
+        // include all subqueries (and their declared expressions)
+        // This is nested as declared expressions can have more subqueries, however all subqueries are in this list.
+        for (ExprSubselectNode subselectNode : visitor.getSubselects()) {
+            if (subselectNode.getStatementSpecRaw().getTableExpressions() != null) {
+                tableAccessNodes.addAll(subselectNode.getStatementSpecRaw().getTableExpressions());
+            }
+        }
+        return tableAccessNodes;
     }
 
     // All scripts get compiled/verfied - to ensure they compile (and not just when they are referred to my an expression).
@@ -1002,6 +1037,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                                                    Annotation[] annotations,
                                                    List<ExprSubselectNode> subselectNodes,
                                                    List<ExprDeclaredNode> declaredNodes,
+                                                   Set<ExprTableAccessNode> tableAccessNodes,
                                                    EPServicesContext servicesContext) throws EPStatementException
     {
         List<StreamSpecCompiled> compiledStreams;
@@ -1016,7 +1052,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             (spec.getOnTriggerDesc() == null) &&
             !isSubquery &&
             !isOnDemandQuery &&
-            (spec.getTableExpressions() == null || spec.getTableExpressions().isEmpty()) )
+            (tableAccessNodes == null || tableAccessNodes.isEmpty()) )
         {
             boolean disqualified;
             ExprNode whereClause = spec.getFilterRootNode();
@@ -1097,7 +1133,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         for (ExprSubselectNode subselect : subselectNodes)
         {
             StatementSpecRaw raw = subselect.getStatementSpecRaw();
-            StatementSpecCompiled compiled = compile(raw, eplStatement, statementContext, true, isOnDemandQuery, new Annotation[0], Collections.<ExprSubselectNode>emptyList(), Collections.<ExprDeclaredNode>emptyList(), servicesContext);
+            StatementSpecCompiled compiled = compile(raw, eplStatement, statementContext, true, isOnDemandQuery, new Annotation[0], Collections.<ExprSubselectNode>emptyList(), Collections.<ExprDeclaredNode>emptyList(), raw.getTableExpressions(), servicesContext);
             subselectNumber++;
             subselect.setStatementSpecCompiled(compiled, subselectNumber);
         }
@@ -1230,7 +1266,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 spec.getFireAndForgetSpec(),
                 groupByRollupExpressions,
                 spec.getIntoTableSpec(),
-                spec.getTableExpressions() == null ? null : spec.getTableExpressions().toArray(new ExprTableAccessNode[spec.getTableExpressions().size()]));
+                tableAccessNodes == null ? null : tableAccessNodes.toArray(new ExprTableAccessNode[tableAccessNodes.size()]));
     }
 
     private static boolean determineStatelessSelect(StatementType type, StatementSpecRaw spec, boolean hasSubselects, boolean isPattern) {

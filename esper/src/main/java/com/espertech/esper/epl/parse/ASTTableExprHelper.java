@@ -25,9 +25,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.util.LazyAllocatedMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ASTTableExprHelper {
 
@@ -36,17 +34,17 @@ public class ASTTableExprHelper {
      */
     public static void addTableExpressionReference(StatementSpecRaw statementSpec, ExprTableAccessNode tableNode) {
         if (statementSpec.getTableExpressions() == null) {
-            statementSpec.setTableExpressions(new ArrayList<ExprTableAccessNode>(2));
+            statementSpec.setTableExpressions(new HashSet<ExprTableAccessNode>());
         }
         statementSpec.getTableExpressions().add(tableNode);
     }
 
-    public static void addTableExpressionReference(StatementSpecRaw statementSpec, List<ExprTableAccessNode> tableNodes) {
+    public static void addTableExpressionReference(StatementSpecRaw statementSpec, Set<ExprTableAccessNode> tableNodes) {
         if (tableNodes == null || tableNodes.isEmpty()) {
             return;
         }
         if (statementSpec.getTableExpressions() == null) {
-            statementSpec.setTableExpressions(new ArrayList<ExprTableAccessNode>(tableNodes.size()));
+            statementSpec.setTableExpressions(new HashSet<ExprTableAccessNode>());
         }
         statementSpec.getTableExpressions().addAll(tableNodes);
     }

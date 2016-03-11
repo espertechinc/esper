@@ -18,6 +18,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
+import com.espertech.esper.support.bean.SupportBean_ST0;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.event.EventTypeAssertionEnum;
 import com.espertech.esper.support.event.EventTypeAssertionUtil;
@@ -206,6 +207,49 @@ public class TestTableAccessCore extends TestCase {
     }
 
     public void testExpressionAliasAndDecl() {
+        runAssertionIntoTableFromExpression();
+
+        runAssertionExpressionHasTableAccess();
+
+        runAssertionSubqueryWithExpressionHasTableAccess();
+    }
+
+    private void runAssertionSubqueryWithExpressionHasTableAccess() {
+        epService.getEPAdministrator().createEPL("create table MyTableTwo(theString string primary key, intPrimitive int)");
+        epService.getEPAdministrator().createEPL("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1.std:lastevent())}");
+        epService.getEPAdministrator().createEPL("insert into MyTableTwo select theString, intPrimitive from SupportBean");
+        epService.getEPAdministrator().createEPL("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0");
+
+        epService.getEPAdministrator().getStatement("s0").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1000));
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(0, "E2"));
+
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0".split(","), new Object[] {2});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionExpressionHasTableAccess() {
+        epService.getEPAdministrator().createEPL("create table MyTableOne(theString string primary key, intPrimitive int)");
+        epService.getEPAdministrator().createEPL("create expression getMyValue{o => MyTableOne[o.p00].intPrimitive}");
+        epService.getEPAdministrator().createEPL("insert into MyTableOne select theString, intPrimitive from SupportBean");
+        epService.getEPAdministrator().createEPL("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0");
+
+        epService.getEPAdministrator().getStatement("s0").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(0, "E2"));
+
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0".split(","), new Object[] {2});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionIntoTableFromExpression() {
         epService.getEPAdministrator().createEPL("create expression sumi {a -> sum(intPrimitive)}");
         epService.getEPAdministrator().createEPL("create expression sumd alias for {sum(doublePrimitive)}");
         epService.getEPAdministrator().createEPL("create table varagg (" +
@@ -226,6 +270,8 @@ public class TestTableAccessCore extends TestCase {
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields.split(","), new Object[]{21, 2001d, 20001f, 201L});
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     public void testGroupedTwoKeyNoContext() throws Exception {

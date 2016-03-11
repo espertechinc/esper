@@ -49,7 +49,7 @@ public class StatementSpecMapContext
     private Map<String, ExpressionScriptProvided> scripts;
     private LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory> plugInAggregations = new LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory>();
     private String contextName;
-    private List<ExprTableAccessNode> tableNodes = new ArrayList<ExprTableAccessNode>(1);
+    private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
 
     /**
      * Ctor.
@@ -201,7 +201,7 @@ public class StatementSpecMapContext
         return tableService;
     }
 
-    public List<ExprTableAccessNode> getTableExpressions() {
+    public Set<ExprTableAccessNode> getTableExpressions() {
         return tableNodes;
     }
 }

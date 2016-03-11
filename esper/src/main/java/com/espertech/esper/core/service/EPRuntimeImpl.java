@@ -1644,7 +1644,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 throw new EPStatementException(ex.getMessage(), epl);
             }
 
-            StatementSpecCompiled compiledSpec = StatementLifecycleSvcImpl.compile(spec, epl, statementContext, false, true, annotations, visitor.getSubselects(), Collections.<ExprDeclaredNode>emptyList(), services);
+            StatementSpecCompiled compiledSpec = StatementLifecycleSvcImpl.compile(spec, epl, statementContext, false, true, annotations, visitor.getSubselects(), Collections.<ExprDeclaredNode>emptyList(), spec.getTableExpressions(), services);
             if (compiledSpec.getInsertIntoDesc() != null) {
                 return new EPPreparedExecuteIUDInsertInto(compiledSpec, services, statementContext);
             }

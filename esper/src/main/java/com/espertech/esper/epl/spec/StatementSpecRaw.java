@@ -55,7 +55,7 @@ public class StatementSpecRaw implements MetaDefItem, Serializable
     private CreateExpressionDesc createExpressionDesc;
     private FireAndForgetSpec fireAndForgetSpec;
     private IntoTableSpec intoTableSpec;
-    private List<ExprTableAccessNode> tableExpressions;
+    private Set<ExprTableAccessNode> tableExpressions;
 
     private static final long serialVersionUID = 5390766716794133693L;
 
@@ -516,11 +516,11 @@ public class StatementSpecRaw implements MetaDefItem, Serializable
         this.intoTableSpec = intoTableSpec;
     }
 
-    public List<ExprTableAccessNode> getTableExpressions() {
+    public Set<ExprTableAccessNode> getTableExpressions() {
         return tableExpressions;
     }
 
-    public void setTableExpressions(List<ExprTableAccessNode> tableExpressions) {
+    public void setTableExpressions(Set<ExprTableAccessNode> tableExpressions) {
         this.tableExpressions = tableExpressions;
     }
 
