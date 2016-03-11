@@ -248,7 +248,7 @@ public class StatementLifecycleSvcUtil {
             if (onTriggerDesc.getOnTriggerType() == OnTriggerType.ON_SPLITSTREAM) {
                 OnTriggerSplitStreamDesc split = (OnTriggerSplitStreamDesc) onTriggerDesc;
                 for (OnTriggerSplitStream stream : split.getSplitStreams()) {
-                    if (isTable(stream.getInsertInto().getEventTypeName(), tableService)) {
+                    if (stream.getInsertInto() != null && isTable(stream.getInsertInto().getEventTypeName(), tableService)) {
                         return true;
                     }
                 }

@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.client;
 
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.EPServiceProvider;
@@ -72,6 +73,10 @@ public class TestInvalidSyntaxMsg extends TestCase
 
         tryCompile("insert into into",
                    "Incorrect syntax near 'into' (a reserved keyword) at line 1 column 12 [insert into into]");
+
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        SupportMessageAssertUtil.tryInvalid(epService, "on SupportBean select 1",
+                "Error starting statement: Required insert-into clause is not provided, the clause is required for split-stream syntax");
     }
 
     private void tryCompile(String expression, String expectedMsg)
