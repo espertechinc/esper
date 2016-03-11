@@ -322,8 +322,12 @@ public class ParseHelper {
     private static boolean isContainsScriptExpression(CommonTokenStream tokens) {
         for (int i = 0; i < tokens.size(); i++) {
             if (tokens.get(i).getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
-                int startIndex = findStartTokenScript(i + 1, tokens, EsperEPL2GrammarParser.LBRACK);
-                if (startIndex != -1) {
+                int startTokenLcurly = findStartTokenScript(i + 1, tokens, EsperEPL2GrammarParser.LCURLY);
+                int startTokenLbrack = findStartTokenScript(i + 1, tokens, EsperEPL2GrammarParser.LBRACK);
+                // Handle:
+                // expression ABC { some[other] }
+                // expression boolean js:doit(...) [ {} ]
+                if (startTokenLbrack != -1 && (startTokenLcurly == -1 || startTokenLcurly > startTokenLbrack)) {
                     return true;
                 }
             }
