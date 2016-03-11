@@ -355,13 +355,13 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
         result = epService.getEPRuntime().executeQuery("select col1 from MyVDW vdw where col1='key1' and col2='key2' and col3 between 5 and 15");
         assertIndexSpec(window.getLastRequestedIndex(), "col1=(String)|col2=(String)", "col3[,](Double)");
         EPAssertionUtil.assertProps(result.getArray()[0], "col1".split(","), new Object[]{"key1"});
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1", "key2", new VirtualDataWindowKeyRange(5d, 15d)}, window.getLastAccessKeys());
+        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"key1", "key2", new VirtualDataWindowKeyRange(5d, 15d)}, window.getLastAccessKeys());
 
         // test multi-criteria subquery
         result = epService.getEPRuntime().executeQuery("select col1 from MyVDW vdw where col1='key1' and col2>'key0' and col3 between 5 and 15");
         assertIndexSpec(window.getLastRequestedIndex(), "col1=(String)", "col3[,](Double)|col2>(String)");
         EPAssertionUtil.assertProps(result.getArray()[0], "col1".split(","), new Object[]{"key1"});
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1", new VirtualDataWindowKeyRange(5d, 15d), "key0"}, window.getLastAccessKeys());
+        EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"key1", new VirtualDataWindowKeyRange(5d, 15d), "key0"}, window.getLastAccessKeys());
     }
 
     public void testOnDelete() {
@@ -578,12 +578,13 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
             return;
         }
         String[] split = hashfields.split("\\|");
+        List<String> found = new ArrayList<String>();
         for (int i = 0; i < split.length; i++) {
-            String expected = split[i];
             VirtualDataWindowLookupFieldDesc field = fields.get(i);
-            String found = field.getPropertyName() + field.getOperator().getOp() + "(" + field.getLookupValueType().getSimpleName() + ")";
-            assertEquals(expected, found);
+            String result = field.getPropertyName() + field.getOperator().getOp() + "(" + field.getLookupValueType().getSimpleName() + ")";
+            found.add(result);
         }
+        EPAssertionUtil.assertEqualsAnyOrder(split, found.toArray());
     }
 
     private VirtualDataWindow getFromContext(String name) {
