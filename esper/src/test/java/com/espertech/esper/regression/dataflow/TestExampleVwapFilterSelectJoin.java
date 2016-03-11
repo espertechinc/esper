@@ -49,7 +49,7 @@ public class TestExampleVwapFilterSelectJoin extends TestCase {
     public void testEPLGraphOnly() throws Exception {
 
         String epl = "create dataflow VWAPSample\r\n" +
-                "create objectarray schema TradeQuoteType as (type string, ticker string, price double, volume long, askprice double, asksize long),\r\n" +
+                "create objectarray schema TradeQuoteType as (type string, ticker string, price double, volume long, askprice double, asksize long),\n" +
                 "MyObjectArrayGraphSource -> TradeQuoteStream<TradeQuoteType> {}\r\n" +
                 "Filter(TradeQuoteStream) -> TradeStream {\r\n" +
                 "filter: type=\"trade\"\r\n" +
@@ -74,8 +74,8 @@ public class TestExampleVwapFilterSelectJoin extends TestCase {
         stmtGraph.destroy();
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(epl);
         String text = model.toEPL(new EPStatementFormatter(true));
-        assertEquals(epl, text);
-        stmtGraph = epService.getEPAdministrator().create(model);
+        assertEquals(removeNewlines(epl), removeNewlines(text));
+        epService.getEPAdministrator().create(model);
 
         runAssertion();
     }
@@ -96,5 +96,9 @@ public class TestExampleVwapFilterSelectJoin extends TestCase {
         Object[] received = future.get(5, TimeUnit.SECONDS);
         assertEquals(1, received.length);
         EPAssertionUtil.assertProps(received[0], "index".split(","), new Object[] {2000*Math.exp(100-99.5)});
+    }
+
+    private String removeNewlines(String text) {
+        return text.replace("\n", "").replace("\r", "");
     }
 }
