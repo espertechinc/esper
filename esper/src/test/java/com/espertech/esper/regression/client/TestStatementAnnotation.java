@@ -352,7 +352,7 @@ public class TestStatementAnnotation extends TestCase
         {
             EPStatement stmt = epService.getEPAdministrator().createEPL(testdata[i][0]);
             EPStatementSPI spi = (EPStatementSPI) stmt;
-            assertEquals("Error on " + testdata[i][0], testdata[i][1], spi.getExpressionNoAnnotations());
+            assertEquals("Error on " + testdata[i][0], removeNewlines(testdata[i][1]), removeNewlines(spi.getExpressionNoAnnotations()));
             assertFalse((((EPStatementSPI)stmt).isNameProvided()));
         }
 
@@ -427,5 +427,9 @@ public class TestStatementAnnotation extends TestCase
             result[i] = Array.get(array, i);
         }
         return result;
+    }
+
+    private String removeNewlines(String text) {
+        return text.replace("\n", "").replace("\r", "");
     }
 }
