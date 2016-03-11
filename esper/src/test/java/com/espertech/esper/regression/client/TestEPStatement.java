@@ -43,7 +43,7 @@ public class TestEPStatement extends TestCase
         listener = null;
     }
 
-    public void testListenerWithReplay()
+    public void testListenerWithReplay() throws Exception
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean.win:length(2)");
@@ -127,6 +127,14 @@ public class TestEPStatement extends TestCase
         {
             //
         }
+
+        // test named window and having-clause
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
+                "create window SupportBeanWindow.win:keepall() as SupportBean;\n" +
+                "insert into SupportBeanWindow select * from SupportBean;\n");
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPStatement stmtWHaving = epService.getEPAdministrator().createEPL("select theString, intPrimitive from SupportBeanWindow having intPrimitive > 4000");
+        stmtWHaving.addListenerWithReplay(listener);
     }
 
     public void testStartedDestroy()

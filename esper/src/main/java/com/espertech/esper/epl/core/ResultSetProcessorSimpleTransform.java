@@ -33,6 +33,6 @@ public class ResultSetProcessorSimpleTransform implements TransformEventMethod
     {
         newData[0] = theEvent;
         UniformPair<EventBean[]> pair = resultSetProcessor.processViewResult(newData, null, true);
-        return pair.getFirst()[0];
+        return pair == null ? null : (pair.getFirst() == null ? null : pair.getFirst()[0]);
     }
 }
