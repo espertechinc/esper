@@ -49,8 +49,8 @@ public class TestUpdateMapIndexProps extends TestCase
 
     public void testSetMapProps() throws Exception {
         runAssertionSetMapProps(EventRepresentationEnum.OBJECTARRAY);
-        // TODO runAssertionSetMapProps(EventRepresentationEnum.MAP);
-        // TODO runAssertionSetMapProps(EventRepresentationEnum.DEFAULT);
+        runAssertionSetMapProps(EventRepresentationEnum.MAP);
+        runAssertionSetMapProps(EventRepresentationEnum.DEFAULT);
     }
 
     private void runAssertionSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
