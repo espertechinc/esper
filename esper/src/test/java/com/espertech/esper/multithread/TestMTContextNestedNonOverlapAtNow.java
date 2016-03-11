@@ -49,7 +49,7 @@ public class TestMTContextNestedNonOverlapAtNow extends TestCase {
 
         int numDeliveries = listener.getNewDataList().size();
         System.out.println("Done " + numLoops + " loops, have " + numDeliveries + " deliveries");
-        assertTrue(numDeliveries > 3);
+        assertTrue(numDeliveries >= 3);
 
         Thread.sleep(250);
 
