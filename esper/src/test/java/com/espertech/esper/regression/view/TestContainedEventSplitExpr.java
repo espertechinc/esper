@@ -19,6 +19,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.regression.script.SupportScriptUtil;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
@@ -100,14 +101,26 @@ public class TestContainedEventSplitExpr extends TestCase
 
         // test script
         if (!eventRepresentationEnum.isObjectArrayEvent()) {
-            stmtText = "expression Collection js:splitSentenceJS(sentence) [" +
-                    "  importPackage(java.util);" +
-                    "  var words = new ArrayList();" +
-                    "  words.add(Collections.singletonMap('word', 'wordOne'));" +
-                    "  words.add(Collections.singletonMap('word', 'wordTwo'));" +
-                    "  words;" +
-                    "]" +
-                    "select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]";
+            if (SupportScriptUtil.JAVA_VERSION <= 1.7) {
+                stmtText = "expression Collection js:splitSentenceJS(sentence) [" +
+                        "  importPackage(java.util);" +
+                        "  var words = new ArrayList();" +
+                        "  words.add(Collections.singletonMap('word', 'wordOne'));" +
+                        "  words.add(Collections.singletonMap('word', 'wordTwo'));" +
+                        "  words;" +
+                        "]" +
+                        "select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]";
+            }
+            else {
+                stmtText = "expression Collection js:splitSentenceJS(sentence) [" +
+                        "  var CollectionsClazz = Java.type('java.util.Collections');" +
+                        "  var words = new java.util.ArrayList();" +
+                        "  words.add(CollectionsClazz.singletonMap('word', 'wordOne'));" +
+                        "  words.add(CollectionsClazz.singletonMap('word', 'wordTwo'));" +
+                        "  words;" +
+                        "]" +
+                        "select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]";
+            }
             stmt = epService.getEPAdministrator().createEPL(stmtText);
             stmt.addListener(listener);
             assertEquals("WordEvent", stmt.getEventType().getName());

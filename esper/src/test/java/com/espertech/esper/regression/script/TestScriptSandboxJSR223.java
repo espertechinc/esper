@@ -33,8 +33,7 @@ public class TestScriptSandboxJSR223 extends TestCase {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("js");
         String expressionFib = "fib(num); function fib(n) { if(n <= 1) return n; return fib(n-1) + fib(n-2); };";
-        String expressionTwo = "importPackage(java.util);\n" +
-                "var words = new ArrayList();\n" +
+        String expressionTwo = "var words = new java.util.ArrayList();\n" +
                 "words.add('wordOne');\n" +
                 "words.add('wordTwo');\n" +
                 "words;\n";

@@ -74,12 +74,20 @@ public class TestScriptExpression extends TestCase {
             stmt.destroy();
         }
 
-        epl = "expression js:printColors(colorEvent) [" +
-                "importClass (java.lang.System);" +
-                "importClass (java.util.Arrays);" +
-                "System.out.println(Arrays.toString(colorEvent.getColors()));" +
-                "]" +
-                "select printColors(colorEvent) from ColorEvent as colorEvent";
+        if (SupportScriptUtil.JAVA_VERSION <= 1.7) {
+            epl = "expression js:printColors(colorEvent) [" +
+                    "importClass (java.lang.System);" +
+                    "importClass (java.util.Arrays);" +
+                    "System.out.println(Arrays.toString(colorEvent.getColors()));" +
+                    "]" +
+                    "select printColors(colorEvent) from ColorEvent as colorEvent";
+        }
+        else {
+            epl = "expression js:printColors(colorEvent) [" +
+                    "print(java.util.Arrays.toString(colorEvent.getColors()));" +
+                    "]" +
+                    "select printColors(colorEvent) from ColorEvent as colorEvent";
+        }
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
         epService.getEPRuntime().sendEvent(new ColorEvent());
         epService.getEPAdministrator().destroyAllStatements();
@@ -132,11 +140,20 @@ public class TestScriptExpression extends TestCase {
 
     public void testInvalidScriptJS() {
 
-        tryInvalidContains("expression js:abc[dummy abc = 1;] select * from SupportBean",
-                "missing ; before statement");
+        if (SupportScriptUtil.JAVA_VERSION <= 1.7) {
+            tryInvalidContains("expression js:abc[dummy abc = 1;] select * from SupportBean",
+                    "missing ; before statement");
 
-        tryInvalidContains("expression js:abc(aa) [return aa..bb(1);] select abc(1) from SupportBean",
-                "invalid return");
+            tryInvalidContains("expression js:abc(aa) [return aa..bb(1);] select abc(1) from SupportBean",
+                    "invalid return");
+        }
+        else {
+            tryInvalidContains("expression js:abc[dummy abc = 1;] select * from SupportBean",
+                    "Expected ; but found");
+
+            tryInvalidContains("expression js:abc(aa) [return aa..bb(1);] select abc(1) from SupportBean",
+                    "Invalid return statement");
+        }
 
         tryInvalidExact("expression js:abc[] select * from SupportBean",
                 "Incorrect syntax near ']' at line 1 column 18 near reserved keyword 'select' [expression js:abc[] select * from SupportBean]");
@@ -300,7 +317,14 @@ public class TestScriptExpression extends TestCase {
 
         // test import
         epService.getEPAdministrator().getConfiguration().addImport(MyImportedClass.class);
-        tryImports("expression MyImportedClass js:callOne() [ importClass(" + MyImportedClass.class.getName() + "); new MyImportedClass() ] ");
+        if (SupportScriptUtil.JAVA_VERSION <= 1.7) {
+            tryImports("expression MyImportedClass js:callOne() [ importClass(" + MyImportedClass.class.getName() + "); new MyImportedClass() ] ");
+        }
+        else {
+            tryImports("expression MyImportedClass js:callOne() [ " +
+                    "var MyJavaClass = Java.type('" + MyImportedClass.class.getName() + "');" +
+                    "new MyJavaClass() ] ");
+        }
         if (TEST_MVEL) {
             tryImports("expression MyImportedClass mvel:callOne() [ import " + MyImportedClass.class.getName() + "; new MyImportedClass() ] ");
         }
@@ -348,9 +372,9 @@ public class TestScriptExpression extends TestCase {
             tryParseMVEL(" new String[] {'a'}", String[].class, new String[] {"a"});
         }
 
-        tryParseJS("\n\t  10    \n\n\t\t", Object.class, 10.0);
-        tryParseJS("10", Object.class, 10.0);
-        tryParseJS("5*5", Object.class, 25.0);
+        tryParseJS("\n\t  10.0    \n\n\t\t", Object.class, 10.0);
+        tryParseJS("10.0", Object.class, 10.0);
+        tryParseJS("5*5.0", Object.class, 25.0);
         tryParseJS("\"abc\"", Object.class, "abc");
         tryParseJS(" \"abc\"     ", Object.class, "abc");
         tryParseJS("'def'", Object.class, "def");
@@ -692,7 +716,7 @@ public class TestScriptExpression extends TestCase {
         stmt.destroy();
     }
 
-    private static class ColorEvent {
+    public static class ColorEvent {
         private String[] colors = {"Red", "Blue"};
 
         public String[] getColors() {
@@ -700,7 +724,7 @@ public class TestScriptExpression extends TestCase {
         }
     }
 
-    private static class RFIDEvent {
+    public static class RFIDEvent {
         private String zone;
         private String loc;
 

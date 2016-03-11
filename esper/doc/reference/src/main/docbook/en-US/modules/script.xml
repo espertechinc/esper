@@ -115,12 +115,10 @@ for (c : colors) {
 select printColors(colors) from ColorEvent;]]></programlisting>		
 
 		<para>
-			This example instead uses JavaScript to print colors and passes the event itself as a script parameter:
+			This example instead uses JavaScript to print colors and passes the event itself as a script parameter (this example is for Java 8 and Nashorn):
 		</para>
 		<programlisting><![CDATA[expression js:printColors(colorEvent) [
-importClass (java.lang.System);
-importClass (java.util.Arrays);
-System.out.println(Arrays.toString(colorEvent.getColors()));
+  print(java.util.Arrays.toString(colorEvent.getColors()));
 ]
 select printColors(colorEvent) from ColorEvent as colorEvent]]></programlisting>		
 	</sect1>

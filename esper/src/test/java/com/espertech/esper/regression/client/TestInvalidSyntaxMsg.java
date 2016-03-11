@@ -72,9 +72,6 @@ public class TestInvalidSyntaxMsg extends TestCase
 
         tryCompile("insert into into",
                    "Incorrect syntax near 'into' (a reserved keyword) at line 1 column 12 [insert into into]");
-
-        tryCompile("select prior(A, x) from A",
-                   "Incorrect syntax near '(' ('prior' is a reserved keyword) at line 1 column 12 [");
     }
 
     private void tryCompile(String expression, String expectedMsg)
