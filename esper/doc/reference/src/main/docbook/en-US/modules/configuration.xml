@@ -1435,6 +1435,36 @@ engine = EPServiceProviderManager.getDefaultProvider(config);]]></programlisting
 </engine-settings>]]></programlisting>
 			</sect3>
 
+			<sect3 xml:id="config-engine-threading-named-window-dispatch" revision="1">
+				<title>Preserving the order of named window dispatches to named window consumer statements</title>
+
+				<para>
+					In multithreaded environments, this setting controls whether named windows producing insert and remove streams for other statements that consume the named window by 
+					means of <literal>from</literal>-clause preserve the order of delivery within the producing named window and the consuming statements, allowing statements that consume named window's insert 
+					and remove stream events to behave deterministic in multithreaded applications, if the consuming statement requires such determinism. 
+					By default, the engine makes this guarantee (the setting is on) with spin locking and <literal>Long.MAX_VALUE</literal> as millisecond timeout.
+				</para>
+
+				<para>
+					Take, for example, an application where a named window (W1) produces inserts and remove stream events that a statement (S1) consumes. A multithreaded application may have multiple threads producing insert and remove stream events for consumption by statement S1. Such results may need to be delivered in the exact order produced by the named window as the consuming statement may rely on the order received. 
+				</para>
+
+				<para>
+					The engine may need to block a thread such that order of delivery is maintained, and statements that require order receive a deterministic order of events. The settings available control the blocking technique and parameters. As described in the section immediately prior, the default blocking technique employs spin locks per named window producing insert and removed stream events for consumption, as the locks in questions are typically held a very short time. The 'suspend' blocking technique can be configured and a timeout value can also defined.
+				</para>
+				
+				<para>
+					The XML configuration file may change settings via the following elements:
+				</para>
+					<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <threading>
+      <named-window-consumer-dispatch preserve-order="true" locking="spin"/>
+    </threading>
+  </defaults>
+</engine-settings>]]></programlisting>
+			</sect3>
+
 			<sect3 xml:id="config-engine-threading-internal-timer" revision="1">
 				<title>Internal Timer Settings</title>
 

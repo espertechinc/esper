@@ -70,7 +70,7 @@ public class NamedWindowProcessor
         this.statementContextCreateWindow = statementContextCreateWindow;
 
         rootView = new NamedWindowRootView(revisionProcessor, enableQueryPlanLog, metricReportingService, eventType, isBatchingDataWindow, isEnableSubqueryIndexShare, optionalUniqueKeyProps);
-        tailView = namedWindowDispatchService.createTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, isBatchingDataWindow, contextName);
+        tailView = namedWindowDispatchService.createTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, isBatchingDataWindow, contextName, statementContextCreateWindow.getTimeSourceService(), statementContextCreateWindow.getConfigSnapshot().getEngineDefaults().getThreading());
     }
 
     public String getEventTypeAsName() {

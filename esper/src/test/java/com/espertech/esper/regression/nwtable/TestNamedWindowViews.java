@@ -72,6 +72,27 @@ public class TestNamedWindowViews extends TestCase
         runAssertionBeanBacked(EventRepresentationEnum.DEFAULT);
     }
 
+    public void testIntersection() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
+                "create window MyWindow.win:length(2).std:unique(intPrimitive) as SupportBean;\n" +
+                        "insert into MyWindow select * from SupportBean;\n" +
+                        "@name('out') select irstream * from MyWindow");
+
+        String[] fields = "theString".split(",");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("out").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        EPAssertionUtil.assertPropsPerRow(listener.assertInvokedAndReset(), fields, new Object[][] {{"E1"}}, null);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        EPAssertionUtil.assertPropsPerRow(listener.assertInvokedAndReset(), fields, new Object[][]{{"E2"}}, null);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 2));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.assertInvokedAndReset(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
+    }
+
     private void runAssertionBeanBacked(EventRepresentationEnum eventRepresentationEnum) {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);

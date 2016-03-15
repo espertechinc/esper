@@ -13,41 +13,36 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * Holds a unit of dispatch that is a result of a named window processing incoming or timer events.
+ * A no-latch implementation of a latch for use in guaranteeing delivery between
+ * a named window delta result and consumable by another statement.
  */
-public class NamedWindowConsumerDispatchUnit
+public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch
 {
     private NamedWindowDeltaData deltaData;
     private Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
 
-    /**
-     * Ctor.
-     * @param deltaData the insert and remove stream posted by the named window
-     * @param dispatchTo the list of consuming statements, and for each the list of consumer views
-     */
-    public NamedWindowConsumerDispatchUnit(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo)
+    public NamedWindowConsumerLatchNone(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo)
     {
         this.deltaData = deltaData;
         this.dispatchTo = dispatchTo;
     }
 
-    /**
-     * Returns the data to dispatch.
-     * @return dispatch insert and remove stream events
-     */
-    public NamedWindowDeltaData getDeltaData()
-    {
+    public void await() {
+    }
+
+    public Thread getCurrentThread() {
+        return Thread.currentThread();
+    }
+
+    public void done() {
+    }
+
+    public NamedWindowDeltaData getDeltaData() {
         return deltaData;
     }
 
-    /**
-     * Returns the destination of the dispatch: a map of statements and their consuming views (one or multiple)
-     * @return map of statement to consumer views
-     */
-    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo()
-    {
+    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo() {
         return dispatchTo;
     }
 }

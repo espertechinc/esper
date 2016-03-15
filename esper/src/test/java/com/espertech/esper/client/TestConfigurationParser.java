@@ -67,6 +67,9 @@ public class TestConfigurationParser extends TestCase
         assertEquals(null, config.getEngineDefaults().getThreading().getThreadPoolTimerExecCapacity());
         assertFalse(config.getEngineDefaults().getThreading().isEngineFairlock());
         assertFalse(config.getEngineDefaults().getMetricsReporting().isJmxEngineMetrics());
+        assertTrue(config.getEngineDefaults().getThreading().isNamedWindowConsumerDispatchPreserveOrder());
+        assertEquals(Long.MAX_VALUE, config.getEngineDefaults().getThreading().getNamedWindowConsumerDispatchTimeout());
+        assertEquals(ConfigurationEngineDefaults.Threading.Locking.SPIN, config.getEngineDefaults().getThreading().getNamedWindowConsumerDispatchLocking());
 
         assertEquals(Configuration.PropertyResolutionStyle.CASE_SENSITIVE, config.getEngineDefaults().getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
@@ -372,6 +375,9 @@ public class TestConfigurationParser extends TestCase
         assertFalse(config.getEngineDefaults().getThreading().isInsertIntoDispatchPreserveOrder());
         assertEquals(3000, config.getEngineDefaults().getThreading().getInsertIntoDispatchTimeout());
         assertEquals(ConfigurationEngineDefaults.Threading.Locking.SUSPEND, config.getEngineDefaults().getThreading().getInsertIntoDispatchLocking());
+        assertFalse(config.getEngineDefaults().getThreading().isNamedWindowConsumerDispatchPreserveOrder());
+        assertEquals(4000, config.getEngineDefaults().getThreading().getNamedWindowConsumerDispatchTimeout());
+        assertEquals(ConfigurationEngineDefaults.Threading.Locking.SUSPEND, config.getEngineDefaults().getThreading().getNamedWindowConsumerDispatchLocking());
 
         assertFalse(config.getEngineDefaults().getThreading().isListenerDispatchPreserveOrder());
         assertEquals(2000, config.getEngineDefaults().getThreading().getListenerDispatchTimeout());

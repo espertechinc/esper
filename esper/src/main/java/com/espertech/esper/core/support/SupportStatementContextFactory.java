@@ -32,6 +32,7 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.PatternObjectResolutionServiceImpl;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
+import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.view.ViewEnumHelper;
 import com.espertech.esper.view.ViewFactoryContext;
 import com.espertech.esper.view.ViewResolutionServiceImpl;
@@ -101,7 +102,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl());
+                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl(), new TimeSourceServiceImpl());
 
         return new StatementContext(stmtEngineServices,
                 stub,

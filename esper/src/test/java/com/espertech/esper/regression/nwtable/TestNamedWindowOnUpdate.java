@@ -20,11 +20,7 @@ import com.espertech.esper.support.bean.SupportBeanAbstractSub;
 import com.espertech.esper.support.bean.SupportBean_A;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class TestNamedWindowOnUpdate extends TestCase
 {
@@ -88,55 +84,6 @@ public class TestNamedWindowOnUpdate extends TestCase
         EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
 
         EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
-    }
-    
-    public void testMultipleDataWindowIntersectOnUpdate() {
-        SupportUpdateListener listener = new SupportUpdateListener();
-        String[] fields = "company,value,total".split(",");
-
-        // ESPER-568
-        epService.getEPAdministrator().createEPL("create schema S2 ( company string, value double, total double)");
-	    EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window S2Win.win:time(25 hour).std:firstunique(company) as S2");
-        epService.getEPAdministrator().createEPL("insert into S2Win select * from S2.std:firstunique(company)");
-        epService.getEPAdministrator().createEPL("on S2 as a update S2Win as b set total = b.value + a.value");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select count(*) as cnt from S2Win");
-        stmt.addListener(listener);
-
-        createSendEvent(epService, "S2", "AComp", 3.0, 0.0);
-        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 0.0}});
-
-        createSendEvent(epService, "S2", "AComp", 6.0, 0.0);
-        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 9.0}});
-
-        createSendEvent(epService, "S2", "AComp", 5.0, 0.0);
-        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 8.0}});
-
-        createSendEvent(epService, "S2", "BComp", 4.0, 0.0);
-        // this example does not have @priority thereby it is undefined whether there are two counts delivered or one
-        if (listener.getLastNewData().length == 2) {
-            assertEquals(1L, listener.getLastNewData()[0].get("cnt"));
-            assertEquals(2L, listener.getLastNewData()[1].get("cnt"));
-        }
-        else {
-            assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
-        }
-        EPAssertionUtil.assertPropsPerRow(stmtWin.iterator(), fields, new Object[][]{{"AComp", 3.0, 7.0}, {"BComp", 4.0, 0.0}});
-    }
-
-    private void createSendEvent(EPServiceProvider engine, String typeName, String company, double value, double total) {
-        HashMap<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put("company", company);
-        map.put("value", value);
-        map.put("total", total);
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
-            engine.getEPRuntime().sendEvent(map.values().toArray(), typeName);
-        }
-        else {
-            engine.getEPRuntime().sendEvent(map, typeName);
-        }
     }
 
     public void testMultipleDataWindowUnion() {

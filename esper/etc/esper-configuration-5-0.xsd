@@ -451,6 +451,7 @@
 				<xs:choice>
 					<xs:element ref="esper:listener-dispatch" minOccurs="0"/>
 					<xs:element ref="esper:insert-into-dispatch" minOccurs="0"/>
+					<xs:element ref="esper:named-window-consumer-dispatch" minOccurs="0"/>
 					<xs:element ref="esper:internal-timer" minOccurs="0"/>
 					<xs:element ref="esper:threadpool-inbound" minOccurs="0"/>
 					<xs:element ref="esper:threadpool-outbound" minOccurs="0"/>
@@ -480,6 +481,13 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="insert-into-dispatch">
+		<xs:complexType>
+			<xs:attribute name="preserve-order" type="xs:boolean" use="required"/>
+			<xs:attribute name="timeout-msec" type="xs:long" use="optional"/>
+			<xs:attribute name="locking" type="esper:dispatchLockingEnum" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="named-window-consumer-dispatch">
 		<xs:complexType>
 			<xs:attribute name="preserve-order" type="xs:boolean" use="required"/>
 			<xs:attribute name="timeout-msec" type="xs:long" use="optional"/>

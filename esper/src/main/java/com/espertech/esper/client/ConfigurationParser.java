@@ -1112,6 +1112,26 @@ class ConfigurationParser {
                             ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase()));
                 }
             }
+            if (subElement.getNodeName().equals("named-window-consumer-dispatch"))
+            {
+                String preserveOrderText = getRequiredAttribute(subElement, "preserve-order");
+                Boolean preserveOrder = Boolean.parseBoolean(preserveOrderText);
+                configuration.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchPreserveOrder(preserveOrder);
+
+                if (subElement.getAttributes().getNamedItem("timeout-msec") != null)
+                {
+                    String timeoutMSecText = subElement.getAttributes().getNamedItem("timeout-msec").getTextContent();
+                    Long timeoutMSec = Long.parseLong(timeoutMSecText);
+                    configuration.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchTimeout(timeoutMSec);
+                }
+
+                if (subElement.getAttributes().getNamedItem("locking") != null)
+                {
+                    String value = subElement.getAttributes().getNamedItem("locking").getTextContent();
+                    configuration.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchLocking(
+                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase()));
+                }
+            }
             if (subElement.getNodeName().equals("internal-timer"))
             {
                 String enabledText = getRequiredAttribute(subElement, "enabled");

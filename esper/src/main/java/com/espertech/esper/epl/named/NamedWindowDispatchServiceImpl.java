@@ -8,13 +8,13 @@
  **************************************************************************************/
 package com.espertech.esper.epl.named;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.ExceptionHandlingService;
-import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.metric.MetricReportingPath;
@@ -24,6 +24,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.SchedulingService;
+import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.util.MetricUtil;
 
@@ -43,11 +44,11 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
     private final ManagedReadWriteLock eventProcessingRWLock;
     private final MetricReportingService metricReportingService;
 
-    private ThreadLocal<List<NamedWindowConsumerDispatchUnit>> threadLocal = new ThreadLocal<List<NamedWindowConsumerDispatchUnit>>()
+    private ThreadLocal<List<NamedWindowConsumerLatch>> threadLocal = new ThreadLocal<List<NamedWindowConsumerLatch>>()
     {
-        protected synchronized List<NamedWindowConsumerDispatchUnit> initialValue()
+        protected synchronized List<NamedWindowConsumerLatch> initialValue()
         {
-            return new ArrayList<NamedWindowConsumerDispatchUnit>();
+            return new ArrayList<NamedWindowConsumerLatch>();
         }
     };
 
@@ -85,8 +86,8 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         return new NamedWindowProcessor(name, namedWindowMgmtService, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, optionalUniqueKeyProps, eventTypeAsName, statementContextCreateWindow);
     }
 
-    public NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, String contextName) {
-        return new NamedWindowTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, parentBatchWindow);
+    public NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, String contextName, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig) {
+        return new NamedWindowTailView(eventType, namedWindowMgmtService, namedWindowDispatchService, statementResultService, revisionProcessor, isPrioritized, parentBatchWindow, timeSourceService, threadingConfig);
     }
 
     public void destroy()
@@ -95,15 +96,15 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         dispatchesPerStmtTL.remove();
     }
 
-    public void addDispatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
+    public void addDispatch(NamedWindowConsumerLatchFactory latchFactory, NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
     {
-        NamedWindowConsumerDispatchUnit unit = new NamedWindowConsumerDispatchUnit(delta, consumers);
-        threadLocal.get().add(unit);
+        NamedWindowConsumerLatch latch = latchFactory.newLatch(delta, consumers);
+        threadLocal.get().add(latch);
     }
 
     public boolean dispatch()
     {
-        List<NamedWindowConsumerDispatchUnit> dispatches = threadLocal.get();
+        List<NamedWindowConsumerLatch> dispatches = threadLocal.get();
         if (dispatches.isEmpty())
         {
             return false;
@@ -116,7 +117,7 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             eventProcessingRWLock.acquireReadLock();
             try
             {
-                NamedWindowConsumerDispatchUnit[] units = dispatches.toArray(new NamedWindowConsumerDispatchUnit[dispatches.size()]);
+                NamedWindowConsumerLatch[] units = dispatches.toArray(new NamedWindowConsumerLatch[dispatches.size()]);
                 dispatches.clear();
                 processDispatches(units);
             }
@@ -134,52 +135,51 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         return true;
     }
 
-    private void processDispatches(NamedWindowConsumerDispatchUnit[] dispatches) {
+    private void processDispatches(NamedWindowConsumerLatch[] dispatches) {
 
         if (dispatches.length == 1)
         {
-            NamedWindowConsumerDispatchUnit unit = dispatches[0];
-            EventBean[] newData = unit.getDeltaData().getNewData();
-            EventBean[] oldData = unit.getDeltaData().getOldData();
+            NamedWindowConsumerLatch latch = dispatches[0];
+            try {
+                latch.await();
+                EventBean[] newData = latch.getDeltaData().getNewData();
+                EventBean[] oldData = latch.getDeltaData().getOldData();
 
-            if (MetricReportingPath.isMetricsEnabled)
-            {
-                for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : unit.getDispatchTo().entrySet())
-                {
-                    EPStatementAgentInstanceHandle handle = entry.getKey();
-                    if (handle.getStatementHandle().getMetricsHandle().isEnabled()) {
-                        long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
-                        long wallTimeBefore = MetricUtil.getWall();
+                if (MetricReportingPath.isMetricsEnabled) {
+                    for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : latch.getDispatchTo().entrySet()) {
+                        EPStatementAgentInstanceHandle handle = entry.getKey();
+                        if (handle.getStatementHandle().getMetricsHandle().isEnabled()) {
+                            long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
+                            long wallTimeBefore = MetricUtil.getWall();
 
+                            processHandle(handle, entry.getValue(), newData, oldData);
+
+                            long wallTimeAfter = MetricUtil.getWall();
+                            long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
+                            long deltaCPU = cpuTimeAfter - cpuTimeBefore;
+                            long deltaWall = wallTimeAfter - wallTimeBefore;
+                            metricReportingService.accountTime(handle.getStatementHandle().getMetricsHandle(), deltaCPU, deltaWall, 1);
+                        } else {
+                            processHandle(handle, entry.getValue(), newData, oldData);
+                        }
+
+                        if ((isPrioritized) && (handle.isPreemptive())) {
+                            break;
+                        }
+                    }
+                } else {
+                    for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : latch.getDispatchTo().entrySet()) {
+                        EPStatementAgentInstanceHandle handle = entry.getKey();
                         processHandle(handle, entry.getValue(), newData, oldData);
 
-                        long wallTimeAfter = MetricUtil.getWall();
-                        long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
-                        long deltaCPU = cpuTimeAfter - cpuTimeBefore;
-                        long deltaWall = wallTimeAfter - wallTimeBefore;
-                        metricReportingService.accountTime(handle.getStatementHandle().getMetricsHandle(), deltaCPU, deltaWall, 1);
-                    }
-                    else {
-                        processHandle(handle, entry.getValue(), newData, oldData);
-                    }
-
-                    if ((isPrioritized) && (handle.isPreemptive()))
-                    {
-                        break;
+                        if ((isPrioritized) && (handle.isPreemptive())) {
+                            break;
+                        }
                     }
                 }
             }
-            else {
-                for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : unit.getDispatchTo().entrySet())
-                {
-                    EPStatementAgentInstanceHandle handle = entry.getKey();
-                    processHandle(handle, entry.getValue(), newData, oldData);
-
-                    if ((isPrioritized) && (handle.isPreemptive()))
-                    {
-                        break;
-                    }
-                }
+            finally {
+                latch.done();
             }
 
             return;
@@ -193,131 +193,127 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         // Most likely all dispatches go to different statements since most statements are not joins of
         // named windows that produce results at the same time. Therefore sort by statement handle.
         Map<EPStatementAgentInstanceHandle, Object> dispatchesPerStmt = dispatchesPerStmtTL.get();
-        for (NamedWindowConsumerDispatchUnit unit : dispatches)
+        for (NamedWindowConsumerLatch latch : dispatches)
         {
-            for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : unit.getDispatchTo().entrySet())
+            latch.await();
+            for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : latch.getDispatchTo().entrySet())
             {
                 EPStatementAgentInstanceHandle handle = entry.getKey();
                 Object perStmtObj = dispatchesPerStmt.get(handle);
                 if (perStmtObj == null)
                 {
-                    dispatchesPerStmt.put(handle, unit);
+                    dispatchesPerStmt.put(handle, latch);
                 }
                 else if (perStmtObj instanceof List)
                 {
-                    List<NamedWindowConsumerDispatchUnit> list = (List<NamedWindowConsumerDispatchUnit>) perStmtObj;
-                    list.add(unit);
+                    List<NamedWindowConsumerLatch> list = (List<NamedWindowConsumerLatch>) perStmtObj;
+                    list.add(latch);
                 }
                 else    // convert from object to list
                 {
-                    NamedWindowConsumerDispatchUnit unitObj = (NamedWindowConsumerDispatchUnit) perStmtObj;
-                    List<NamedWindowConsumerDispatchUnit> list = new ArrayList<NamedWindowConsumerDispatchUnit>();
+                    NamedWindowConsumerLatch unitObj = (NamedWindowConsumerLatch) perStmtObj;
+                    List<NamedWindowConsumerLatch> list = new ArrayList<NamedWindowConsumerLatch>();
                     list.add(unitObj);
-                    list.add(unit);
+                    list.add(latch);
                     dispatchesPerStmt.put(handle, list);
                 }
             }
         }
 
-        // Dispatch - with or without metrics reporting
-        if (MetricReportingPath.isMetricsEnabled)
-        {
-            for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : dispatchesPerStmt.entrySet())
-            {
-                EPStatementAgentInstanceHandle handle = entry.getKey();
-                Object perStmtObj = entry.getValue();
+        try {
+            // Dispatch - with or without metrics reporting
+            if (MetricReportingPath.isMetricsEnabled) {
+                for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : dispatchesPerStmt.entrySet()) {
+                    EPStatementAgentInstanceHandle handle = entry.getKey();
+                    Object perStmtObj = entry.getValue();
 
-                // dispatch of a single result to the statement
-                if (perStmtObj instanceof NamedWindowConsumerDispatchUnit)
-                {
-                    NamedWindowConsumerDispatchUnit unit = (NamedWindowConsumerDispatchUnit) perStmtObj;
-                    EventBean[] newData = unit.getDeltaData().getNewData();
-                    EventBean[] oldData = unit.getDeltaData().getOldData();
+                    // dispatch of a single result to the statement
+                    if (perStmtObj instanceof NamedWindowConsumerLatch) {
+                        NamedWindowConsumerLatch unit = (NamedWindowConsumerLatch) perStmtObj;
+                        EventBean[] newData = unit.getDeltaData().getNewData();
+                        EventBean[] oldData = unit.getDeltaData().getOldData();
 
+                        if (handle.getStatementHandle().getMetricsHandle().isEnabled()) {
+                            long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
+                            long wallTimeBefore = MetricUtil.getWall();
+
+                            processHandle(handle, unit.getDispatchTo().get(handle), newData, oldData);
+
+                            long wallTimeAfter = MetricUtil.getWall();
+                            long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
+                            long deltaCPU = cpuTimeAfter - cpuTimeBefore;
+                            long deltaWall = wallTimeAfter - wallTimeBefore;
+                            metricReportingService.accountTime(handle.getStatementHandle().getMetricsHandle(), deltaCPU, deltaWall, 1);
+                        } else {
+                            Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entries = unit.getDispatchTo();
+                            List<NamedWindowConsumerView> items = entries.get(handle);
+                            if (items != null) {
+                                processHandle(handle, items, newData, oldData);
+                            }
+                        }
+
+                        if ((isPrioritized) && (handle.isPreemptive())) {
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                    // dispatch of multiple results to a the same statement, need to aggregate per consumer view
+                    LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = getDeltaPerConsumer(perStmtObj, handle);
                     if (handle.getStatementHandle().getMetricsHandle().isEnabled()) {
                         long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
                         long wallTimeBefore = MetricUtil.getWall();
 
-                        processHandle(handle, unit.getDispatchTo().get(handle), newData, oldData);
+                        processHandleMultiple(handle, deltaPerConsumer);
 
                         long wallTimeAfter = MetricUtil.getWall();
                         long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
                         long deltaCPU = cpuTimeAfter - cpuTimeBefore;
                         long deltaWall = wallTimeAfter - wallTimeBefore;
                         metricReportingService.accountTime(handle.getStatementHandle().getMetricsHandle(), deltaCPU, deltaWall, 1);
-                    }
-                    else {
-                        Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entries = unit.getDispatchTo();
-                    	List<NamedWindowConsumerView> items = entries.get(handle);
-                    	if (items != null) {
-							processHandle(handle, items, newData, oldData);
-						}
+                    } else {
+                        processHandleMultiple(handle, deltaPerConsumer);
                     }
 
-                    if ((isPrioritized) && (handle.isPreemptive()))
-                    {
+                    if ((isPrioritized) && (handle.isPreemptive())) {
                         break;
                     }
-
-                    continue;
                 }
+            } else {
 
-                // dispatch of multiple results to a the same statement, need to aggregate per consumer view
-                LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = getDeltaPerConsumer(perStmtObj, handle);
-                if (handle.getStatementHandle().getMetricsHandle().isEnabled()) {
-                    long cpuTimeBefore = MetricUtil.getCPUCurrentThread();
-                    long wallTimeBefore = MetricUtil.getWall();
+                for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : dispatchesPerStmt.entrySet()) {
+                    EPStatementAgentInstanceHandle handle = entry.getKey();
+                    Object perStmtObj = entry.getValue();
 
+                    // dispatch of a single result to the statement
+                    if (perStmtObj instanceof NamedWindowConsumerLatch) {
+                        NamedWindowConsumerLatch unit = (NamedWindowConsumerLatch) perStmtObj;
+                        EventBean[] newData = unit.getDeltaData().getNewData();
+                        EventBean[] oldData = unit.getDeltaData().getOldData();
+
+                        processHandle(handle, unit.getDispatchTo().get(handle), newData, oldData);
+
+                        if ((isPrioritized) && (handle.isPreemptive())) {
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                    // dispatch of multiple results to a the same statement, need to aggregate per consumer view
+                    LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = getDeltaPerConsumer(perStmtObj, handle);
                     processHandleMultiple(handle, deltaPerConsumer);
 
-                    long wallTimeAfter = MetricUtil.getWall();
-                    long cpuTimeAfter = MetricUtil.getCPUCurrentThread();
-                    long deltaCPU = cpuTimeAfter - cpuTimeBefore;
-                    long deltaWall = wallTimeAfter - wallTimeBefore;
-                    metricReportingService.accountTime(handle.getStatementHandle().getMetricsHandle(), deltaCPU, deltaWall, 1);
-                }
-                else {
-                    processHandleMultiple(handle, deltaPerConsumer);
-                }
-
-                if ((isPrioritized) && (handle.isPreemptive()))
-                {
-                    break;
+                    if ((isPrioritized) && (handle.isPreemptive())) {
+                        break;
+                    }
                 }
             }
         }
-        else {
-
-            for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : dispatchesPerStmt.entrySet())
-            {
-                EPStatementAgentInstanceHandle handle = entry.getKey();
-                Object perStmtObj = entry.getValue();
-
-                // dispatch of a single result to the statement
-                if (perStmtObj instanceof NamedWindowConsumerDispatchUnit)
-                {
-                    NamedWindowConsumerDispatchUnit unit = (NamedWindowConsumerDispatchUnit) perStmtObj;
-                    EventBean[] newData = unit.getDeltaData().getNewData();
-                    EventBean[] oldData = unit.getDeltaData().getOldData();
-
-                    processHandle(handle, unit.getDispatchTo().get(handle), newData, oldData);
-
-                    if ((isPrioritized) && (handle.isPreemptive()))
-                    {
-                        break;
-                    }
-
-                    continue;
-                }
-
-                // dispatch of multiple results to a the same statement, need to aggregate per consumer view
-                LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = getDeltaPerConsumer(perStmtObj, handle);
-                processHandleMultiple(handle, deltaPerConsumer);
-
-                if ((isPrioritized) && (handle.isPreemptive()))
-                {
-                    break;
-                }
+        finally {
+            for (NamedWindowConsumerLatch latch : dispatches) {
+                latch.done();
             }
         }
 
@@ -388,9 +384,9 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
     }
 
     public LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> getDeltaPerConsumer(Object perStmtObj, EPStatementAgentInstanceHandle handle) {
-        List<NamedWindowConsumerDispatchUnit> list = (List<NamedWindowConsumerDispatchUnit>) perStmtObj;
+        List<NamedWindowConsumerLatch> list = (List<NamedWindowConsumerLatch>) perStmtObj;
         LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData> deltaPerConsumer = new LinkedHashMap<NamedWindowConsumerView, NamedWindowDeltaData>();
-        for (NamedWindowConsumerDispatchUnit unit : list)   // for each unit
+        for (NamedWindowConsumerLatch unit : list)   // for each unit
         {
             for (NamedWindowConsumerView consumerView : unit.getDispatchTo().get(handle))   // each consumer
             {

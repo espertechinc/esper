@@ -296,6 +296,10 @@ public class ConfigurationEngineDefaults implements Serializable
         private long insertIntoDispatchTimeout;
         private Locking insertIntoDispatchLocking;
 
+        private boolean isNamedWindowConsumerDispatchPreserveOrder;
+        private long namedWindowConsumerDispatchTimeout;
+        private Locking namedWindowConsumerDispatchLocking;
+
         private long internalTimerMsecResolution;
         private boolean internalTimerEnabled;
 
@@ -326,6 +330,10 @@ public class ConfigurationEngineDefaults implements Serializable
             insertIntoDispatchTimeout = 100;
             isInsertIntoDispatchPreserveOrder = true;
             insertIntoDispatchLocking = Locking.SPIN;
+
+            namedWindowConsumerDispatchTimeout = Long.MAX_VALUE;
+            isNamedWindowConsumerDispatchPreserveOrder = true;
+            namedWindowConsumerDispatchLocking = Locking.SPIN;
 
             internalTimerEnabled = true;
             internalTimerMsecResolution = 100;
@@ -746,6 +754,58 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setEngineFairlock(boolean engineFairlock) {
             this.engineFairlock = engineFairlock;
+        }
+
+        /**
+         * In multithreaded environments, this setting controls whether named window dispatches to named window consumers preserve
+         * the order of events inserted and removed such that statements that consume a named windows delta stream
+         * behave deterministic (true by default).
+         * @return flag
+         */
+        public boolean isNamedWindowConsumerDispatchPreserveOrder() {
+            return isNamedWindowConsumerDispatchPreserveOrder;
+        }
+
+        /**
+         * In multithreaded environments, this setting controls whether named window dispatches to named window consumers preserve
+         * the order of events inserted and removed such that statements that consume a named windows delta stream
+         * behave deterministic (true by default).
+         * @param isNamedWindowConsumerDispatchPreserveOrder flag
+         */
+        public void setNamedWindowConsumerDispatchPreserveOrder(boolean isNamedWindowConsumerDispatchPreserveOrder) {
+            this.isNamedWindowConsumerDispatchPreserveOrder = isNamedWindowConsumerDispatchPreserveOrder;
+        }
+
+        /**
+         * Returns the timeout millisecond value for named window dispatches to named window consumers.
+         * @return timeout milliseconds
+         */
+        public long getNamedWindowConsumerDispatchTimeout() {
+            return namedWindowConsumerDispatchTimeout;
+        }
+
+        /**
+         * Sets the timeout millisecond value for named window dispatches to named window consumers.
+         * @param namedWindowConsumerDispatchTimeout timeout milliseconds
+         */
+        public void setNamedWindowConsumerDispatchTimeout(long namedWindowConsumerDispatchTimeout) {
+            this.namedWindowConsumerDispatchTimeout = namedWindowConsumerDispatchTimeout;
+        }
+
+        /**
+         * Returns the locking strategy value for named window dispatches to named window consumers (default is spin).
+         * @return strategy
+         */
+        public Locking getNamedWindowConsumerDispatchLocking() {
+            return namedWindowConsumerDispatchLocking;
+        }
+
+        /**
+         * Sets the locking strategy value for named window dispatches to named window consumers (default is spin).
+         * @param namedWindowConsumerDispatchLocking strategy
+         */
+        public void setNamedWindowConsumerDispatchLocking(Locking namedWindowConsumerDispatchLocking) {
+            this.namedWindowConsumerDispatchLocking = namedWindowConsumerDispatchLocking;
         }
 
         /**

@@ -40,6 +40,7 @@ import com.espertech.esper.schedule.ScheduleAdjustmentService;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;
+import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.view.StatementStopService;
 import com.espertech.esper.view.ViewResolutionService;
 import com.espertech.esper.view.ViewService;
@@ -595,5 +596,9 @@ public final class StatementContext
 
     public void setFilterFaultHandlerFactory(FilterFaultHandlerFactory filterFaultHandlerFactory) {
         this.filterFaultHandlerFactory = filterFaultHandlerFactory;
+    }
+
+    public TimeSourceService getTimeSourceService() {
+        return stmtEngineServices.getTimeSourceService();
     }
 }

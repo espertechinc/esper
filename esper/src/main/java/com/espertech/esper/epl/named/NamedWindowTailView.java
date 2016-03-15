@@ -8,16 +8,16 @@
  **************************************************************************************/
 package com.espertech.esper.epl.named;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
+import com.espertech.esper.timer.TimeSourceService;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,16 +38,21 @@ public class NamedWindowTailView
     private final boolean isPrioritized;
     private final boolean isParentBatchWindow;
     private volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersNonContext;  // handles as copy-on-write
+    private final NamedWindowConsumerLatchFactory latchFactory;
 
-    public NamedWindowTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow) {
+    public NamedWindowTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig) {
         this.eventType = eventType;
         this.namedWindowMgmtService = namedWindowMgmtService;
         this.namedWindowDispatchService = namedWindowDispatchService;
         this.statementResultService = statementResultService;
         this.revisionProcessor = revisionProcessor;
-        isPrioritized = prioritized;
-        isParentBatchWindow = parentBatchWindow;
+        this.isPrioritized = prioritized;
+        this.isParentBatchWindow = parentBatchWindow;
         this.consumersNonContext = NamedWindowUtil.createConsumerMap(isPrioritized);
+        this.latchFactory = new NamedWindowConsumerLatchFactory(eventType.getName(),
+                threadingConfig.isNamedWindowConsumerDispatchPreserveOrder(),
+                threadingConfig.getNamedWindowConsumerDispatchTimeout(),
+                threadingConfig.getNamedWindowConsumerDispatchLocking(), timeSourceService);
     }
 
     /**
@@ -151,10 +156,10 @@ public class NamedWindowTailView
 
     public void addDispatches(Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext, NamedWindowDeltaData delta, AgentInstanceContext agentInstanceContext) {
         if (!consumersInContext.isEmpty()) {
-            namedWindowDispatchService.addDispatch(delta, consumersInContext);
+            namedWindowDispatchService.addDispatch(latchFactory, delta, consumersInContext);
         }
         if (!consumersNonContext.isEmpty()) {
-            namedWindowDispatchService.addDispatch(delta, consumersNonContext);
+            namedWindowDispatchService.addDispatch(latchFactory, delta, consumersNonContext);
         }
     }
 }

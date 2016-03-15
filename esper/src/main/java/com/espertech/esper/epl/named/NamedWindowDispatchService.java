@@ -8,12 +8,14 @@
  **************************************************************************************/
 package com.espertech.esper.epl.named;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
+import com.espertech.esper.timer.TimeSourceService;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,7 @@ import java.util.Set;
 public interface NamedWindowDispatchService
 {
     NamedWindowProcessor createProcessor(String name, NamedWindowMgmtServiceImpl namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow);
-    NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, String contextName);
+    NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, String contextName, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig);
 
     /**
      * Dispatch events of the insert and remove stream of named windows to consumers, as part of the
@@ -39,7 +41,7 @@ public interface NamedWindowDispatchService
      * @param delta is the result to dispatch
      * @param consumers is the destination of the dispatch, a map of statements to one or more consuming views
      */
-    void addDispatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers);
+    void addDispatch(NamedWindowConsumerLatchFactory latchFactory, NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers);
 
     /**
      * Destroy service.
