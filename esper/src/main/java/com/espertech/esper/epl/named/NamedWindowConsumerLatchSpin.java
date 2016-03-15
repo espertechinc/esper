@@ -26,8 +26,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
     // The earlier latch is the latch generated before this latch
     private NamedWindowConsumerLatchFactory factory;
     private NamedWindowConsumerLatchSpin earlier;
-    private NamedWindowDeltaData deltaData;
-    private Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
     private Thread currentThread;
 
     private volatile boolean isCompleted;
@@ -36,13 +34,11 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
      * Ctor.
      * @param earlier the latch before this latch that this latch should be waiting for
      */
-    public NamedWindowConsumerLatchSpin(NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchSpin earlier,
-                                        NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo)
+    public NamedWindowConsumerLatchSpin(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchSpin earlier)
     {
+        super(deltaData, dispatchTo);
         this.factory = factory;
         this.earlier = earlier;
-        this.deltaData = deltaData;
-        this.dispatchTo = dispatchTo;
     }
 
     /**
@@ -50,6 +46,7 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
      */
     public NamedWindowConsumerLatchSpin(NamedWindowConsumerLatchFactory factory)
     {
+        super(null, null);
         this.factory = factory;
         isCompleted = true;
         earlier = null;
@@ -89,14 +86,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
                 break;
             }
         }
-    }
-
-    public NamedWindowDeltaData getDeltaData() {
-        return deltaData;
-    }
-
-    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo() {
-        return dispatchTo;
     }
 
     public Thread getCurrentThread() {

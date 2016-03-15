@@ -19,13 +19,8 @@ import java.util.Map;
  */
 public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch
 {
-    private NamedWindowDeltaData deltaData;
-    private Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
-
-    public NamedWindowConsumerLatchNone(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo)
-    {
-        this.deltaData = deltaData;
-        this.dispatchTo = dispatchTo;
+    public NamedWindowConsumerLatchNone(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo) {
+        super(deltaData, dispatchTo);
     }
 
     public void await() {
@@ -36,13 +31,5 @@ public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch
     }
 
     public void done() {
-    }
-
-    public NamedWindowDeltaData getDeltaData() {
-        return deltaData;
-    }
-
-    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo() {
-        return dispatchTo;
     }
 }

@@ -15,9 +15,23 @@ import java.util.Map;
 
 public abstract class NamedWindowConsumerLatch
 {
+    private final NamedWindowDeltaData deltaData;
+    private final Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
+
     public abstract void await();
-    public abstract NamedWindowDeltaData getDeltaData();
-    public abstract Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo();
     public abstract Thread getCurrentThread();
     public abstract void done();
+
+    public NamedWindowConsumerLatch(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo) {
+        this.deltaData = deltaData;
+        this.dispatchTo = dispatchTo;
+    }
+
+    public NamedWindowDeltaData getDeltaData() {
+        return deltaData;
+    }
+
+    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo() {
+        return dispatchTo;
+    }
 }

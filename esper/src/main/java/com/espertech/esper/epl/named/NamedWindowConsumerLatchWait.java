@@ -26,8 +26,6 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
     // The earlier latch is the latch generated before this latch
     private final NamedWindowConsumerLatchFactory factory;
     private NamedWindowConsumerLatchWait earlier;
-    private NamedWindowDeltaData deltaData;
-    private Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
 
     // The later latch is the latch generated after this latch
     private NamedWindowConsumerLatchWait later;
@@ -37,14 +35,12 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
     /**
      * Ctor.
      * @param earlier the latch before this latch that this latch should be waiting for
-     * @param msecTimeout the timeout after which delivery occurs
      */
-    public NamedWindowConsumerLatchWait(NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier, NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo)
+    public NamedWindowConsumerLatchWait(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier)
     {
+        super(deltaData, dispatchTo);
         this.factory = factory;
         this.earlier = earlier;
-        this.deltaData = deltaData;
-        this.dispatchTo = dispatchTo;
     }
 
     /**
@@ -52,6 +48,7 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
      */
     public NamedWindowConsumerLatchWait(NamedWindowConsumerLatchFactory factory)
     {
+        super(null, null);
         this.factory = factory;
         isCompleted = true;
         earlier = null;
@@ -126,13 +123,5 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
         }
         earlier = null;
         later = null;
-    }
-
-    public NamedWindowDeltaData getDeltaData() {
-        return deltaData;
-    }
-
-    public Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> getDispatchTo() {
-        return dispatchTo;
     }
 }

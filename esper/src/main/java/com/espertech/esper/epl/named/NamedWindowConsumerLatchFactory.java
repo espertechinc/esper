@@ -64,13 +64,13 @@ public class NamedWindowConsumerLatchFactory
     public NamedWindowConsumerLatch newLatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
     {
         if (useSpin) {
-            NamedWindowConsumerLatchSpin nextLatch = new NamedWindowConsumerLatchSpin(this, currentLatchSpin, delta, consumers);
+            NamedWindowConsumerLatchSpin nextLatch = new NamedWindowConsumerLatchSpin(delta, consumers, this, currentLatchSpin);
             currentLatchSpin = nextLatch;
             return nextLatch;
         }
         else {
             if (enabled) {
-                NamedWindowConsumerLatchWait nextLatch = new NamedWindowConsumerLatchWait(this, currentLatchWait, delta, consumers);
+                NamedWindowConsumerLatchWait nextLatch = new NamedWindowConsumerLatchWait(delta, consumers, this, currentLatchWait);
                 currentLatchWait.setLater(nextLatch);
                 currentLatchWait = nextLatch;
                 return nextLatch;
