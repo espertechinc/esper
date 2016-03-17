@@ -134,9 +134,8 @@ public class TestMTDeterminismInsertInto extends TestCase
         // setup statements
         EPStatement stmtInsertOne = engine.getEPAdministrator().createEPL("insert into MyStreamOne select count(*) as cnt from " + SupportBean.class.getName());
         EPStatement stmtInsertTwo = engine.getEPAdministrator().createEPL("insert into MyStreamTwo select sum(cnt) as mysum from MyStreamOne");
-        EPStatement stmtInsertThree = engine.getEPAdministrator().createEPL("select * from MyStreamTwo");
         SupportUpdateListener listener = new SupportUpdateListener();
-        stmtInsertThree.addListener(listener);
+        stmtInsertTwo.addListener(listener);
 
         // execute
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
@@ -168,7 +167,6 @@ public class TestMTDeterminismInsertInto extends TestCase
 
         stmtInsertOne.destroy();
         stmtInsertTwo.destroy();
-        stmtInsertThree.destroy();
     }
 
     private long total(int num)
