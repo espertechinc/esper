@@ -9,6 +9,7 @@
 					<xs:element ref="esper:revision-event-type" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:variant-stream" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:auto-import" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="esper:auto-import-annotations" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:method-reference" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:database-reference" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="esper:plugin-view" minOccurs="0" maxOccurs="unbounded"/>
@@ -138,6 +139,11 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="auto-import">
+		<xs:complexType>
+			<xs:attribute name="import-name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="auto-import-annotations">
 		<xs:complexType>
 			<xs:attribute name="import-name" type="xs:string" use="required"/>
 		</xs:complexType>

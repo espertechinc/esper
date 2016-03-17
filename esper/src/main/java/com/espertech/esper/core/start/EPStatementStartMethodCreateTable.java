@@ -204,7 +204,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
                 EngineImportException ex = null;
                 if (clazz == null) {
                     try {
-                        clazz = services.getEngineImportService().resolveClass(propname);
+                        clazz = services.getEngineImportService().resolveClass(propname, false);
                     }
                     catch (EngineImportException e) {
                         ex = e;

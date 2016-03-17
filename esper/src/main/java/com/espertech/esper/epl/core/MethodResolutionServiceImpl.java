@@ -85,10 +85,8 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return engineImportService.resolveCtor(clazz, paramTypes);
     }
 
-    public Class resolveClass(String className)
-			throws EngineImportException
-    {
-        return engineImportService.resolveClass(className);
+    public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException {
+        return engineImportService.resolveClass(className, forAnnotation);
 	}
 
     public Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws EngineImportException

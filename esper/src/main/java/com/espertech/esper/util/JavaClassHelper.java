@@ -1482,7 +1482,7 @@ public class JavaClassHelper
                 clazz = Class.forName(hookClass);
             }
             else {
-                clazz = resolution.resolveClass(hookClass);
+                clazz = resolution.resolveClass(hookClass, true);
             }
         }
         catch (Exception e)
@@ -1519,7 +1519,7 @@ public class JavaClassHelper
      * @return null or enumeration value
      * @throws ExprValidationException if there is an error accessing the enum
      */
-    public static Object resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService, EngineImportService engineImportService)
+    public static Object resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService, EngineImportService engineImportService, boolean isAnnotation)
             throws ExprValidationException
     {
         int lastDotIndex = constant.lastIndexOf('.');
@@ -1540,11 +1540,11 @@ public class JavaClassHelper
         {
             if (engineImportService != null)
             {
-                clazz = engineImportService.resolveClass(className);
+                clazz = engineImportService.resolveClass(className, isAnnotation);
             }
             else
             {
-                clazz = methodResolutionService.resolveClass(className);
+                clazz = methodResolutionService.resolveClass(className, isAnnotation);
             }
         }
         catch (EngineImportException e)

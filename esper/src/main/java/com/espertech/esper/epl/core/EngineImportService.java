@@ -40,6 +40,13 @@ public interface EngineImportService
     public void addImport(String importName) throws EngineImportException;
 
     /**
+     * Add an import for annotation-only use, such as "com.mypackage.*" or "com.mypackage.MyClass".
+     * @param importName is the import to add
+     * @throws EngineImportException if the information or format is invalid
+     */
+    public void addAnnotationImport(String importName) throws EngineImportException;
+
+    /**
      * Add an aggregation function.
      * @param functionName is the name of the function to make known.
      * @param aggregationDesc is the descriptor for the aggregation function
@@ -104,7 +111,7 @@ public interface EngineImportService
      * @return class this resolves to
      * @throws EngineImportException if there was an error resolving the class
      */
-    public Class resolveClass(String className) throws EngineImportException;
+    public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException;
 
     /**
      * Resolves a given class name, either fully qualified and simple and imported to a annotation.

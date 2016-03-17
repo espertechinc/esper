@@ -375,7 +375,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
         }
 
         // try resolve as enumeration class with value
-        Object enumconstant = JavaClassHelper.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getMethodResolutionService(), null);
+        Object enumconstant = JavaClassHelper.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getMethodResolutionService(), null, false);
         if (enumconstant != null) {
 
             // try resolve method

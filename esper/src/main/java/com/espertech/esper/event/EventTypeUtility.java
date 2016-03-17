@@ -125,7 +125,7 @@ public class EventTypeUtility {
         // try imports first
         Class resolved = null;
         try {
-            resolved = engineImportService.resolveClass(column.getType());
+            resolved = engineImportService.resolveClass(column.getType(), false);
         }
         catch (EngineImportException e) {
             // expected
@@ -1120,7 +1120,7 @@ public class EventTypeUtility {
                     String className = spec.getTypes().iterator().next();
                     Class clazz;
                     try {
-                        clazz = engineImportService.resolveClass(className);
+                        clazz = engineImportService.resolveClass(className, false);
                     }
                     catch (EngineImportException e) {
                         throw new ExprValidationException("Failed to resolve class '" + className + "': " + e.getMessage(), e);
@@ -1134,7 +1134,7 @@ public class EventTypeUtility {
             catch (EventAdapterException ex) {
                 Class clazz;
                 try {
-                    clazz = engineImportService.resolveClass(typeName);
+                    clazz = engineImportService.resolveClass(typeName, false);
                     if (isAnonymous) {
                         eventType = eventAdapterService.createAnonymousBeanType(spec.getSchemaName(), clazz);
                     }

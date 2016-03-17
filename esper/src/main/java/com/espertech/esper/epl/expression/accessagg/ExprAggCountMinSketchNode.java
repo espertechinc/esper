@@ -206,7 +206,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
                     if (value != null) {
                         CountMinSketchAgent transform;
                         try {
-                            Class transformClass = engineImportService.resolveClass((String) value);
+                            Class transformClass = engineImportService.resolveClass((String) value, false);
                             transform = (CountMinSketchAgent) JavaClassHelper.instantiate(CountMinSketchAgent.class, transformClass.getName());
                         }
                         catch (Exception e) {

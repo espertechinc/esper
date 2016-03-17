@@ -256,7 +256,7 @@ public class VariableServiceImpl implements VariableService
             }
             if (type == null) {
                 try {
-                    type = engineImportService.resolveClass(variableType);
+                    type = engineImportService.resolveClass(variableType, false);
                     if (array) {
                         arrayType = JavaClassHelper.getArrayType(type);
                     }

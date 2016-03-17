@@ -565,9 +565,52 @@ from MyEvent as myevent]]></programlisting>
 select count(*) from ProcessEvent(processId in (1, 2, 3).win:time(30)]]></programlisting>
 
 				<para>
-					Above example assumes the <literal>ProcessMonitor</literal> annotation class is imported via configuration XML or API. Here is an example API call to import annotations provided by a package <literal>com.mycompany.myannotations</literal>:
+					Above example assumes the <literal>ProcessMonitor</literal> annotation class is imported via configuration XML or API. 					
 				</para>
-				<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().addImport("com.mycompany.myannotations.*");]]></programlisting>
+				
+				<para>
+					If <literal>ProcessMonitor</literal> should only be visible for use in annotations, use <literal>addAnnotationImport</literal> (or the <literal>auto-import-annotations</literal> XML tag).
+					If <literal>ProcessMonitor</literal> should be visible in all of EPL including annotations, use <literal>addImport</literal> (or the <literal>auto-import</literal> XML tag).
+				</para>
+
+				<para>
+					Here is an example API call to import for annotation-only all classes in package <literal>com.mycompany.app.myannotations</literal>:
+				</para>
+				<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().addAnnotationImport("com.mycompany.app.myannotations.*");]]></programlisting>
+
+				<para>
+					The next example imports the <literal>ProcessMonitor</literal> class only and only for annotation use:
+				</para>
+				<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().addAnnotationImport("com.mycompany.myannotations.ProcessMonitor");]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="epl-syntax-annotation-withenum">
+				<title>Annotations With Enumeration Values</title>
+				<indexterm><primary>annotation</primary><secondary>enumeration value</secondary></indexterm>
+				
+				<para>
+					For annotations that accept an enumeration value, the enumeration name does not need to be specified and matching is not case-sensitive.
+				</para>
+				
+				<para>
+					For example, assume the enum is:
+				</para>
+				<programlisting><![CDATA[public enum MyEnum {
+    ENUM_VALUE_1,
+    ENUM_VALUE_2;
+}]]></programlisting>
+
+				<para>
+					Assume the annotation is:
+				</para>
+				<programlisting><![CDATA[public @interface MyAnnotationWithEnum {
+    MyEnum myEnum();
+}]]></programlisting>				
+
+				<para>
+					The EPL statement can specify:
+				</para>
+				<programlisting><![CDATA[@MyAnnotationWithEnum(myEnum = enum_value_1) select * from MyEvent]]></programlisting>				
 			</sect3>
 
 			<sect3 xml:id="epl-syntax-annotation-builtin">

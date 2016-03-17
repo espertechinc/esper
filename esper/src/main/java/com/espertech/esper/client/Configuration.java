@@ -105,6 +105,12 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
 	protected List<String> imports;
 
     /**
+     * For annotations only, the class and package name imports that
+     * will be used to resolve partial class names (not available in EPL statements unless used in an annotation).
+     */
+    protected List<String> annotationImports;
+
+    /**
      * The class and package name imports that
      * will be used to resolve partial class names.
      */
@@ -490,6 +496,16 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         addImport(autoImport.getName());
     }
 
+    public void addAnnotationImport(String autoImport)
+    {
+        annotationImports.add(autoImport);
+    }
+
+    public void addAnnotationImport(Class autoImport)
+    {
+        addAnnotationImport(autoImport.getName());
+    }
+
     /**
      * Remove an import.
      * @param name to remove
@@ -552,6 +568,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
 	{
 		return imports;
 	}
+
+    public List<String> getAnnotationImports() {
+        return annotationImports;
+    }
 
     public Map<String, ConfigurationDBRef> getDatabaseReferences()
     {
@@ -1117,6 +1137,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         eventTypesLegacy = new HashMap<String, ConfigurationEventTypeLegacy>();
         databaseReferences = new HashMap<String, ConfigurationDBRef>();
         imports = new ArrayList<String>();
+        annotationImports = new ArrayList<String>(2);
         addDefaultImports();
         plugInViews = new ArrayList<ConfigurationPlugInView>();
         plugInVirtualDataWindows = new ArrayList<ConfigurationPlugInVirtualDataWindow>();

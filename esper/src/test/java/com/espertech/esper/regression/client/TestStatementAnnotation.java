@@ -21,6 +21,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportEnum;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.lang.annotation.Annotation;
@@ -34,6 +35,52 @@ public class TestStatementAnnotation extends TestCase
 {
     private String NEWLINE = System.getProperty("line.separator");
     private EPServiceProvider epService;
+
+    @MyAnnotationValueEnum(supportEnum = SupportEnum.ENUM_VALUE_1)
+    public void testAnnotationSpecificImport() {
+        Configuration configuration = SupportConfigFactory.getConfiguration();
+        configuration.addImport(MyAnnotationValueEnum.class);
+        configuration.addAnnotationImport(SupportEnum.class);
+        configuration.addEventType(SupportBean.class);
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
+
+        runAssertionAnnoImportValidate(epService);
+
+        runAssertionNoClassNameRequired(epService);
+    }
+
+    private void runAssertionNoClassNameRequired(EPServiceProvider epService) {
+        tryAssertionNoClassNameRequired(epService, SupportEnum.ENUM_VALUE_2, "ENUM_VALUE_2");
+        tryAssertionNoClassNameRequired(epService, SupportEnum.ENUM_VALUE_3, "ENUM_value_3");
+        tryAssertionNoClassNameRequired(epService, SupportEnum.ENUM_VALUE_1, "enum_value_1");
+    }
+
+    private void tryAssertionNoClassNameRequired(EPServiceProvider epService, SupportEnum expected, String text) {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@MyAnnotationValueEnum(supportEnum = " + text + ") select * from SupportBean");
+        MyAnnotationValueEnum anno = (MyAnnotationValueEnum) stmt.getAnnotations()[0];
+        assertEquals(expected, anno.supportEnum());
+    }
+
+    private void runAssertionAnnoImportValidate(EPServiceProvider epService) {
+        // init-time import
+        epService.getEPAdministrator().createEPL("@MyAnnotationValueEnum(supportEnum = SupportEnum.ENUM_VALUE_1) " +
+                "select * from SupportBean");
+
+        // try invalid annotation not yet imported
+        String epl = "@MyAnnotationValueEnumTwo(supportEnum = SupportEnum.ENUM_VALUE_1) select * from SupportBean";
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Failed to process statement annotations: Failed to resolve @-annotation");
+
+        // runtime import
+        epService.getEPAdministrator().getConfiguration().addAnnotationImport(MyAnnotationValueEnumTwo.class.getName());
+        epService.getEPAdministrator().createEPL(epl);
+
+        // try invalid use : these are annotation-specific imports of an annotation and an enum
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from MyAnnotationValueEnumTwo",
+                "Failed to resolve event type: Event type or class named");
+        SupportMessageAssertUtil.tryInvalid(epService, "select SupportEnum.ENUM_VALUE_1 from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'SupportEnum.ENUM_VALUE_1'");
+    }
 
     public void testInvalid() throws Exception
     {

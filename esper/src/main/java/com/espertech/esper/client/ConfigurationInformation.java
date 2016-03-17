@@ -65,6 +65,12 @@ public interface ConfigurationInformation
 	public List<String> getImports();
 
     /**
+     * Returns the class and package imports for annotation-only use.
+     * @return imported names
+     */
+    public List<String> getAnnotationImports();
+
+    /**
      * Returns a map of string database names to database configuration options.
      * @return map of database configurations
      */

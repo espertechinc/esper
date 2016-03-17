@@ -546,7 +546,7 @@ public class ExprNodeUtility {
     private static ExprConstantNode resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService)
             throws ExprValidationException
     {
-        Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, methodResolutionService, null);
+        Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, methodResolutionService, null, false);
         if (enumValue != null)
         {
             return new ExprConstantNodeImpl(enumValue);

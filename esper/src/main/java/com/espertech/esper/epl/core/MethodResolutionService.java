@@ -104,7 +104,7 @@ public interface MethodResolutionService
      * @return class this resolves to
      * @throws EngineImportException if there was an error resolving the class
      */
-    public Class resolveClass(String className) throws EngineImportException;
+    public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException;
 
     /**
      * Returns a plug-in aggregation function factory for a given configured aggregation function name.

@@ -679,7 +679,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                     clazz = JavaClassHelper.getClassForSimpleName(typeName);
                     if (clazz == null) {
                         try {
-                            clazz = engineImportService.resolveClass(typeName);
+                            clazz = engineImportService.resolveClass(typeName, false);
                         }
                         catch (EngineImportException e) {
                             throw new RuntimeException("Failed to resolve type '" + typeName + "'");
@@ -796,7 +796,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             // try to find factory class with factory annotation
             Class factoryClass = null;
             try {
-                factoryClass = engineImportService.resolveClass(operatorSpec.getOperatorName() + "Factory");
+                factoryClass = engineImportService.resolveClass(operatorSpec.getOperatorName() + "Factory", false);
             }
             catch (EngineImportException e) {
             }
@@ -811,7 +811,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             // resolve by class name
             Class clazz;
             try {
-                clazz = engineImportService.resolveClass(operatorSpec.getOperatorName());
+                clazz = engineImportService.resolveClass(operatorSpec.getOperatorName(), false);
             }
             catch (EngineImportException e) {
                 throw new ExprValidationException("Failed to resolve operator '" + operatorSpec.getOperatorName() + "': " + e.getMessage(), e);

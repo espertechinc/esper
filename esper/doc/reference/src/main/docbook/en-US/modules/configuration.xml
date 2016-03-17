@@ -940,6 +940,29 @@ config.addImport("com.mycompany.mypackage.*");	// package import
 config.addImport("com.mycompany.mypackage.MyLib");   // class import]]></programlisting>
 		</sect2>
 
+		<sect2 xml:id="config-class--package-imports-annotations" revision="1">
+			<title>Annotation class and package imports</title>
+			
+			<para>
+				If your application has certain classes or packages that should only be visible within an <literal>@</literal>-annotation, 
+				you may add these to the annotation imports list. Such classes are only visible when used in an annotation and not elsewhere.
+			</para>
+			
+			<para>
+				In a XML configuration file the auto-import-annotation configuration may look as below:
+			</para>
+
+			<programlisting><![CDATA[<auto-import-annotation import-name="com.mycompany.mypackage.myannotations.*"/>]]></programlisting>
+
+			<para>
+				Here is an example of providing annotation-only imports via the API:
+			</para>
+
+			<programlisting><![CDATA[Configuration config = new Configuration();
+// package import, only visible for annotation use
+config.addAnnotationImport("com.mycompany.mypackage.myannotations.*");]]></programlisting>	
+		</sect2>
+
 		<sect2 xml:id="config-method-invocations" revision="1">
 			<title>Cache Settings for From-Clause Method Invocations</title>
 			

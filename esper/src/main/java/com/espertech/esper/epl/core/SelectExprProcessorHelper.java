@@ -913,7 +913,7 @@ public class SelectExprProcessorHelper
                         // The type may however be an auto-import or fully-qualified class name
                         Class clazz = null;
                         try {
-                            clazz = this.methodResolutionService.resolveClass(insertIntoDesc.getEventTypeName());
+                            clazz = this.methodResolutionService.resolveClass(insertIntoDesc.getEventTypeName(), false);
                         }
                         catch (EngineImportException e) {
                             log.debug("Target stream name '" + insertIntoDesc.getEventTypeName() + "' is not resolved as a class name");

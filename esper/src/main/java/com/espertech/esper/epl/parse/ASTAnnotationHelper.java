@@ -89,7 +89,7 @@ public class ASTAnnotationHelper
         String enumValueText = ctx.getText();
         Object enumValue;
         try {
-            enumValue = JavaClassHelper.resolveIdentAsEnumConst(enumValueText, null, engineImportService);
+            enumValue = JavaClassHelper.resolveIdentAsEnumConst(enumValueText, null, engineImportService, true);
         }
         catch (ExprValidationException e) {
             throw ASTWalkException.from("Annotation value '" + enumValueText + "' is not recognized as an enumeration value, please check imports or use a primitive or string type");

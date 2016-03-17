@@ -121,6 +121,10 @@ class ConfigurationParser {
             {
             	handleAutoImports(configuration, element);
             }
+            else if(nodeName.equals("auto-import-annotations"))
+            {
+                handleAutoImportAnnotations(configuration, element);
+            }
             else if(nodeName.equals("method-reference"))
             {
             	handleMethodReference(configuration, element);
@@ -480,6 +484,12 @@ class ConfigurationParser {
     {
         String name = getRequiredAttribute(element, "import-name");
         configuration.addImport(name);
+    }
+
+    private static void handleAutoImportAnnotations(Configuration configuration, Element element)
+    {
+        String name = getRequiredAttribute(element, "import-name");
+        configuration.addAnnotationImport(name);
     }
 
     private static void handleDatabaseRefs(Configuration configuration, Element element)

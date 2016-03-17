@@ -142,6 +142,8 @@ public class TestConfigurationParser extends TestCase
         assertEquals("com.espertech.esper.dataflow.ops.*", config.getImports().get(5));
         assertEquals("com.mycompany.myapp.*", config.getImports().get(6));
         assertEquals("com.mycompany.myapp.ClassOne", config.getImports().get(7));
+        assertEquals("com.mycompany.myapp.annotations.*", config.getAnnotationImports().get(0));
+        assertEquals("com.mycompany.myapp.annotations.ClassOne", config.getAnnotationImports().get(1));
 
         // assert XML DOM - no schema
         assertEquals(2, config.getEventTypesXMLDOM().size());

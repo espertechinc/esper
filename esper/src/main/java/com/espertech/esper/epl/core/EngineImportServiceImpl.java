@@ -40,6 +40,7 @@ public class EngineImportServiceImpl implements EngineImportService
     private static final Log log = LogFactory.getLog(EngineImportServiceImpl.class);
 
 	private final List<String> imports;
+    private final List<String> annotationImports;
     private final Map<String, ConfigurationPlugInAggregationFunction> aggregationFunctions;
     private final List<Pair<Set<String>, ConfigurationPlugInAggregationMultiFunction>> aggregationAccess;
     private final Map<String, EngineImportSingleRowDesc> singleRowFunctions;
@@ -59,6 +60,7 @@ public class EngineImportServiceImpl implements EngineImportService
 	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile)
     {
         imports = new ArrayList<String>();
+        annotationImports = new ArrayList<String>(2);
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
         aggregationAccess = new ArrayList<Pair<Set<String>, ConfigurationPlugInAggregationMultiFunction>>();
         singleRowFunctions = new HashMap<String, EngineImportSingleRowDesc>();
@@ -96,15 +98,12 @@ public class EngineImportServiceImpl implements EngineImportService
 
     public void addImport(String importName) throws EngineImportException
     {
-        if(!isClassName(importName) && !isPackageName(importName))
-        {
-            throw new EngineImportException("Invalid import name '" + importName + "'");
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Adding import " + importName);
-        }
+        validateImportAndAdd(importName, imports);
+    }
 
-        imports.add(importName);
+    public void addAnnotationImport(String importName) throws EngineImportException
+    {
+        validateImportAndAdd(importName, annotationImports);
     }
 
     public void addAggregation(String functionName, ConfigurationPlugInAggregationFunction aggregationDesc) throws EngineImportException
@@ -224,7 +223,7 @@ public class EngineImportServiceImpl implements EngineImportService
         Class clazz;
         try
         {
-            clazz = resolveClassInternal(className, false);
+            clazz = resolveClassInternal(className, false, false);
         }
         catch (ClassNotFoundException e)
         {
@@ -257,7 +256,7 @@ public class EngineImportServiceImpl implements EngineImportService
     {
         Class clazz;
         try {
-            clazz = resolveClassInternal(className, false);
+            clazz = resolveClassInternal(className, false, false);
         }
         catch (ClassNotFoundException e) {
             throw new EngineImportException("Could not load class by name '" + className + "', please check imports", e);
@@ -271,13 +270,11 @@ public class EngineImportServiceImpl implements EngineImportService
         return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC);
     }
 
-    public Class resolveClass(String className)
-			throws EngineImportException
-    {
+    public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException {
         Class clazz;
         try
         {
-            clazz = resolveClassInternal(className, false);
+            clazz = resolveClassInternal(className, false, forAnnotation);
         }
         catch (ClassNotFoundException e)
         {
@@ -291,7 +288,7 @@ public class EngineImportServiceImpl implements EngineImportService
         Class clazz;
         try
         {
-            clazz = resolveClassInternal(className, true);
+            clazz = resolveClassInternal(className, true, true);
         }
         catch (ClassNotFoundException e)
         {
@@ -307,7 +304,7 @@ public class EngineImportServiceImpl implements EngineImportService
      * @return class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
-    protected Class resolveClassInternal(String className, boolean requireAnnotation) throws ClassNotFoundException
+    protected Class resolveClassInternal(String className, boolean requireAnnotation, boolean forAnnotationUse) throws ClassNotFoundException
     {
 		// Attempt to retrieve the class with the name as-is
 		try
@@ -323,87 +320,40 @@ public class EngineImportServiceImpl implements EngineImportService
             }
         }
 
-		// Try all the imports
-		for(String importName : imports)
-		{
-			boolean isClassName = isClassName(importName);
-            boolean containsPackage = importName.indexOf('.') != -1;
-            String classNameWithDot = "." + className;
-            String classNameWithDollar = "$" + className;
+        // check annotation-specific imports first
+        if (forAnnotationUse) {
+            Class clazz = checkImports(annotationImports, requireAnnotation, className);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
 
-            // Import is a class name
-			if(isClassName)
-			{
-                if ((containsPackage && importName.endsWith(classNameWithDot)) ||
-                    (containsPackage && importName.endsWith(classNameWithDollar)) ||
-                    (!containsPackage && importName.equals(className)) ||
-                    (!containsPackage && importName.endsWith(classNameWithDollar))) {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    return Class.forName(importName, true, cl);
-                }
+        // check all imports
+        Class clazz = checkImports(imports, requireAnnotation, className);
+        if (clazz != null) {
+            return clazz;
+        }
 
-                String prefixedClassName = importName + '$' + className;
-                try
-                {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class clazz = Class.forName(prefixedClassName, true, cl);
-                    if (!requireAnnotation || clazz.isAnnotation()) {
-                        return clazz;
-                    }
-                }
-                catch(ClassNotFoundException e){
-                    if (log.isDebugEnabled())
-                    {
-                        log.debug("Class not found for resolving from name '" + prefixedClassName + "'");
-                    }
-                }
-			}
-			else
-			{
-                if (requireAnnotation && importName.equals(Configuration.ANNOTATION_IMPORT)) {
-                    Class clazz = BuiltinAnnotation.BUILTIN.get(className.toLowerCase());
-                    if (clazz != null) {
-                        return clazz;
-                    }
-                }
-
-				// Import is a package name
-				String prefixedClassName = getPackageName(importName) + '.' + className;
-				try
-				{
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class clazz = Class.forName(prefixedClassName, true, cl);
-                    if (!requireAnnotation || clazz.isAnnotation()) {
-                        return clazz;
-                    }
-				}
-				catch(ClassNotFoundException e){
-                    if (log.isDebugEnabled())
-                    {
-                        log.debug("Class not found for resolving from name '" + prefixedClassName + "'");
-                    }
-                }
-			}
-		}
-
-        // try to resolve from method references
-        for (String name : methodInvocationRef.keySet())
-        {
-            if (JavaClassHelper.isSimpleNameFullyQualfied(className, name))
+        if (!forAnnotationUse) {
+            // try to resolve from method references
+            for (String name : methodInvocationRef.keySet())
             {
-                try
+                if (JavaClassHelper.isSimpleNameFullyQualfied(className, name))
                 {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class clazz = Class.forName(name, true, cl);
-                    if (!requireAnnotation || clazz.isAnnotation()) {
-                        return clazz;
-                    }
-                }
-                catch (ClassNotFoundException e1)
-                {
-                    if (log.isDebugEnabled())
+                    try
                     {
-                        log.debug("Class not found for resolving from method invocation ref:" + name);
+                        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                        Class found = Class.forName(name, true, cl);
+                        if (!requireAnnotation || found.isAnnotation()) {
+                            return found;
+                        }
+                    }
+                    catch (ClassNotFoundException e1)
+                    {
+                        if (log.isDebugEnabled())
+                        {
+                            log.debug("Class not found for resolving from method invocation ref:" + name);
+                        }
                     }
                 }
             }
@@ -656,6 +606,85 @@ public class EngineImportServiceImpl implements EngineImportService
             throw new EngineImportException("Could not find " + methodModifiers.getText() + " method named '" + methodName + "' in class '" + clazz.getName() + "'");
         }
         return methodByName;
+    }
+
+    private Class checkImports(List<String> imports, boolean requireAnnotation, String className) throws ClassNotFoundException {
+        // Try all the imports
+        for(String importName : imports)
+        {
+            boolean isClassName = isClassName(importName);
+            boolean containsPackage = importName.indexOf('.') != -1;
+            String classNameWithDot = "." + className;
+            String classNameWithDollar = "$" + className;
+
+            // Import is a class name
+            if(isClassName)
+            {
+                if ((containsPackage && importName.endsWith(classNameWithDot)) ||
+                        (containsPackage && importName.endsWith(classNameWithDollar)) ||
+                        (!containsPackage && importName.equals(className)) ||
+                        (!containsPackage && importName.endsWith(classNameWithDollar))) {
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    return Class.forName(importName, true, cl);
+                }
+
+                String prefixedClassName = importName + '$' + className;
+                try
+                {
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    Class clazz = Class.forName(prefixedClassName, true, cl);
+                    if (!requireAnnotation || clazz.isAnnotation()) {
+                        return clazz;
+                    }
+                }
+                catch(ClassNotFoundException e){
+                    if (log.isDebugEnabled())
+                    {
+                        log.debug("Class not found for resolving from name '" + prefixedClassName + "'");
+                    }
+                }
+            }
+            else
+            {
+                if (requireAnnotation && importName.equals(Configuration.ANNOTATION_IMPORT)) {
+                    Class clazz = BuiltinAnnotation.BUILTIN.get(className.toLowerCase());
+                    if (clazz != null) {
+                        return clazz;
+                    }
+                }
+
+                // Import is a package name
+                String prefixedClassName = getPackageName(importName) + '.' + className;
+                try
+                {
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    Class clazz = Class.forName(prefixedClassName, true, cl);
+                    if (!requireAnnotation || clazz.isAnnotation()) {
+                        return clazz;
+                    }
+                }
+                catch(ClassNotFoundException e){
+                    if (log.isDebugEnabled())
+                    {
+                        log.debug("Class not found for resolving from name '" + prefixedClassName + "'");
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void validateImportAndAdd(String importName, List<String> imports) throws EngineImportException {
+        if(!isClassName(importName) && !isPackageName(importName))
+        {
+            throw new EngineImportException("Invalid import name '" + importName + "'");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Adding import " + importName);
+        }
+
+        imports.add(importName);
     }
 
     private enum MethodModifiers {

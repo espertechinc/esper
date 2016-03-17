@@ -112,6 +112,12 @@ public interface ConfigurationOperations
     public void addImport(String importName) throws ConfigurationException;
 
     /**
+     * Adds a package or class to the list of automatically-imported classes and packages for use by annotations only.
+     * @throws ConfigurationException if incorrect package or class names are encountered
+     */
+    public void addAnnotationImport(String importName) throws ConfigurationException;
+
+    /**
      * Adds a class to the list of automatically-imported classes.
      * <p>
      * Use #addImport(String) to import a package.

@@ -38,7 +38,7 @@ public class ExprNewInstanceNode extends ExprNodeBase implements ExprEvaluator {
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
     {
         try {
-            targetClass = validationContext.getMethodResolutionService().resolveClass(classIdent);
+            targetClass = validationContext.getMethodResolutionService().resolveClass(classIdent, false);
         }
         catch (EngineImportException e) {
             throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");

@@ -181,6 +181,18 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         }
     }
 
+    public void addAnnotationImport(String importName)
+    {
+        try
+        {
+            engineImportService.addAnnotationImport(importName);
+        }
+        catch (EngineImportException e)
+        {
+            throw new ConfigurationException(e.getMessage(), e);
+        }
+    }
+
     public void addImport(Class importClass)
     {
         addImport(importClass.getName());

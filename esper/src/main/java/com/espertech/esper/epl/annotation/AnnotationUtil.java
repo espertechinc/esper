@@ -27,10 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -215,6 +212,29 @@ public class AnnotationUtil
             // handle primitive value
             if (!annotationAttribute.getType().isAnnotation())
             {
+                // if expecting an enumeration type, allow string value
+                if (annotationAttribute.getType().isEnum() && JavaClassHelper.isImplementsInterface(value.getClass(), CharSequence.class)) {
+                    String valueString = value.toString().trim();
+
+                    // find case-sensitive exact match first
+                    for (Object constant : annotationAttribute.getType().getEnumConstants()) {
+                        Enum e = (Enum) constant;
+                        if (e.name().equals(valueString)) {
+                            return constant;
+                        }
+                    }
+
+                    // find case-insensitive match
+                    String valueUppercase = valueString.toUpperCase();
+                    for (Object constant : annotationAttribute.getType().getEnumConstants()) {
+                        Enum e = (Enum) constant;
+                        if (e.name().toUpperCase().equals(valueUppercase)) {
+                            return constant;
+                        }
+                    }
+                }
+
+                // cast as required
                 SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(value.getClass(), annotationAttribute.getType());
                 Object finalValue = caster.cast(value);
                 if (finalValue == null)

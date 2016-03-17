@@ -86,15 +86,15 @@ public class TestEngineImportServiceImpl extends TestCase
     {
         String className = "java.lang.Math";
         Class expected = Math.class;
-        assertEquals(expected, engineImportService.resolveClassInternal(className, false));
+        assertEquals(expected, engineImportService.resolveClassInternal(className, false, false));
 
         engineImportService.addImport("java.lang.Math");
-        assertEquals(expected, engineImportService.resolveClassInternal(className, false));
+        assertEquals(expected, engineImportService.resolveClassInternal(className, false, false));
 
         engineImportService.addImport("java.lang.*");
         className = "String";
         expected = String.class;
-        assertEquals(expected, engineImportService.resolveClassInternal(className, false));
+        assertEquals(expected, engineImportService.resolveClassInternal(className, false, false));
     }
 
     public void testResolveClassInvalid()
@@ -102,7 +102,7 @@ public class TestEngineImportServiceImpl extends TestCase
         String className = "Math";
         try
         {
-            engineImportService.resolveClassInternal(className, false);
+            engineImportService.resolveClassInternal(className, false, false);
             fail();
         }
         catch (ClassNotFoundException e)

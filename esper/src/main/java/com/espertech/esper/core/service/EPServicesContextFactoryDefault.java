@@ -554,6 +554,11 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 engineImportService.addImport(importName);
             }
 
+            for (String importName : configSnapshot.getAnnotationImports())
+            {
+                engineImportService.addAnnotationImport(importName);
+            }
+
             for (ConfigurationPlugInAggregationFunction config : configSnapshot.getPlugInAggregationFunctions())
             {
                 engineImportService.addAggregation(config.getName(), config);
