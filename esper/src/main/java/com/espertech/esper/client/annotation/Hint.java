@@ -25,5 +25,5 @@ public @interface Hint {
     String value() default "";
 
     Target target() default Target.UNDEFINED;
-    Size size() default Size.UNDEFINED;
+    String model() default "";
 }
