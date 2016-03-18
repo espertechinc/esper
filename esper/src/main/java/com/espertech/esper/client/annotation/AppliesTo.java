@@ -11,7 +11,15 @@
 
 package com.espertech.esper.client.annotation;
 
-public enum Target {
+public enum AppliesTo {
     UNDEFINED,
-    UNIQUE
+    UNIQUE,
+    GROUPBY,
+    INDEX,
+    OUTPUTLIMIT,
+    MATCHRECOGNIZE,
+    CONTEXT,
+    PRIOR,
+    RANK,
+    EVERYDISTINCT
 }
