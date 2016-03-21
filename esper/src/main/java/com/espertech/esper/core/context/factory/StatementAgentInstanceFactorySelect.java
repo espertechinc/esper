@@ -170,7 +170,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 // add "prior" view factory
                 boolean hasPrior = viewResourceDelegate.getPerStream()[i].getPriorRequests() != null && !viewResourceDelegate.getPerStream()[i].getPriorRequests().isEmpty();
                 if (hasPrior) {
-                    PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), i, viewFactoryChain.size() + 1, viewFactoryChain.isEmpty());
+                    PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), i, viewFactoryChain.isEmpty(), false, -1);
                     viewFactoryChain = new ArrayList<ViewFactory>(viewFactoryChain);
                     viewFactoryChain.add(priorEventViewFactory);
                 }
@@ -181,7 +181,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             AgentInstanceViewFactoryChainContext viewFactoryChainContexts[] = new AgentInstanceViewFactoryChainContext[numStreams];
             for (int i = 0; i < numStreams; i++)
             {
-                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i], i, false, -1);
+                viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i]);
             }
 
             // handle "prior" nodes and their strategies

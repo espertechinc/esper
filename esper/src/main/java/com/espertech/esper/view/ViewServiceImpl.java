@@ -40,7 +40,9 @@ public final class ViewServiceImpl implements ViewService
                                             EventType parentEventType,
                                             ViewSpec[] viewSpecDefinitions,
                                             StreamSpecOptions options,
-                                            StatementContext context)
+                                            StatementContext context,
+                                            boolean isSubquery,
+                                            int subqueryNumber)
             throws ViewProcessingException
     {
         // Clone the view spec list to prevent parameter modification
@@ -50,7 +52,7 @@ public final class ViewServiceImpl implements ViewService
         ViewServiceHelper.addMergeViews(viewSpecList);
 
         // Instantiate factories, not making them aware of each other yet
-        List<ViewFactory> viewFactories = ViewServiceHelper.instantiateFactories(streamNum, viewSpecList, context);
+        List<ViewFactory> viewFactories = ViewServiceHelper.instantiateFactories(streamNum, viewSpecList, context, isSubquery, subqueryNumber);
 
         ViewFactory parentViewFactory = null;
         List<ViewFactory> attachedViewFactories = new ArrayList<ViewFactory>();

@@ -29,7 +29,7 @@ public class TestMergeViewFactory extends TestCase
 {
     private MergeViewFactory factory;
     private List<ViewFactory> parents;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(SupportStatementContextFactory.makeContext(), 1, 0, null, null);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(SupportStatementContextFactory.makeContext(), 1, null, null, false, -1);
 
     public void setUp() throws Exception
     {

@@ -156,7 +156,7 @@ public class EPStatementStartMethodSelectUtil
                 eventStreamParentViewableActivators[i] = activatorDeactivator;
 
                 EventType resultEventType = filterStreamSpec.getFilterSpec().getResultEventType();
-                unmaterializedViewChain[i] = services.getViewService().createFactories(i, resultEventType, streamSpec.getViewSpecs(), streamSpec.getOptions(), statementContext);
+                unmaterializedViewChain[i] = services.getViewService().createFactories(i, resultEventType, streamSpec.getViewSpecs(), streamSpec.getOptions(), statementContext, false, -1);
             }
             // Create view factories and parent view based on a pattern expression
             else if (streamSpec instanceof PatternStreamSpecCompiled)
@@ -165,7 +165,7 @@ public class EPStatementStartMethodSelectUtil
                 boolean usedByChildViews = streamSpec.getViewSpecs().length > 0 || (statementSpec.getInsertIntoDesc() != null);
                 String patternTypeName = statementContext.getStatementId() + "_pattern_" + i;
                 final EventType eventType = services.getEventAdapterService().createSemiAnonymousMapType(patternTypeName, patternStreamSpec.getTaggedEventTypes(), patternStreamSpec.getArrayEventTypes(), usedByChildViews);
-                unmaterializedViewChain[i] = services.getViewService().createFactories(i, eventType, streamSpec.getViewSpecs(), streamSpec.getOptions(), statementContext);
+                unmaterializedViewChain[i] = services.getViewService().createFactories(i, eventType, streamSpec.getViewSpecs(), streamSpec.getOptions(), statementContext, false, -1);
 
                 final EvalRootFactoryNode rootFactoryNode = services.getPatternNodeFactory().makeRootNode(patternStreamSpec.getEvalFactoryNode());
                 final PatternContext patternContext = statementContext.getPatternContextFactory().createContext(statementContext, i, rootFactoryNode, patternStreamSpec.getMatchedEventMapMeta(), true);
@@ -239,7 +239,7 @@ public class EPStatementStartMethodSelectUtil
 
                 eventStreamParentViewableActivators[i] = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
                 services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
-                unmaterializedViewChain[i] = services.getViewService().createFactories(i, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
+                unmaterializedViewChain[i] = services.getViewService().createFactories(i, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext, false, -1);
                 joinAnalysisResult.setNamedWindow(i);
                 eventTypeNames[i] = namedSpec.getWindowName();
                 isNamedWindow[i] = true;

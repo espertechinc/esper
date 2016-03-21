@@ -43,7 +43,7 @@ import com.espertech.esper.epl.join.hint.IndexHint;
 import com.espertech.esper.epl.join.plan.CoercionDesc;
 import com.espertech.esper.epl.join.plan.CoercionUtil;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexBuilder;
-import com.espertech.esper.epl.join.table.*;
+import com.espertech.esper.epl.join.table.EventTableFactory;
 import com.espertech.esper.epl.join.util.IndexNameAndDescPair;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescSubquery;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHook;
@@ -108,7 +108,7 @@ public class EPStatementStartMethodHelperSubselect
 
                 // Register filter, create view factories
                 ViewableActivator activatorDeactivator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementSpec.getAnnotations(), true, instrumentationAgentSubquery, false, null);
-                ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(subselectStreamNumber, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
+                ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(subselectStreamNumber, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
                 subselect.setRawEventType(viewFactoryChain.getEventType());
 
                 // Add lookup to list, for later starts
@@ -141,14 +141,14 @@ public class EPStatementStartMethodHelperSubselect
                 }
                 if (!namedSpec.getFilterExpressions().isEmpty() || !processor.isEnableSubqueryIndexShare() || disableIndexShare) {
                     ViewableActivator activatorNamedWindow = services.getViewableActivatorFactory().createNamedWindow(processor, namedSpec, statementContext);
-                    ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
+                    ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, namedWindowType, namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
                     subselect.setRawEventType(viewFactoryChain.getEventType());
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activatorNamedWindow, streamSpec));
                     services.getNamedWindowConsumerMgmtService().addConsumer(statementContext, namedSpec);
                 }
                 // else if there are no named window stream filter expressions and index sharing is enabled
                 else {
-                    ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext);
+                    ViewFactoryChain viewFactoryChain = services.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
                     subselect.setRawEventType(processor.getNamedWindowType());
                     ViewableActivator activator = services.getViewableActivatorFactory().makeSubqueryNWIndexShare();
                     subSelectStreamDesc.add(subselect, new SubSelectActivationHolder(subselectStreamNumber, namedWindowType, viewFactoryChain, activator, streamSpec));

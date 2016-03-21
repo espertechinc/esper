@@ -30,7 +30,7 @@ import java.util.Arrays;
 public class TestRegressionLinestViewFactory extends TestCase
 {
     private RegressionLinestViewFactory factory;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, 1, null, null);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1);
 
     public void setUp()
     {

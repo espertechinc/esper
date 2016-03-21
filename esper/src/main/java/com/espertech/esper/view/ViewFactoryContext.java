@@ -23,25 +23,25 @@ public class ViewFactoryContext
 {
     private StatementContext statementContext;
     private final int streamNum;
-    private final int viewNum;
     private final String namespaceName;
     private final String viewName;
+    private final boolean isSubquery;
+    private final int subqueryNumber;
 
     /**
      * Ctor.
      * @param statementContext is the statement-level services
      * @param streamNum is the stream number from zero to N
-     * @param viewNum is the view number from zero to N
      * @param namespaceName is the view namespace
      * @param viewName is the view name
      */
-    public ViewFactoryContext(StatementContext statementContext, int streamNum, int viewNum, String namespaceName, String viewName)
-    {
+    public ViewFactoryContext(StatementContext statementContext, int streamNum, String namespaceName, String viewName, boolean isSubquery, int subqueryNumber) {
         this.statementContext = statementContext;
         this.streamNum = streamNum;
-        this.viewNum = viewNum;
         this.namespaceName = namespaceName;
         this.viewName = viewName;
+        this.isSubquery = isSubquery;
+        this.subqueryNumber = subqueryNumber;
     }
 
     /**
@@ -108,15 +108,6 @@ public class ViewFactoryContext
     }
 
     /**
-     * Returns the view number
-     * @return view number
-     */
-    public int getViewNum()
-    {
-        return viewNum;
-    }
-
-    /**
      * Returns the view namespace name.
      * @return namespace name
      */
@@ -143,11 +134,18 @@ public class ViewFactoryContext
         return statementContext;
     }
 
+    public boolean isSubquery() {
+        return isSubquery;
+    }
+
+    public int getSubqueryNumber() {
+        return subqueryNumber;
+    }
+
     public String toString()
     {
         return  statementContext.toString() +
                 " streamNum=" + streamNum +
-                " viewNum=" + viewNum +
                 " namespaceName=" + namespaceName +
                 " viewName=" + viewName;
     }

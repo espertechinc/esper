@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryCre
 import com.espertech.esper.core.context.mgr.ContextManagedStatementCreateWindowDesc;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextMergeView;
-import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
@@ -79,7 +78,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
         ViewableActivator activator = services.getViewableActivatorFactory().createFilterProxy(services, filterStreamSpec.getFilterSpec(), statementContext.getAnnotations(), false, instrumentationAgentCreateWindowInsert, false, 0);
 
         // create data window view factories
-        ViewFactoryChain unmaterializedViewChain = services.getViewService().createFactories(0, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext);
+        ViewFactoryChain unmaterializedViewChain = services.getViewService().createFactories(0, filterStreamSpec.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext, false, -1);
 
         // verify data window
         verifyDataWindowViewFactoryChain(unmaterializedViewChain.getViewFactoryChain());

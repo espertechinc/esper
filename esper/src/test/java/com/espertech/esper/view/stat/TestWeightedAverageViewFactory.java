@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class TestWeightedAverageViewFactory extends TestCase
 {
     private WeightedAverageViewFactory factory;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, 1, null, null);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1);
 
     public void setUp()
     {

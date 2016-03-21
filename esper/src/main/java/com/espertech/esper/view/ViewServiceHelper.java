@@ -311,12 +311,13 @@ public class ViewServiceHelper
      */
     public static List<ViewFactory> instantiateFactories(int streamNum,
                                                          List<ViewSpec> viewSpecList,
-                                                         StatementContext statementContext)
+                                                         StatementContext statementContext,
+                                                         boolean isSubquery,
+                                                         int subqueryNumber)
             throws ViewProcessingException
     {
         List<ViewFactory> factoryChain = new ArrayList<ViewFactory>();
 
-        int viewNum = 0;
         for (ViewSpec spec : viewSpecList)
         {
             // Create the new view factory
@@ -331,7 +332,7 @@ public class ViewServiceHelper
             // Set view factory parameters
             try
             {
-                ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, viewNum, spec.getObjectNamespace(), spec.getObjectName());
+                ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, spec.getObjectNamespace(), spec.getObjectName(), isSubquery, subqueryNumber);
                 viewFactory.setViewParameters(context, spec.getObjectParameters());
             }
             catch (ViewParameterException e)
@@ -339,7 +340,6 @@ public class ViewServiceHelper
                 throw new ViewProcessingException("Error in view '" + spec.getObjectNamespace() + ':' + spec.getObjectName() +
                         "', " + e.getMessage());
             }
-            viewNum++;
         }
 
         return factoryChain;

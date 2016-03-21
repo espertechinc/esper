@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 public class TestGroupByViewFactory extends TestCase
 {
     private GroupByViewFactory factory;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(SupportStatementContextFactory.makeContext(), 1, 0, null, null);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(SupportStatementContextFactory.makeContext(), 1, null, null, false, -1);
 
     public void setUp()
     {

@@ -96,7 +96,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             eventStreamParentViewable.addView(rootView);
 
             // Materialize views
-            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null, 0, false, -1);
+            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null);
             ViewServiceCreateResult createResult = services.getViewService().createViews(rootView, unmaterializedViewChain.getViewFactoryChain(), viewFactoryChainContext, false);
             topView = createResult.getTopViewable();
             finalView = createResult.getFinalViewable();

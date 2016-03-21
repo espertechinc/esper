@@ -50,14 +50,14 @@ public class EPStatementStartMethodHelperPrior
         return (PriorEventViewFactory) factoryFound;
     }
 
-    public static PriorEventViewFactory getPriorEventViewFactory(StatementContext statementContext, int streamNum, int viewFactoryNum, boolean unboundStream) {
+    public static PriorEventViewFactory getPriorEventViewFactory(StatementContext statementContext, int streamNum, boolean unboundStream, boolean isSubquery, int subqueryNumber) {
         try
         {
             String namespace = ViewEnum.PRIOR_EVENT_VIEW.getNamespace();
             String name = ViewEnum.PRIOR_EVENT_VIEW.getName();
             ViewFactory factory = statementContext.getViewResolutionService().create(namespace, name);
 
-            ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, viewFactoryNum, namespace, name);
+            ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, namespace, name, isSubquery, subqueryNumber);
             factory.setViewParameters(context, Arrays.asList((ExprNode) new ExprConstantNodeImpl(unboundStream)));
 
             return (PriorEventViewFactory) factory;

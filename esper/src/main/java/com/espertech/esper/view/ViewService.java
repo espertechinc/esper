@@ -41,7 +41,9 @@ public interface ViewService
                                             EventType parentEventType,
                                             ViewSpec[] viewSpecList,
                                             StreamSpecOptions options,
-                                            StatementContext context)
+                                            StatementContext context,
+                                            boolean isSubquery,
+                                            int subqueryNumber)
             throws ViewProcessingException;
 
     /**

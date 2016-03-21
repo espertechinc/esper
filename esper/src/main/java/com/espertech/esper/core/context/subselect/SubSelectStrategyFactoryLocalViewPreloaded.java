@@ -96,13 +96,13 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // add "prior" view factory
         boolean hasPrior = viewResourceDelegate.getPerStream()[0].getPriorRequests() != null && !viewResourceDelegate.getPerStream()[0].getPriorRequests().isEmpty();
         if (hasPrior) {
-            PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), 1024 + this.subqueryNumber, viewFactoryChain.size() + 1, viewFactoryChain.isEmpty());
+            PriorEventViewFactory priorEventViewFactory = EPStatementStartMethodHelperPrior.getPriorEventViewFactory(agentInstanceContext.getStatementContext(), 1024 + this.subqueryNumber, viewFactoryChain.isEmpty(), true, subqueryNumber);
             viewFactoryChain = new ArrayList<ViewFactory>(viewFactoryChain);
             viewFactoryChain.add(priorEventViewFactory);
         }
 
         // create factory chain context to hold callbacks specific to "prior" and "prev"
-        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0], -1, true, this.subqueryNumber);
+        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0]);
 
         ViewServiceCreateResult createResult = services.getViewService().createViews(viewableRoot, viewFactoryChain, viewFactoryChainContext, false);
         final Viewable subselectView = createResult.getFinalViewable();
