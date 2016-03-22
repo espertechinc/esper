@@ -24,6 +24,6 @@ public @interface Hint {
      */
     String value() default "";
 
-    AppliesTo appliesTo() default AppliesTo.UNDEFINED;
+    AppliesTo applies() default AppliesTo.UNDEFINED;
     String model() default "";
 }
