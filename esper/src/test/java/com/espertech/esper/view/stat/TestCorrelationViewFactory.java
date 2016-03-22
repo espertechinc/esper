@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class TestCorrelationViewFactory extends TestCase
 {
     private CorrelationViewFactory factory;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1, false);
 
     public void setUp()
     {
@@ -47,7 +47,7 @@ public class TestCorrelationViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
-        factory.setViewParameters(new ViewFactoryContext(null, 1, null, null, false, -1), TestViewSupport.toExprListMD(new Object[] {"price", "volume"}));
+        factory.setViewParameters(new ViewFactoryContext(null, 1, null, null, false, -1, false), TestViewSupport.toExprListMD(new Object[] {"price", "volume"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
         assertFalse(factory.canReuse(new FirstElementView(null)));
         EventType type = CorrelationView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);

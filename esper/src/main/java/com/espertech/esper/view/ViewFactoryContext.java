@@ -27,6 +27,7 @@ public class ViewFactoryContext
     private final String viewName;
     private final boolean isSubquery;
     private final int subqueryNumber;
+    private final boolean isGrouped;
 
     /**
      * Ctor.
@@ -35,13 +36,14 @@ public class ViewFactoryContext
      * @param namespaceName is the view namespace
      * @param viewName is the view name
      */
-    public ViewFactoryContext(StatementContext statementContext, int streamNum, String namespaceName, String viewName, boolean isSubquery, int subqueryNumber) {
+    public ViewFactoryContext(StatementContext statementContext, int streamNum, String namespaceName, String viewName, boolean isSubquery, int subqueryNumber, boolean isGrouped) {
         this.statementContext = statementContext;
         this.streamNum = streamNum;
         this.namespaceName = namespaceName;
         this.viewName = viewName;
         this.isSubquery = isSubquery;
         this.subqueryNumber = subqueryNumber;
+        this.isGrouped = isGrouped;
     }
 
     /**
@@ -140,6 +142,10 @@ public class ViewFactoryContext
 
     public int getSubqueryNumber() {
         return subqueryNumber;
+    }
+
+    public boolean isGrouped() {
+        return isGrouped;
     }
 
     public String toString()

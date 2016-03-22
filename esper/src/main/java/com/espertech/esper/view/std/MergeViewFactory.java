@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Factory for {@link MergeView} instances.
  */
-public class MergeViewFactory implements ViewFactory
+public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
 {
     private List<ExprNode> viewParameters;
     private int streamNumber;

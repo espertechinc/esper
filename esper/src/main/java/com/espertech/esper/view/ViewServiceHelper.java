@@ -19,6 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
+import com.espertech.esper.view.std.MergeViewFactoryMarker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -318,6 +319,7 @@ public class ViewServiceHelper
     {
         List<ViewFactory> factoryChain = new ArrayList<ViewFactory>();
 
+        boolean grouped = false;
         for (ViewSpec spec : viewSpecList)
         {
             // Create the new view factory
@@ -332,13 +334,20 @@ public class ViewServiceHelper
             // Set view factory parameters
             try
             {
-                ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, spec.getObjectNamespace(), spec.getObjectName(), isSubquery, subqueryNumber);
+                ViewFactoryContext context = new ViewFactoryContext(statementContext, streamNum, spec.getObjectNamespace(), spec.getObjectName(), isSubquery, subqueryNumber, grouped);
                 viewFactory.setViewParameters(context, spec.getObjectParameters());
             }
             catch (ViewParameterException e)
             {
                 throw new ViewProcessingException("Error in view '" + spec.getObjectNamespace() + ':' + spec.getObjectName() +
                         "', " + e.getMessage());
+            }
+
+            if (viewFactory instanceof GroupByViewFactoryMarker) {
+                grouped = true;
+            }
+            if (viewFactory instanceof MergeViewFactoryMarker) {
+                grouped = false;
             }
         }
 

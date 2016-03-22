@@ -67,7 +67,7 @@ public class SupportStatementContextFactory
     public static ViewFactoryContext makeViewContext()
     {
         StatementContext stmtContext = makeContext();
-        return new ViewFactoryContext(stmtContext, 1, "somenamespacetest", "somenametest", false, -1);
+        return new ViewFactoryContext(stmtContext, 1, "somenamespacetest", "somenametest", false, -1, false);
     }
 
     public static StatementContext makeContext()

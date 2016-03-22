@@ -27,7 +27,7 @@ import com.espertech.esper.view.std.FirstElementView;
 public class TestUnivariateStatisticsViewFactory extends TestCase
 {
     private UnivariateStatisticsViewFactory factory;
-    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1);
+    private ViewFactoryContext viewFactoryContext = new ViewFactoryContext(null, 1, null, null, false, -1, false);
 
     public void setUp()
     {
