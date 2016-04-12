@@ -330,13 +330,13 @@ public class TestTimerAtObserver extends TestCase implements SupportBeanConstant
 
         // test timezone
         if (TimeZone.getDefault().getRawOffset() == -5 * 60 * 60 * 1000)  {    // asserting only in EST timezone, see schedule util tests
-            sendTimeEvent("2008-08-4T6:50:00.000", epService);
-            epService.getEPAdministrator().createEPL("select * from pattern [timer:at(0, 5, 4, 8, *, 0, 'PST')]").addListener(listener);
+            sendTimeEvent("2008-01-4T6:50:00.000", epService);
+            epService.getEPAdministrator().createEPL("select * from pattern [timer:at(0, 5, 4, 1, *, 0, 'PST')]").addListener(listener);
 
-            sendTimeEvent("2008-08-4T7:59:59.999", epService);
+            sendTimeEvent("2008-01-4T7:59:59.999", epService);
             assertFalse(listener.getAndClearIsInvoked());
 
-            sendTimeEvent("2008-08-4T8:00:00.000", epService);
+            sendTimeEvent("2008-01-4T8:00:00.000", epService);
             assertTrue(listener.getAndClearIsInvoked());
         }
         epService.getEPAdministrator().createEPL("select * from pattern [timer:at(0, 5, 4, 8, *, 0, 'xxx')]").addListener(listener);
