@@ -109,6 +109,18 @@ public class TestVariablesCreate extends TestCase
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().createEPL(createText);
         assertEquals(0, epService.getEPRuntime().getVariableValue("FOO"));
+
+        // cleanup of variable when statement exception occurs
+        epService.getEPAdministrator().createEPL("create variable int x = 123");
+        try {
+            epService.getEPAdministrator().createEPL("select missingScript(x) from SupportBean");
+        }
+        catch(Exception ex) {
+            for (String statementName : epService.getEPAdministrator().getStatementNames()) {
+                epService.getEPAdministrator().getStatement(statementName).destroy();
+            }
+        }
+        epService.getEPAdministrator().createEPL("create variable int x = 123");
     }
 
     public void testSubscribeAndIterate()

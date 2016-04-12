@@ -297,9 +297,9 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         {
             compiledSpec = compile(statementSpec, expression, statementContext, false, false, annotations, visitor.getSubselects(), visitor.getDeclaredExpressions(), tableAccessNodes, services);
         }
-        catch (EPStatementException ex)
+        catch (RuntimeException ex)
         {
-            stmtNameToIdMap.remove(statementName); // Clean out the statement name as it's already assigned
+            handleRemove(statementId, statementName);
             throw ex;
         }
 
