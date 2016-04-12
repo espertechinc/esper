@@ -125,6 +125,12 @@ public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI
         CPImportCallback importCallback = new CPImportCallback();
         ContextControllerState state = new ContextControllerState(importable.getPaths(), true, importCallback);
         contextManager.importStartPaths(state, agentInstanceSelector);
+
+        ContextStateCache contextStateCache = contextManager.getContextStateCache();
+        for (Map.Entry<ContextStatePathKey, ContextStatePathValue> entry : importable.getPaths().entrySet()) {
+            contextStateCache.updateContextPath(contextName, entry.getKey(), entry.getValue());
+        }
+
         return new EPContextPartitionImportResult(importCallback.existingToImported, importCallback.allocatedToImported);
     }
 

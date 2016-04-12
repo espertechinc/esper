@@ -43,4 +43,6 @@ public interface ContextControllerFactory {
     public FilterSpecLookupable getFilterLookupable(EventType eventType);
 
     public ContextPartitionIdentifier keyPayloadToIdentifier(Object payload);
+
+    public ContextStateCache getStateCache();
 }

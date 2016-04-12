@@ -74,6 +74,10 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         return contextDescriptor;
     }
 
+    public ContextStateCache getContextStateCache() {
+        return factory.getStateCache();
+    }
+
     public void addStatement(ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException {
 
         // validation down the hierarchy
@@ -193,7 +197,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         }
     }
 
-    public void contextPartitionNavigate(ContextControllerInstanceHandle existingHandle, ContextController originator, ContextControllerState controllerState, int exportedCPOrPathId, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector, byte[] payload) {
+    public void contextPartitionNavigate(ContextControllerInstanceHandle existingHandle, ContextController originator, ContextControllerState controllerState, int exportedCPOrPathId, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector, byte[] payload, boolean isRecoveringResilient) {
         ContextControllerTreeAgentInstanceList entry = agentInstances.get(existingHandle.getContextPartitionOrPathId());
         if (entry == null) {
             return;
@@ -224,7 +228,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
 
                 // start
                 ContextControllerStatementDesc statementDesc = statements.get(agentInstance.getAgentInstanceContext().getStatementId());
-                AgentInstance instance = startStatement(existingHandle.getContextPartitionOrPathId(), statementDesc, originator, entry.getInitPartitionKey(), entry.getInitContextProperties(), false);
+                AgentInstance instance = startStatement(existingHandle.getContextPartitionOrPathId(), statementDesc, originator, entry.getInitPartitionKey(), entry.getInitContextProperties(), isRecoveringResilient);
                 added.add(instance);
 
                 if (controllerState.getPartitionImportCallback() != null) {

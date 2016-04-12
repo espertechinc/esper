@@ -38,7 +38,7 @@ public class ContextControllerHash implements ContextController, ContextControll
     }
 
     public void importContextPartitions(ContextControllerState state, int pathIdToUse, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector) {
-        initializeFromState(null, null, state, pathIdToUse, agentInstanceSelector);
+        initializeFromState(null, null, state, pathIdToUse, agentInstanceSelector, true);
     }
 
     public void deletePath(ContextPartitionIdentifier identifier) {
@@ -131,7 +131,7 @@ public class ContextControllerHash implements ContextController, ContextControll
 
         // initialize from existing state
         int pathIdToUse = importPathId != null ? importPathId : pathId;
-        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, controllerState, pathIdToUse, null);
+        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, controllerState, pathIdToUse, null, false);
 
         // activate filters
         if (!factory.getHashedSpec().isPreallocate()) {
@@ -198,7 +198,8 @@ public class ContextControllerHash implements ContextController, ContextControll
                                      Map<String, Object> optionalTriggeringPattern,
                                      ContextControllerState controllerState,
                                      int pathIdToUse,
-                                     AgentInstanceSelector agentInstanceSelector) {
+                                     AgentInstanceSelector agentInstanceSelector,
+                                     boolean loadingExistingState) {
 
         ContextControllerFactoryContext factoryContext = factory.getFactoryContext();
         TreeMap<ContextStatePathKey, ContextStatePathValue> states = controllerState.getStates();
@@ -221,7 +222,7 @@ public class ContextControllerHash implements ContextController, ContextControll
             if (controllerState.isImported()) {
                 ContextControllerInstanceHandle existingHandle = partitionKeys.get(hashAlgoGeneratedId);
                 if (existingHandle != null) {
-                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendumToUse, agentInstanceSelector, entry.getValue().getBlob());
+                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendumToUse, agentInstanceSelector, entry.getValue().getBlob(), loadingExistingState);
                     continue;
                 }
             }
@@ -229,7 +230,7 @@ public class ContextControllerHash implements ContextController, ContextControll
             Map<String, Object> properties = ContextPropertyEventType.getHashBean(factoryContext.getContextName(), hashAlgoGeneratedId);
 
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, hashAlgoGeneratedId, properties, controllerState, filterAddendumToUse, factoryContext.isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, hashAlgoGeneratedId, properties, controllerState, filterAddendumToUse, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState());
             partitionKeys.put(hashAlgoGeneratedId, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

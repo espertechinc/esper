@@ -26,6 +26,7 @@ import java.util.Set;
 public interface ContextManager extends FilterFaultHandler {
     public ContextDescriptor getContextDescriptor();
     public int getNumNestingLevels();
+    public ContextStateCache getContextStateCache();
 
     public void addStatement(ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
     public void stopStatement(String statementName, int statementId);

@@ -36,7 +36,7 @@ public class ContextControllerCategory implements ContextController {
     }
 
     public void importContextPartitions(ContextControllerState state, int pathIdToUse, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector) {
-        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector);
+        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector, true);
     }
 
     public void deletePath(ContextPartitionIdentifier identifier) {
@@ -128,7 +128,7 @@ public class ContextControllerCategory implements ContextController {
         }
 
         int pathIdToUse = importPathId != null ? importPathId : pathId;
-        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, activationFilterAddendum, controllerState, pathIdToUse, null);
+        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, activationFilterAddendum, controllerState, pathIdToUse, null, false);
     }
 
     public ContextControllerFactory getFactory() {
@@ -148,7 +148,8 @@ public class ContextControllerCategory implements ContextController {
                                      ContextInternalFilterAddendum activationFilterAddendum,
                                      ContextControllerState controllerState,
                                      int pathIdToUse,
-                                     AgentInstanceSelector agentInstanceSelector) {
+                                     AgentInstanceSelector agentInstanceSelector,
+                                     boolean loadingExistingState) {
         TreeMap<ContextStatePathKey, ContextStatePathValue> states = controllerState.getStates();
         NavigableMap<ContextStatePathKey, ContextStatePathValue> childContexts = ContextControllerStateUtil.getChildContexts(factory.getFactoryContext(), pathIdToUse, states);
 
@@ -169,7 +170,7 @@ public class ContextControllerCategory implements ContextController {
             if (controllerState.isImported()) {
                 ContextControllerInstanceHandle existingHandle = handleCategories.get(categoryNumber);
                 if (existingHandle != null) {
-                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendumToUse, agentInstanceSelector, entry.getValue().getBlob());
+                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendumToUse, agentInstanceSelector, entry.getValue().getBlob(), loadingExistingState);
                     continue;
                 }
             }
@@ -178,7 +179,7 @@ public class ContextControllerCategory implements ContextController {
 
             int contextPartitionId = entry.getValue().getOptionalContextPartitionId();
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, null, null, categoryNumber, context, controllerState, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, null, null, categoryNumber, context, controllerState, filterAddendumToUse, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState());
             handleCategories.put(categoryNumber, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

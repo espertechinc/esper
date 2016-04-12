@@ -25,4 +25,8 @@ public abstract class ContextControllerFactoryBase implements ContextControllerF
     public ContextControllerFactoryContext getFactoryContext() {
         return factoryContext;
     }
+
+    public ContextStateCache getStateCache() {
+        return factoryContext.getStateCache();
+    }
 }

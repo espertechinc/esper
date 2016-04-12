@@ -58,7 +58,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
     }
 
     public void importContextPartitions(ContextControllerState state, int pathIdToUse, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector) {
-        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector);
+        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector, true);
     }
 
     public void deletePath(ContextPartitionIdentifier identifier) {
@@ -122,7 +122,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
         }
 
         int pathIdToUse = importPathId != null ? importPathId : pathId;
-        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, filterAddendum, controllerState, pathIdToUse, null);
+        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, filterAddendum, controllerState, pathIdToUse, null, false);
     }
 
     protected ContextControllerCondition makeEndpoint(ContextDetailCondition endpoint, ContextInternalFilterAddendum filterAddendum, boolean isStartEndpoint, int subPathId) {
@@ -356,7 +356,8 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                                      ContextInternalFilterAddendum filterAddendum,
                                      ContextControllerState controllerState,
                                      int pathIdToUse,
-                                     AgentInstanceSelector agentInstanceSelector) {
+                                     AgentInstanceSelector agentInstanceSelector,
+                                     boolean loadingExistingState) {
 
         TreeMap<ContextStatePathKey, ContextStatePathValue> states = controllerState.getStates();
         NavigableMap<ContextStatePathKey, ContextStatePathValue> childContexts = ContextControllerStateUtil.getChildContexts(factory.getFactoryContext(), pathIdToUse, states);
@@ -384,7 +385,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 if (existing != null) {
                     ContextControllerInstanceHandle existingHandle = existing.getValue().getInstanceHandle();
                     if (existingHandle != null) {
-                        activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendum, agentInstanceSelector, entry.getValue().getBlob());
+                        activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), filterAddendum, agentInstanceSelector, entry.getValue().getBlob(), loadingExistingState);
                         continue;
                     }
                 }
@@ -400,7 +401,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
             int contextPartitionId = entry.getValue().getOptionalContextPartitionId();
 
             int assignedSubPathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, null, builtinProps, controllerState, filterAddendum, factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle instanceHandle = activationCallback.contextPartitionInstantiate(contextPartitionId, assignedSubPathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, null, builtinProps, controllerState, filterAddendum, loadingExistingState || factory.getFactoryContext().isRecoveringResilient(), entry.getValue().getState());
             endConditions.put(endEndpoint, new ContextControllerInitTermInstance(instanceHandle, state.getPatternData(), startTime, endTime, assignedSubPathId));
 
             if (entry.getKey().getSubPath() > maxSubpathId) {

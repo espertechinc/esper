@@ -34,7 +34,9 @@ public interface ContextControllerLifecycleCallback {
                                          ContextControllerState controllerState,
                                          int exportedCPOrPathId,
                                          ContextInternalFilterAddendum filterAddendum,
-                                         AgentInstanceSelector agentInstanceSelector, byte[] payload);
+                                         AgentInstanceSelector agentInstanceSelector,
+                                         byte[] payload,
+                                         boolean isRecoveringResilient);
 
     public void contextPartitionTerminate(ContextControllerInstanceHandle contextNestedHandle,
                                           Map<String, Object> terminationProperties,

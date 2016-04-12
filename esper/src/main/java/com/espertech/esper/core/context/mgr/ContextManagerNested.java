@@ -292,7 +292,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         throw new UnsupportedOperationException();
     }
 
-    public void contextPartitionNavigate(ContextControllerInstanceHandle existingHandle, ContextController originator, ContextControllerState controllerState, int exportedCPOrPathId, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector, byte[] payload) {
+    public void contextPartitionNavigate(ContextControllerInstanceHandle existingHandle, ContextController originator, ContextControllerState controllerState, int exportedCPOrPathId, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector, byte[] payload, boolean isRecoveringResilient) {
         ContextManagerNestedInstanceHandle nestedHandle = (ContextManagerNestedInstanceHandle) existingHandle;
 
         // detect non-leaf
@@ -453,6 +453,10 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
             }
         }
         return false;
+    }
+
+    public ContextStateCache getContextStateCache() {
+        return rootContext.getFactory().getStateCache();
     }
 
     /**

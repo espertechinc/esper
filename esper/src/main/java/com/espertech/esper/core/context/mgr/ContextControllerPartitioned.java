@@ -41,7 +41,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
     }
 
     public void importContextPartitions(ContextControllerState state, int pathIdToUse, ContextInternalFilterAddendum filterAddendum, AgentInstanceSelector agentInstanceSelector) {
-        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector);
+        initializeFromState(null, null, filterAddendum, state, pathIdToUse, agentInstanceSelector, true);
     }
 
     public void deletePath(ContextPartitionIdentifier identifier) {
@@ -124,7 +124,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
         }
 
         int pathIdToUse = importPathId != null ? importPathId : pathId;
-        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, filterAddendum, controllerState, pathIdToUse, null);
+        initializeFromState(optionalTriggeringEvent, optionalTriggeringPattern, filterAddendum, controllerState, pathIdToUse, null, false);
     }
 
     public ContextControllerFactory getFactory() {
@@ -195,7 +195,8 @@ public class ContextControllerPartitioned implements ContextController, ContextC
                                      ContextInternalFilterAddendum filterAddendum,
                                      ContextControllerState controllerState,
                                      int pathIdToUse,
-                                     AgentInstanceSelector agentInstanceSelector) {
+                                     AgentInstanceSelector agentInstanceSelector,
+                                     boolean loadingExistingState) {
 
         ContextControllerFactoryContext factoryContext = factory.getFactoryContext();
         TreeMap<ContextStatePathKey, ContextStatePathValue> states = controllerState.getStates();
@@ -220,7 +221,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
             if (controllerState.isImported()) {
                 ContextControllerInstanceHandle existingHandle = partitionKeys.get(mapKey);
                 if (existingHandle != null) {
-                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), myFilterAddendum, agentInstanceSelector, entry.getValue().getBlob());
+                    activationCallback.contextPartitionNavigate(existingHandle, this, controllerState, entry.getValue().getOptionalContextPartitionId(), myFilterAddendum, agentInstanceSelector, entry.getValue().getBlob(), loadingExistingState);
                     continue;
                 }
             }
@@ -228,7 +229,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
             Map<String, Object> props = ContextPropertyEventType.getPartitionBean(factoryContext.getContextName(), 0, mapKey, factory.getSegmentedSpec().getItems().get(0).getPropertyNames());
 
             int assignedSubpathId = !controllerState.isImported() ? entry.getKey().getSubPath() : ++currentSubpathId;
-            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubpathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, mapKey, props, controllerState, myFilterAddendum, factoryContext.isRecoveringResilient(), entry.getValue().getState());
+            ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(entry.getValue().getOptionalContextPartitionId(), assignedSubpathId, entry.getKey().getSubPath(), this, optionalTriggeringEvent, optionalTriggeringPattern, mapKey, props, controllerState, myFilterAddendum, loadingExistingState || factoryContext.isRecoveringResilient(), entry.getValue().getState());
             partitionKeys.put(mapKey, handle);
 
             if (entry.getKey().getSubPath() > maxSubpathId) {
