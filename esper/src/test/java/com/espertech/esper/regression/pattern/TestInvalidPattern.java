@@ -220,5 +220,5 @@ public class TestInvalidPattern extends TestCase
         epService.getEPAdministrator().createPattern(eplInvalidPattern);
     }
 
-    private static Log log = LogFactory.getLog(TestInvalidPattern.class);
+    private final static Log log = LogFactory.getLog(TestInvalidPattern.class);
 }

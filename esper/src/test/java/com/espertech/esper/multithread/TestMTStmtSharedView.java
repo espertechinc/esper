@@ -117,5 +117,5 @@ public class TestMTStmtSharedView extends TestCase
         return sum;
     }
 
-    private static Log log = LogFactory.getLog(TestMTStmtSharedView.class);
+    private final static Log log = LogFactory.getLog(TestMTStmtSharedView.class);
 }

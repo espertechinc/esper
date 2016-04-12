@@ -171,5 +171,5 @@ public class TestMinMaxCases extends TestCase
         epService.getEPRuntime().sendEvent(bean);
     }
 
-    private static Log log = LogFactory.getLog(TestMinMaxCases.class);
+    private final static Log log = LogFactory.getLog(TestMinMaxCases.class);
 }

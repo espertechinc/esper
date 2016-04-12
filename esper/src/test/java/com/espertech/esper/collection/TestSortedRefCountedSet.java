@@ -108,5 +108,5 @@ public class TestSortedRefCountedSet extends TestCase
         refSet.remove("a");
     }
 
-    private static Log log = LogFactory.getLog(TestSortedRefCountedSet.class);
+    private final static Log log = LogFactory.getLog(TestSortedRefCountedSet.class);
 }

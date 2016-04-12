@@ -167,6 +167,12 @@ public class TestAudit extends TestCase {
         listener.reset();
         stmtGroupedView.destroy();
 
+        EPStatement stmtGroupedWIntersectionView = epService.getEPAdministrator().createEPL("@Audit Select * From SupportBean.std:groupwin(theString).win:length(2).std:unique(intPrimitive)");
+        stmtGroupedWIntersectionView.addListener(listener);
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 50));
+        listener.reset();
+        stmtGroupedWIntersectionView.destroy();
+
         // expression
         auditLog.info("*** Expression: ");
         EPStatement stmtExpr = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('expression') select intPrimitive*100 as val0, sum(intPrimitive) as val1 from SupportBean");

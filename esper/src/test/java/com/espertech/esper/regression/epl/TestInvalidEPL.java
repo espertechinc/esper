@@ -201,5 +201,5 @@ public class TestInvalidEPL extends TestCase
         return exceptionText;
     }
 
-    private static Log log = LogFactory.getLog(TestInvalidEPL.class);
+    private final static Log log = LogFactory.getLog(TestInvalidEPL.class);
 }

@@ -191,5 +191,5 @@ public class TestQueryGraph extends TestCase
         return new ExprIdentNodeImpl(types[stream], p, stream);
     }
 
-    private static Log log = LogFactory.getLog(TestQueryGraph.class);
+    private final static Log log = LogFactory.getLog(TestQueryGraph.class);
 }

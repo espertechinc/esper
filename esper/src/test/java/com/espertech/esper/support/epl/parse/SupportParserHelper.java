@@ -148,5 +148,5 @@ public class SupportParserHelper
         return new Pair<Tree, CommonTokenStream>(ctx, tokens);
     }
 
-    private static Log log = LogFactory.getLog(SupportParserHelper.class);
+    private final static Log log = LogFactory.getLog(SupportParserHelper.class);
 }

@@ -75,5 +75,5 @@ public class TestNumberSetPermutationEnumeration extends TestCase
         }
     }
 
-    private static Log log = LogFactory.getLog(TestNumberSetPermutationEnumeration.class);
+    private final static Log log = LogFactory.getLog(TestNumberSetPermutationEnumeration.class);
 }

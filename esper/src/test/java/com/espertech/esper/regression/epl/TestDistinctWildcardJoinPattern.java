@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class TestDistinctWildcardJoinPattern extends TestCase
 {
-	private static Log log = LogFactory.getLog(TestDistinctWildcardJoinPattern.class);
+	private final static Log log = LogFactory.getLog(TestDistinctWildcardJoinPattern.class);
 	
     private EPServiceProvider epService;
     private SupportSubscriberMRD subscriber;

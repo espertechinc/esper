@@ -60,5 +60,5 @@ public class TestPropertyListBuilderPublic extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(expected.toArray(), descList.toArray());
     }
 
-    private static Log log = LogFactory.getLog(TestPropertyListBuilderPublic.class);
+    private final static Log log = LogFactory.getLog(TestPropertyListBuilderPublic.class);
 }

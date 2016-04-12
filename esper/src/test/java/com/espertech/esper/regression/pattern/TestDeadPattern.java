@@ -63,5 +63,5 @@ public class TestDeadPattern extends TestCase
         assertTrue("performance: delta=" +  delta, delta < 20);
     }
 
-    private static Log log = LogFactory.getLog(TestDeadPattern.class);
+    private final static Log log = LogFactory.getLog(TestDeadPattern.class);
 }

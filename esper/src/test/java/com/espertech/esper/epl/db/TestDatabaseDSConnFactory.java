@@ -65,5 +65,5 @@ public class TestDatabaseDSConnFactory extends TestCase
         connection.close();
     }
 
-    private static Log log = LogFactory.getLog(TestDatabaseDSConnFactory.class);
+    private final static Log log = LogFactory.getLog(TestDatabaseDSConnFactory.class);
 }

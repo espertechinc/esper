@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class TestNamedWindowJoin extends TestCase implements IndexBackingTableInfo
 {
-    private static Log log = LogFactory.getLog(TestNamedWindowJoin.class);
+    private final static Log log = LogFactory.getLog(TestNamedWindowJoin.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listenerWindow;

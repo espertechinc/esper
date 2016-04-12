@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class TestTableJoin extends TestCase implements IndexBackingTableInfo {
-    private static Log log = LogFactory.getLog(TestTableJoin.class);
+    private final static Log log = LogFactory.getLog(TestTableJoin.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

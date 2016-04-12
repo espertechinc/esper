@@ -527,5 +527,5 @@ public class TestFollowedByOperator extends TestCase implements SupportBeanConst
         epService.getEPRuntime().sendEvent(theEvent);
     }
 
-    private static Log log = LogFactory.getLog(TestFollowedByOperator.class);
+    private final static Log log = LogFactory.getLog(TestFollowedByOperator.class);
 }

@@ -72,5 +72,5 @@ public class TestPatternStartLoop extends TestCase
         }
     };
 
-    private static Log log = LogFactory.getLog(TestPatternStartLoop.class);
+    private final static Log log = LogFactory.getLog(TestPatternStartLoop.class);
 }

@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class TestMTStmtStateless extends TestCase
 {
-    private static Log log = LogFactory.getLog(TestMTStmtStateless.class);
+    private final static Log log = LogFactory.getLog(TestMTStmtStateless.class);
     private EPServiceProvider engine;
 
     public void setUp()

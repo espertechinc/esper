@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class TestNumberSetShiftGroupEnumeration extends TestCase {
 
-    private static Log log = LogFactory.getLog(TestNumberSetShiftGroupEnumeration.class);
+    private final static Log log = LogFactory.getLog(TestNumberSetShiftGroupEnumeration.class);
 
     public void testGen() {
 

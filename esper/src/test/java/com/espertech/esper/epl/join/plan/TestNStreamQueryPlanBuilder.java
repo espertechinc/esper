@@ -167,5 +167,5 @@ public class TestNStreamQueryPlanBuilder extends TestCase
         return new ExprIdentNodeImpl(typesPerStream[stream], p, stream);
     }
 
-    private static Log log = LogFactory.getLog(TestNStreamQueryPlanBuilder.class);
+    private final static Log log = LogFactory.getLog(TestNStreamQueryPlanBuilder.class);
 }

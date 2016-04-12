@@ -850,5 +850,5 @@ public class TestMapEventNested extends TestCase
         return epService;
     }
 
-    private static Log log = LogFactory.getLog(TestMapEvent.class);
+    private final static Log log = LogFactory.getLog(TestMapEvent.class);
 }

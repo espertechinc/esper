@@ -110,5 +110,5 @@ public class TestPropertyListBuilderExplicit extends TestCase
         }
     }
 
-    private static Log log = LogFactory.getLog(TestPropertyListBuilderExplicit.class);
+    private final static Log log = LogFactory.getLog(TestPropertyListBuilderExplicit.class);
 }

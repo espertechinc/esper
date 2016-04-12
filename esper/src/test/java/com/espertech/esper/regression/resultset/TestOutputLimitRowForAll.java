@@ -880,7 +880,7 @@ public class TestOutputLimitRowForAll extends TestCase
         }
     }
 
-    private static Log log = LogFactory.getLog(TestOutputLimitRowForAll.class);
+    private final static Log log = LogFactory.getLog(TestOutputLimitRowForAll.class);
 }
 
 

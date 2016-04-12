@@ -724,5 +724,5 @@ public class TestMatchUntilExpr extends TestCase implements SupportBeanConstants
         }
     }
 
-    private static Log log = LogFactory.getLog(TestMatchUntilExpr.class);
+    private final static Log log = LogFactory.getLog(TestMatchUntilExpr.class);
 }

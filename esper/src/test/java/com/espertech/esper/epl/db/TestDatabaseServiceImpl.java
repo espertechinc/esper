@@ -87,5 +87,5 @@ public class TestDatabaseServiceImpl extends TestCase
         }
     }
 
-    private static Log log = LogFactory.getLog(TestDatabaseServiceImpl.class);
+    private final static Log log = LogFactory.getLog(TestDatabaseServiceImpl.class);
 }

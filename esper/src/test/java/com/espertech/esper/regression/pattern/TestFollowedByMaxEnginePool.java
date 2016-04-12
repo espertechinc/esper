@@ -291,5 +291,5 @@ public class TestFollowedByMaxEnginePool extends TestCase implements SupportBean
         contexts.clear();
     }
 
-    private static Log log = LogFactory.getLog(TestFollowedByMaxEnginePool.class);
+    private final static Log log = LogFactory.getLog(TestFollowedByMaxEnginePool.class);
 }

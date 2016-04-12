@@ -170,5 +170,5 @@ public class TestPermutationEnumeration extends TestCase
         assertEquals(720, PermutationEnumeration.faculty(6));
     }
 
-    private static Log log = LogFactory.getLog(TestPermutationEnumeration.class);
+    private final static Log log = LogFactory.getLog(TestPermutationEnumeration.class);
 }

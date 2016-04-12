@@ -286,5 +286,5 @@ public class TestFollowedByMaxOperator extends TestCase implements SupportBeanCo
         contexts.clear();
     }
 
-    private static Log log = LogFactory.getLog(TestFollowedByMaxOperator.class);
+    private final static Log log = LogFactory.getLog(TestFollowedByMaxOperator.class);
 }

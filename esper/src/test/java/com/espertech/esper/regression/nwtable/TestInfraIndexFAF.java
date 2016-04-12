@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class TestInfraIndexFAF extends TestCase implements IndexBackingTableInfo
 {
-    private static Log log = LogFactory.getLog(TestInfraIndexFAF.class);
+    private final static Log log = LogFactory.getLog(TestInfraIndexFAF.class);
 
     private EPServiceProvider epService;
 

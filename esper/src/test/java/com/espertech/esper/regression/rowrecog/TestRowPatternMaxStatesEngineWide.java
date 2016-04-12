@@ -494,5 +494,5 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         return supportBean;
     }
 
-    private static Log log = LogFactory.getLog(TestRowPatternMaxStatesEngineWide.class);
+    private final static Log log = LogFactory.getLog(TestRowPatternMaxStatesEngineWide.class);
 }

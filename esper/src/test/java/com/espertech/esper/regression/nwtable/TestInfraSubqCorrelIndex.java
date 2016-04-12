@@ -32,7 +32,7 @@ import java.util.List;
 
 public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTableInfo
 {
-    private static Log log = LogFactory.getLog(TestInfraSubqCorrelIndex.class);
+    private final static Log log = LogFactory.getLog(TestInfraSubqCorrelIndex.class);
 
     private EPServiceProvider epService;
     private EPRuntime epRuntime;

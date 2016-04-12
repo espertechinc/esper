@@ -346,5 +346,5 @@ public class TestInvalidView extends TestCase
         epService.getEPAdministrator().createEPL(viewStmt);
     }
 
-    private static Log log = LogFactory.getLog(TestInvalidView.class);
+    private final static Log log = LogFactory.getLog(TestInvalidView.class);
 }

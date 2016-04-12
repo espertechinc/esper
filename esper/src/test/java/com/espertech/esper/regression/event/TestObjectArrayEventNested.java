@@ -686,5 +686,5 @@ public class TestObjectArrayEventNested extends TestCase
         }
     }
 
-    private static Log log = LogFactory.getLog(TestMapEvent.class);
+    private final static Log log = LogFactory.getLog(TestMapEvent.class);
 }

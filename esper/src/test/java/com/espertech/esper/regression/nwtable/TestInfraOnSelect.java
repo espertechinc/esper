@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 {
-    private static Log log = LogFactory.getLog(TestInfraOnSelect.class);
+    private final static Log log = LogFactory.getLog(TestInfraOnSelect.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listenerSelect;

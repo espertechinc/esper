@@ -78,5 +78,5 @@ public class TestDatabaseDMConnFactory extends TestCase
         connection.close();
     }
 
-    private static Log log = LogFactory.getLog(TestDatabaseDMConnFactory.class);
+    private final static Log log = LogFactory.getLog(TestDatabaseDMConnFactory.class);
 }

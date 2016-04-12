@@ -67,5 +67,5 @@ public class TestPropertyParser extends TestCase
         return ((MappedProperty)property).getKey();
     }
 
-    private static Log log = LogFactory.getLog(TestPropertyParser.class);
+    private final static Log log = LogFactory.getLog(TestPropertyParser.class);
 }
