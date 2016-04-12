@@ -11,10 +11,7 @@
 
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.context.ContextPartitionCollection;
-import com.espertech.esper.client.context.ContextPartitionDescriptor;
-import com.espertech.esper.client.context.ContextPartitionSelector;
-import com.espertech.esper.client.context.ContextPartitionSelectorById;
+import com.espertech.esper.client.context.*;
 import com.espertech.esper.core.context.mgr.*;
 import com.espertech.esper.core.context.util.ContextPartitionImportCallback;
 
@@ -128,6 +125,7 @@ public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI
 
         ContextStateCache contextStateCache = contextManager.getContextStateCache();
         for (Map.Entry<ContextStatePathKey, ContextStatePathValue> entry : importable.getPaths().entrySet()) {
+            entry.getValue().setState(ContextPartitionState.STARTED);
             contextStateCache.updateContextPath(contextName, entry.getKey(), entry.getValue());
         }
 
