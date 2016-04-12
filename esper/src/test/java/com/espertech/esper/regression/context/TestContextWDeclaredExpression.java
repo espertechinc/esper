@@ -32,6 +32,7 @@ public class TestContextWDeclaredExpression extends TestCase {
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         listener = new SupportUpdateListener();
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
     }
 
@@ -40,7 +41,6 @@ public class TestContextWDeclaredExpression extends TestCase {
     }
 
     public void testDeclaredExpression() {
-        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().createEPL("create context MyCtx as " +
                 "group by intPrimitive < 0 as n, " +
                 "group by intPrimitive > 0 as p " +
@@ -56,7 +56,6 @@ public class TestContextWDeclaredExpression extends TestCase {
     }
 
     public void testAliasExpression() {
-        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().createEPL("create context MyCtx as " +
                 "group by intPrimitive < 0 as n, " +
                 "group by intPrimitive > 0 as p " +
@@ -68,6 +67,22 @@ public class TestContextWDeclaredExpression extends TestCase {
                 "select getLabelOne as c0, getLabelTwo as c1, getLabelThree as c2 from SupportBean").addListener(listener);
 
         runAssertionExpression();
+    }
+
+    public void testContextFilter() {
+        String expr = "create expression THE_EXPRESSION alias for {theString='x'}";
+        epService.getEPAdministrator().createEPL(expr);
+
+        String context = "create context context2 initiated @now and pattern[every(SupportBean(THE_EXPRESSION))] terminated after 10 minutes";
+        epService.getEPAdministrator().createEPL(context);
+
+        SupportUpdateListener listener = new SupportUpdateListener();
+        String statement = "context context2 select * from pattern[e1=SupportBean(THE_EXPRESSION) -> e2=SupportBean(theString='y')]";
+        epService.getEPAdministrator().createEPL(statement).addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("x", 1));
+        epService.getEPRuntime().sendEvent(new SupportBean("y", 2));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "e1.intPrimitive,e2.intPrimitive".split(","), new Object[] {1, 2});
     }
 
     private void runAssertionExpression() {

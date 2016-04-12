@@ -65,7 +65,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         expressionBodyCopy.accept(visitorWParent);
         for (Pair<ExprNode, ExprIdentNode> pair : visitorWParent.getIdentNodes()) {
             String streamOrProp = pair.getSecond().getStreamOrPropertyName();
-            if (contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(streamOrProp)) {
+            if (streamOrProp != null && contextDescriptor.getContextPropertyRegistry().isContextPropertyPrefix(streamOrProp)) {
                 ExprContextPropertyNode context = new ExprContextPropertyNode(pair.getSecond().getUnresolvedPropertyName());
                 if (pair.getFirst() == null) {
                     expressionBodyCopy = context;
