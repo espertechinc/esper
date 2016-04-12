@@ -32,7 +32,11 @@ import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
+import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.spec.OnTriggerDesc;
+import com.espertech.esper.epl.spec.OnTriggerWindowDesc;
 import com.espertech.esper.epl.view.OutputProcessViewTerminable;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.filter.FilterHandle;
@@ -147,13 +151,30 @@ public class StatementAgentInstanceUtil {
     {
         StatementContext statementContext = statement.getStatementContext();
 
-        // make a new lock for the agent instance or use the already-allocated default lock
+        // for on-trigger statements against named windows we must use the named window lock
+        OnTriggerDesc optOnTriggerDesc = statement.getStatementSpec().getOnTriggerDesc();
+        String namedWindowName = null;
+        if ((optOnTriggerDesc != null) && (optOnTriggerDesc instanceof OnTriggerWindowDesc)) {
+            String windowName = ((OnTriggerWindowDesc) optOnTriggerDesc).getWindowName();
+            if (servicesContext.getTableService().getTableMetadata(windowName) == null) {
+                namedWindowName = windowName;
+            }
+        }
+
+        // determine lock to use
         StatementAgentInstanceLock agentInstanceLock;
-        if (isSingleInstanceContext) {
-            agentInstanceLock = statementContext.getDefaultAgentInstanceLock();
+        if (namedWindowName != null) {
+            NamedWindowProcessor processor = servicesContext.getNamedWindowMgmtService().getProcessor(namedWindowName);
+            NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceId);
+            agentInstanceLock = instance.getRootViewInstance().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();
         }
         else {
-            agentInstanceLock = servicesContext.getStatementLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect());
+            if (isSingleInstanceContext) {
+                agentInstanceLock = statementContext.getDefaultAgentInstanceLock();
+            }
+            else {
+                agentInstanceLock = servicesContext.getStatementLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect());
+            }
         }
 
         // share the filter version between agent instance handle (callbacks) and agent instance context
