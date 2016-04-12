@@ -4,7 +4,31 @@ Esper Changelog
 Changes in version 5.4.0
 ------------------------
   - Support for exception handler to receive a callback when an exception occurs during stop of an statement agent instance
-  
+  - Support for configuring annotation-only imports and for implicit conversion for enumeration values
+  - Support for AMQP sink emitter to send header map
+
+Bug fixes and other improvements
+  - Fixed issue IZJ25661200 @audit for grouped window with intersection  
+    Fixed issue DXR61621577 context partioned on-trigger no using right premade named window instance lock
+    Fixed issue VNB78039427 exception cleanup incomplete when unexpected exception during compile and may leave resources referenced
+    Fixed issue XRX50766275 declaredexpr in filter with contextpartition causes NPE
+    Fixed issue GAM77653476 load context partition initializes pattern twice
+    Fixed issue MIO52812756 ArrayIndexOutOfBoundException in match-recognize for define-clause with enumeration method on group variable
+    Fixed issue SEK31956385 failed to resolve method invocation when prefixed by stream name for named window filter
+    Fixed issue LAW10494306 ArrayIndexOutOfBoundsException for single-row-udf with filter-optimizable flag in pattern filter accepting properties of pattern-state results
+    Fixed issue #24 NullPointerException for filter with global expression in context-partitioned stmt
+    Fixed issue #26 NullPointerException with wrong On-select syntax
+    Fixed issue #27 joining two named windows when using multiple thread and where both windows use "std:unique" produces incorrect results
+    Fixed issue #29 StackOverflowError when processing named window insert large batch
+    Fixed issue #31 Expression with bracket-syntax table access causes string constant validation exception
+    Fixed issue #32  Incorrect result for aggregation when multiple agg functions in same statement each take a declared expression as parameter
+    Fixed issue #33 NullPointerException with non-aggregated `having` clause and addListenerWithReplay
+    Fixed issue #34 minor textual comment UTF-8 fix breaks build on some platforms
+    Fixed issue #36 terminal-service build issue with Maven minor pom change
+    Fixed issue #38 Benchmark scripts have incorrect Java classpaths
+    Fixed issue #41 Prior function does not accept constant variable
+    Fixed issue #42 BeanEventType call to FastClass.create() for OSGI improvement
+    Fixed issue #43 esperio socket exports and bundle versions
 
 Changes in version 5.3.0
 ------------------------
