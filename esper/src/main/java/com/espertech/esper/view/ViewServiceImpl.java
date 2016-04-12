@@ -19,6 +19,7 @@ import com.espertech.esper.view.internal.UnionViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
 import com.espertech.esper.view.std.MergeViewFactory;
+import com.espertech.esper.view.std.MergeViewFactoryMarker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -131,7 +132,7 @@ public final class ViewServiceImpl implements ViewService
             {
                 groupByFactory.add(i);
             }
-            else if (factory instanceof MergeViewFactory)
+            else if (factory instanceof MergeViewFactoryMarker)
             {
                 mergeFactory.add(i);
             }
@@ -158,12 +159,12 @@ public final class ViewServiceImpl implements ViewService
             throw new ViewProcessingException("The merge view cannot be used in conjuntion with multiple data windows");
         }
 
-        GroupByViewFactory groupByViewFactory = null;
-        MergeViewFactory mergeViewFactory = null;
+        GroupByViewFactoryMarker groupByViewFactory = null;
+        MergeViewFactoryMarker mergeViewFactory = null;
         if (!groupByFactory.isEmpty())
         {
-            groupByViewFactory = (GroupByViewFactory) viewFactories.remove(0);
-            mergeViewFactory = (MergeViewFactory) viewFactories.remove(viewFactories.size() - 1);
+            groupByViewFactory = (GroupByViewFactoryMarker) viewFactories.remove(0);
+            mergeViewFactory = (MergeViewFactoryMarker) viewFactories.remove(viewFactories.size() - 1);
         }
 
         ViewFactory retainPolicy;
@@ -186,9 +187,9 @@ public final class ViewServiceImpl implements ViewService
         nonRetainViewFactories.add(retainPolicy);
         if (groupByViewFactory != null)
         {
-            nonRetainViewFactories.add(0, groupByViewFactory);
+            nonRetainViewFactories.add(0, (ViewFactory) groupByViewFactory);
             nonRetainViewFactories.addAll(derivedValueViews);
-            nonRetainViewFactories.add(mergeViewFactory);
+            nonRetainViewFactories.add((ViewFactory) mergeViewFactory);
         }
         else
         {
