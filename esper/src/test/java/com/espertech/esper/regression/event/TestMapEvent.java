@@ -257,6 +257,7 @@ public class TestMapEvent extends TestCase
         Configuration configuration = SupportConfigFactory.getConfiguration();
         configuration.addEventType("MyPrimMapEvent", properties);
 
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         epService.destroy();

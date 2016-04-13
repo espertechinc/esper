@@ -235,6 +235,7 @@ public class TestAggregateFiltered extends TestCase
         runAssertionDistinct();
 
         // test math context for big decimal and average divide
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         Configuration config = SupportConfigFactory.getConfiguration();
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(2, RoundingMode.HALF_UP));
         config.addEventType(SupportBeanNumeric.class);
