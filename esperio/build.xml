@@ -51,7 +51,7 @@
 			<link offline="true" href="http://www.espertech.com/esper/release-${version}/esperio-javadoc" packagelistLoc="http://www.espertech.com/esper/release-${version}/esperio-javadoc"/>
 			<footer>
 				<![CDATA[
-				<small><b>&copy; 2006-2015 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='http://www.espertech.com' target='_blank'>espertech.com</a></b></small>
+				<small><b>&copy; 2006-2016 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='http://www.espertech.com' target='_blank'>espertech.com</a></b></small>
 				<script type='text/javascript'>				
 				var gaJsHost = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.');
  				document.write(unescape('%3Cscript src=\'' + gaJsHost + 'google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E'));
