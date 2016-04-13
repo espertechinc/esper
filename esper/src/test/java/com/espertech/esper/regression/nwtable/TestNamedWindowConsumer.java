@@ -37,11 +37,9 @@ public class TestNamedWindowConsumer extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
     }
 
-    public void tearDown() {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
-    }
-
     public void testLargeBatch() throws Exception {
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
                         "create schema IncomingEvent(id int);\n" +
                         "create schema RetainedEvent(id int);\n" +
