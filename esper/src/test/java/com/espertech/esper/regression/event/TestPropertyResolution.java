@@ -126,6 +126,8 @@ public class TestPropertyResolution extends TestCase
         // try enum with keyword
         tryEnumWithKeyword();
 
+        tryEnumItselfReserved();
+
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
@@ -320,6 +322,12 @@ public class TestPropertyResolution extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
+    private void tryEnumItselfReserved() {
+        epService.getEPAdministrator().getConfiguration().addEventType(LocalEventWithGroup.class);
+        epService.getEPAdministrator().getConfiguration().addImport(GROUP.class);
+        epService.getEPAdministrator().createEPL("select * from LocalEventWithGroup(`GROUP`=`GROUP`.FOO)");
+    }
+
     public static class LocalEventWithEnum {
         private LocalEventEnum localEventEnum;
 
@@ -334,5 +342,21 @@ public class TestPropertyResolution extends TestCase
 
     public static enum LocalEventEnum {
         NEW;
+    }
+
+    public static class LocalEventWithGroup {
+        private GROUP GROUP;
+
+        public LocalEventWithGroup(GROUP GROUP) {
+            this.GROUP = GROUP;
+        }
+
+        public GROUP getGROUP() {
+            return GROUP;
+        }
+    }
+
+    public static enum GROUP {
+        FOO, BAR;
     }
 }

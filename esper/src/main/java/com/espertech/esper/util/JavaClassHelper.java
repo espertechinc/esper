@@ -1531,9 +1531,8 @@ public class JavaClassHelper
         String constName = constant.substring(lastDotIndex + 1);
 
         // un-escape
-        if (constName.startsWith("`") && constName.endsWith("`")) {
-            constName = constName.substring(1, constName.length() - 1);
-        }
+        className = unescape(className);
+        constName = unescape(constName);
 
         Class clazz;
         try
@@ -1878,5 +1877,12 @@ public class JavaClassHelper
         }
         String typeOnly = type.substring(0, index);
         return new Pair<String, Boolean>(typeOnly.trim(), true);
+    }
+
+    private static String unescape(String name) {
+        if (name.startsWith("`") && name.endsWith("`")) {
+            return name.substring(1, name.length() - 1);
+        }
+        return name;
     }
 }
