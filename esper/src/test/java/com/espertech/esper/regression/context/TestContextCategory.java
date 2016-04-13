@@ -53,6 +53,19 @@ public class TestContextCategory extends TestCase {
         listener = null;
     }
 
+    public void testBooleanExprFilter() {
+        String eplCtx = "create context Ctx600a group by theString like 'A%' as agroup, group by theString like 'B%' as bgroup, group by theString like 'C%' as cgroup from SupportBean";
+        epService.getEPAdministrator().createEPL(eplCtx);
+        String eplSum = "context Ctx600a select context.label as c0, count(*) as c1 from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(eplSum);
+        stmt.addListener(listener);
+
+        sendAssertBooleanExprFilter("B1", "bgroup", 1);
+        sendAssertBooleanExprFilter("A1", "agroup", 1);
+        sendAssertBooleanExprFilter("B171771", "bgroup", 2);
+        sendAssertBooleanExprFilter("A  x", "agroup", 2);
+    }
+
     public void testContextPartitionSelection() {
         String[] fields = "c0,c1,c2,c3".split(",");
         epService.getEPAdministrator().createEPL("create context MyCtx as group by intPrimitive < -5 as grp1, group by intPrimitive between -5 and +5 as grp2, group by intPrimitive > 5 as grp3 from SupportBean");
@@ -222,6 +235,12 @@ public class TestContextCategory extends TestCase {
         epService.getEPAdministrator().destroyAllStatements();
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 0, 0, 0, 0);
         assertEquals(0, spi.getContextManagementService().getContextCount());
+    }
+
+    private void sendAssertBooleanExprFilter(String theString, String groupExpected, long countExpected) {
+        String[] fields = "c0,c1".split(",");
+        epService.getEPRuntime().sendEvent(new SupportBean(theString, 1));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{groupExpected, countExpected});
     }
 
     private static class MySelectorFilteredCategory implements ContextPartitionSelectorFiltered {
