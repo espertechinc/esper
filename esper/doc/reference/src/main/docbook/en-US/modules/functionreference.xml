@@ -2392,6 +2392,10 @@ from StockTick.win:time(30 sec)]]></programlisting>
 			 </para>
 
 			 <para>
+				 User-defined functions that can receive an arbitrary number of parameter values can use <emphasis>varargs</emphasis>, i.e. can define a function such as <literal>function(T arg1, T... args) {...}</literal>.
+			 </para>
+
+			 <para>
 				 Boxing and unboxing of arrays is not supported in UDF as it is not supported in Java. For example, an array of <literal>Integer</literal> and an array of <literal>int</literal> are not compatible types.
 			 </para>
 

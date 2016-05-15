@@ -13,7 +13,9 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
+import com.mysql.jdbc.StringUtils;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,5 +73,55 @@ public class MySingleRowFunction
             }
         }
         return false;
+    }
+
+    public static String varargsOnlyInt(int ... values) {
+        Object[] objects = new Object[values.length];
+        for (int i = 0; i < values.length; i++) {
+            objects[i] = values[i];
+        }
+        return toCSV(objects);
+    }
+
+    public static String varargsW1Param(String first, double ... values) {
+        Object[] objects = new Object[values.length + 1];
+        objects[0] = first;
+        for (int i = 0; i < values.length; i++) {
+            objects[i+1] = values[i];
+        }
+        return toCSV(objects);
+    }
+
+    public static String varargsW2Param(int first, double second, Long ... values) {
+        Object[] objects = new Object[values.length + 2];
+        objects[0] = first;
+        objects[1] = second;
+        for (int i = 0; i < values.length; i++) {
+            objects[i+2] = values[i];
+        }
+        return toCSV(objects);
+    }
+
+    public static String varargsOnlyWCtx(EPLMethodInvocationContext ctx, int ... values) {
+        return "CTX+" + varargsOnlyInt(values);
+    }
+
+    public static String varargsW1ParamWCtx(String first, EPLMethodInvocationContext ctx, Integer ... values) {
+        return "CTX+" + first + "," + toCSV(values);
+    }
+
+    public static String varargsW2ParamWCtx(String first, String second, EPLMethodInvocationContext ctx, Integer ... values) {
+        return "CTX+" + first + "," + second + "," + toCSV(values);
+    }
+
+    private static String toCSV(Object[] values) {
+        StringWriter writer = new StringWriter();
+        String delimiter = "";
+        for (Object item : values) {
+            writer.append(delimiter);
+            writer.append(item == null ? "null" : item.toString());
+            delimiter = ",";
+        }
+        return writer.toString();
     }
 }

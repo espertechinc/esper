@@ -43,18 +43,20 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
-import com.espertech.esper.util.CollectionUtil;
-import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.*;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class ExprNodeUtility {
+
+    private static final Log log = LogFactory.getLog(ExprNodeUtility.class);
 
     public static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];
@@ -825,9 +827,24 @@ public class ExprNodeUtility {
         }
 
         // add an evaluator if the method expects a context object
-        if (method.getParameterTypes().length > 0 &&
+        if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
             method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
             childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(functionName));
+        }
+
+        // handle varargs
+        if (method.isVarArgs() ) {
+            // handle context parameter
+            int numMethodParams = method.getParameterTypes().length;
+            if (numMethodParams > 1 && method.getParameterTypes()[numMethodParams - 2] == EPLMethodInvocationContext.class) {
+                ExprEvaluator[] rewritten = new ExprEvaluator[childEvals.length + 1];
+                System.arraycopy(childEvals, 0, rewritten, 0, numMethodParams - 2);
+                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(functionName);
+                System.arraycopy(childEvals, numMethodParams - 2, rewritten, numMethodParams - 1, childEvals.length - (numMethodParams - 2));
+                childEvals = rewritten;
+            }
+
+            childEvals = makeVarargArrayEval(method, childEvals);
         }
 
         return new ExprNodeUtilMethodDesc(allConstants, paramTypes, childEvals, method, staticMethod);
@@ -1625,5 +1642,89 @@ public class ExprNodeUtility {
         return propertiesGroupBy;
     }
 
-    private static final Log log = LogFactory.getLog(ExprNodeUtility.class);
+    private static ExprEvaluator[] makeVarargArrayEval(Method method, final ExprEvaluator[] childEvals) {
+        ExprEvaluator[] evals = new ExprEvaluator[method.getParameterTypes().length];
+        Class varargClass = method.getParameterTypes()[method.getParameterTypes().length - 1].getComponentType();
+        Class varargClassBoxed = JavaClassHelper.getBoxedType(varargClass);
+        if (method.getParameterTypes().length > 1) {
+            System.arraycopy(childEvals, 0, evals, 0, evals.length - 1);
+        }
+        final int varargArrayLength = childEvals.length - method.getParameterTypes().length + 1;
+
+        ExprEvaluator[] varargEvals = new ExprEvaluator[varargArrayLength];
+        SimpleNumberCoercer[] coercers = new SimpleNumberCoercer[varargEvals.length];
+        boolean needCoercion = false;
+        for (int i = 0; i < varargArrayLength; i++) {
+            int childEvalIndex = i + method.getParameterTypes().length - 1;
+            Class resultType = childEvals[childEvalIndex].getType();
+            varargEvals[i] = childEvals[childEvalIndex];
+            if (JavaClassHelper.getBoxedType(resultType) != varargClassBoxed) {
+                needCoercion = true;
+                coercers[i] = SimpleNumberCoercerFactory.getCoercer(resultType, varargClassBoxed);
+            }
+        }
+
+        ExprEvaluator varargEval;
+        if (!needCoercion) {
+            varargEval = new VarargOnlyArrayEvalNoCoerce(varargEvals, varargClass);
+        }
+        else {
+            varargEval = new VarargOnlyArrayEvalWithCoerce(varargEvals, varargClass, coercers);
+        }
+        evals[method.getParameterTypes().length - 1] = varargEval;
+        return evals;
+    }
+
+    private static class VarargOnlyArrayEvalNoCoerce implements ExprEvaluator {
+        private final ExprEvaluator[] evals;
+        private final Class varargClass;
+
+        public VarargOnlyArrayEvalNoCoerce(ExprEvaluator[] evals, Class varargClass) {
+            this.evals = evals;
+            this.varargClass = varargClass;
+        }
+
+        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
+        {
+            Object array = Array.newInstance(varargClass, evals.length);
+            for (int i = 0; i < evals.length; i++) {
+                Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
+                Array.set(array, i, value);
+            }
+            return array;
+        }
+
+        public Class getType() {
+            return JavaClassHelper.getArrayType(varargClass);
+        }
+    }
+
+    private static class VarargOnlyArrayEvalWithCoerce implements ExprEvaluator {
+        private final ExprEvaluator[] evals;
+        private final Class varargClass;
+        private final SimpleNumberCoercer[] coercers;
+
+        public VarargOnlyArrayEvalWithCoerce(ExprEvaluator[] evals, Class varargClass, SimpleNumberCoercer[] coercers) {
+            this.evals = evals;
+            this.varargClass = varargClass;
+            this.coercers = coercers;
+        }
+
+        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
+        {
+            Object array = Array.newInstance(varargClass, evals.length);
+            for (int i = 0; i < evals.length; i++) {
+                Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
+                if (coercers[i] != null) {
+                    value = coercers[i].coerceBoxed((Number) value);
+                }
+                Array.set(array, i, value);
+            }
+            return array;
+        }
+
+        public Class getType() {
+            return JavaClassHelper.getArrayType(varargClass);
+        }
+    }
 }

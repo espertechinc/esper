@@ -1879,6 +1879,18 @@ public class JavaClassHelper
         return new Pair<String, Boolean>(typeOnly.trim(), true);
     }
 
+    public static Class[] takeFirstN(Class[] classes, int numToTake) {
+        Class[] shrunk = new Class[numToTake];
+        System.arraycopy(classes, 0, shrunk, 0, shrunk.length);
+        return shrunk;
+    }
+
+    public static Type[] takeFirstN(Type[] types, int numToTake) {
+        Type[] shrunk = new Type[numToTake];
+        System.arraycopy(types, 0, shrunk, 0, shrunk.length);
+        return shrunk;
+    }
+
     private static String unescape(String name) {
         if (name.startsWith("`") && name.endsWith("`")) {
             return name.substring(1, name.length() - 1);

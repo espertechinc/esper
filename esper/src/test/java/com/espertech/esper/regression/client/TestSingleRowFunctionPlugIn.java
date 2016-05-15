@@ -16,10 +16,13 @@ import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
+import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
+
+import java.io.StringWriter;
 
 public class TestSingleRowFunctionPlugIn extends TestCase
 {
@@ -41,6 +44,12 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         configuration.addPlugInSingleRowFunction("isNullValue", MySingleRowFunction.class.getName(), "isNullValue");
         configuration.addPlugInSingleRowFunction("getValueAsString", MySingleRowFunction.class.getName(), "getValueAsString");
         configuration.addPlugInSingleRowFunction("eventsCheckStrings", MySingleRowFunction.class.getName(), "eventsCheckStrings");
+        configuration.addPlugInSingleRowFunction("varargsOnlyInt", MySingleRowFunction.class.getName(), "varargsOnlyInt");
+        configuration.addPlugInSingleRowFunction("varargsW1Param", MySingleRowFunction.class.getName(), "varargsW1Param");
+        configuration.addPlugInSingleRowFunction("varargsW2Param", MySingleRowFunction.class.getName(), "varargsW2Param");
+        configuration.addPlugInSingleRowFunction("varargsOnlyWCtx", MySingleRowFunction.class.getName(), "varargsOnlyWCtx");
+        configuration.addPlugInSingleRowFunction("varargsW1ParamWCtx", MySingleRowFunction.class.getName(), "varargsW1ParamWCtx");
+        configuration.addPlugInSingleRowFunction("varargsW2ParamWCtx", MySingleRowFunction.class.getName(), "varargsW2ParamWCtx");
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
@@ -51,6 +60,49 @@ public class TestSingleRowFunctionPlugIn extends TestCase
     public void tearDown() {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testVarargs() {
+        runVarargAssertion(
+                makePair("varargsOnlyInt(1, 2, 3, 4)", "1,2,3,4"),
+                makePair("varargsOnlyInt(1, 2, 3)", "1,2,3"),
+                makePair("varargsOnlyInt(1, 2)", "1,2"),
+                makePair("varargsOnlyInt(1)", "1"),
+                makePair("varargsOnlyInt()", ""));
+
+        runVarargAssertion(
+                makePair("varargsW1Param('abc', 1.0, 2.0)", "abc,1.0,2.0"),
+                makePair("varargsW1Param('abc', 1, 2)", "abc,1.0,2.0"),
+                makePair("varargsW1Param('abc', 1)", "abc,1.0"),
+                makePair("varargsW1Param('abc')", "abc"));
+
+        runVarargAssertion(
+                makePair("varargsW2Param(1, 2.0, 3L, 4L)", "1,2.0,3,4"),
+                makePair("varargsW2Param(1, 2.0, 3L)", "1,2.0,3"),
+                makePair("varargsW2Param(1, 2.0)", "1,2.0"),
+                makePair("varargsW2Param(1, 2.0, 3, 4L)", "1,2.0,3,4"),
+                makePair("varargsW2Param(1, 2.0, 3L, 4L)", "1,2.0,3,4"),
+                makePair("varargsW2Param(1, 2.0, 3, 4)", "1,2.0,3,4"),
+                makePair("varargsW2Param(1, 2.0, 3L, 4)", "1,2.0,3,4"));
+
+        runVarargAssertion(
+                makePair("varargsOnlyWCtx(1, 2, 3)", "CTX+1,2,3"),
+                makePair("varargsOnlyWCtx(1, 2)", "CTX+1,2"),
+                makePair("varargsOnlyWCtx(1)", "CTX+1"),
+                makePair("varargsOnlyWCtx()", "CTX+"));
+
+        runVarargAssertion(
+                makePair("varargsW1ParamWCtx('a', 1, 2, 3)", "CTX+a,1,2,3"),
+                makePair("varargsW1ParamWCtx('a', 1, 2)", "CTX+a,1,2"),
+                makePair("varargsW1ParamWCtx('a', 1)", "CTX+a,1"),
+                makePair("varargsW1ParamWCtx('a')", "CTX+a,"));
+
+        runVarargAssertion(
+                makePair("varargsW2ParamWCtx('a', 'b', 1, 2, 3)", "CTX+a,b,1,2,3"),
+                makePair("varargsW2ParamWCtx('a', 'b', 1, 2)", "CTX+a,b,1,2"),
+                makePair("varargsW2ParamWCtx('a', 'b', 1)", "CTX+a,b,1"),
+                makePair("varargsW2ParamWCtx('a', 'b')", "CTX+a,b,"),
+                makePair(MySingleRowFunction.class.getName() + ".varargsW2ParamWCtx('a', 'b')", "CTX+a,b,"));
     }
 
     public void testEventBeanFootprint() {
@@ -286,5 +338,35 @@ public class TestSingleRowFunctionPlugIn extends TestCase
 
     public static boolean localIsNullValue(EventBean event, String propertyName) {
         return event.get(propertyName) == null;
+    }
+
+    private void runVarargAssertion(UniformPair<String> ... pairs) {
+        StringWriter buf = new StringWriter();
+        buf.append("@name('test') select ");
+        int count = 0;
+        for (UniformPair<String> pair : pairs) {
+            buf.append(pair.getFirst());
+            buf.append(" as c");
+            buf.append(Integer.toString(count));
+            count++;
+            buf.append(",");
+        }
+        buf.append("intPrimitive from SupportBean");
+
+        epService.getEPAdministrator().createEPL(buf.toString()).addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EventBean out = listener.assertOneGetNewAndReset();
+
+        count = 0;
+        for (UniformPair<String> pair : pairs) {
+            assertEquals("failed for '" + pair.getFirst() + "'", pair.getSecond(), out.get("c" + count));
+            count++;
+        }
+        epService.getEPAdministrator().getStatement("test").destroy();
+    }
+
+    private UniformPair<String> makePair(String expression, String expected) {
+        return new UniformPair<String>(expression, expected);
     }
 }

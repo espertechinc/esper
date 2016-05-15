@@ -8,15 +8,6 @@
  **************************************************************************************/
 package com.espertech.esper.util;
 
-import com.espertech.esper.event.EventAdapterException;
-import com.espertech.esper.type.*;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.math.BigInteger;
-import java.math.BigDecimal;
-
 /**
  * Interface for number coercion.
  */

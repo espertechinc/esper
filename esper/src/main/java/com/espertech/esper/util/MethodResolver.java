@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Used for retrieving static and instance method objects. It
@@ -161,7 +162,7 @@ public class MethodResolver
 			}
 
 			// Check the parameter list
-			int conversionCount = compareParameterTypesAllowContext(method.getParameterTypes(), paramTypes, allowEventBeanType, allowEventBeanCollType, method.getGenericParameterTypes());
+			int conversionCount = compareParameterTypesAllowContext(method.getParameterTypes(), paramTypes, allowEventBeanType, allowEventBeanCollType, method.getGenericParameterTypes(), method.isVarArgs());
 
 			// Parameters don't match
 			if(conversionCount == -1)
@@ -265,75 +266,136 @@ public class MethodResolver
     }
 
     private static int compareParameterTypesAllowContext(Class[] declarationParameters,
-                                             Class[] invocationParameters,
-                                             boolean[] optionalAllowEventBeanType,
-                                             boolean[] optionalAllowEventBeanCollType,
-                                             Type[] genericParameterTypes) {
+                                                         Class[] invocationParameters,
+                                                         boolean[] optionalAllowEventBeanType,
+                                                         boolean[] optionalAllowEventBeanCollType,
+                                                         Type[] genericParameterTypes,
+                                                         boolean isVarargs) {
 
-        // determine if the last parameter is EPLMethodInvocationContext
+        // determine if the last parameter is EPLMethodInvocationContext (no varargs)
         Class[] declaredNoContext = declarationParameters;
-        if (declarationParameters.length > 0 &&
+        if (!isVarargs && declarationParameters.length > 0 &&
             declarationParameters[declarationParameters.length - 1] == EPLMethodInvocationContext.class) {
-            declaredNoContext = new Class[declarationParameters.length - 1];
-            System.arraycopy(declarationParameters, 0, declaredNoContext, 0, declaredNoContext.length);
+            declaredNoContext = JavaClassHelper.takeFirstN(declarationParameters, declarationParameters.length - 1);
+        }
+
+        // determine if the previous-to-last parameter is EPLMethodInvocationContext (varargs-only)
+        if (isVarargs && declarationParameters.length > 1 &&
+            declarationParameters[declarationParameters.length - 2] == EPLMethodInvocationContext.class) {
+            Class[] rewritten = new Class[declarationParameters.length - 1];
+            System.arraycopy(declarationParameters, 0, rewritten, 0, declarationParameters.length - 2);
+            rewritten[rewritten.length - 1] = declarationParameters[declarationParameters.length - 1];
+            declaredNoContext = rewritten;
         }
 
         return compareParameterTypesNoContext(declaredNoContext, invocationParameters,
-                optionalAllowEventBeanType, optionalAllowEventBeanCollType, genericParameterTypes);
+                optionalAllowEventBeanType, optionalAllowEventBeanCollType, genericParameterTypes, isVarargs);
     }
 
     // Returns -1 if the invocation parameters aren't applicable
 	// to the method. Otherwise returns the number of parameters
 	// that have to be converted
 	private static int compareParameterTypesNoContext(Class[] declarationParameters,
-                                             Class[] invocationParameters,
-                                             boolean[] optionalAllowEventBeanType,
-                                             boolean[] optionalAllowEventBeanCollType,
-                                             Type[] genericParameterTypes)
+                                                     Class[] invocationParameters,
+                                                     boolean[] optionalAllowEventBeanType,
+                                                     boolean[] optionalAllowEventBeanCollType,
+                                                     Type[] genericParameterTypes,
+                                                     boolean isVarargs)
 	{
 		if(invocationParameters == null)
 		{
 			return declarationParameters.length == 0 ? 0 : -1;
 		}
 
-		if(declarationParameters.length != invocationParameters.length)
+        // handle varargs
+		if (isVarargs)
 		{
-			return -1;
+            if (invocationParameters.length < declarationParameters.length - 1) {
+                return -1;
+            }
+            if (invocationParameters.length == 0) {
+                return 0;
+            }
+
+            AtomicInteger conversionCount = new AtomicInteger();
+
+            // check declared types (non-vararg)
+            for (int i = 0; i < declarationParameters.length - 1; i++)
+            {
+                boolean compatible = compareParameterTypeCompatible(invocationParameters[i],
+                        declarationParameters[i],
+                        optionalAllowEventBeanType == null ? null : optionalAllowEventBeanType[i],
+                        optionalAllowEventBeanCollType == null ? null : optionalAllowEventBeanCollType[i],
+                        genericParameterTypes[i],
+                        conversionCount);
+                if (!compatible) {
+                    return -1;
+                }
+            }
+
+            Class varargDeclarationParameter = declarationParameters[declarationParameters.length - 1].getComponentType();
+            Type varargGenericParameterTypes = genericParameterTypes[genericParameterTypes.length - 1];
+            for (int i = declarationParameters.length - 1; i < invocationParameters.length; i++) {
+                boolean compatible = compareParameterTypeCompatible(invocationParameters[i],
+                        varargDeclarationParameter,
+                        optionalAllowEventBeanType == null ? null : optionalAllowEventBeanType[i],
+                        optionalAllowEventBeanCollType == null ? null : optionalAllowEventBeanCollType[i],
+                        varargGenericParameterTypes,
+                        conversionCount);
+                if (!compatible) {
+                    return -1;
+                }
+            }
+            return conversionCount.get();
 		}
 
-		int conversionCount = 0;
-		int count = 0;
-		for(Class parameter : declarationParameters)
-		{
-            if ((invocationParameters[count] == null) && !(parameter.isPrimitive())) {
-                count++;
-                continue;
-            }
-            if (optionalAllowEventBeanType != null && parameter == EventBean.class && optionalAllowEventBeanType[count]) {
-                count++;
-                continue;
-            }
-            if (optionalAllowEventBeanCollType != null &&
-                parameter == Collection.class &&
-                optionalAllowEventBeanCollType[count] &&
-                JavaClassHelper.getGenericType(genericParameterTypes[count], 0) == EventBean.class) {
-                count++;
-                continue;
-            }
-			if(!isIdentityConversion(parameter, invocationParameters[count]))
-			{
-				conversionCount++;
-				if(!isWideningConversion(parameter, invocationParameters[count]))
-				{
-					conversionCount = -1;
-					break;
-				}
-			}
-			count++;
-		}
+        // handle non-varargs
+        if(declarationParameters.length != invocationParameters.length) {
+            return -1;
+        }
 
-		return conversionCount;
+        AtomicInteger conversionCount = new AtomicInteger();
+		for (int i = 0; i < declarationParameters.length; i++)
+		{
+            boolean compatible = compareParameterTypeCompatible(invocationParameters[i],
+                    declarationParameters[i],
+                    optionalAllowEventBeanType == null ? null : optionalAllowEventBeanType[i],
+                    optionalAllowEventBeanCollType == null ? null : optionalAllowEventBeanCollType[i],
+                    genericParameterTypes[i],
+                    conversionCount);
+            if (!compatible) {
+                return -1;
+            }
+		}
+		return conversionCount.get();
 	}
+
+    private static boolean compareParameterTypeCompatible(Class invocationParameter,
+                                                          Class declarationParameter,
+                                                          Boolean optionalAllowEventBeanType,
+                                                          Boolean optionalAllowEventBeanCollType,
+                                                          Type genericParameterType,
+                                                          AtomicInteger conversionCount) {
+        if ((invocationParameter == null) && !(declarationParameter.isPrimitive())) {
+            return true;
+        }
+        if (optionalAllowEventBeanType != null && declarationParameter == EventBean.class && optionalAllowEventBeanType) {
+            return true;
+        }
+        if (optionalAllowEventBeanCollType != null &&
+                declarationParameter == Collection.class &&
+                optionalAllowEventBeanCollType &&
+                JavaClassHelper.getGenericType(genericParameterType, 0) == EventBean.class) {
+            return true;
+        }
+        if(!isIdentityConversion(declarationParameter, invocationParameter)) {
+            conversionCount.incrementAndGet();
+            if(!isWideningConversion(declarationParameter, invocationParameter)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 	// Identity conversion means no conversion, wrapper conversion,
 	// or conversion to a supertype
@@ -373,7 +435,7 @@ public class MethodResolver
             }
 
             // Check the parameter list
-            int conversionCount = compareParameterTypesNoContext(ctor.getParameterTypes(), paramTypes, null, null, ctor.getGenericParameterTypes());
+            int conversionCount = compareParameterTypesNoContext(ctor.getParameterTypes(), paramTypes, null, null, ctor.getGenericParameterTypes(), ctor.isVarArgs());
 
             // Parameters don't match
             if(conversionCount == -1)

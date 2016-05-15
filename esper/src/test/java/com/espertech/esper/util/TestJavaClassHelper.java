@@ -11,6 +11,7 @@
 
 package com.espertech.esper.util;
 
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.support.bean.*;
 import junit.framework.TestCase;
 
@@ -26,6 +27,18 @@ import java.util.*;
 
 public class TestJavaClassHelper extends TestCase
 {
+    public void testTakeFirstN() {
+        Class[] classes = new Class[] {String.class};
+        assertEquals(0, JavaClassHelper.takeFirstN(classes, 1).length);
+
+        classes = new Class[] {String.class, Integer.class};
+        assertEquals(0, JavaClassHelper.takeFirstN(classes, 2).length);
+
+        classes = new Class[] {String.class, Integer.class, Double.class};
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 2));
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 1));
+    }
+
     public void testIsFragmentableType()
     {
         Class[] notFragmentables = new Class[] {
