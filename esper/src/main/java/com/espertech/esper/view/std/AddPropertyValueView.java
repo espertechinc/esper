@@ -18,10 +18,7 @@ import com.espertech.esper.view.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This view simply adds a property to the events posted to it. This is useful for the group-merge views.
@@ -35,7 +32,8 @@ public final class AddPropertyValueView extends ViewSupport implements Cloneable
     private boolean mustAddProperty;
 
     // Keep a history of posted old events to avoid reconstructing the event
-    // and adhere to the contract of posting the same reference to child views
+    // and adhere to the contract of posting the same reference to child views.
+    // Only for must-add-property.
     private Map<EventBean, EventBean> newToOldEventMap;
 
     /**
@@ -51,7 +49,7 @@ public final class AddPropertyValueView extends ViewSupport implements Cloneable
         this.propertyValues = mergeValues;
         this.eventType = mergedResultEventType;
         this.agentInstanceContext = agentInstanceContext;
-        newToOldEventMap = new HashMap<EventBean, EventBean>();
+        this.newToOldEventMap = Collections.emptyMap();
     }
 
     public View cloneView()
@@ -70,6 +68,7 @@ public final class AddPropertyValueView extends ViewSupport implements Cloneable
         if (parent.getEventType() != eventType)
         {
             mustAddProperty = true;
+            newToOldEventMap = new HashMap<EventBean, EventBean>();
         }
         else
         {
