@@ -13,6 +13,7 @@ import com.espertech.esper.view.ext.RankWindowViewFactory;
 import com.espertech.esper.view.ext.SortWindowViewFactory;
 import com.espertech.esper.view.ext.TimeOrderViewFactory;
 import com.espertech.esper.view.internal.IntersectViewFactory;
+import com.espertech.esper.view.internal.NoopViewFactory;
 import com.espertech.esper.view.internal.PriorEventViewFactory;
 import com.espertech.esper.view.internal.UnionViewFactory;
 import com.espertech.esper.view.stat.CorrelationViewFactory;
@@ -180,7 +181,12 @@ public enum ViewEnum
     /**
      * Expression batch window.
      */
-    EXPRESSION_BATCH_WINDOW("win", "expr_batch", ExpressionBatchViewFactory.class, null);
+    EXPRESSION_BATCH_WINDOW("win", "expr_batch", ExpressionBatchViewFactory.class, null),
+
+    /**
+     * No-op window.
+     */
+    NOOP_WINDOW("internal", "noop", NoopViewFactory.class, null);
 
     private final String namespace;
     private final String name;
