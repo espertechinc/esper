@@ -37,7 +37,7 @@ public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase
     {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
-        return new ExpressionWindowView(this, randomAccess, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
+        return new ExpressionWindowView(this, randomAccess, expiryExpressionEvaluator, aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
     }
 
     public Object makePreviousGetter() {

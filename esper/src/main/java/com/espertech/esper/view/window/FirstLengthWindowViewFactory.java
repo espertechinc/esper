@@ -94,4 +94,8 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
     private String getViewParamMessage() {
         return getViewName() + " view requires an integer-type size parameter";
     }
+
+    public int getSize() {
+        return size;
+    }
 }

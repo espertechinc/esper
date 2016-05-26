@@ -18,6 +18,7 @@ import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
@@ -37,6 +38,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
     protected Set<String> variableNames;
     protected AggregationServiceFactoryDesc aggregationServiceFactoryDesc;
     protected EventType builtinMapType;
+    protected ExprEvaluator expiryExpressionEvaluator;
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
     {
@@ -49,6 +51,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
 
         // validate expression
         expiryExpression = ViewFactorySupport.validateExpr(getViewName(), statementContext, expiryExpression, streamTypeService, 0);
+        expiryExpressionEvaluator = expiryExpression.getExprEvaluator();
 
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
         expiryExpression.accept(summaryVisitor);
@@ -56,7 +59,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
             throw new ViewParameterException("Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context");
         }
 
-        Class returnType = expiryExpression.getExprEvaluator().getType();
+        Class returnType = expiryExpressionEvaluator.getType();
         if (JavaClassHelper.getBoxedType(returnType) != Boolean.class) {
             throw new ViewParameterException("Invalid return value for expiry expression, expected a boolean return value but received " + JavaClassHelper.getParameterAsString(returnType));
         }
@@ -91,5 +94,21 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
 
     public EventType getBuiltinMapType() {
         return builtinMapType;
+    }
+
+    public ExprNode getExpiryExpression() {
+        return expiryExpression;
+    }
+
+    public Set<String> getVariableNames() {
+        return variableNames;
+    }
+
+    public AggregationServiceFactoryDesc getAggregationServiceFactoryDesc() {
+        return aggregationServiceFactoryDesc;
+    }
+
+    public ExprEvaluator getExpiryExpressionEvaluator() {
+        return expiryExpressionEvaluator;
     }
 }

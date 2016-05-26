@@ -104,6 +104,10 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
         return "Length-Batch";
     }
 
+    public int getSize() {
+        return size;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single integer-type parameter";
     }

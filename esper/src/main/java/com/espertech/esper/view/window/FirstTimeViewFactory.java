@@ -72,6 +72,10 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
         return "First-Time";
     }
 
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric or time period parameter";
     }

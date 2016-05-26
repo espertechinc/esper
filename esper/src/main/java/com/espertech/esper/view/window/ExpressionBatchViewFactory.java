@@ -11,6 +11,7 @@ package com.espertech.esper.view.window;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.view.*;
@@ -42,7 +43,7 @@ public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implem
     {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        return new ExpressionBatchView(this, viewUpdatedCollection, expiryExpression.getExprEvaluator(), aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
+        return new ExpressionBatchView(this, viewUpdatedCollection, expiryExpressionEvaluator, aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);
     }
 
     public Object makePreviousGetter() {

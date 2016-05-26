@@ -76,6 +76,10 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return "Time";
     }
 
+    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
+        return timeDeltaComputation;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric or time period parameter";
     }
