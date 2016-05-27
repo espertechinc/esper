@@ -50,7 +50,6 @@ import com.espertech.esper.rowregex.RegexNFAState;
 import com.espertech.esper.rowregex.RegexNFAStateEntry;
 import com.espertech.esper.rowregex.RegexPartitionState;
 import com.espertech.esper.schedule.ScheduleHandle;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.type.BitWiseOpEnum;
 import com.espertech.esper.view.View;
 
@@ -197,10 +196,10 @@ public interface Instrumentation {
     void qExprTableSubpropAccessor(ExprNode exprNode, String tableName, String subpropName, ExprAggregateNode aggregationExpression);
     void aExprTableSubpropAccessor(Object result);
 
-    void qScheduleAdd(long currentTime, long afterMSec, ScheduleHandle handle, ScheduleSlot slot);
+    void qScheduleAdd(long currentTime, long afterMSec, ScheduleHandle handle, long slot);
     void aScheduleAdd();
 
-    void qScheduleRemove(ScheduleHandle handle, ScheduleSlot slot);
+    void qScheduleRemove(ScheduleHandle handle, long slot);
     void aScheduleRemove();
 
     void qScheduleEval(long currentTime);

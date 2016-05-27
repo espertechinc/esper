@@ -10,7 +10,6 @@ package com.espertech.esperio;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.adapter.InputAdapter;
 
 /**
@@ -47,7 +46,7 @@ public interface CoordinatedAdapter extends InputAdapter
 	 * Set the scheduleSlot for this Adapter.
 	 * @param scheduleSlot - the scheduleSlot to set
 	 */
-	public void setScheduleSlot(ScheduleSlot scheduleSlot);
+	public void setScheduleSlot(long scheduleSlot);
 
 	/**
 	 * Set the epService

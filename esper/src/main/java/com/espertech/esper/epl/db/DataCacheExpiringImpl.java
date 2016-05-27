@@ -16,7 +16,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
     private final long maxAgeMSec;
     private final long purgeIntervalMSec;
     private final SchedulingService schedulingService;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final Map<Object, Item> cache;
     private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
 
@@ -55,7 +54,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
                                  double purgeIntervalSec,
                                  ConfigurationCacheReferenceType cacheReferenceType,
                                  SchedulingService schedulingService,
-                                 ScheduleSlot scheduleSlot,
+                                 long scheduleSlot,
                                  EPStatementAgentInstanceHandle epStatementAgentInstanceHandle)
     {
         this.maxAgeMSec = (long) maxAgeSec * 1000;

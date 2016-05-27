@@ -17,7 +17,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
 import org.apache.commons.logging.Log;
@@ -30,7 +29,7 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
     private final FirstTimeViewFactory timeFirstViewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
     protected EPStatementHandleCallback handle;
 
     // Current running parameters

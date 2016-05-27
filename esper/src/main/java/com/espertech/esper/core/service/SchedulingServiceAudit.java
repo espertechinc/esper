@@ -52,7 +52,7 @@ public class SchedulingServiceAudit implements SchedulingServiceSPI {
         spi.visitSchedules(visitor);
     }
 
-    public void add(long afterMSec, ScheduleHandle handle, ScheduleSlot slot) throws ScheduleServiceException {
+    public void add(long afterMSec, ScheduleHandle handle, long slot) throws ScheduleServiceException {
         if (AuditPath.isInfoEnabled()) {
             StringWriter message = new StringWriter();
             message.write("after ");
@@ -67,7 +67,7 @@ public class SchedulingServiceAudit implements SchedulingServiceSPI {
         spi.add(afterMSec, handle, slot);
     }
 
-    public void remove(ScheduleHandle handle, ScheduleSlot slot) throws ScheduleServiceException {
+    public void remove(ScheduleHandle handle, long slot) throws ScheduleServiceException {
         if (AuditPath.isInfoEnabled()) {
             StringWriter message = new StringWriter();
             message.write("remove handle ");

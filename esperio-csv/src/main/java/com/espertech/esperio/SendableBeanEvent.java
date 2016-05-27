@@ -9,12 +9,9 @@
 package com.espertech.esperio;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.bean.BeanEventPropertyWriter;
 import com.espertech.esper.event.bean.PropertyHelper;
-import com.espertech.esper.schedule.ScheduleSlot;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
@@ -39,7 +36,7 @@ public class SendableBeanEvent extends AbstractSendableEvent
 	 * @param timestamp - the timestamp for this event
 	 * @param scheduleSlot - the schedule slot for the entity that created this event
 	 */
-	public SendableBeanEvent(Map<String, Object> mapToSend, Class beanClass, String eventTypeName, long timestamp, ScheduleSlot scheduleSlot)
+	public SendableBeanEvent(Map<String, Object> mapToSend, Class beanClass, String eventTypeName, long timestamp, long scheduleSlot)
 	{
 		super(timestamp, scheduleSlot);
 

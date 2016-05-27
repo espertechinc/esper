@@ -13,7 +13,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 
 /**
  * Observer that will wait a certain interval before indicating true (raising an event).
@@ -23,7 +22,7 @@ public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallb
     private final long msec;
     private final MatchedEventMap beginState;
     private final ObserverEventEvaluator observerEventEvaluator;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
 
     private boolean isTimerActive = false;
     private EPStatementHandleCallback scheduleHandle;

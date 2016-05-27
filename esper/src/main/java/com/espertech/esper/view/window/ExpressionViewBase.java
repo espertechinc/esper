@@ -23,7 +23,6 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.DataWindowView;
@@ -45,7 +44,7 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
     protected final EventBean[] eventsPerStream;
     protected final Set<String> variableNames;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
     protected final EPStatementHandleCallback scheduleHandle;
     protected final AggregationService aggregationService;
     protected final List<AggregationServiceAggExpressionDesc> aggregateNodes;
@@ -97,7 +96,7 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
             agentInstanceContext.addTerminationCallback(this);
         }
         else {
-            scheduleSlot = null;
+            scheduleSlot = -1;
             scheduleHandle = null;
         }
 

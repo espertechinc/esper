@@ -19,7 +19,6 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleAdjustmentCallback;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
 
@@ -44,7 +43,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
     protected final TimeWindow timeWindow;
     private final ViewUpdatedCollection viewUpdatedCollection;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final EPStatementHandleCallback handle;
 
     /**

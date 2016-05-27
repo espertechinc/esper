@@ -21,7 +21,6 @@ import com.espertech.esper.epl.spec.ContextDetailConditionTimePeriod;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,14 +32,14 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
 
     private final String contextName;
     private final AgentInstanceContext agentInstanceContext;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final ContextDetailConditionTimePeriod spec;
     private final ContextControllerConditionCallback callback;
     private final ContextInternalFilterAddendum filterAddendum;
 
     private EPStatementHandleCallback scheduleHandle;
 
-    public ContextControllerConditionTimePeriod(String contextName, AgentInstanceContext agentInstanceContext, ScheduleSlot scheduleSlot, ContextDetailConditionTimePeriod spec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
+    public ContextControllerConditionTimePeriod(String contextName, AgentInstanceContext agentInstanceContext, long scheduleSlot, ContextDetailConditionTimePeriod spec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.contextName = contextName;
         this.agentInstanceContext = agentInstanceContext;
         this.scheduleSlot = scheduleSlot;

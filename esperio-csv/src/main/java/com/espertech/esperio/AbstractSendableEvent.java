@@ -8,26 +8,23 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import com.espertech.esper.client.EPRuntime;
-import com.espertech.esper.schedule.ScheduleSlot;
-
 /**
  * Base class for sendable event, provides timestamp and schedule slot.
  */
 public abstract class AbstractSendableEvent implements SendableEvent {
 
 	private final long timestamp;
-	private final ScheduleSlot scheduleSlot;
+	private final long scheduleSlot;
 
     /**
      * Ctor.
      * @param timestamp to send
      * @param scheduleSlot the schedule slot assigned by scheduling service
      */
-    public AbstractSendableEvent(long timestamp, ScheduleSlot scheduleSlot) {
-		if(scheduleSlot == null)
+    public AbstractSendableEvent(long timestamp, long scheduleSlot) {
+		if(scheduleSlot == -1)
 		{
-			throw new NullPointerException("ScheduleSlot cannot be null");
+			throw new NullPointerException("ScheduleSlot cannot be undefined");
 		}
 
 		this.timestamp = timestamp;
@@ -39,7 +36,7 @@ public abstract class AbstractSendableEvent implements SendableEvent {
 	/* (non-Javadoc)
 	 * @see com.espertech.esperio.SendableEvent#getScheduleSlot()
 	 */
-	public ScheduleSlot getScheduleSlot()
+	public long getScheduleSlot()
 	{
 		return scheduleSlot;
 	}

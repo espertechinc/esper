@@ -27,10 +27,10 @@ import java.util.*;
 public final class SchedulingServiceImpl implements SchedulingServiceSPI
 {
     // Map of time and handle
-    private final SortedMap<Long, SortedMap<ScheduleSlot, ScheduleHandle>> timeHandleMap;
+    private final SortedMap<Long, SortedMap<Long, ScheduleHandle>> timeHandleMap;
 
     // Map of handle and handle list for faster removal
-    private final Map<ScheduleHandle, SortedMap<ScheduleSlot, ScheduleHandle>> handleSetMap;
+    private final Map<ScheduleHandle, SortedMap<Long, ScheduleHandle>> handleSetMap;
 
     // Current time - used for evaluation as well as for adding new handles
     private volatile long currentTime;
@@ -41,8 +41,8 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
      */
     public SchedulingServiceImpl(TimeSourceService timeSourceService)
     {
-        this.timeHandleMap = new TreeMap<Long, SortedMap<ScheduleSlot, ScheduleHandle>>();
-        this.handleSetMap = new HashMap<ScheduleHandle, SortedMap<ScheduleSlot, ScheduleHandle>>();
+        this.timeHandleMap = new TreeMap<Long, SortedMap<Long, ScheduleHandle>>();
+        this.handleSetMap = new HashMap<ScheduleHandle, SortedMap<Long, ScheduleHandle>>();
         // initialize time to just before now as there is a check for duplicate external time events
         this.currentTime = timeSourceService.getTimeMillis() - 1;
     }
@@ -65,7 +65,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         this.currentTime = currentTime;
     }
 
-    public synchronized final void add(long afterMSec, ScheduleHandle handle, ScheduleSlot slot)
+    public synchronized final void add(long afterMSec, ScheduleHandle handle, long slot)
             throws ScheduleServiceException
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qScheduleAdd(currentTime, afterMSec, handle, slot);}
@@ -78,10 +78,10 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aScheduleAdd();}
     }
 
-    public synchronized final void remove(ScheduleHandle handle, ScheduleSlot slot)
+    public synchronized final void remove(ScheduleHandle handle, long slot)
     {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qScheduleRemove(handle, slot);}
-        SortedMap<ScheduleSlot, ScheduleHandle> handleSet = handleSetMap.get(handle);
+        SortedMap<Long, ScheduleHandle> handleSet = handleSetMap.get(handle);
         if (handleSet == null)
         {
             // If it already has been removed then that's fine;
@@ -99,7 +99,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qScheduleEval(currentTime);}
         // Get the values on or before the current time - to get those that are exactly on the
         // current time we just add one to the current time for getting the head map
-        SortedMap<Long, SortedMap<ScheduleSlot, ScheduleHandle>> headMap = timeHandleMap.headMap(currentTime + 1);
+        SortedMap<Long, SortedMap<Long, ScheduleHandle>> headMap = timeHandleMap.headMap(currentTime + 1);
 
         if (headMap.isEmpty()) {
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aScheduleEval(Collections.<ScheduleHandle>emptyList());}
@@ -108,10 +108,10 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
 
         // First determine all triggers to shoot
         List<Long> removeKeys = new ArrayList<Long>();
-        for (Map.Entry<Long, SortedMap<ScheduleSlot, ScheduleHandle>> entry : headMap.entrySet())
+        for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> entry : headMap.entrySet())
         {
             Long key = entry.getKey();
-            SortedMap<ScheduleSlot, ScheduleHandle> value = entry.getValue();
+            SortedMap<Long, ScheduleHandle> value = entry.getValue();
             removeKeys.add(key);
             for (ScheduleHandle handle : value.values())
             {
@@ -120,7 +120,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         }
 
         // Next remove all handles
-        for (Map.Entry<Long, SortedMap<ScheduleSlot, ScheduleHandle>> entry : headMap.entrySet())
+        for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> entry : headMap.entrySet())
         {
             for (ScheduleHandle handle : entry.getValue().values())
             {
@@ -140,9 +140,9 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
     {
         List<ScheduleSetEntry> list = new ArrayList<ScheduleSetEntry>();
         long currentTime = getTime();
-        for (Map.Entry<Long, SortedMap<ScheduleSlot, ScheduleHandle>> schedule : timeHandleMap.entrySet())
+        for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> schedule : timeHandleMap.entrySet())
         {
-            for (Map.Entry<ScheduleSlot, ScheduleHandle> entry : schedule.getValue().entrySet())
+            for (Map.Entry<Long, ScheduleHandle> entry : schedule.getValue().entrySet())
             {
                 if (statementIds.contains(entry.getValue().getStatementId()))
                 {
@@ -154,7 +154,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
 
         for (ScheduleSetEntry entry : list)
         {
-            remove(entry.getHandle(), entry.getSlot());
+            remove(entry.getHandle(), entry.getScheduleSlot());
         }
 
         return new ScheduleSet(list);
@@ -164,7 +164,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
     {
         for (ScheduleSetEntry entry : scheduleSet.getList())
         {
-            add(entry.getTime(), entry.getHandle(), entry.getSlot());
+            add(entry.getTime(), entry.getHandle(), entry.getScheduleSlot());
         }
     }
 
@@ -172,12 +172,12 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         // no action required
     }
 
-    private void addTrigger(ScheduleSlot slot, ScheduleHandle handle, long triggerTime)
+    private void addTrigger(long slot, ScheduleHandle handle, long triggerTime)
     {
-        SortedMap<ScheduleSlot, ScheduleHandle> handleSet = timeHandleMap.get(triggerTime);
+        SortedMap<Long, ScheduleHandle> handleSet = timeHandleMap.get(triggerTime);
         if (handleSet == null)
         {
-            handleSet = new TreeMap<ScheduleSlot, ScheduleHandle>();
+            handleSet = new TreeMap<Long, ScheduleHandle>();
             timeHandleMap.put(triggerTime, handleSet);
         }
         handleSet.put(slot, handle);
@@ -234,7 +234,7 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         if (timeHandleMap.isEmpty()) {
             return null;
         }
-        for (Map.Entry<Long, SortedMap<ScheduleSlot, ScheduleHandle>> entry : timeHandleMap.entrySet()) {
+        for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> entry : timeHandleMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
                 continue;
             }
@@ -245,10 +245,10 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
 
     public void visitSchedules(ScheduleVisitor visitor) {
         ScheduleVisit visit = new ScheduleVisit();
-        for (Map.Entry<Long, SortedMap<ScheduleSlot, ScheduleHandle>> entry : timeHandleMap.entrySet()) {
+        for (Map.Entry<Long, SortedMap<Long, ScheduleHandle>> entry : timeHandleMap.entrySet()) {
             visit.setTimestamp(entry.getKey());
 
-            for (Map.Entry<ScheduleSlot, ScheduleHandle> inner : entry.getValue().entrySet()) {
+            for (Map.Entry<Long, ScheduleHandle> inner : entry.getValue().entrySet()) {
                 visit.setStatementId(inner.getValue().getStatementId());
                 visit.setAgentInstanceId(inner.getValue().getAgentInstanceId());
                 visitor.visit(visit);

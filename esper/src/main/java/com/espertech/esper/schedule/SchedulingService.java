@@ -26,20 +26,20 @@ public interface SchedulingService extends TimeProvider
      * callback or change the existing callback to a new time, but throw an exception.
      * @param afterMSec number of millisec to get a callback
      * @param handle to add
-     * @param slot allows ordering of concurrent callbacks
+     * @param scheduleSlot allows ordering of concurrent callbacks
      * @throws ScheduleServiceException thrown if the add operation did not complete
      */
-    public void add(long afterMSec, ScheduleHandle handle, ScheduleSlot slot)
+    public void add(long afterMSec, ScheduleHandle handle, long scheduleSlot)
             throws ScheduleServiceException;
 
     /**
      * Remove a handle.
      * If the handle to be removed was not found an exception is thrown.
      * @param handle to remove
-     * @param slot for which the callback was added
+     * @param scheduleSlot for which the callback was added
      * @throws ScheduleServiceException thrown if the callback was not located
      */
-    public void remove(ScheduleHandle handle, ScheduleSlot slot)
+    public void remove(ScheduleHandle handle, long scheduleSlot)
             throws ScheduleServiceException;
 
     /**

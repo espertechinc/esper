@@ -12,11 +12,7 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.schedule.ScheduleSlot;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Context condition used for Non-Overlapping contexts only, when @Now is specified.

@@ -28,7 +28,10 @@ public class SendableEventComparator implements Comparator<SendableEvent>
 		}
 		else
 		{
-			return one.getScheduleSlot().compareTo(two.getScheduleSlot());
+			if (one.getScheduleSlot() == two.getScheduleSlot()) {
+				return 0;
+			}
+			return one.getScheduleSlot() < two.getScheduleSlot() ? -1 : 1;
 		}
 	}
 }

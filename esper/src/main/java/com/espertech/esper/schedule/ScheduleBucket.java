@@ -10,8 +10,7 @@ package com.espertech.esper.schedule;
 
 /**
  * This class acts as a buckets for sorting schedule service callbacks that are scheduled to occur at the same
- * time. Each buckets constists of {@link ScheduleSlot} slots that callbacks are
- * assigned to.
+ * time. Each buckets constists of slots that callbacks are assigned to.
  * <p>
  * At the time of timer evaluation, callbacks that become triggerable are ordered using the bucket
  * as the first-level order, and slot as the second-level order.
@@ -37,28 +36,24 @@ public class ScheduleBucket
     }
 
     /**
-     * Restart bucket slot numbering wuch as when a statement is restarted and new slots are allocated.
-     */
-    public void restart()
-    {
-        lastSlot = 0;
-    }
-
-    /**
      * Returns a new slot in the bucket.
      * @return slot
      */
-    public ScheduleSlot allocateSlot()
+    public long allocateSlot()
     {
-        return new ScheduleSlot(bucketNum, lastSlot++);
+        return toLong(bucketNum, lastSlot++);
     }
 
     /**
-     * Returns a new slot in the bucket, given a slot number
+     * Returns a given slot in the bucket, given a slot number
      * @return slot
      */
-    public ScheduleSlot allocateSlot(int slotNumber)
+    public long allocateSlot(int slotNumber)
     {
-        return new ScheduleSlot(bucketNum, slotNumber);
+        return toLong(bucketNum, slotNumber);
+    }
+
+    public static long toLong(int bucket, int slot) {
+        return ((long)bucket << 32) | slot & 0xFFFFFFFFL;
     }
 }

@@ -14,7 +14,6 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.schedule.ScheduleSlot;
 
 public class ContextControllerConditionFactory {
 
@@ -30,7 +29,7 @@ public class ContextControllerConditionFactory {
                                                          int subpathId) {
         if (endpoint instanceof ContextDetailConditionCrontab) {
             ContextDetailConditionCrontab crontab = (ContextDetailConditionCrontab) endpoint;
-            ScheduleSlot scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
+            long scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
             return new ContextControllerConditionCrontab(agentInstanceContext.getStatementContext(), scheduleSlot, crontab, callback, filterAddendum);
         }
         else if (endpoint instanceof ContextDetailConditionFilter) {
@@ -44,7 +43,7 @@ public class ContextControllerConditionFactory {
         }
         else if (endpoint instanceof ContextDetailConditionTimePeriod) {
             ContextDetailConditionTimePeriod timePeriod = (ContextDetailConditionTimePeriod) endpoint;
-            ScheduleSlot scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
+            long scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
             return new ContextControllerConditionTimePeriod(contextName, agentInstanceContext, scheduleSlot, timePeriod, callback, filterAddendum);
         }
         else if (endpoint instanceof ContextDetailConditionImmediate) {

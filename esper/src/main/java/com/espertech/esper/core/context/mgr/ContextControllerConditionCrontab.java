@@ -22,7 +22,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 
 import java.util.Collections;
@@ -30,14 +29,14 @@ import java.util.Collections;
 public class ContextControllerConditionCrontab implements ContextControllerCondition {
 
     private final StatementContext statementContext;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final ContextDetailConditionCrontab spec;
     private final ContextControllerConditionCallback callback;
     private final ContextInternalFilterAddendum filterAddendum;
 
     private EPStatementHandleCallback scheduleHandle;
 
-    public ContextControllerConditionCrontab(StatementContext statementContext, ScheduleSlot scheduleSlot, ContextDetailConditionCrontab spec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
+    public ContextControllerConditionCrontab(StatementContext statementContext, long scheduleSlot, ContextDetailConditionCrontab spec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.statementContext = statementContext;
         this.scheduleSlot = scheduleSlot;
         this.spec = spec;

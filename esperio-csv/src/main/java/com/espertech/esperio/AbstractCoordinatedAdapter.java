@@ -19,7 +19,6 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.apache.commons.logging.Log;
@@ -49,7 +48,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
     /**
      * Slot for scheduling.
      */
-    protected ScheduleSlot scheduleSlot;
+    protected long scheduleSlot;
 
     private EPServiceProvider epService;
     private EPRuntime runtime;
@@ -172,7 +171,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 	/* (non-Javadoc)
 	 * @see com.espertech.esperio.CoordinatedAdapter#setScheduleSlot(com.espertech.esper.schedule.ScheduleSlot)
 	 */
-	public void setScheduleSlot(ScheduleSlot scheduleSlot)
+	public void setScheduleSlot(long scheduleSlot)
 	{
 		this.scheduleSlot = scheduleSlot;
 	}
@@ -334,7 +333,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         EPStatementHandle stmtHandle = new EPStatementHandle(-1, "AbstractCoordinatedAdapter", null, StatementType.ESPERIO, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, false, spi.getServicesContext().getMultiMatchHandlerFactory().getDefaultHandler());
         EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion(), null);
         EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(agentInstanceHandle, nextScheduleCallback);
-        ScheduleSlot nextScheduleSlot;
+        long nextScheduleSlot;
 
 		if(eventsToSend.isEmpty())
 		{
@@ -342,7 +341,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
             {
 			    log.debug(".scheduleNextCallback no events to send, scheduling callback in 100 ms");
             }
-            nextScheduleSlot = new ScheduleSlot(0,0);
+            nextScheduleSlot = 0L;
 			schedulingService.add(100, scheduleCSVHandle, nextScheduleSlot);
 		}
 		else

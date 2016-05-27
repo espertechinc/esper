@@ -42,13 +42,13 @@ public class SupportSchedulingServiceImpl implements SchedulingService
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void add(long afterMSec, ScheduleHandle callback, ScheduleSlot slot)
+    public void add(long afterMSec, ScheduleHandle callback, long scheduleSlot)
     {
         log.debug(".add Not implemented, afterMSec=" + afterMSec + " callback=" + callback.getClass().getName());
         added.put(afterMSec, callback);
     }
 
-    public void remove(ScheduleHandle callback, ScheduleSlot slot)
+    public void remove(ScheduleHandle callback, long scheduleSlot)
     {
         log.debug(".remove Not implemented, callback=" + callback.getClass().getName());
     }

@@ -17,7 +17,6 @@ import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
 
@@ -33,7 +32,7 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
     private final Long initialReferencePoint;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
     private final boolean isForceOutput;
     private final boolean isStartEager;
     protected EPStatementHandleCallback handle;

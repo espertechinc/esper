@@ -16,7 +16,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
 
@@ -36,7 +35,7 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
     private final TimeAccumViewFactory factory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
 
     // Current running parameters
     protected LinkedHashMap<EventBean, Long> currentBatch = new LinkedHashMap<EventBean, Long>();

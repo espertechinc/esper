@@ -52,7 +52,6 @@ import com.espertech.esper.rowregex.RegexNFAState;
 import com.espertech.esper.rowregex.RegexNFAStateEntry;
 import com.espertech.esper.rowregex.RegexPartitionState;
 import com.espertech.esper.schedule.ScheduleHandle;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.type.BitWiseOpEnum;
 import com.espertech.esper.view.View;
 
@@ -556,7 +555,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qScheduleAdd(long currentTime, long afterMSec, ScheduleHandle handle, ScheduleSlot slot) {
+    public void qScheduleAdd(long currentTime, long afterMSec, ScheduleHandle handle, long slot) {
 
     }
 
@@ -564,7 +563,7 @@ public class InstrumentationDefault implements Instrumentation {
 
     }
 
-    public void qScheduleRemove(ScheduleHandle handle, ScheduleSlot slot) {
+    public void qScheduleRemove(ScheduleHandle handle, long slot) {
 
     }
 

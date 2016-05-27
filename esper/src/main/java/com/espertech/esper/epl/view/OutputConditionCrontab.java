@@ -14,7 +14,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.apache.commons.logging.Log;
@@ -31,7 +30,7 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
     private final AgentInstanceContext context;
     private final OutputConditionCrontabFactory factory;
 
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private Long currentReferencePoint;
     private boolean isCallbackScheduled;
 

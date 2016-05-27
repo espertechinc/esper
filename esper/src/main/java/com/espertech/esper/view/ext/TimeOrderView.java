@@ -18,7 +18,6 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
@@ -52,7 +51,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     private final ExprEvaluator timestampEvaluator;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
     protected final IStreamSortRankRandomAccess optionalSortedRandomAccess;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
     protected final EPStatementHandleCallback handle;
 
     private EventBean[] eventsPerStream = new EventBean[1];

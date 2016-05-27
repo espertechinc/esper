@@ -16,12 +16,11 @@ import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 
 public class EventRowRegexNFAViewSchedulerImpl implements EventRowRegexNFAViewScheduler
 {
     private AgentInstanceContext agentInstanceContext;
-    private ScheduleSlot scheduleSlot;
+    private long scheduleSlot;
     private EPStatementHandleCallback handle;
 
     public void setScheduleCallback(AgentInstanceContext agentInstanceContext, final EventRowRegexNFAViewScheduleCallback scheduleCallback) {

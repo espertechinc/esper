@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
 {
     private final ScheduleSpec scheduleSpec;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final MatchedEventMap beginState;
     private final ObserverEventEvaluator observerEventEvaluator;
 

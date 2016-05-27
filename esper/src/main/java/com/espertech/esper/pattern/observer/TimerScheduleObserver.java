@@ -16,7 +16,6 @@ import com.espertech.esper.epl.datetime.calop.CalendarOpPlusMinus;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 
 import java.util.Calendar;
@@ -26,7 +25,7 @@ import java.util.Calendar;
  */
 public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallback
 {
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
     protected MatchedEventMap beginState;
     protected final ObserverEventEvaluator observerEventEvaluator;
     private final TimerScheduleSpec spec;

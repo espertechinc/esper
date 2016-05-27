@@ -8,10 +8,6 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.schedule.ScheduleSlot;
-
 /**
  * A wrapper that packages an event up so that it can be
  * sent into the caller-specified runtime. It also provides
@@ -36,5 +32,5 @@ public interface SendableEvent
 	 * Get the schedule slot for the entity that created this event
 	 * @return schedule slot
 	 */
-	public ScheduleSlot getScheduleSlot();
+	public long getScheduleSlot();
 }

@@ -8,7 +8,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
@@ -35,7 +34,7 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
     private static Log log = LogFactory.getLog(OHLCBarPlugInView.class);
 
     private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private final ExprNode timestampExpression;
     private final ExprNode valueExpression;
     private final EventBean[] eventsPerStream = new EventBean[1];

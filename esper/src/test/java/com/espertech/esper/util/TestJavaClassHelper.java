@@ -29,14 +29,14 @@ public class TestJavaClassHelper extends TestCase
 {
     public void testTakeFirstN() {
         Class[] classes = new Class[] {String.class};
-        assertEquals(0, JavaClassHelper.takeFirstN(classes, 1).length);
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 1));
 
         classes = new Class[] {String.class, Integer.class};
-        assertEquals(0, JavaClassHelper.takeFirstN(classes, 2).length);
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 2));
 
         classes = new Class[] {String.class, Integer.class, Double.class};
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 2));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 1));
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 1));
+        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 2));
     }
 
     public void testIsFragmentableType()

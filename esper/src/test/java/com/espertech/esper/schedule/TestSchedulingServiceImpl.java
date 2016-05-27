@@ -26,7 +26,7 @@ public class TestSchedulingServiceImpl extends TestCase
     private SchedulingServiceImpl service;
     private SchedulingMgmtServiceImpl mgmtService;
 
-    private ScheduleSlot slots[][];
+    private long slots[][];
     private SupportScheduleCallback callbacks[];
 
     public void setUp()
@@ -36,11 +36,11 @@ public class TestSchedulingServiceImpl extends TestCase
 
         // 2-by-2 table of buckets and slots
         ScheduleBucket[] buckets = new ScheduleBucket[3];
-        slots = new ScheduleSlot[buckets.length][2];
+        slots = new long[buckets.length][2];
         for (int i = 0; i < buckets.length; i++)
         {
             buckets[i] = mgmtService.allocateBucket();
-            slots[i] = new ScheduleSlot[2];
+            slots[i] = new long[2];
             for (int j = 0; j < slots[i].length; j++)
             {
                 slots[i][j] = buckets[i].allocateSlot();
@@ -202,7 +202,7 @@ public class TestSchedulingServiceImpl extends TestCase
     {
         SchedulingServiceImpl evaluator = new SchedulingServiceImpl(new TimeSourceServiceImpl());
         SupportScheduleCallback callback = new SupportScheduleCallback();
-        evaluator.remove(callback, null);
+        evaluator.remove(callback, 0);
     }
 
     private void checkCallbacks(SupportScheduleCallback callbacks[], Integer[] results)

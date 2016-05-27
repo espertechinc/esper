@@ -14,7 +14,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
 import org.apache.commons.logging.Log;
@@ -32,7 +31,7 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
     private final AgentInstanceContext context;
     private final OutputConditionTimeFactory parent;
 
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private Long currentReferencePoint;
     private boolean isCallbackScheduled;
     private EPStatementHandleCallback handle;

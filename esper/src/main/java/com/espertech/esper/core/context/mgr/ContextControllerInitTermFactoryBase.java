@@ -24,7 +24,6 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
 import com.espertech.esper.pattern.MatchedEventMapMeta;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;
 
@@ -80,7 +79,7 @@ public abstract class ContextControllerInitTermFactoryBase extends ContextContro
         return !detail.isOverlapping();
     }
 
-    public ScheduleSlot allocateSlot() {
+    public long allocateSlot() {
         return factoryContext.getAgentInstanceContextCreate().getStatementContext().getScheduleBucket().allocateSlot();
     }
 

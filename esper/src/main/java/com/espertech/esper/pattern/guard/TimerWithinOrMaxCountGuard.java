@@ -13,7 +13,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 
 /**
  * Guard implementation that keeps a timer instance and quits when the timer expired,
@@ -25,7 +24,7 @@ public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
     private final long msec;
     private final int numCountTo;
     private final Quitable quitable;
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
 
     private int counter;
     private boolean isTimerActive;

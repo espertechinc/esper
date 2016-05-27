@@ -17,7 +17,6 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
 import org.apache.commons.logging.Log;
@@ -43,7 +42,7 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
     protected final ViewUpdatedCollection viewUpdatedCollection;
-    protected final ScheduleSlot scheduleSlot;
+    protected final long scheduleSlot;
 
     // Current running parameters
     protected ArrayList<EventBean> currentBatch = new ArrayList<EventBean>();

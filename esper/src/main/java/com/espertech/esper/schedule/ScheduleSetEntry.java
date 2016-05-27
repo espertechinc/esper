@@ -17,19 +17,19 @@ package com.espertech.esper.schedule;
 public class ScheduleSetEntry
 {
     private Long time;
-    private ScheduleSlot slot;
+    private long scheduleSlot;
     private ScheduleHandle handle;
 
     /**
      * Ctor.
      * @param time of schedule
-     * @param slot slot
+     * @param scheduleSlot scheduleSlot
      * @param handle handle to use
      */
-    public ScheduleSetEntry(Long time, ScheduleSlot slot, ScheduleHandle handle)
+    public ScheduleSetEntry(Long time, long scheduleSlot, ScheduleHandle handle)
     {
         this.time = time;
-        this.slot = slot;
+        this.scheduleSlot = scheduleSlot;
         this.handle = handle;
     }
 
@@ -52,12 +52,12 @@ public class ScheduleSetEntry
     }
 
     /**
-     * Returns schedule slot.
-     * @return slot
+     * Returns schedule scheduleSlot.
+     * @return scheduleSlot
      */
-    public ScheduleSlot getSlot()
+    public long getScheduleSlot()
     {
-        return slot;
+        return scheduleSlot;
     }
 
     /**

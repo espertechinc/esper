@@ -17,7 +17,6 @@ import com.espertech.esper.epl.variable.VariableChangeCallback;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
 import org.apache.commons.logging.Log;
@@ -32,7 +31,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
     private final AgentInstanceContext agentInstanceContext;
     private final OutputConditionExpressionFactory parent;
 
-    private final ScheduleSlot scheduleSlot;
+    private final long scheduleSlot;
     private boolean isCallbackScheduled;
     private boolean ignoreVariableCallbacks;
     private ObjectArrayEventBean builtinProperties;

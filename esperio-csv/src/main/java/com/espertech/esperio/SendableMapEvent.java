@@ -8,8 +8,6 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import com.espertech.esper.schedule.ScheduleSlot;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +27,7 @@ public class SendableMapEvent extends AbstractSendableEvent
 	 * @param timestamp - the timestamp for this event
 	 * @param scheduleSlot - the schedule slot for the entity that created this event
 	 */
-	public SendableMapEvent(Map<String, Object> mapToSend, String eventTypeName, long timestamp, ScheduleSlot scheduleSlot)
+	public SendableMapEvent(Map<String, Object> mapToSend, String eventTypeName, long timestamp, long scheduleSlot)
 	{
 		super(timestamp, scheduleSlot);
 		//if properties names contain a '.' we need to rebuild the nested map property
