@@ -15,12 +15,14 @@ import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.view.Viewable;
 
 /**
  * A view that retains the last update.
  */
-public final class LastPostObserverView extends ViewSupport implements CloneableView
+public final class LastPostObserverView implements View, CloneableView
 {
+    private Viewable parent;
     private final int streamId;
     private LastPostObserver observer;
 
@@ -57,10 +59,37 @@ public final class LastPostObserverView extends ViewSupport implements Cloneable
         return parent.iterator();
     }
 
+    public Viewable getParent() {
+        return parent;
+    }
+
+    public void setParent(Viewable parent) {
+        this.parent = parent;
+    }
+
+    public View addView(View view) {
+        throw new UnsupportedOperationException();
+    }
+
+    public View[] getViews() {
+        return new View[0];
+    }
+
+    public boolean removeView(View view) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void removeAllViews() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasViews() {
+        return false;
+    }
+
     public final void update(EventBean[] newData, EventBean[] oldData)
     {
-        if (observer != null)
-        {
+        if (observer != null) {
             observer.newData(streamId, newData, oldData);
         }
     }
