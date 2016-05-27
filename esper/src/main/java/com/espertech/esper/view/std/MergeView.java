@@ -79,7 +79,7 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
      * Add a parent data merge view.
      * @param parentView is the parent data merge view to add
      */
-    public final void addParentView(AddPropertyValueView parentView)
+    public final void addParentView(View parentView)
     {
         parentViews.add(parentView);
     }

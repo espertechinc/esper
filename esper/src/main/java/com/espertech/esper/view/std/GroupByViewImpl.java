@@ -351,17 +351,26 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
                 MergeViewMarker mergeView = (MergeViewMarker) subView;
                 if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), criteriaExpressions))
                 {
-                    // We found our merge view - install a new data merge view on top of it
-                    AddPropertyValueView mergeDataView = new AddPropertyValueView(agentInstanceContext, propertyNames, groupByValues, mergeView.getEventType());
+                    if (mergeView.getEventType() != copyView.getEventType()) {
+                        // We found our merge view - install a new data merge view on top of it
+                        AddPropertyValueOptionalView addPropertyView = new AddPropertyValueOptionalView(agentInstanceContext, propertyNames, groupByValues, mergeView.getEventType());
 
-                    // Add to the copied parent subview the view merge data view
-                    copyView.addView(mergeDataView);
+                        // Add to the copied parent subview the view merge data view
+                        copyView.addView(addPropertyView);
 
-                    // Add to the new merge data view the actual single merge view instance that clients may attached to
-                    mergeDataView.addView(mergeView);
+                        // Add to the new merge data view the actual single merge view instance that clients may attached to
+                        addPropertyView.addView(mergeView);
 
-                    // Add a parent view to the single merge view instance
-                    mergeView.addParentView(mergeDataView);
+                        // Add a parent view to the single merge view instance
+                        mergeView.addParentView(addPropertyView);
+                    }
+                    else {
+                        // Add to the copied parent subview the view merge data view
+                        copyView.addView(mergeView);
+
+                        // Add a parent view to the single merge view instance
+                        mergeView.addParentView(copyView);
+                    }
 
                     continue;
                 }

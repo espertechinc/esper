@@ -15,5 +15,5 @@ public interface MergeViewMarker extends View
 {
     public ExprNode[] getGroupFieldNames();
 
-    public void addParentView(AddPropertyValueView mergeDataView);
+    public void addParentView(View mergeDataView);
 }

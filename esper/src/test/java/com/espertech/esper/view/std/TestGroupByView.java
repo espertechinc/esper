@@ -174,9 +174,9 @@ public class TestGroupByView extends TestCase
 
         FirstElementView firstEleView = (FirstElementView) subViews;
         assertEquals(1, firstEleView.getViews().length);
-        assertTrue(firstEleView.getViews()[0] instanceof AddPropertyValueView);
+        assertTrue(firstEleView.getViews()[0] instanceof AddPropertyValueOptionalView);
 
-        AddPropertyValueView md = (AddPropertyValueView) firstEleView.getViews()[0];
+        AddPropertyValueOptionalView md = (AddPropertyValueOptionalView) firstEleView.getViews()[0];
         assertEquals(1, md.getViews().length);
         assertTrue(md.getViews()[0] == mergeViewOne);
     }
