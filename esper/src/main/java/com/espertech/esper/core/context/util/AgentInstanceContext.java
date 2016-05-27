@@ -32,6 +32,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     private final AgentInstanceFilterProxy agentInstanceFilterProxy;
     private final MappedEventBean agentInstanceProperties;
     private final AgentInstanceScriptContext agentInstanceScriptContext;
+    private StatementContextCPPair statementContextCPPair;
     private Object terminationCallbacks;
 
     public AgentInstanceContext(StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, int agentInstanceId, AgentInstanceFilterProxy agentInstanceFilterProxy, MappedEventBean agentInstanceProperties, AgentInstanceScriptContext agentInstanceScriptContext) {
@@ -140,5 +141,12 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
 
     public Object getStatementUserObject() {
         return statementContext.getStatementUserObject();
+    }
+
+    public StatementContextCPPair getStatementContextCPPair() {
+        if (statementContextCPPair == null) {
+            statementContextCPPair = new StatementContextCPPair(statementContext.getStatementId(), agentInstanceId, statementContext);
+        }
+        return statementContextCPPair;
     }
 }
