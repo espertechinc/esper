@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view.internal;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -27,15 +28,13 @@ import java.util.Set;
  */
 public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory, DataWindowViewFactoryUniqueCandidate, ViewFactoryContainer
 {
-    /**
-     * The event type.
-     */
     protected EventType parentEventType;
-
-    /**
-     * The view factories.
-     */
     protected List<ViewFactory> viewFactories;
+    protected int batchViewIndex;
+    protected boolean hasAsymetric;
+    protected ThreadLocal<IntersectBatchViewLocalState> batchViewLocalState;
+    protected ThreadLocal<IntersectDefaultViewLocalState> defaultViewLocalState;
+    protected ThreadLocal<IntersectAsymetricViewLocalState> asymetricViewLocalState;
 
     /**
      * Ctor.
@@ -57,15 +56,42 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
      * Sets the view factories.
      * @param viewFactories factories
      */
-    public void setViewFactories(List<ViewFactory> viewFactories)
+    public void setViewFactories(final List<ViewFactory> viewFactories)
     {
         this.viewFactories = viewFactories;
         int batchCount = 0;
-        for (ViewFactory viewFactory : viewFactories) {
-            batchCount += viewFactory instanceof DataWindowBatchingViewFactory ? 1 : 0;
+        for (int i = 0; i < viewFactories.size(); i++) {
+            ViewFactory viewFactory = viewFactories.get(i);
+            hasAsymetric |= viewFactory instanceof AsymetricDataWindowViewFactory;
+            if (viewFactory instanceof DataWindowBatchingViewFactory) {
+                batchCount++;
+                batchViewIndex = i;
+            }
         }
         if (batchCount > 1) {
             throw new ViewProcessingException("Cannot combined multiple batch data windows into an intersection");
+        }
+
+        if (batchCount == 1) {
+            batchViewLocalState = new ThreadLocal<IntersectBatchViewLocalState>() {
+                protected synchronized IntersectBatchViewLocalState initialValue() {
+                    return new IntersectBatchViewLocalState(new EventBean[viewFactories.size()][], new EventBean[viewFactories.size()][]);
+                }
+            };
+        }
+        else if (hasAsymetric) {
+            asymetricViewLocalState = new ThreadLocal<IntersectAsymetricViewLocalState>() {
+                protected synchronized IntersectAsymetricViewLocalState initialValue() {
+                    return new IntersectAsymetricViewLocalState(new EventBean[viewFactories.size()][]);
+                }
+            };
+        }
+        else {
+            defaultViewLocalState = new ThreadLocal<IntersectDefaultViewLocalState>() {
+                protected synchronized IntersectDefaultViewLocalState initialValue() {
+                    return new IntersectDefaultViewLocalState(new EventBean[viewFactories.size()][]);
+                }
+            };
         }
     }
 
@@ -80,22 +106,20 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         List<View> views = new ArrayList<View>();
-        boolean hasAsymetric = false;
         boolean hasBatch = false;
         for (ViewFactory viewFactory : viewFactories)
         {
             agentInstanceViewFactoryContext.setRemoveStream(true);
             views.add(viewFactory.makeView(agentInstanceViewFactoryContext));
-            hasAsymetric |= viewFactory instanceof AsymetricDataWindowViewFactory;
             hasBatch |= viewFactory instanceof DataWindowBatchingViewFactory;
         }
         if (hasBatch) {
-            return new IntersectBatchView(agentInstanceViewFactoryContext, this, parentEventType, views, viewFactories, hasAsymetric);
+            return new IntersectBatchView(agentInstanceViewFactoryContext, this, views);
         }
         else if (hasAsymetric) {
-            return new IntersectAsymetricView(agentInstanceViewFactoryContext, this, parentEventType, views);
+            return new IntersectAsymetricView(agentInstanceViewFactoryContext, this, views);
         }
-        return new IntersectView(agentInstanceViewFactoryContext, this, parentEventType, views);
+        return new IntersectDefaultView(agentInstanceViewFactoryContext, this, views);
     }
 
     public EventType getEventType()
@@ -145,5 +169,29 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
         }
 
         return buf.toString();
+    }
+
+    public EventType getParentEventType() {
+        return parentEventType;
+    }
+
+    public int getBatchViewIndex() {
+        return batchViewIndex;
+    }
+
+    public boolean isHasAsymetric() {
+        return hasAsymetric;
+    }
+
+    public IntersectBatchViewLocalState getBatchViewLocalStatePerThread() {
+        return batchViewLocalState.get();
+    }
+
+    public IntersectDefaultViewLocalState getDefaultViewLocalStatePerThread() {
+        return defaultViewLocalState.get();
+    }
+
+    public IntersectAsymetricViewLocalState getAsymetricViewLocalStatePerThread() {
+        return asymetricViewLocalState.get();
     }
 }

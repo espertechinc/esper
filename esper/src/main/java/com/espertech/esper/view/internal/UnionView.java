@@ -264,7 +264,7 @@ public class UnionView extends ViewSupport implements LastPostObserver, Cloneabl
     }
 
     public void visitViewContainer(ViewDataVisitorContained viewDataVisitor) {
-        IntersectView.visitViewContained(viewDataVisitor, unionViewFactory, views);
+        IntersectDefaultView.visitViewContained(viewDataVisitor, unionViewFactory, views);
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {

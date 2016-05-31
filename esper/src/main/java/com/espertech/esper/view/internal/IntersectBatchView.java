@@ -16,12 +16,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -41,48 +37,20 @@ import java.util.List;
  */
 public class IntersectBatchView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
 {
-    private static final Log log = LogFactory.getLog(IntersectBatchView.class);
-
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
-    protected final IntersectViewFactory intersectViewFactory;
-    protected final EventType eventType;
+    protected final IntersectViewFactory factory;
     protected final View[] views;
-    private int batchViewIndex;
-    private final EventBean[][] oldEventsPerView;
-    private final EventBean[][] newEventsPerView;
-    private final HashSet<EventBean> removedEvents = new LinkedHashSet<EventBean>();
-    protected final boolean hasAsymetric;
-
-    private boolean captureIRNonBatch;
-    private boolean ignoreViewIRStream;
 
     /**
      * Ctor.
      * @param factory the view factory
-     * @param eventType the parent event type
      * @param viewList the list of data window views
-     * @param viewFactories view factories
      */
-    public IntersectBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, EventType eventType, List<View> viewList, List<ViewFactory> viewFactories, boolean hasAsymetric)
+    public IntersectBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList)
     {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
-        this.intersectViewFactory = factory;
-        this.eventType = eventType;
+        this.factory = factory;
         this.views = viewList.toArray(new View[viewList.size()]);
-        this.oldEventsPerView = new EventBean[viewList.size()][];
-        this.newEventsPerView = new EventBean[viewList.size()][];
-        this.hasAsymetric = hasAsymetric;
-
-        // determine index of batch view
-        batchViewIndex = -1;
-        for (int i = 0; i < viewFactories.size(); i++) {
-            if (viewFactories.get(i) instanceof DataWindowBatchingViewFactory) {
-                batchViewIndex = i;
-            }
-        }
-        if (batchViewIndex == -1) {
-            throw new IllegalStateException("Failed to find batch data window view");
-        }
 
         for (int i = 0; i < viewList.size(); i++) {
             LastPostObserverView view = new LastPostObserverView(i);
@@ -98,101 +66,105 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
 
     public View cloneView()
     {
-        return intersectViewFactory.makeView(agentInstanceViewFactoryContext);
+        return factory.makeView(agentInstanceViewFactoryContext);
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)
     {
+        IntersectBatchViewLocalState localState = factory.getBatchViewLocalStatePerThread();
+
         // handle remove stream: post oldData to all views
         if (oldData != null && oldData.length != 0) {
             try {
-                ignoreViewIRStream = true;
+                localState.setIgnoreViewIRStream(true);
                 for (int i = 0; i < views.length; i++) {
                     views[i].update(newData, oldData);
                 }
             }
             finally {
-                ignoreViewIRStream = false;
+                localState.setIgnoreViewIRStream(false);
             }
         }
 
         if (newData != null) {
             // post to all non-batch views first to let them decide the remove stream, if any
             try {
-                captureIRNonBatch = true;
+                localState.setCaptureIRNonBatch(true);
                 for (int i = 0; i < views.length; i++) {
-                    if (i != batchViewIndex) {
+                    if (i != factory.getBatchViewIndex()) {
                         views[i].update(newData, oldData);
                     }
                 }
             }
             finally {
-                captureIRNonBatch = false;
+                localState.setCaptureIRNonBatch(false);
             }
 
             // if there is any data removed from non-batch views, remove from all views
             // collect removed events
-            removedEvents.clear();
+            localState.getRemovedEvents().clear();
             for (int i = 0; i < views.length; i++) {
-                if (oldEventsPerView[i] != null) {
+                if (localState.getOldEventsPerView()[i] != null) {
                     for (int j = 0; j < views.length; j++) {
                         if (i == j) {
                             continue;
                         }
-                        views[j].update(null, oldEventsPerView[i]);
+                        views[j].update(null, localState.getOldEventsPerView()[i]);
 
-                        for (int k = 0; k < oldEventsPerView[i].length; k++) {
-                            removedEvents.add(oldEventsPerView[i][k]);
+                        for (int k = 0; k < localState.getOldEventsPerView()[i].length; k++) {
+                            localState.getRemovedEvents().add(localState.getOldEventsPerView()[i][k]);
                         }
                     }
-                    oldEventsPerView[i] = null;
+                    localState.getOldEventsPerView()[i] = null;
                 }
             }
 
             // post only new events to the batch view that have not been removed
             EventBean[] newDataNonRemoved;
-            if (hasAsymetric) {
-                newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, removedEvents, newEventsPerView);
+            if (factory.isHasAsymetric()) {
+                newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, localState.getRemovedEvents(), localState.getNewEventsPerView());
             }
             else {
-                newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, removedEvents);
+                newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, localState.getRemovedEvents());
             }
             if (newDataNonRemoved != null) {
-                views[batchViewIndex].update(newDataNonRemoved, null);
+                views[factory.getBatchViewIndex()].update(newDataNonRemoved, null);
             }
         }
     }
 
     public EventType getEventType()
     {
-        return eventType;
+        return factory.getEventType();
     }
 
     public Iterator<EventBean> iterator()
     {
-        return views[batchViewIndex].iterator();
+        return views[factory.getBatchViewIndex()].iterator();
     }
 
     public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents)
     {
-        if (ignoreViewIRStream) {
+        IntersectBatchViewLocalState localState = factory.getBatchViewLocalStatePerThread();
+
+        if (localState.isIgnoreViewIRStream()) {
             return;
         }
 
-        if (captureIRNonBatch) {
-            oldEventsPerView[streamId] = oldEvents;
-            if (hasAsymetric) {
-                newEventsPerView[streamId] = newEvents;
+        if (localState.isCaptureIRNonBatch()) {
+            localState.getOldEventsPerView()[streamId] = oldEvents;
+            if (factory.isHasAsymetric()) {
+                localState.getNewEventsPerView()[streamId] = newEvents;
             }
             return;
         }
 
         // handle case where irstream originates from view, i.e. timer-based
-        if (streamId == batchViewIndex) {
+        if (streamId == factory.getBatchViewIndex()) {
             updateChildren(newEvents, oldEvents);
             if (newEvents != null) {
                 try {
-                    ignoreViewIRStream = true;
+                    localState.setIgnoreViewIRStream(true);
                     for (int i = 0; i < views.length; i++) {
                         if (i != streamId) {
                             views[i].update(null, newEvents);
@@ -200,7 +172,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                     }
                 }
                 finally {
-                    ignoreViewIRStream = false;
+                    localState.setIgnoreViewIRStream(false);
                 }
             }
         }
@@ -208,7 +180,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
         else {
             if (oldEvents != null) {
                 try {
-                    ignoreViewIRStream = true;
+                    localState.setIgnoreViewIRStream(true);
                     for (int i = 0; i < views.length; i++) {
                         if (i != streamId) {
                             views[i].update(null, oldEvents);
@@ -216,7 +188,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                     }
                 }
                 finally {
-                    ignoreViewIRStream = false;
+                    localState.setIgnoreViewIRStream(false);
                 }
             }
         }
@@ -232,7 +204,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
     }
 
     public void visitViewContainer(ViewDataVisitorContained viewDataVisitor) {
-        IntersectView.visitViewContained(viewDataVisitor, intersectViewFactory, views);
+        IntersectDefaultView.visitViewContained(viewDataVisitor, factory, views);
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
@@ -240,6 +212,6 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
     }
 
     public ViewFactory getViewFactory() {
-        return intersectViewFactory;
+        return factory;
     }
 }

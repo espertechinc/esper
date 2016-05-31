@@ -16,7 +16,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.view.*;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A view that represents an intersection of multiple data windows.
@@ -28,32 +29,19 @@ import java.util.*;
 public class IntersectAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
 {
     private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
-    private final IntersectViewFactory intersectViewFactory;
-    private final EventType eventType;
+    private final IntersectViewFactory factory;
     protected final View[] views;
-    private final EventBean[][] oldEventsPerView;
-    private final Set<EventBean> removalEvents = new HashSet<EventBean>();
-    private final ArrayDeque<EventBean> newEvents = new ArrayDeque<EventBean>();
-
-    private EventBean[] newDataChildView;
-    private boolean isHasRemovestreamData;
-    private boolean isRetainObserverEvents;
-    private boolean isDiscardObserverEvents;
-    private Set<EventBean> oldEvents = new HashSet<EventBean>();
 
     /**
      * Ctor.
      * @param factory the view factory
-     * @param eventType the parent event type
      * @param viewList the list of data window views
      */
-    public IntersectAsymetricView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, EventType eventType, List<View> viewList)
+    public IntersectAsymetricView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList)
     {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
-        this.intersectViewFactory = factory;
-        this.eventType = eventType;
+        this.factory = factory;
         this.views = viewList.toArray(new View[viewList.size()]);
-        oldEventsPerView = new EventBean[viewList.size()][];
 
         for (int i = 0; i < viewList.size(); i++)
         {
@@ -70,18 +58,20 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
 
     public View cloneView()
     {
-        return intersectViewFactory.makeView(agentInstanceViewFactoryContext);
+        return factory.makeView(agentInstanceViewFactoryContext);
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)
     {
-        oldEvents.clear();
+        IntersectAsymetricViewLocalState localState = factory.getAsymetricViewLocalStatePerThread();
+
+        localState.getOldEvents().clear();
         EventBean[] newDataPosted = null;
 
         // handle remove stream
         if (oldData != null)
         {
-            isDiscardObserverEvents = true;    // disable reaction logic in observer
+            localState.setIsDiscardObserverEvents(true);    // disable reaction logic in observer
             try
             {
                 for (View view : views)
@@ -91,59 +81,59 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
             }
             finally
             {
-                isDiscardObserverEvents = false;
+                localState.setIsDiscardObserverEvents(false);
             }
 
             for (int i = 0; i < oldData.length; i++) {
-                oldEvents.add(oldData[i]);
+                localState.getOldEvents().add(oldData[i]);
             }
         }
 
         if (newData != null)
         {
-            removalEvents.clear();
+            localState.getRemovalEvents().clear();
 
             // new events must go to all views
             // old events, such as when removing from a named window, get removed from all views
-            isHasRemovestreamData = false;  // changed by observer logic to indicate new data
-            isRetainObserverEvents = true;  // enable retain logic in observer
+            localState.setHasRemovestreamData(false);  // changed by observer logic to indicate new data
+            localState.setIsRetainObserverEvents(true);  // enable retain logic in observer
             try
             {
                 for (View view : views)
                 {
-                    newDataChildView = null;
+                    localState.setNewDataChildView(null);
                     view.update(newData, oldData);
 
                     // first-X asymetric view post no insert stream for events that get dropped, remove these
-                    if (newDataChildView != null) {
+                    if (localState.getNewDataChildView() != null) {
                         for (int i = 0; i < newData.length; i++) {
                             boolean found = false;
-                            for (int j = 0; j < newDataChildView.length; j++) {
-                                if (newDataChildView[i] == newData[i]) {
+                            for (int j = 0; j < localState.getNewDataChildView().length; j++) {
+                                if (localState.getNewDataChildView()[i] == newData[i]) {
                                     found = true;
                                     break;
                                 }
                             }
                             if (!found) {
-                                removalEvents.add(newData[i]);
+                                localState.getRemovalEvents().add(newData[i]);
                             }
                         }
                     }
                     else {
                         for (int i = 0; i < newData.length; i++) {
-                            removalEvents.add(newData[i]);
+                            localState.getRemovalEvents().add(newData[i]);
                         }
                     }
                 }
             }
             finally
             {
-                isRetainObserverEvents = false;
+                localState.setIsRetainObserverEvents(false);
             }
 
-            if (!removalEvents.isEmpty()) {
-                isDiscardObserverEvents = true;
-                EventBean[] viewOldData = removalEvents.toArray(new EventBean[removalEvents.size()]);
+            if (!localState.getRemovalEvents().isEmpty()) {
+                localState.setIsDiscardObserverEvents(true);
+                EventBean[] viewOldData = localState.getRemovalEvents().toArray(new EventBean[localState.getRemovalEvents().size()]);
                 try
                 {
                     for (int j = 0; j < views.length; j++)
@@ -153,31 +143,31 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
                 }
                 finally
                 {
-                    isDiscardObserverEvents = false;
+                    localState.setIsDiscardObserverEvents(false);
                 }
             }
 
             // see if any child view has removed any events.
             // if there was an insert stream, handle pushed-out events
-            if (isHasRemovestreamData)
+            if (localState.hasRemovestreamData())
             {
                 // process each buffer
-                for (int i = 0; i < oldEventsPerView.length; i++)
+                for (int i = 0; i < localState.getOldEventsPerView().length; i++)
                 {
-                    if (oldEventsPerView[i] == null)
+                    if (localState.getOldEventsPerView()[i] == null)
                     {
                         continue;
                     }
 
-                    EventBean[] viewOldData = oldEventsPerView[i];
-                    oldEventsPerView[i] = null;  // clear entry
+                    EventBean[] viewOldData = localState.getOldEventsPerView()[i];
+                    localState.getOldEventsPerView()[i] = null;  // clear entry
 
                     // add each event to the set of events removed
                     for (EventBean oldEvent : viewOldData) {
-                        removalEvents.add(oldEvent);
+                        localState.getRemovalEvents().add(oldEvent);
                     }
 
-                    isDiscardObserverEvents = true;
+                    localState.setIsDiscardObserverEvents(true);
                     try
                     {
                         for (int j = 0; j < views.length; j++)
@@ -190,40 +180,40 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
                     }
                     finally
                     {
-                        isDiscardObserverEvents = false;
+                        localState.setIsDiscardObserverEvents(false);
                     }
                 }
 
-                oldEvents.addAll(removalEvents);
+                localState.getOldEvents().addAll(localState.getRemovalEvents());
             }
 
-            newEvents.clear();
+            localState.getNewEvents().clear();
             for (int i = 0; i < newData.length; i++) {
-                if (!removalEvents.contains(newData[i])) {
-                    newEvents.add(newData[i]);
+                if (!localState.getRemovalEvents().contains(newData[i])) {
+                    localState.getNewEvents().add(newData[i]);
                 }
             }
 
-            if (!newEvents.isEmpty()) {
-                newDataPosted = newEvents.toArray(new EventBean[newEvents.size()]);
+            if (!localState.getNewEvents().isEmpty()) {
+                newDataPosted = localState.getNewEvents().toArray(new EventBean[localState.getNewEvents().size()]);
             }
 
         }
 
         // indicate new and, possibly, old data
         EventBean[] oldDataPosted = null;
-        if (!oldEvents.isEmpty()) {
-            oldDataPosted = oldEvents.toArray(new EventBean[oldEvents.size()]);
+        if (!localState.getOldEvents().isEmpty()) {
+            oldDataPosted = localState.getOldEvents().toArray(new EventBean[localState.getOldEvents().size()]);
         }
         if ((newDataPosted != null) || (oldDataPosted != null)) {
             updateChildren(newDataPosted, oldDataPosted);
         }
-        oldEvents.clear();
+        localState.getOldEvents().clear();
     }
 
     public EventType getEventType()
     {
-        return eventType;
+        return factory.getEventType();
     }
 
     public Iterator<EventBean> iterator()
@@ -233,22 +223,23 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
 
     public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents)
     {
-        newDataChildView = newEvents;
+        IntersectAsymetricViewLocalState localState = factory.getAsymetricViewLocalStatePerThread();
+        localState.setNewDataChildView(newEvents);
 
-        if ((oldEvents == null) || (isDiscardObserverEvents))
+        if ((oldEvents == null) || (localState.isDiscardObserverEvents()))
         {
             return;
         }
 
-        if (isRetainObserverEvents)
+        if (localState.isRetainObserverEvents())
         {
-            oldEventsPerView[streamId] = oldEvents;
-            isHasRemovestreamData = true;
+            localState.getOldEventsPerView()[streamId] = oldEvents;
+            localState.setHasRemovestreamData(true);
             return;
         }
 
         // remove old data from all other views
-        isDiscardObserverEvents = true;
+        localState.setIsDiscardObserverEvents(true);
         try
         {
             for (int i = 0; i < views.length; i++)
@@ -261,7 +252,7 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
         }
         finally
         {
-            isDiscardObserverEvents = false;
+            localState.setIsDiscardObserverEvents(false);
         }
 
         updateChildren(null, oldEvents);
@@ -277,7 +268,7 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
     }
 
     public void visitViewContainer(ViewDataVisitorContained viewDataVisitor) {
-        IntersectView.visitViewContained(viewDataVisitor, intersectViewFactory, views);
+        IntersectDefaultView.visitViewContained(viewDataVisitor, factory, views);
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
@@ -285,6 +276,6 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
     }
 
     public ViewFactory getViewFactory() {
-        return intersectViewFactory;
+        return factory;
     }
 }
