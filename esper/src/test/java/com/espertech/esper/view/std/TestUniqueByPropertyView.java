@@ -55,14 +55,14 @@ public class TestUniqueByPropertyView extends TestCase
         tradeBeans[1] = makeTradeBean("IBM", 75);
         tradeBeans[2] = makeTradeBean("CSCO", 100);
         stream.insert(new EventBean[] { tradeBeans[1], tradeBeans[2] });
-        EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{tradeBeans[1], tradeBeans[2]}, myView.iterator());
+        EPAssertionUtil.assertEqualsAnyOrder(new EventBean[]{tradeBeans[1], tradeBeans[2]}, EPAssertionUtil.iteratorToArray(myView.iterator()));
         SupportViewDataChecker.checkOldData(childView, new EventBean[] { tradeBeans[0] });
         SupportViewDataChecker.checkNewData(childView,new EventBean[] { tradeBeans[1], tradeBeans[2] });
 
         // And 1 more events
         tradeBeans[3] = makeTradeBean("CSCO", 99);
         stream.insert(new EventBean[] { tradeBeans[3] });
-        EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{tradeBeans[1], tradeBeans[3]}, myView.iterator());
+        EPAssertionUtil.assertEqualsAnyOrder(new EventBean[]{tradeBeans[1], tradeBeans[3]}, EPAssertionUtil.iteratorToArray(myView.iterator()));
         SupportViewDataChecker.checkOldData(childView, new EventBean[] { tradeBeans[2] });
         SupportViewDataChecker.checkNewData(childView,new EventBean[] { tradeBeans[3] });
 
@@ -71,13 +71,13 @@ public class TestUniqueByPropertyView extends TestCase
         tradeBeans[5] = makeTradeBean("IBM", 77);
         tradeBeans[6] = makeTradeBean("IBM", 78);
         stream.insert(new EventBean[] { tradeBeans[4], tradeBeans[5], tradeBeans[6] });
-        EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{tradeBeans[6], tradeBeans[4]}, myView.iterator());
+        EPAssertionUtil.assertEqualsAnyOrder(new EventBean[]{tradeBeans[6], tradeBeans[4]}, EPAssertionUtil.iteratorToArray(myView.iterator()));
         SupportViewDataChecker.checkOldData(childView, new EventBean[] { tradeBeans[1], tradeBeans[5], tradeBeans[3] });
         SupportViewDataChecker.checkNewData(childView, new EventBean[] { tradeBeans[4], tradeBeans[5], tradeBeans[6] });  // Yes the event is both in old and new data
 
         // Post as old data an event --> unique event is thrown away and posted as old data
         myView.update(null, new EventBean[] { tradeBeans[6] });
-        EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{tradeBeans[4]}, myView.iterator());
+        EPAssertionUtil.assertEqualsAnyOrder(new EventBean[]{tradeBeans[4]}, EPAssertionUtil.iteratorToArray(myView.iterator()));
         SupportViewDataChecker.checkOldData(childView, new EventBean[] { tradeBeans[6] });
         SupportViewDataChecker.checkNewData(childView, null);
     }

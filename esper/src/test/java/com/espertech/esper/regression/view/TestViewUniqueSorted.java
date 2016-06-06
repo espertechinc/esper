@@ -65,7 +65,7 @@ public class TestViewUniqueSorted extends TestCase
         sendEvent("E2", -10);
         sendEvent("E3", -5);
         sendEvent("E4", 5);
-        EPAssertionUtil.assertPropsPerRow(stmt.iterator(), "theString".split(","), new Object[][]{{"E2"}, {"E4"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), "theString".split(","), new Object[][]{{"E2"}, {"E4"}});
     }
 
     public void testWindowStats()

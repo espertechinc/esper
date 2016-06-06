@@ -19,10 +19,7 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This view retains the first event for each multi-key of distinct property values.
@@ -36,7 +33,7 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
     private final FirstUniqueByPropertyViewFactory viewFactory;
     protected final ExprEvaluator[] uniqueCriteriaEval;
     private EventBean[] eventsPerStream = new EventBean[1];
-    protected final Map<Object, EventBean> firstEvents = new LinkedHashMap<Object, EventBean>();
+    protected final Map<Object, EventBean> firstEvents = new HashMap<Object, EventBean>();
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
     /**

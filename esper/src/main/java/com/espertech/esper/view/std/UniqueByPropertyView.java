@@ -19,10 +19,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This view includes only the most recent among events having the same value for the specified field or fields.
@@ -44,7 +41,7 @@ public class UniqueByPropertyView extends ViewSupport implements CloneableView, 
 {
     private final UniqueByPropertyViewFactory viewFactory;
     protected final ExprEvaluator[] criteriaExpressionsEvals;
-    protected final Map<Object, EventBean> mostRecentEvents = new LinkedHashMap<Object, EventBean>();
+    protected final Map<Object, EventBean> mostRecentEvents = new HashMap<Object, EventBean>();
     private final EventBean[] eventsPerStream = new EventBean[1];
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
