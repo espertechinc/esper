@@ -27,7 +27,7 @@ public class StatementResourceService {
 
     public StatementResourceService(boolean partitioned) {
         if (partitioned) {
-            resourcesPartitioned = new TreeMap<Integer, StatementResourceHolder>();
+            resourcesPartitioned = new HashMap<Integer, StatementResourceHolder>();
         }
     }
 
