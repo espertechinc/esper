@@ -50,7 +50,7 @@ public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFact
         }
         this.customConfiguration = customConfiguration;
         this.namedWindowName = namedWindowName;
-        virtualDataWindowFactory = (VirtualDataWindowFactory) JavaClassHelper.instantiate(VirtualDataWindowFactory.class, first.getName());
+        virtualDataWindowFactory = (VirtualDataWindowFactory) JavaClassHelper.instantiate(VirtualDataWindowFactory.class, first);
     }
 
     public Set<String> getUniqueKeys() {

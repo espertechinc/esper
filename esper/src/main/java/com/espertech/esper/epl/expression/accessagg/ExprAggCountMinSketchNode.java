@@ -207,7 +207,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
                         CountMinSketchAgent transform;
                         try {
                             Class transformClass = engineImportService.resolveClass((String) value, false);
-                            transform = (CountMinSketchAgent) JavaClassHelper.instantiate(CountMinSketchAgent.class, transformClass.getName());
+                            transform = (CountMinSketchAgent) JavaClassHelper.instantiate(CountMinSketchAgent.class, transformClass);
                         }
                         catch (Exception e) {
                             throw new ExprValidationException("Failed to instantiate agent provider: " + e.getMessage(), e);

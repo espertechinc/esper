@@ -96,7 +96,7 @@ public class ExprDotNodeUtility
             // resolve lambda
             if (EnumMethodEnum.isEnumerationMethod(chainElement.getName()) && (!matchingMethod || methodTarget.isArray() || JavaClassHelper.isImplementsInterface(methodTarget, Collection.class))) {
                 EnumMethodEnum enumerationMethod = EnumMethodEnum.fromName(chainElement.getName());
-                ExprDotEvalEnumMethod eval = (ExprDotEvalEnumMethod) JavaClassHelper.instantiate(ExprDotEvalEnumMethod.class, enumerationMethod.getImplementation().getName());
+                ExprDotEvalEnumMethod eval = (ExprDotEvalEnumMethod) JavaClassHelper.instantiate(ExprDotEvalEnumMethod.class, enumerationMethod.getImplementation());
                 eval.init(streamOfProviderIfApplicable, enumerationMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), validationContext);
                 currentInputType = eval.getTypeInfo();
                 if (currentInputType == null) {
