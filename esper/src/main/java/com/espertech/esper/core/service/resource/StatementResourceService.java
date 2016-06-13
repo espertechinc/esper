@@ -71,12 +71,14 @@ public class StatementResourceService {
         return resourcesUnpartitioned;
     }
 
-    public void deallocatePartitioned(int agentInstanceId) {
-        resourcesPartitioned.remove(agentInstanceId);
+    public StatementResourceHolder deallocatePartitioned(int agentInstanceId) {
+        return resourcesPartitioned.remove(agentInstanceId);
     }
 
-    public void deallocateUnpartitioned() {
+    public StatementResourceHolder deallocateUnpartitioned() {
+        StatementResourceHolder unpartitioned = resourcesUnpartitioned;
         resourcesUnpartitioned = null;
+        return unpartitioned;
     }
 
     private void removeContextPattern(boolean startEndpoint, ContextStatePathKey path) {
