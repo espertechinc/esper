@@ -58,8 +58,4 @@ public class AggregatorSumNumInteger implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return Integer.class;
-    }
 }

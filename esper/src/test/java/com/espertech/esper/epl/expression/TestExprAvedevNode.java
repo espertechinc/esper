@@ -47,8 +47,6 @@ public class TestExprAvedevNode extends TestExprAggregateNodeAdapter
         AggregationMethodFactory aggFactory = validatedNodeToTest.getFactory();
         AggregationMethod agg = aggFactory.make(SupportExprNodeFactory.getMethodResService(), -1, 1, 1);
 
-        assertEquals(Double.class, agg.getValueType());
-
         assertNull(agg.getValue());
 
         agg.enter(82);

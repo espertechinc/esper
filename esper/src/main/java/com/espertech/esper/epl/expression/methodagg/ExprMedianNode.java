@@ -36,7 +36,7 @@ public class ExprMedianNode extends ExprAggregateNodeBase
     {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new ExprMedianNodeFactory(this, childType);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeMedian(this, childType);
     }
 
     public String getAggregationFunctionName()

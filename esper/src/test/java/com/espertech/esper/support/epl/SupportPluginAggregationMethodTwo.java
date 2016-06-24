@@ -37,8 +37,4 @@ public class SupportPluginAggregationMethodTwo implements AggregationMethod, Ser
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Class getValueType()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }

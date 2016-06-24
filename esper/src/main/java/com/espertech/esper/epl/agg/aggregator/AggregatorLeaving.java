@@ -22,10 +22,6 @@ public class AggregatorLeaving implements AggregationMethod {
         leaving = true;
     }
 
-    public Class getValueType() {
-        return Boolean.class;
-    }
-
     public Object getValue() {
         return leaving;
     }

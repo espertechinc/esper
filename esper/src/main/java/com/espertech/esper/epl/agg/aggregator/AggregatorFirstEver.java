@@ -13,17 +13,8 @@ package com.espertech.esper.epl.agg.aggregator;
  */
 public class AggregatorFirstEver implements AggregationMethod
 {
-    protected final Class type;
     protected boolean isSet;
     protected Object firstValue;
-
-    /**
-     * Ctor.
-     * @param type type of value returned
-     */
-    public AggregatorFirstEver(Class type) {
-        this.type = type;
-    }
 
     public void clear()
     {
@@ -47,11 +38,6 @@ public class AggregatorFirstEver implements AggregationMethod
     public Object getValue()
     {
         return firstValue;
-    }
-
-    public Class getValueType()
-    {
-        return type;
     }
 
     public boolean isSet() {

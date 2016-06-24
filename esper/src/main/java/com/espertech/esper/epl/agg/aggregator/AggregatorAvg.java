@@ -52,9 +52,4 @@ public class AggregatorAvg implements AggregationMethod
         }
         return sum / numDataPoints;
     }
-
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }

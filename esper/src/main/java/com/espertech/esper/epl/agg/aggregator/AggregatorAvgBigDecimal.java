@@ -96,8 +96,4 @@ public class AggregatorAvgBigDecimal implements AggregationMethod
         }
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }

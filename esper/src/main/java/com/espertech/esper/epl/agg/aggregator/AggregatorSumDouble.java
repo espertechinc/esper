@@ -56,10 +56,6 @@ public class AggregatorSumDouble implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }
 
 

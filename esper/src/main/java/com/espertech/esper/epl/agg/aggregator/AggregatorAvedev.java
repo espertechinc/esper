@@ -80,11 +80,6 @@ public class AggregatorAvedev implements AggregationMethod
         return total / datapoints;
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
-
     public RefCountedSet<Double> getValueSet() {
         return valueSet;
     }

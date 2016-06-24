@@ -60,31 +60,30 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
                 throw new ExprValidationException(message);
             }
 
-            return new ExprRateAggNodeFactory(this, true, intervalMSec);
+            return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeRate(this, true, intervalMSec, validationContext.getTimeProvider());
         }
-        else {
-            String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
-            Class boxedParamOne = JavaClassHelper.getBoxedType(first.getExprEvaluator().getType());
-            if (boxedParamOne != Long.class) {
-                throw new ExprValidationException(message);
-            }
-            if (first.isConstantResult()) {
-                throw new ExprValidationException(message);
-            }
-            if (first instanceof ExprTimestampNode) {
-                throw new ExprValidationException("The rate aggregation function does not allow the current engine timestamp as a parameter");
-            }
-            if (this.positionalParams.length > 1) {
-                if (!JavaClassHelper.isNumeric(this.positionalParams[1].getExprEvaluator().getType())) {
-                    throw new ExprValidationException("The rate aggregation function accepts an expression returning a numeric value to accumulate as an optional second parameter");
-                }
-            }
-            boolean hasDataWindows = ExprNodeUtility.hasRemoveStreamForAggregations(first, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
-            if (!hasDataWindows) {
-                throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
-            }
-            return new ExprRateAggNodeFactory(this, false, -1);
+
+        String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
+        Class boxedParamOne = JavaClassHelper.getBoxedType(first.getExprEvaluator().getType());
+        if (boxedParamOne != Long.class) {
+            throw new ExprValidationException(message);
         }
+        if (first.isConstantResult()) {
+            throw new ExprValidationException(message);
+        }
+        if (first instanceof ExprTimestampNode) {
+            throw new ExprValidationException("The rate aggregation function does not allow the current engine timestamp as a parameter");
+        }
+        if (this.positionalParams.length > 1) {
+            if (!JavaClassHelper.isNumeric(this.positionalParams[1].getExprEvaluator().getType())) {
+                throw new ExprValidationException("The rate aggregation function accepts an expression returning a numeric value to accumulate as an optional second parameter");
+            }
+        }
+        boolean hasDataWindows = ExprNodeUtility.hasRemoveStreamForAggregations(first, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
+        if (!hasDataWindows) {
+            throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
+        }
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeRate(this, false, -1, validationContext.getTimeProvider());
     }
 
     public String getAggregationFunctionName()

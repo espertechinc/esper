@@ -36,7 +36,7 @@ public class ExprAvedevNode extends ExprAggregateNodeBase
     {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new ExprAvedevNodeFactory(this, childType, positionalParams);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeAvedev(this, childType, positionalParams);
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)

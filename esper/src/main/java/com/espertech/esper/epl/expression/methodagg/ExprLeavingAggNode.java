@@ -35,8 +35,7 @@ public class ExprLeavingAggNode extends ExprAggregateNodeBase
         if (positionalParams.length > 0) {
             throw makeExceptionExpectedParamNum(0, 0);
         }
-
-        return new ExprLeavingAggNodeFactory(this);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeLeaving(this);
     }
 
     public String getAggregationFunctionName()

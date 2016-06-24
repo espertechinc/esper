@@ -56,10 +56,6 @@ public class AggregatorSumLong implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return Long.class;
-    }
 }
 
 

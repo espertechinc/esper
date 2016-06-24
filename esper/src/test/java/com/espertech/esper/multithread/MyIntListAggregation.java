@@ -35,11 +35,6 @@ public class MyIntListAggregation implements AggregationMethod {
     }
 
     @Override
-    public Class getValueType() {
-        return List.class;
-    }
-
-    @Override
     public void clear() {
         values.clear();
     }

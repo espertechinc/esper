@@ -54,7 +54,4 @@ public class AggregatorRate implements AggregationMethod {
         oldest = 0;
     }
 
-    public Class getValueType() {
-        return Double.class;
-    }
 }

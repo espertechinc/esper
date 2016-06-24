@@ -43,11 +43,6 @@ public class AggregatorCountEverNonNull implements AggregationMethod
         return count;
     }
 
-    public Class getValueType()
-    {
-        return long.class;
-    }
-
     public long getCount() {
         return count;
     }

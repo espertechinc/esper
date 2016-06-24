@@ -66,8 +66,4 @@ public class AggregatorSumBigDecimal implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return BigDecimal.class;
-    }
 }

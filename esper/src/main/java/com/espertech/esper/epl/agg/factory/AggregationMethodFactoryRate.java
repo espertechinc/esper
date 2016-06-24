@@ -6,13 +6,15 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.aggregator.AggregatorRate;
+import com.espertech.esper.epl.agg.aggregator.AggregatorRateEver;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
@@ -20,18 +22,23 @@ import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
+import com.espertech.esper.epl.expression.methodagg.ExprRateAggNode;
+import com.espertech.esper.schedule.TimeProvider;
 
-public class ExprRateAggNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryRate implements AggregationMethodFactory
 {
-    private final ExprRateAggNode parent;
-    private final boolean isEver;
-    private final long intervalMSec;
+    protected final ExprRateAggNode parent;
+    protected final boolean isEver;
+    protected final long intervalMSec;
+    protected final TimeProvider timeProvider;
 
-    public ExprRateAggNodeFactory(ExprRateAggNode parent, boolean isEver, long intervalMSec)
+    public AggregationMethodFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalMSec, TimeProvider timeProvider)
     {
         this.parent = parent;
         this.isEver = isEver;
         this.intervalMSec = intervalMSec;
+        this.timeProvider = timeProvider;
     }
 
     public boolean isAccessAggregation() {
@@ -57,10 +64,10 @@ public class ExprRateAggNodeFactory implements AggregationMethodFactory
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
         if (isEver) {
-            return methodResolutionService.makeRateEverAggregator(agentInstanceId, groupId, aggregationId, intervalMSec);
+            return new AggregatorRateEver(intervalMSec, timeProvider);
         }
         else {
-            return methodResolutionService.makeRateAggregator(agentInstanceId, groupId, aggregationId);
+            return new AggregatorRate();
         }
     }
 
@@ -70,7 +77,7 @@ public class ExprRateAggNodeFactory implements AggregationMethodFactory
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
         AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprRateAggNodeFactory that = (ExprRateAggNodeFactory) intoTableAgg;
+        AggregationMethodFactoryRate that = (AggregationMethodFactoryRate) intoTableAgg;
         if (intervalMSec != that.intervalMSec) {
             throw new ExprValidationException("The size is " +
                     intervalMSec +

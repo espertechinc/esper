@@ -50,7 +50,7 @@ public class ExprCountEverNode extends ExprAggregateNodeBase
                 super.validateFilter(positionalParams[1].getExprEvaluator());
             }
         }
-        return new ExprCountEverNodeFactory(this, ignoreNulls);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeCountEver(this, ignoreNulls);
     }
 
     public boolean hasFilter() {

@@ -44,11 +44,6 @@ public class SupportAggregator implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return Integer.class;
-    }
-
     public AggregationMethod newAggregator(MethodResolutionService methodResolutionService)
     {
         return new SupportAggregator();

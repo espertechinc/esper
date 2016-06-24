@@ -72,8 +72,4 @@ public class AggregatorMedian implements AggregationMethod
         }
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }

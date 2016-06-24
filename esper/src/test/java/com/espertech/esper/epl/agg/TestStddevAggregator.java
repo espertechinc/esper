@@ -20,7 +20,6 @@ public class TestStddevAggregator extends TestCase
     public void testAggregateFunction()
     {
         AggregationMethod agg = new AggregatorStddev();
-        assertEquals(Double.class, agg.getValueType());
 
         assertNull(agg.getValue());
 

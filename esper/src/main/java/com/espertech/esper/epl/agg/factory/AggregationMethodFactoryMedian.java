@@ -6,29 +6,33 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.aggregator.AggregatorMedian;
+import com.espertech.esper.epl.agg.aggregator.AggregatorMedianFilter;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.methodagg.ExprMedianNode;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class ExprFirstEverNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryMedian implements AggregationMethodFactory
 {
-    private final ExprFirstEverNode parent;
-    private final Class childType;
+    protected final ExprMedianNode parent;
+    protected final Class aggregatedValueType;
 
-    public ExprFirstEverNodeFactory(ExprFirstEverNode parent, Class childType) {
+    public AggregationMethodFactoryMedian(ExprMedianNode parent, Class aggregatedValueType)
+    {
         this.parent = parent;
-        this.childType = childType;
+        this.aggregatedValueType = aggregatedValueType;
     }
 
     public boolean isAccessAggregation() {
@@ -37,7 +41,7 @@ public class ExprFirstEverNodeFactory implements AggregationMethodFactory
 
     public Class getResultType()
     {
-        return childType;
+        return Double.class;
     }
 
     public AggregationStateKey getAggregationStateKey(boolean isMatchRecognize) {
@@ -53,7 +57,12 @@ public class ExprFirstEverNodeFactory implements AggregationMethodFactory
     }
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        return methodResolutionService.makeFirstEverValueAggregator(agentInstanceId, groupId, aggregationId, childType, parent.hasFilter());
+
+        AggregationMethod method = makeMedianAggregator(parent.isHasFilter());
+        if (!parent.isDistinct()) {
+            return method;
+        }
+        return AggregationMethodFactoryUtil.makeDistinctAggregator(method, parent.isHasFilter());
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -61,10 +70,10 @@ public class ExprFirstEverNodeFactory implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprFirstEverNodeFactory that = (ExprFirstEverNodeFactory) intoTableAgg;
-        AggregationMethodFactoryUtil.validateAggregationInputType(childType, that.childType);
-        AggregationMethodFactoryUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationMethodFactoryMedian that = (AggregationMethodFactoryMedian) intoTableAgg;
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(aggregatedValueType, that.aggregatedValueType);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {
@@ -74,5 +83,12 @@ public class ExprFirstEverNodeFactory implements AggregationMethodFactory
     public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
-}
 
+    private AggregationMethod makeMedianAggregator(boolean hasFilter)
+    {
+        if (!hasFilter) {
+            return new AggregatorMedian();
+        }
+        return new AggregatorMedianFilter();
+    }
+}

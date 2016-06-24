@@ -158,11 +158,6 @@ public class TestExceptionHandler extends TestCase
         }
 
         @Override
-        public Class getValueType() {
-            return null;
-        }
-
-        @Override
         public void clear() {
         }
     }

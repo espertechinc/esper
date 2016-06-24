@@ -88,8 +88,4 @@ public class AggregatorRateEver implements AggregationMethod {
         }
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }

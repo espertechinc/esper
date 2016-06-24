@@ -19,7 +19,7 @@ public class TestMinMaxAggregator extends TestCase
 {
     public void testAggregatorMax()
     {
-        AggregatorMinMax agg = new AggregatorMinMax(MinMaxTypeEnum.MAX, int.class);
+        AggregatorMinMax agg = new AggregatorMinMax(MinMaxTypeEnum.MAX);
         assertEquals(null, agg.getValue());
         agg.enter(10);
         assertEquals(10, agg.getValue());
@@ -37,7 +37,7 @@ public class TestMinMaxAggregator extends TestCase
 
     public void testAggregatorMin()
     {
-        AggregatorMinMax agg = new AggregatorMinMax(MinMaxTypeEnum.MIN, int.class);
+        AggregatorMinMax agg = new AggregatorMinMax(MinMaxTypeEnum.MIN);
         assertEquals(null, agg.getValue());
         agg.enter(10);
         assertEquals(10, agg.getValue());

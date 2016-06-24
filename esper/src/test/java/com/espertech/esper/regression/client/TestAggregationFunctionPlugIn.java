@@ -410,10 +410,6 @@ public class TestAggregationFunctionPlugIn extends TestCase
             return new SupportBean("XX", count);
         }
 
-        public Class getValueType() {
-            return SupportBean.class;
-        }
-
         public void clear() {
             count = 0;
         }

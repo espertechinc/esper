@@ -66,8 +66,4 @@ public class AggregatorSumBigInteger implements AggregationMethod
         return sum;
     }
 
-    public Class getValueType()
-    {
-        return BigInteger.class;
-    }
 }

@@ -16,7 +16,6 @@ package com.espertech.esper.epl.agg.aggregator;
  */
 public class AggregatorNth implements AggregationMethod {
 
-    protected final Class returnType;
     protected final int sizeBuf;
 
     protected Object[] circularBuffer;
@@ -25,11 +24,9 @@ public class AggregatorNth implements AggregationMethod {
 
     /**
      * Ctor.
-     * @param returnType return type
      * @param sizeBuf size
      */
-    public AggregatorNth(Class returnType, int sizeBuf) {
-        this.returnType = returnType;
+    public AggregatorNth(int sizeBuf) {
         this.sizeBuf = sizeBuf;
     }
 
@@ -50,10 +47,6 @@ public class AggregatorNth implements AggregationMethod {
             circularBuffer[(currentBufferElementPointer + diff - 1) % sizeBuf] = null;
         }
         numDataPoints--;
-    }
-
-    public Class getValueType() {
-        return returnType;
     }
 
     public Object getValue() {

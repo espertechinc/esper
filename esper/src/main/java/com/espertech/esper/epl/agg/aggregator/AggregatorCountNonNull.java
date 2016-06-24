@@ -47,8 +47,4 @@ public class AggregatorCountNonNull implements AggregationMethod
         return numDataPoints;
     }
 
-    public Class getValueType()
-    {
-        return Long.class;
-    }
 }

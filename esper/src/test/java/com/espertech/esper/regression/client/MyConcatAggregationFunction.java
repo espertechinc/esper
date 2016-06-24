@@ -56,8 +56,4 @@ public class MyConcatAggregationFunction implements AggregationMethod, Serializa
         return builder.toString();
     }
 
-    public Class getValueType()
-    {
-        return String.class;
-    }
 }

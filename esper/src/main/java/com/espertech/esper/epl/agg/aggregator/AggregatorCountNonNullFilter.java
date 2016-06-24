@@ -43,11 +43,6 @@ public class AggregatorCountNonNullFilter implements AggregationMethod
         return numDataPoints;
     }
 
-    public Class getValueType()
-    {
-        return Long.class;
-    }
-
     private boolean checkPass(Object object) {
         Boolean first = (Boolean) Array.get(object, 1);
         if (first != null) {

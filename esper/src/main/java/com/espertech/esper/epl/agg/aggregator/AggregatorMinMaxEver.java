@@ -20,7 +20,6 @@ public class AggregatorMinMaxEver implements AggregationMethod
     private static final Log log = LogFactory.getLog(AggregatorMinMaxEver.class);
 
     protected final MinMaxTypeEnum minMaxTypeEnum;
-    protected final Class returnType;
 
     protected Comparable currentMinMax;
 
@@ -28,12 +27,10 @@ public class AggregatorMinMaxEver implements AggregationMethod
      * Ctor.
      *
      * @param minMaxTypeEnum - enum indicating to return minimum or maximum values
-     * @param returnType     - is the value type returned by aggregator
      */
-    public AggregatorMinMaxEver(MinMaxTypeEnum minMaxTypeEnum, Class returnType)
+    public AggregatorMinMaxEver(MinMaxTypeEnum minMaxTypeEnum)
     {
         this.minMaxTypeEnum = minMaxTypeEnum;
-        this.returnType = returnType;
     }
 
     public void clear()
@@ -72,11 +69,6 @@ public class AggregatorMinMaxEver implements AggregationMethod
     public Object getValue()
     {
         return currentMinMax;
-    }
-
-    public Class getValueType()
-    {
-        return returnType;
     }
 
     public void setCurrentMinMax(Comparable currentMinMax) {

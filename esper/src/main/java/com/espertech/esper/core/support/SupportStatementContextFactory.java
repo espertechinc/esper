@@ -21,6 +21,7 @@ import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
@@ -32,6 +33,7 @@ import com.espertech.esper.pattern.PatternNodeFactoryImpl;
 import com.espertech.esper.pattern.PatternObjectResolutionServiceImpl;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
+import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.view.ViewEnumHelper;
 import com.espertech.esper.view.ViewFactoryContext;
@@ -91,6 +93,7 @@ public class SupportStatementContextFactory
         Configuration config = new Configuration();
         config.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);
 
+        TimeSourceServiceImpl timeSourceService = new TimeSourceServiceImpl();
         StatementContextEngineServices stmtEngineServices = new StatementContextEngineServices("engURI",
                 SupportEventAdapterService.getService(),
                 new NamedWindowMgmtServiceImpl(false, null),
@@ -102,7 +105,7 @@ public class SupportStatementContextFactory
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl(), new TimeSourceServiceImpl());
+                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl(), timeSourceService, SupportEngineImportServiceFactory.make(), AggregationFactoryFactoryDefault.INSTANCE, new SchedulingServiceImpl(timeSourceService));
 
         return new StatementContext(stmtEngineServices,
                 stub,

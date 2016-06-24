@@ -25,6 +25,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowConsumerMgmtService;
@@ -111,6 +112,7 @@ public final class EPServicesContext
     private DataCacheFactory dataCacheFactory;
     private MultiMatchHandlerFactory multiMatchHandlerFactory;
     private NamedWindowConsumerMgmtService namedWindowConsumerMgmtService;
+    private AggregationFactoryFactory aggregationFactoryFactory;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -205,7 +207,8 @@ public final class EPServicesContext
                              FilterBooleanExpressionFactory filterBooleanExpressionFactory,
                              DataCacheFactory dataCacheFactory,
                              MultiMatchHandlerFactory multiMatchHandlerFactory,
-                             NamedWindowConsumerMgmtService namedWindowConsumerMgmtService)
+                             NamedWindowConsumerMgmtService namedWindowConsumerMgmtService,
+                             AggregationFactoryFactory aggregationFactoryFactory)
     {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
@@ -264,6 +267,7 @@ public final class EPServicesContext
         this.dataCacheFactory = dataCacheFactory;
         this.multiMatchHandlerFactory = multiMatchHandlerFactory;
         this.namedWindowConsumerMgmtService = namedWindowConsumerMgmtService;
+        this.aggregationFactoryFactory = aggregationFactoryFactory;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -785,5 +789,9 @@ public final class EPServicesContext
 
     public NamedWindowConsumerMgmtService getNamedWindowConsumerMgmtService() {
         return namedWindowConsumerMgmtService;
+    }
+
+    public AggregationFactoryFactory getAggregationFactoryFactory() {
+        return aggregationFactoryFactory;
     }
 }

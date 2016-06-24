@@ -68,11 +68,6 @@ public class AggregatorDistinctValueFilter implements AggregationMethod
         return inner.getValue();
     }
 
-    public Class getValueType()
-    {
-        return inner.getValueType();
-    }
-
     private boolean checkPass(Object[] object) {
         Boolean first = (Boolean) object[1];
         if (first != null) {

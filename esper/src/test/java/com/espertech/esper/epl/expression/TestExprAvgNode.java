@@ -31,7 +31,6 @@ public class TestExprAvgNode extends TestExprAggregateNodeAdapter
     public void testAggregation()
     {
         AggregatorAvg agg = new AggregatorAvg();
-        assertEquals(Double.class, agg.getValueType());
         assertEquals(null, agg.getValue());
 
         agg.enter(5);

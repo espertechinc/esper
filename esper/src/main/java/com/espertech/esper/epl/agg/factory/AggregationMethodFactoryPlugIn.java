@@ -9,31 +9,37 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
+import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 
-public class ExprMinMaxAggrNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryPlugIn implements AggregationMethodFactory
 {
-    private final ExprMinMaxAggrNode parent;
-    private final Class type;
-    private final boolean hasDataWindows;
+    protected final ExprPlugInAggNode parent;
+    protected final AggregationFunctionFactory aggregationFunctionFactory;
+    protected final Class aggregatedValueType;
 
-    public ExprMinMaxAggrNodeFactory(ExprMinMaxAggrNode parent, Class type, boolean hasDataWindows) {
+    public AggregationMethodFactoryPlugIn(ExprPlugInAggNode parent, AggregationFunctionFactory aggregationFunctionFactory, Class aggregatedValueType) {
         this.parent = parent;
-        this.type = type;
-        this.hasDataWindows = hasDataWindows;
+        this.aggregationFunctionFactory = aggregationFunctionFactory;
+        this.aggregatedValueType = aggregatedValueType;
+    }
+
+    public Class getResultType() {
+        return aggregationFunctionFactory.getValueType();
     }
 
     public boolean isAccessAggregation() {
@@ -52,17 +58,13 @@ public class ExprMinMaxAggrNodeFactory implements AggregationMethodFactory
         throw new IllegalStateException("Not an access aggregation function");
     }
 
-    public Class getResultType()
-    {
-        return type;
-    }
-
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        AggregationMethod method = methodResolutionService.makeMinMaxAggregator(agentInstanceId, groupId, aggregationId, parent.getMinMaxTypeEnum(), type, hasDataWindows, parent.isHasFilter());
+
+        AggregationMethod method = aggregationFunctionFactory.newAggregator();
         if (!parent.isDistinct()) {
             return method;
         }
-        return methodResolutionService.makeDistinctAggregator(agentInstanceId, groupId, aggregationId, method, type, parent.isHasFilter());
+        return AggregationMethodFactoryUtil.makeDistinctAggregator(method, false);
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -70,17 +72,7 @@ public class ExprMinMaxAggrNodeFactory implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprMinMaxAggrNodeFactory that = (ExprMinMaxAggrNodeFactory) intoTableAgg;
-        AggregationMethodFactoryUtil.validateAggregationInputType(type, that.type);
-        AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
-        if (parent.getMinMaxTypeEnum() != that.parent.getMinMaxTypeEnum()) {
-            throw new ExprValidationException("The aggregation declares " +
-                    parent.getMinMaxTypeEnum().getExpressionText() +
-                    " and provided is " +
-                    that.parent.getMinMaxTypeEnum().getExpressionText());
-        }
-        AggregationMethodFactoryUtil.validateAggregationUnbound(hasDataWindows, that.hasDataWindows);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
     }
 
     public AggregationAgent getAggregationStateAgent() {

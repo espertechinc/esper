@@ -47,7 +47,7 @@ public class ExprNthAggNode extends ExprAggregateNodeBase
         Number num = (Number) second.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
         int size = num.intValue();
 
-        return new ExprNthAggNodeFactory(this, first.getExprEvaluator().getType(), size);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeNth(this, first.getExprEvaluator().getType(), size);
     }
 
     public String getAggregationFunctionName()

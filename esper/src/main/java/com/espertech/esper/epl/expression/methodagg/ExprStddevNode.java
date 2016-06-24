@@ -36,7 +36,7 @@ public class ExprStddevNode extends ExprAggregateNodeBase
     {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new ExprStddevNodeFactory(this, childType);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeStddev(this, childType);
     }
 
     public boolean isHasFilter() {

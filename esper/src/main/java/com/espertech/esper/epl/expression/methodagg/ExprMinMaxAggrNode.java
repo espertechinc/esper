@@ -68,7 +68,7 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
             }
             super.validateFilter(positionalParams[1].getExprEvaluator());
         }
-        return new ExprMinMaxAggrNodeFactory(this, child.getExprEvaluator().getType(), hasDataWindows);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeMinMax(this, child.getExprEvaluator().getType(), hasDataWindows);
     }
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)

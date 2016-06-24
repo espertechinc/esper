@@ -171,10 +171,6 @@ public class TestTablePlugInAggregation extends TestCase {
             return writer.toString();
         }
 
-        public Class getValueType() {
-            return String.class;
-        }
-
         public void clear() {
             countPerWord.clear();
         }

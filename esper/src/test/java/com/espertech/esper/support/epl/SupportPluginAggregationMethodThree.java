@@ -59,8 +59,4 @@ public class SupportPluginAggregationMethodThree implements Serializable, Aggreg
         return count;
     }
 
-    public Class getValueType()
-    {
-        return int.class;
-    }
 }

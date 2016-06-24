@@ -36,7 +36,7 @@ public class ExprAvgNode extends ExprAggregateNodeBase
     {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return new ExprAvgNodeFactory(this, childType, validationContext.getMethodResolutionService());
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeAvg(this, childType, validationContext.getMethodResolutionService().getEngineImportService().getDefaultMathContext());
     }
 
     public String getAggregationFunctionName()

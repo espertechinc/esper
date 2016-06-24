@@ -17,7 +17,6 @@ import com.espertech.esper.collection.SortedRefCountedSet;
 public class AggregatorMinMax implements AggregationMethod
 {
     protected final MinMaxTypeEnum minMaxTypeEnum;
-    protected final Class returnType;
 
     protected SortedRefCountedSet<Object> refSet;
 
@@ -25,12 +24,10 @@ public class AggregatorMinMax implements AggregationMethod
      * Ctor.
      *
      * @param minMaxTypeEnum - enum indicating to return minimum or maximum values
-     * @param returnType     - is the value type returned by aggregator
      */
-    public AggregatorMinMax(MinMaxTypeEnum minMaxTypeEnum, Class returnType)
+    public AggregatorMinMax(MinMaxTypeEnum minMaxTypeEnum)
     {
         this.minMaxTypeEnum = minMaxTypeEnum;
-        this.returnType = returnType;
         this.refSet = new SortedRefCountedSet<Object>();
     }
 
@@ -67,11 +64,6 @@ public class AggregatorMinMax implements AggregationMethod
         {
             return refSet.minValue();
         }
-    }
-
-    public Class getValueType()
-    {
-        return returnType;
     }
 
     public SortedRefCountedSet<Object> getRefSet() {

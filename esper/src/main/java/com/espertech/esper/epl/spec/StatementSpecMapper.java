@@ -16,6 +16,7 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPAdministratorHelper;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
+import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.db.DatabasePollingViewableFactory;
@@ -2733,9 +2734,9 @@ public class StatementSpecMapper
             ExprStddevNode node = (ExprStddevNode) expr;
             return new StddevProjectionExpression(node.isDistinct());
         }
-        else if (expr instanceof ExprPlugInAggFunctionFactoryNode)
+        else if (expr instanceof ExprPlugInAggNode)
         {
-            ExprPlugInAggFunctionFactoryNode node = (ExprPlugInAggFunctionFactoryNode) expr;
+            ExprPlugInAggNode node = (ExprPlugInAggNode) expr;
             return new PlugInProjectionExpression(node.getAggregationFunctionName(), node.isDistinct());
         }
         else if (expr instanceof ExprPlugInAggMultiFunctionNode)

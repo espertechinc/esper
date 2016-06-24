@@ -41,11 +41,6 @@ public class AggregatorCountFilter implements AggregationMethod
         return numDataPoints;
     }
 
-    public Class getValueType()
-    {
-        return Long.class;
-    }
-
     private boolean checkPass(Object object) {
         Boolean first = (Boolean) object;
         if (first != null) {

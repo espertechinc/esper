@@ -76,8 +76,4 @@ public class AggregatorStddev implements AggregationMethod
         return Math.sqrt(qn / (numDataPoints - 1));
     }
 
-    public Class getValueType()
-    {
-        return Double.class;
-    }
 }

@@ -6,7 +6,7 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
@@ -14,19 +14,22 @@ import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.methodagg.ExprFirstEverNode;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class ExprLeavingAggNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryFirstEver implements AggregationMethodFactory
 {
-    private final ExprLeavingAggNode parent;
+    protected final ExprFirstEverNode parent;
+    protected final Class childType;
 
-    public ExprLeavingAggNodeFactory(ExprLeavingAggNode parent) {
+    public AggregationMethodFactoryFirstEver(ExprFirstEverNode parent, Class childType) {
         this.parent = parent;
+        this.childType = childType;
     }
 
     public boolean isAccessAggregation() {
@@ -35,7 +38,7 @@ public class ExprLeavingAggNodeFactory implements AggregationMethodFactory
 
     public Class getResultType()
     {
-        return Boolean.class;
+        return childType;
     }
 
     public AggregationStateKey getAggregationStateKey(boolean isMatchRecognize) {
@@ -51,7 +54,7 @@ public class ExprLeavingAggNodeFactory implements AggregationMethodFactory
     }
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        return methodResolutionService.makeLeavingAggregator(agentInstanceId, groupId, aggregationId);
+        return AggregationMethodFactoryUtil.makeFirstEver(parent.hasFilter());
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -59,7 +62,10 @@ public class ExprLeavingAggNodeFactory implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationMethodFactoryFirstEver that = (AggregationMethodFactoryFirstEver) intoTableAgg;
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(childType, that.childType);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {
@@ -70,3 +76,4 @@ public class ExprLeavingAggNodeFactory implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 }
+

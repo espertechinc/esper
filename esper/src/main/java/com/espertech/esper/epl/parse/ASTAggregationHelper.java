@@ -17,7 +17,7 @@ import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportUndefinedException;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggFunctionFactoryNode;
+import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNode;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
@@ -33,7 +33,7 @@ public class ASTAggregationHelper {
         try
         {
             AggregationFunctionFactory aggregationFactory = engineImportService.resolveAggregationFactory(functionName);
-            return new ExprPlugInAggFunctionFactoryNode(distinct, aggregationFactory, functionName);
+            return new ExprPlugInAggNode(distinct, aggregationFactory, functionName);
         }
         catch (EngineImportUndefinedException e)
         {

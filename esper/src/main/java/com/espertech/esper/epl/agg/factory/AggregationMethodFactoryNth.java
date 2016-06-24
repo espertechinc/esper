@@ -6,32 +6,34 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
+import com.espertech.esper.epl.agg.aggregator.AggregatorNth;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
+import com.espertech.esper.epl.expression.methodagg.ExprNthAggNode;
 
-public class ExprAvedevNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryNth implements AggregationMethodFactory
 {
-    private final ExprAvedevNode parent;
-    private final Class aggregatedValueType;
-    private final ExprNode[] positionalParameters;
+    protected final ExprNthAggNode parent;
+    protected final Class childType;
+    protected final int size;
 
-    public ExprAvedevNodeFactory(ExprAvedevNode parent, Class aggregatedValueType, ExprNode[] positionalParameters) {
+    public AggregationMethodFactoryNth(ExprNthAggNode parent, Class childType, int size)
+    {
         this.parent = parent;
-        this.aggregatedValueType = aggregatedValueType;
-        this.positionalParameters = positionalParameters;
+        this.childType = childType;
+        this.size = size;
     }
 
     public boolean isAccessAggregation() {
@@ -40,7 +42,7 @@ public class ExprAvedevNodeFactory implements AggregationMethodFactory
 
     public Class getResultType()
     {
-        return Double.class;
+        return childType;
     }
 
     public AggregationStateKey getAggregationStateKey(boolean isMatchRecognize) {
@@ -56,11 +58,11 @@ public class ExprAvedevNodeFactory implements AggregationMethodFactory
     }
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        AggregationMethod method = methodResolutionService.makeAvedevAggregator(agentInstanceId, groupId, aggregationId, parent.isHasFilter());
+        AggregationMethod method =  new AggregatorNth(size + 1);
         if (!parent.isDistinct()) {
             return method;
         }
-        return methodResolutionService.makeDistinctAggregator(agentInstanceId, groupId, aggregationId, method, aggregatedValueType, parent.isHasFilter());
+        return AggregationMethodFactoryUtil.makeDistinctAggregator(method, false);
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -68,10 +70,15 @@ public class ExprAvedevNodeFactory implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprAvedevNodeFactory that = (ExprAvedevNodeFactory) intoTableAgg;
-        AggregationMethodFactoryUtil.validateAggregationInputType(aggregatedValueType, that.aggregatedValueType);
-        AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationMethodFactoryNth that = (AggregationMethodFactoryNth) intoTableAgg;
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(childType, that.childType);
+        if (size != that.size) {
+            throw new ExprValidationException("The size is " +
+                    size +
+                    " and provided is " +
+                    that.size);
+        }
     }
 
     public AggregationAgent getAggregationStateAgent() {
@@ -79,6 +86,6 @@ public class ExprAvedevNodeFactory implements AggregationMethodFactory
     }
 
     public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
-        return ExprMethodAggUtil.getDefaultEvaluator(positionalParameters, join, typesPerStream);
+        return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 }

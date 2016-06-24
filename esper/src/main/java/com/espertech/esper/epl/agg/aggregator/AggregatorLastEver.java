@@ -13,16 +13,7 @@ package com.espertech.esper.epl.agg.aggregator;
  */
 public class AggregatorLastEver implements AggregationMethod
 {
-    protected final Class type;
     protected Object lastValue;
-
-    /**
-     * Ctor.
-     * @param type of result
-     */
-    public AggregatorLastEver(Class type) {
-        this.type = type;
-    }
 
     public void clear()
     {
@@ -43,8 +34,4 @@ public class AggregatorLastEver implements AggregationMethod
         return lastValue;
     }
 
-    public Class getValueType()
-    {
-        return type;
-    }
 }

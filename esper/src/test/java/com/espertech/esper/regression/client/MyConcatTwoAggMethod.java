@@ -54,8 +54,4 @@ public class MyConcatTwoAggMethod implements AggregationMethod
         return builder.toString();
     }
 
-    public Class getValueType()
-    {
-        return String.class;
-    }
 }

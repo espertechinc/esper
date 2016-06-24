@@ -59,9 +59,4 @@ public class TestUniqueValueAggregator extends TestCase
         agg.leave(2);
         assertEquals(0, agg.getValue());
     }
-
-    public void testGetType()
-    {
-        assertEquals(Integer.class, agg.getValueType());
-    }
 }

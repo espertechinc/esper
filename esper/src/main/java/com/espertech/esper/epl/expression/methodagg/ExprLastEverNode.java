@@ -38,7 +38,7 @@ public class ExprLastEverNode extends ExprAggregateNodeBase
         if (positionalParams.length == 2) {
             super.validateFilter(positionalParams[1].getExprEvaluator());
         }
-        return new ExprLastEverNodeFactory(this, positionalParams[0].getExprEvaluator().getType());
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeLastEver(this, positionalParams[0].getExprEvaluator().getType());
     }
 
     public boolean hasFilter() {

@@ -20,7 +20,7 @@ import com.espertech.esper.epl.expression.core.*;
 /**
  * Represents a custom aggregation function in an expresson tree.
  */
-public class ExprPlugInAggFunctionFactoryNode extends ExprAggregateNodeBase implements ExprAggregationPlugInNodeMarker
+public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggregationPlugInNodeMarker
 {
     private static final long serialVersionUID = 65459875362787079L;
     private transient AggregationFunctionFactory aggregationFunctionFactory;
@@ -32,7 +32,7 @@ public class ExprPlugInAggFunctionFactoryNode extends ExprAggregateNodeBase impl
      * @param aggregationFunctionFactory - is the base class for plug-in aggregation functions
      * @param functionName is the aggregation function name
      */
-    public ExprPlugInAggFunctionFactoryNode(boolean distinct, AggregationFunctionFactory aggregationFunctionFactory, String functionName)
+    public ExprPlugInAggNode(boolean distinct, AggregationFunctionFactory aggregationFunctionFactory, String functionName)
     {
         super(distinct);
         this.aggregationFunctionFactory = aggregationFunctionFactory;
@@ -94,7 +94,7 @@ public class ExprPlugInAggFunctionFactoryNode extends ExprAggregateNodeBase impl
             childType = positionalParams[0].getExprEvaluator().getType();
         }
 
-        return new ExprPlugInAggFunctionFactory(this, aggregationFunctionFactory, childType);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makePlugIn(this, aggregationFunctionFactory, childType);
     }
 
     public String getAggregationFunctionName()
@@ -104,12 +104,12 @@ public class ExprPlugInAggFunctionFactoryNode extends ExprAggregateNodeBase impl
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
     {
-        if (!(node instanceof ExprPlugInAggFunctionFactoryNode))
+        if (!(node instanceof ExprPlugInAggNode))
         {
             return false;
         }
 
-        ExprPlugInAggFunctionFactoryNode other = (ExprPlugInAggFunctionFactoryNode) node;
+        ExprPlugInAggNode other = (ExprPlugInAggNode) node;
         return other.getAggregationFunctionName().equals(this.getAggregationFunctionName());
     }
 }

@@ -871,10 +871,6 @@ public class TestOutputLimitRowForAll extends TestCase
             return sum;
         }
 
-        public Class getValueType() {
-            return int.class;
-        }
-
         public void clear() {
 
         }

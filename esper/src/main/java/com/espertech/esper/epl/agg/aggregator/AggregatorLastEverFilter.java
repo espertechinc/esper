@@ -15,10 +15,6 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
  */
 public class AggregatorLastEverFilter extends AggregatorLastEver
 {
-    public AggregatorLastEverFilter(Class type) {
-        super(type);
-    }
-
     @Override
     public void enter(Object parameters)
     {

@@ -14,8 +14,8 @@ import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.factory.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
@@ -59,10 +59,10 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryMethod implements Aggreg
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
         if (parent.getStateType() == AggregationStateType.FIRST) {
-            return methodResolutionService.makeFirstEverValueAggregator(agentInstanceId, groupId, aggregationId, resultType, false);
+            return AggregationMethodFactoryUtil.makeFirstEver(false);
         }
         else if (parent.getStateType() == AggregationStateType.LAST) {
-            return methodResolutionService.makeLastEverValueAggregator(agentInstanceId, groupId, aggregationId, resultType, false);
+            return AggregationMethodFactoryUtil.makeLastEver(false);
         }
         throw new RuntimeException("Window aggregation function is not available");
     }
@@ -72,14 +72,14 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryMethod implements Aggreg
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
         ExprAggMultiFunctionLinearAccessNodeFactoryMethod that = (ExprAggMultiFunctionLinearAccessNodeFactoryMethod) intoTableAgg;
-        AggregationMethodFactoryUtil.validateStreamNumZero(that.streamNum);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateStreamNumZero(that.streamNum);
         if (collectionEventType != null) {
-            AggregationMethodFactoryUtil.validateEventType(collectionEventType, that.collectionEventType);
+            com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateEventType(collectionEventType, that.collectionEventType);
         }
         else {
-            AggregationMethodFactoryUtil.validateAggregationInputType(resultType, that.resultType);
+            com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(resultType, that.resultType);
         }
     }
 

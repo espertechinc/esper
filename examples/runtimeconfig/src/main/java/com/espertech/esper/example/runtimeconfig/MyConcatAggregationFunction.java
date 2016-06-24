@@ -27,10 +27,6 @@ public class MyConcatAggregationFunction implements AggregationMethod {
         }
     }
 
-    public Class getValueType() {
-        return String.class;
-    }
-
     public Object getValue() {
         return builder.toString();
     }

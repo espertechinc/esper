@@ -6,13 +6,12 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -20,18 +19,17 @@ import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.methodagg.ExprLastEverNode;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class ExprNthAggNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryLastEver implements AggregationMethodFactory
 {
-    private final ExprNthAggNode parent;
-    private final Class childType;
-    private int size;
+    protected final ExprLastEverNode parent;
+    protected final Class childType;
 
-    public ExprNthAggNodeFactory(ExprNthAggNode parent, Class childType, int size)
-    {
+    public AggregationMethodFactoryLastEver(ExprLastEverNode parent, Class childType) {
         this.parent = parent;
         this.childType = childType;
-        this.size = size;
     }
 
     public boolean isAccessAggregation() {
@@ -56,11 +54,7 @@ public class ExprNthAggNodeFactory implements AggregationMethodFactory
     }
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        AggregationMethod method = methodResolutionService.makeNthAggregator(agentInstanceId, groupId, aggregationId, childType, size + 1);
-        if (!parent.isDistinct()) {
-            return method;
-        }
-        return methodResolutionService.makeDistinctAggregator(agentInstanceId, groupId, aggregationId, method, childType, false);
+        return AggregationMethodFactoryUtil.makeLastEver(parent.hasFilter());
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -68,15 +62,10 @@ public class ExprNthAggNodeFactory implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprNthAggNodeFactory that = (ExprNthAggNodeFactory) intoTableAgg;
-        AggregationMethodFactoryUtil.validateAggregationInputType(childType, that.childType);
-        if (size != that.size) {
-            throw new ExprValidationException("The size is " +
-                    size +
-                    " and provided is " +
-                    that.size);
-        }
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationMethodFactoryLastEver that = (AggregationMethodFactoryLastEver) intoTableAgg;
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(childType, that.childType);
+        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {

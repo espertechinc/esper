@@ -10,7 +10,9 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -22,6 +24,7 @@ import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.filter.FilterBooleanExpressionFactory;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.rowregex.RegexHandlerFactory;
+import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.view.ViewService;
 import com.espertech.esper.view.ViewServicePreviousFactory;
@@ -53,8 +56,12 @@ public final class StatementContextEngineServices
     private final PatternNodeFactory patternNodeFactory;
     private final FilterBooleanExpressionFactory filterBooleanExpressionFactory;
     private final TimeSourceService timeSourceService;
+    private final EngineImportService engineImportService;
+    private final AggregationFactoryFactory aggregationFactoryFactory;
+    private final SchedulingService schedulingService;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory, FilterBooleanExpressionFactory filterBooleanExpressionFactory, TimeSourceService timeSourceService) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory, FilterBooleanExpressionFactory filterBooleanExpressionFactory, TimeSourceService timeSourceService, EngineImportService engineImportService, AggregationFactoryFactory aggregationFactoryFactory, SchedulingService schedulingService)
+    {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -78,6 +85,9 @@ public final class StatementContextEngineServices
         this.patternNodeFactory = patternNodeFactory;
         this.filterBooleanExpressionFactory = filterBooleanExpressionFactory;
         this.timeSourceService = timeSourceService;
+        this.engineImportService = engineImportService;
+        this.aggregationFactoryFactory = aggregationFactoryFactory;
+        this.schedulingService = schedulingService;
     }
 
     public String getEngineURI() {
@@ -174,5 +184,17 @@ public final class StatementContextEngineServices
 
     public TimeSourceService getTimeSourceService() {
         return timeSourceService;
+    }
+
+    public EngineImportService getEngineImportService() {
+        return engineImportService;
+    }
+
+    public AggregationFactoryFactory getAggregationFactoryFactory() {
+        return aggregationFactoryFactory;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
     }
 }

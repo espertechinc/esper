@@ -16,8 +16,8 @@ import com.espertech.esper.type.MinMaxTypeEnum;
  */
 public class AggregatorMinMaxFilter extends AggregatorMinMax
 {
-    public AggregatorMinMaxFilter(MinMaxTypeEnum minMaxTypeEnum, Class returnType) {
-        super(minMaxTypeEnum, returnType);
+    public AggregatorMinMaxFilter(MinMaxTypeEnum minMaxTypeEnum) {
+        super(minMaxTypeEnum);
     }
 
     @Override

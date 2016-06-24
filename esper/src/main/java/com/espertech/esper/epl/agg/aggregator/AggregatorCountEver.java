@@ -40,11 +40,6 @@ public class AggregatorCountEver implements AggregationMethod
         return count;
     }
 
-    public Class getValueType()
-    {
-        return long.class;
-    }
-
     public long getCount() {
         return count;
     }

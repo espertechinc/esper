@@ -27,7 +27,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
-import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggFunctionFactoryNode;
+import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
@@ -517,7 +517,7 @@ public class ExprNodeUtility {
         try
         {
             AggregationFunctionFactory aggregationFactory = validationContext.getMethodResolutionService().resolveAggregationFactory(parse.getMethodName());
-            ExprNode result = new ExprPlugInAggFunctionFactoryNode(false, aggregationFactory, parse.getMethodName());
+            ExprNode result = new ExprPlugInAggNode(false, aggregationFactory, parse.getMethodName());
             result.addChildNode(new ExprConstantNodeImpl(parse.getArgString()));
 
             // Validate

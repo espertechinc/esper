@@ -36,12 +36,6 @@ public interface AggregationMethod
     public Object getValue();
 
     /**
-     * Returns the type of the current value.
-     * @return type of values held
-     */
-    public Class getValueType();
-
-    /**
      * Clear out the collection.
      */
     public void clear();

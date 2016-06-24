@@ -57,9 +57,4 @@ public class AggregatorDistinctValue implements AggregationMethod
     {
         return inner.getValue();
     }
-
-    public Class getValueType()
-    {
-        return inner.getValueType();
-    }
 }

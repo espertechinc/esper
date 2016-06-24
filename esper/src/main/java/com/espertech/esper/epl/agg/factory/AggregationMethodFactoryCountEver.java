@@ -6,34 +6,31 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.expression.methodagg;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
-import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.core.ExprWildcard;
+import com.espertech.esper.epl.expression.methodagg.ExprCountEverNode;
+import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class ExprCountNodeFactory implements AggregationMethodFactory
+public class AggregationMethodFactoryCountEver implements AggregationMethodFactory
 {
-    private final ExprCountNode parent;
-    private final boolean ignoreNulls;
-    private final Class countedValueType;
+    protected final ExprCountEverNode parent;
+    protected final boolean ignoreNulls;
 
-    public ExprCountNodeFactory(ExprCountNode parent, boolean ignoreNulls, Class countedValueType)
-    {
+    public AggregationMethodFactoryCountEver(ExprCountEverNode parent, boolean ignoreNulls) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
-        this.countedValueType = countedValueType;
     }
 
     public boolean isAccessAggregation() {
@@ -42,7 +39,7 @@ public class ExprCountNodeFactory implements AggregationMethodFactory
 
     public Class getResultType()
     {
-        return Long.class;
+        return long.class;
     }
 
     public AggregationStateKey getAggregationStateKey(boolean isMatchRecognize) {
@@ -58,11 +55,7 @@ public class ExprCountNodeFactory implements AggregationMethodFactory
     }
 
     public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
-        AggregationMethod method = methodResolutionService.makeCountAggregator(agentInstanceId, groupId, aggregationId, ignoreNulls, parent.isHasFilter());
-        if (!parent.isDistinct()) {
-            return method;
-        }
-        return methodResolutionService.makeDistinctAggregator(agentInstanceId, groupId, aggregationId, method, countedValueType, parent.isHasFilter());
+        return makeCountEverValueAggregator(parent.hasFilter(), ignoreNulls);
     }
 
     public ExprAggregateNodeBase getAggregationExpression() {
@@ -71,18 +64,14 @@ public class ExprCountNodeFactory implements AggregationMethodFactory
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
         AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprCountNodeFactory that = (ExprCountNodeFactory) intoTableAgg;
-        AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
-        if (parent.isDistinct()) {
-            AggregationMethodFactoryUtil.validateAggregationInputType(countedValueType, that.countedValueType);
+        AggregationMethodFactoryCountEver that = (AggregationMethodFactoryCountEver) intoTableAgg;
+        if (that.ignoreNulls != ignoreNulls) {
+            throw new ExprValidationException("The aggregation declares " +
+                    (ignoreNulls ? "ignore-nulls" : "no-ignore-nulls") +
+                    " and provided is " +
+                    (that.ignoreNulls ? "ignore-nulls" : "no-ignore-nulls"));
         }
-        if (ignoreNulls != that.ignoreNulls) {
-            throw new ExprValidationException("The aggregation declares" +
-                    (ignoreNulls ? "" : " no") +
-                    " ignore nulls and provided is" +
-                    (that.ignoreNulls ? "" : " no") +
-                    " ignore nulls");
-        }
+        AggregationMethodFactoryUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {
@@ -90,18 +79,22 @@ public class ExprCountNodeFactory implements AggregationMethodFactory
     }
 
     public ExprEvaluator getMethodAggregationEvaluator(boolean join, EventType[] typesPerStream) throws ExprValidationException {
-        return getMethodAggregationEvaluatorCountBy(parent.getPositionalParams(), join, typesPerStream);
+        return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    public static ExprEvaluator getMethodAggregationEvaluatorCountBy(ExprNode[] childNodes, boolean join, EventType[] typesPerStream)
-            throws ExprValidationException
-    {
-        if (childNodes[0] instanceof ExprWildcard && childNodes.length == 2) {
-            return ExprMethodAggUtil.getDefaultEvaluator(new ExprNode[] {childNodes[1]}, join, typesPerStream);
+    private AggregationMethod makeCountEverValueAggregator(boolean hasFilter, boolean ignoreNulls) {
+        if (!hasFilter) {
+            if (ignoreNulls) {
+                return new AggregatorCountEverNonNull();
+            }
+            return new AggregatorCountEver();
         }
-        if (childNodes[0] instanceof ExprWildcard && childNodes.length == 1) {
-            return ExprMethodAggUtil.getDefaultEvaluator(new ExprNode[0], join, typesPerStream);
+        else {
+            if (ignoreNulls) {
+                return new AggregatorCountEverNonNullFilter();
+            }
+            return new AggregatorCountEverFilter();
         }
-        return ExprMethodAggUtil.getDefaultEvaluator(childNodes, join, typesPerStream);
     }
 }
+

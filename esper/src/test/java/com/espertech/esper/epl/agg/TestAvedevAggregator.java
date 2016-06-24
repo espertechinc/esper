@@ -19,7 +19,6 @@ public class TestAvedevAggregator extends TestCase
     public void testAggregateFunction()
     {
         AggregatorAvedev agg = new AggregatorAvedev();
-        assertEquals(Double.class, agg.getValueType());
 
         assertNull(agg.getValue());
 

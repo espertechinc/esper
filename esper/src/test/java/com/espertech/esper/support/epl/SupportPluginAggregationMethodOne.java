@@ -39,8 +39,4 @@ public class SupportPluginAggregationMethodOne implements AggregationMethod, Ser
         return count;
     }
 
-    public Class getValueType()
-    {
-        return int.class;
-    }
 }
