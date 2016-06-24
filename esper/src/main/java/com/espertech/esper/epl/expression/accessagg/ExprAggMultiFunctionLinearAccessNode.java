@@ -16,7 +16,6 @@ import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateKeyWStream;
 import com.espertech.esper.epl.agg.service.AggregationStateTypeWStream;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -195,21 +194,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, new ExprNode[0]);
 
-        final ExprNode me = this;
-        final int theStreamNum = streamNum;
-        AggregationStateFactory stateFactory = new AggregationStateFactory() {
-            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
-                if (join) {
-                    return methodResolutionService.makeAccessAggLinearJoin(agentInstanceId, groupId, aggregationId, theStreamNum, passThru);
-                }
-                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, theStreamNum, passThru);
-            }
-
-            public ExprNode getAggregationExpression() {
-                return me;
-            }
-        };
-
+        AggregationStateFactory stateFactory = validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeLinear(this, streamNum);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, accessorResultType, containedType,
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE);
         EventType enumerationType = scalarCollectionComponentType == null ? containedType : null;
@@ -230,15 +215,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[0];
         Class componentType = containedType.getUnderlyingType();
         AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
-        final ExprNode me = this;
-        AggregationStateFactory stateFactory = new AggregationStateFactory() {
-            public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
-                return methodResolutionService.makeAccessAggLinearNonJoin(agentInstanceId, groupId, aggregationId, 0, passThru);
-            }
-            public ExprNode getAggregationExpression() {
-                return me;
-            }
-        };
+        AggregationStateFactory stateFactory = validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeLinear(this, 0);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), containedType, null, stateFactory, null);
         return new LinearAggregationFactoryDesc(factory, factory.getContainedEventType(), null);
     }

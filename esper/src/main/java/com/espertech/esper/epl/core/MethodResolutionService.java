@@ -10,21 +10,18 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
+import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.util.AggregationLocalGroupByPlan;
-import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -167,20 +164,6 @@ public interface MethodResolutionService
     public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru);
 
     public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec, AggregationServicePassThru passThru);
-
-    public AggregationState makeAccessAggPlugin(int agentInstanceId, int groupId, int aggregationId, boolean join, PlugInAggregationMultiFunctionStateFactory providerFactory, Object groupKey);
-
-    public AggregationState makeCountMinSketch(int agentInstanceId, int groupId, int aggregationId, CountMinSketchSpec specification);
 
     public Object getCriteriaKeyBinding(ExprEvaluator[] evaluators);
 

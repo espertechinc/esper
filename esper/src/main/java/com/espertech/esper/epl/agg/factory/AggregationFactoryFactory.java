@@ -12,6 +12,11 @@
 package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
+import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.approx.CountMinSketchSpec;
+import com.espertech.esper.epl.expression.accessagg.*;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -32,7 +37,13 @@ public interface AggregationFactoryFactory {
     AggregationMethodFactory makeMedian(ExprMedianNode exprMedianNode, Class childType);
     AggregationMethodFactory makeMinMax(ExprMinMaxAggrNode exprMinMaxAggrNode, Class type, boolean hasDataWindows);
     AggregationMethodFactory makeNth(ExprNthAggNode exprNthAggNode, Class type, int size);
-    AggregationMethodFactory makePlugIn(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType);
+    AggregationMethodFactory makePlugInMethod(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType);
     AggregationMethodFactory makeRate(ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider);
     AggregationMethodFactory makeStddev(ExprStddevNode exprStddevNode, Class childType);
+
+    AggregationStateFactory makeLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum);
+    AggregationStateFactoryCountMinSketch makeCountMinSketch(ExprAggCountMinSketchNode expr, CountMinSketchSpec specification);
+    AggregationStateFactory makeMinMaxEver(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec);
+    AggregationStateFactory makePlugInAccess(ExprPlugInAggMultiFunctionNodeFactory factory);
+    AggregationStateFactory makeSorted(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec);
 }

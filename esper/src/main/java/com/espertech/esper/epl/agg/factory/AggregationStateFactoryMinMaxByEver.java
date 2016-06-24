@@ -9,31 +9,32 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.agg.service;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEver;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNodeFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 
-public class AggregationStateFactoryPlugin implements AggregationStateFactory {
+public class AggregationStateFactoryMinMaxByEver implements AggregationStateFactory {
 
-    private final ExprPlugInAggMultiFunctionNodeFactory parent;
-    private final PlugInAggregationMultiFunctionStateFactory stateFactory;
+    protected final ExprAggMultiFunctionSortedMinMaxByNode expr;
+    protected final AggregationStateMinMaxByEverSpec spec;
 
-
-    public AggregationStateFactoryPlugin(ExprPlugInAggMultiFunctionNodeFactory parent) {
-        this.parent = parent;
-        this.stateFactory = parent.getHandlerPlugin().getStateFactory();
+    public AggregationStateFactoryMinMaxByEver(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec) {
+        this.expr = expr;
+        this.spec = spec;
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupBy, AggregationServicePassThru passThru) {
-        return methodResolutionService.makeAccessAggPlugin(agentInstanceId, groupId, aggregationId, join, stateFactory, groupBy);
+    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+        return new AggregationStateMinMaxByEver(spec);
     }
 
     public ExprNode getAggregationExpression() {
-        return parent.getAggregationExpression();
+        return expr;
     }
 }

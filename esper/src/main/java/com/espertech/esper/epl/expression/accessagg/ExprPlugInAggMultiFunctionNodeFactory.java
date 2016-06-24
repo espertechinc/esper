@@ -13,10 +13,10 @@ import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactoryPlugin;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -30,11 +30,13 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
 {
     private final ExprPlugInAggMultiFunctionNode parent;
     private final PlugInAggregationMultiFunctionHandler handlerPlugin;
+    private final AggregationFactoryFactory aggregationFactoryFactory;
     private EPType returnType;
 
-    public ExprPlugInAggMultiFunctionNodeFactory(ExprPlugInAggMultiFunctionNode parent, PlugInAggregationMultiFunctionHandler handlerPlugin) {
+    public ExprPlugInAggMultiFunctionNodeFactory(ExprPlugInAggMultiFunctionNode parent, PlugInAggregationMultiFunctionHandler handlerPlugin, AggregationFactoryFactory aggregationFactoryFactory) {
         this.handlerPlugin = handlerPlugin;
         this.parent = parent;
+        this.aggregationFactoryFactory = aggregationFactoryFactory;
     }
 
     public boolean isAccessAggregation() {
@@ -50,7 +52,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
     }
 
     public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
-        return new AggregationStateFactoryPlugin(this);
+        return aggregationFactoryFactory.makePlugInAccess(this);
     }
 
     public AggregationAccessor getAccessor() {

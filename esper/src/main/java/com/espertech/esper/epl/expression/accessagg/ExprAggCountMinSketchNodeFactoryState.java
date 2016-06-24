@@ -11,10 +11,10 @@ package com.espertech.esper.epl.expression.accessagg;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggAccessorDefault;
-import com.espertech.esper.epl.approx.CountMinSketchAggStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -24,9 +24,9 @@ import java.util.Arrays;
 
 public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketchNodeFactoryBase
 {
-    private final CountMinSketchAggStateFactory stateFactory;
+    private final AggregationStateFactoryCountMinSketch stateFactory;
 
-    public ExprAggCountMinSketchNodeFactoryState(CountMinSketchAggStateFactory stateFactory) {
+    public ExprAggCountMinSketchNodeFactoryState(AggregationStateFactoryCountMinSketch stateFactory) {
         super(stateFactory.getParent());
         this.stateFactory = stateFactory;
     }

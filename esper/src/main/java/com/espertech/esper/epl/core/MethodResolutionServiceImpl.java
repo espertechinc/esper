@@ -148,35 +148,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return row;
     }
 
-    public AggregationState makeAccessAggLinearNonJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru) {
-        return new AggregationStateImpl(streamNum);
-    }
-
-    public AggregationState makeAccessAggLinearJoin(int agentInstanceId, int groupId, int aggregationId, int streamNum, AggregationServicePassThru passThru) {
-        return new AggregationStateJoinImpl(streamNum);
-    }
-
-    public AggregationState makeAccessAggSortedNonJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru) {
-        return new AggregationStateSortedImpl(spec);
-    }
-
-    public AggregationState makeAccessAggSortedJoin(int agentInstanceId, int groupId, int aggregationId, AggregationStateSortedSpec spec, AggregationServicePassThru passThru) {
-        return new AggregationStateSortedJoin(spec);
-    }
-
-    public AggregationState makeAccessAggMinMaxEver(int agentInstanceId, int groupId, int aggregationId, AggregationStateMinMaxByEverSpec spec, AggregationServicePassThru passThru) {
-        return new AggregationStateMinMaxByEver(spec);
-    }
-
-    public AggregationState makeAccessAggPlugin(int agentInstanceId, int groupId, int aggregationId, boolean join, PlugInAggregationMultiFunctionStateFactory providerFactory, Object groupKey) {
-        PlugInAggregationMultiFunctionStateContext context = new PlugInAggregationMultiFunctionStateContext(agentInstanceId, groupKey);
-        return providerFactory.makeAggregationState(context);
-    }
-
-    public AggregationState makeCountMinSketch(int agentInstanceId, int groupId, int aggregationId, CountMinSketchSpec specification) {
-        return new CountMinSketchAggState(CountMinSketchState.makeState(specification), specification.getAgent());
-    }
-
     public void destroyedAgentInstance(int agentInstanceId) {
         // no action require
     }

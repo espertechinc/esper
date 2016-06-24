@@ -6,27 +6,30 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.approx;
+package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.approx.CountMinSketchAggState;
+import com.espertech.esper.epl.approx.CountMinSketchSpec;
+import com.espertech.esper.epl.approx.CountMinSketchState;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class CountMinSketchAggStateFactory implements AggregationStateFactory
+public class AggregationStateFactoryCountMinSketch implements AggregationStateFactory
 {
-    private final ExprAggCountMinSketchNode parent;
-    private final CountMinSketchSpec specification;
+    protected final ExprAggCountMinSketchNode parent;
+    protected final CountMinSketchSpec specification;
 
-    public CountMinSketchAggStateFactory(ExprAggCountMinSketchNode parent, CountMinSketchSpec specification) {
+    public AggregationStateFactoryCountMinSketch(ExprAggCountMinSketchNode parent, CountMinSketchSpec specification) {
         this.parent = parent;
         this.specification = specification;
     }
 
     public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
-        return methodResolutionService.makeCountMinSketch(agentInstanceId, groupId, aggregationId, specification);
+        return new CountMinSketchAggState(CountMinSketchState.makeState(specification), specification.getAgent());
     }
 
     public ExprNode getAggregationExpression() {

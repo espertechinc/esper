@@ -12,7 +12,15 @@
 package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
+import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.approx.CountMinSketchSpec;
+import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
+import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
+import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
+import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNodeFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.schedule.TimeProvider;
@@ -70,7 +78,7 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
         return new AggregationMethodFactoryNth(exprNthAggNode, type, size);
     }
 
-    public AggregationMethodFactory makePlugIn(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType) {
+    public AggregationMethodFactory makePlugInMethod(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType) {
         return new AggregationMethodFactoryPlugIn(expr, factory, childType);
     }
 
@@ -80,5 +88,25 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
 
     public AggregationMethodFactory makeStddev(ExprStddevNode exprStddevNode, Class childType) {
         return new AggregationMethodFactoryStddev(exprStddevNode, childType);
+    }
+
+    public AggregationStateFactory makeLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {
+        return new AggregationStateFactoryLinear(expr, streamNum);
+    }
+
+    public AggregationStateFactoryCountMinSketch makeCountMinSketch(ExprAggCountMinSketchNode expr, CountMinSketchSpec specification) {
+        return new AggregationStateFactoryCountMinSketch(expr, specification);
+    }
+
+    public AggregationStateFactory makeMinMaxEver(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec) {
+        return new AggregationStateFactoryMinMaxByEver(expr, spec);
+    }
+
+    public AggregationStateFactory makePlugInAccess(ExprPlugInAggMultiFunctionNodeFactory factory) {
+        return new AggregationStateFactoryPlugin(factory);
+    }
+
+    public AggregationStateFactory makeSorted(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec) {
+        return new AggregationStateFactorySorted(expr, spec);
     }
 }

@@ -65,7 +65,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
     private AggregationMethodFactory validateAggregationInternal(ExprValidationContext validationContext, TableMetadataColumnAggregation optionalTableColumn) throws ExprValidationException {
         PlugInAggregationMultiFunctionValidationContext ctx = new PlugInAggregationMultiFunctionValidationContext(functionName, validationContext.getStreamTypeService().getEventTypes(), positionalParams, validationContext.getStreamTypeService().getEngineURIQualifier(), validationContext.getStatementName(), validationContext, config, optionalTableColumn, getChildNodes());
         PlugInAggregationMultiFunctionHandler handlerPlugin = pluginAggregationMultiFunctionFactory.validateGetHandler(ctx);
-        factory = new ExprPlugInAggMultiFunctionNodeFactory(this, handlerPlugin);
+        factory = new ExprPlugInAggMultiFunctionNodeFactory(this, handlerPlugin, validationContext.getMethodResolutionService().getAggregationFactoryFactory());
         return factory;
     }
 

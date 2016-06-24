@@ -94,7 +94,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
             childType = positionalParams[0].getExprEvaluator().getType();
         }
 
-        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makePlugIn(this, aggregationFunctionFactory, childType);
+        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makePlugInMethod(this, aggregationFunctionFactory, childType);
     }
 
     public String getAggregationFunctionName()
