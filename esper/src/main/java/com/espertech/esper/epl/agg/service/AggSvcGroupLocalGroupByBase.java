@@ -85,7 +85,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
                 AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
-                row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
+                row = new AggregationMethodPairRow(1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
             else {
@@ -118,7 +118,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             if (row == null) {
                 AggregationMethod[] rowAggregators = methodResolutionService.newAggregators(level.getMethodFactories(), exprEvaluatorContext.getAgentInstanceId(), groupByKey, null, null);
                 AggregationState[] rowStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null, null, null);
-                row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(rowAggregators, rowStates) + 1, rowAggregators, rowStates);
+                row = new AggregationMethodPairRow(1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
             }
             else {

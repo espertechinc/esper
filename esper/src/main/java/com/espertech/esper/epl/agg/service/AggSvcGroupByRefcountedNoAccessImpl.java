@@ -69,7 +69,7 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         if (row == null)
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            row = new AggregationMethodRow(methodResolutionService.getCurrentRowCount(groupAggregators, null) + 1, groupAggregators);
+            row = new AggregationMethodRow(1, groupAggregators);
             aggregatorsPerGroup.put(groupByKey, row);
         }
         else
@@ -103,7 +103,7 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         else
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            row = new AggregationMethodRow(methodResolutionService.getCurrentRowCount(groupAggregators, null) + 1, groupAggregators);
+            row = new AggregationMethodRow(1, groupAggregators);
             aggregatorsPerGroup.put(groupByKey, row);
         }
 
@@ -120,7 +120,6 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         if (row.getRefcount() <= 0)
         {
             removedKeys.add(groupByKey);
-            methodResolutionService.removeAggregators(exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);  // allow persistence to remove keys already
         }
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
     }

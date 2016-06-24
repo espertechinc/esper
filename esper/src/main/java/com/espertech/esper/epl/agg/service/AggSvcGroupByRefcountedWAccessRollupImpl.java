@@ -128,7 +128,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             {
                 groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupKey, groupKeyBinding, level);
                 groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, groupKeyBinding, level, null);
-                row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, groupAggregators, groupStates);
+                row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
                 if (!level.isAggregationTop()) {
                     aggregatorsPerGroup[level.getAggregationOffset()].put(groupKey, row);
                 }
@@ -196,7 +196,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             {
                 groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupKey, groupKeyBinding, level);
                 groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, groupKeyBinding, level, null);
-                row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, groupAggregators, groupStates);
+                row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
                 if (!level.isAggregationTop()) {
                     aggregatorsPerGroup[level.getAggregationOffset()].put(groupKey, row);
                 }
@@ -225,7 +225,6 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
                 if (!level.isAggregationTop()) {
                     removedKeys[level.getAggregationOffset()].add(groupKey);
                 }
-                methodResolutionService.removeAggregators(exprEvaluatorContext.getAgentInstanceId(), groupKey, groupKeyBinding, level);  // allow persistence to remove keys already
             }
 
             internalHandleGroupUpdate(groupKey, row, level);

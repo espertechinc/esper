@@ -87,7 +87,7 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
             groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
-            row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, groupAggregators, groupStates);
+            row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
         else
@@ -135,7 +135,7 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
             groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
-            row = new AggregationMethodPairRow(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, groupAggregators, groupStates);
+            row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
 
@@ -160,7 +160,6 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         if (row.getRefcount() <= 0)
         {
             removedKeys.add(groupByKey);
-            methodResolutionService.removeAggregators(exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);  // allow persistence to remove keys already
         }
 
         internalHandleGroupUpdate(groupByKey, row);

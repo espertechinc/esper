@@ -80,10 +80,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return engineImportService.resolveNonStaticMethod(clazz, methodName);
     }
 
-    public Constructor resolveCtor(Class clazz, Class[] paramTypes) throws EngineImportException {
-        return engineImportService.resolveCtor(clazz, paramTypes);
-    }
-
     public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException {
         return engineImportService.resolveClass(className, forAnnotation);
 	}
@@ -120,16 +116,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return row;
     }
 
-    public long getCurrentRowCount(AggregationMethod[] aggregators, AggregationState[] groupStates)
-    {
-        return 0;   // since the aggregators are always fresh ones 
-    }
-
-    public void removeAggregators(int agentInstanceId, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel level)
-    {
-        // To be overridden by implementations that care when aggregators get removed
-    }
-
     public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru) {
         return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, null, passThru);
     }
@@ -146,10 +132,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
             i++;
         }
         return row;
-    }
-
-    public void destroyedAgentInstance(int agentInstanceId) {
-        // no action require
     }
 
     public EngineImportService getEngineImportService() {

@@ -53,15 +53,6 @@ public interface MethodResolutionService
     public Method resolveMethod(Class clazz, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws EngineImportException;
 
     /**
-     * Resolves matching available constructors to a list of parameter types to an instance or static method exposed by the given class.
-     * @param clazz is the class to look for a fitting method
-     * @param paramTypes is parameter types match expression sub-nodes
-     * @return method this resolves to
-     * @throws EngineImportException if the method cannot be resolved to a visible static or instance method
-     */
-    public Constructor resolveCtor(Class clazz, Class[] paramTypes) throws EngineImportException;
-
-    /**
      * Resolves a given class, method and list of parameter types to a static method.
      *
      * @param className is the class name to use
@@ -141,23 +132,6 @@ public interface MethodResolutionService
      * @return new set of aggregators for this group
      */
     public AggregationMethod[] newAggregators(AggregationMethodFactory[] aggregators, int agentInstanceId);
-
-    /**
-     * Opportunity to remove aggregations for a group.
-     * @param agentInstanceId
-     * @param groupKey that is no longer used
-     * @param level
-     */
-    public void removeAggregators(int agentInstanceId, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel level);
-
-    /**
-     * Returns the current row count of an aggregation, for use with resilience.
-     * @param aggregators aggregators
-     * @return row count
-     */
-    public long getCurrentRowCount(AggregationMethod[] aggregators, AggregationState[] states);
-
-    public void destroyedAgentInstance(int agentInstanceId);
 
     public EngineImportService getEngineImportService();
 

@@ -98,7 +98,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
             groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
-            row = new AggregationMethodRowAged(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, currentTime, groupAggregators, groupStates);
+            row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
         else
@@ -187,7 +187,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         {
             groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
             groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
-            row = new AggregationMethodRowAged(methodResolutionService.getCurrentRowCount(groupAggregators, groupStates) + 1, currentTime, groupAggregators, groupStates);
+            row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
 
@@ -209,10 +209,8 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 
         row.decreaseRefcount();
         row.setLastUpdateTime(currentTime);
-        if (row.getRefcount() <= 0)
-        {
+        if (row.getRefcount() <= 0) {
             removedKeys.add(groupByKey);
-            methodResolutionService.removeAggregators(exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);  // allow persistence to remove keys already
         }
         internalHandleUpdated(groupByKey, row);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false); }
