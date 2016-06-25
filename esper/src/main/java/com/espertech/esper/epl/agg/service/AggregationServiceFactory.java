@@ -19,6 +19,5 @@ import com.espertech.esper.epl.core.EngineImportService;
  */
 public interface AggregationServiceFactory
 {
-    // TODO is engineImportService used here
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber);
 }

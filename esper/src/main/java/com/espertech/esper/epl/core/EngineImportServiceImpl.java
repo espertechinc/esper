@@ -54,12 +54,13 @@ public class EngineImportServiceImpl implements EngineImportService
     private final MathContext optionalDefaultMathContext;
     private final TimeZone timeZone;
     private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
+    private final AggregationFactoryFactory aggregationFactoryFactory;
 
     /**
 	 * Ctor
      * @param allowExtendedAggregationFunc true to allow non-SQL standard builtin agg functions.
 	 */
-	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile)
+	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, AggregationFactoryFactory aggregationFactoryFactory)
     {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
@@ -74,6 +75,7 @@ public class EngineImportServiceImpl implements EngineImportService
         this.optionalDefaultMathContext = optionalDefaultMathContext;
         this.timeZone = timeZone;
         this.threadingProfile = threadingProfile;
+        this.aggregationFactoryFactory = aggregationFactoryFactory;
     }
 
     public boolean isUdfCache() {
@@ -530,7 +532,7 @@ public class EngineImportServiceImpl implements EngineImportService
     }
 
     public AggregationFactoryFactory getAggregationFactoryFactory() {
-        return AggregationFactoryFactoryDefault.INSTANCE;
+        return aggregationFactoryFactory;
     }
 
     /**

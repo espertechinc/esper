@@ -13,6 +13,7 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -26,7 +27,7 @@ public class TestJsonUtil extends TestCase {
     private EngineImportService engineImportService;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL);
+        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, AggregationFactoryFactoryDefault.INSTANCE);
     }
 
     protected void tearDown() {

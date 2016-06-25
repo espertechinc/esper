@@ -24,6 +24,7 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowServiceImpl;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
@@ -106,7 +107,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         TimeSourceService timeSourceService = makeTimeSource(configSnapshot);
         SchedulingServiceSPI schedulingService = SchedulingServiceProvider.newService(timeSourceService);
         SchedulingMgmtService schedulingMgmtService = new SchedulingMgmtServiceImpl();
-        EngineImportService engineImportService = makeEngineImportService(configSnapshot);
+        EngineImportService engineImportService = makeEngineImportService(configSnapshot, AggregationFactoryFactoryDefault.INSTANCE);
         EngineSettingsService engineSettingsService = new EngineSettingsService(configSnapshot.getEngineDefaults(), configSnapshot.getPlugInEventTypeResolutionURIs());
         DatabaseConfigService databaseConfigService = makeDatabaseRefService(configSnapshot, schedulingService, schedulingMgmtService);
 
@@ -537,7 +538,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      * @param configSnapshot config info
      * @return service
      */
-    protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot)
+    protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory)
     {
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
         EngineImportServiceImpl engineImportService = new EngineImportServiceImpl(expression.isExtendedAggregation(),
@@ -545,7 +546,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 configSnapshot.getEngineDefaults().getLanguage().isSortUsingCollator(),
                 configSnapshot.getEngineDefaults().getExpression().getMathContext(),
                 configSnapshot.getEngineDefaults().getExpression().getTimeZone(),
-                configSnapshot.getEngineDefaults().getExecution().getThreadingProfile());
+                configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
+                aggregationFactoryFactory);
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports
