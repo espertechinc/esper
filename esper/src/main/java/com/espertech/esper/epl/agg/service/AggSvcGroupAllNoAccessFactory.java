@@ -18,7 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
  */
 public class AggSvcGroupAllNoAccessFactory extends AggregationServiceFactoryBase
 {
-    public AggSvcGroupAllNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], Object groupKeyBinding) {
+    public AggSvcGroupAllNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[]) {
         super(evaluators, aggregators);
     }
 

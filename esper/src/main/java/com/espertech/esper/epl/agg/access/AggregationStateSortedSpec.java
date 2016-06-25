@@ -17,7 +17,7 @@ public class AggregationStateSortedSpec
     private final int streamId;
     private final ExprEvaluator[] criteria;
     private final Comparator<Object> comparator;
-    private final Object criteriaKeyBinding;
+    private Object criteriaKeyBinding;
 
     public AggregationStateSortedSpec(int streamId, ExprEvaluator[] criteria, Comparator<Object> comparator, Object criteriaKeyBinding) {
         this.streamId = streamId;
@@ -40,5 +40,9 @@ public class AggregationStateSortedSpec
 
     public Object getCriteriaKeyBinding() {
         return criteriaKeyBinding;
+    }
+
+    public void setCriteriaKeyBinding(Object criteriaKeyBinding) {
+        this.criteriaKeyBinding = criteriaKeyBinding;
     }
 }

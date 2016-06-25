@@ -32,7 +32,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
     }
 
     public AggregationServiceFactory getNoGroupNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupAllNoAccessFactory(evaluatorsArr, aggregatorsArr, null);
+        return new AggSvcGroupAllNoAccessFactory(evaluatorsArr, aggregatorsArr);
     }
 
     public AggregationServiceFactory getNoGroupAccessOnly(AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggSpecs, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
