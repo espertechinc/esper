@@ -11,14 +11,11 @@
 
 package com.espertech.esper.epl.expression.accessagg;
 
-import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
-import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.util.Comparator;
@@ -44,14 +41,13 @@ public class SortedAggregationStateFactoryFactory {
     public AggregationStateFactory makeFactory() {
         boolean sortUsingCollator = methodResolutionService.isSortUsingCollator();
         Comparator<Object> comparator = CollectionUtil.getComparator(evaluators, sortUsingCollator, sortDescending);
-        Object criteriaKeyBinding = methodResolutionService.getCriteriaKeyBinding(evaluators);
 
         if (ever) {
-            AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator, criteriaKeyBinding);
+            AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator);
             return methodResolutionService.getAggregationFactoryFactory().makeMinMaxEver(parent, spec);
         }
 
-        AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, comparator, criteriaKeyBinding);
+        AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, comparator);
         return methodResolutionService.getAggregationFactoryFactory().makeSorted(parent, spec);
     }
 }

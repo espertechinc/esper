@@ -27,8 +27,8 @@ import java.util.*;
  */
 public class AggSvcGroupAllLocalGroupBy extends AggSvcGroupLocalGroupByBase
 {
-    public AggSvcGroupAllLocalGroupBy(MethodResolutionService methodResolutionService, boolean isJoin, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding) {
-        super(methodResolutionService, isJoin, localGroupByPlan, groupKeyBinding);
+    public AggSvcGroupAllLocalGroupBy(boolean isJoin, AggregationLocalGroupByPlan localGroupByPlan) {
+        super(isJoin, localGroupByPlan);
     }
 
     protected Object computeGroupKey(AggregationLocalGroupByLevel level, Object groupKey, ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

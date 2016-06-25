@@ -36,13 +36,12 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
      */
     public AggSvcGroupByRefcountedWAccessRollupFactory(ExprEvaluator evaluators[],
                                                        AggregationMethodFactory prototypes[],
-                                                       Object groupKeyBinding,
                                                        AggregationAccessorSlotPair[] accessors,
                                                        AggregationStateFactory[] accessAggregations,
                                                        boolean isJoin,
                                                        AggregationGroupByRollupDesc groupByRollupDesc)
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
@@ -52,6 +51,6 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         AggregationState[] topStates = AggSvcGroupByUtil.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations, null, null);
         AggregationMethod[] topMethods = AggSvcGroupByUtil.newAggregators(super.aggregators);
-        return new AggSvcGroupByRefcountedWAccessRollupImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin, groupByRollupDesc, topMethods, topStates);
+        return new AggSvcGroupByRefcountedWAccessRollupImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, groupByRollupDesc, topMethods, topStates);
     }
 }

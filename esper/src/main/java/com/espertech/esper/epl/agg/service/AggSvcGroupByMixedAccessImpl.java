@@ -12,7 +12,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -38,31 +37,25 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
     private AggregationRowPair currentAggregatorRow;
     private Object currentGroupKey;
 
-    private MethodResolutionService methodResolutionService;
-
     /**
      * Ctor.
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      * aggregation states for each group
-     * @param methodResolutionService - factory for creating additional aggregation method instances per group key
      * @param accessorsFactory accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
      */
     public AggSvcGroupByMixedAccessImpl(ExprEvaluator evaluators[],
                                         AggregationMethodFactory prototypes[],
-                                        Object groupKeyBinding,
-                                        MethodResolutionService methodResolutionService,
                                         AggregationAccessorSlotPair[] accessorsFactory,
                                         AggregationStateFactory[] accessAggregations,
                                         boolean isJoin)
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
         this.accessorsFactory = accessorsFactory;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
-        this.methodResolutionService = methodResolutionService;
         this.aggregatorsPerGroup = new HashMap<Object, AggregationRowPair>();
     }
 

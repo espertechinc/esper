@@ -32,19 +32,15 @@ public class AggSvcGroupByNoAccessImpl extends AggregationServiceBaseGrouped
     private AggregationMethod[] currentAggregatorRow;
     private Object currentGroupKey;
 
-    private MethodResolutionService methodResolutionService;
-
     /**
      * Ctor.
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      * aggregation states for each group
-     * @param methodResolutionService - factory for creating additional aggregation method instances per group key
      */
-    public AggSvcGroupByNoAccessImpl(ExprEvaluator evaluators[], AggregationMethodFactory prototypes[], Object groupKeyBinding, MethodResolutionService methodResolutionService)
+    public AggSvcGroupByNoAccessImpl(ExprEvaluator evaluators[], AggregationMethodFactory prototypes[])
     {
-        super(evaluators, prototypes, groupKeyBinding);
-        this.methodResolutionService = methodResolutionService;
+        super(evaluators, prototypes);
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethod[]>();
     }
 

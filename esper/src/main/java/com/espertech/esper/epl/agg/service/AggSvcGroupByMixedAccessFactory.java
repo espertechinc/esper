@@ -33,18 +33,17 @@ public class AggSvcGroupByMixedAccessFactory extends AggregationServiceFactoryBa
      */
     public AggSvcGroupByMixedAccessFactory(ExprEvaluator evaluators[],
                                            AggregationMethodFactory prototypes[],
-                                           Object groupKeyBinding,
                                            AggregationAccessorSlotPair[] accessors,
                                            AggregationStateFactory[] accessAggregations,
                                            boolean isJoin)
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByMixedAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin);
+        return new AggSvcGroupByMixedAccessImpl(evaluators, aggregators, accessors, accessAggregations, isJoin);
     }
 }

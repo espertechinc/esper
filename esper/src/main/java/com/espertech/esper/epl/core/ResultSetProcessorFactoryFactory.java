@@ -318,7 +318,7 @@ public class ResultSetProcessorFactoryFactory
         AggregationServiceFactoryDesc aggregationServiceFactory = AggregationServiceFactoryFactory.getService(
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
-                stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), stmtContext.getMethodResolutionService(), groupByRollupDesc,
+                stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), groupByRollupDesc,
                 statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect);
 
         // Compare local-aggregation versus group-by

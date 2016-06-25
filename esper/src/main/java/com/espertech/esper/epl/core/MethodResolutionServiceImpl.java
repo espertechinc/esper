@@ -96,18 +96,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return engineImportService;
     }
 
-    public Object getCriteriaKeyBinding(ExprEvaluator[] evaluators) {
-        return null;    // no bindings
-    }
-
-    public Object getGroupKeyBinding(ExprNode[] groupKeyExpressions, AggregationGroupByRollupDesc groupByRollupDesc) {
-        return null;    // no bindings
-    }
-
-    public Object getGroupKeyBinding(AggregationLocalGroupByPlan localGroupByPlan) {
-        return null;    // no bindings
-    }
-
     public AggregationFactoryFactory getAggregationFactoryFactory() {
         return AggregationFactoryFactoryDefault.INSTANCE;
     }

@@ -21,14 +21,13 @@ public class AggSvcGroupByNoAccessFactory extends AggregationServiceFactoryBase
      * Ctor.
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
      */
-    public AggSvcGroupByNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory prototypes[], Object groupKeyBinding)
+    public AggSvcGroupByNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory prototypes[])
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByNoAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService);
+        return new AggSvcGroupByNoAccessImpl(evaluators, aggregators);
     }
 }

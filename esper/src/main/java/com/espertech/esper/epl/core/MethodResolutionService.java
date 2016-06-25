@@ -114,11 +114,5 @@ public interface MethodResolutionService
 
     public EngineImportService getEngineImportService();
 
-    public Object getCriteriaKeyBinding(ExprEvaluator[] evaluators);
-
-    public Object getGroupKeyBinding(ExprNode[] groupKeyExpressions, AggregationGroupByRollupDesc groupByRollupDesc);
-
-    public Object getGroupKeyBinding(AggregationLocalGroupByPlan localGroupByPlan);
-
     public AggregationFactoryFactory getAggregationFactoryFactory();
 }

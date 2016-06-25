@@ -37,7 +37,6 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 
     private final AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge;
     private final AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency;
-    private final MethodResolutionService methodResolutionService;
 
     // maintain for each group a row of aggregator states that the expression node canb pull the data from via index
     protected Map<Object, AggregationMethodRowAged> aggregatorsPerGroup;
@@ -54,14 +53,13 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     private volatile long currentMaxAge = DEFAULT_MAX_AGE_MSEC;
     private volatile long currentReclaimFrequency = DEFAULT_MAX_AGE_MSEC;
 
-    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], Object groupKeyBinding, AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency, MethodResolutionService methodResolutionService) {
-        super(evaluators, aggregators, groupKeyBinding);
+    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency) {
+        super(evaluators, aggregators);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         isJoin = join;
         this.evaluationFunctionMaxAge = evaluationFunctionMaxAge;
         this.evaluationFunctionFrequency = evaluationFunctionFrequency;
-        this.methodResolutionService = methodResolutionService;
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethodRowAged>();
         removedKeys = new ArrayList<Object>();
     }

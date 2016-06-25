@@ -26,8 +26,8 @@ public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
     private AggregationMethod[] currentAggregatorMethods;
     private AggregationState[] currentAggregatorStates;
 
-    public AggSvcGroupByLocalGroupBy(MethodResolutionService methodResolutionService, boolean isJoin, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding) {
-        super(methodResolutionService, isJoin, localGroupByPlan, groupKeyBinding);
+    public AggSvcGroupByLocalGroupBy(boolean isJoin, AggregationLocalGroupByPlan localGroupByPlan) {
+        super(isJoin, localGroupByPlan);
     }
 
     protected Object computeGroupKey(AggregationLocalGroupByLevel level, Object groupKey, ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

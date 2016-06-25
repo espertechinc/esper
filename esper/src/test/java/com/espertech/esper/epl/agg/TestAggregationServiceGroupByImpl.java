@@ -28,7 +28,6 @@ public class TestAggregationServiceGroupByImpl extends TestCase
     private AggSvcGroupByNoAccessImpl service;
     private MultiKeyUntyped groupOneKey;
     private MultiKeyUntyped groupTwoKey;
-    private MethodResolutionService methodResolutionService;
 
     public void setUp()
     {
@@ -38,9 +37,8 @@ public class TestAggregationServiceGroupByImpl extends TestCase
             aggregators[i] = new SupportAggregatorFactory();
         }
         ExprEvaluator evaluators[] = new ExprEvaluator[] { new SupportExprNode(5).getExprEvaluator(), new SupportExprNode(2).getExprEvaluator() };
-        methodResolutionService = new MethodResolutionServiceImpl(null, null);
 
-        service = new AggSvcGroupByNoAccessImpl(evaluators, aggregators, null, methodResolutionService);
+        service = new AggSvcGroupByNoAccessImpl(evaluators, aggregators);
 
         groupOneKey = new MultiKeyUntyped(new Object[] {"x", "y1"});
         groupTwoKey = new MultiKeyUntyped(new Object[] {"x", "y2"});

@@ -43,32 +43,32 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return new AggSvcGroupAllMixedAccessFactory(evaluatorsArr, aggregatorsArr, null, pairs, accessAggregations, join);
     }
 
-    public AggregationServiceFactory getGroupedNoReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByNoAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding);
+    public AggregationServiceFactory getGroupedNoReclaimNoAccess(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByNoAccessFactory(evaluatorsArr, aggregatorsArr);
     }
 
-    public AggregationServiceFactory getGroupNoReclaimAccessOnly(AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggSpecs, Object groupKeyBinding, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByAccessOnlyFactory(pairs, accessAggSpecs, groupKeyBinding, join);
+    public AggregationServiceFactory getGroupNoReclaimAccessOnly(ExprNode[] groupByNodes, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggSpecs, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByAccessOnlyFactory(pairs, accessAggSpecs, join);
     }
 
-    public AggregationServiceFactory getGroupNoReclaimMixed(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByMixedAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, pairs, accessAggregations, join);
+    public AggregationServiceFactory getGroupNoReclaimMixed(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByMixedAccessFactory(evaluatorsArr, aggregatorsArr, pairs, accessAggregations, join);
     }
 
-    public AggregationServiceFactory getGroupReclaimAged(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, Hint reclaimGroupAged, Hint reclaimGroupFrequency, VariableService variableService, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, String optionalContextName, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) throws ExprValidationException{
-        return new AggSvcGroupByReclaimAgedFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, reclaimGroupAged, reclaimGroupFrequency, variableService, pairs, accessAggregations, join, optionalContextName);
+    public AggregationServiceFactory getGroupReclaimAged(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, Hint reclaimGroupAged, Hint reclaimGroupFrequency, VariableService variableService, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, String optionalContextName, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) throws ExprValidationException{
+        return new AggSvcGroupByReclaimAgedFactory(evaluatorsArr, aggregatorsArr, reclaimGroupAged, reclaimGroupFrequency, variableService, pairs, accessAggregations, join, optionalContextName);
     }
 
-    public AggregationServiceFactory getGroupReclaimNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByRefcountedNoAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding);
+    public AggregationServiceFactory getGroupReclaimNoAccess(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByRefcountedNoAccessFactory(evaluatorsArr, aggregatorsArr);
     }
 
-    public AggregationServiceFactory getGroupReclaimMixable(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByRefcountedWAccessFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, pairs, accessAggregations, join);
+    public AggregationServiceFactory getGroupReclaimMixable(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByRefcountedWAccessFactory(evaluatorsArr, aggregatorsArr, pairs, accessAggregations, join);
     }
 
-    public AggregationServiceFactory getGroupReclaimMixableRollup(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, Object groupKeyBinding, AggregationGroupByRollupDesc groupByRollupDesc, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByRefcountedWAccessRollupFactory(evaluatorsArr, aggregatorsArr, groupKeyBinding, pairs, accessAggregations, join, groupByRollupDesc);
+    public AggregationServiceFactory getGroupReclaimMixableRollup(ExprNode[] groupByNodes, AggregationGroupByRollupDesc byRollupDesc, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, AggregationGroupByRollupDesc groupByRollupDesc, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByRefcountedWAccessRollupFactory(evaluatorsArr, aggregatorsArr, pairs, accessAggregations, join, groupByRollupDesc);
     }
 
     public AggregationServiceFactory getGroupWBinding(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessorPairs, boolean join, IntoTableSpec bindings, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents, AggregationGroupByRollupDesc groupByRollupDesc) {
@@ -79,11 +79,11 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return new AggSvcGroupAllMixedAccessWTableFactory(accessors, join, methodPairs, tableName, targetStates, accessStateExpr, agents);
     }
 
-    public AggregationServiceFactory getNoGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupAllLocalGroupByFactory(join, localGroupByPlan, groupKeyBinding);
+    public AggregationServiceFactory getNoGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupAllLocalGroupByFactory(join, localGroupByPlan);
     }
 
-    public AggregationServiceFactory getGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupByLocalGroupByFactory(join, localGroupByPlan, groupKeyBinding);
+    public AggregationServiceFactory getGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
+        return new AggSvcGroupByLocalGroupByFactory(join, localGroupByPlan);
     }
 }

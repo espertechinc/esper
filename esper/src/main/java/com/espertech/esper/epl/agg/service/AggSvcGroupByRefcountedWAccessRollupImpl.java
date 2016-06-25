@@ -39,8 +39,6 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
     private AggregationState[] currentAggregatorStates;
     private Object currentGroupKey;
 
-    private MethodResolutionService methodResolutionService;
-
     protected final Object[] methodParameterValues;
     protected boolean hasRemovedKey;
     protected final List<Object>[] removedKeys;
@@ -50,15 +48,12 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      * aggregation states for each group
-     * @param methodResolutionService - factory for creating additional aggregation method instances per group key
      * @param accessors accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
      */
     public AggSvcGroupByRefcountedWAccessRollupImpl(ExprEvaluator evaluators[],
                                                     AggregationMethodFactory prototypes[],
-                                                    Object groupKeyBinding,
-                                                    MethodResolutionService methodResolutionService,
                                                     AggregationAccessorSlotPair[] accessors,
                                                     AggregationStateFactory[] accessAggregations,
                                                     boolean isJoin,
@@ -66,8 +61,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
                                                     AggregationMethod[] topGroupAggregators,
                                                     AggregationState[] topGroupStates)
     {
-        super(evaluators, prototypes, groupKeyBinding);
-        this.methodResolutionService = methodResolutionService;
+        super(evaluators, prototypes);
 
         this.aggregatorsPerGroup = (Map<Object, AggregationMethodPairRow>[]) new Map[rollupLevelDesc.getNumLevelsAggregation()];
         this.removedKeys = (List<Object>[]) new ArrayList[rollupLevelDesc.getNumLevelsAggregation()];

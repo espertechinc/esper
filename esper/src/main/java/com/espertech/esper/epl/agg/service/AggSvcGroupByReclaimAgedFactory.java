@@ -27,8 +27,6 @@ import com.espertech.esper.util.JavaClassHelper;
  */
 public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBase
 {
-    private static final long DEFAULT_MAX_AGE_MSEC = 60000L;
-
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -51,7 +49,6 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
      */
     public AggSvcGroupByReclaimAgedFactory(ExprEvaluator evaluators[],
                                            AggregationMethodFactory prototypes[],
-                                           Object groupKeyBinding,
                                            Hint reclaimGroupAged,
                                            Hint reclaimGroupFrequency,
                                            final VariableService variableService,
@@ -61,7 +58,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
                                            String optionalContextName)
             throws ExprValidationException
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
@@ -87,7 +84,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
         AggSvcGroupByReclaimAgedEvalFunc max = evaluationFunctionMaxAge.make(agentInstanceContext);
         AggSvcGroupByReclaimAgedEvalFunc freq = evaluationFunctionFrequency.make(agentInstanceContext);
-        return new AggSvcGroupByReclaimAgedImpl(evaluators, aggregators, groupKeyBinding, accessors, accessAggregations, isJoin, max, freq, methodResolutionService);
+        return new AggSvcGroupByReclaimAgedImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, max, freq);
     }
 
     private AggSvcGroupByReclaimAgedEvalFuncFactory getEvaluationFunction(final VariableService variableService, String hintValue, String optionalContextName)

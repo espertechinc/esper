@@ -26,18 +26,15 @@ public abstract class AggregationServiceFactoryBase implements AggregationServic
      */
     protected AggregationMethodFactory aggregators[];
 
-    protected Object groupKeyBinding;
-
     /**
      * Ctor.
      * @param evaluators - are the child node of each aggregation function used for computing the value to be aggregated
      * @param aggregators - aggregation states/factories
      */
-    public AggregationServiceFactoryBase(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], Object groupKeyBinding)
+    public AggregationServiceFactoryBase(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[])
     {
         this.evaluators = evaluators;
         this.aggregators = aggregators;
-        this.groupKeyBinding = groupKeyBinding;
 
         if (evaluators.length != aggregators.length)
         {

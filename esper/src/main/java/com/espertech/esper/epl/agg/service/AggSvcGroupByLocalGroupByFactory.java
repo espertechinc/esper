@@ -19,15 +19,13 @@ public class AggSvcGroupByLocalGroupByFactory implements AggregationServiceFacto
 
     protected final boolean join;
     protected final AggregationLocalGroupByPlan localGroupByPlan;
-    protected final Object groupKeyBinding;
 
-    public AggSvcGroupByLocalGroupByFactory(boolean join, AggregationLocalGroupByPlan localGroupByPlan, Object groupKeyBinding) {
+    public AggSvcGroupByLocalGroupByFactory(boolean join, AggregationLocalGroupByPlan localGroupByPlan) {
         this.join = join;
         this.localGroupByPlan = localGroupByPlan;
-        this.groupKeyBinding = groupKeyBinding;
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByLocalGroupBy(methodResolutionService, join, localGroupByPlan, groupKeyBinding);
+        return new AggSvcGroupByLocalGroupBy(join, localGroupByPlan);
     }
 }

@@ -37,8 +37,6 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
     private AggregationState[] currentAggregatorStates;
     private Object currentGroupKey;
 
-    private MethodResolutionService methodResolutionService;
-
     protected List<Object> removedKeys;
 
     /**
@@ -46,21 +44,17 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      * aggregation states for each group
-     * @param methodResolutionService - factory for creating additional aggregation method instances per group key
      * @param accessors accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
      */
     public AggSvcGroupByRefcountedWAccessImpl(ExprEvaluator evaluators[],
                                        AggregationMethodFactory prototypes[],
-                                       Object groupKeyBinding,
-                                       MethodResolutionService methodResolutionService,
                                        AggregationAccessorSlotPair[] accessors,
                                        AggregationStateFactory[] accessAggregations,
                                        boolean isJoin)
     {
-        super(evaluators, prototypes, groupKeyBinding);
-        this.methodResolutionService = methodResolutionService;
+        super(evaluators, prototypes);
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethodPairRow>();
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;

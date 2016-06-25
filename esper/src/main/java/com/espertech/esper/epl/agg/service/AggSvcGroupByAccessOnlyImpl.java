@@ -27,8 +27,6 @@ import java.util.Map;
  */
 public class AggSvcGroupByAccessOnlyImpl implements AggregationService, AggregationResultFuture
 {
-    private final MethodResolutionService methodResolutionService;
-    private final Object groupKeyBinding;
     private final Map<Object, AggregationState[]> accessMap;
     private final AggregationAccessorSlotPair[] accessors;
     private final AggregationStateFactory[] accessAggSpecs;
@@ -39,19 +37,14 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
 
     /**
      * Ctor.
-     * @param methodResolutionService factory service for implementations
      * @param accessors accessor definitions
      * @param accessAggSpecs access agg specs
      * @param isJoin true for join, false for single-stream
      */
-    public AggSvcGroupByAccessOnlyImpl(MethodResolutionService methodResolutionService,
-                                       Object groupKeyBinding,
-                                       AggregationAccessorSlotPair[] accessors,
+    public AggSvcGroupByAccessOnlyImpl(AggregationAccessorSlotPair[] accessors,
                                                    AggregationStateFactory[] accessAggSpecs,
                                                    boolean isJoin)
     {
-        this.methodResolutionService = methodResolutionService;
-        this.groupKeyBinding = groupKeyBinding;
         this.accessMap = new HashMap<Object, AggregationState[]>();
         this.accessors = accessors;
         this.accessAggSpecs = accessAggSpecs;

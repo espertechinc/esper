@@ -24,13 +24,12 @@ public class AggSvcGroupByRefcountedNoAccessFactory extends AggregationServiceFa
      * aggregation states for each group
      */
     public AggSvcGroupByRefcountedNoAccessFactory(ExprEvaluator evaluators[],
-                                                  AggregationMethodFactory prototypes[],
-                                                  Object groupKeyBinding)
+                                                  AggregationMethodFactory prototypes[])
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByRefcountedNoAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService);
+        return new AggSvcGroupByRefcountedNoAccessImpl(evaluators, aggregators);
     }
 }

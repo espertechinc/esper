@@ -25,7 +25,7 @@ public class AggSvcGroupAllMixedAccessFactory extends AggregationServiceFactoryB
     protected final boolean isJoin;
 
     public AggSvcGroupAllMixedAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], Object groupKeyBinding, AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join) {
-        super(evaluators, aggregators, groupKeyBinding);
+        super(evaluators, aggregators);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         isJoin = join;

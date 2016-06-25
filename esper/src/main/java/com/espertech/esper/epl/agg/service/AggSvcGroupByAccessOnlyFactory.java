@@ -22,7 +22,6 @@ public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory
 {
     private final AggregationAccessorSlotPair[] accessors;
     private final AggregationStateFactory[] accessAggSpecs;
-    private final Object groupKeyBinding;
     private final boolean isJoin;
 
     /**
@@ -33,16 +32,14 @@ public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory
      */
     public AggSvcGroupByAccessOnlyFactory(AggregationAccessorSlotPair[] accessors,
                                           AggregationStateFactory[] accessAggSpecs,
-                                          Object groupKeyBinding,
                                           boolean isJoin)
     {
         this.accessors = accessors;
         this.accessAggSpecs = accessAggSpecs;
-        this.groupKeyBinding = groupKeyBinding;
         this.isJoin = isJoin;
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByAccessOnlyImpl(methodResolutionService, groupKeyBinding, accessors, accessAggSpecs, isJoin);
+        return new AggSvcGroupByAccessOnlyImpl(accessors, accessAggSpecs, isJoin);
     }
 }

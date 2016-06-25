@@ -33,18 +33,17 @@ public class AggSvcGroupByRefcountedWAccessFactory extends AggregationServiceFac
      */
     public AggSvcGroupByRefcountedWAccessFactory(ExprEvaluator evaluators[],
                                                  AggregationMethodFactory prototypes[],
-                                                 Object groupKeyBinding,
                                                  AggregationAccessorSlotPair[] accessors,
                                                  AggregationStateFactory[] accessAggregations,
                                                  boolean isJoin)
     {
-        super(evaluators, prototypes, groupKeyBinding);
+        super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        return new AggSvcGroupByRefcountedWAccessImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin);
+        return new AggSvcGroupByRefcountedWAccessImpl(evaluators, aggregators, accessors, accessAggregations, isJoin);
     }
 }

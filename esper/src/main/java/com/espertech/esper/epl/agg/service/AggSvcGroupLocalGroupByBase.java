@@ -28,10 +28,8 @@ import java.util.*;
  */
 public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
 {
-    protected final MethodResolutionService methodResolutionService;
     protected final boolean isJoin;
     protected final AggregationLocalGroupByPlan localGroupByPlan;
-    protected final Object groupKeyBinding;
 
     // state
     protected AggregationMethod[] aggregatorsTopLevel;
@@ -41,15 +39,11 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
 
     protected abstract Object computeGroupKey(AggregationLocalGroupByLevel level, Object groupKey, ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext);
 
-    public AggSvcGroupLocalGroupByBase(MethodResolutionService methodResolutionService,
-                                   boolean isJoin,
-                                   AggregationLocalGroupByPlan localGroupByPlan,
-                                   Object groupKeyBinding)
+    public AggSvcGroupLocalGroupByBase(boolean isJoin,
+                                   AggregationLocalGroupByPlan localGroupByPlan)
     {
-        this.methodResolutionService = methodResolutionService;
         this.isJoin = isJoin;
         this.localGroupByPlan = localGroupByPlan;
-        this.groupKeyBinding = groupKeyBinding;
 
         this.aggregatorsPerLevelAndGroup = new Map[localGroupByPlan.getAllLevels().length];
         for (int i = 0; i < localGroupByPlan.getAllLevels().length; i++) {

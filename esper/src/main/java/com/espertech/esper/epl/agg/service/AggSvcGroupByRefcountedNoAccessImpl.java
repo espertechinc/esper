@@ -30,8 +30,6 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
     private AggregationMethod[] currentAggregatorRow;
     private Object currentGroupKey;
 
-    private MethodResolutionService methodResolutionService;
-
     private List<Object> removedKeys;
 
     /**
@@ -39,15 +37,11 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      * aggregation states for each group
-     * @param methodResolutionService - factory for creating additional aggregation method instances per group key
      */
     public AggSvcGroupByRefcountedNoAccessImpl(ExprEvaluator evaluators[],
-                                       AggregationMethodFactory prototypes[],
-                                       Object groupKeyBinding,
-                                       MethodResolutionService methodResolutionService)
+                                       AggregationMethodFactory prototypes[])
     {
-        super(evaluators, prototypes, groupKeyBinding);
-        this.methodResolutionService = methodResolutionService;
+        super(evaluators, prototypes);
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethodRow>();
         removedKeys = new ArrayList<Object>();
     }
