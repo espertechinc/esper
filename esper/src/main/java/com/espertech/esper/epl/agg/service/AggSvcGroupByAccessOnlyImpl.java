@@ -120,7 +120,7 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
             return row;
         }
 
-        row = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggSpecs, groupKey, groupKeyBinding, null, null);
+        row = AggSvcGroupByUtil.newAccesses(agentInstanceId, isJoin, accessAggSpecs, groupKey, null);
         accessMap.put(groupKey, row);
         return row;
     }

@@ -68,7 +68,7 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         AggregationMethod[] groupAggregators;
         if (row == null)
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             row = new AggregationMethodRow(1, groupAggregators);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -102,7 +102,7 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         }
         else
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             row = new AggregationMethodRow(1, groupAggregators);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -136,7 +136,7 @@ public class AggSvcGroupByRefcountedNoAccessImpl extends AggregationServiceBaseG
         }
 
         if (currentAggregatorRow == null) {
-            currentAggregatorRow = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, null);
+            currentAggregatorRow = AggSvcGroupByUtil.newAggregators(aggregators);
         }
         currentGroupKey = groupByKey;
     }

@@ -54,7 +54,7 @@ public class AggregationServiceMatchRecognizeFactoryImpl implements AggregationS
             if (thatStream != null) {
                 aggregatorsEachStream[stream] = new AggregationMethod[thatStream.length];
                 for (int aggId = 0; aggId < thatStream.length; aggId++) {
-                    aggregatorsEachStream[stream][aggId] = factoryEachStream[stream][aggId].make(agentInstanceContext.getStatementContext().getMethodResolutionService(), agentInstanceContext.getAgentInstanceId(), 0, aggId);
+                    aggregatorsEachStream[stream][aggId] = factoryEachStream[stream][aggId].make();
                     count++;
                 }
             }

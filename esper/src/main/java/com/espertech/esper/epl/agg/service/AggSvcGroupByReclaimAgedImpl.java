@@ -96,8 +96,8 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         AggregationState[] groupStates;
         if (row == null)
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
+            groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -185,8 +185,8 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         }
         else
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
-            groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
+            groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
         }
@@ -229,8 +229,8 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         }
 
         if (currentAggregatorMethods == null) {
-            currentAggregatorMethods = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, null);
-            currentAggregatorStates = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, null, null);
+            currentAggregatorMethods = AggSvcGroupByUtil.newAggregators(aggregators);
+            currentAggregatorStates = AggSvcGroupByUtil.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, null);
         }
 
         this.currentGroupKey = groupByKey;

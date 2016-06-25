@@ -18,7 +18,6 @@ import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
@@ -59,7 +58,7 @@ public class AggregationMethodFactoryMinMax implements AggregationMethodFactory
         return type;
     }
 
-    public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
+    public AggregationMethod make() {
         AggregationMethod method = makeMinMaxAggregator(parent.getMinMaxTypeEnum(), type, hasDataWindows, parent.isHasFilter());
         if (!parent.isDistinct()) {
             return method;

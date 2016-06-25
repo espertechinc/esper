@@ -61,7 +61,7 @@ public class AggSvcGroupByNoAccessImpl extends AggregationServiceBaseGrouped
         // The aggregators for this group do not exist, need to create them from the prototypes
         if (groupAggregators == null)
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             aggregatorsPerGroup.put(groupByKey, groupAggregators);
         }
 
@@ -85,7 +85,7 @@ public class AggSvcGroupByNoAccessImpl extends AggregationServiceBaseGrouped
         // The aggregators for this group do not exist, need to create them from the prototypes
         if (groupAggregators == null)
         {
-            groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupByKey, groupKeyBinding, null);
+            groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             aggregatorsPerGroup.put(groupByKey, groupAggregators);
         }
 
@@ -108,7 +108,7 @@ public class AggSvcGroupByNoAccessImpl extends AggregationServiceBaseGrouped
 
         if (currentAggregatorRow == null)
         {
-            currentAggregatorRow = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, null);
+            currentAggregatorRow = AggSvcGroupByUtil.newAggregators(aggregators);
             aggregatorsPerGroup.put(groupByKey, currentAggregatorRow);
         }
     }

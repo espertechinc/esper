@@ -53,8 +53,8 @@ public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
         }
 
         if (currentAggregatorMethods == null) {
-            currentAggregatorMethods = methodResolutionService.newAggregators(localGroupByPlan.getAllLevels()[0].getMethodFactories(), agentInstanceId, groupByKey, null, null);
-            currentAggregatorStates = methodResolutionService.newAccesses(agentInstanceId, isJoin, localGroupByPlan.getAllLevels()[0].getStateFactories(), groupByKey, null, null, null);
+            currentAggregatorMethods = AggSvcGroupByUtil.newAggregators(localGroupByPlan.getAllLevels()[0].getMethodFactories());
+            currentAggregatorStates = AggSvcGroupByUtil.newAccesses(agentInstanceId, isJoin, localGroupByPlan.getAllLevels()[0].getStateFactories(), groupByKey, null);
         }
     }
 

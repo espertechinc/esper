@@ -32,7 +32,7 @@ public class AggSvcGroupAllAccessOnlyFactory implements AggregationServiceFactor
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggSpecs, null);
+        AggregationState[] states = AggSvcGroupByUtil.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggSpecs, null, null);
         return new AggSvcGroupAllAccessOnlyImpl(accessors, states, accessAggSpecs);
     }
 }

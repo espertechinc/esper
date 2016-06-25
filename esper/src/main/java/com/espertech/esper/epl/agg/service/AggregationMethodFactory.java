@@ -13,7 +13,6 @@ import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -25,7 +24,7 @@ public interface AggregationMethodFactory
 {
     public boolean isAccessAggregation();
 
-    public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId);
+    public AggregationMethod make();
 
     public Class getResultType();
 

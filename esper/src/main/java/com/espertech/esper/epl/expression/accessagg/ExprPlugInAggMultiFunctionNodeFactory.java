@@ -17,7 +17,6 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
@@ -43,7 +42,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
         return true;
     }
 
-    public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
+    public AggregationMethod make() {
         return null;
     }
 

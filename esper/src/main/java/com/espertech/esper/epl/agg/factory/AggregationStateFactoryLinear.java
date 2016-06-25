@@ -16,7 +16,6 @@ import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationStateImpl;
 import com.espertech.esper.epl.agg.access.AggregationStateJoinImpl;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
@@ -30,7 +29,7 @@ public class AggregationStateFactoryLinear implements AggregationStateFactory {
         this.streamNum = streamNum;
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+    public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         if (join) {
             return new AggregationStateJoinImpl(streamNum);
         }

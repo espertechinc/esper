@@ -112,32 +112,7 @@ public interface MethodResolutionService
      */
     public Pair<Class, EngineImportSingleRowDesc> resolveSingleRow(String functionName) throws EngineImportUndefinedException, EngineImportException;
 
-    /**
-     * Returns a new set of aggregators given an existing prototype-set of aggregators for a given context partition and group key.
-     *
-     *
-     *
-     * @param prototypes is the prototypes
-     * @param agentInstanceId context partition
-     * @param groupKey is the key to group-by for
-     * @param groupByRollupLevel
-     * @return new set of aggregators for this group
-     */
-    public AggregationMethod[] newAggregators(AggregationMethodFactory[] prototypes, int agentInstanceId, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel);
-
-    /**
-     * Returns a new set of aggregators given an existing prototype-set of aggregators for a given context partition (no groups).
-     *
-     * @param agentInstanceId context partition
-     * @return new set of aggregators for this group
-     */
-    public AggregationMethod[] newAggregators(AggregationMethodFactory[] aggregators, int agentInstanceId);
-
     public EngineImportService getEngineImportService();
-
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru);
-
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel, AggregationServicePassThru passThru);
 
     public Object getCriteriaKeyBinding(ExprEvaluator[] evaluators);
 

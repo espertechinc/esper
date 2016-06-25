@@ -50,8 +50,8 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
     }
 
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
-        AggregationState[] topStates = methodResolutionService.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations, null);
-        AggregationMethod[] topMethods = methodResolutionService.newAggregators(super.aggregators, agentInstanceContext.getAgentInstanceId());
+        AggregationState[] topStates = AggSvcGroupByUtil.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations, null, null);
+        AggregationMethod[] topMethods = AggSvcGroupByUtil.newAggregators(super.aggregators);
         return new AggSvcGroupByRefcountedWAccessRollupImpl(evaluators, aggregators, groupKeyBinding, methodResolutionService, accessors, accessAggregations, isJoin, groupByRollupDesc, topMethods, topStates);
     }
 }

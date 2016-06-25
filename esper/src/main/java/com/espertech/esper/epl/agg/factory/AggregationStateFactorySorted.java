@@ -13,7 +13,6 @@ package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
@@ -27,7 +26,7 @@ public class AggregationStateFactorySorted implements AggregationStateFactory {
         this.spec = spec;
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+    public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         if (join) {
             return new AggregationStateSortedJoin(spec);
         }

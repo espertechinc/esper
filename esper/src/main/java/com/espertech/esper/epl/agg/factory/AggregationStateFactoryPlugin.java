@@ -14,7 +14,6 @@ package com.espertech.esper.epl.agg.factory;
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNodeFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
@@ -30,7 +29,7 @@ public class AggregationStateFactoryPlugin implements AggregationStateFactory {
         this.stateFactory = parent.getHandlerPlugin().getStateFactory();
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupBy, AggregationServicePassThru passThru) {
+    public AggregationState createAccess(int agentInstanceId, boolean join, Object groupBy, AggregationServicePassThru passThru) {
         PlugInAggregationMultiFunctionStateContext context = new PlugInAggregationMultiFunctionStateContext(agentInstanceId, groupBy);
         return stateFactory.makeAggregationState(context);
     }

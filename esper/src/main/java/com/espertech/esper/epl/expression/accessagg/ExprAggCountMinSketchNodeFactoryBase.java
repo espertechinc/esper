@@ -11,7 +11,6 @@ package com.espertech.esper.epl.expression.accessagg;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 
 public abstract class ExprAggCountMinSketchNodeFactoryBase implements AggregationMethodFactory
@@ -30,7 +29,7 @@ public abstract class ExprAggCountMinSketchNodeFactoryBase implements Aggregatio
         throw new UnsupportedOperationException();
     }
 
-    public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
+    public AggregationMethod make() {
         throw new UnsupportedOperationException();
     }
 

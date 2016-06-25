@@ -126,8 +126,8 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             AggregationState[] groupStates;
             if (row == null)
             {
-                groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupKey, groupKeyBinding, level);
-                groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, groupKeyBinding, level, null);
+                groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
+                groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, null);
                 row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
                 if (!level.isAggregationTop()) {
                     aggregatorsPerGroup[level.getAggregationOffset()].put(groupKey, row);
@@ -194,8 +194,8 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             }
             else
             {
-                groupAggregators = methodResolutionService.newAggregators(aggregators, exprEvaluatorContext.getAgentInstanceId(), groupKey, groupKeyBinding, level);
-                groupStates = methodResolutionService.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, groupKeyBinding, level, null);
+                groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
+                groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, null);
                 row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
                 if (!level.isAggregationTop()) {
                     aggregatorsPerGroup[level.getAggregationOffset()].put(groupKey, row);
@@ -251,8 +251,8 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
         }
 
         if (currentAggregatorMethods == null) {
-            currentAggregatorMethods = methodResolutionService.newAggregators(aggregators, agentInstanceId, groupByKey, groupKeyBinding, rollupLevel);
-            currentAggregatorStates = methodResolutionService.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, groupKeyBinding, rollupLevel, null);
+            currentAggregatorMethods = AggSvcGroupByUtil.newAggregators(aggregators);
+            currentAggregatorStates = AggSvcGroupByUtil.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, null);
         }
 
         this.currentGroupKey = groupByKey;

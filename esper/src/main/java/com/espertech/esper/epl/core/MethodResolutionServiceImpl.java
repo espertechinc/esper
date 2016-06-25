@@ -11,24 +11,16 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.*;
-import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupDesc;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.util.AggregationLocalGroupByPlan;
-import com.espertech.esper.epl.approx.CountMinSketchAggState;
-import com.espertech.esper.epl.approx.CountMinSketchSpec;
-import com.espertech.esper.epl.approx.CountMinSketchState;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 import com.espertech.esper.schedule.TimeProvider;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -99,40 +91,6 @@ public class MethodResolutionServiceImpl implements MethodResolutionService
         return engineImportService.resolveSingleRow(functionName);
     }
 
-    public AggregationMethod[] newAggregators(AggregationMethodFactory[] prototypes, int agentInstanceId) {
-        return newAggregatorsInternal(prototypes, agentInstanceId);
-    }
-
-    public AggregationMethod[] newAggregators(AggregationMethodFactory[] prototypes, int agentInstanceId, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel) {
-        return newAggregatorsInternal(prototypes, agentInstanceId);
-    }
-
-    public AggregationMethod[] newAggregatorsInternal(AggregationMethodFactory[] prototypes, int agentInstanceId) {
-        AggregationMethod row[] = new AggregationMethod[prototypes.length];
-        for (int i = 0; i < prototypes.length; i++)
-        {
-            row[i] = prototypes[i].make(this, agentInstanceId, -1, i);
-        }
-        return row;
-    }
-
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, AggregationServicePassThru passThru) {
-        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, null, passThru);
-    }
-
-    public AggregationState[] newAccesses(int agentInstanceId, boolean isJoin, AggregationStateFactory[] accessAggSpecs, Object groupKey, Object groupKeyBinding, AggregationGroupByRollupLevel groupByRollupLevel, AggregationServicePassThru passThru) {
-        return newAccessInternal(agentInstanceId, accessAggSpecs, isJoin, groupKey, passThru);
-    }
-
-    private AggregationState[] newAccessInternal(int agentInstanceId, AggregationStateFactory[] accessAggSpecs, boolean isJoin, Object groupKey, AggregationServicePassThru passThru) {
-        AggregationState[] row = new AggregationState[accessAggSpecs.length];
-        int i = 0;
-        for (AggregationStateFactory spec : accessAggSpecs) {
-            row[i] = spec.createAccess(this, agentInstanceId, 0, i, isJoin, groupKey, passThru);   // no group id assigned
-            i++;
-        }
-        return row;
-    }
 
     public EngineImportService getEngineImportService() {
         return engineImportService;

@@ -16,7 +16,6 @@ import com.espertech.esper.epl.agg.aggregator.AggregatorNth;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
@@ -57,7 +56,7 @@ public class AggregationMethodFactoryNth implements AggregationMethodFactory
         throw new IllegalStateException("Not an access aggregation function");
     }
 
-    public AggregationMethod make(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId) {
+    public AggregationMethod make() {
         AggregationMethod method =  new AggregatorNth(size + 1);
         if (!parent.isDistinct()) {
             return method;

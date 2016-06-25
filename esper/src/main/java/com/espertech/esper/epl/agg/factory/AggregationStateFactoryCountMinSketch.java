@@ -14,7 +14,6 @@ import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggState;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.approx.CountMinSketchState;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
@@ -28,7 +27,7 @@ public class AggregationStateFactoryCountMinSketch implements AggregationStateFa
         this.specification = specification;
     }
 
-    public AggregationState createAccess(MethodResolutionService methodResolutionService, int agentInstanceId, int groupId, int aggregationId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+    public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         return new CountMinSketchAggState(CountMinSketchState.makeState(specification), specification.getAgent());
     }
 

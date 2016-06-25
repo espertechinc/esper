@@ -15,6 +15,7 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.service.AggSvcGroupByUtil;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
@@ -62,8 +63,8 @@ public class TableStateRowFactory {
     }
 
     public AggregationRowPair makeAggs(int agentInstanceId, Object groupByKey, Object groupKeyBinding, AggregationServicePassThru passThru) {
-        AggregationMethod[] methods = methodResolutionService.newAggregators(methodFactories, agentInstanceId, groupByKey, groupKeyBinding, null);
-        AggregationState[] states = methodResolutionService.newAccesses(agentInstanceId, false, stateFactories, groupByKey, groupKeyBinding, null, passThru);
+        AggregationMethod[] methods = AggSvcGroupByUtil.newAggregators(methodFactories);
+        AggregationState[] states = AggSvcGroupByUtil.newAccesses(agentInstanceId, false, stateFactories, groupByKey, passThru);
         return new AggregationRowPair(methods, states);
     }
 }
