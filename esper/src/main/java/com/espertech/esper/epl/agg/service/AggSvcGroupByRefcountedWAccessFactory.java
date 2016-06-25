@@ -10,7 +10,7 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 /**
@@ -43,7 +43,7 @@ public class AggSvcGroupByRefcountedWAccessFactory extends AggregationServiceFac
         this.isJoin = isJoin;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByRefcountedWAccessImpl(evaluators, aggregators, accessors, accessAggregations, isJoin);
     }
 }

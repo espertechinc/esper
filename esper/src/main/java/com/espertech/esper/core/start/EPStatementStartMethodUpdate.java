@@ -98,7 +98,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
         // Materialize sub-select views
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, isQueryPlanLogging(services), subSelectStreamDesc, new String[]{streamName}, new EventType[]{streamEventType}, new String[]{triggereventTypeName}, statementSpec.getDeclaredExpressions(), null);
 
-        ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
         for (OnTriggerSetAssignment assignment : updateSpec.getAssignments())
         {
             ExprNode validated = ExprNodeUtility.getValidatedAssignment(assignment, validationContext);

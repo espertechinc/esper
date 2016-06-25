@@ -96,7 +96,7 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
         };
         EPStatementHandleCallback handle = new EPStatementHandleCallback(context.getEpStatementAgentInstanceHandle(), callback);
         SchedulingService schedulingService = context.getStatementContext().getSchedulingService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(factory.getScheduleSpec(), schedulingService.getTime(), context.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(factory.getScheduleSpec(), schedulingService.getTime(), context.getStatementContext().getEngineImportService().getTimeZone());
         schedulingService.add(nextScheduledTime, handle, scheduleSlot);
     }
 

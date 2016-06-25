@@ -43,7 +43,7 @@ public class TestResultSetProcessorSimple extends TestCase
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         StatementContext statementContext = SupportStatementContextFactory.makeContext();
 
-        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeNoAggregateSelectList(), Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, statementContext.getMethodResolutionService(), 1, null, new Configuration(), null, new TableServiceImpl(), null);
+        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeNoAggregateSelectList(), Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, statementContext.getEngineImportService(), 1, null, new Configuration(), null, new TableServiceImpl(), null);
         selectExprProcessor = factory.getEvaluator();
         orderByProcessor = null;
 

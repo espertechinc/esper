@@ -153,7 +153,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         if (validationContext.getStreamTypeService().getEventTypes().length > 0) {
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
-        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), validationContext.getMethodResolutionService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getTableService());
+        final ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(clazz.getName(), null, firstItem.getName(), firstItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName(), true), functionName, validationContext.getTableService());
 
         boolean allowValueCache = true;
         if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED) {
@@ -161,8 +161,8 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
             allowValueCache = false;
         }
         else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.CONFIGURED) {
-            isReturnsConstantResult = validationContext.getMethodResolutionService().isUdfCache() && staticMethodDesc.isAllConstants() && chainList.isEmpty();
-            allowValueCache = validationContext.getMethodResolutionService().isUdfCache();
+            isReturnsConstantResult = validationContext.getEngineImportService().isUdfCache() && staticMethodDesc.isAllConstants() && chainList.isEmpty();
+            allowValueCache = validationContext.getEngineImportService().isUdfCache();
         }
         else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.ENABLED) {
             isReturnsConstantResult = staticMethodDesc.isAllConstants() && chainList.isEmpty();

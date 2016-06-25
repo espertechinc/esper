@@ -190,7 +190,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
         }
 
         StreamTypeServiceImpl streamTypeService = new StreamTypeServiceImpl(types, streamNames, istreamOnly, services.getEngineURI(), false);
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
 
         // substitute parameter nodes
         for (ExprNode childNode : columnExpressionType.getChildNodes()) {
@@ -400,7 +400,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
 
         // create state factory
         int[] groupKeyIndexesArr = CollectionUtil.intArray(groupKeyIndexes);
-        TableStateRowFactory stateRowFactory = new TableStateRowFactory(internalEventType, statementContext.getMethodResolutionService(), methodFactories, stateFactories, groupKeyIndexesArr, services.getEventAdapterService());
+        TableStateRowFactory stateRowFactory = new TableStateRowFactory(internalEventType, statementContext.getEngineImportService(), methodFactories, stateFactories, groupKeyIndexesArr, services.getEventAdapterService());
 
         // create public event provision
         TableMetadataInternalEventToPublic eventToPublic = new TableMetadataInternalEventToPublic(publicEventType,

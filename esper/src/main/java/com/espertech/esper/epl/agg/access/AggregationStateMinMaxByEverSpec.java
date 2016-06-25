@@ -18,7 +18,7 @@ public class AggregationStateMinMaxByEverSpec
     private final ExprEvaluator[] criteria;
     private final boolean max;
     private final Comparator<Object> comparator;
-    private final Object criteriaKeyBinding;
+    private Object criteriaKeyBinding;
 
     public AggregationStateMinMaxByEverSpec(int streamId, ExprEvaluator[] criteria, boolean max, Comparator<Object> comparator, Object criteriaKeyBinding) {
         this.streamId = streamId;
@@ -46,5 +46,9 @@ public class AggregationStateMinMaxByEverSpec
 
     public Object getCriteriaKeyBinding() {
         return criteriaKeyBinding;
+    }
+
+    public void setCriteriaKeyBinding(Object criteriaKeyBinding) {
+        this.criteriaKeyBinding = criteriaKeyBinding;
     }
 }

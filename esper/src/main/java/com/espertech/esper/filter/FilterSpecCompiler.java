@@ -16,7 +16,7 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperSubselect;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperValidate;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
@@ -108,7 +108,7 @@ public final class FilterSpecCompiler
         return buildNoStmtCtx(validatedNodes, eventType, eventTypeName, optionalPropertyEvalSpec, taggedEventTypes, arrayEventTypes, streamTypeService,
                 optionalStreamName, assignedTypeNumberStack,
                 evaluatorContextStmt, stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(),
-                stmtContext.getMethodResolutionService(), stmtContext.getEventAdapterService(), stmtContext.getFilterBooleanExpressionFactory(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowMgmtService());
+                stmtContext.getEngineImportService(), stmtContext.getEventAdapterService(), stmtContext.getFilterBooleanExpressionFactory(), stmtContext.getTimeProvider(), stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getConfigSnapshot(), stmtContext.getNamedWindowMgmtService());
     }
 
     public static FilterSpecCompiled buildNoStmtCtx(List<ExprNode> validatedFilterNodes,
@@ -125,7 +125,7 @@ public final class FilterSpecCompiler
                                             String statementName,
                                             Annotation[] annotations,
                                             ContextDescriptor contextDescriptor,
-                                            MethodResolutionService methodResolutionService,
+                                            EngineImportService engineImportService,
                                             EventAdapterService eventAdapterService,
                                             FilterBooleanExpressionFactory filterBooleanExpressionFactory,
                                             TimeProvider timeProvider,
@@ -134,12 +134,12 @@ public final class FilterSpecCompiler
                                             ConfigurationInformation configurationInformation,
                                             NamedWindowMgmtService namedWindowMgmtService) throws ExprValidationException {
 
-        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, exprEvaluatorContext, statementName, statementId, streamTypeService, methodResolutionService, timeProvider, variableService, tableService, eventAdapterService, filterBooleanExpressionFactory, annotations, contextDescriptor, configurationInformation);
+        FilterSpecCompilerArgs args = new FilterSpecCompilerArgs(taggedEventTypes, arrayEventTypes, exprEvaluatorContext, statementName, statementId, streamTypeService, engineImportService, timeProvider, variableService, tableService, eventAdapterService, filterBooleanExpressionFactory, annotations, contextDescriptor, configurationInformation);
         List<FilterSpecParam>[] parameters = FilterSpecCompilerPlanner.planFilterParameters(validatedFilterNodes, args);
 
         PropertyEvaluator optionalPropertyEvaluator = null;
         if (optionalPropertyEvalSpec != null) {
-            optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, eventAdapterService, methodResolutionService, timeProvider, variableService, tableService, streamTypeService.getEngineURIQualifier(), statementId, statementName, annotations, assignedTypeNumberStack, configurationInformation, namedWindowMgmtService);
+            optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(optionalPropertyEvalSpec, eventType, optionalStreamName, eventAdapterService, engineImportService, timeProvider, variableService, tableService, streamTypeService.getEngineURIQualifier(), statementId, statementName, annotations, assignedTypeNumberStack, configurationInformation, namedWindowMgmtService);
         }
 
         FilterSpecCompiled spec = new FilterSpecCompiled(eventType, eventTypeName, parameters, optionalPropertyEvaluator);
@@ -170,7 +170,7 @@ public final class FilterSpecCompiler
         List<ExprNode> validatedNodes = new ArrayList<ExprNode>();
 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getMethodResolutionService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
         for (ExprNode node : exprNodes)
         {
             // Determine subselects
@@ -298,7 +298,7 @@ public final class FilterSpecCompiler
                 SelectClauseExprCompiledSpec compiled = (SelectClauseExprCompiledSpec) element;
                 ExprNode selectExpression = compiled.getSelectExpression();
                 ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-                ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getMethodResolutionService(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+                ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getEngineImportService(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 selectExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
                 subselect.setSelectClause(new ExprNode[] {selectExpression});
                 subselect.setSelectAsNames(new String[] {compiled.getAssignedName()});

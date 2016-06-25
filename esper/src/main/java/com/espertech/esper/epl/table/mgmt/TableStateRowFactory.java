@@ -19,7 +19,7 @@ import com.espertech.esper.epl.agg.service.AggSvcGroupByUtil;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
@@ -27,15 +27,15 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
 public class TableStateRowFactory {
 
     private final ObjectArrayEventType objectArrayEventType;
-    private final MethodResolutionService methodResolutionService;
+    private final EngineImportService engineImportService;
     private final AggregationMethodFactory[] methodFactories;
     private final AggregationStateFactory[] stateFactories;
     private final int[] groupKeyIndexes;
     private final EventAdapterService eventAdapterService;
 
-    public TableStateRowFactory(ObjectArrayEventType objectArrayEventType, MethodResolutionService methodResolutionService, AggregationMethodFactory[] methodFactories, AggregationStateFactory[] stateFactories, int[] groupKeyIndexes, EventAdapterService eventAdapterService) {
+    public TableStateRowFactory(ObjectArrayEventType objectArrayEventType, EngineImportService engineImportService, AggregationMethodFactory[] methodFactories, AggregationStateFactory[] stateFactories, int[] groupKeyIndexes, EventAdapterService eventAdapterService) {
         this.objectArrayEventType = objectArrayEventType;
-        this.methodResolutionService = methodResolutionService;
+        this.engineImportService = engineImportService;
         this.methodFactories = methodFactories;
         this.stateFactories = stateFactories;
         this.groupKeyIndexes = groupKeyIndexes;

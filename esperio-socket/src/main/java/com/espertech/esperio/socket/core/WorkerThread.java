@@ -20,7 +20,6 @@ import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
-import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
 import org.apache.commons.logging.Log;
@@ -39,7 +38,6 @@ public class WorkerThread extends Thread {
     private final String serviceName;
     private final Socket socket;
     private final Map<String, WriterCacheEntry> streamCache = new HashMap<String, WriterCacheEntry>();
-    private final MethodResolutionServiceImpl methods;
     private final SocketConfig socketConfig;
 
     private ObjectInputStream ois;
@@ -51,7 +49,6 @@ public class WorkerThread extends Thread {
         this.engine = engine;
         this.runnable = runnable;
         this.socket = socket;
-        this.methods = new MethodResolutionServiceImpl(engine.getEngineImportService(), engine.getTimeProvider());
         this.socketConfig = socketConfig;
 
         if (socketConfig.getDataType() == DataType.PROPERTY_ORDERED_CSV) {
@@ -232,7 +229,7 @@ public class WorkerThread extends Thread {
 
         EventBeanManufacturer eventBeanManufacturer;
         try {
-            eventBeanManufacturer = engine.getEventAdapterService().getManufacturer(eventType, writableProperties, methods.getEngineImportService(), false);
+            eventBeanManufacturer = engine.getEventAdapterService().getManufacturer(eventType, writableProperties, engine.getEngineImportService(), false);
         }
         catch (EventBeanManufactureException e) {
             log.info("Unable to create manufacturer for event type: " + e.getMessage(), e);

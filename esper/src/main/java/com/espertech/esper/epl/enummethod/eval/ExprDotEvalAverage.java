@@ -12,13 +12,13 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 
@@ -32,12 +32,12 @@ public class ExprDotEvalAverage extends ExprDotEvalEnumMethodBase {
         return ExprDotNodeUtility.getSingleLambdaParamEventType(enumMethodUsedName, goesToNames, inputEventType, collectionComponentType, eventAdapterService);
     }
 
-    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) {
+    public EnumEval getEnumEval(EngineImportService engineImportService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) {
 
         if (bodiesAndParameters.isEmpty()) {
             if (collectionComponentType == BigDecimal.class || collectionComponentType == BigInteger.class) {
                 super.setTypeInfo(EPTypeHelper.singleValue(BigDecimal.class));
-                return new EnumEvalAverageBigDecimalScalar(numStreamsIncoming, methodResolutionService.getEngineImportService().getDefaultMathContext());
+                return new EnumEvalAverageBigDecimalScalar(numStreamsIncoming, engineImportService.getDefaultMathContext());
             }
             super.setTypeInfo(EPTypeHelper.singleValue(Double.class));
             return new EnumEvalAverageScalar(numStreamsIncoming);
@@ -50,9 +50,9 @@ public class ExprDotEvalAverage extends ExprDotEvalEnumMethodBase {
             super.setTypeInfo(EPTypeHelper.singleValue(BigDecimal.class));
             if (inputEventType == null) {
                 return new EnumEvalAverageBigDecimalScalarLambda(first.getBodyEvaluator(), first.getStreamCountIncoming(),
-                        (ObjectArrayEventType) first.getGoesToTypes()[0], methodResolutionService.getEngineImportService().getDefaultMathContext());
+                        (ObjectArrayEventType) first.getGoesToTypes()[0], engineImportService.getDefaultMathContext());
             }
-            return new EnumEvalAverageBigDecimalEvents(first.getBodyEvaluator(), first.getStreamCountIncoming(), methodResolutionService.getEngineImportService().getDefaultMathContext());
+            return new EnumEvalAverageBigDecimalEvents(first.getBodyEvaluator(), first.getStreamCountIncoming(), engineImportService.getDefaultMathContext());
         }
         super.setTypeInfo(EPTypeHelper.singleValue(Double.class));
         if (inputEventType == null) {

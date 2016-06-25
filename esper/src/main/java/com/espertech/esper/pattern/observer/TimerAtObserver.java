@@ -64,7 +64,7 @@ public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
 
         scheduleHandle = new EPStatementHandleCallback(observerEventEvaluator.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
         SchedulingService schedulingService = observerEventEvaluator.getContext().getPatternContext().getSchedulingService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, schedulingService.getTime(), observerEventEvaluator.getContext().getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, schedulingService.getTime(), observerEventEvaluator.getContext().getStatementContext().getEngineImportService().getTimeZone());
         schedulingService.add(nextScheduledTime, scheduleHandle, scheduleSlot);
         isTimerActive = true;
     }

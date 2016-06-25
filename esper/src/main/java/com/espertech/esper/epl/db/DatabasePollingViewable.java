@@ -18,7 +18,6 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.join.pollindex.PollResultIndexingStrategy;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -100,7 +99,6 @@ public class DatabasePollingViewable implements HistoricalEventViewable
 
     public void validate(EngineImportService engineImportService,
                          StreamTypeService streamTypeService,
-                         MethodResolutionService methodResolutionService,
                          TimeProvider timeProvider,
                          VariableService variableService,
                          TableService tableService,
@@ -118,7 +116,7 @@ public class DatabasePollingViewable implements HistoricalEventViewable
         this.exprEvaluatorContext = exprEvaluatorContext;
 
         int count = 0;
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         for (String inputParam : inputParameters)
         {
             ExprNode raw = findSQLExpressionNode(myStreamNumber, count, sqlParameters);

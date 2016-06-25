@@ -10,7 +10,7 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 /**
@@ -22,7 +22,7 @@ public class AggSvcGroupAllNoAccessFactory extends AggregationServiceFactoryBase
         super(evaluators, aggregators);
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
 
         AggregationMethod[] aggregatorsAgentInstance = AggSvcGroupByUtil.newAggregators(super.aggregators);
         return new AggSvcGroupAllNoAccessImpl(evaluators, aggregatorsAgentInstance, aggregators);

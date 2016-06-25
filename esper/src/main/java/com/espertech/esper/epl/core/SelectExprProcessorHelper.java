@@ -13,8 +13,8 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.core.eval.*;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.rettype.EventEPType;
@@ -58,7 +58,7 @@ public class SelectExprProcessorHelper
     private final EventAdapterService eventAdapterService;
     private final ValueAddEventService valueAddEventService;
     private final SelectExprEventTypeRegistry selectExprEventTypeRegistry;
-    private final MethodResolutionService methodResolutionService;
+    private final EngineImportService engineImportService;
     private final int statementId;
     private final Annotation[] annotations;
     private final ConfigurationInformation configuration;
@@ -75,7 +75,6 @@ public class SelectExprProcessorHelper
      * @param eventAdapterService - service for generating events and handling event types
      * @param valueAddEventService - service that handles update events
      * @param selectExprEventTypeRegistry - service for statement to type registry
-     * @param methodResolutionService - for resolving methods
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException thrown if any of the expressions don't validate
      */
     public SelectExprProcessorHelper(Collection<Integer> assignedTypeNumberStack,
@@ -88,7 +87,7 @@ public class SelectExprProcessorHelper
                                      EventAdapterService eventAdapterService,
                                      ValueAddEventService valueAddEventService,
                                      SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                     MethodResolutionService methodResolutionService,
+                                     EngineImportService engineImportService,
                                      int statementId,
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
@@ -106,7 +105,7 @@ public class SelectExprProcessorHelper
         this.typeService = typeService;
         this.valueAddEventService = valueAddEventService;
         this.selectExprEventTypeRegistry = selectExprEventTypeRegistry;
-        this.methodResolutionService = methodResolutionService;
+        this.engineImportService = engineImportService;
         this.statementId = statementId;
         this.annotations = annotations;
         this.configuration = configuration;
@@ -167,7 +166,7 @@ public class SelectExprProcessorHelper
         SelectExprProcessor joinWildcardProcessor = null;
         if(typeService.getStreamNames().length > 1 && isUsingWildcard)
         {
-            joinWildcardProcessor = SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, null, selectExprEventTypeRegistry, methodResolutionService, annotations, configuration, tableService);
+            joinWildcardProcessor = SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, null, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService);
         }
 
         // Resolve underlying event type in the case of wildcard select
@@ -222,7 +221,7 @@ public class SelectExprProcessorHelper
             // if there is insert-into specification, use that
             if (insertIntoDesc != null) {
                 // handle insert-into, with well-defined target event-typed column, and enumeration
-                TypeAndFunctionPair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], evaluator, methodResolutionService.getEngineImportService());
+                TypeAndFunctionPair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], evaluator, engineImportService);
                 if (pair != null) {
                     expressionReturnTypes[i] = pair.getType();
                     exprEvaluators[i] = pair.getFunction();
@@ -230,7 +229,7 @@ public class SelectExprProcessorHelper
                 }
 
                 // handle insert-into with well-defined target event-typed column, and typable expression
-                pair = handleInsertIntoTypableExpression(insertIntoTargetsPerCol[i], evaluator, methodResolutionService.getEngineImportService());
+                pair = handleInsertIntoTypableExpression(insertIntoTargetsPerCol[i], evaluator, engineImportService);
                 if (pair != null) {
                     expressionReturnTypes[i] = pair.getType();
                     exprEvaluators[i] = pair.getFunction();
@@ -679,12 +678,12 @@ public class SelectExprProcessorHelper
                 {
                     // recast as a Map-type
                     if (underlyingEventType instanceof MapEventType && insertIntoTargetType instanceof MapEventType) {
-                        return EvalSelectStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, methodResolutionService.getEngineImportService());
+                        return EvalSelectStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService);
                     }
 
                     // recast as a Object-array-type
                     if (underlyingEventType instanceof ObjectArrayEventType && insertIntoTargetType instanceof ObjectArrayEventType) {
-                        return EvalSelectStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, methodResolutionService.getEngineImportService());
+                        return EvalSelectStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService);
                     }
 
                     // recast as a Bean-type
@@ -771,7 +770,7 @@ public class SelectExprProcessorHelper
                         }
 
                         // handle insert-into by generating the writer with possible additional properties
-                        SelectExprProcessor existingTypeProcessor = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, insertIntoTargetType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, methodResolutionService.getEngineImportService(), insertIntoDesc, columnNamesAsProvided, true);
+                        SelectExprProcessor existingTypeProcessor = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, insertIntoTargetType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, true);
                         if (existingTypeProcessor != null) {
                             return existingTypeProcessor;
                         }
@@ -913,7 +912,7 @@ public class SelectExprProcessorHelper
                         // The type may however be an auto-import or fully-qualified class name
                         Class clazz = null;
                         try {
-                            clazz = this.methodResolutionService.resolveClass(insertIntoDesc.getEventTypeName(), false);
+                            clazz = this.engineImportService.resolveClass(insertIntoDesc.getEventTypeName(), false);
                         }
                         catch (EngineImportException e) {
                             log.debug("Target stream name '" + insertIntoDesc.getEventTypeName() + "' is not resolved as a class name");
@@ -925,7 +924,7 @@ public class SelectExprProcessorHelper
 
                     SelectExprProcessor selectExprInsertEventBean = null;
                     if (existingType != null) {
-                        selectExprInsertEventBean = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, existingType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, methodResolutionService.getEngineImportService(), insertIntoDesc, columnNamesAsProvided, false);
+                        selectExprInsertEventBean = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, existingType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, false);
                     }
                     if (selectExprInsertEventBean != null) {
                         return selectExprInsertEventBean;

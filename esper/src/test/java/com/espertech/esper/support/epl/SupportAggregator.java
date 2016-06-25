@@ -12,7 +12,7 @@
 package com.espertech.esper.support.epl;
 
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 
 public class SupportAggregator implements AggregationMethod
 {
@@ -44,7 +44,7 @@ public class SupportAggregator implements AggregationMethod
         return sum;
     }
 
-    public AggregationMethod newAggregator(MethodResolutionService methodResolutionService)
+    public AggregationMethod newAggregator(EngineImportService engineImportService)
     {
         return new SupportAggregator();
     }

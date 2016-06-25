@@ -15,8 +15,8 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.stmt.StatementAIResourceRegistry;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -62,7 +62,6 @@ public final class StatementContext
     private final PatternObjectResolutionService patternResolutionService;
     private final StatementExtensionSvcContext statementExtensionSvcContext;
     private final StatementStopService statementStopService;
-    private final MethodResolutionService methodResolutionService;
     private final PatternContextFactory patternContextFactory;
     private FilterService filterService;
     private InternalEventRouteDest internalEventEngineRouteDest;
@@ -99,7 +98,6 @@ public final class StatementContext
      * @param viewResultionService is a service for resolving view namespace and name to a view factory
      * @param statementExtensionSvcContext provide extension points for custom statement resources
      * @param statementStopService for registering a callback invoked when a statement is stopped
-     * @param methodResolutionService is a service for resolving static methods and aggregation functions
      * @param patternContextFactory is the pattern-level services and context information factory
      * @param filterService is the filtering service
      * @param patternResolutionService is the service that resolves pattern objects for the statement
@@ -114,7 +112,6 @@ public final class StatementContext
                               PatternObjectResolutionService patternResolutionService,
                               StatementExtensionSvcContext statementExtensionSvcContext,
                               StatementStopService statementStopService,
-                              MethodResolutionService methodResolutionService,
                               PatternContextFactory patternContextFactory,
                               FilterService filterService,
                               StatementResultService statementResultService,
@@ -142,7 +139,6 @@ public final class StatementContext
         this.patternResolutionService = patternResolutionService;
         this.statementExtensionSvcContext = statementExtensionSvcContext;
         this.statementStopService = statementStopService;
-        this.methodResolutionService = methodResolutionService;
         this.patternContextFactory = patternContextFactory;
         this.filterService = filterService;
         this.statementResultService = statementResultService;
@@ -249,15 +245,6 @@ public final class StatementContext
     public StatementStopService getStatementStopService()
     {
         return statementStopService;
-    }
-
-    /**
-     * Returns service to look up static and aggregation methods or functions.
-     * @return method resolution
-     */
-    public MethodResolutionService getMethodResolutionService()
-    {
-        return methodResolutionService;
     }
 
     /**
@@ -600,5 +587,9 @@ public final class StatementContext
 
     public TimeSourceService getTimeSourceService() {
         return stmtEngineServices.getTimeSourceService();
+    }
+
+    public EngineImportService getEngineImportService() {
+        return stmtEngineServices.getEngineImportService();
     }
 }

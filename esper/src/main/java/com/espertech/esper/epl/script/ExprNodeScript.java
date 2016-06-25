@@ -201,7 +201,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         }
 
         try {
-            return validationContext.getMethodResolutionService().resolveClass(returnTypeName, false);
+            return validationContext.getEngineImportService().resolveClass(returnTypeName, false);
         }
         catch (EngineImportException e1) {
             throw new ExprValidationException("Failed to resolve return type '" + returnTypeName + "' specified for script '" + script.getName() + "'");

@@ -113,7 +113,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
                 // validate parameters
                 StreamTypeServiceImpl streamTypes = new StreamTypeServiceImpl(result.getFilterSpec().getFilterForEventType(), null, true, statementContext.getEngineURI());
-                ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+                ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
                 ExprNodeUtility.validate(ExprNodeOrigin.CONTEXT, Collections.singletonList(hashItem.getFunction()), validationContext);
             }
         }
@@ -137,7 +137,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                     throw new ExprValidationException("Distinct-expressions require that a stream name is assigned to the stream using 'as'");
                 }
                 StreamTypeServiceImpl types = new StreamTypeServiceImpl(filter.getFilterSpecCompiled().getFilterForEventType(), filter.getOptionalFilterAsName(), true, servicesContext.getEngineURI());
-                ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+                ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 for (int i = 0; i < distinctExpressions.length; i++) {
                     ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTEXTDISTINCT, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(distinctExpressions[i]), distinctExpressions[i]);
                     distinctExpressions[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
@@ -172,7 +172,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
         if (endpoint instanceof ContextDetailConditionTimePeriod) {
             ContextDetailConditionTimePeriod timePeriod = (ContextDetailConditionTimePeriod) endpoint;
-            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(servicesContext.getEngineURI(), false), statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(servicesContext.getEngineURI(), false), statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
             ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTCONDITION, timePeriod.getTimePeriod(), validationContext);
             if (timePeriod.getTimePeriod().isConstantResult()) {
                 if (timePeriod.getTimePeriod().evaluateAsSeconds(null, true, null) < 0) {

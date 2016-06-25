@@ -35,7 +35,6 @@ public class SelectExprJoinWildcardProcessorFactory
      * @param eventAdapterService - service for generating events and handling event types
      * @param insertIntoDesc - describes the insert-into clause
      * @param selectExprEventTypeRegistry - registry for event type to statements
-     * @param methodResolutionService - for resolving writable properties
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression validation failed
      */
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
@@ -45,7 +44,7 @@ public class SelectExprJoinWildcardProcessorFactory
                                                   EventAdapterService eventAdapterService,
                                                   InsertIntoDesc insertIntoDesc,
                                                   SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                                  MethodResolutionService methodResolutionService,
+                                                  EngineImportService engineImportService,
                                                   Annotation[] annotations,
                                                   ConfigurationInformation configuration,
                                                   TableService tableService) throws ExprValidationException
@@ -78,7 +77,7 @@ public class SelectExprJoinWildcardProcessorFactory
         if (insertIntoDesc != null) {
             EventType existingType = eventAdapterService.getExistsTypeByName(insertIntoDesc.getEventTypeName());
             if (existingType != null) {
-                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, methodResolutionService.getEngineImportService());
+                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, engineImportService);
             }
         }
 

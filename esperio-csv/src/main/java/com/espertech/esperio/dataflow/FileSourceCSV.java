@@ -218,7 +218,7 @@ public class FileSourceCSV implements DataFlowSourceOperator {
         int[] indexes = CollectionUtil.intArray(indexesList);
         EventBeanManufacturer manufacturer;
         try {
-            manufacturer = statementContext.getEventAdapterService().getManufacturer(outputEventType, writables, statementContext.getMethodResolutionService().getEngineImportService(), false);
+            manufacturer = statementContext.getEventAdapterService().getManufacturer(outputEventType, writables, statementContext.getEngineImportService(), false);
         }
         catch (EventBeanManufactureException e) {
             throw new EPException("Event type '" + outputEventType.getName() + "' cannot be written to: " + e.getMessage(), e);

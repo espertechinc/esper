@@ -12,7 +12,7 @@
 package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
@@ -32,7 +32,7 @@ public class ExprDotEvalSetExceptUnionIntersect extends ExprDotEvalEnumMethodBas
         return new EventType[] {};
     }
 
-    public EnumEval getEnumEval(MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
+    public EnumEval getEnumEval(EngineImportService engineImportService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
         ExprDotEvalParam first = bodiesAndParameters.get(0);
 
         ExprDotEnumerationSource enumSrc = ExprDotNodeUtility.getEnumerationSource(first.getBody(), streamTypeService, eventAdapterService, statementId, true, disablePropertyExpressionEventCollCache);

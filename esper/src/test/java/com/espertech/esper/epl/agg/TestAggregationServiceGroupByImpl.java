@@ -14,8 +14,6 @@ package com.espertech.esper.epl.agg;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.agg.service.AggSvcGroupByNoAccessImpl;
-import com.espertech.esper.epl.core.MethodResolutionService;
-import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.support.epl.SupportAggregatorFactory;

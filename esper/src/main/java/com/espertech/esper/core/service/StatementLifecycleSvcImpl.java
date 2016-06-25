@@ -20,7 +20,7 @@ import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
@@ -57,7 +57,6 @@ import com.espertech.esper.pattern.EvalNodeUtil;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.EventRepresentationUtil;
 import com.espertech.esper.util.ManagedReadWriteLock;
-import com.espertech.esper.util.UuidGenerator;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
 import org.apache.commons.logging.Log;
@@ -1204,7 +1203,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                         }
                         StreamTypeService streamTypeService = new StreamTypeServiceImpl(selectFromType, selectFromTypeName, true, statementContext.getEngineURI());
                         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-                        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+                        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
                         ExprNode insertFilter = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEWINDOWFILTER, spec.getCreateWindowDesc().getInsertFilter(), validationContext);
                         spec.getCreateWindowDesc().setInsertFilter(insertFilter);
                     }
@@ -1400,7 +1399,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 
         // Validate the select expressions which consists of properties only
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-        List<NamedWindowSelectedProps> select = compileLimitedSelect(spec.getSelectClauseSpec(), eplStatement, selectFromType, selectFromTypeName, statementContext.getEngineURI(), evaluatorContextStmt, statementContext.getMethodResolutionService(), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
+        List<NamedWindowSelectedProps> select = compileLimitedSelect(spec.getSelectClauseSpec(), eplStatement, selectFromType, selectFromTypeName, statementContext.getEngineURI(), evaluatorContextStmt, statementContext.getEngineImportService(), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations());
 
         // Create Map or Wrapper event type from the select clause of the window.
         // If no columns selected, simply create a wrapper type
@@ -1409,7 +1408,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         LinkedHashMap<String, Object> properties;
         boolean hasProperties = false;
         if ((columns != null) && (!columns.isEmpty())) {
-            properties = EventTypeUtility.buildType(columns, statementContext.getEventAdapterService(), null, statementContext.getMethodResolutionService().getEngineImportService());
+            properties = EventTypeUtility.buildType(columns, statementContext.getEventAdapterService(), null, statementContext.getEngineImportService());
             hasProperties = true;
         }
         else {
@@ -1487,12 +1486,12 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
         return new Pair<FilterSpecCompiled, SelectClauseSpecRaw>(filter, newSelectClauseSpecRaw);
     }
 
-    private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, MethodResolutionService methodResolutionService, EventAdapterService eventAdapterService, String statementName, int statementId, Annotation[] annotations)
+    private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectClauseSpecRaw spec, String eplStatement, EventType singleType, String selectFromTypeName, String engineURI, ExprEvaluatorContext exprEvaluatorContext, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName, int statementId, Annotation[] annotations)
     {
         List<NamedWindowSelectedProps> selectProps = new LinkedList<NamedWindowSelectedProps>();
         StreamTypeService streams = new StreamTypeServiceImpl(new EventType[] {singleType}, new String[] {"stream_0"}, new boolean[] {false}, engineURI, false);
 
-        ExprValidationContext validationContext = new ExprValidationContext(streams, methodResolutionService, null, null, null, null, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, false, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streams, engineImportService, null, null, null, null, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, false, false, null, false);
         for (SelectClauseElementRaw raw : spec.getSelectExprList())
         {
             if (!(raw instanceof SelectClauseExprRawSpec))

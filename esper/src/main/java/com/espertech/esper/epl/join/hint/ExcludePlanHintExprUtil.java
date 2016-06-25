@@ -60,7 +60,7 @@ public class ExcludePlanHintExprUtil {
     public static ExprEvaluator toExpression(String hint, StatementContext statementContext) throws ExprValidationException {
         String toCompile = "select * from java.lang.Object.win:time(" + hint + ")";
         StatementSpecRaw raw = EPAdministratorHelper.compileEPL(toCompile, hint, false, null,
-                SelectClauseStreamSelectorEnum.ISTREAM_ONLY, statementContext.getMethodResolutionService().getEngineImportService(),
+                SelectClauseStreamSelectorEnum.ISTREAM_ONLY, statementContext.getEngineImportService(),
                 statementContext.getVariableService(), statementContext.getSchedulingService(),
                 statementContext.getEngineURI(), statementContext.getConfigSnapshot(),
                 new PatternNodeFactoryImpl(), new ContextManagementServiceImpl(),

@@ -40,7 +40,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
     }
 
     public AggregationServiceFactory getNoGroupAccessMixed(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {
-        return new AggSvcGroupAllMixedAccessFactory(evaluatorsArr, aggregatorsArr, null, pairs, accessAggregations, join);
+        return new AggSvcGroupAllMixedAccessFactory(evaluatorsArr, aggregatorsArr, pairs, accessAggregations, join);
     }
 
     public AggregationServiceFactory getGroupedNoReclaimNoAccess(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) {

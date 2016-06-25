@@ -117,7 +117,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             EventBeanManufacturer manufacturer;
             try {
                 WriteablePropertyDescriptor[] writables = writeableList.toArray(new WriteablePropertyDescriptor[writeableList.size()]);
-                manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(outputEventType, writables, context.getStatementContext().getMethodResolutionService().getEngineImportService(), false);
+                manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(outputEventType, writables, context.getStatementContext().getEngineImportService(), false);
             }
             catch (EventBeanManufactureException e) {
                 throw new EPException("Event type '" + outputEventType.getName() + "' cannot be written to: " + e.getMessage(), e);
@@ -225,7 +225,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             writeableList.add(writeableFile);
         }
         try {
-            manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(portEventType, writeableList.toArray(new WriteablePropertyDescriptor[writeableList.size()]), context.getStatementContext().getMethodResolutionService().getEngineImportService(), false);
+            manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(portEventType, writeableList.toArray(new WriteablePropertyDescriptor[writeableList.size()]), context.getStatementContext().getEngineImportService(), false);
         }
         catch (EventBeanManufactureException e) {
             throw new EPException("Event type '" + portEventType.getName() + "' cannot be written to: " + e.getMessage(), e);

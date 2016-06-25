@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.table.mgmt.TableService;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 
 public class ExprValidationContext {
     private final StreamTypeService streamTypeService;
-    private final MethodResolutionService methodResolutionService;
+    private final EngineImportService engineImportService;
     private final ViewResourceDelegateUnverified viewResourceDelegate;
     private final TimeProvider timeProvider;
     private final VariableService variableService;
@@ -47,7 +47,7 @@ public class ExprValidationContext {
     private final boolean isFilterExpression;
 
     public ExprValidationContext(StreamTypeService streamTypeService,
-                                 MethodResolutionService methodResolutionService,
+                                 EngineImportService engineImportService,
                                  ViewResourceDelegateUnverified viewResourceDelegate,
                                  TimeProvider timeProvider,
                                  VariableService variableService,
@@ -65,7 +65,7 @@ public class ExprValidationContext {
                                  String intoTableName,
                                  boolean isFilterExpression) {
         this.streamTypeService = streamTypeService;
-        this.methodResolutionService = methodResolutionService;
+        this.engineImportService = engineImportService;
         this.viewResourceDelegate = viewResourceDelegate;
         this.timeProvider = timeProvider;
         this.variableService = variableService;
@@ -88,15 +88,11 @@ public class ExprValidationContext {
     }
 
     public ExprValidationContext(StreamTypeServiceImpl types, ExprValidationContext ctx) {
-        this(types, ctx.getMethodResolutionService(), ctx.getViewResourceDelegate(), ctx.getTimeProvider(), ctx.getVariableService(), ctx.getTableService(), ctx.getExprEvaluatorContext(), ctx.getEventAdapterService(), ctx.getStatementName(), ctx.getStatementId(), ctx.getAnnotations(), ctx.getContextDescriptor(), ctx.isDisablePropertyExpressionEventCollCache(), false, ctx.isAllowBindingConsumption(), ctx.isResettingAggregations(), ctx.getIntoTableName(), false);
+        this(types, ctx.getEngineImportService(), ctx.getViewResourceDelegate(), ctx.getTimeProvider(), ctx.getVariableService(), ctx.getTableService(), ctx.getExprEvaluatorContext(), ctx.getEventAdapterService(), ctx.getStatementName(), ctx.getStatementId(), ctx.getAnnotations(), ctx.getContextDescriptor(), ctx.isDisablePropertyExpressionEventCollCache(), false, ctx.isAllowBindingConsumption(), ctx.isResettingAggregations(), ctx.getIntoTableName(), false);
     }
 
     public StreamTypeService getStreamTypeService() {
         return streamTypeService;
-    }
-
-    public MethodResolutionService getMethodResolutionService() {
-        return methodResolutionService;
     }
 
     public ViewResourceDelegateUnverified getViewResourceDelegate() {
@@ -169,5 +165,9 @@ public class ExprValidationContext {
 
     public boolean isFilterExpression() {
         return isFilterExpression;
+    }
+
+    public EngineImportService getEngineImportService() {
+        return engineImportService;
     }
 }

@@ -100,7 +100,7 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
             }
         }
 
-        arithTypeEnumComputer = mathArithTypeEnum.getComputer(resultType, childTypeOne, childTypeTwo, isIntegerDivision, isDivisionByZeroReturnsNull, validationContext.getMethodResolutionService().getEngineImportService().getDefaultMathContext());
+        arithTypeEnumComputer = mathArithTypeEnum.getComputer(resultType, childTypeOne, childTypeTwo, isIntegerDivision, isDivisionByZeroReturnsNull, validationContext.getEngineImportService().getDefaultMathContext());
         return null;
     }
 

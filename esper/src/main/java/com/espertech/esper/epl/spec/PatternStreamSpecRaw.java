@@ -192,7 +192,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
             // obtain property event type, if final event type is properties
             if (filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec() != null)
             {
-                PropertyEvaluator optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), resolvedEventType, filterNode.getEventAsName(), context.getEventAdapterService(), context.getMethodResolutionService(), context.getSchedulingService(), context.getVariableService(), context.getTableService(), context.getEngineURI(), context.getStatementId(), context.getStatementName(), context.getAnnotations(), subexpressionIdStack, context.getConfigSnapshot(), context.getNamedWindowMgmtService());
+                PropertyEvaluator optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(filterNode.getRawFilterSpec().getOptionalPropertyEvalSpec(), resolvedEventType, filterNode.getEventAsName(), context.getEventAdapterService(), context.getEngineImportService(), context.getSchedulingService(), context.getVariableService(), context.getTableService(), context.getEngineURI(), context.getStatementId(), context.getStatementName(), context.getAnnotations(), subexpressionIdStack, context.getConfigSnapshot(), context.getNamedWindowMgmtService());
                 finalEventType = optionalPropertyEvaluator.getFragmentEventType();
                 isPropertyEvaluation = true;
             }
@@ -299,7 +299,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                 ObserverFactory observerFactory = context.getPatternResolutionService().create(observerNode.getPatternObserverSpec());
 
                 StreamTypeService streamTypeService = getStreamTypeService(context.getEngineURI(), context.getStatementId(), context.getEventAdapterService(), tags.getTaggedEventTypes(), tags.getArrayEventTypes(), subexpressionIdStack, "observer", context);
-                ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
+                ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
                 List<ExprNode> validated = validateExpressions(ExprNodeOrigin.PATTERNOBSERVER, observerNode.getPatternObserverSpec().getObjectParameters(), validationContext);
 
                 MatchedEventConvertor convertor = new MatchedEventConvertorImpl(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, context.getEventAdapterService());
@@ -324,7 +324,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                 GuardFactory guardFactory = context.getPatternResolutionService().create(guardNode.getPatternGuardSpec());
 
                 StreamTypeService streamTypeService = getStreamTypeService(context.getEngineURI(), context.getStatementId(), context.getEventAdapterService(), tags.getTaggedEventTypes(), tags.getArrayEventTypes(), subexpressionIdStack, "guard", context);
-                ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
+                ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
                 List<ExprNode> validated = validateExpressions(ExprNodeOrigin.PATTERNGUARD, guardNode.getPatternGuardSpec().getObjectParameters(), validationContext);
 
                 MatchedEventConvertor convertor = new MatchedEventConvertorImpl(tags.getTaggedEventTypes(), tags.getArrayEventTypes(), allTagNamesOrdered, context.getEventAdapterService());
@@ -346,7 +346,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
             EvalEveryDistinctFactoryNode distinctNode = (EvalEveryDistinctFactoryNode) evalNode;
             MatchEventSpec matchEventFromChildNodes = analyzeMatchEvent(distinctNode);
             StreamTypeService streamTypeService = getStreamTypeService(context.getEngineURI(), context.getStatementId(), context.getEventAdapterService(), matchEventFromChildNodes.getTaggedEventTypes(), matchEventFromChildNodes.getArrayEventTypes(), subexpressionIdStack, "every-distinct", context);
-            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
             List<ExprNode> validated;
             try
             {
@@ -406,7 +406,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
             // compile bounds expressions, if any
             MatchEventSpec untilMatchEventSpec = new MatchEventSpec(tags.getTaggedEventTypes(), tags.getArrayEventTypes());
             StreamTypeService streamTypeService = getStreamTypeService(context.getEngineURI(), context.getStatementId(), context.getEventAdapterService(), untilMatchEventSpec.getTaggedEventTypes(), untilMatchEventSpec.getArrayEventTypes(), subexpressionIdStack, "until", context);
-            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
 
             ExprNode lower = validateBounds(matchUntilNode.getLowerBounds(), validationContext);
             matchUntilNode.setLowerBounds(lower);
@@ -453,7 +453,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
         {
             EvalFollowedByFactoryNode followedByNode = (EvalFollowedByFactoryNode) evalNode;
             StreamTypeService streamTypeService = new StreamTypeServiceImpl(context.getEngineURI(), false);
-            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContext, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, false, false, null, false);
 
             if (followedByNode.getOptionalMaxExpressions() != null) {
                 List<ExprNode> validated = new ArrayList<ExprNode>();

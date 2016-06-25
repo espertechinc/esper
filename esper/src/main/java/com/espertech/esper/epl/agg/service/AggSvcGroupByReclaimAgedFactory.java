@@ -12,7 +12,7 @@ import com.espertech.esper.client.annotation.Hint;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -81,7 +81,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
         }
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         AggSvcGroupByReclaimAgedEvalFunc max = evaluationFunctionMaxAge.make(agentInstanceContext);
         AggSvcGroupByReclaimAgedEvalFunc freq = evaluationFunctionFrequency.make(agentInstanceContext);
         return new AggSvcGroupByReclaimAgedImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, max, freq);

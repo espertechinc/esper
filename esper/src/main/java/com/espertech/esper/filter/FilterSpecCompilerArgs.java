@@ -15,7 +15,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -34,7 +34,7 @@ public class FilterSpecCompilerArgs {
     public final String statementName;
     public final int statementId;
     public final StreamTypeService streamTypeService;
-    public final MethodResolutionService methodResolutionService;
+    public final EngineImportService engineImportService;
     public final TimeProvider timeProvider;
     public final VariableService variableService;
     public final TableService tableService;
@@ -44,14 +44,14 @@ public class FilterSpecCompilerArgs {
     public final ContextDescriptor contextDescriptor;
     public final ConfigurationInformation configurationInformation;
 
-    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, int statementId, StreamTypeService streamTypeService, MethodResolutionService methodResolutionService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
+    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, int statementId, StreamTypeService streamTypeService, EngineImportService engineImportService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;
         this.statementName = statementName;
         this.statementId = statementId;
         this.streamTypeService = streamTypeService;
-        this.methodResolutionService = methodResolutionService;
+        this.engineImportService = engineImportService;
         this.timeProvider = timeProvider;
         this.variableService = variableService;
         this.tableService = tableService;

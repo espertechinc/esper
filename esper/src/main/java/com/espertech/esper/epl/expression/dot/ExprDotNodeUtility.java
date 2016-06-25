@@ -110,7 +110,7 @@ public class ExprDotNodeUtility
             // resolve datetime
             if (DatetimeMethodEnum.isDateTimeMethod(chainElement.getName()) && (!matchingMethod  || methodTarget == Calendar.class || methodTarget == Date.class)) {
                 DatetimeMethodEnum datetimeMethod = DatetimeMethodEnum.fromName(chainElement.getName());
-                ExprDotEvalDTMethodDesc datetimeImpl = ExprDotEvalDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+                ExprDotEvalDTMethodDesc datetimeImpl = ExprDotEvalDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getEngineImportService().getTimeZone());
                 currentInputType = datetimeImpl.getReturnType();
                 if (currentInputType == null) {
                     throw new IllegalStateException("Date-time method '" + chainElement.getName() + "' has not returned type information");
@@ -164,7 +164,7 @@ public class ExprDotNodeUtility
                         throw new ExprValidationException(e.getMessage(), e);
                     }
                     else {
-                        ExprDotMethodEvalDuck duck = new ExprDotMethodEvalDuck(validationContext.getStatementName(), validationContext.getMethodResolutionService(), chainElement.getName(), paramTypes, paramEvals);
+                        ExprDotMethodEvalDuck duck = new ExprDotMethodEvalDuck(validationContext.getStatementName(), validationContext.getEngineImportService(), chainElement.getName(), paramTypes, paramEvals);
                         methodEvals.add(duck);
                         currentInputType = duck.getTypeInfo();
                     }
@@ -400,6 +400,6 @@ public class ExprDotNodeUtility
             }
         };
         EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-        return ExprNodeUtility.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters, validationContext.getMethodResolutionService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getTableService());
+        return ExprNodeUtility.resolveMethodAllowWildcardAndStream(methodTarget.getName(), methodTarget, methodName, parameters, validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, exceptionHandler, methodName, validationContext.getTableService());
     }
 }

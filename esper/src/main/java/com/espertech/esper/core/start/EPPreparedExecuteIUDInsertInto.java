@@ -40,7 +40,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         ExprEvaluatorContextStatement exprEvaluatorContextStatement = new ExprEvaluatorContextStatement(statementContext, true);
 
         // assign names
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getMethodResolutionService(),
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(),
                 null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContextStatement,
                 statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
 
@@ -82,7 +82,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         SelectExprProcessor insertHelper = SelectExprProcessorFactory.getProcessor(Collections.singleton(0),
                 selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), false, statementSpec.getInsertIntoDesc(), optionalInsertIntoEventType, null, streamTypeService,
                 statementContext.getEventAdapterService(), statementContext.getStatementResultService(), statementContext.getValueAddEventService(), selectExprEventTypeRegistry,
-                statementContext.getMethodResolutionService(), exprEvaluatorContextStatement, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null);
+                statementContext.getEngineImportService(), exprEvaluatorContextStatement, statementContext.getVariableService(), statementContext.getTableService(), statementContext.getTimeProvider(), statementContext.getEngineURI(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), statementContext.getConfigSnapshot(), null, statementContext.getNamedWindowMgmtService(), null, null);
 
         return new EPPreparedExecuteIUDSingleStreamExecInsert(exprEvaluatorContextStatement, insertHelper, statementSpec.getTableNodes(), services);
     }

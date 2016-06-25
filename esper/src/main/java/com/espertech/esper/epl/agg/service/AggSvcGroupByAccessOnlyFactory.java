@@ -13,7 +13,7 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 
 /**
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
@@ -39,7 +39,7 @@ public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory
         this.isJoin = isJoin;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         return new AggSvcGroupByAccessOnlyImpl(accessors, accessAggSpecs, isJoin);
     }
 }

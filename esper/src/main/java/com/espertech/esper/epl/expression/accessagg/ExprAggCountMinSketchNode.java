@@ -15,7 +15,6 @@ import com.espertech.esper.client.util.CountMinSketchAgentStringUTF16;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.factory.AggregationStateFactoryCountMinSketch;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.approx.CountMinSketchSpecHashes;
@@ -25,7 +24,10 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.util.*;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.PopulateFieldValueSetter;
+import com.espertech.esper.util.PopulateFieldWValueDescriptor;
+import com.espertech.esper.util.PopulateUtil;
 
 import java.util.Collection;
 import java.util.Map;
@@ -123,8 +125,8 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             if (context.getExprEvaluatorContext().getStatementType() != StatementType.CREATE_TABLE) {
                 throw new ExprValidationException(getMessagePrefix() + "can only be used in create-table statements");
             }
-            CountMinSketchSpec specification = validateSpecification(context.getExprEvaluatorContext(), context.getMethodResolutionService().getEngineImportService());
-            AggregationStateFactoryCountMinSketch stateFactory = context.getMethodResolutionService().getAggregationFactoryFactory().makeCountMinSketch(this, specification);
+            CountMinSketchSpec specification = validateSpecification(context.getExprEvaluatorContext(), context.getEngineImportService());
+            AggregationStateFactoryCountMinSketch stateFactory = context.getEngineImportService().getAggregationFactoryFactory().makeCountMinSketch(this, specification);
             return new ExprAggCountMinSketchNodeFactoryState(stateFactory);
         }
 

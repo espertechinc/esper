@@ -12,7 +12,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 /**
@@ -48,7 +48,7 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         AggregationState[] topStates = AggSvcGroupByUtil.newAccesses(agentInstanceContext.getAgentInstanceId(), isJoin, accessAggregations, null, null);
         AggregationMethod[] topMethods = AggSvcGroupByUtil.newAggregators(super.aggregators);
         return new AggSvcGroupByRefcountedWAccessRollupImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, groupByRollupDesc, topMethods, topStates);

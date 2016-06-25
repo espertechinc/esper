@@ -136,11 +136,11 @@ public class ExprCastNode extends ExprNodeBase
                         casterParserComputer = new StringToCalendarWStaticISOFormatComputer();
                     }
                     else {
-                        casterParserComputer = new StringToCalendarWStaticFormatComputer(staticDateFormat, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+                        casterParserComputer = new StringToCalendarWStaticFormatComputer(staticDateFormat, validationContext.getEngineImportService().getTimeZone());
                     }
                 }
                 else {
-                    casterParserComputer = new StringToCalendarWDynamicFormatComputer(dynamicDateFormat, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+                    casterParserComputer = new StringToCalendarWDynamicFormatComputer(dynamicDateFormat, validationContext.getEngineImportService().getTimeZone());
                 }
             }
             else if (targetType == Long.class) {

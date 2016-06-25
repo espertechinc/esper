@@ -20,7 +20,6 @@ import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
-import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
@@ -115,7 +114,6 @@ public class SupportStatementContextFactory
                 new PatternObjectResolutionServiceImpl(null),
                 null,
                 null,
-                new MethodResolutionServiceImpl(SupportEngineImportServiceFactory.make(), null),
                 null,
                 null,
                 new StatementResultServiceImpl("name", null, null, new ThreadingServiceImpl(new ConfigurationEngineDefaults.Threading())), // statement result svc

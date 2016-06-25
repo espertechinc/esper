@@ -13,6 +13,8 @@ import com.espertech.esper.client.annotation.BuiltinAnnotation;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
@@ -525,6 +527,10 @@ public class EngineImportServiceImpl implements EngineImportService
 
     public boolean isSortUsingCollator() {
         return sortUsingCollator;
+    }
+
+    public AggregationFactoryFactory getAggregationFactoryFactory() {
+        return AggregationFactoryFactoryDefault.INSTANCE;
     }
 
     /**

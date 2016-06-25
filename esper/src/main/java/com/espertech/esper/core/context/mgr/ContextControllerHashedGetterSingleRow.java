@@ -16,8 +16,8 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.event.EventAdapterService;
@@ -37,10 +37,10 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
     private final ExprEvaluator[] evaluators;
     private final int granularity;
 
-    public ContextControllerHashedGetterSingleRow(String statementName, String functionName, Pair<Class, EngineImportSingleRowDesc> func, List<ExprNode> parameters, int granularity, MethodResolutionService methodResolutionService, EventType eventType, EventAdapterService eventAdapterService, int statementId, TableService tableService)
+    public ContextControllerHashedGetterSingleRow(String statementName, String functionName, Pair<Class, EngineImportSingleRowDesc> func, List<ExprNode> parameters, int granularity, EngineImportService engineImportService, EventType eventType, EventAdapterService eventAdapterService, int statementId, TableService tableService)
         throws ExprValidationException
     {
-        ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, methodResolutionService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService);
+        ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, engineImportService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService);
         this.statementName = statementName;
         this.evaluators = staticMethodDesc.getChildEvals();
         this.granularity = granularity;

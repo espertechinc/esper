@@ -40,7 +40,7 @@ public class ExprConcatNode extends ExprNodeBase
             }
         }
 
-        ConfigurationEngineDefaults.ThreadingProfile threadingProfile = validationContext.getMethodResolutionService().getEngineImportService().getThreadingProfile();
+        ConfigurationEngineDefaults.ThreadingProfile threadingProfile = validationContext.getEngineImportService().getThreadingProfile();
         if (threadingProfile == ConfigurationEngineDefaults.ThreadingProfile.LARGE) {
             this.evaluator = new ExprConcatNodeEvalWNew(this, evaluators);
         }

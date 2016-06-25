@@ -12,11 +12,11 @@
 package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
@@ -33,17 +33,17 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
     private static final Log log = LogFactory.getLog(ExprDotMethodEvalDuck.class);
 
     private final String statementName;
-    private final MethodResolutionService methodResolutionService;
+    private final EngineImportService engineImportService;
     private final String methodName;
     private final Class[] parameterTypes;
     private final ExprEvaluator[] parameters;
 
     private Map<Class, FastMethod> cache;
 
-    public ExprDotMethodEvalDuck(String statementName, MethodResolutionService methodResolutionService, String methodName, Class[] parameterTypes, ExprEvaluator[] parameters)
+    public ExprDotMethodEvalDuck(String statementName, EngineImportService engineImportService, String methodName, Class[] parameterTypes, ExprEvaluator[] parameters)
     {
         this.statementName = statementName;
-        this.methodResolutionService = methodResolutionService;
+        this.engineImportService = engineImportService;
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
         this.parameters = parameters;
@@ -94,7 +94,7 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
     {
         try
         {
-            Method method = methodResolutionService.resolveMethod(clazz, methodName, parameterTypes, new boolean[parameterTypes.length], new boolean[parameterTypes.length]);
+            Method method = engineImportService.resolveMethod(clazz, methodName, parameterTypes, new boolean[parameterTypes.length], new boolean[parameterTypes.length]);
             FastClass declaringClass = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
             return declaringClass.getMethod(method);
         }

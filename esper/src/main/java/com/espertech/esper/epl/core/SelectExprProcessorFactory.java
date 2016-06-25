@@ -49,7 +49,6 @@ public class SelectExprProcessorFactory
      * @param statementResultService handles listeners/subscriptions awareness to reduce output result generation
      * @param valueAddEventService - service that handles update events and variant events
      * @param selectExprEventTypeRegistry - registry for event type to statements
-     * @param methodResolutionService - for resolving write methods
      * @param exprEvaluatorContext context for expression evalauation
      * @return select-clause expression processor
      * @throws ExprValidationException to indicate the select expression cannot be validated
@@ -65,7 +64,7 @@ public class SelectExprProcessorFactory
                                                    StatementResultService statementResultService,
                                                    ValueAddEventService valueAddEventService,
                                                    SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                                   MethodResolutionService methodResolutionService,
+                                                   EngineImportService engineImportService,
                                                    ExprEvaluatorContext exprEvaluatorContext,
                                                    VariableService variableService,
                                                    TableService tableService,
@@ -92,7 +91,7 @@ public class SelectExprProcessorFactory
             return new SelectExprProcessorWDeliveryCallback(eventType, bindProcessor, selectExprProcessorCallback);
         }
 
-        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
+        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
 
         // Handle table as an optional service
         if (statementResultService != null)
@@ -123,7 +122,7 @@ public class SelectExprProcessorFactory
 
                     StreamTypeService type = new StreamTypeServiceImpl(synthetic.getResultEventType(), null, false, engineURI);
                     groupedDeliveryExpr = new ExprNode[item.getExpressions().size()];
-                    ExprValidationContext validationContext = new ExprValidationContext(type, methodResolutionService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, intoTableClause == null ? null : intoTableClause.getName(), false);  // no context descriptor available
+                    ExprValidationContext validationContext = new ExprValidationContext(type, engineImportService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, intoTableClause == null ? null : intoTableClause.getName(), false);  // no context descriptor available
                     for (int i = 0; i < item.getExpressions().size(); i++) {
                         groupedDeliveryExpr[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FORCLAUSE, item.getExpressions().get(i), validationContext);
                     }
@@ -149,7 +148,7 @@ public class SelectExprProcessorFactory
                                                    EventAdapterService eventAdapterService,
                                                    ValueAddEventService valueAddEventService,
                                                    SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                                   MethodResolutionService methodResolutionService,
+                                                   EngineImportService engineImportService,
                                                    int statementId,
                                                    Annotation[] annotations,
                                                    ConfigurationInformation configuration,
@@ -171,7 +170,7 @@ public class SelectExprProcessorFactory
             if (typeService.getStreamNames().length > 1)
             {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
-                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, methodResolutionService, annotations, configuration, tableService);
+                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService);
             }
             // Single-table selects with no insert-into
             // don't need extra processing
@@ -194,7 +193,7 @@ public class SelectExprProcessorFactory
         // Construct processor
         SelectExprBuckets buckets = getSelectExpressionBuckets(selectionList);
 
-        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, methodResolutionService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
+        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
         SelectExprProcessor processor = factory.getEvaluator();
 
         // add reference to the type obtained

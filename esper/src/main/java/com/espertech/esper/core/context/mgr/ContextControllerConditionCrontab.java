@@ -69,7 +69,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
         scheduleHandle = new EPStatementHandleCallback(agentHandle, scheduleCallback);
         SchedulingService schedulingService = statementContext.getSchedulingService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(spec.getSchedule(), schedulingService.getTime(), statementContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(spec.getSchedule(), schedulingService.getTime(), statementContext.getEngineImportService().getTimeZone());
         statementContext.getSchedulingService().add(nextScheduledTime, scheduleHandle, scheduleSlot);
     }
 
@@ -81,7 +81,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
     }
 
     public Long getExpectedEndTime() {
-        return ScheduleComputeHelper.computeNextOccurance(spec.getSchedule(), statementContext.getTimeProvider().getTime(), statementContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+        return ScheduleComputeHelper.computeNextOccurance(spec.getSchedule(), statementContext.getTimeProvider().getTime(), statementContext.getEngineImportService().getTimeZone());
     }
 
     public boolean isImmediate() {

@@ -9,7 +9,7 @@
 package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 
 /**
  * Factory for aggregation service instances.
@@ -19,5 +19,6 @@ import com.espertech.esper.epl.core.MethodResolutionService;
  */
 public interface AggregationServiceFactory
 {
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber);
+    // TODO is engineImportService used here
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber);
 }

@@ -123,7 +123,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getMethodResolutionService(), true, subqueryNumber);
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getEngineImportService(), true, subqueryNumber);
 
             if (!correlatedSubquery) {
                 View aggregatorView;

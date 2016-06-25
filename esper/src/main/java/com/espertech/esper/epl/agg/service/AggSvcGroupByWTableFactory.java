@@ -11,7 +11,7 @@ package com.espertech.esper.epl.agg.service;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
@@ -42,7 +42,7 @@ public class AggSvcGroupByWTableFactory implements AggregationServiceFactory
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         TableStateInstanceGrouped tableState = (TableStateInstanceGrouped) agentInstanceContext.getStatementContext().getTableService().getState(tableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
         if (groupByRollupDesc == null) {
             return new AggSvcGroupByWTableImpl(tableMetadata, methodPairs, accessors, isJoin,

@@ -141,7 +141,7 @@ public class ResultSetProcessorFactoryFactory
         boolean allowRollup = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByRollupLevels() != null;
         boolean resettableAggs = isUnidirectional || statementSpec.getOnTriggerDesc() != null;
         String intoTableName = statementSpec.getIntoTableSpec() == null ? null : statementSpec.getIntoTableSpec().getName();
-        ExprValidationContext validationContext = new ExprValidationContext(typeService, stmtContext.getMethodResolutionService(), viewResourceDelegate, stmtContext.getSchedulingService(), stmtContext.getVariableService(), stmtContext.getTableService(), evaluatorContextStmt, stmtContext.getEventAdapterService(), stmtContext.getStatementName(), stmtContext.getStatementId(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), false, allowRollup, true, resettableAggs, intoTableName, false);
+        ExprValidationContext validationContext = new ExprValidationContext(typeService, stmtContext.getEngineImportService(), viewResourceDelegate, stmtContext.getSchedulingService(), stmtContext.getVariableService(), stmtContext.getTableService(), evaluatorContextStmt, stmtContext.getEventAdapterService(), stmtContext.getStatementName(), stmtContext.getStatementId(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), false, allowRollup, true, resettableAggs, intoTableName, false);
 
         validateSelectAssignColNames(selectClauseSpec, namedSelectionList, validationContext);
         if (statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getSelectClausePerLevel() != null) {
@@ -335,7 +335,7 @@ public class ResultSetProcessorFactoryFactory
 
         // Construct the processor for evaluating the select clause
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry(stmtContext.getStatementName(), stmtContext.getStatementEventTypeRef());
-        SelectExprProcessor selectExprProcessor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClauseSpec.getSelectExprList(), isUsingWildcard, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
+        SelectExprProcessor selectExprProcessor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClauseSpec.getSelectExprList(), isUsingWildcard, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getEngineImportService(), evaluatorContextStmt,
                 stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), selectExprProcessorCallback, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
         // Get a list of event properties being aggregated in the select clause, if any
@@ -508,7 +508,7 @@ public class ResultSetProcessorFactoryFactory
             return;
         }
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-        ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getMethodResolutionService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
         if (outputLimitSpec.getAfterTimePeriodExpr() != null) {
             ExprTimePeriod timePeriodExpr = (ExprTimePeriod) ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.OUTPUTLIMIT, outputLimitSpec.getAfterTimePeriodExpr(), validationContext);
             outputLimitSpec.setAfterTimePeriodExpr(timePeriodExpr);
@@ -608,7 +608,7 @@ public class ResultSetProcessorFactoryFactory
 
             ExprNode[] selectClauseLevel = groupByExpressions.getSelectClausePerLevel()[i];
             SelectClauseElementCompiled[] selectClause = getRollUpSelectClause(statementSpec.getSelectClauseSpec(), selectClauseLevel, level, rolledupProps, groupByNodesValidated, validationContext);
-            processors[i] = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClause, false, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getMethodResolutionService(), evaluatorContextStmt,
+            processors[i] = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectClause, false, insertIntoDesc, null, statementSpec.getForClauseSpec(), typeService, stmtContext.getEventAdapterService(), stmtContext.getStatementResultService(), stmtContext.getValueAddEventService(), selectExprEventTypeRegistry, stmtContext.getEngineImportService(), evaluatorContextStmt,
                     stmtContext.getVariableService(), stmtContext.getTableService(), stmtContext.getTimeProvider(), stmtContext.getEngineURI(), stmtContext.getStatementId(), stmtContext.getStatementName(), stmtContext.getAnnotations(), stmtContext.getContextDescriptor(), stmtContext.getConfigSnapshot(), null, stmtContext.getNamedWindowMgmtService(), statementSpec.getIntoTableSpec(), groupByRollupInfo);
 
             if (havingClauses != null) {

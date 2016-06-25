@@ -102,7 +102,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
 
         if (allConstantResult) {
             try {
-                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getMethodResolutionService().getEngineImportService().getTimeZone());
+                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getEngineImportService().getTimeZone());
             }
             catch (ScheduleParameterException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
@@ -124,7 +124,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             return spec;
         }
         try {
-            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getMethodResolutionService().getEngineImportService().getTimeZone());
+            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getEngineImportService().getTimeZone());
         }
         catch (ScheduleParameterException e) {
             throw new EPException("Error computing iso8601 schedule specification: " + e.getMessage(), e);

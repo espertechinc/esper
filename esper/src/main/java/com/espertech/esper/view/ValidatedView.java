@@ -12,7 +12,6 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -22,7 +21,6 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +32,6 @@ public interface ValidatedView
     /**
      * Validate the view.
      * @param streamTypeService supplies the types of streams against which to validate
-     * @param methodResolutionService for resolving imports and classes and methods
      * @param timeProvider for providing current time
      * @param variableService for access to variables
      * @param exprEvaluatorContext context for expression evaluation
@@ -43,7 +40,6 @@ public interface ValidatedView
      */
     public void validate(EngineImportService engineImportService,
                          StreamTypeService streamTypeService,
-                         MethodResolutionService methodResolutionService,
                          TimeProvider timeProvider,
                          VariableService variableService,
                          TableService tableService,

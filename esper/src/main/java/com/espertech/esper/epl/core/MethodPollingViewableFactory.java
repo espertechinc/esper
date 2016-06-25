@@ -48,7 +48,6 @@ public class MethodPollingViewableFactory
      * @param methodStreamSpec defines the class and method to call
      * @param eventAdapterService for creating event types and events
      * @param epStatementAgentInstanceHandle for time-based callbacks
-     * @param methodResolutionService for resolving classes and imports
      * @param engineImportService for resolving configurations
      * @param schedulingService for scheduling callbacks in expiry-time based caches
      * @param scheduleBucket for schedules within the statement
@@ -61,7 +60,6 @@ public class MethodPollingViewableFactory
                                                                MethodStreamSpec methodStreamSpec,
                                                                EventAdapterService eventAdapterService,
                                                                EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
-                                                               MethodResolutionService methodResolutionService,
                                                                EngineImportService engineImportService,
                                                                SchedulingService schedulingService,
                                                                ScheduleBucket scheduleBucket,
@@ -108,10 +106,10 @@ public class MethodPollingViewableFactory
                         strategy = MethodPollingExecStrategyEnum.TARGET_VAR;
                     }
                 }
-                methodReflection = methodResolutionService.resolveNonStaticMethod(variableMetaData.getType(), methodStreamSpec.getMethodName());
+                methodReflection = engineImportService.resolveNonStaticMethod(variableMetaData.getType(), methodStreamSpec.getMethodName());
             }
             else {
-                methodReflection = methodResolutionService.resolveMethod(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
+                methodReflection = engineImportService.resolveMethod(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
                 invocationTarget = null;
                 variableReader = null;
                 variableName = null;
@@ -165,10 +163,10 @@ public class MethodPollingViewableFactory
         {
             MethodMetadataDesc metadata;
             if (variableMetaData != null) {
-                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, methodResolutionService, Map.class);
+                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, Map.class);
             }
             else {
-                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, Map.class);
+                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, Map.class);
             }
             mapTypeName = metadata.getTypeName();
             mapType = (Map<String, Object>) metadata.getTypeMetadata();
@@ -184,10 +182,10 @@ public class MethodPollingViewableFactory
         {
             MethodMetadataDesc metadata;
             if (variableMetaData != null) {
-                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, methodResolutionService, LinkedHashMap.class);
+                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, LinkedHashMap.class);
             }
             else {
-                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), methodResolutionService, LinkedHashMap.class);
+                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, LinkedHashMap.class);
             }
             oaTypeName = metadata.getTypeName();
             oaType = (LinkedHashMap<String, Object>) metadata.getTypeMetadata();
@@ -260,10 +258,10 @@ public class MethodPollingViewableFactory
         return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, streamNumber, methodStreamSpec.getExpressions(), methodPollStrategy, dataCache, eventType, exprEvaluatorContext);
     }
 
-    private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, MethodResolutionService methodResolutionService, Class metadataClass)
+    private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, EngineImportService engineImportService, Class metadataClass)
             throws ExprValidationException
     {
-        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType(), methodResolutionService, metadataClass);
+        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType(), engineImportService, metadataClass);
 
         if (Modifier.isStatic(typeGetterMethod.getModifiers())) {
             return invokeMetadataMethod(null, variableMetaData.getClass().getSimpleName(), typeGetterMethod);
@@ -287,22 +285,22 @@ public class MethodPollingViewableFactory
     }
 
 
-    private static MethodMetadataDesc getCheckMetadataNonVariable(String methodName, String className, MethodResolutionService methodResolutionService, Class metadataClass) throws ExprValidationException {
-        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, className, null, methodResolutionService, metadataClass);
+    private static MethodMetadataDesc getCheckMetadataNonVariable(String methodName, String className, EngineImportService engineImportService, Class metadataClass) throws ExprValidationException {
+        Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, className, null, engineImportService, metadataClass);
         return invokeMetadataMethod(null, className, typeGetterMethod);
     }
 
-    private static Method getRequiredTypeGetterMethodCanNonStatic(String methodName, String classNameWhenNoClass, Class clazzWhenAvailable, MethodResolutionService methodResolutionService, Class metadataClass)
+    private static Method getRequiredTypeGetterMethodCanNonStatic(String methodName, String classNameWhenNoClass, Class clazzWhenAvailable, EngineImportService engineImportService, Class metadataClass)
             throws ExprValidationException
     {
         Method typeGetterMethod;
         String getterMethodName = methodName + "Metadata";
         try {
             if (clazzWhenAvailable != null) {
-                typeGetterMethod = methodResolutionService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+                typeGetterMethod = engineImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
             }
             else {
-                typeGetterMethod = methodResolutionService.resolveMethod(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+                typeGetterMethod = engineImportService.resolveMethod(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
             }
         }
         catch(Exception e) {

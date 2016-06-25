@@ -154,7 +154,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             Pair<Class, EngineImportSingleRowDesc> hashSingleRowFunction = null;
             if (hashFunction == null) {
                 try {
-                    hashSingleRowFunction = factoryContext.getAgentInstanceContextCreate().getStatementContext().getMethodResolutionService().resolveSingleRow(hashFuncName);
+                    hashSingleRowFunction = factoryContext.getAgentInstanceContextCreate().getStatementContext().getEngineImportService().resolveSingleRow(hashFuncName);
                 }
                 catch (Exception e) {
                     // expected
@@ -190,7 +190,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             }
             else if (hashSingleRowFunction != null) {
                 getter = new ContextControllerHashedGetterSingleRow(factoryContext.getAgentInstanceContextCreate().getStatementContext().getStatementName(), hashFuncName, hashSingleRowFunction, item.getFunction().getParameters(), hashedSpec.getGranularity(),
-                        factoryContext.getAgentInstanceContextCreate().getStatementContext().getMethodResolutionService(),
+                        factoryContext.getAgentInstanceContextCreate().getStatementContext().getEngineImportService(),
                         item.getFilterSpecCompiled().getFilterForEventType(),
                         factoryContext.getAgentInstanceContextCreate().getStatementContext().getEventAdapterService(),
                         factoryContext.getAgentInstanceContextCreate().getStatementId(),

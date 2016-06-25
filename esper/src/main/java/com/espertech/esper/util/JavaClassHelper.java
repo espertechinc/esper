@@ -14,7 +14,6 @@ import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.MethodResolutionService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.type.*;
@@ -1463,11 +1462,11 @@ public class JavaClassHelper
      * @param annotations to search
      * @param hookType type to look for
      * @param interfaceExpected interface required
-     * @param resolution for resolving references, optional, if not provided then using Class.forName
+     * @param optionalResolver for resolving references, optional, if not provided then using Class.forName
      * @return hook instance
      * @throws ExprValidationException if instantiation failed
      */
-    public static Object getAnnotationHook(Annotation[] annotations, HookType hookType, Class interfaceExpected, MethodResolutionService resolution)
+    public static Object getAnnotationHook(Annotation[] annotations, HookType hookType, Class interfaceExpected, EngineImportService optionalResolver)
             throws ExprValidationException
     {
         if (annotations == null) {
@@ -1491,11 +1490,11 @@ public class JavaClassHelper
         Class clazz;
         try
         {
-            if (resolution == null) {
+            if (optionalResolver == null) {
                 clazz = Class.forName(hookClass);
             }
             else {
-                clazz = resolution.resolveClass(hookClass, true);
+                clazz = optionalResolver.resolveClass(hookClass, true);
             }
         }
         catch (Exception e)
@@ -1527,12 +1526,11 @@ public class JavaClassHelper
     /**
      * Resolve a string constant as a possible enumeration value, returning null if not resolved.
      * @param constant to resolve
-     * @param methodResolutionService for statement-level use to resolve enums, can be null
      * @param engineImportService for engine-level use to resolve enums, can be null
      * @return null or enumeration value
      * @throws ExprValidationException if there is an error accessing the enum
      */
-    public static Object resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService, EngineImportService engineImportService, boolean isAnnotation)
+    public static Object resolveIdentAsEnumConst(String constant, EngineImportService engineImportService, boolean isAnnotation)
             throws ExprValidationException
     {
         int lastDotIndex = constant.lastIndexOf('.');
@@ -1550,14 +1548,7 @@ public class JavaClassHelper
         Class clazz;
         try
         {
-            if (engineImportService != null)
-            {
-                clazz = engineImportService.resolveClass(className, isAnnotation);
-            }
-            else
-            {
-                clazz = methodResolutionService.resolveClass(className, isAnnotation);
-            }
+            clazz = engineImportService.resolveClass(className, isAnnotation);
         }
         catch (EngineImportException e)
         {

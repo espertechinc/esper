@@ -11,7 +11,7 @@ package com.espertech.esper.epl.agg.service;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.core.MethodResolutionService;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableColumnMethodPair;
 import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
@@ -39,7 +39,7 @@ public class AggSvcGroupAllMixedAccessWTableFactory implements AggregationServic
         this.agents = agents;
     }
 
-    public AggregationService makeService(AgentInstanceContext agentInstanceContext, MethodResolutionService methodResolutionService, boolean isSubquery, Integer subqueryNumber) {
+    public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         TableStateInstanceUngrouped tableState = (TableStateInstanceUngrouped) agentInstanceContext.getStatementContext().getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
         return new AggSvcGroupAllMixedAccessWTableImpl(tableState, methodPairs,
                 accessors, targetStates, accessStateExpr, agents);

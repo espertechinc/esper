@@ -11,6 +11,7 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.lang.reflect.Constructor;
@@ -182,4 +183,6 @@ public interface EngineImportService
     public TimeZone getTimeZone();
 
     public ConfigurationEngineDefaults.ThreadingProfile getThreadingProfile();
+
+    public AggregationFactoryFactory getAggregationFactoryFactory();
 }

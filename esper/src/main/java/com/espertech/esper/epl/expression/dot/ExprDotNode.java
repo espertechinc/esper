@@ -88,7 +88,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
         if (validationContext.getStreamTypeService().hasTableTypes() &&
             validationContext.getTableService() != null &&
             chainSpec.size() > 1 && chainSpec.get(0).isProperty()) {
-            Pair<ExprNode,List<ExprChainedSpec>> tableNode = validationContext.getTableService().getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.getMethodResolutionService().getEngineImportService());
+            Pair<ExprNode,List<ExprChainedSpec>> tableNode = validationContext.getTableService().getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.getEngineImportService());
             if (tableNode != null) {
                 ExprNode node = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
                 if (tableNode.getSecond().isEmpty()) {
@@ -375,7 +375,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
         }
 
         // try resolve as enumeration class with value
-        Object enumconstant = JavaClassHelper.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getMethodResolutionService(), null, false);
+        Object enumconstant = JavaClassHelper.resolveIdentAsEnumConst(firstItem.getName(), validationContext.getEngineImportService(), false);
         if (enumconstant != null) {
 
             // try resolve method
@@ -387,7 +387,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
                 }
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getMethodResolutionService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService());
+            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
@@ -414,7 +414,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
 
-        ExprNodeUtilMethodDesc method = ExprNodeUtility.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getMethodResolutionService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService());
+        ExprNodeUtilMethodDesc method = ExprNodeUtility.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService());
 
         boolean isConstantParameters = method.isAllConstants() && isUDFCache;
         isReturnsConstantResult = isConstantParameters && modifiedChain.isEmpty();

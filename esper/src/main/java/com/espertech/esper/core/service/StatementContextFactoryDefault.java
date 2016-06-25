@@ -22,8 +22,6 @@ import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.core.start.EPStatementStartMethodSelectDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
-import com.espertech.esper.epl.core.MethodResolutionService;
-import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
@@ -173,8 +171,6 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         boolean hasTableAccess = StatementContextFactoryUtil.determineHasTableAccess(subselectNodes, statementSpecRaw, engineServices);
         EPStatementHandle epStatementHandle = new EPStatementHandle(statementId, statementName, expression, statementType, expression, hasVariables, stmtMetric, annotationData.getPriority(), annotationData.isPremptive(), hasTableAccess, engineServices.getMultiMatchHandlerFactory().getDefaultHandler());
 
-        MethodResolutionService methodResolutionService = new MethodResolutionServiceImpl(engineServices.getEngineImportService(), engineServices.getSchedulingService());
-
         PatternContextFactory patternContextFactory = new PatternContextFactoryDefault();
 
         String optionalCreateNamedWindowName = statementSpecRaw.getCreateWindowDesc() != null ? statementSpecRaw.getCreateWindowDesc().getWindowName() : null;
@@ -260,7 +256,6 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 patternResolutionService,
                 extensionSvcContext,
                 new StatementStopServiceImpl(),
-                methodResolutionService,
                 patternContextFactory,
                 filterService,
                 new StatementResultServiceImpl(statementName, engineServices.getStatementLifecycleSvc(), engineServices.getMetricsReportingService(), engineServices.getThreadingService()),

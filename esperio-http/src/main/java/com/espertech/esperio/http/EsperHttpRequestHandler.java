@@ -3,7 +3,7 @@ package com.espertech.esperio.http;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.epl.core.MethodResolutionServiceImpl;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventBeanManufactureException;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.EventTypeSPI;
@@ -25,13 +25,11 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
     private static Log log = LogFactory.getLog(EsperHttpRequestHandler.class);
 
     private final EPServiceProviderSPI engineSPI;
-    private final MethodResolutionServiceImpl methods;
     private final Map<String, EsperHttpRequestCacheEntry> streamCache = new HashMap<String, EsperHttpRequestCacheEntry>();
 
     public EsperHttpRequestHandler(final EPServiceProviderSPI engineSPI) {
         super();
         this.engineSPI = engineSPI;
-        this.methods = new MethodResolutionServiceImpl(engineSPI.getEngineImportService(), engineSPI.getTimeProvider());
     }
 
     public void handle(
@@ -119,7 +117,7 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
 
         EventBeanManufacturer eventBeanManufacturer;
         try {
-            eventBeanManufacturer = engineSPI.getEventAdapterService().getManufacturer(eventType, writableProperties, methods.getEngineImportService(), false);
+            eventBeanManufacturer = engineSPI.getEventAdapterService().getManufacturer(eventType, writableProperties, engineSPI.getEngineImportService(), false);
         }
         catch (EventBeanManufactureException e) {
             log.info("Unable to create manufacturer for event type: " + e.getMessage(), e);

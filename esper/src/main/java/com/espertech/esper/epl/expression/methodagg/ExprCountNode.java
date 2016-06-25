@@ -61,7 +61,7 @@ public class ExprCountNode extends ExprAggregateNodeBase
             }
             super.validateFilter(positionalParams[1].getExprEvaluator());
         }
-        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makeCount(this, ignoreNulls, childType);
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeCount(this, ignoreNulls, childType);
     }
 
     public String getAggregationFunctionName()

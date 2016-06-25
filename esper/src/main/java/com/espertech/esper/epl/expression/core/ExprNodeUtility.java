@@ -450,7 +450,7 @@ public class ExprNodeUtility {
         MappedPropertyParseResult parse = parseMappedProperty(mappedProperty.toString());
         if (parse == null)
         {
-            ExprConstantNode constNode = resolveIdentAsEnumConst(mappedProperty.toString(), validationContext.getMethodResolutionService());
+            ExprConstantNode constNode = resolveIdentAsEnumConst(mappedProperty.toString(), validationContext.getEngineImportService());
             if (constNode == null)
             {
                 throw propertyException;
@@ -468,7 +468,7 @@ public class ExprNodeUtility {
             List<ExprChainedSpec> chain = new ArrayList<ExprChainedSpec>();
             chain.add(new ExprChainedSpec(parse.getClassName(), Collections.<ExprNode>emptyList(), false));
             chain.add(new ExprChainedSpec(parse.getMethodName(), parameters, false));
-            ExprNode result = new ExprDotNode(chain, validationContext.getMethodResolutionService().isDuckType(), validationContext.getMethodResolutionService().isUdfCache());
+            ExprNode result = new ExprDotNode(chain, validationContext.getEngineImportService().isDuckType(), validationContext.getEngineImportService().isUdfCache());
 
             // Validate
             try
@@ -487,7 +487,7 @@ public class ExprNodeUtility {
         String functionName = parse.getMethodName();
         try
         {
-            Pair<Class, EngineImportSingleRowDesc> classMethodPair = validationContext.getMethodResolutionService().resolveSingleRow(functionName);
+            Pair<Class, EngineImportSingleRowDesc> classMethodPair = validationContext.getEngineImportService().resolveSingleRow(functionName);
             List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
             List<ExprChainedSpec> chain = Collections.singletonList(new ExprChainedSpec(classMethodPair.getSecond().getMethodName(), parameters, false));
             ExprNode result = new ExprPlugInSingleRowNode(functionName, classMethodPair.getFirst(), chain, classMethodPair.getSecond());
@@ -516,7 +516,7 @@ public class ExprNodeUtility {
         // Try an aggregation function factory
         try
         {
-            AggregationFunctionFactory aggregationFactory = validationContext.getMethodResolutionService().resolveAggregationFactory(parse.getMethodName());
+            AggregationFunctionFactory aggregationFactory = validationContext.getEngineImportService().resolveAggregationFactory(parse.getMethodName());
             ExprNode result = new ExprPlugInAggNode(false, aggregationFactory, parse.getMethodName());
             result.addChildNode(new ExprConstantNodeImpl(parse.getArgString()));
 
@@ -545,10 +545,10 @@ public class ExprNodeUtility {
         throw propertyException;
     }
 
-    private static ExprConstantNode resolveIdentAsEnumConst(String constant, MethodResolutionService methodResolutionService)
+    private static ExprConstantNode resolveIdentAsEnumConst(String constant, EngineImportService engineImportService)
             throws ExprValidationException
     {
-        Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, methodResolutionService, null, false);
+        Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, engineImportService, false);
         if (enumValue != null)
         {
             return new ExprConstantNodeImpl(enumValue);
@@ -710,7 +710,7 @@ public class ExprNodeUtility {
                                                                              Class optionalClass,
                                                                              String methodName,
                                                                              List<ExprNode> parameters,
-                                                                             MethodResolutionService methodResolutionService,
+                                                                             EngineImportService engineImportService,
                                                                              EventAdapterService eventAdapterService,
                                                                              int statementId,
                                                                              boolean allowWildcard,
@@ -795,10 +795,10 @@ public class ExprNodeUtility {
         try
         {
             if (optionalClass != null) {
-                method = methodResolutionService.resolveMethod(optionalClass, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
+                method = engineImportService.resolveMethod(optionalClass, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
             }
             else {
-                method = methodResolutionService.resolveMethod(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
+                method = engineImportService.resolveMethod(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
             }
             FastClass declaringClass = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
             staticMethod = declaringClass.getMethod(method);
@@ -871,7 +871,7 @@ public class ExprNodeUtility {
             streamTypes = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
         }
 
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getMethodResolutionService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
         return ExprNodeUtility.getValidatedSubtree(origin, expression, validationContext);
     }
 
@@ -1567,7 +1567,7 @@ public class ExprNodeUtility {
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(context, false);
         for (ExprNode parameters : scheduleSpecExpressionList)
         {
-            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(context.getEngineURI(), false), context.getMethodResolutionService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContextStmt, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(context.getEngineURI(), false), context.getEngineImportService(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContextStmt, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
             ExprNode node = ExprNodeUtility.getValidatedSubtree(origin, parameters, validationContext);
             expressions[count++] = node.getExprEvaluator();
         }

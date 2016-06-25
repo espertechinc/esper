@@ -78,7 +78,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
         {
             // the aggregation function factory is transient, obtain if not provided
             if (aggregationFunctionFactory == null) {
-                aggregationFunctionFactory = validationContext.getMethodResolutionService().getEngineImportService().resolveAggregationFactory(functionName);
+                aggregationFunctionFactory = validationContext.getEngineImportService().resolveAggregationFactory(functionName);
             }
 
             aggregationFunctionFactory.validate(context);
@@ -94,7 +94,7 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
             childType = positionalParams[0].getExprEvaluator().getType();
         }
 
-        return validationContext.getMethodResolutionService().getAggregationFactoryFactory().makePlugInMethod(this, aggregationFunctionFactory, childType);
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makePlugInMethod(this, aggregationFunctionFactory, childType);
     }
 
     public String getAggregationFunctionName()
