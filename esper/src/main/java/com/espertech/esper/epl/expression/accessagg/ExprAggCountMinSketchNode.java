@@ -126,7 +126,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
                 throw new ExprValidationException(getMessagePrefix() + "can only be used in create-table statements");
             }
             CountMinSketchSpec specification = validateSpecification(context.getExprEvaluatorContext(), context.getEngineImportService());
-            AggregationStateFactoryCountMinSketch stateFactory = context.getEngineImportService().getAggregationFactoryFactory().makeCountMinSketch(this, specification);
+            AggregationStateFactoryCountMinSketch stateFactory = context.getEngineImportService().getAggregationFactoryFactory().makeCountMinSketch(context.getStatementExtensionSvcContext(), this, specification);
             return new ExprAggCountMinSketchNodeFactoryState(stateFactory);
         }
 

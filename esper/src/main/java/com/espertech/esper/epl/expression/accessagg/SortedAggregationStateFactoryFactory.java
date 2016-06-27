@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.expression.accessagg;
 
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
@@ -23,14 +24,16 @@ import java.util.Comparator;
 public class SortedAggregationStateFactoryFactory {
 
     private final EngineImportService engineImportService;
+    private final StatementExtensionSvcContext statementExtensionSvcContext;
     private final ExprEvaluator[] evaluators;
     private final boolean[] sortDescending;
     private final boolean ever;
     private final int streamNum;
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
 
-    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, ExprEvaluator[] evaluators, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent) {
+    public SortedAggregationStateFactoryFactory(EngineImportService engineImportService, StatementExtensionSvcContext statementExtensionSvcContext, ExprEvaluator[] evaluators, boolean[] sortDescending, boolean ever, int streamNum, ExprAggMultiFunctionSortedMinMaxByNode parent) {
         this.engineImportService = engineImportService;
+        this.statementExtensionSvcContext = statementExtensionSvcContext;
         this.evaluators = evaluators;
         this.sortDescending = sortDescending;
         this.ever = ever;
@@ -44,10 +47,10 @@ public class SortedAggregationStateFactoryFactory {
 
         if (ever) {
             AggregationStateMinMaxByEverSpec spec = new AggregationStateMinMaxByEverSpec(streamNum, evaluators, parent.isMax(), comparator, null);
-            return engineImportService.getAggregationFactoryFactory().makeMinMaxEver(parent, spec);
+            return engineImportService.getAggregationFactoryFactory().makeMinMaxEver(statementExtensionSvcContext, parent, spec);
         }
 
         AggregationStateSortedSpec spec = new AggregationStateSortedSpec(streamNum, evaluators, comparator, null);
-        return engineImportService.getAggregationFactoryFactory().makeSorted(parent, spec);
+        return engineImportService.getAggregationFactoryFactory().makeSorted(statementExtensionSvcContext, parent, spec);
     }
 }

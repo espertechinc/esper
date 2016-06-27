@@ -124,7 +124,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
         this.statementContext = statementContext;
 
         // validate and visit
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementContext.getStatementExtensionServicesContext(), null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
         for (ExprNode exprNode : inputParameters) {

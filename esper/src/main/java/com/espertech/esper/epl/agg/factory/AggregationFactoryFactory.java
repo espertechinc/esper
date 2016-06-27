@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
@@ -26,24 +27,24 @@ import com.espertech.esper.schedule.TimeProvider;
 import java.math.MathContext;
 
 public interface AggregationFactoryFactory {
-    AggregationMethodFactory makeCount(ExprCountNode exprCountNode, boolean ignoreNulls, Class countedValueType);
-    AggregationMethodFactory makeSum(ExprSumNode exprSumNode, Class childType);
-    AggregationMethodFactory makeAvedev(ExprAvedevNode exprAvedevNode, Class childType, ExprNode[] positionalParams);
-    AggregationMethodFactory makeAvg(ExprAvgNode exprAvgNode, Class childType, MathContext optionalMathContext);
-    AggregationMethodFactory makeCountEver(ExprCountEverNode exprCountEverNode, boolean ignoreNulls);
-    AggregationMethodFactory makeFirstEver(ExprFirstEverNode exprFirstEverNode, Class type);
-    AggregationMethodFactory makeLastEver(ExprLastEverNode exprLastEverNode, Class type);
-    AggregationMethodFactory makeLeaving(ExprLeavingAggNode exprLeavingAggNode);
-    AggregationMethodFactory makeMedian(ExprMedianNode exprMedianNode, Class childType);
-    AggregationMethodFactory makeMinMax(ExprMinMaxAggrNode exprMinMaxAggrNode, Class type, boolean hasDataWindows);
-    AggregationMethodFactory makeNth(ExprNthAggNode exprNthAggNode, Class type, int size);
-    AggregationMethodFactory makePlugInMethod(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType);
-    AggregationMethodFactory makeRate(ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider);
-    AggregationMethodFactory makeStddev(ExprStddevNode exprStddevNode, Class childType);
+    AggregationMethodFactory makeCount(StatementExtensionSvcContext statementExtensionSvcContext, ExprCountNode exprCountNode, boolean ignoreNulls, Class countedValueType);
+    AggregationMethodFactory makeSum(StatementExtensionSvcContext statementExtensionSvcContext, ExprSumNode exprSumNode, Class childType);
+    AggregationMethodFactory makeAvedev(StatementExtensionSvcContext statementExtensionSvcContext, ExprAvedevNode exprAvedevNode, Class childType, ExprNode[] positionalParams);
+    AggregationMethodFactory makeAvg(StatementExtensionSvcContext statementExtensionSvcContext, ExprAvgNode exprAvgNode, Class childType, MathContext optionalMathContext);
+    AggregationMethodFactory makeCountEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprCountEverNode exprCountEverNode, boolean ignoreNulls);
+    AggregationMethodFactory makeFirstEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstEverNode exprFirstEverNode, Class type);
+    AggregationMethodFactory makeLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprLastEverNode exprLastEverNode, Class type);
+    AggregationMethodFactory makeLeaving(StatementExtensionSvcContext statementExtensionSvcContext, ExprLeavingAggNode exprLeavingAggNode);
+    AggregationMethodFactory makeMedian(StatementExtensionSvcContext statementExtensionSvcContext, ExprMedianNode exprMedianNode, Class childType);
+    AggregationMethodFactory makeMinMax(StatementExtensionSvcContext statementExtensionSvcContext, ExprMinMaxAggrNode exprMinMaxAggrNode, Class type, boolean hasDataWindows);
+    AggregationMethodFactory makeNth(StatementExtensionSvcContext statementExtensionSvcContext, ExprNthAggNode exprNthAggNode, Class type, int size);
+    AggregationMethodFactory makePlugInMethod(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType);
+    AggregationMethodFactory makeRate(StatementExtensionSvcContext statementExtensionSvcContext, ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider);
+    AggregationMethodFactory makeStddev(StatementExtensionSvcContext statementExtensionSvcContext, ExprStddevNode exprStddevNode, Class childType);
 
-    AggregationStateFactory makeLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum);
-    AggregationStateFactoryCountMinSketch makeCountMinSketch(ExprAggCountMinSketchNode expr, CountMinSketchSpec specification);
-    AggregationStateFactory makeMinMaxEver(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec);
-    AggregationStateFactory makePlugInAccess(ExprPlugInAggMultiFunctionNodeFactory factory);
-    AggregationStateFactory makeSorted(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec);
+    AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum);
+    AggregationStateFactoryCountMinSketch makeCountMinSketch(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggCountMinSketchNode expr, CountMinSketchSpec specification);
+    AggregationStateFactory makeMinMaxEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec);
+    AggregationStateFactory makePlugInAccess(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggMultiFunctionNodeFactory factory);
+    AggregationStateFactory makeSorted(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec);
 }

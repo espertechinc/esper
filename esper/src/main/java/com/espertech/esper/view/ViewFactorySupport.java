@@ -176,7 +176,7 @@ public abstract class ViewFactorySupport implements ViewFactory
         {
             ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
             ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(),
-                    null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+                    statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
             validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.VIEWPARAMETER, expression, validationContext);
         }
         catch (ExprValidationException ex)

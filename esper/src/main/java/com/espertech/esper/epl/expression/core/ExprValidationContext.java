@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -27,6 +28,7 @@ import java.lang.annotation.Annotation;
 public class ExprValidationContext {
     private final StreamTypeService streamTypeService;
     private final EngineImportService engineImportService;
+    private final StatementExtensionSvcContext statementExtensionSvcContext;
     private final ViewResourceDelegateUnverified viewResourceDelegate;
     private final TimeProvider timeProvider;
     private final VariableService variableService;
@@ -48,6 +50,7 @@ public class ExprValidationContext {
 
     public ExprValidationContext(StreamTypeService streamTypeService,
                                  EngineImportService engineImportService,
+                                 StatementExtensionSvcContext statementExtensionSvcContext,
                                  ViewResourceDelegateUnverified viewResourceDelegate,
                                  TimeProvider timeProvider,
                                  VariableService variableService,
@@ -66,6 +69,7 @@ public class ExprValidationContext {
                                  boolean isFilterExpression) {
         this.streamTypeService = streamTypeService;
         this.engineImportService = engineImportService;
+        this.statementExtensionSvcContext = statementExtensionSvcContext;
         this.viewResourceDelegate = viewResourceDelegate;
         this.timeProvider = timeProvider;
         this.variableService = variableService;
@@ -88,7 +92,7 @@ public class ExprValidationContext {
     }
 
     public ExprValidationContext(StreamTypeServiceImpl types, ExprValidationContext ctx) {
-        this(types, ctx.getEngineImportService(), ctx.getViewResourceDelegate(), ctx.getTimeProvider(), ctx.getVariableService(), ctx.getTableService(), ctx.getExprEvaluatorContext(), ctx.getEventAdapterService(), ctx.getStatementName(), ctx.getStatementId(), ctx.getAnnotations(), ctx.getContextDescriptor(), ctx.isDisablePropertyExpressionEventCollCache(), false, ctx.isAllowBindingConsumption(), ctx.isResettingAggregations(), ctx.getIntoTableName(), false);
+        this(types, ctx.getEngineImportService(), ctx.getStatementExtensionSvcContext(), ctx.getViewResourceDelegate(), ctx.getTimeProvider(), ctx.getVariableService(), ctx.getTableService(), ctx.getExprEvaluatorContext(), ctx.getEventAdapterService(), ctx.getStatementName(), ctx.getStatementId(), ctx.getAnnotations(), ctx.getContextDescriptor(), ctx.isDisablePropertyExpressionEventCollCache(), false, ctx.isAllowBindingConsumption(), ctx.isResettingAggregations(), ctx.getIntoTableName(), false);
     }
 
     public StreamTypeService getStreamTypeService() {
@@ -169,5 +173,9 @@ public class ExprValidationContext {
 
     public EngineImportService getEngineImportService() {
         return engineImportService;
+    }
+
+    public StatementExtensionSvcContext getStatementExtensionSvcContext() {
+        return statementExtensionSvcContext;
     }
 }

@@ -422,7 +422,7 @@ public class SupportExprNodeFactory
         variableService.createNewVariable(null, "var1", String.class.getName(), false, false, false, "my_variable_value", null);
         variableService.allocateVariableState("var1", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, SupportEngineImportServiceFactory.make(), viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false));
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, new ExprValidationContext(streamTypeService, SupportEngineImportServiceFactory.make(), null, viewResources, null, variableService, null, new SupportExprEvaluatorContext(null), null, null, 1, null, null, false, false, false, false, null, false));
     }
 
     public static void validate1StreamBean(ExprNode topNode) throws Exception

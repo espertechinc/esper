@@ -60,7 +60,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
                 throw new ExprValidationException(message);
             }
 
-            return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(this, true, intervalMSec, validationContext.getTimeProvider());
+            return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, true, intervalMSec, validationContext.getTimeProvider());
         }
 
         String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
@@ -83,7 +83,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
         if (!hasDataWindows) {
             throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
         }
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(this, false, -1, validationContext.getTimeProvider());
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider());
     }
 
     public String getAggregationFunctionName()

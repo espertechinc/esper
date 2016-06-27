@@ -212,7 +212,7 @@ public class FilterSpecCompilerPlanner
             throws ExprValidationException
     {
         ExprAndNode andNode = ExprNodeUtility.connectExpressionsByLogicalAnd(remainingExprNodes);
-        ExprValidationContext validationContext = new ExprValidationContext(args.streamTypeService, args.engineImportService, null, args.timeProvider, args.variableService, args.tableService, args.exprEvaluatorContext, args.eventAdapterService, args.statementName, args.statementId, args.annotations, args.contextDescriptor, false, false, true, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(args.streamTypeService, args.engineImportService, args.statementExtensionSvcContext, null, args.timeProvider, args.variableService, args.tableService, args.exprEvaluatorContext, args.eventAdapterService, args.statementName, args.statementId, args.annotations, args.contextDescriptor, false, false, true, false, null, false);
         andNode.validate(validationContext);
         return andNode;
     }

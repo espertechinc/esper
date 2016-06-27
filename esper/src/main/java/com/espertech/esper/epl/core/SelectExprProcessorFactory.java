@@ -12,6 +12,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.soda.ForClauseKeyword;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.expression.core.*;
@@ -78,7 +79,8 @@ public class SelectExprProcessorFactory
                                                    SelectExprProcessorDeliveryCallback selectExprProcessorCallback,
                                                    NamedWindowMgmtService namedWindowMgmtService,
                                                    IntoTableSpec intoTableClause,
-                                                   GroupByRollupInfo groupByRollupInfo)
+                                                   GroupByRollupInfo groupByRollupInfo,
+                                                   StatementExtensionSvcContext statementExtensionSvcContext)
         throws ExprValidationException
     {
         if (selectExprProcessorCallback != null) {
@@ -122,7 +124,7 @@ public class SelectExprProcessorFactory
 
                     StreamTypeService type = new StreamTypeServiceImpl(synthetic.getResultEventType(), null, false, engineURI);
                     groupedDeliveryExpr = new ExprNode[item.getExpressions().size()];
-                    ExprValidationContext validationContext = new ExprValidationContext(type, engineImportService, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, intoTableClause == null ? null : intoTableClause.getName(), false);  // no context descriptor available
+                    ExprValidationContext validationContext = new ExprValidationContext(type, engineImportService, statementExtensionSvcContext, null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementName, statementId, annotations, null, false, false, true, false, intoTableClause == null ? null : intoTableClause.getName(), false);  // no context descriptor available
                     for (int i = 0; i < item.getExpressions().size(); i++) {
                         groupedDeliveryExpr[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FORCLAUSE, item.getExpressions().get(i), validationContext);
                     }

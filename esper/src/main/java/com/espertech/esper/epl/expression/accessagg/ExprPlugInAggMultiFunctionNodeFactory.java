@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.expression.accessagg;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
@@ -30,12 +31,14 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
     private final ExprPlugInAggMultiFunctionNode parent;
     private final PlugInAggregationMultiFunctionHandler handlerPlugin;
     private final AggregationFactoryFactory aggregationFactoryFactory;
+    private final StatementExtensionSvcContext statementExtensionSvcContext;
     private EPType returnType;
 
-    public ExprPlugInAggMultiFunctionNodeFactory(ExprPlugInAggMultiFunctionNode parent, PlugInAggregationMultiFunctionHandler handlerPlugin, AggregationFactoryFactory aggregationFactoryFactory) {
+    public ExprPlugInAggMultiFunctionNodeFactory(ExprPlugInAggMultiFunctionNode parent, PlugInAggregationMultiFunctionHandler handlerPlugin, AggregationFactoryFactory aggregationFactoryFactory, StatementExtensionSvcContext statementExtensionSvcContext) {
         this.handlerPlugin = handlerPlugin;
         this.parent = parent;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
+        this.statementExtensionSvcContext = statementExtensionSvcContext;
     }
 
     public boolean isAccessAggregation() {
@@ -51,7 +54,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
     }
 
     public AggregationStateFactory getAggregationStateFactory(boolean isMatchRecognize) {
-        return aggregationFactoryFactory.makePlugInAccess(this);
+        return aggregationFactoryFactory.makePlugInAccess(statementExtensionSvcContext, this);
     }
 
     public AggregationAccessor getAccessor() {

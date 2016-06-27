@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.agg.factory;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
 import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
@@ -34,79 +35,79 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
     private AggregationFactoryFactoryDefault() {
     }
 
-    public AggregationMethodFactory makeCount(ExprCountNode exprCountNode, boolean ignoreNulls, Class countedValueType) {
+    public AggregationMethodFactory makeCount(StatementExtensionSvcContext statementExtensionSvcContext, ExprCountNode exprCountNode, boolean ignoreNulls, Class countedValueType) {
         return new AggregationMethodFactoryCount(exprCountNode, ignoreNulls, countedValueType);
     }
 
-    public AggregationMethodFactory makeSum(ExprSumNode exprSumNode, Class childType) {
+    public AggregationMethodFactory makeSum(StatementExtensionSvcContext statementExtensionSvcContext, ExprSumNode exprSumNode, Class childType) {
         return new AggregationMethodFactorySum(exprSumNode, childType);
     }
 
-    public AggregationMethodFactory makeAvedev(ExprAvedevNode exprAvedevNode, Class childType, ExprNode[] positionalParams) {
+    public AggregationMethodFactory makeAvedev(StatementExtensionSvcContext statementExtensionSvcContext, ExprAvedevNode exprAvedevNode, Class childType, ExprNode[] positionalParams) {
         return new AggregationMethodFactoryAvedev(exprAvedevNode, childType, positionalParams);
     }
 
-    public AggregationMethodFactory makeAvg(ExprAvgNode exprAvgNode, Class childType, MathContext optionalMathContext) {
+    public AggregationMethodFactory makeAvg(StatementExtensionSvcContext statementExtensionSvcContext, ExprAvgNode exprAvgNode, Class childType, MathContext optionalMathContext) {
         return new AggregationMethodFactoryAvg(exprAvgNode, childType, optionalMathContext);
     }
 
-    public AggregationMethodFactory makeCountEver(ExprCountEverNode exprCountEverNode, boolean ignoreNulls) {
+    public AggregationMethodFactory makeCountEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprCountEverNode exprCountEverNode, boolean ignoreNulls) {
         return new AggregationMethodFactoryCountEver(exprCountEverNode, ignoreNulls);
     }
 
-    public AggregationMethodFactory makeFirstEver(ExprFirstEverNode exprFirstEverNode, Class type) {
+    public AggregationMethodFactory makeFirstEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprFirstEverNode exprFirstEverNode, Class type) {
         return new AggregationMethodFactoryFirstEver(exprFirstEverNode, type);
     }
 
-    public AggregationMethodFactory makeLastEver(ExprLastEverNode exprLastEverNode, Class type) {
+    public AggregationMethodFactory makeLastEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprLastEverNode exprLastEverNode, Class type) {
         return new AggregationMethodFactoryLastEver(exprLastEverNode, type);
     }
 
-    public AggregationMethodFactory makeLeaving(ExprLeavingAggNode exprLeavingAggNode) {
+    public AggregationMethodFactory makeLeaving(StatementExtensionSvcContext statementExtensionSvcContext, ExprLeavingAggNode exprLeavingAggNode) {
         return new AggregationMethodFactoryLeaving(exprLeavingAggNode);
     }
 
-    public AggregationMethodFactory makeMedian(ExprMedianNode exprMedianNode, Class childType) {
+    public AggregationMethodFactory makeMedian(StatementExtensionSvcContext statementExtensionSvcContext, ExprMedianNode exprMedianNode, Class childType) {
         return new AggregationMethodFactoryMedian(exprMedianNode, childType);
     }
 
-    public AggregationMethodFactory makeMinMax(ExprMinMaxAggrNode exprMinMaxAggrNode, Class type, boolean hasDataWindows) {
+    public AggregationMethodFactory makeMinMax(StatementExtensionSvcContext statementExtensionSvcContext, ExprMinMaxAggrNode exprMinMaxAggrNode, Class type, boolean hasDataWindows) {
         return new AggregationMethodFactoryMinMax(exprMinMaxAggrNode, type, hasDataWindows);
     }
 
-    public AggregationMethodFactory makeNth(ExprNthAggNode exprNthAggNode, Class type, int size) {
+    public AggregationMethodFactory makeNth(StatementExtensionSvcContext statementExtensionSvcContext, ExprNthAggNode exprNthAggNode, Class type, int size) {
         return new AggregationMethodFactoryNth(exprNthAggNode, type, size);
     }
 
-    public AggregationMethodFactory makePlugInMethod(ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType) {
+    public AggregationMethodFactory makePlugInMethod(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggNode expr, AggregationFunctionFactory factory, Class childType) {
         return new AggregationMethodFactoryPlugIn(expr, factory, childType);
     }
 
-    public AggregationMethodFactory makeRate(ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider) {
+    public AggregationMethodFactory makeRate(StatementExtensionSvcContext statementExtensionSvcContext, ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider) {
         return new AggregationMethodFactoryRate(exprRateAggNode, isEver, intervalMsec, timeProvider);
     }
 
-    public AggregationMethodFactory makeStddev(ExprStddevNode exprStddevNode, Class childType) {
+    public AggregationMethodFactory makeStddev(StatementExtensionSvcContext statementExtensionSvcContext, ExprStddevNode exprStddevNode, Class childType) {
         return new AggregationMethodFactoryStddev(exprStddevNode, childType);
     }
 
-    public AggregationStateFactory makeLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {
+    public AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {
         return new AggregationStateFactoryLinear(expr, streamNum);
     }
 
-    public AggregationStateFactoryCountMinSketch makeCountMinSketch(ExprAggCountMinSketchNode expr, CountMinSketchSpec specification) {
+    public AggregationStateFactoryCountMinSketch makeCountMinSketch(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggCountMinSketchNode expr, CountMinSketchSpec specification) {
         return new AggregationStateFactoryCountMinSketch(expr, specification);
     }
 
-    public AggregationStateFactory makeMinMaxEver(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec) {
+    public AggregationStateFactory makeMinMaxEver(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateMinMaxByEverSpec spec) {
         return new AggregationStateFactoryMinMaxByEver(expr, spec);
     }
 
-    public AggregationStateFactory makePlugInAccess(ExprPlugInAggMultiFunctionNodeFactory factory) {
+    public AggregationStateFactory makePlugInAccess(StatementExtensionSvcContext statementExtensionSvcContext, ExprPlugInAggMultiFunctionNodeFactory factory) {
         return new AggregationStateFactoryPlugin(factory);
     }
 
-    public AggregationStateFactory makeSorted(ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec) {
+    public AggregationStateFactory makeSorted(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionSortedMinMaxByNode expr, AggregationStateSortedSpec spec) {
         return new AggregationStateFactorySorted(expr, spec);
     }
 }

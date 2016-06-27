@@ -35,7 +35,7 @@ public class ExprSumNode extends ExprAggregateNodeBase
     {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeSum(this, childType);
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeSum(validationContext.getStatementExtensionSvcContext(), this, childType);
     }
 
     public String getAggregationFunctionName()

@@ -15,6 +15,7 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextDescriptor;
+import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -43,8 +44,9 @@ public class FilterSpecCompilerArgs {
     public final Annotation[] annotations;
     public final ContextDescriptor contextDescriptor;
     public final ConfigurationInformation configurationInformation;
+    public final StatementExtensionSvcContext statementExtensionSvcContext;
 
-    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, int statementId, StreamTypeService streamTypeService, EngineImportService engineImportService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation) {
+    public FilterSpecCompilerArgs(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName, int statementId, StreamTypeService streamTypeService, EngineImportService engineImportService, TimeProvider timeProvider, VariableService variableService, TableService tableService, EventAdapterService eventAdapterService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, Annotation[] annotations, ContextDescriptor contextDescriptor, ConfigurationInformation configurationInformation, StatementExtensionSvcContext statementExtensionSvcContext) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -60,5 +62,6 @@ public class FilterSpecCompilerArgs {
         this.annotations = annotations;
         this.contextDescriptor = contextDescriptor;
         this.configurationInformation = configurationInformation;
+        this.statementExtensionSvcContext = statementExtensionSvcContext;
     }
 }

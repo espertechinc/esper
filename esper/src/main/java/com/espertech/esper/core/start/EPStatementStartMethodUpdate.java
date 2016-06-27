@@ -9,7 +9,6 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryNoAgentInstance;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdate;
 import com.espertech.esper.core.context.factory.StatementAgentInstanceFactoryUpdateResult;
 import com.espertech.esper.core.context.mgr.ContextManagedStatementOnTriggerDesc;
@@ -98,7 +97,7 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
         // Materialize sub-select views
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, isQueryPlanLogging(services), subSelectStreamDesc, new String[]{streamName}, new EventType[]{streamEventType}, new String[]{triggereventTypeName}, statementSpec.getDeclaredExpressions(), null);
 
-        ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
         for (OnTriggerSetAssignment assignment : updateSpec.getAssignments())
         {
             ExprNode validated = ExprNodeUtility.getValidatedAssignment(assignment, validationContext);

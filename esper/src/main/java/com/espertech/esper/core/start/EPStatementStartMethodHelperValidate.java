@@ -84,7 +84,7 @@ public class EPStatementStartMethodHelperValidate
             // Validate where clause, initializing nodes to the stream ids used
             try
             {
-                ExprValidationContext validationContext = new ExprValidationContext(typeService, engineImportService, viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, intoTableName, false);
+                ExprValidationContext validationContext = new ExprValidationContext(typeService, engineImportService, statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, intoTableName, false);
                 optionalFilterNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, optionalFilterNode, validationContext);
                 if (optionalFilterNode.getExprEvaluator().getType() != boolean.class && optionalFilterNode.getExprEvaluator().getType() != Boolean.class) {
                     throw new ExprValidationException("The where-clause filter expression must return a boolean value");
@@ -113,7 +113,7 @@ public class EPStatementStartMethodHelperValidate
             {
                 EventType outputLimitType = OutputConditionExpressionFactory.getBuiltInEventType(statementContext.getEventAdapterService());
                 StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[] {outputLimitType}, new String[]{null}, new boolean[] {true}, statementContext.getEngineURI(), false);
-                ExprValidationContext validationContext = new ExprValidationContext(typeServiceOutputWhen, engineImportService, null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, intoTableName, false);
+                ExprValidationContext validationContext = new ExprValidationContext(typeServiceOutputWhen, engineImportService, statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, intoTableName, false);
 
                 ExprNode outputLimitWhenNode = statementSpec.getOutputLimitSpec().getWhenExpressionNode();
                 if (outputLimitWhenNode != null) {
@@ -216,7 +216,7 @@ public class EPStatementStartMethodHelperValidate
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         try
         {
-            ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+            ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
             ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
         }
         catch (ExprValidationException ex)
@@ -264,7 +264,7 @@ public class EPStatementStartMethodHelperValidate
     }
 
     protected static ExprNode validateExprNoAgg(ExprNodeOrigin exprNodeOrigin, ExprNode exprNode, StreamTypeService streamTypeService, StatementContext statementContext, ExprEvaluatorContext exprEvaluatorContext, String errorMsg, boolean allowTableConsumption) throws ExprValidationException {
-        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowTableConsumption, false, null, false);
+        ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, allowTableConsumption, false, null, false);
         ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, validationContext);
         validateNoAggregations(validated, errorMsg);
         return validated;

@@ -140,7 +140,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, type, criteriaExpressions.getFirst());
 
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
-                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(),
+                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(),
                 ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
                 criteriaExpressions.getSecond(), ever, streamNum, this);
 
@@ -213,7 +213,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
-                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(),
+                SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(),
                     ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
                     criteriaExpressions.getSecond(), ever, 0, this);
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, stateFactoryFactory, null);
