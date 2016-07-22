@@ -104,8 +104,49 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // create factory chain context to hold callbacks specific to "prior" and "prev"
         AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactoryChain, agentInstanceContext, viewResourceDelegate.getPerStream()[0]);
 
+        // make view
         ViewServiceCreateResult createResult = services.getViewService().createViews(viewableRoot, viewFactoryChain, viewFactoryChainContext, false);
         final Viewable subselectView = createResult.getFinalViewable();
+
+        // make aggregation service
+        AggregationService aggregationService = null;
+        if (aggregationServiceFactory != null) {
+            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getEngineImportService(), true, subqueryNumber);
+        }
+
+        // handle "prior" nodes and their strategies
+        Map<ExprPriorNode, ExprPriorEvalStrategy> priorNodeStrategies = EPStatementStartMethodHelperPrior.compilePriorNodeStrategies(viewResourceDelegate, new AgentInstanceViewFactoryChainContext[]{viewFactoryChainContext});
+
+        // handle "previous" nodes and their strategies
+        Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousNodeStrategies = EPStatementStartMethodHelperPrevious.compilePreviousNodeStrategies(viewResourceDelegate, new AgentInstanceViewFactoryChainContext[]{viewFactoryChainContext});
+
+        // handle aggregated and non-correlated queries: there is no strategy or index
+        if (aggregationServiceFactory != null && !correlatedSubquery) {
+            View aggregatorView;
+            if (groupKeys == null) {
+                if (filterExprEval == null) {
+                    aggregatorView = new SubselectAggregatorViewUnfilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null);
+                }
+                else {
+                    aggregatorView = new SubselectAggregatorViewFilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null, filterExprNode);
+                }
+            }
+            else {
+                if (filterExprEval == null) {
+                    aggregatorView = new SubselectAggregatorViewUnfilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys);
+                }
+                else {
+                    aggregatorView = new SubselectAggregatorViewFilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys, filterExprNode);
+                }
+            }
+            subselectView.addView(aggregatorView);
+
+            if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
+                preload(services, null, aggregatorView, agentInstanceContext);
+            }
+
+            return new SubSelectStrategyRealization(NULL_ROW_STRATEGY, null, aggregationService, priorNodeStrategies, previousNodeStrategies, subselectView, null);
+        }
 
         // create index/holder table
         final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, this.subqueryNumber));
@@ -115,58 +156,22 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         SubordTableLookupStrategy strategy = pair.getSecond().makeStrategy(index, null);
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
-        // handle "prior" nodes and their strategies
-        Map<ExprPriorNode, ExprPriorEvalStrategy> priorNodeStrategies = EPStatementStartMethodHelperPrior.compilePriorNodeStrategies(viewResourceDelegate, new AgentInstanceViewFactoryChainContext[]{viewFactoryChainContext});
-
-        // handle "previous" nodes and their strategies
-        Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousNodeStrategies = EPStatementStartMethodHelperPrevious.compilePreviousNodeStrategies(viewResourceDelegate, new AgentInstanceViewFactoryChainContext[]{viewFactoryChainContext});
-
-        AggregationService aggregationService = null;
+        // handle unaggregated or correlated queries or
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.getAggregationServiceFactory().makeService(agentInstanceContext, agentInstanceContext.getStatementContext().getEngineImportService(), true, subqueryNumber);
-
-            if (!correlatedSubquery) {
-                View aggregatorView;
-                if (groupKeys == null) {
-                    if (filterExprEval == null) {
-                        aggregatorView = new SubselectAggregatorViewUnfilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null);
-                    }
-                    else {
-                        aggregatorView = new SubselectAggregatorViewFilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null, filterExprNode);
-                    }
+            if (groupKeys == null) {
+                if (filterExprEval == null) {
+                    subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);
                 }
                 else {
-                    if (filterExprEval == null) {
-                        aggregatorView = new SubselectAggregatorViewUnfilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys);
-                    }
-                    else {
-                        aggregatorView = new SubselectAggregatorViewFilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys, filterExprNode);
-                    }
+                    subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredUngrouped(aggregationService, filterExprEval, null);
                 }
-                subselectView.addView(aggregatorView);
-
-                if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
-                    preload(services, null, aggregatorView, agentInstanceContext);
-                }
-
-                return new SubSelectStrategyRealization(NULL_ROW_STRATEGY, null, aggregationService, priorNodeStrategies, previousNodeStrategies, subselectView, null);
             }
             else {
-                if (groupKeys == null) {
-                    if (filterExprEval == null) {
-                        subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);
-                    }
-                    else {
-                        subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredUngrouped(aggregationService, filterExprEval, null);
-                    }
+                if (filterExprEval == null) {
+                    subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredGrouped(aggregationService, filterExprEval, groupKeys);
                 }
                 else {
-                    if (filterExprEval == null) {
-                        subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredGrouped(aggregationService, filterExprEval, groupKeys);
-                    }
-                    else {
-                        subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredGrouped(aggregationService, filterExprEval, groupKeys);
-                    }
+                    subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredGrouped(aggregationService, filterExprEval, groupKeys);
                 }
             }
         }
