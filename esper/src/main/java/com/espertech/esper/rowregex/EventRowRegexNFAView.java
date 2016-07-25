@@ -81,7 +81,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     private final ObjectArrayBackedEventBean compositeEventBean;
 
     // state
-    private RegexPartitionStateRepo regexPartitionStateRepo;
+    protected RegexPartitionStateRepo regexPartitionStateRepo;
     private LinkedHashSet<EventBean> windowMatchedEventset; // this is NOT per partition - some optimizations are done for batch-processing (minus is out-of-sequence in partition) 
 
     /**
