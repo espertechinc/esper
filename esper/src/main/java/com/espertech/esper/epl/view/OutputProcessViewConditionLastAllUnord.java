@@ -53,6 +53,10 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         return outputCondition;
     }
 
+    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
+        return null;
+    }
+
     public void update(EventBean[] newData, EventBean[] oldData)
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))

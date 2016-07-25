@@ -23,7 +23,7 @@ import com.espertech.esper.view.Viewable;
 
 import java.util.*;
 
-public interface ResultSetProcessorSimpleOutputLastHelper
+public interface ResultSetProcessorSimpleOutputLastHelper extends ResultSetProcessorOutputHelper
 {
     void processView(EventBean[] newData, EventBean[] oldData);
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);

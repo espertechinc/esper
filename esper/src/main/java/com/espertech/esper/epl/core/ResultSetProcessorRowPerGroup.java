@@ -748,6 +748,21 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return aggregationService;
     }
 
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputAllGroupReps != null) {
+            visitor.visit(outputAllGroupReps);
+        }
+        if (outputFirstHelper != null) {
+            visitor.visit(outputFirstHelper);
+        }
+        if (outputLastHelper != null) {
+            visitor.visit(outputLastHelper);
+        }
+        if (outputAllHelper != null) {
+            visitor.visit(outputAllHelper);
+        }
+    }
+
     private UniformPair<EventBean[]> processOutputLimitedJoinLast(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;

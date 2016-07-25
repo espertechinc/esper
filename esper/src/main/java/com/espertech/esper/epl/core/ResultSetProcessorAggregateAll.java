@@ -727,4 +727,13 @@ public class ResultSetProcessorAggregateAll implements ResultSetProcessor
         }
         return new UniformPair<EventBean[]>(lastNew, lastOld);
     }
+
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputLastUnordHelper != null) {
+            visitor.visit(outputLastUnordHelper);
+        }
+        if (outputAllUnordHelper != null) {
+            visitor.visit(outputAllUnordHelper);
+        }
+    }
 }

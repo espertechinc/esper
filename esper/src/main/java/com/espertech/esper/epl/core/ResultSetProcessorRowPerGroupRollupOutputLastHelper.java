@@ -15,7 +15,7 @@ import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 
 import java.util.*;
 
-public interface ResultSetProcessorRowPerGroupRollupOutputLastHelper {
+public interface ResultSetProcessorRowPerGroupRollupOutputLastHelper extends ResultSetProcessorOutputHelper {
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
     UniformPair<EventBean[]> outputView(boolean isSynthesize);

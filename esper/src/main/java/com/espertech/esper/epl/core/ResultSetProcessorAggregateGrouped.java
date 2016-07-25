@@ -341,6 +341,21 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         return keys;
     }
 
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputAllGroupReps != null) {
+            visitor.visit(outputAllGroupReps);
+        }
+        if (outputLastHelper != null) {
+            visitor.visit(outputLastHelper);
+        }
+        if (outputAllHelper != null) {
+            visitor.visit(outputAllHelper);
+        }
+        if (outputFirstHelper != null) {
+            visitor.visit(outputFirstHelper);
+        }
+    }
+
     /**
      * Generates the group-by key for the row
      * @param eventsPerStream is the row of events

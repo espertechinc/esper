@@ -12,7 +12,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.view.OutputConditionPolled;
 import com.espertech.esper.epl.view.OutputConditionPolledFactory;
 
-public interface ResultSetProcessorGroupedOutputFirstHelper {
+public interface ResultSetProcessorGroupedOutputFirstHelper extends ResultSetProcessorOutputHelper {
     OutputConditionPolled getOrAllocate(Object mk, AgentInstanceContext agentInstanceContext, OutputConditionPolledFactory optionalOutputFirstConditionFactory);
     void remove(Object key);
     void destroy();

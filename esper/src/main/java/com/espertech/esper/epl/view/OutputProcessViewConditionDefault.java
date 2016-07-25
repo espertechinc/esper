@@ -54,6 +54,10 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         return deltaSet.getNumChangesetRows();
     }
 
+    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
+        return deltaSet;
+    }
+
     public OutputCondition getOptionalOutputCondition() {
         return outputCondition;
     }

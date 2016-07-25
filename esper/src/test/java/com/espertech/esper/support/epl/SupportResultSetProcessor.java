@@ -17,6 +17,7 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.core.ResultSetProcessorOutputHelperVisitor;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
@@ -101,5 +102,9 @@ public class SupportResultSetProcessor implements ResultSetProcessor
     }
 
     public void stop() {
+    }
+
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+
     }
 }

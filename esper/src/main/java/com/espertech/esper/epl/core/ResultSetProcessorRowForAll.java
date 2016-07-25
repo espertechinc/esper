@@ -267,6 +267,15 @@ public class ResultSetProcessorRowForAll implements ResultSetProcessor
         return outputLastHelper.outputJoin(isSynthesize);
     }
 
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputLastHelper != null) {
+            visitor.visit(outputLastHelper);
+        }
+        if (outputAllHelper != null) {
+            visitor.visit(outputAllHelper);
+        }
+    }
+
     private void getSelectListEvent(boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, boolean join)
     {
         if (prototype.getOptionalHavingNode() != null)

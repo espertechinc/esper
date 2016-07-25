@@ -276,4 +276,13 @@ public class ResultSetProcessorSimple extends ResultSetProcessorBaseSimple
             outputAllHelper.destroy();
         }
     }
+
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputLastHelper != null) {
+            visitor.visit(outputLastHelper);
+        }
+        if (outputAllHelper != null) {
+            visitor.visit(outputAllHelper);
+        }
+    }
 }

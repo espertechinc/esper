@@ -29,6 +29,7 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
 
     public abstract int getNumChangesetRows();
     public abstract OutputCondition getOptionalOutputCondition();
+    public abstract OutputProcessViewConditionDeltaSet getOptionalDeltaSet();
 
     protected OutputProcessViewBase(ResultSetProcessor resultSetProcessor) {
         this.resultSetProcessor = resultSetProcessor;
@@ -93,5 +94,9 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
     public void setJoinExecutionStrategy(JoinExecutionStrategy joinExecutionStrategy)
     {
         this.joinExecutionStrategy = joinExecutionStrategy;
+    }
+
+    public ResultSetProcessor getResultSetProcessor() {
+        return resultSetProcessor;
     }
 }

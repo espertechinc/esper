@@ -177,4 +177,8 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
     public void stop() {
         // no action required
     }
+
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        // nothing to visit
+    }
 }

@@ -13,7 +13,7 @@ import com.espertech.esper.client.EventBean;
 import java.util.Iterator;
 import java.util.Map;
 
-public interface ResultSetProcessorGroupedOutputAllGroupReps {
+public interface ResultSetProcessorGroupedOutputAllGroupReps extends ResultSetProcessorOutputHelper {
 
     Object put(Object mk, EventBean[] array);
     void remove(Object key);

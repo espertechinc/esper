@@ -14,7 +14,7 @@ import com.espertech.esper.collection.UniformPair;
 
 import java.util.Set;
 
-public interface ResultSetProcessorAggregateGroupedOutputAllHelper {
+public interface ResultSetProcessorAggregateGroupedOutputAllHelper extends ResultSetProcessorOutputHelper {
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
     void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic);
     UniformPair<EventBean[]> outputView(boolean isSynthesize);

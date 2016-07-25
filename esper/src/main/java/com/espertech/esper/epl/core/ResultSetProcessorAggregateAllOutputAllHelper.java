@@ -17,7 +17,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 
-public interface ResultSetProcessorAggregateAllOutputAllHelper
+public interface ResultSetProcessorAggregateAllOutputAllHelper extends ResultSetProcessorOutputHelper
 {
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);

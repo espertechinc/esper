@@ -37,6 +37,10 @@ public class OutputProcessViewBaseCallback extends OutputProcessViewBase
         return null;
     }
 
+    public OutputProcessViewConditionDeltaSet getOptionalDeltaSet() {
+        return null;
+    }
+
     public Iterator<EventBean> iterator() {
         return OutputStrategyUtil.getIterator(joinExecutionStrategy, resultSetProcessor, parentView, false);
     }

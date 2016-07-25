@@ -389,6 +389,20 @@ public class ResultSetProcessorRowPerGroupRollup implements ResultSetProcessor, 
         return handleOutputLimitLastView(viewEventsList, generateSynthetic);
     }
 
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor) {
+        if (outputLastHelper != null) {
+            visitor.visit(outputLastHelper);
+        }
+        if (outputAllHelper != null) {
+            visitor.visit(outputAllHelper);
+        }
+        if (outputFirstHelpers != null) {
+            for (ResultSetProcessorGroupedOutputFirstHelper helper : outputFirstHelpers) {
+                visitor.visit(helper);
+            }
+        }
+    }
+
     private UniformPair<EventBean[]> handleOutputLimitFirstView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
 
         for (Map<Object, EventBean[]> aGroupRepsView : groupRepsPerLevelBuf) {

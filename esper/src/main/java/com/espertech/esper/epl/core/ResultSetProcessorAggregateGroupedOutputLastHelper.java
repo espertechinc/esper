@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public interface ResultSetProcessorAggregateGroupedOutputLastHelper {
+public interface ResultSetProcessorAggregateGroupedOutputLastHelper extends ResultSetProcessorOutputHelper {
 
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
     void processJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic);

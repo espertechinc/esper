@@ -109,4 +109,6 @@ public interface ResultSetProcessor extends StopCallback
     public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedView(boolean isSynthesize, boolean isAll);
 
     public UniformPair<EventBean[]> continueOutputLimitedLastAllNonBufferedJoin(boolean isSynthesize, boolean isAll);
+
+    public void acceptHelperVisitor(ResultSetProcessorOutputHelperVisitor visitor);
 }
