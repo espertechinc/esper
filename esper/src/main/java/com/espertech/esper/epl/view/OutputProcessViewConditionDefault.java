@@ -62,6 +62,10 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
         return outputCondition;
     }
 
+    public OutputProcessViewAfterState getOptionalAfterConditionState() {
+        return null;
+    }
+
     /**
      * The update method is called if the view does not participate in a join.
      * @param newData - new events

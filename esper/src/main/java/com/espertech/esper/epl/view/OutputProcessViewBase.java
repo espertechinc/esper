@@ -30,6 +30,7 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
     public abstract int getNumChangesetRows();
     public abstract OutputCondition getOptionalOutputCondition();
     public abstract OutputProcessViewConditionDeltaSet getOptionalDeltaSet();
+    public abstract OutputProcessViewAfterState getOptionalAfterConditionState();
 
     protected OutputProcessViewBase(ResultSetProcessor resultSetProcessor) {
         this.resultSetProcessor = resultSetProcessor;

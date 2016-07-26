@@ -27,6 +27,10 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
         afterConditionState = resultSetProcessorHelperFactory.makeOutputConditionAfter(afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, agentInstanceContext);
     }
 
+    public OutputProcessViewAfterState getOptionalAfterConditionState() {
+        return afterConditionState;
+    }
+
     /**
      * Returns true if the after-condition is satisfied.
      * @param newEvents is the view new events
