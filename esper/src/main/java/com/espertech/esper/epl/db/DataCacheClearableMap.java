@@ -54,4 +54,7 @@ public class DataCacheClearableMap implements DataCache
     {
         cache.clear();
     }
+
+    public void destroy() {
+    }
 }

@@ -106,6 +106,7 @@ public class MethodPollingViewable implements HistoricalEventViewable
     public void stop()
     {
         pollExecStrategy.destroy();
+        dataCache.destroy();
     }
 
     public ThreadLocal<DataCache> getDataCacheThreadLocal()

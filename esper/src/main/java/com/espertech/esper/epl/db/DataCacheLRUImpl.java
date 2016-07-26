@@ -80,4 +80,7 @@ public class DataCacheLRUImpl implements DataCache
     {
         return true;
     }
+
+    public void destroy() {
+    }
 }

@@ -29,4 +29,7 @@ public class DataCacheNullImpl implements DataCache
     {
         return false;
     }
+
+    public void destroy() {
+    }
 }

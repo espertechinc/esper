@@ -163,6 +163,9 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHistoricalScheduledEval();}
     }
 
+    public void destroy() {
+    }
+
     private static class Item
     {
         private EventTable[] data;

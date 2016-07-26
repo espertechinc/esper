@@ -42,4 +42,6 @@ public interface DataCache
      * @return true for caching enabled, false for no caching taking place
      */
     public boolean isActive();
+
+    void destroy();
 }
