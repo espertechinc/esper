@@ -53,6 +53,10 @@
         </para>
 
         <para>
+			For NEsper .NET the reader is is familiar with the C# programming language. For NEsper .NET, please also review <xref linkend="appendix_dotnet"/>.
+        </para>
+
+        <para>
 			This document is relevant in all phases of your software development project: from design to deployment and support.
         </para>
 
@@ -156,6 +160,8 @@
     <xi:include href="modules/appendix_outputspec.xml" />
 
     <xi:include href="modules/appendix_keywords.xml" />
+
+    <xi:include href="modules/appendix_dotnet.xml" />
 
     <index/>
 </book>

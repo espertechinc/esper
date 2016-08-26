@@ -1,0 +1,377 @@
+<appendix xml:id="appendix_dotnet" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>NEsper .NET -Specific Information</title>
+
+    <para>
+		This section provides information for NEsper .NET users. 
+    </para>
+    
+    <sect1 xml:id="appendix_dotnet_general" revision="1">
+		<title>.NET General Information</title>
+
+		<para>
+			<literal>System.Collections.IEnumerable</literal> and <literal>System.Collections.Generic.IEnumerable&lt;T&gt;</literal> are honored in most places where a collection would be taken.
+		</para>
+
+		<para>
+			In respect to <literal>DateTime</literal> differences, the baseline for CLR datetimes is <literal>1/1/0001 12:00:00AM</literal>. DateTimes are converted to ticks and then to milliseconds.
+		</para>
+	</sect1>
+
+    <sect1 xml:id="appendix_dotnet_annotation" revision="1">
+		<title>.NET and Annotations</title>
+		
+		<para>
+			Annotations are implemented using .NET attributes. Annotations must derive from <literal>System.Attribute</literal> and must use .NET attribute naming conventions e.g. <literal>@Hint</literal> is implemented as <literal>HintAttribute</literal>.
+		</para>
+	</sect1>
+
+    <sect1 xml:id="appendix_dotnet_locksconcurrency" revision="1">
+		<title>.NET and Locks and Concurrency</title>
+		
+		<para>
+			NEsper provides a lock manager that is configurable once per AppDomain: <literal>com.espertech.esper.compat.threading.LockManager</literal> is used for lock provision. 
+		</para>
+		
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Standard system locks are the default.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Spinlocks &amp; Slimlocks may be used.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Custom lock implementations can be leveraged.
+				</para>
+			</listitem>
+		</itemizedlist>
+
+		<para>
+			<literal>com.espertech.esper.compat.threading.ReaderWriterLockManager</literal> is used for RW lock management.
+		</para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Standard reader writer locks are the default.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					SlimReaderWriter locks are provided.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Fair &amp; FIFO ReaderWriter lock implementations are provided.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</sect1>
+
+    <sect1 xml:id="appendix_dotnet_threading" revision="1">
+		<title>.NET and Threading</title>
+		
+		<para>
+			<literal>com.espertech.esper.compat.threading.ThreadLocalManager</literal> is used for thread local management.
+		</para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Fast thread local implementation is the default - not .NET standard.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Standard implementation is available - however, it is found significantly slower.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</sect1>
+
+    <sect1 xml:id="appendix_dotnet_configuration" revision="1">
+		<title>.NET NEsper Configuration</title>
+
+		<para>
+			<literal>com.espertech.esper.util.EsperSectionHandler</literal> is provided to read Esper configuration from standard .NET configuration. It must be added as a <literal>configSection</literal> in order to be used.
+		</para>
+
+		<para>
+			For items not handled under the Esper configuration use <literal>com.espertech.esper.compat.CompatSettings</literal>.
+			These are often applied for the entire AppDomain meaning they are effectively static for the container.
+			These cover the following items:
+		</para>
+ 
+ 		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					<literal>DefaultLockType</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>DefaultReaderWriterLockType</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>MonitorLockTimeout</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>ReaderLockTimeout</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>WriterLockTimeout</literal>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>DefaultThreadLocalType</literal>.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</sect1>
+
+    <sect1 xml:id="appendix_dotnet_eventrep_intro" revision="1">
+		<title>.NET Event Underlying Objects</title>
+	
+		<table frame="topbot">
+			<title>Event Underlying .NET Objects</title>
+			<tgroup cols="2">
+				<colspec colwidth="1.5*"/>
+				<colspec colwidth="2*"/>
+				<thead>
+					<row>
+						<entry>Java Class</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry><literal>System.Object</literal></entry>
+						<entry>Any .NET object with properties.</entry>
+					</row>
+					<row>
+						<entry><literal>System.Collections.Generic.IDictionary</literal></entry>
+						<entry>Map events are implementations of the <literal>IDictionary</literal> interface where each map entry is a propery value.</entry>
+					</row>
+					<row>
+						<entry><literal>System.Array, System.Object[] (array of object)</literal></entry>
+						<entry>Object-array events are arrays of objects (type <literal>Object[]</literal>) where each array element is a property value.</entry>
+					</row>
+					<row>
+						<entry><literal>System.Xml.XmlNode</literal> and <literal>System.Xml.Linq.XNode</literal></entry>
+						<entry>XML document object model (DOM).</entry>
+					</row>
+					<row>
+						<entry>Application classes</entry>
+						<entry>Plug-in event representation via the extension API.</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_eventrep_javabean" revision="1">
+		<title>.NET Object Events</title>
+
+		<para>
+			Event classes provide accessors (getter methods) and mutators (setter methods) by means of auto-implemented properties or read write properties.
+		</para>
+		
+		<para>
+			Below an example using auto-implemented properties:
+		</para>
+
+		<programlisting><![CDATA[class NewEmployeeEvent {
+  public string FirstName { get; set; }
+  public Address Address { get; set; }	
+}]]></programlisting>
+
+		<para>
+			Below an example using read write properties:
+		</para>
+
+		<programlisting><![CDATA[class NewEmployeeEvent {
+  private string firstName = "N/A";
+  private Address address = 0;
+
+  public string FirstName
+  {
+    get
+    {
+      return firstName;
+    }
+    set
+    {
+      firstName = value;
+    }
+  }
+
+  public Address Address
+  {
+    get
+    {
+      return address;
+    }
+    set
+    {
+      address = value;
+    }
+  }
+}]]></programlisting>
+
+		<para>
+		  The case conversion is uppercase as dictated by .NET property conventions.
+		</para>
+	
+		<para>
+			Mapped indexes are handled through the indexing operator.
+		</para>
+    </sect1>
+    
+    <sect1 xml:id="appendix_dotnet_eventrep_map" revision="1">
+		<title>.NET IDictionary Events</title>
+		
+		<para>
+			For .NET the events can be represented by objects that implement the <literal>IDictionary</literal> interface.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_eventrep_xml" revision="1">
+		<title>.NET XML Events</title>
+		
+		<para>
+			XML events are represented by <literal>System.Xml</literal> and <literal>System.Xml.Linq</literal>.
+		</para>
+    </sect1>
+    
+    <sect1 xml:id="appendix_dotnet_eventrep_insertinto" revision="1">
+		<title>.NET Event Objects Instantiated and Populated by <literal>Insert Into</literal></title>
+		
+		<para>
+			Objects need to follow the .NET property conventions. Objects can follow modified conventions for Java-style accessors and mutators using Get and Set respectively.
+		</para>
+    </sect1>
+    
+    <sect1 xml:id="appendix_dotnet_processingmodel_intro" revision="1">
+		<title>.NET Processing Model Introduction</title>
+		
+		<para>
+			<literal>UpdateListener</literal> is replaced by <literal>UpdateEventHandler</literal> in .NET. Subscriber objects must implement the <literal>Update</literal> method 
+			or subscriber objects must be a delegate with an appropriate number of arguments.
+		</para>
+    </sect1>
+    
+	<sect1 xml:id="appendix_dotnet_epl_syntax_datatype" revision="1">
+		<title>.NET EPL Syntax - Data Types</title>
+		
+		<para>
+			The data types are <literal>sbyte</literal>, <literal>byte</literal>, <literal>short</literal>, <literal>ushort</literal>, <literal>int</literal>, <literal>uint</literal>, <literal>long</literal>, <literal>ulong</literal>, <literal>float</literal>, <literal>double</literal>, <literal>decimal</literal>.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_histdata_overview" revision="1">
+		<title>.NET Accessing Relational Data via SQL</title>
+		
+		<para>
+		.NET uses ADO-based drivers to accomplish the same work.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_api_receive_results" revision="1">
+		<title>.NET API - Receiving Statement Results</title>
+		
+		<para>
+			NEsper exposes the Events <literal>events</literal> on <literal>EPStatement</literal> objects.
+		</para>
+		<para>
+			The <literal>setSubscriber</literal> method is replaced with the <literal>Subscriber</literal> property. This property can take an object or a delegate.
+		</para>
+		<para>
+			<literal>Iterator</literal> is replaced with <literal>GetEnumerator</literal>. <literal>SafeIterator</literal> is replaced with <literal>GetSafeEnumerator</literal>.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_api_admin_listeners" revision="1">
+		<title>.NET API - Adding Listeners</title>
+		
+		<para>
+			Listeners are replaced with <literal>UpdateEventHandlers</literal>, for example <literal>countStatement.Events += (sender, args) => { DoWork(); }</literal>.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_api_threading" revision="1">
+		<title>.NET API - Engine Threading and Concurrency</title>
+		
+		<para>
+			When using internal timer (and not the application provided external time), please note:
+		</para>
+		
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Windows uses a high resolution timer that uses the windows multimedia timers with a resolution of 1 millisecond. High resolution timers are cleaned up when the AppDomain is disposed.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					If using Mono, Mono uses an internal timer that attempts to account for clock skew and drift.
+				</para>
+			</listitem>
+		</itemizedlist>
+    </sect1>
+
+    <sect1 xml:id="appendix_dotnet_config_database_ref" revision="1">
+		<title>.NET Configurations - Relational Database Access</title>
+		
+		<para>
+			Connections are obtained by selecting a <literal>DbDriver</literal>, which are a NEsper-construct. 
+		</para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					<literal>DbDriverGeneric</literal>: Positional or name based driver that must be completely configured prior to use.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>DbDriverMySQL</literal>: Positional based driver that uses '?' prefix.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>DbDriverODBC</literal>: Positional based driver that uses '?' prefix.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>DbDriverSqlServer</literal>: Translates positional into named-based SqlParameters with '@' prefix.
+				</para>
+			</listitem>
+		</itemizedlist>
+    </sect1>
+    
+	<sect1 xml:id="appendix_dotnet_configuration_logging" revision="1">
+		<title>.NET Configurations - Logging Configuration</title>
+		<para>
+			Log4j is replaced by .NET Commons Logging.
+		</para>
+    </sect1>
+        
+</appendix>

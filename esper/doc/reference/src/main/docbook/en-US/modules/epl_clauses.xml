@@ -267,6 +267,10 @@ epService.getEPAdministrator().createEPL("select * from OrderEvent(
 			<indexterm><primary>data types</primary></indexterm>
 			
 			<para>
+				For NEsper .NET also see <xref linkend="appendix_dotnet_epl_syntax_datatype"/>.
+			</para>
+
+			<para>
 				EPL honors all Java built-in primitive and boxed types, including <literal>java.math.BigInteger</literal> and <literal>java.math.BigDecimal</literal>.
 			</para>
 
@@ -4773,6 +4777,10 @@ and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]>
 		<indexterm><primary>join</primary><secondary>relational data via SQL</secondary></indexterm>
 		<indexterm><primary>relational databases</primary></indexterm>
 		<indexterm><primary>EPL</primary><secondary>joining relational data via SQL</secondary></indexterm>
+
+		<para>
+			For NEsper .NET also see <xref linkend="appendix_dotnet_histdata_overview"/>.
+		</para>
 
 		<para>
 			This chapter outlines how reference data and historical data that are stored in a relational database can be queried via SQL within EPL statements. 

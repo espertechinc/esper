@@ -9,6 +9,10 @@
     <sect1 xml:id="processingmodel_intro" revision="1">
         <title>Introduction</title>
         
+		<para>
+			For NEsper .NET also see <xref linkend="appendix_dotnet_processingmodel_intro"/>.
+		</para>
+
         <para>
 			The Esper processing model is continuous:  Update listeners and/or subscribers to statements receive updated data as soon as the engine processes events for that statement, according to the statement's choice of event streams, views, filters and output rates.
         </para>

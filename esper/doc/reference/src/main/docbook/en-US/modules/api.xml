@@ -176,8 +176,12 @@ countStmt.start();]]></programlisting>
 
 	  <sect2 xml:id="api-receive-results">		
 			<title>Receiving Statement Results</title>
-
 			<indexterm><primary>statement</primary><secondary>receiving results</secondary></indexterm>
+			
+			<para>
+				For NEsper .NET also see <xref linkend="appendix_dotnet_api_receive_results"/>.
+			</para>
+
 			<para>
 				Esper provides three choices for your application to receive statement results. Your application can use all three mechanisms alone or in any combination for each statement. The choices are:
 			</para>
@@ -544,9 +548,13 @@ public void updateEnd() {...}]]></programlisting>
 
 	  <sect2 xml:id="api-admin-listeners">		
 			<title>Adding Listeners</title>
-
 			<indexterm><primary>UpdateListener interface</primary></indexterm>
 			<indexterm><primary>StatementAwareUpdateListener interface</primary></indexterm>
+			
+			<para>
+				For NEsper .NET also see <xref linkend="appendix_dotnet_api_admin_listeners"/>.
+			</para>
+
 			<para>
 				Your application can subscribe to updates posted by a statement via the <literal>addListener</literal> and <literal>removeListener</literal> methods on <literal>EPStatement</literal> . Your application must to provide an implementation of the <literal>UpdateListener</literal> or the <literal>StatementAwareUpdateListener</literal> interface to the statement:
 			</para>
@@ -1405,8 +1413,12 @@ double value = (Double) newEvent[0].get("a[0].value");]]></programlisting>
 
     <sect1 xml:id="api-threading">
         <title>Engine Threading and Concurrency</title>
-
 		<indexterm><primary>threading</primary></indexterm>
+		
+		<para>
+			For NEsper .NET also see <xref linkend="appendix_dotnet_api_threading"/>.
+		</para>
+
         <para>
 			Esper is designed from the ground up to operate as a component to multi-threaded, highly-concurrent applications that require efficient use of Java VM resources. In addition, multi-threaded execution requires guarantees in predictability of results and deterministic processing. This section discusses these concerns in detail. 
         </para>

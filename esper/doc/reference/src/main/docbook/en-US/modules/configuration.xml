@@ -203,6 +203,10 @@ config.addEventTypeAutoName(MyEvent.getPackage().getName());]]></programlisting>
 				</table>
 				
 				<para>
+					For NEsper .NET accessor styles are <literal>NATIVE</literal>, <literal>PUBLIC</literal> and <literal>EXPLICIT</literal>.
+				</para>
+
+				<para>
 					Using the <literal>public</literal> setting for the <literal>accessor-style</literal> attribute instructs the engine to expose an event property for each public method and public member variable of a Java class. The engine assigns event property names of the same name as the name of the method or member variable in the Java class.
 				</para>
 				
@@ -414,6 +418,10 @@ config.addEventType("MyLegacyEvent", MyLegacyEventClass.class.getName(), legacyD
     <map-property name="assembly" class="com.mycompany.Assembly"/>    
   </java-util-map>
 </event-type>]]></programlisting>
+
+			<para>
+				For NEsper .NET we use <literal>util-map</literal> instead of <literal>java-util-map</literal>.
+			</para>
 
 			<para>
 				This configuration defines the <literal>carId</literal> property of <literal>MyMapEvent</literal> events to be of type <literal>int</literal>, and the <literal>carType</literal> property to be of type <literal>java.util.String</literal>. The <literal>assembly</literal> property of the Map event will contain instances of <literal>com.mycompany.Assembly</literal> for the engine to query.
@@ -1014,6 +1022,10 @@ config.addAnnotationImport("com.mycompany.mypackage.myannotations.*");]]></progr
 			<title>Relational Database Access</title>
 			
 			<para>
+				For NEsper .NET also see <xref linkend="appendix_dotnet_config_database_ref"/>.
+			</para>
+
+			<para>
 				Esper has the capability to join event streams against historical data sources, such as a relational database. This section describes the configuration entries that the engine requires to access data stored in your database. Please see <xref linkend="histdata_overview"/> for information on the use of EPL queries that include historical data sources.
 			</para>
 			
@@ -1323,7 +1335,12 @@ class MyOwnDataSourceFactory {
 			</sect3>
 
 			<sect3 xml:id="config-database-sqltypes" revision="1">
-				<title>SQL Types Mapping</title>				
+				<title>SQL Types Mapping</title>
+
+				<para>
+					For NEsper .NET this section is not applicable.
+				</para>
+				
 				<para>
 					By providing a mapping of SQL types (<literal>java.sql.Types</literal>) to Java built-in types your code can avoid using sometimes awkward default database types and can easily change the way Esper
 					returns Java types for columns returned by a SQL query.
@@ -2130,6 +2147,7 @@ config.getEngineDefaults().getTimeSource().
 
 			<para>
 				Please set the flag as described herein to have the engine report key counters and other processing information through the JMX mbean platform server. By default JMX is not enabled.
+				For NEsper .NET this section does not apply and there is currently no equivalent.
 			</para>
 			
 			<para>
@@ -2947,8 +2965,12 @@ config.addVariantStream("OutgoingEvent", variant);]]></programlisting>
 
 	<sect1 xml:id="configuration-logging">		
 		<title>Logging Configuration</title>
-
 		<indexterm><primary>configuration</primary><secondary>logging</secondary></indexterm>
+		
+		<para>
+			For NEsper .NET also see <xref linkend="appendix_dotnet_configuration_logging"/>.
+		</para>
+
 		<para>
 		   Esper logs all messages to Apache commons logging under an appropriate log level. To output log messages you can add Log4j to classpath and configure Log4j as below.
 		</para>
