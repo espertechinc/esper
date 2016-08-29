@@ -18,6 +18,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.support.bean.ISupportBImpl;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
@@ -45,6 +46,9 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         configuration.addPlugInSingleRowFunction("getValueAsString", MySingleRowFunction.class.getName(), "getValueAsString");
         configuration.addPlugInSingleRowFunction("eventsCheckStrings", MySingleRowFunction.class.getName(), "eventsCheckStrings");
         configuration.addPlugInSingleRowFunction("varargsOnlyInt", MySingleRowFunction.class.getName(), "varargsOnlyInt");
+        configuration.addPlugInSingleRowFunction("varargsOnlyObject", MySingleRowFunction.class.getName(), "varargsOnlyObject");
+        configuration.addPlugInSingleRowFunction("varargsOnlyNumber", MySingleRowFunction.class.getName(), "varargsOnlyNumber");
+        configuration.addPlugInSingleRowFunction("varargsOnlyISupportBaseAB", MySingleRowFunction.class.getName(), "varargsOnlyISupportBaseAB");
         configuration.addPlugInSingleRowFunction("varargsW1Param", MySingleRowFunction.class.getName(), "varargsW1Param");
         configuration.addPlugInSingleRowFunction("varargsW2Param", MySingleRowFunction.class.getName(), "varargsW2Param");
         configuration.addPlugInSingleRowFunction("varargsOnlyWCtx", MySingleRowFunction.class.getName(), "varargsOnlyWCtx");
@@ -103,6 +107,18 @@ public class TestSingleRowFunctionPlugIn extends TestCase
                 makePair("varargsW2ParamWCtx('a', 'b', 1)", "CTX+a,b,1"),
                 makePair("varargsW2ParamWCtx('a', 'b')", "CTX+a,b,"),
                 makePair(MySingleRowFunction.class.getName() + ".varargsW2ParamWCtx('a', 'b')", "CTX+a,b,"));
+
+        runVarargAssertion(
+                makePair("varargsOnlyObject('a', 1, new BigInteger('2'))", "a,1,2"));
+
+        runVarargAssertion(
+                makePair("varargsOnlyNumber(1f, 2L, 3, new BigInteger('4'))", "1.0,2,3,4"));
+
+        runVarargAssertion(
+                makePair("varargsOnlyNumber(1f, 2L, 3, new BigInteger('4'))", "1.0,2,3,4"));
+
+        runVarargAssertion(
+                makePair("varargsOnlyISupportBaseAB(new " + ISupportBImpl.class.getName() + "('a', 'b'))", "ISupportBImpl{valueB='a', valueBaseAB='b'}"));
     }
 
     public void testEventBeanFootprint() {

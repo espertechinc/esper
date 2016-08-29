@@ -33,4 +33,11 @@ public class ISupportBImpl implements ISupportB, Serializable
     {
         return valueBaseAB;
     }
+
+    public String toString() {
+        return "ISupportBImpl{" +
+                "valueB='" + valueB + '\'' +
+                ", valueBaseAB='" + valueBaseAB + '\'' +
+                '}';
+    }
 }

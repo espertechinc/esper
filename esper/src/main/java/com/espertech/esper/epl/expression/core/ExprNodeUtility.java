@@ -1658,6 +1658,12 @@ public class ExprNodeUtility {
             int childEvalIndex = i + method.getParameterTypes().length - 1;
             Class resultType = childEvals[childEvalIndex].getType();
             varargEvals[i] = childEvals[childEvalIndex];
+
+            if (JavaClassHelper.isSubclassOrImplementsInterface(resultType, varargClass)) {
+                // no need to coerce
+                continue;
+            }
+
             if (JavaClassHelper.getBoxedType(resultType) != varargClassBoxed) {
                 needCoercion = true;
                 coercers[i] = SimpleNumberCoercerFactory.getCoercer(resultType, varargClassBoxed);

@@ -13,6 +13,7 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
+import com.espertech.esper.support.bean.ISupportBaseAB;
 import com.mysql.jdbc.StringUtils;
 
 import java.io.StringWriter;
@@ -112,6 +113,18 @@ public class MySingleRowFunction
 
     public static String varargsW2ParamWCtx(String first, String second, EPLMethodInvocationContext ctx, Integer ... values) {
         return "CTX+" + first + "," + second + "," + toCSV(values);
+    }
+
+    public static String varargsOnlyObject(Object ... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsOnlyNumber(Number ... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsOnlyISupportBaseAB(ISupportBaseAB... values) {
+        return toCSV(values);
     }
 
     private static String toCSV(Object[] values) {
