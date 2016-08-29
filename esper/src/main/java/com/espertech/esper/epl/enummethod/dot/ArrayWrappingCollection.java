@@ -54,7 +54,17 @@ public class ArrayWrappingCollection implements Collection {
     }
 
     public boolean contains(Object o) {
-        throw new UnsupportedOperationException("Partial implementation");
+        if (array == null) {
+            return false;
+        }
+        int len = Array.getLength(array);
+        for (int i = 0; i < len; i++) {
+            Object other = Array.get(array, i);
+            if (other != null && other.equals(o)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean add(Object o) {

@@ -48,6 +48,19 @@ public class TestEnumExceptIntersectUnion extends TestCase {
         listener = null;
     }
 
+    public void testStringArrayIntersection() throws Exception {
+        String epl = "create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
+                "@Name('Out') select * from Event(meta1.intersect(meta2).countOf() > 0);\n";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+        epService.getEPAdministrator().getStatement("Out").addListener(listener);
+
+        sendAndAssert("a,b", "a,b", true);
+        sendAndAssert("c,d", "a,b", false);
+        sendAndAssert("c,d", "a,d", true);
+        sendAndAssert("a,d,a,a", "b,c", false);
+        sendAndAssert("a,d,a,a", "b,d", true);
+    }
+
     public void testSetLogicWithContained() {
         String epl = "select " +
                 "contained.except(containedTwo) as val0," +
@@ -261,5 +274,10 @@ public class TestEnumExceptIntersectUnion extends TestCase {
         Map<String, Object> map = makeMap(key, value);
         map.put(key2, value2);
         return map;
+    }
+
+    private void sendAndAssert(String metaOne, String metaTwo, boolean expected) {
+        epService.getEPRuntime().sendEvent(new Object[] {metaOne.split(","), metaTwo.split(",")}, "Event");
+        assertEquals(expected, listener.getIsInvokedAndReset());
     }
 }
