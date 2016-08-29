@@ -18,6 +18,7 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
@@ -35,6 +36,7 @@ public class TestScriptExpression extends TestCase {
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
         listener = new SupportUpdateListener();
     }
 
@@ -345,6 +347,23 @@ public class TestScriptExpression extends TestCase {
         tryAggregation();
 
         tryDeployArrayInScript();
+
+        tryCreateExpressionWArrayAllocate();
+    }
+
+    private void tryCreateExpressionWArrayAllocate() {
+        String epl = "@name('first') create expression double js:test(bar) [\n" +
+                "test(bar);\n" +
+                "function test(bar) {\n" +
+                "  var test=[];\n" +
+                "  return -1.0;\n" +
+                "}]\n";
+        epService.getEPAdministrator().createEPL(epl);
+
+        epService.getEPAdministrator().createEPL("select test('a') as c0 from SupportBean_S0").addListener(listener);
+        listener.reset();
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0".split(","), new Object[] {-1d});
     }
 
     private void tryDeployArrayInScript() throws Exception {

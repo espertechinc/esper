@@ -294,29 +294,38 @@ public class ParseHelper {
     }
 
     private static int findEndTokenScript(int startIndex, CommonTokenStream tokens, int tokenTypeSearch, Set<Integer> afterScriptTokens, boolean requireAfterScriptToken) {
-        int found = -1;
-        for (int i = startIndex; i < tokens.size(); i++) {
-            if (tokens.get(i).getType() == tokenTypeSearch) {
-                if (!requireAfterScriptToken) {
-                    return i;
-                }
-                // The next non-comment token must be among the afterScriptTokens, i.e. SELECT/INSERT/ON/DELETE/UPDATE
-                // Find next non-comment token.
-                for (int j = i + 1; j < tokens.size(); j++) {
-                    Token next = tokens.get(j);
-                    if (next.getChannel() == 0) {
-                        if (afterScriptTokens.contains(next.getType())) {
-                            found = i;
+
+        // The next non-comment token must be among the afterScriptTokens, i.e. SELECT/INSERT/ON/DELETE/UPDATE
+        // Find next non-comment token.
+        if (requireAfterScriptToken) {
+            int found = -1;
+            for (int i = startIndex; i < tokens.size(); i++) {
+                if (tokens.get(i).getType() == tokenTypeSearch) {
+                    for (int j = i + 1; j < tokens.size(); j++) {
+                        Token next = tokens.get(j);
+                        if (next.getChannel() == 0) {
+                            if (afterScriptTokens.contains(next.getType())) {
+                                found = i;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+                if (found != -1) {
+                    break;
+                }
             }
-            if (found != -1) {
-                break;
+            return found;
+        }
+
+        // Find the last token
+        int indexLast = -1;
+        for (int i = startIndex; i < tokens.size(); i++) {
+            if (tokens.get(i).getType() == tokenTypeSearch) {
+                indexLast = i;
             }
         }
-        return found;
+        return indexLast;
     }
 
     private static boolean isContainsScriptExpression(CommonTokenStream tokens) {
