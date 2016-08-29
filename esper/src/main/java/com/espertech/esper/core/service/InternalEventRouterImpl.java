@@ -157,7 +157,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
         return new InternalEventRouterDesc(desc, copyMethod, wideners, eventType, annotations);
     }
 
-    public void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect)
+    public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect)
     {
         descriptors.put(internalEventRouterDesc.getUpdateDesc(), new IRDescEntry(internalEventRouterDesc, outputView, agentInstanceLock, hasSubselect));
 
@@ -167,7 +167,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
         hasPreprocessing = true;
     }
 
-    public void removePreprocessing(EventType eventType, UpdateDesc desc)
+    public synchronized void removePreprocessing(EventType eventType, UpdateDesc desc)
     {
         if (log.isInfoEnabled())
         {
