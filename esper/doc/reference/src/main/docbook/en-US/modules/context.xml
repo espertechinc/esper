@@ -516,7 +516,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 				</para>
 
 				<table frame="topbot">
-					<title>Keyed Segmented Context Properties</title>
+					<title>Hash Segmented Context Properties</title>
 					<tgroup cols="2">
 						<colspec colwidth="0.20*"/>
 						<colspec colwidth="1*"/>
