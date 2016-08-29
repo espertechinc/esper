@@ -1649,6 +1649,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 return new EPPreparedExecuteIUDInsertInto(compiledSpec, services, statementContext);
             }
             else if (compiledSpec.getFireAndForgetSpec() == null) {   // null indicates a select-statement, same as continuous query
+                if (compiledSpec.getUpdateSpec() != null) {
+                    throw new EPStatementException("Provided EPL expression is a continuous query expression (not an on-demand query), please use the administrator createEPL API instead", epl);
+                }
                 return new EPPreparedExecuteMethodQuery(compiledSpec, services, statementContext);
             }
             else if (compiledSpec.getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {

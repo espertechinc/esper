@@ -198,6 +198,10 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             nameProvided = true;
         }
 
+        if (statementSpec.getFireAndForgetSpec() != null) {
+            throw new EPStatementException("Provided EPL expression is an on-demand query expression (not a continuous query), please use the runtime executeQuery API instead", expression);
+        }
+
         return createStopped(statementSpec, annotations, expression, isPattern, statementName, nameProvided, statementId, optAdditionalContext, userObject, isolationUnitServices, false, optionalModel);
     }
 

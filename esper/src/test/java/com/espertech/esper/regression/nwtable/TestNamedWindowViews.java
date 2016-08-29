@@ -22,6 +22,7 @@ import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -1851,6 +1852,12 @@ public class TestNamedWindowViews extends TestCase
 
         assertEquals("Named window or table 'dummy' has not been declared [on MyMap delete from dummy]",
                      tryInvalid("on MyMap delete from dummy"));
+
+        epService.getEPAdministrator().createEPL("create window SomeWindow.win:keepall() as (a int)");
+        SupportMessageAssertUtil.tryInvalid(epService, "update SomeWindow set a = 'a' where a = 'b'",
+                "Provided EPL expression is an on-demand query expression (not a continuous query), please use the runtime executeQuery API instead");
+        SupportMessageAssertUtil.tryInvalidExecuteQuery(epService, "update istream SomeWindow set a = 'a' where a = 'b'",
+                "Provided EPL expression is a continuous query expression (not an on-demand query), please use the administrator createEPL API instead");
 
         // test model-after with no field
         Map<String, Object> innerType = new HashMap<String, Object>();

@@ -30,6 +30,16 @@ public class SupportMessageAssertUtil {
         }
     }
 
+    public static void tryInvalidExecuteQuery(EPServiceProvider engine, String epl, String message) {
+        try {
+            engine.getEPRuntime().executeQuery(epl);
+            Assert.fail();
+        }
+        catch (EPStatementException ex) {
+            assertMessage(ex, message);
+        }
+    }
+
     public static void assertMessageContains(Throwable ex, String message) {
         if (!ex.getMessage().contains(message)) {
             Assert.fail("Does not contain text: '" + message + "' in text \n text:" + ex.getMessage());
