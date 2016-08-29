@@ -38,7 +38,8 @@ public class NamedWindowTailView
     private final boolean isPrioritized;
     private final boolean isParentBatchWindow;
     private volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersNonContext;  // handles as copy-on-write
-    private final NamedWindowConsumerLatchFactory latchFactory;
+    private final TimeSourceService timeSourceService;
+    private final ConfigurationEngineDefaults.Threading threadingConfig;
 
     public NamedWindowTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig) {
         this.eventType = eventType;
@@ -49,10 +50,8 @@ public class NamedWindowTailView
         this.isPrioritized = prioritized;
         this.isParentBatchWindow = parentBatchWindow;
         this.consumersNonContext = NamedWindowUtil.createConsumerMap(isPrioritized);
-        this.latchFactory = new NamedWindowConsumerLatchFactory(eventType.getName(),
-                threadingConfig.isNamedWindowConsumerDispatchPreserveOrder(),
-                threadingConfig.getNamedWindowConsumerDispatchTimeout(),
-                threadingConfig.getNamedWindowConsumerDispatchLocking(), timeSourceService);
+        this.threadingConfig = threadingConfig;
+        this.timeSourceService = timeSourceService;
     }
 
     /**
@@ -154,12 +153,20 @@ public class NamedWindowTailView
         }
     }
 
-    public void addDispatches(Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext, NamedWindowDeltaData delta, AgentInstanceContext agentInstanceContext) {
+    public void addDispatches(NamedWindowConsumerLatchFactory latchFactory, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext, NamedWindowDeltaData delta, AgentInstanceContext agentInstanceContext) {
         if (!consumersInContext.isEmpty()) {
             namedWindowDispatchService.addDispatch(latchFactory, delta, consumersInContext);
         }
         if (!consumersNonContext.isEmpty()) {
             namedWindowDispatchService.addDispatch(latchFactory, delta, consumersNonContext);
         }
+    }
+
+    public TimeSourceService getTimeSourceService() {
+        return timeSourceService;
+    }
+
+    public ConfigurationEngineDefaults.Threading getThreadingConfig() {
+        return threadingConfig;
     }
 }

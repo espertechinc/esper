@@ -39,6 +39,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     private final NamedWindowTailView tailView;
     private final NamedWindowProcessor namedWindowProcessor;
     private final AgentInstanceContext agentInstanceContext;
+    private final NamedWindowConsumerLatchFactory latchFactory;
 
     private volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersInContext;  // handles as copy-on-write
     private volatile long numberOfEvents;
@@ -49,6 +50,10 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         this.namedWindowProcessor = namedWindowProcessor;
         this.agentInstanceContext = agentInstanceContext;
         this.consumersInContext = NamedWindowUtil.createConsumerMap(tailView.isPrioritized());
+        this.latchFactory = new NamedWindowConsumerLatchFactory(namedWindowProcessor.getNamedWindowType().getName(),
+                tailView.getThreadingConfig().isNamedWindowConsumerDispatchPreserveOrder(),
+                tailView.getThreadingConfig().getNamedWindowConsumerDispatchTimeout(),
+                tailView.getThreadingConfig().getNamedWindowConsumerDispatchLocking(), tailView.getTimeSourceService());
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)
@@ -76,7 +81,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
 
         NamedWindowDeltaData delta = new NamedWindowDeltaData(newData, oldData);
-        tailView.addDispatches(consumersInContext, delta, agentInstanceContext);
+        tailView.addDispatches(latchFactory, consumersInContext, delta, agentInstanceContext);
     }
 
     /**
