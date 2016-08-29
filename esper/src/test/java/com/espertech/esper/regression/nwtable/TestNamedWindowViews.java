@@ -1515,7 +1515,7 @@ public class TestNamedWindowViews extends TestCase
         EPAssertionUtil.assertProps(listenerStmtOne.getLastNewData()[0], fields, new Object[]{"G2", 20L});
         assertNull(listenerStmtOne.getLastOldData());
         listenerStmtOne.reset();
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 20L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 20L}});
 
         // delete G2
         sendMarketBean("G2");
@@ -1533,13 +1533,13 @@ public class TestNamedWindowViews extends TestCase
         EPAssertionUtil.assertProps(listenerStmtOne.getLastNewData()[0], fields, new Object[]{"G2", 21L});
         assertNull(listenerStmtOne.getLastOldData());
         listenerStmtOne.reset();
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 2L}, {"G2", 21L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 2L}, {"G2", 21L}});
 
         sendSupportBean("G2", 22L);
         EPAssertionUtil.assertProps(listenerStmtOne.getLastNewData()[0], fields, new Object[]{"G2", 22L});
         EPAssertionUtil.assertProps(listenerStmtOne.getLastOldData()[0], fields, new Object[]{"G2", 21L});
         listenerStmtOne.reset();
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 2L}, {"G2", 22L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 2L}, {"G2", 22L}});
 
         sendMarketBean("G1");
         EPAssertionUtil.assertProps(listenerStmtOne.getLastOldData()[0], fields, new Object[]{"G1", 2L});
@@ -1576,7 +1576,7 @@ public class TestNamedWindowViews extends TestCase
 
         sendSupportBean("G2", 20L);
         EPAssertionUtil.assertProps(listenerStmtOne.assertOneGetNewAndReset(), fields, new Object[]{"G2", 20L});
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 20L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 20L}});
 
         // delete G2
         sendMarketBean("G2");
@@ -1589,11 +1589,11 @@ public class TestNamedWindowViews extends TestCase
 
         sendSupportBean("G2", 21L);
         EPAssertionUtil.assertProps(listenerStmtOne.assertOneGetNewAndReset(), fields, new Object[]{"G2", 21L});
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
 
         sendSupportBean("G2", 22L); // ignored
         assertFalse(listenerStmtOne.isInvoked());
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
 
         sendMarketBean("G1");
         EPAssertionUtil.assertProps(listenerStmtOne.assertOneGetOldAndReset(), fields, new Object[]{"G1", 1L});
@@ -1639,7 +1639,7 @@ public class TestNamedWindowViews extends TestCase
         sendSupportBeanInt("G2", 8);
         EPAssertionUtil.assertProps(listenerStmtOne.assertOneGetNewAndReset(), fields, new Object[]{"G2", 8});
         EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), fields, new Object[]{"G2", 8});
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 15}, {"G2", 8}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 15}, {"G2", 8}});
         EPAssertionUtil.assertPropsPerRow(stmtSelectOne.iterator(), fields, new Object[][]{{"G2", 8}});
 
         // delete G2
@@ -1651,7 +1651,7 @@ public class TestNamedWindowViews extends TestCase
         sendSupportBeanInt("G3", -1);
         assertFalse(listenerStmtOne.isInvoked());
         EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), fields, new Object[]{"G3", -1});
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, new Object[][]{{"G1", 15}, {"G3", -1}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), fields, new Object[][]{{"G1", 15}, {"G3", -1}});
         EPAssertionUtil.assertPropsPerRow(stmtSelectOne.iterator(), fields, null);
 
         // delete G2
@@ -1661,7 +1661,7 @@ public class TestNamedWindowViews extends TestCase
 
         sendSupportBeanInt("G1", 6);
         sendSupportBeanInt("G2", 7);
-        EPAssertionUtil.assertPropsPerRow(stmtSelectOne.iterator(), fields, new Object[][]{{"G1", 6}, {"G2", 7}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtSelectOne.iterator(), fields, new Object[][]{{"G1", 6}, {"G2", 7}});
 
         stmtSelectOne.destroy();
         stmtDelete.destroy();
