@@ -11,6 +11,9 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceIsolationException;
 import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.core.service.resource.StatementResourceHolder;
+import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.filter.FilterSet;
@@ -125,6 +128,8 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
                 stmtSpi.getStatementContext().getScheduleAdjustmentService().adjust(delta);
                 statementNames.add(stmtSpi.getName());
                 stmtSpi.setServiceIsolated(isolatedServiceName);
+
+                applyFilterVersion(stmtSpi, services.getFilterService().getFiltersVersion());
             }
 
             // commit txn
@@ -202,6 +207,8 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
                 stmtSpi.getStatementContext().getScheduleAdjustmentService().adjust(delta);
                 statementNames.remove(stmtSpi.getName());
                 stmtSpi.setServiceIsolated(null);
+
+                applyFilterVersion(stmtSpi, unisolatedServices.getFilterService().getFiltersVersion());
             }
 
             // commit txn
@@ -251,5 +258,21 @@ public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
         }
 
         removeStatement(statements.toArray(new EPStatement[statements.size()]));
+    }
+
+    private void applyFilterVersion(EPStatementSPI stmtSpi, long filtersVersion) {
+        StatementResourceService resources = stmtSpi.getStatementContext().getStatementExtensionServicesContext().getStmtResources();
+        if (resources.getUnpartitioned() != null) {
+            applyFilterVersion(resources.getUnpartitioned(), filtersVersion);
+        }
+        else {
+            for (Map.Entry<Integer, StatementResourceHolder> entry : resources.getResourcesPartitioned().entrySet()) {
+                applyFilterVersion(entry.getValue(), filtersVersion);
+            }
+        }
+    }
+
+    private void applyFilterVersion(StatementResourceHolder holder, long filtersVersion) {
+        holder.getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
 }

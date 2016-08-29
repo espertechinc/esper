@@ -48,6 +48,17 @@ public class TestIsolationUnit extends TestCase
         listener = null;
     }
 
+    public void testMovePattern() {
+        EPServiceProviderIsolated isolatedService = epService.getEPServiceIsolated("Isolated");
+        EPStatement stmt = isolatedService.getEPAdministrator().createEPL("select * from pattern [every (a=SupportBean -> b=SupportBean(theString=a.theString)) where timer:within(1 day)]", "TestStatement",null);
+        isolatedService.getEPRuntime().sendEvent(new CurrentTimeEvent(System.currentTimeMillis() + 1000));
+        isolatedService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        stmt.addListener(listener);
+        isolatedService.getEPAdministrator().removeStatement(stmt);
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
+        assertTrue(listener.getIsInvokedAndReset());
+    }
+
     public void testInvalid()
     {
         if (SupportConfigFactory.skipTest(TestIsolationUnit.class)) {
