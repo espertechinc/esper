@@ -15,9 +15,11 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.bean.SupportBeanTimestamp;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
@@ -264,6 +266,17 @@ public class TestViewGroupBy extends TestCase
         stmt.addListener(listener);
 
         sendEvent("IBM", 100);
+    }
+
+    public void testExpressionGrouped() {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBeanTimestamp.std:groupwin(timestamp.getDayOfWeek()).win:length(2)");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E1", DateTime.parseDefaultMSec("2002-01-01T9:0:00.000")));
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E2", DateTime.parseDefaultMSec("2002-01-08T9:0:00.000")));
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E3", DateTime.parseDefaultMSec("2002-01-015T9:0:00.000")));
+        assertEquals(1, listener.getDataListsFlattened().getSecond().length);
     }
 
     public void testCorrel()

@@ -9,6 +9,7 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -80,8 +81,13 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
         {
             String name = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
             fieldNames[i] = name;
-            if (!(parentEventType.isProperty(name)))
-            {
+            try {
+                if (!(parentEventType.isProperty(name))) {
+                    parentContainsMergeKeys = false;
+                }
+            }
+            catch (PropertyAccessException ex) {
+                // expected
                 parentContainsMergeKeys = false;
             }
         }
