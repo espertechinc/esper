@@ -374,6 +374,10 @@ countStmt.start();]]></programlisting>
 				  In the case that your subscriber class offers multiple <literal>update</literal> method footprints, the engine selects the closest-matching footprint by comparing the output types and method parameter types. The engine prefers the update method that is an exact match of types, followed by an update method that requires boxing or unboxing, followed by an update method that requires widening and finally any other allowable update method. 
 				</para>
 
+				<para>
+				  Within the above criteria, in the case that your subscriber class offers multiple <literal>update</literal> method footprints with same method parameter types, the engine prefers the update method that has <literal>EPStatement</literal> as the first parameter.
+				</para>
+
 				<sect4 xml:id="api-admin-subscriber-rowbyrow-wildcard">		
 					<title>Wildcards</title>
 	
