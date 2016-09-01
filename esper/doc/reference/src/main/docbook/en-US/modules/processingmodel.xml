@@ -52,6 +52,21 @@ results via method invocation. The subscriber class need not implement an interf
 			For joins and select clauses with expressions, the underlying object implements <literal>java.util.Map</literal>.
         </para>
 
+		<tip>
+			<para>
+				The engine calls application-provided update listeners and subscribers for output. These commonly encapsulate the actions to take when there is output.
+				This design decouples EPL statements from actions and places actions outside of EPL. It allows actions to change independently from statements: A statement 
+				does not need to be updated when its associated action(s) change.
+			</para>
+			<para>
+				While action-taking, in respect to the code or script taking the action, is not a part of the EPL language, here are a few noteworthy points. 
+				Through the use of EPL annotations one can attach information to EPL that can be used by applications to flexibly determine actions.
+				The convenient <literal>StatementAwareUpdateListener</literal> interface is a listener that receives the statement itself.
+				The <literal>insert into</literal>-clause can be used to send results into a further stream and input and output adapters or data flows can exist to process output events from that stream.
+				Also the data flow <literal>EPStatementSource</literal> operator can be used to hook up actions declaratively.
+				The <literal>EPStatementStateListener </literal> can inform your application of new statements coming online.
+			</para>
+		</tip>
 	</sect1>
 	
     <sect1 xml:id="processingmodel_nowindow" revision="1">
