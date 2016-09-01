@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
@@ -182,7 +183,7 @@ public class StatementResultServiceImpl implements StatementResultService
             return;
         }
 
-        statementResultNaturalStrategy = ResultDeliveryStrategyFactory.create(statementName, statementListenerSet.getSubscriber(), statementListenerSet.getSubscriberMethodName(),
+        statementResultNaturalStrategy = ResultDeliveryStrategyFactory.create(epStatement, statementListenerSet.getSubscriber(), statementListenerSet.getSubscriberMethodName(),
                 selectClauseTypes, selectClauseColumnNames);
         isMakeNatural = true;
     }

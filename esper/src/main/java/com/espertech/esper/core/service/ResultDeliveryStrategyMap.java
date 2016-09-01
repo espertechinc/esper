@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.NaturalEventBean;
@@ -27,10 +28,10 @@ import java.util.Map;
 public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
 {
     private static Log log = LogFactory.getLog(ResultDeliveryStrategyMap.class);
-    private final String statementName;
-    private final Object subscriber;
-    private final FastMethod fastMethod;
-    private final String[] columnNames;
+    protected final EPStatement statement;
+    protected final Object subscriber;
+    protected final FastMethod fastMethod;
+    protected final String[] columnNames;
 
     /**
      * Ctor.
@@ -38,9 +39,9 @@ public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
      * @param method the delivery method
      * @param columnNames the column names for the map
      */
-    public ResultDeliveryStrategyMap(String statementName, Object subscriber, Method method, String[] columnNames)
+    public ResultDeliveryStrategyMap(EPStatement statement, Object subscriber, Method method, String[] columnNames)
     {
-        this.statementName = statementName;
+        this.statement = statement;
         this.subscriber = subscriber;
         FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
         this.fastMethod = fastClass.getMethod(method);
@@ -66,11 +67,11 @@ public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
             fastMethod.invoke(subscriber, parameters);
         }
         catch (InvocationTargetException e) {
-            ResultDeliveryStrategyImpl.handle(statementName, log, e, parameters, subscriber, fastMethod);
+            ResultDeliveryStrategyImpl.handle(statement.getName(), log, e, parameters, subscriber, fastMethod);
         }
     }
 
-    private Map[] convert(EventBean[] events)
+    protected Map[] convert(EventBean[] events)
     {
         if ((events == null) || (events.length == 0))
         {

@@ -9,8 +9,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.event.NaturalEventBean;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
@@ -23,26 +23,15 @@ import java.lang.reflect.Method;
 /**
  * A result delivery strategy that uses an "update" method that accepts a pair of object array array.
  */
-public class ResultDeliveryStrategyObjectArr implements ResultDeliveryStrategy
+public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategyObjectArr
 {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyImpl.class);
-    protected final EPStatement statement;
-    protected final Object subscriber;
-    protected final FastMethod fastMethod;
+    private static Log log = LogFactory.getLog(ResultDeliveryStrategyObjectArrWStmt.class);
 
-    /**
-     * Ctor.
-     * @param subscriber is the subscriber to deliver to
-     * @param method the method to invoke
-     */
-    public ResultDeliveryStrategyObjectArr(EPStatement statement, Object subscriber, Method method)
-    {
-        this.statement = statement;
-        this.subscriber = subscriber;
-        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
-        this.fastMethod = fastClass.getMethod(method);
+    public ResultDeliveryStrategyObjectArrWStmt(EPStatement statement, Object subscriber, Method method) {
+        super(statement, subscriber, method);
     }
 
+    @Override
     public void execute(UniformPair<EventBean[]> result)
     {
         Object[][] newData;
@@ -57,44 +46,12 @@ public class ResultDeliveryStrategyObjectArr implements ResultDeliveryStrategy
             oldData = convert(result.getSecond());
         }
 
-        Object[] parameters = new Object[] {newData, oldData};
+        Object[] parameters = new Object[] {statement, newData, oldData};
         try {
             fastMethod.invoke(subscriber, parameters);
         }
         catch (InvocationTargetException e) {
             ResultDeliveryStrategyImpl.handle(statement.getName(), log, e, parameters, subscriber, fastMethod);
         }
-    }
-
-    protected Object[][] convert(EventBean[] events)
-    {
-        if ((events == null) || (events.length == 0))
-        {
-            return null;
-        }
-
-        Object[][] result = new Object[events.length][];
-        int length = 0;
-        for (int i = 0; i < result.length; i++)
-        {
-            if (events[i] instanceof NaturalEventBean)
-            {
-                NaturalEventBean natural = (NaturalEventBean) events[i];
-                result[length] = natural.getNatural();
-                length++;
-            }
-        }
-
-        if (length == 0)
-        {
-            return null;
-        }
-        if (length != events.length)
-        {
-            Object[][] reduced = new Object[length][];
-            System.arraycopy(result, 0, reduced, 0, length);
-            result = reduced;
-        }
-        return result;
     }
 }

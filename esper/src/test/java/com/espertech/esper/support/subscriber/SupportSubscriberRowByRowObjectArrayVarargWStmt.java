@@ -9,28 +9,18 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.support.bean.SupportEnum;
+import com.espertech.esper.client.EPStatement;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MySubscriberRowByRowObjectArr
+public class SupportSubscriberRowByRowObjectArrayVarargWStmt extends SupportSubscriberRowByRowObjectArrayBase
 {
-    private ArrayList<Object[]> indicate = new ArrayList<Object[]>();
-
-    public void update(Object... row)
-    {
-        indicate.add(row);
+    public SupportSubscriberRowByRowObjectArrayVarargWStmt() {
+        super(true);
     }
 
-    public List<Object[]> getAndResetIndicate()
+    public void update(EPStatement stmt, Object... row)
     {
-        List<Object[]> result = indicate;
-        indicate = new ArrayList<Object[]>();
-        return result;
+        addIndication(stmt, row);
     }
 }

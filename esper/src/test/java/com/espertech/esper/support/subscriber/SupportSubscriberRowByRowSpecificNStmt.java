@@ -9,70 +9,62 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.support.bean.SupportEnum;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MySubscriberRowByRowSpecific
+public class SupportSubscriberRowByRowSpecificNStmt extends SupportSubscriberRowByRowSpecificBase
 {
-    private ArrayList<Object[]> indicate = new ArrayList<Object[]>();
+    public SupportSubscriberRowByRowSpecificNStmt() {
+        super(false);
+    }
 
     public void update(String theString, int intPrimitive)
     {
-        indicate.add(new Object[] {theString, intPrimitive});
+        addIndication(new Object[] {theString, intPrimitive});
     }
 
     public void update(int wideByte, long wideInt, double wideLong, double wideFloat)
     {
-        indicate.add(new Object[] {wideByte, wideInt, wideLong, wideFloat});
+        addIndication(new Object[] {wideByte, wideInt, wideLong, wideFloat});
     }
 
     public void update(SupportBean supportBean)
     {
-        indicate.add(new Object[] {supportBean});
+        addIndication(new Object[] {supportBean});
     }
 
     public void update(SupportBean supportBean, int value1, String value2)
     {
-        indicate.add(new Object[] {supportBean, value1, value2});
+        addIndication(new Object[] {supportBean, value1, value2});
     }
 
     public void update(SupportBeanComplexProps.SupportBeanSpecialGetterNested n,
                                SupportBeanComplexProps.SupportBeanSpecialGetterNestedNested nn)
     {
-        indicate.add(new Object[] {n, nn});
+        addIndication(new Object[] {n, nn});
     }
 
     public void update(String theString, SupportEnum supportEnum)
     {
-        indicate.add(new Object[] {theString, supportEnum});
+        addIndication(new Object[] {theString, supportEnum});
     }
 
     public void update(String nullableValue, Long longBoxed)
     {
-        indicate.add(new Object[] {nullableValue, longBoxed});
+        addIndication(new Object[] {nullableValue, longBoxed});
     }
 
     public void update(String value, SupportMarketDataBean s1, SupportBean s0)
     {
-        indicate.add(new Object[] {value, s1, s0});
+        addIndication(new Object[] {value, s1, s0});
     }
 
     public void update(SupportBean s0, SupportMarketDataBean s1)
     {
-        indicate.add(new Object[] {s0, s1});
-    }
-
-    public List<Object[]> getAndResetIndicate()
-    {
-        List<Object[]> result = indicate;
-        indicate = new ArrayList<Object[]>();
-        return result;
+        addIndication(new Object[] {s0, s1});
     }
 }

@@ -9,29 +9,18 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
 import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.support.bean.SupportEnum;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MySubscriberRowByRowSpecificStatic
+public class SupportSubscriberMultirowUnderlyingNStmt extends SupportSubscriberMultirowUnderlyingBase
 {
-    private static ArrayList<Object[]> indicate = new ArrayList<Object[]>();
-
-    public static void update(String theString, int intPrimitive)
-    {
-        indicate.add(new Object[] {theString, intPrimitive});
+    public SupportSubscriberMultirowUnderlyingNStmt() {
+        super(false);
     }
 
-    public static List<Object[]> getAndResetIndicate()
+    public void update(SupportBean[] newEvents, SupportBean[] oldEvents)
     {
-        List<Object[]> result = indicate;
-        indicate = new ArrayList<Object[]>();
-        return result;
+        addIndication(newEvents, oldEvents);
     }
 }

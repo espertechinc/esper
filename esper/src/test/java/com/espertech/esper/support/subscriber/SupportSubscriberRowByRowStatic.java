@@ -9,38 +9,24 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class MySubscriberRowByRowMap
+public class SupportSubscriberRowByRowStatic
 {
-    private ArrayList<Map> indicateIStream = new ArrayList<Map>();
-    private ArrayList<Map> indicateRStream = new ArrayList<Map>();
+    private static ArrayList<Object[]> indicate = new ArrayList<Object[]>();
 
-    public void update(Map row)
+    public static void update(String theString, int intPrimitive)
     {
-        indicateIStream.add(row);
+        indicate.add(new Object[] {theString, intPrimitive});
     }
 
-    public void updateRStream(Map row)
+    public static List<Object[]> getAndResetIndicate()
     {
-        indicateRStream.add(row);
-    }
-
-    public List<Map> getAndResetIndicateIStream()
-    {
-        List<Map> result = indicateIStream;
-        indicateIStream = new ArrayList<Map>();
-        return result;
-    }
-
-    public List<Map> getAndResetIndicateRStream()
-    {
-        List<Map> result = indicateRStream;
-        indicateRStream = new ArrayList<Map>();
+        List<Object[]> result = indicate;
+        indicate = new ArrayList<Object[]>();
         return result;
     }
 }

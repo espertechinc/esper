@@ -8,17 +8,23 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
-/**
- * Implementation of a convertor for column results that renders the result as an object array itself.
- */
-public class DeliveryConvertorObjectArr implements DeliveryConvertor
-{
-    protected final static DeliveryConvertorObjectArr INSTANCE = new DeliveryConvertorObjectArr();
+import com.espertech.esper.client.EPStatement;
 
-    private DeliveryConvertorObjectArr() {
+/**
+ * Implementation that does not convert columns.
+ */
+public class DeliveryConvertorNullWStatement implements DeliveryConvertor
+{
+    private final EPStatement statement;
+
+    public DeliveryConvertorNullWStatement(EPStatement statement) {
+        this.statement = statement;
     }
 
     public Object[] convertRow(Object[] columns) {
-        return new Object[] {columns};
+        Object[] deliver = new Object[columns.length + 1];
+        deliver[0] = statement;
+        System.arraycopy(columns, 0, deliver, 1, columns.length);
+        return deliver;
     }
 }

@@ -48,28 +48,6 @@ public class TestSubscriberPerf extends TestCase
         // System.out.println("delta=" + (end - start));
     }
 
-    /*
-    public void testPerformanceNatural()
-    {
-        final int NUM_LOOP = 10;
-        MyAnnotatedSimpleSubscriber subscriber = new MyAnnotatedSimpleSubscriber();
-
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < NUM_LOOP; i++)
-        {
-            epService.getEPRuntime().sendEvent(new SupportBean("E1", 1000 + i));
-        }
-        long end = System.currentTimeMillis();
-
-        List<Object[]> results = subscriber.getAndResetIndicate();
-        assertEquals(NUM_LOOP, results.size());
-        for (int i = 0; i < NUM_LOOP; i++)
-        {
-            EPAssertionUtil.assertEqualsAnyOrder(results.get(i), new Object[] {"E1", 1000 + i});
-        }
-        System.out.println("delta=" + (end - start));
-    }
-    */
     public void testPerformanceSynthetic()
     {
         final int NUM_LOOP = 100000;

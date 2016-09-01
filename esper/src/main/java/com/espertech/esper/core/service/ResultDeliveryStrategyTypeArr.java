@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EPStatement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import net.sf.cglib.reflect.FastMethod;
@@ -27,23 +28,23 @@ import java.lang.reflect.Array;
 public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy
 {
     private static Log log = LogFactory.getLog(ResultDeliveryStrategyImpl.class);
-    private final String statementName;
-    private final Object subscriber;
-    private final FastMethod fastMethod;
-    private final Class componentType;
+    protected final EPStatement statement;
+    protected final Object subscriber;
+    protected final FastMethod fastMethod;
+    protected final Class componentType;
 
     /**
      * Ctor.
      * @param subscriber is the receiver to method invocations
      * @param method is the method to deliver to
      */
-    public ResultDeliveryStrategyTypeArr(String statementName, Object subscriber, Method method)
+    public ResultDeliveryStrategyTypeArr(EPStatement statement, Object subscriber, Method method, Class componentType)
     {
-        this.statementName = statementName;
+        this.statement = statement;
         this.subscriber = subscriber;
         FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
         this.fastMethod = fastClass.getMethod(method);
-        componentType = method.getParameterTypes()[0].getComponentType();
+        this.componentType = componentType;
     }
 
     public void execute(UniformPair<EventBean[]> result)
@@ -65,11 +66,11 @@ public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy
             fastMethod.invoke(subscriber, parameters);
         }
         catch (InvocationTargetException e) {
-            ResultDeliveryStrategyImpl.handle(statementName, log, e, parameters, subscriber, fastMethod);
+            ResultDeliveryStrategyImpl.handle(statement.getName(), log, e, parameters, subscriber, fastMethod);
         }
     }
 
-    private Object convert(EventBean[] events)
+    protected Object convert(EventBean[] events)
     {
         if ((events == null) || (events.length == 0))
         {

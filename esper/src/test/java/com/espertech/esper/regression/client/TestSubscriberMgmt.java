@@ -20,6 +20,8 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.subscriber.SupportSubscriberRowByRowSpecificNStmt;
+import com.espertech.esper.support.subscriber.SupportSubscriberRowByRowSpecificWStmt;
 import com.espertech.esper.support.util.SupportStmtAwareUpdateListener;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
@@ -135,7 +137,7 @@ public class TestSubscriberMgmt extends TestCase
 
     public void testSimpleSelectUpdateOnly()
     {
-        MySubscriberRowByRowSpecific subscriber = new MySubscriberRowByRowSpecific();
+        SupportSubscriberRowByRowSpecificNStmt subscriber = new SupportSubscriberRowByRowSpecificNStmt();
         EPStatement stmt = epService.getEPAdministrator().createEPL("select theString, intPrimitive from " + SupportBean.class.getName() + ".std:lastevent()");
         stmt.setSubscriber(subscriber);
 
@@ -145,7 +147,7 @@ public class TestSubscriberMgmt extends TestCase
 
         // send event
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 100));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{"E1", 100}}, subscriber.getAndResetIndicate());
+        subscriber.assertOneReceivedAndReset(stmt, new Object[]{"E1", 100});
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), fields, new Object[][]{{"E1", 100}});
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 100});
 
@@ -154,7 +156,7 @@ public class TestSubscriberMgmt extends TestCase
 
         // send event
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 200));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{"E2", 200}}, subscriber.getAndResetIndicate());
+        subscriber.assertOneReceivedAndReset(stmt, new Object[]{"E2", 200});
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), fields, new Object[][]{{"E2", 200}});
         assertFalse(listener.isInvoked());
 
@@ -164,9 +166,16 @@ public class TestSubscriberMgmt extends TestCase
 
         // send event
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 300));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{"E3", 300}}, subscriber.getAndResetIndicate());
+        subscriber.assertOneReceivedAndReset(stmt, new Object[]{"E3", 300});
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), fields, new Object[][]{{"E3", 300}});
         EPAssertionUtil.assertProps(stmtAwareListener.assertOneGetNewAndReset(), fields, new Object[]{"E3", 300});
+
+        // subscriber with EPStatement in the footprint
+        stmt.removeAllListeners();
+        SupportSubscriberRowByRowSpecificWStmt subsWithStatement = new SupportSubscriberRowByRowSpecificWStmt();
+        stmt.setSubscriber(subsWithStatement);
+        epService.getEPRuntime().sendEvent(new SupportBean("E10", 999));
+        subsWithStatement.assertOneReceivedAndReset(stmt, new Object[] {"E10", 999});
     }
 
     public class SubscriberFields

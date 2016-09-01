@@ -17,7 +17,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.client.MySubscriberMultirowObjectArr;
+import com.espertech.esper.support.subscriber.SupportSubscriberMultirowObjectArrayNStmt;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TestTableSelectStarPublicTypeVisibility extends TestCase {
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
-    private MySubscriberMultirowObjectArr subscriber;
+    private SupportSubscriberMultirowObjectArrayNStmt subscriber;
 
     public void setUp() {
         Configuration config = SupportConfigFactory.getConfiguration();
@@ -43,7 +43,7 @@ public class TestTableSelectStarPublicTypeVisibility extends TestCase {
             epService.getEPAdministrator().getConfiguration().addEventType(clazz);
         }
         listener = new SupportUpdateListener();
-        subscriber = new MySubscriberMultirowObjectArr();
+        subscriber = new SupportSubscriberMultirowObjectArrayNStmt();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
     }
 

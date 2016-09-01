@@ -305,6 +305,26 @@ countStmt.start();]]></programlisting>
 					</para>
 				</listitem>
 			</orderedlist>
+			
+		    <sect3 xml:id="api-admin-subscriber-epstatement">		
+				<title>Using the <literal>EPStatement</literal> Parameter</title>
+	
+				<indexterm><primary>subscriber object</primary><secondary>EPStatement</secondary></indexterm>
+				<para>
+					In the case that your subscriber object wishes to receive the <literal>EPStatement</literal> instance along with output data,
+					please add <literal>EPStatement</literal> as the very first parameter of any of the delivery method footprints that are discussed next.
+				</para>
+				
+				<para>
+					For example, your statement may be:
+				</para>
+				<programlisting><![CDATA[select count(*) from OrderEvent]]></programlisting>
+
+				<para>
+					Your subscriber class exposes the method:
+				</para>
+				<programlisting><![CDATA[public void update(EPStatement statement, long currentCount) {...}]]></programlisting>
+			</sect3>
 
 		    <sect3 xml:id="api-admin-subscriber-rowbyrow">		
 				<title>Row-By-Row Delivery</title>
@@ -414,7 +434,7 @@ countStmt.start();]]></programlisting>
 					<title>Delivery of Remove Stream Events</title>
 	
 					<para>
-						Your subscriber receives remove stream events if it provides a method named <literal>updateRStream</literal>. The method must accept the same number and types of parameters as the <literal>update</literal> method.
+						Your subscriber receives remove stream events if it provides a method named <literal>updateRStream</literal>. The method must accept the same number and types of parameters as the <literal>update</literal> method (including <literal>EPStatement</literal> if present).
 					</para>
 					
 					<para>

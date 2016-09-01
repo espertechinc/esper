@@ -8,17 +8,35 @@
  **************************************************************************************/
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.util.TypeWidener;
+
 /**
  * Implementation of a convertor for column results that renders the result as an object array itself.
  */
-public class DeliveryConvertorObjectArr implements DeliveryConvertor
+public class DeliveryConvertorWidenerWStatement implements DeliveryConvertor
 {
-    protected final static DeliveryConvertorObjectArr INSTANCE = new DeliveryConvertorObjectArr();
+    private final TypeWidener[] wideners;
+    private final EPStatement statement;
 
-    private DeliveryConvertorObjectArr() {
+    public DeliveryConvertorWidenerWStatement(TypeWidener[] wideners, EPStatement statement) {
+        this.wideners = wideners;
+        this.statement = statement;
     }
 
     public Object[] convertRow(Object[] columns) {
-        return new Object[] {columns};
+        Object[] values = new Object[columns.length + 1];
+        values[0] = statement;
+        int offset = 1;
+        for (int i = 0; i < columns.length; i++) {
+            if (wideners[i] == null) {
+                values[offset] = columns[i];
+            }
+            else {
+                values[offset] = wideners[i].widen(columns[i]);
+            }
+            offset++;
+        }
+        return values;
     }
 }

@@ -9,31 +9,19 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
-import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.support.bean.SupportBean;
 
-import java.util.ArrayList;
-
-public class MySubscriberMultirowUnderlying
+public class SupportSubscriberMultirowUnderlyingWStmt extends SupportSubscriberMultirowUnderlyingBase
 {
-    private ArrayList<UniformPair<SupportBean[]>> indicateArr = new ArrayList<UniformPair<SupportBean[]>>();
-
-    public void update(SupportBean[] newEvents, SupportBean[] oldEvents)
-    {
-        indicateArr.add(new UniformPair<SupportBean[]>(newEvents, oldEvents));
+    public SupportSubscriberMultirowUnderlyingWStmt() {
+        super(true);
     }
 
-    public ArrayList<UniformPair<SupportBean[]>> getIndicateArr()
+    public void update(EPStatement stmt, SupportBean[]newEvents, SupportBean[] oldEvents)
     {
-        return indicateArr;
-    }
-
-    public ArrayList<UniformPair<SupportBean[]>> getAndResetIndicateArr()
-    {
-        ArrayList<UniformPair<SupportBean[]>> result = indicateArr;
-        indicateArr = new ArrayList<UniformPair<SupportBean[]>>();
-        return result;
+        addIndication(stmt, newEvents, oldEvents);
     }
 }

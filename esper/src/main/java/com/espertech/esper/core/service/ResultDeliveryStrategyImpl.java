@@ -9,6 +9,7 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.event.NaturalEventBean;
@@ -30,12 +31,14 @@ import java.util.Arrays;
 public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 {
     private static Log log = LogFactory.getLog(ResultDeliveryStrategyImpl.class);
-    private final String statementName;
+    private final EPStatement statement;
     private final Object subscriber;
-    private final FastMethod updateFastMethod;
-    private final FastMethod startFastMethod;
-    private final FastMethod endFastMethod;
-    private final FastMethod updateRStreamFastMethod;
+    private final FastMethod updateMethodFast;
+    private final FastMethod startMethodFast;
+    private final boolean startMethodHasEPStatement;
+    private final FastMethod endMethodFast;
+    private final boolean endMethodHasEPStatement;
+    private final FastMethod updateRStreamMethodFast;
     private final DeliveryConvertor deliveryConvertor;
 
     /**
@@ -47,45 +50,43 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param endMethod to call to indicate when delivery ends, or null if no such indication is required
      * @param rStreamMethod to deliver the remove stream to, or null if no such indication is required
      */
-    public ResultDeliveryStrategyImpl(String statementName, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod)
+    public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod)
     {
-        this.statementName = statementName;
+        this.statement = statement;
         this.subscriber = subscriber;
         this.deliveryConvertor = deliveryConvertor;
         FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
-        this.updateFastMethod = fastClass.getMethod(method);
+        this.updateMethodFast = fastClass.getMethod(method);
 
-        if (startMethod != null)
-        {
-            startFastMethod = fastClass.getMethod(startMethod);
+        if (startMethod != null) {
+            this.startMethodFast = fastClass.getMethod(startMethod);
+            this.startMethodHasEPStatement = isMethodAcceptsStatement(startMethod);
         }
-        else
-        {
-            startFastMethod = null;
-        }
-
-        if (endMethod != null)
-        {
-            endFastMethod = fastClass.getMethod(endMethod);
-        }
-        else
-        {
-            endFastMethod = null;
+        else {
+            this.startMethodFast = null;
+            this.startMethodHasEPStatement = false;
         }
 
-        if (rStreamMethod != null)
-        {
-            updateRStreamFastMethod = fastClass.getMethod(rStreamMethod);
+        if (endMethod != null) {
+            this.endMethodFast = fastClass.getMethod(endMethod);
+            this.endMethodHasEPStatement = isMethodAcceptsStatement(endMethod);
         }
-        else
-        {
-            updateRStreamFastMethod = null;
+        else {
+            this.endMethodFast = null;
+            this.endMethodHasEPStatement = false;
+        }
+
+        if (rStreamMethod != null) {
+            updateRStreamMethodFast = fastClass.getMethod(rStreamMethod);
+        }
+        else {
+            updateRStreamMethodFast = null;
         }
     }
 
     public void execute(UniformPair<EventBean[]> result)
     {
-        if (startFastMethod != null)
+        if (startMethodFast != null)
         {
             int countNew = 0;
             int countOld = 0;
@@ -94,15 +95,21 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
                 countOld = count(result.getSecond());
             }
 
-            Object[] parameters = new Object[] {countNew, countOld};
+            Object[] parameters;
+            if (!startMethodHasEPStatement) {
+                parameters = new Object[] {countNew, countOld};
+            }
+            else {
+                parameters = new Object[] {statement, countNew, countOld};
+            }
             try {
-                startFastMethod.invoke(subscriber, parameters);
+                startMethodFast.invoke(subscriber, parameters);
             }
             catch (InvocationTargetException e) {
-                handle(statementName, log, e, parameters, subscriber, startFastMethod);
+                handle(statement.getName(), log, e, parameters, subscriber, startMethodFast);
             }
             catch (Throwable t) {
-                handleThrowable(log, t, null, subscriber, startFastMethod);
+                handleThrowable(log, t, null, subscriber, startMethodFast);
             }
         }
 
@@ -121,46 +128,47 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
                     NaturalEventBean natural = (NaturalEventBean) theEvent;
                     Object[] parameters = deliveryConvertor.convertRow(natural.getNatural());
                     try {
-                        updateFastMethod.invoke(subscriber, parameters);
+                        updateMethodFast.invoke(subscriber, parameters);
                     }
                     catch (InvocationTargetException e) {
-                        handle(statementName, log, e, parameters, subscriber, updateFastMethod);
+                        handle(statement.getName(), log, e, parameters, subscriber, updateMethodFast);
                     }
                     catch (Throwable t) {
-                        handleThrowable(log, t, parameters, subscriber, updateFastMethod);
+                        handleThrowable(log, t, parameters, subscriber, updateMethodFast);
                     }
                 }
             }
         }
 
-        if ((updateRStreamFastMethod != null) && (oldData != null) && (oldData.length > 0)) {
+        if ((updateRStreamMethodFast != null) && (oldData != null) && (oldData.length > 0)) {
             for (int i = 0; i < oldData.length; i++) {
                 EventBean theEvent = oldData[i];
                 if (theEvent instanceof NaturalEventBean) {
                     NaturalEventBean natural = (NaturalEventBean) theEvent;
                     Object[] parameters = deliveryConvertor.convertRow(natural.getNatural());
                     try {
-                        updateRStreamFastMethod.invoke(subscriber, parameters);
+                        updateRStreamMethodFast.invoke(subscriber, parameters);
                     }
                     catch (InvocationTargetException e) {
-                        handle(statementName, log, e, parameters, subscriber, updateRStreamFastMethod);
+                        handle(statement.getName(), log, e, parameters, subscriber, updateRStreamMethodFast);
                     }
                     catch (Throwable t) {
-                        handleThrowable(log, t, parameters, subscriber, updateRStreamFastMethod);
+                        handleThrowable(log, t, parameters, subscriber, updateRStreamMethodFast);
                     }
                 }
             }
         }
 
-        if (endFastMethod != null) {
+        if (endMethodFast != null) {
+            Object[] parameters = endMethodHasEPStatement ? new Object[] {statement} : null;
             try {
-                endFastMethod.invoke(subscriber, null);
+                endMethodFast.invoke(subscriber, parameters);
             }
             catch (InvocationTargetException e) {
-                handle(statementName, log, e, null, subscriber, endFastMethod);
+                handle(statement.getName(), log, e, null, subscriber, endMethodFast);
             }
             catch (Throwable t) {
-                handleThrowable(log, t, null, subscriber, endFastMethod);
+                handleThrowable(log, t, null, subscriber, endMethodFast);
             }
         }
     }
@@ -211,5 +219,9 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
             }
         }
         return count;
+    }
+
+    private static boolean isMethodAcceptsStatement(Method method) {
+        return method.getParameterTypes().length > 0 && method.getParameterTypes()[0] == EPStatement.class;
     }
 }

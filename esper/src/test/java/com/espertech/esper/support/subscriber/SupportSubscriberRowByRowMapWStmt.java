@@ -9,30 +9,25 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.client;
+package com.espertech.esper.support.subscriber;
 
-import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.client.EPStatement;
 
-import java.util.ArrayList;
+import java.util.Map;
 
-public class MySubscriberMultirowObjectArr
+public class SupportSubscriberRowByRowMapWStmt extends SupportSubscriberRowByRowMapBase
 {
-    private ArrayList<UniformPair<Object[][]>> indicateArr = new ArrayList<UniformPair<Object[][]>>();
-
-    public void update(Object[][] newEvents, Object[][] oldEvents)
-    {
-        indicateArr.add(new UniformPair<Object[][]>(newEvents, oldEvents));
+    public SupportSubscriberRowByRowMapWStmt() {
+        super(true);
     }
 
-    public ArrayList<UniformPair<Object[][]>> getIndicateArr()
+    public void update(EPStatement stmt, Map row)
     {
-        return indicateArr;
+        addIndicationIStream(stmt, row);
     }
 
-    public ArrayList<UniformPair<Object[][]>> getAndResetIndicateArr()
+    public void updateRStream(EPStatement stmt, Map row)
     {
-        ArrayList<UniformPair<Object[][]>> result = indicateArr;
-        indicateArr = new ArrayList<UniformPair<Object[][]>>();
-        return result;
+        addIndicationRStream(stmt, row);
     }
 }
