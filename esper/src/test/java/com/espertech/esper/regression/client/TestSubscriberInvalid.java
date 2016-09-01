@@ -41,14 +41,12 @@ public class TestSubscriberInvalid extends TestCase
 
     public void testBindWildcardJoin()
     {
-        /*
         EPStatement stmtOne = epAdmin.createEPL("select * from SupportBean");
         tryInvalid(this, stmtOne, "Subscriber object does not provide a public method by name 'update'");
         tryInvalid(new DummySubscriberEmptyUpd(), stmtOne, "No suitable subscriber method named 'update' found, expecting a method that takes 1 parameter of type SupportBean");
         tryInvalid(new DummySubscriberMultipleUpdate(), stmtOne, "No suitable subscriber method named 'update' found, expecting a method that takes 1 parameter of type SupportBean");
         tryInvalid(new DummySubscriberUpdate(), stmtOne, "Subscriber method named 'update' for parameter number 1 is not assignable, expecting type 'SupportBean' but found type 'SupportMarketDataBean'");
         tryInvalid(new DummySubscriberPrivateUpd(), stmtOne, "Subscriber object does not provide a public method by name 'update'");
-        */
 
         EPStatement stmtTwo = epAdmin.createEPL("select intPrimitive from SupportBean");
         String message = "Subscriber 'updateRStream' method footprint must match 'update' method footprint";
