@@ -954,6 +954,10 @@ select countPeople from EnterRoomEvent.win:time(10 seconds) having countPeople >
 			</para>
 			
 			<para>
+			    The engine may cache declared expression result values and reuse cache values, see <xref linkend="config-engine-execution-declaredexprvaluecachesize"/>.
+			</para>
+
+			<para>
 				An expression declaration follows the lambda-style expression syntax. This syntax was chosen as it typically allows for a shorter and more concise expression body that can be easier to read then most procedural code. 
 			</para>
 			
@@ -1475,18 +1479,18 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 			</para>
 			
 			<itemizedlist>
-				<ns:listitem>
+				<para>
 					Event Aggregation Functions (including extension API)
-				</ns:listitem>
-				<ns:listitem>
+				</para>
+				<para>
 					The <literal>previous</literal> family of single-row functions
-				</ns:listitem>
-				<ns:listitem>
+				</para>
+				<para>
 					Subselects that select events
-				</ns:listitem>
-				<ns:listitem>
+				</para>
+				<para>
 					Declared expressions and enumeration methods that operate on any of the above
-				</ns:listitem>
+				</para>
 			</itemizedlist>
 
 			<para>
@@ -6155,6 +6159,10 @@ on PageHitEvent(ip='0.0.0.0') pagehit set varPageHitZero.userId = pagehit.userId
 		<para>
 		  Expression aliases are the simplest means of sharing expressions and do not accept parameters. 
 		  Expression declarations limit the expression scope to the parameters that are passed.
+		</para>
+
+		<para>
+			The engine may cache declared expression result values and reuse cache values, see <xref linkend="config-engine-execution-declaredexprvaluecachesize"/>.
 		</para>
 
 		<sect2 xml:id="create-exprglobal-alias" revision="1">

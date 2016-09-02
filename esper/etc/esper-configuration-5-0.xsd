@@ -886,6 +886,7 @@
 			<xs:attribute name="allow-isolated-service" type="xs:boolean" use="optional"/>
 			<xs:attribute name="filter-service-profile" type="esper:filterServiceProfileEnum" use="optional"/>
 			<xs:attribute name="filter-service-max-filter-width" type="xs:int" use="optional"/>
+			<xs:attribute name="declared-expr-value-cache-size" type="xs:int" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:simpleType name="threadingProfileEnum">

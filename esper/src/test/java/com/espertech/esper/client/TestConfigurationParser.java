@@ -96,6 +96,7 @@ public class TestConfigurationParser extends TestCase
         assertEquals(ConfigurationEngineDefaults.ThreadingProfile.NORMAL, config.getEngineDefaults().getExecution().getThreadingProfile());
         assertEquals(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, config.getEngineDefaults().getExecution().getFilterServiceProfile());
         assertEquals(16, config.getEngineDefaults().getExecution().getFilterServiceMaxFilterWidth());
+        assertEquals(1, config.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
 
         assertEquals(StreamSelector.ISTREAM_ONLY, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         assertFalse(config.getEngineDefaults().getLanguage().isSortUsingCollator());
@@ -426,6 +427,7 @@ public class TestConfigurationParser extends TestCase
         assertEquals(ConfigurationEngineDefaults.ThreadingProfile.LARGE, config.getEngineDefaults().getExecution().getThreadingProfile());
         assertEquals(ConfigurationEngineDefaults.FilterServiceProfile.READWRITE, config.getEngineDefaults().getExecution().getFilterServiceProfile());
         assertEquals(100, config.getEngineDefaults().getExecution().getFilterServiceMaxFilterWidth());
+        assertEquals(101, config.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
 
         ConfigurationMetricsReporting metrics = config.getEngineDefaults().getMetricsReporting();
         assertTrue(metrics.isEnableMetricsReporting());

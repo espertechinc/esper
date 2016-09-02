@@ -11,6 +11,8 @@ package com.espertech.esper.epl.declexpr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.ExpressionResultCacheEntry;
+import com.espertech.esper.core.service.ExpressionResultCacheForDeclaredExprLastColl;
+import com.espertech.esper.core.service.ExpressionResultCacheForDeclaredExprLastValue;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.ExpressionDeclItem;
 import com.espertech.esper.event.EventAdapterService;
@@ -77,12 +79,13 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
 
         Object result;
         if (isCache) {      // no the same cache as for iterator
-            ExpressionResultCacheEntry<EventBean[], Object> entry = context.getExpressionResultCacheService().getDeclaredExpressionLastValue(prototype, events);
+            ExpressionResultCacheForDeclaredExprLastValue cache = context.getExpressionResultCacheService().getAllocateDeclaredExprLastValue();
+            ExpressionResultCacheEntry<EventBean[], Object> entry = cache.getDeclaredExpressionLastValue(prototype, events);
             if (entry != null) {
                 return entry.getResult();
             }
             result = innerEvaluator.evaluate(events, isNewData, context);
-            context.getExpressionResultCacheService().saveDeclaredExpressionLastValue(prototype, events, result);
+            cache.saveDeclaredExpressionLastValue(prototype, events, result);
         }
         else {
             result = innerEvaluator.evaluate(events, isNewData, context);
@@ -99,13 +102,14 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
 
         Collection<EventBean> result;
         if (isCache) {
-            ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = context.getExpressionResultCacheService().getDeclaredExpressionLastColl(prototype, events);
+            ExpressionResultCacheForDeclaredExprLastColl cache = context.getExpressionResultCacheService().getAllocateDeclaredExprLastColl();
+            ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = cache.getDeclaredExpressionLastColl(prototype, events);
             if (entry != null) {
                 return entry.getResult();
             }
 
             result = innerEvaluatorLambda.evaluateGetROCollectionEvents(events, isNewData, context);
-            context.getExpressionResultCacheService().saveDeclaredExpressionLastColl(prototype, events, result);
+            cache.saveDeclaredExpressionLastColl(prototype, events, result);
             return result;
         }
         else {
@@ -122,13 +126,14 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
 
         Collection result;
         if (isCache) {
-            ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = context.getExpressionResultCacheService().getDeclaredExpressionLastColl(prototype, events);
+            ExpressionResultCacheForDeclaredExprLastColl cache = context.getExpressionResultCacheService().getAllocateDeclaredExprLastColl();
+            ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> entry = cache.getDeclaredExpressionLastColl(prototype, events);
             if (entry != null) {
                 return entry.getResult();
             }
 
             result = innerEvaluatorLambda.evaluateGetROCollectionScalar(events, isNewData, context);
-            context.getExpressionResultCacheService().saveDeclaredExpressionLastColl(prototype, events, result);
+            cache.saveDeclaredExpressionLastColl(prototype, events, result);
             return result;
         }
         else {

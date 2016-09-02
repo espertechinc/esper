@@ -2669,6 +2669,35 @@ config.getEngineDefaults().getExecution().
 				<programlisting><![CDATA[Configuration config = new Configuration();
 config.getEngineDefaults().getExecution().setAllowIsolatedService(true);]]></programlisting>
 			</sect3>
+
+			<sect3 xml:id="config-engine-execution-declaredexprvaluecachesize" revision="1">
+				<title>Declared Expression Value Cache Size</title>
+				<para>
+					In the default configuration the setting is 1, which means that for each declared expression the engine retains a cache of only the last computed value, 
+					for use for the duration of an evaluation of an event or time against a context partition.
+					You may set the value to zero to disable caching.
+					You may set the value to N to instruct the engine to retain a cache of the last N computed values.
+					This setting is not applicable to stateful declared expressions such as declared expressions with aggregation functions, for example.
+				</para> 					
+
+				<para>
+					 The XML configuration to sets the same value as the default:
+				</para>
+	
+				<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <execution declared-expr-value-cache-size="1"/>
+  </defaults>
+</engine-settings>]]></programlisting>
+			
+				<para>
+				 The API to change the setting:
+				</para>
+	
+				<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getExecution().
+    setDeclaredExprValueCacheSize(1);]]></programlisting>
+			</sect3>
 		</sect2>
 
 		<sect2 xml:id="config-engine-exceptionhandling" revision="1">

@@ -11,15 +11,14 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.ExpressionResultCacheService;
-import com.espertech.esper.core.service.ExpressionResultCacheServiceThreadlocal;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementType;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
 
 /**
- * Represents a minimal enginel-level context for expression evaluation, not allowing for agents instances and result cache.
+ * Represents a minimal engine-level context for expression evaluation, not allowing for agents instances and result cache.
  */
 public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext
 {
@@ -28,7 +27,7 @@ public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext
 
     public ExprEvaluatorContextTimeOnly(TimeProvider timeProvider) {
         this.timeProvider = timeProvider;
-        this.expressionResultCacheService = new ExpressionResultCacheServiceThreadlocal();
+        this.expressionResultCacheService = new ExpressionResultCacheService(1);
     }
 
     /**

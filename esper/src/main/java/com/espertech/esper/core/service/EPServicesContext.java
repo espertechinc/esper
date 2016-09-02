@@ -252,7 +252,7 @@ public final class EPServicesContext
         this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.dataFlowService = dataFlowService;
         this.exprDeclaredService = exprDeclaredService;
-        this.expressionResultCacheSharable = new ExpressionResultCacheServiceThreadlocal();
+        this.expressionResultCacheSharable = new ExpressionResultCacheService(configSnapshot.getEngineDefaults().getExecution().getDeclaredExprValueCacheSize());
         this.contextControllerFactoryFactorySvc = contextControllerFactoryFactorySvc;
         this.contextManagerFactoryService = contextManagerFactoryService;
         this.epStatementFactory = epStatementFactory;

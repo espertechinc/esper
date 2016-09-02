@@ -1564,6 +1564,11 @@ class ConfigurationParser {
             boolean isAllowIsolatedService = Boolean.parseBoolean(allowIsolatedServiceStr);
             configuration.getEngineDefaults().getExecution().setAllowIsolatedService(isAllowIsolatedService);
         }
+        String declExprValueCacheSizeStr = getOptionalAttribute(parentElement, "declared-expr-value-cache-size");
+        if (declExprValueCacheSizeStr != null)
+        {
+            configuration.getEngineDefaults().getExecution().setDeclaredExprValueCacheSize(Integer.parseInt(declExprValueCacheSizeStr));
+        }
     }
 
     private static void handleDefaultScriptConfig(Configuration configuration, Element parentElement)

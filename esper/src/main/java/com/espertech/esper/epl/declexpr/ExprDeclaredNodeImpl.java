@@ -207,6 +207,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
         expressionBodyCopy.accept(summaryVisitor);
         boolean isCache = !(summaryVisitor.isHasAggregation() || summaryVisitor.isHasPreviousPrior());
+        isCache &= validationContext.getExprEvaluatorContext().getExpressionResultCacheService().isDeclaredExprCacheEnabled();
 
         // determine a suitable evaluation
         if (expressionBodyCopy.isConstantResult()) {

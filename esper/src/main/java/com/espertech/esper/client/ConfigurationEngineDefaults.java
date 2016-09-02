@@ -1614,6 +1614,7 @@ public class ConfigurationEngineDefaults implements Serializable
         private ThreadingProfile threadingProfile = ThreadingProfile.NORMAL;
         private FilterServiceProfile filterServiceProfile = FilterServiceProfile.READMOSTLY;
         private int filterServiceMaxFilterWidth = 16;
+        private int declaredExprValueCacheSize = 1;
 
         private static final long serialVersionUID = 0L;
 
@@ -1745,6 +1746,22 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setFilterServiceMaxFilterWidth(int filterServiceMaxFilterWidth) {
             this.filterServiceMaxFilterWidth = filterServiceMaxFilterWidth;
+        }
+
+        /**
+         * Returns the cache size for declared expression values
+         * @return value
+         */
+        public int getDeclaredExprValueCacheSize() {
+            return declaredExprValueCacheSize;
+        }
+
+        /**
+         * Sets the cache size for declared expression values
+         * @param declaredExprValueCacheSize value
+         */
+        public void setDeclaredExprValueCacheSize(int declaredExprValueCacheSize) {
+            this.declaredExprValueCacheSize = declaredExprValueCacheSize;
         }
     }
 

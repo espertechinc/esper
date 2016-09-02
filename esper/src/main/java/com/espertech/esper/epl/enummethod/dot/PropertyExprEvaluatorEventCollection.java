@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.ExpressionResultCacheEntry;
+import com.espertech.esper.core.service.ExpressionResultCacheForPropUnwrap;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
@@ -57,22 +58,20 @@ public class PropertyExprEvaluatorEventCollection implements ExprEvaluatorEnumer
 
     private Collection<EventBean> evaluateInternal(EventBean eventInQuestion, ExprEvaluatorContext context) {
 
-        if (!disablePropertyExpressionEventCollCache) {
-            ExpressionResultCacheEntry<EventBean, Collection<EventBean>> cacheEntry = context.getExpressionResultCacheService().getPropertyColl(propertyNameCache, eventInQuestion);
-            if (cacheEntry != null) {
-                return cacheEntry.getResult();
-            }
+        if (disablePropertyExpressionEventCollCache) {
+            EventBean[] events = (EventBean[]) getter.getFragment(eventInQuestion);
+            return events == null ? null : Arrays.asList(events);
+        }
+
+        ExpressionResultCacheForPropUnwrap cache = context.getExpressionResultCacheService().getAllocateUnwrapProp();
+        ExpressionResultCacheEntry<EventBean, Collection<EventBean>> cacheEntry = cache.getPropertyColl(propertyNameCache, eventInQuestion);
+        if (cacheEntry != null) {
+            return cacheEntry.getResult();
         }
 
         EventBean[] events = (EventBean[]) getter.getFragment(eventInQuestion);
         Collection<EventBean> coll = events == null ? null : Arrays.asList(events);
-        if (!disablePropertyExpressionEventCollCache) {
-            context.getExpressionResultCacheService().savePropertyColl(propertyNameCache, eventInQuestion, coll);
-        }
-        if (coll == null) {
-            return null;
-        }
-
+        cache.savePropertyColl(propertyNameCache, eventInQuestion, coll);
         return coll;
     }
 

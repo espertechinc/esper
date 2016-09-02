@@ -14,6 +14,7 @@ package com.espertech.esper.epl.enummethod.dot;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.ExpressionResultCacheEntry;
+import com.espertech.esper.core.service.ExpressionResultCacheForEnumerationMethod;
 import com.espertech.esper.core.service.ExpressionResultCacheStackEntry;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -105,7 +106,8 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
         }
 
         // manage context of this lambda-expression in regards to outer lambda-expression that may call this one.
-        validationContext.getExprEvaluatorContext().getExpressionResultCacheService().pushStack(this);
+        ExpressionResultCacheForEnumerationMethod enumerationMethodCache = validationContext.getExprEvaluatorContext().getExpressionResultCacheService().getAllocateEnumerationMethod();
+        enumerationMethodCache.pushStack(this);
 
         List<ExprDotEvalParam> bodiesAndParameters = new ArrayList<ExprDotEvalParam>();
         int count = 0;
@@ -132,10 +134,10 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
         }
 
         // We turn on caching if the stack is not empty (we are an inner lambda) and the dependency does not include the stream.
-        boolean isInner = !validationContext.getExprEvaluatorContext().getExpressionResultCacheService().popLambda();
+        boolean isInner = !enumerationMethodCache.popLambda();
         if (isInner) {
             // If none of the properties that the current lambda uses comes from the ultimate parent(s) or subsequent streams, then cache.
-            Deque<ExpressionResultCacheStackEntry> parents = validationContext.getExprEvaluatorContext().getExpressionResultCacheService().getStack();
+            Deque<ExpressionResultCacheStackEntry> parents = enumerationMethodCache.getStack();
             boolean found = false;
             for (int req : streamsRequired) {
                 ExprDotEvalEnumMethodBase first = (ExprDotEvalEnumMethodBase) parents.getFirst();
@@ -161,8 +163,9 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
         if (target instanceof EventBean) {
             target = Collections.singletonList((EventBean) target);
         }
+        ExpressionResultCacheForEnumerationMethod enumerationMethodCache = exprEvaluatorContext.getExpressionResultCacheService().getAllocateEnumerationMethod();
         if (cache) {
-            ExpressionResultCacheEntry<Long[], Object> cacheValue = exprEvaluatorContext.getExpressionResultCacheService().getEnumerationMethodLastValue(this);
+            ExpressionResultCacheEntry<Long[], Object> cacheValue = enumerationMethodCache.getEnumerationMethodLastValue(this);
             if (cacheValue != null) {
                 return cacheValue.getResult();
             }
@@ -172,13 +175,13 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
             }
             EventBean[] eventsLambda = allocateCopyEventLambda(eventsPerStream);
             Object result = enumEval.evaluateEnumMethod(eventsLambda, coll, isNewData, exprEvaluatorContext);
-            exprEvaluatorContext.getExpressionResultCacheService().saveEnumerationMethodLastValue(this, result);
+            enumerationMethodCache.saveEnumerationMethodLastValue(this, result);
             return result;
         }
 
         contextNumber++;
         try {
-            exprEvaluatorContext.getExpressionResultCacheService().pushContext(contextNumber);
+            enumerationMethodCache.pushContext(contextNumber);
             Collection coll = (Collection) target;
             if (coll == null) {
                 return null;
@@ -187,7 +190,7 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
             return enumEval.evaluateEnumMethod(eventsLambda, coll, isNewData, exprEvaluatorContext);
         }
         finally {
-            exprEvaluatorContext.getExpressionResultCacheService().popContext();
+            enumerationMethodCache.popContext();
         }
     }
 

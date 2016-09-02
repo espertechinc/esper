@@ -949,6 +949,24 @@ public class EventBeanUtility
         return new EventBean[] {optionalEvent};
     }
 
+    public static boolean compareEventReferences(EventBean[] firstNonNull, EventBean[] secondNonNull) {
+        if (firstNonNull.length != secondNonNull.length) {
+            return false;
+        }
+        for (int i = 0; i < firstNonNull.length; i++) {
+            if (firstNonNull[i] != secondNonNull[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static EventBean[] copyArray(EventBean[] events) {
+        EventBean[] copy = new EventBean[events.length];
+        System.arraycopy(events, 0, copy, 0, copy.length);
+        return copy;
+    }
+
     private static boolean findEvent(EventBean theEvent, EventBean[][] eventsPerView) {
         for (int i = 0; i < eventsPerView.length; i++) {
             if (eventsPerView[i] == null) {

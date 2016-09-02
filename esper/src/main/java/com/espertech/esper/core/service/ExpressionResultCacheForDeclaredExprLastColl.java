@@ -11,28 +11,19 @@
 
 package com.espertech.esper.core.service;
 
-public class ExpressionResultCacheEntry<R, T> {
-    private R reference;
-    private T result;
+import com.espertech.esper.client.EventBean;
 
-    public ExpressionResultCacheEntry(R reference, T result) {
-        this.reference = reference;
-        this.result = result;
-    }
+import java.util.Collection;
 
-    public R getReference() {
-        return reference;
-    }
+/**
+ * On the level of expression declaration:
+ * a) for non-enum evaluation and for enum-evaluation a separate cache
+ * b) The cache is keyed by the prototype-node and verified by a events-per-stream (EventBean[]) that is maintained or rewritten.
+ *
+ * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
+ */
+public interface ExpressionResultCacheForDeclaredExprLastColl {
 
-    public T getResult() {
-        return result;
-    }
-
-    public void setReference(R reference) {
-        this.reference = reference;
-    }
-
-    public void setResult(T result) {
-        this.result = result;
-    }
+    ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream);
+    void saveDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream, Collection<EventBean> result);
 }
