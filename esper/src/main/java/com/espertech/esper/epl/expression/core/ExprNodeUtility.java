@@ -35,6 +35,7 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.visitor.*;
+import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -60,6 +61,7 @@ public class ExprNodeUtility {
 
     public static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];
+    public static final ExpressionScriptProvided[] EMPTY_SCRIPTS = new ExpressionScriptProvided[0];
 
     public static boolean deepEqualsIsSubset(ExprNode[] subset, ExprNode[] superset) {
         for (ExprNode subsetNode : subset) {

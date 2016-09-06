@@ -169,7 +169,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         StreamSpecCompiled[] streamSpecArray = streamSpecCompileds.toArray(new StreamSpecCompiled[streamSpecCompileds.size()]);
         StatementSpecCompiled compiled = new StatementSpecCompiled(null, null, null, null, null, null, null, SelectClauseStreamSelectorEnum.ISTREAM_ONLY,
                 selectClauseCompiled, streamSpecArray, outerJoinArray, select.getFilterExprRootNode(), select.getHavingExprRootNode(), outputLimitSpec,
-                orderByArray, ExprSubselectNode.EMPTY_SUBSELECT_ARRAY, ExprNodeUtility.EMPTY_DECLARED_ARR, select.getReferencedVariables(),
+                orderByArray, ExprSubselectNode.EMPTY_SUBSELECT_ARRAY, ExprNodeUtility.EMPTY_DECLARED_ARR, ExprNodeUtility.EMPTY_SCRIPTS, select.getReferencedVariables(),
                 select.getRowLimitSpec(), CollectionUtil.EMPTY_STRING_ARRAY, mergedAnnotations, null, null, null, null, null, null, null, null, null, groupByExpressions, null, null);
 
         // create viewable per port

@@ -50,6 +50,7 @@ public class StatementSpecCompiled
     private final OrderByItem[] orderByList;
     private final ExprSubselectNode[] subSelectExpressions;
     private final ExprDeclaredNode[] declaredExpressions;
+    private final ExpressionScriptProvided[] scripts;
     private final Set<String> variableReferences;
     private final RowLimitSpec rowLimitSpec;
     private final String[] eventTypeReferences;
@@ -109,6 +110,7 @@ public class StatementSpecCompiled
                                  OrderByItem[] orderByList,
                                  ExprSubselectNode[] subSelectExpressions,
                                  ExprDeclaredNode[] declaredExpressions,
+                                 ExpressionScriptProvided[] scripts,
                                  Set<String> variableReferences,
                                  RowLimitSpec rowLimitSpec,
                                  String[] eventTypeReferences,
@@ -143,6 +145,7 @@ public class StatementSpecCompiled
         this.orderByList = orderByList;
         this.subSelectExpressions = subSelectExpressions;
         this.declaredExpressions = declaredExpressions;
+        this.scripts = scripts;
         this.variableReferences = variableReferences;
         this.rowLimitSpec = rowLimitSpec;
         this.eventTypeReferences = eventTypeReferences;
@@ -183,6 +186,7 @@ public class StatementSpecCompiled
         orderByList = OrderByItem.EMPTY_ORDERBY_ARRAY;
         subSelectExpressions = ExprSubselectNode.EMPTY_SUBSELECT_ARRAY;
         declaredExpressions = ExprNodeUtility.EMPTY_DECLARED_ARR;
+        scripts = ExprNodeUtility.EMPTY_SCRIPTS;
         variableReferences = new HashSet<String>();
         rowLimitSpec = null;
         eventTypeReferences = new String[0];
@@ -499,5 +503,9 @@ public class StatementSpecCompiled
 
     public void setNamedWindowConsumersAll(NamedWindowConsumerStreamSpec[] namedWindowConsumersAll) {
         this.namedWindowConsumersAll = namedWindowConsumersAll;
+    }
+
+    public ExpressionScriptProvided[] getScripts() {
+        return scripts;
     }
 }

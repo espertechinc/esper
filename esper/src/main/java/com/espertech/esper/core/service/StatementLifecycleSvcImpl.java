@@ -1254,6 +1254,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 OrderByItem.toArray(spec.getOrderByList()),
                 ExprSubselectNode.toArray(subselectNodes),
                 ExprNodeUtility.toArray(declaredNodes),
+                spec.getScriptExpressions() == null || spec.getScriptExpressions().isEmpty() ? ExprNodeUtility.EMPTY_SCRIPTS : spec.getScriptExpressions().toArray(new ExpressionScriptProvided[spec.getScriptExpressions().size()]),
                 spec.getReferencedVariables(),
                 spec.getRowLimitSpec(),
                 CollectionUtil.toArray(eventTypeReferences),
