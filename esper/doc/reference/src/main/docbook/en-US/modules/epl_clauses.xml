@@ -1479,18 +1479,18 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 			</para>
 			
 			<itemizedlist>
-				<para>
+				<listitem>
 					Event Aggregation Functions (including extension API)
-				</para>
-				<para>
+				</listitem>
+				<listitem>
 					The <literal>previous</literal> family of single-row functions
-				</para>
-				<para>
+				</listitem>
+				<listitem>
 					Subselects that select events
-				</para>
-				<para>
+				</listitem>
+				<listitem>
 					Declared expressions and enumeration methods that operate on any of the above
-				</para>
+				</listitem>
 			</itemizedlist>
 
 			<para>
