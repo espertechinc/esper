@@ -96,6 +96,46 @@
 		<para>
 		  If an EPL statement does not declare a context, it implicitly has a single context partition. The single context partition lives as long as the EPL statement is started and ends when the EPL statement is stopped.
 		</para>
+		
+		<para>
+			You may have heard of the term <emphasis>session</emphasis>. A context partition is the same as a session.
+		</para>
+		
+		<para>
+			You may have heard of the term <emphasis>session window</emphasis> to describe the duration between when a session becomes alive to when a session gets destroyed. We use the term context partition lifecycle instead.
+		</para>
+
+		<para>
+			The context declaration specifies how the engine manages context partitions (or sessions):
+		</para>
+		
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+                    For keyed segmented context there is a context partition (or session) per key or multiple keys, see <xref linkend="context_def_keyed"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+                    For hash segmented context there is a context partition (or session) per hash code of one or more keys, see <xref linkend="context_def_hashed"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+                    For overlapping contexts there can be multiple overlapping context partitions (or sessions), see <xref linkend="context_def_overlapping"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+                    For non-overlapping contexts there is only zero or one single context partition (or session), see <xref linkend="context_def_nonoverlapping"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+                    For category segmented context there is a context partition (or session) per predefined category, see <xref linkend="context_def_category"/>.
+				</para>
+			</listitem>
+		</itemizedlist>
 				
 		<para>
 		   For more information on locking and threading please see <xref linkend="api-threading"/>. For performance related information please refer to <xref linkend="performance"/>.
