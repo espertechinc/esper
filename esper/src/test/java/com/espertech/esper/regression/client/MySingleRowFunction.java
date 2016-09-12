@@ -119,6 +119,18 @@ public class MySingleRowFunction
         return toCSV(values);
     }
 
+    public static String varargsOnlyString(String ... values) {
+        return toCSV(values);
+    }
+
+    public static String varargsObjectsWCtx(EPLMethodInvocationContext ctx, Object ... values) {
+        return "CTX+" + toCSV(values);
+    }
+
+    public static String varargsW1ParamObjectsWCtx(int param, EPLMethodInvocationContext ctx, Object ... values) {
+        return "CTX+" + "," + param + "," + toCSV(values);
+    }
+
     public static String varargsOnlyNumber(Number ... values) {
         return toCSV(values);
     }

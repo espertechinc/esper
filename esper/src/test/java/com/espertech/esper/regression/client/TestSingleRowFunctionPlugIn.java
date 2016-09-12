@@ -24,6 +24,7 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
+import java.util.Collection;
 
 public class TestSingleRowFunctionPlugIn extends TestCase
 {
@@ -46,6 +47,7 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         configuration.addPlugInSingleRowFunction("getValueAsString", MySingleRowFunction.class.getName(), "getValueAsString");
         configuration.addPlugInSingleRowFunction("eventsCheckStrings", MySingleRowFunction.class.getName(), "eventsCheckStrings");
         configuration.addPlugInSingleRowFunction("varargsOnlyInt", MySingleRowFunction.class.getName(), "varargsOnlyInt");
+        configuration.addPlugInSingleRowFunction("varargsOnlyString", MySingleRowFunction.class.getName(), "varargsOnlyString");
         configuration.addPlugInSingleRowFunction("varargsOnlyObject", MySingleRowFunction.class.getName(), "varargsOnlyObject");
         configuration.addPlugInSingleRowFunction("varargsOnlyNumber", MySingleRowFunction.class.getName(), "varargsOnlyNumber");
         configuration.addPlugInSingleRowFunction("varargsOnlyISupportBaseAB", MySingleRowFunction.class.getName(), "varargsOnlyISupportBaseAB");
@@ -54,6 +56,8 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         configuration.addPlugInSingleRowFunction("varargsOnlyWCtx", MySingleRowFunction.class.getName(), "varargsOnlyWCtx");
         configuration.addPlugInSingleRowFunction("varargsW1ParamWCtx", MySingleRowFunction.class.getName(), "varargsW1ParamWCtx");
         configuration.addPlugInSingleRowFunction("varargsW2ParamWCtx", MySingleRowFunction.class.getName(), "varargsW2ParamWCtx");
+        configuration.addPlugInSingleRowFunction("varargsObjectsWCtx", MySingleRowFunction.class.getName(), "varargsObjectsWCtx");
+        configuration.addPlugInSingleRowFunction("varargsW1ParamObjectsWCtx", MySingleRowFunction.class.getName(), "varargsW1ParamObjectsWCtx");
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
@@ -119,6 +123,19 @@ public class TestSingleRowFunctionPlugIn extends TestCase
 
         runVarargAssertion(
                 makePair("varargsOnlyISupportBaseAB(new " + ISupportBImpl.class.getName() + "('a', 'b'))", "ISupportBImpl{valueB='a', valueBaseAB='b'}"));
+
+        // tests for array-passthru
+        runVarargAssertion(
+                makePair("varargsOnlyString({'a'})", "a"),
+                makePair("varargsOnlyString({'a', 'b'})", "a,b"),
+                makePair("varargsOnlyObject({'a', 'b'})", "a,b"),
+                makePair("varargsOnlyObject({})", ""),
+                makePair("varargsObjectsWCtx({1, 'a'})", "CTX+1,a"),
+                makePair("varargsW1ParamObjectsWCtx(1, {'a', 1})", "CTX+,1,a,1")
+                );
+
+        // try Arrays.asList
+        runAssertionArraysAsList();
     }
 
     public void testEventBeanFootprint() {
@@ -384,5 +401,29 @@ public class TestSingleRowFunctionPlugIn extends TestCase
 
     private UniformPair<String> makePair(String expression, String expected) {
         return new UniformPair<String>(expression, expected);
+    }
+
+    private void runAssertionArraysAsList() {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
+                "java.util.Arrays.asList('a') as c0, " +
+                "java.util.Arrays.asList({'a'}) as c1, " +
+                "java.util.Arrays.asList('a', 'b') as c2, " +
+                "java.util.Arrays.asList({'a', 'b'}) as c3 " +
+                "from SupportBean");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EventBean event = listener.assertOneGetNewAndReset();
+        assertEqualsColl(event, "c0", "a");
+        assertEqualsColl(event, "c1", "a");
+        assertEqualsColl(event, "c2", "a", "b");
+        assertEqualsColl(event, "c3", "a", "b");
+
+        stmt.destroy();
+    }
+
+    private void assertEqualsColl(EventBean event, String property, String ... values) {
+        Collection data = (Collection) event.get(property);
+        EPAssertionUtil.assertEqualsExactOrder(values, data.toArray());
     }
 }

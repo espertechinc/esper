@@ -334,6 +334,22 @@ public class MethodResolver
             }
 
             Class varargDeclarationParameter = declarationParameters[declarationParameters.length - 1].getComponentType();
+
+            // handle array of compatible type passed into vararg
+            if (invocationParameters.length == declarationParameters.length) {
+                Class providedType = invocationParameters[invocationParameters.length - 1];
+                if (providedType != null && providedType.isArray()) {
+                    if (providedType.getComponentType() == varargDeclarationParameter) {
+                        return conversionCount.get();
+                    }
+                    if (JavaClassHelper.isSubclassOrImplementsInterface(providedType.getComponentType(), varargDeclarationParameter)) {
+                        conversionCount.incrementAndGet();
+                        return conversionCount.get();
+                    }
+                }
+            }
+
+            // handle compatible types passed into vararg
             Type varargGenericParameterTypes = genericParameterTypes[genericParameterTypes.length - 1];
             for (int i = declarationParameters.length - 1; i < invocationParameters.length; i++) {
                 boolean compatible = compareParameterTypeCompatible(invocationParameters[i],

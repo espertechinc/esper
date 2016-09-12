@@ -1653,6 +1653,17 @@ public class ExprNodeUtility {
         }
         final int varargArrayLength = childEvals.length - method.getParameterTypes().length + 1;
 
+        // handle passing array along
+        if (varargArrayLength == 1) {
+            ExprEvaluator last = childEvals[method.getParameterTypes().length - 1];
+            Class lastReturns = last.getType();
+            if (lastReturns != null && lastReturns.isArray()) {
+                evals[method.getParameterTypes().length - 1] = last;
+                return evals;
+            }
+        }
+
+        // handle parameter conversion to vararg parameter
         ExprEvaluator[] varargEvals = new ExprEvaluator[varargArrayLength];
         SimpleNumberCoercer[] coercers = new SimpleNumberCoercer[varargEvals.length];
         boolean needCoercion = false;
