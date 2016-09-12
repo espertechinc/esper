@@ -39,6 +39,11 @@
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="prop5" type="xs:string" maxOccurs="unbounded"/>
+										<xs:choice>
+											<xs:element name="prop6" type="xs:string" maxOccurs="unbounded"/>
+											<xs:element name="prop7" type="xs:string" maxOccurs="unbounded"/>
+											<xs:element name="prop8" type="xs:string" maxOccurs="unbounded"/>
+										</xs:choice>
 									</xs:sequence>
 									<xs:attribute name="id" type="xs:ID" use="required"/>
 								</xs:complexType>

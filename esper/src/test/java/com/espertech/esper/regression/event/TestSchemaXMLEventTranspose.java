@@ -97,6 +97,9 @@ public class TestSchemaXMLEventTranspose extends TestCase
         assertTrue(fragmentTypeNested4.isIndexed());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("prop5", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop6", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop7", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop8", String[].class, null, false, false, true, false, false),
                 new EventPropertyDescriptor("id", String.class, null, false, false, false, false, false),
         }, fragmentTypeNested4.getFragmentType().getPropertyDescriptors());
         EventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
@@ -105,6 +108,9 @@ public class TestSchemaXMLEventTranspose extends TestCase
         assertFalse(fragmentTypeNested4Item.isIndexed());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("prop5", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop6", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop7", String[].class, null, false, false, true, false, false),
+                new EventPropertyDescriptor("prop8", String[].class, null, false, false, true, false, false),
                 new EventPropertyDescriptor("id", String.class, null, false, false, false, false, false),
         }, fragmentTypeNested4Item.getFragmentType().getPropertyDescriptors());
         EventTypeAssertionUtil.assertConsistency(fragmentTypeNested4Item.getFragmentType());

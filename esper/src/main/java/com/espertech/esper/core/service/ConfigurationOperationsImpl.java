@@ -328,7 +328,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             try
             {
-                schemaModel = XSDSchemaMapper.loadAndMap(xmlDOMEventTypeDesc.getSchemaResource(), xmlDOMEventTypeDesc.getSchemaText(), 2);
+                schemaModel = XSDSchemaMapper.loadAndMap(xmlDOMEventTypeDesc.getSchemaResource(), xmlDOMEventTypeDesc.getSchemaText());
             }
             catch (Exception ex)
             {
@@ -434,7 +434,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             try
             {
-                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), 2);
+                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText());
             }
             catch (Exception ex)
             {
