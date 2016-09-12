@@ -83,7 +83,7 @@ public class TestNamedWindowOnUpdate extends TestCase
         oldevents = EPAssertionUtil.sort(oldevents, "theString");
         EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
 
-        EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmtCreate.iterator(), "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
     }
 
     public void testMultipleDataWindowUnion() {

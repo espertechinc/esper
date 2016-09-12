@@ -119,7 +119,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
         }
         long end = System.currentTimeMillis();
         long delta = end - start;
-        assertTrue("delta=" + delta, delta < 1000);
+        assertTrue("delta=" + delta, delta < 1500);
     }
 
     private void runAssertionFAFKeyAndRangePerformance(boolean namedWindow)
