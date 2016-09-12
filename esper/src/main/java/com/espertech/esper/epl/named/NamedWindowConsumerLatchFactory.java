@@ -20,11 +20,11 @@ import java.util.Map;
  */
 public class NamedWindowConsumerLatchFactory
 {
-    private final String name;
-    private final boolean useSpin;
-    private final TimeSourceService timeSourceService;
-    private final long msecWait;
-    private final boolean enabled;
+    protected final String name;
+    protected final boolean useSpin;
+    protected final TimeSourceService timeSourceService;
+    protected final long msecWait;
+    protected final boolean enabled;
 
     private NamedWindowConsumerLatchSpin currentLatchSpin;
     private NamedWindowConsumerLatchWait currentLatchWait;
@@ -37,7 +37,7 @@ public class NamedWindowConsumerLatchFactory
      * @param timeSourceService time source provider
      */
     public NamedWindowConsumerLatchFactory(String name, boolean enabled, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
-                                           TimeSourceService timeSourceService)
+                                           TimeSourceService timeSourceService, boolean initializeNow)
     {
         this.name = name;
         this.enabled = enabled;
@@ -47,10 +47,10 @@ public class NamedWindowConsumerLatchFactory
         useSpin = enabled && (locking == ConfigurationEngineDefaults.Threading.Locking.SPIN);
 
         // construct a completed latch as an initial root latch
-        if (useSpin) {
+        if (initializeNow && useSpin) {
             currentLatchSpin = new NamedWindowConsumerLatchSpin(this);
         }
-        else if (enabled) {
+        else if (initializeNow && enabled) {
             currentLatchWait = new NamedWindowConsumerLatchWait(this);
         }
     }

@@ -30,16 +30,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class NamedWindowTailView
 {
-    private final EventType eventType;
-    private final NamedWindowMgmtService namedWindowMgmtService;
-    private final NamedWindowDispatchService namedWindowDispatchService;
-    private final StatementResultService statementResultService;
-    private final ValueAddEventProcessor revisionProcessor;
-    private final boolean isPrioritized;
-    private final boolean isParentBatchWindow;
-    private volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersNonContext;  // handles as copy-on-write
-    private final TimeSourceService timeSourceService;
-    private final ConfigurationEngineDefaults.Threading threadingConfig;
+    protected final EventType eventType;
+    protected final NamedWindowMgmtService namedWindowMgmtService;
+    protected final NamedWindowDispatchService namedWindowDispatchService;
+    protected final StatementResultService statementResultService;
+    protected final ValueAddEventProcessor revisionProcessor;
+    protected final boolean isPrioritized;
+    protected final boolean isParentBatchWindow;
+    protected volatile Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumersNonContext;  // handles as copy-on-write
+    protected final TimeSourceService timeSourceService;
+    protected final ConfigurationEngineDefaults.Threading threadingConfig;
 
     public NamedWindowTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig) {
         this.eventType = eventType;
@@ -162,11 +162,10 @@ public class NamedWindowTailView
         }
     }
 
-    public TimeSourceService getTimeSourceService() {
-        return timeSourceService;
-    }
-
-    public ConfigurationEngineDefaults.Threading getThreadingConfig() {
-        return threadingConfig;
+    public NamedWindowConsumerLatchFactory makeLatchFactory() {
+        return new NamedWindowConsumerLatchFactory(eventType.getName(),
+                threadingConfig.isNamedWindowConsumerDispatchPreserveOrder(),
+                threadingConfig.getNamedWindowConsumerDispatchTimeout(),
+                threadingConfig.getNamedWindowConsumerDispatchLocking(), timeSourceService, true);
     }
 }

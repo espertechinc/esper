@@ -50,10 +50,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         this.namedWindowProcessor = namedWindowProcessor;
         this.agentInstanceContext = agentInstanceContext;
         this.consumersInContext = NamedWindowUtil.createConsumerMap(tailView.isPrioritized());
-        this.latchFactory = new NamedWindowConsumerLatchFactory(namedWindowProcessor.getNamedWindowType().getName(),
-                tailView.getThreadingConfig().isNamedWindowConsumerDispatchPreserveOrder(),
-                tailView.getThreadingConfig().getNamedWindowConsumerDispatchTimeout(),
-                tailView.getThreadingConfig().getNamedWindowConsumerDispatchLocking(), tailView.getTimeSourceService());
+        this.latchFactory = tailView.makeLatchFactory();
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)
