@@ -163,7 +163,7 @@ public class RealizationFactoryInterface {
             return new EPDataFlowEmitter1Stream1TargetUnwind(producerOpNum, dataFlowSignalManager, signalHandler, exceptionHandler, target);
         }
         else {
-            throw new UnsupportedOperationException("TODO");
+            throw new UnsupportedOperationException("Unsupported binding type '" + bindingType + "'");
         }
     }
 

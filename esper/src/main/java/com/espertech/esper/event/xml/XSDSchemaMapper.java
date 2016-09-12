@@ -214,7 +214,7 @@ public class XSDSchemaMapper
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Processing complex " + complexElementNamespace + " " + complexElementName + " stack " + node.toString()); //TODO JC 2015-12-15: fix toString();
+            log.debug("Processing complex " + complexElementNamespace + " " + complexElementName + " stack " + node.toString());
         }
 
         List<SchemaItemAttribute> attributes = new ArrayList<SchemaItemAttribute>();
