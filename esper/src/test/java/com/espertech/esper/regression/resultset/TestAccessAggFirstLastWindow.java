@@ -844,6 +844,9 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     public static class ChainEvent {
         private String property;
 
+        public ChainEvent() {
+        }
+
         public ChainEvent(String property) {
             this.property = property;
         }
