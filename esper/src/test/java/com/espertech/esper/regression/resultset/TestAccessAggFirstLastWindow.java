@@ -337,6 +337,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     private void runAssertionType(boolean isCheckStatic) {
         String[] fields = "f1,f2,w1,l1".split(",");
+        SupportStaticMethodLib.getInvocations().clear();
 
         SupportBean beanOne = sendEvent(epService, "E1", 10d, 100);
         Object[] expected = new Object[] {110d, 100, new Object[] {beanOne}, beanOne};
