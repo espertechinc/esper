@@ -3,7 +3,7 @@
 	<name>Esper Examples</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper_examples</artifactId>
-	<version>5.5.0</version>
+	<version>5.6.0</version>
 	<packaging>pom</packaging>
 	<description>Esper CEP ESP engine for Java examples</description>
 	<repositories>
@@ -47,7 +47,7 @@
 			<dependency>
 				<groupId>com.espertech</groupId>
 				<artifactId>esper</artifactId>
-				<version>5.5.0</version>
+				<version>5.6.0</version>
 			</dependency>
 			<dependency>
 				<groupId>log4j</groupId>

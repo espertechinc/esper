@@ -3,7 +3,7 @@
 	<name>Esper Reference Documentation</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper_reference</artifactId>
-	<version>5.5.0</version>
+	<version>5.6.0</version>
 	<packaging>jdocbook</packaging>
 	<licenses>
 		<license>
@@ -49,13 +49,13 @@
 					<dependency>
 						<groupId>com.espertech</groupId>
 						<artifactId>esper-jdocbook-xslt</artifactId>
-						<version>5.5.0</version>
+						<version>5.6.0</version>
 					</dependency>
 					<dependency>
 						<groupId>com.espertech</groupId>
 						<artifactId>esper-jdocbook-style</artifactId>
 						<type>jdocbook-style</type>
-						<version>5.5.0</version>
+						<version>5.6.0</version>
 					</dependency>
 					    <dependency>
 					      <groupId>org.jboss.pressgang</groupId>
