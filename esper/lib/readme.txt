@@ -1,7 +1,7 @@
 Required runtime libraries
 ==========================
 
-antlr-runtime-4.1
+antlr-runtime-4.5.3
 - runtime for ANTLR parser generator
 - required for runtime
 
@@ -29,7 +29,7 @@ junit-4.11.jar
 - JUnit test framework
 - buildtime, not required for runtime
 
-antlr-4.1-complete.jar
+antlr-4.5.3-complete.jar
 - ANTLR parser generator, for compile-time generation of parser and tree walker from grammars
 - buildtime, not required for runtime
 

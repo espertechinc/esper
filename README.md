@@ -11,3 +11,7 @@ This repository tracks changes since release 5.2.0 and as of April 6, 2015. The 
 Esper and NEsper including documentation are copyrighted and the copyright is owned by EsperTech Inc., unauthorized reproduction or distribution of this copyrighted work is illegal.
 
 For commercial licensing terms, please contact EsperTech Inc. for any inquiry.
+
+# Note on Master versus Releases
+
+At this time Master tracks version 6.0 and up development and therefore requires Java 8.

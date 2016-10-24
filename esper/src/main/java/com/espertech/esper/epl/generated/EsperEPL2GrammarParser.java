@@ -1,4 +1,4 @@
-// Generated from EsperEPL2Grammar.g by ANTLR 4.1
+// Generated from EsperEPL2Grammar.g by ANTLR 4.5.3
 
   package com.espertech.esper.epl.generated;
 
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class EsperEPL2GrammarParser extends Parser {
+	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
+
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
@@ -51,37 +53,6 @@ public class EsperEPL2GrammarParser extends Parser {
 		NUM_FLOAT=181, ESCAPECHAR=182, ESCAPEBACKTICK=183, ATCHAR=184, WS=185, 
 		SL_COMMENT=186, ML_COMMENT=187, TICKED_STRING_LITERAL=188, QUOTED_STRING_LITERAL=189, 
 		STRING_LITERAL=190, IDENT=191, IntegerLiteral=192, FloatingPointLiteral=193;
-	public static final String[] tokenNames = {
-		"<INVALID>", "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
-		"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", "'where'", 
-		"'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", "'median'", 
-		"'stddev'", "'avedev'", "'count'", "'select'", "'case'", "'else'", "'when'", 
-		"'then'", "'end'", "'from'", "'outer'", "'inner'", "'join'", "'left'", 
-		"'right'", "'full'", "'on'", "'is'", "'by'", "'group'", "'having'", "'distinct'", 
-		"'all'", "'any'", "'some'", "'output'", "'events'", "'first'", "'last'", 
-		"'insert'", "'into'", "'values'", "'order'", "'asc'", "'desc'", "'rstream'", 
-		"'istream'", "'irstream'", "'schema'", "'unidirectional'", "'retain-union'", 
-		"'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", "'prev'", 
-		"'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", "'weekday'", 
-		"'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
-		"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
-		"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
-		"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
-		"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
-		"'true'", "'false'", "'null'", "'limit'", "'offset'", "'update'", "'match_recognize'", 
-		"'match_recognize_permute'", "'measures'", "'define'", "'partition'", 
-		"'matches'", "'after'", "'for'", "'while'", "'using'", "'merge'", "'matched'", 
-		"'expression'", "'new'", "'start'", "'context'", "'initiated'", "'terminated'", 
-		"'dataflow'", "'cube'", "'rollup'", "'grouping'", "'grouping_id'", "'sets'", 
-		"'-['", "']>'", "'->'", "'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", 
-		"']'", "'{'", "'}'", "':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", 
-		"'/='", "'+'", "'+='", "'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", 
-		"'%='", "'>='", "'>'", "'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", 
-		"'&'", "'&='", "'&&'", "';'", "'.'", "'\\u18FF'", "'\\u18FE'", "'\\u18FD'", 
-		"'\\'", "'`'", "'@'", "WS", "SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", 
-		"QUOTED_STRING_LITERAL", "STRING_LITERAL", "IDENT", "IntegerLiteral", 
-		"FloatingPointLiteral"
-	};
 	public static final int
 		RULE_startPatternExpressionRule = 0, RULE_startEPLExpressionRule = 1, 
 		RULE_startEventPropertyRule = 2, RULE_startJsonValueRule = 3, RULE_expressionDecl = 4, 
@@ -233,14 +204,108 @@ public class EsperEPL2GrammarParser extends Parser {
 		"jsonelements", "jsonmembers", "jsonpair"
 	};
 
+	private static final String[] _LITERAL_NAMES = {
+		null, "'create'", "'window'", "'in'", "'between'", "'like'", "'regexp'", 
+		"'escape'", "'or'", "'and'", "'not'", "'every'", "'every-distinct'", "'where'", 
+		"'as'", "'sum'", "'avg'", "'max'", "'min'", "'coalesce'", "'median'", 
+		"'stddev'", "'avedev'", "'count'", "'select'", "'case'", "'else'", "'when'", 
+		"'then'", "'end'", "'from'", "'outer'", "'inner'", "'join'", "'left'", 
+		"'right'", "'full'", "'on'", "'is'", "'by'", "'group'", "'having'", "'distinct'", 
+		"'all'", "'any'", "'some'", "'output'", "'events'", "'first'", "'last'", 
+		"'insert'", "'into'", "'values'", "'order'", "'asc'", "'desc'", "'rstream'", 
+		"'istream'", "'irstream'", "'schema'", "'unidirectional'", "'retain-union'", 
+		"'retain-intersection'", "'pattern'", "'sql'", "'metadatasql'", "'prev'", 
+		"'prevtail'", "'prevcount'", "'prevwindow'", "'prior'", "'exists'", "'weekday'", 
+		"'lastweekday'", "'instanceof'", "'typeof'", "'cast'", "'current_timestamp'", 
+		"'delete'", "'snapshot'", "'set'", "'variable'", "'table'", "'until'", 
+		"'at'", "'index'", "'year'", "'years'", "'month'", "'months'", "'week'", 
+		"'weeks'", "'day'", "'days'", "'hour'", "'hours'", "'minute'", "'minutes'", 
+		"'sec'", "'second'", "'seconds'", "'msec'", "'millisecond'", "'milliseconds'", 
+		"'true'", "'false'", "'null'", "'limit'", "'offset'", "'update'", "'match_recognize'", 
+		"'match_recognize_permute'", "'measures'", "'define'", "'partition'", 
+		"'matches'", "'after'", "'for'", "'while'", "'using'", "'merge'", "'matched'", 
+		"'expression'", "'new'", "'start'", "'context'", "'initiated'", "'terminated'", 
+		"'dataflow'", "'cube'", "'rollup'", "'grouping'", "'grouping_id'", "'sets'", 
+		"'-['", "']>'", "'->'", "'=>'", "'='", "'<>'", "'?'", "'('", "')'", "'['", 
+		"']'", "'{'", "'}'", "':'", "','", "'=='", "'!'", "'~'", "'!='", "'/'", 
+		"'/='", "'+'", "'+='", "'++'", "'-'", "'-='", "'--'", "'*'", "'*='", "'%'", 
+		"'%='", "'>='", "'>'", "'<='", "'<'", "'^'", "'^='", "'|'", "'|='", "'||'", 
+		"'&'", "'&='", "'&&'", "';'", "'.'", "'\\u18FF'", "'\\u18FE'", "'\\u18FD'", 
+		"'\\'", "'`'", "'@'"
+	};
+	private static final String[] _SYMBOLIC_NAMES = {
+		null, "CREATE", "WINDOW", "IN_SET", "BETWEEN", "LIKE", "REGEXP", "ESCAPE", 
+		"OR_EXPR", "AND_EXPR", "NOT_EXPR", "EVERY_EXPR", "EVERY_DISTINCT_EXPR", 
+		"WHERE", "AS", "SUM", "AVG", "MAX", "MIN", "COALESCE", "MEDIAN", "STDDEV", 
+		"AVEDEV", "COUNT", "SELECT", "CASE", "ELSE", "WHEN", "THEN", "END", "FROM", 
+		"OUTER", "INNER", "JOIN", "LEFT", "RIGHT", "FULL", "ON", "IS", "BY", "GROUP", 
+		"HAVING", "DISTINCT", "ALL", "ANY", "SOME", "OUTPUT", "EVENTS", "FIRST", 
+		"LAST", "INSERT", "INTO", "VALUES", "ORDER", "ASC", "DESC", "RSTREAM", 
+		"ISTREAM", "IRSTREAM", "SCHEMA", "UNIDIRECTIONAL", "RETAINUNION", "RETAININTERSECTION", 
+		"PATTERN", "SQL", "METADATASQL", "PREVIOUS", "PREVIOUSTAIL", "PREVIOUSCOUNT", 
+		"PREVIOUSWINDOW", "PRIOR", "EXISTS", "WEEKDAY", "LW", "INSTANCEOF", "TYPEOF", 
+		"CAST", "CURRENT_TIMESTAMP", "DELETE", "SNAPSHOT", "SET", "VARIABLE", 
+		"TABLE", "UNTIL", "AT", "INDEX", "TIMEPERIOD_YEAR", "TIMEPERIOD_YEARS", 
+		"TIMEPERIOD_MONTH", "TIMEPERIOD_MONTHS", "TIMEPERIOD_WEEK", "TIMEPERIOD_WEEKS", 
+		"TIMEPERIOD_DAY", "TIMEPERIOD_DAYS", "TIMEPERIOD_HOUR", "TIMEPERIOD_HOURS", 
+		"TIMEPERIOD_MINUTE", "TIMEPERIOD_MINUTES", "TIMEPERIOD_SEC", "TIMEPERIOD_SECOND", 
+		"TIMEPERIOD_SECONDS", "TIMEPERIOD_MILLISEC", "TIMEPERIOD_MILLISECOND", 
+		"TIMEPERIOD_MILLISECONDS", "BOOLEAN_TRUE", "BOOLEAN_FALSE", "VALUE_NULL", 
+		"ROW_LIMIT_EXPR", "OFFSET", "UPDATE", "MATCH_RECOGNIZE", "MATCH_RECOGNIZE_PERMUTE", 
+		"MEASURES", "DEFINE", "PARTITION", "MATCHES", "AFTER", "FOR", "WHILE", 
+		"USING", "MERGE", "MATCHED", "EXPRESSIONDECL", "NEWKW", "START", "CONTEXT", 
+		"INITIATED", "TERMINATED", "DATAFLOW", "CUBE", "ROLLUP", "GROUPING", "GROUPING_ID", 
+		"SETS", "FOLLOWMAX_BEGIN", "FOLLOWMAX_END", "FOLLOWED_BY", "GOES", "EQUALS", 
+		"SQL_NE", "QUESTION", "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LCURLY", 
+		"RCURLY", "COLON", "COMMA", "EQUAL", "LNOT", "BNOT", "NOT_EQUAL", "DIV", 
+		"DIV_ASSIGN", "PLUS", "PLUS_ASSIGN", "INC", "MINUS", "MINUS_ASSIGN", "DEC", 
+		"STAR", "STAR_ASSIGN", "MOD", "MOD_ASSIGN", "GE", "GT", "LE", "LT", "BXOR", 
+		"BXOR_ASSIGN", "BOR", "BOR_ASSIGN", "LOR", "BAND", "BAND_ASSIGN", "LAND", 
+		"SEMI", "DOT", "NUM_LONG", "NUM_DOUBLE", "NUM_FLOAT", "ESCAPECHAR", "ESCAPEBACKTICK", 
+		"ATCHAR", "WS", "SL_COMMENT", "ML_COMMENT", "TICKED_STRING_LITERAL", "QUOTED_STRING_LITERAL", 
+		"STRING_LITERAL", "IDENT", "IntegerLiteral", "FloatingPointLiteral"
+	};
+	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
+
+	/**
+	 * @deprecated Use {@link #VOCABULARY} instead.
+	 */
+	@Deprecated
+	public static final String[] tokenNames;
+	static {
+		tokenNames = new String[_SYMBOLIC_NAMES.length];
+		for (int i = 0; i < tokenNames.length; i++) {
+			tokenNames[i] = VOCABULARY.getLiteralName(i);
+			if (tokenNames[i] == null) {
+				tokenNames[i] = VOCABULARY.getSymbolicName(i);
+			}
+
+			if (tokenNames[i] == null) {
+				tokenNames[i] = "<INVALID>";
+			}
+		}
+	}
+
+	@Override
+	@Deprecated
+	public String[] getTokenNames() {
+		return tokenNames;
+	}
+
+	@Override
+
+	public Vocabulary getVocabulary() {
+		return VOCABULARY;
+	}
+
 	@Override
 	public String getGrammarFileName() { return "EsperEPL2Grammar.g"; }
 
 	@Override
-	public String[] getTokenNames() { return tokenNames; }
+	public String[] getRuleNames() { return ruleNames; }
 
 	@Override
-	public String[] getRuleNames() { return ruleNames; }
+	public String getSerializedATN() { return _serializedATN; }
 
 	@Override
 	public ATN getATN() { return _ATN; }
@@ -473,21 +538,21 @@ public class EsperEPL2GrammarParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 	public static class StartPatternExpressionRuleContext extends ParserRuleContext {
-		public List<AnnotationEnumContext> annotationEnum() {
-			return getRuleContexts(AnnotationEnumContext.class);
-		}
-		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public PatternExpressionContext patternExpression() {
 			return getRuleContext(PatternExpressionContext.class,0);
+		}
+		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
+		public List<AnnotationEnumContext> annotationEnum() {
+			return getRuleContexts(AnnotationEnumContext.class);
 		}
 		public AnnotationEnumContext annotationEnum(int i) {
 			return getRuleContext(AnnotationEnumContext.class,i);
 		}
-		public ExpressionDeclContext expressionDecl(int i) {
-			return getRuleContext(ExpressionDeclContext.class,i);
-		}
 		public List<ExpressionDeclContext> expressionDecl() {
 			return getRuleContexts(ExpressionDeclContext.class);
+		}
+		public ExpressionDeclContext expressionDecl(int i) {
+			return getRuleContext(ExpressionDeclContext.class,i);
 		}
 		public StartPatternExpressionRuleContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -519,12 +584,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
-					setState(490); annotationEnum();
+					setState(490);
+					annotationEnum();
 					}
 					break;
 				case EXPRESSIONDECL:
 					{
-					setState(491); expressionDecl();
+					setState(491);
+					expressionDecl();
 					}
 					break;
 				default:
@@ -535,8 +602,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(497); patternExpression();
-			setState(498); match(EOF);
+			setState(497);
+			patternExpression();
+			setState(498);
+			match(EOF);
 			}
 		}
 		catch (RecognitionException re) {
@@ -551,21 +620,21 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class StartEPLExpressionRuleContext extends ParserRuleContext {
-		public List<AnnotationEnumContext> annotationEnum() {
-			return getRuleContexts(AnnotationEnumContext.class);
-		}
-		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public EplExpressionContext eplExpression() {
 			return getRuleContext(EplExpressionContext.class,0);
+		}
+		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
+		public List<AnnotationEnumContext> annotationEnum() {
+			return getRuleContexts(AnnotationEnumContext.class);
 		}
 		public AnnotationEnumContext annotationEnum(int i) {
 			return getRuleContext(AnnotationEnumContext.class,i);
 		}
-		public ExpressionDeclContext expressionDecl(int i) {
-			return getRuleContext(ExpressionDeclContext.class,i);
-		}
 		public List<ExpressionDeclContext> expressionDecl() {
 			return getRuleContexts(ExpressionDeclContext.class);
+		}
+		public ExpressionDeclContext expressionDecl(int i) {
+			return getRuleContext(ExpressionDeclContext.class,i);
 		}
 		public StartEPLExpressionRuleContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -597,12 +666,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
-					setState(500); annotationEnum();
+					setState(500);
+					annotationEnum();
 					}
 					break;
 				case EXPRESSIONDECL:
 					{
-					setState(501); expressionDecl();
+					setState(501);
+					expressionDecl();
 					}
 					break;
 				default:
@@ -613,8 +684,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(507); eplExpression();
-			setState(508); match(EOF);
+			setState(507);
+			eplExpression();
+			setState(508);
+			match(EOF);
 			}
 		}
 		catch (RecognitionException re) {
@@ -629,10 +702,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class StartEventPropertyRuleContext extends ParserRuleContext {
-		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
+		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public StartEventPropertyRuleContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -653,8 +726,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(510); eventProperty();
-			setState(511); match(EOF);
+			setState(510);
+			eventProperty();
+			setState(511);
+			match(EOF);
 			}
 		}
 		catch (RecognitionException re) {
@@ -669,10 +744,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class StartJsonValueRuleContext extends ParserRuleContext {
-		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public JsonvalueContext jsonvalue() {
 			return getRuleContext(JsonvalueContext.class,0);
 		}
+		public TerminalNode EOF() { return getToken(EsperEPL2GrammarParser.EOF, 0); }
 		public StartJsonValueRuleContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -693,8 +768,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(513); jsonvalue();
-			setState(514); match(EOF);
+			setState(513);
+			jsonvalue();
+			setState(514);
+			match(EOF);
 			}
 		}
 		catch (RecognitionException re) {
@@ -712,28 +789,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token array;
 		public Token name;
 		public Token alias;
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
-		public ColumnListContext columnList() {
-			return getRuleContext(ColumnListContext.class,0);
-		}
-		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
-		public ClassIdentifierContext classIdentifier() {
-			return getRuleContext(ClassIdentifierContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode EXPRESSIONDECL() { return getToken(EsperEPL2GrammarParser.EXPRESSIONDECL, 0); }
 		public ExpressionDefContext expressionDef() {
 			return getRuleContext(ExpressionDefContext.class,0);
-		}
-		public TerminalNode EXPRESSIONDECL() { return getToken(EsperEPL2GrammarParser.EXPRESSIONDECL, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public ExpressionDialectContext expressionDialect() {
-			return getRuleContext(ExpressionDialectContext.class,0);
 		}
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
+		public ClassIdentifierContext classIdentifier() {
+			return getRuleContext(ClassIdentifierContext.class,0);
+		}
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public ExpressionDialectContext expressionDialect() {
+			return getRuleContext(ExpressionDialectContext.class,0);
+		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
 		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public ColumnListContext columnList() {
+			return getRuleContext(ColumnListContext.class,0);
+		}
 		public ExpressionDeclContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -755,12 +832,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(516); match(EXPRESSIONDECL);
+			setState(516);
+			match(EXPRESSIONDECL);
 			setState(518);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
 			case 1:
 				{
-				setState(517); classIdentifier();
+				setState(517);
+				classIdentifier();
 				}
 				break;
 			}
@@ -768,34 +848,42 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(520); ((ExpressionDeclContext)_localctx).array = match(LBRACK);
-				setState(521); match(RBRACK);
+				setState(520);
+				((ExpressionDeclContext)_localctx).array = match(LBRACK);
+				setState(521);
+				match(RBRACK);
 				}
 			}
 
 			setState(525);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 			case 1:
 				{
-				setState(524); expressionDialect();
+				setState(524);
+				expressionDialect();
 				}
 				break;
 			}
-			setState(527); ((ExpressionDeclContext)_localctx).name = match(IDENT);
+			setState(527);
+			((ExpressionDeclContext)_localctx).name = match(IDENT);
 			setState(533);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(528); match(LPAREN);
+				setState(528);
+				match(LPAREN);
 				setState(530);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(529); columnList();
+					setState(529);
+					columnList();
 					}
 				}
 
-				setState(532); match(RPAREN);
+				setState(532);
+				match(RPAREN);
 				}
 			}
 
@@ -803,12 +891,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(535); ((ExpressionDeclContext)_localctx).alias = match(IDENT);
-				setState(536); match(FOR);
+				setState(535);
+				((ExpressionDeclContext)_localctx).alias = match(IDENT);
+				setState(536);
+				match(FOR);
 				}
 			}
 
-			setState(539); expressionDef();
+			setState(539);
+			expressionDef();
 			}
 		}
 		catch (RecognitionException re) {
@@ -824,8 +915,8 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class ExpressionDialectContext extends ParserRuleContext {
 		public Token d;
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public ExpressionDialectContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -846,8 +937,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(541); ((ExpressionDialectContext)_localctx).d = match(IDENT);
-			setState(542); match(COLON);
+			setState(541);
+			((ExpressionDialectContext)_localctx).d = match(IDENT);
+			setState(542);
+			match(COLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -862,19 +955,19 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionDefContext extends ParserRuleContext {
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
-		public ExpressionLambdaDeclContext expressionLambdaDecl() {
-			return getRuleContext(ExpressionLambdaDeclContext.class,0);
-		}
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
+		public ExpressionLambdaDeclContext expressionLambdaDecl() {
+			return getRuleContext(ExpressionLambdaDeclContext.class,0);
+		}
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public StringconstantContext stringconstant() {
 			return getRuleContext(StringconstantContext.class,0);
 		}
-		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public ExpressionDefContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -898,25 +991,33 @@ public class EsperEPL2GrammarParser extends Parser {
 			case LCURLY:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(544); match(LCURLY);
+				setState(544);
+				match(LCURLY);
 				setState(546);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
 				case 1:
 					{
-					setState(545); expressionLambdaDecl();
+					setState(545);
+					expressionLambdaDecl();
 					}
 					break;
 				}
-				setState(548); expression();
-				setState(549); match(RCURLY);
+				setState(548);
+				expression();
+				setState(549);
+				match(RCURLY);
 				}
 				break;
 			case LBRACK:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(551); match(LBRACK);
-				setState(552); stringconstant();
-				setState(553); match(RBRACK);
+				setState(551);
+				match(LBRACK);
+				setState(552);
+				stringconstant();
+				setState(553);
+				match(RBRACK);
 				}
 				break;
 			default:
@@ -936,14 +1037,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class ExpressionLambdaDeclContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode GOES() { return getToken(EsperEPL2GrammarParser.GOES, 0); }
+		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ColumnListContext columnList() {
 			return getRuleContext(ColumnListContext.class,0);
 		}
-		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode GOES() { return getToken(EsperEPL2GrammarParser.GOES, 0); }
 		public ExpressionLambdaDeclContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -969,15 +1070,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
-				setState(557); ((ExpressionLambdaDeclContext)_localctx).i = match(IDENT);
+				setState(557);
+				((ExpressionLambdaDeclContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case LPAREN:
 				{
 				{
-				setState(558); match(LPAREN);
-				setState(559); columnList();
-				setState(560); match(RPAREN);
+				setState(558);
+				match(LPAREN);
+				setState(559);
+				columnList();
+				setState(560);
+				match(RPAREN);
 				}
 				}
 				break;
@@ -988,8 +1093,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==FOLLOWED_BY || _la==GOES) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1004,16 +1110,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class AnnotationEnumContext extends ParserRuleContext {
-		public ElementValueEnumContext elementValueEnum() {
-			return getRuleContext(ElementValueEnumContext.class,0);
-		}
+		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
 		public ElementValuePairsEnumContext elementValuePairsEnum() {
 			return getRuleContext(ElementValuePairsEnumContext.class,0);
 		}
-		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
+		public ElementValueEnumContext elementValueEnum() {
+			return getRuleContext(ElementValueEnumContext.class,0);
+		}
 		public AnnotationEnumContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1034,28 +1140,35 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(566); match(ATCHAR);
-			setState(567); classIdentifier();
+			setState(566);
+			match(ATCHAR);
+			setState(567);
+			classIdentifier();
 			setState(574);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
 			case 1:
 				{
-				setState(568); match(LPAREN);
+				setState(568);
+				match(LPAREN);
 				setState(571);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
 				case 1:
 					{
-					setState(569); elementValuePairsEnum();
+					setState(569);
+					elementValuePairsEnum();
 					}
 					break;
-
 				case 2:
 					{
-					setState(570); elementValueEnum();
+					setState(570);
+					elementValueEnum();
 					}
 					break;
 				}
-				setState(573); match(RPAREN);
+				setState(573);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -1073,13 +1186,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ElementValuePairsEnumContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<ElementValuePairEnumContext> elementValuePairEnum() {
 			return getRuleContexts(ElementValuePairEnumContext.class);
 		}
 		public ElementValuePairEnumContext elementValuePairEnum(int i) {
 			return getRuleContext(ElementValuePairEnumContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -1104,15 +1217,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(576); elementValuePairEnum();
+			setState(576);
+			elementValuePairEnum();
 			setState(581);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(577); match(COMMA);
-				setState(578); elementValuePairEnum();
+				setState(577);
+				match(COMMA);
+				setState(578);
+				elementValuePairEnum();
 				}
 				}
 				setState(583);
@@ -1158,9 +1274,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(584); ((ElementValuePairEnumContext)_localctx).i = match(IDENT);
-			setState(585); match(EQUALS);
-			setState(586); elementValueEnum();
+			setState(584);
+			((ElementValuePairEnumContext)_localctx).i = match(IDENT);
+			setState(585);
+			match(EQUALS);
+			setState(586);
+			elementValueEnum();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1179,15 +1298,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		public AnnotationEnumContext annotationEnum() {
 			return getRuleContext(AnnotationEnumContext.class,0);
 		}
-		public ClassIdentifierContext classIdentifier() {
-			return getRuleContext(ClassIdentifierContext.class,0);
-		}
 		public ElementValueArrayEnumContext elementValueArrayEnum() {
 			return getRuleContext(ElementValueArrayEnumContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public ConstantContext constant() {
 			return getRuleContext(ConstantContext.class,0);
+		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public ClassIdentifierContext classIdentifier() {
+			return getRuleContext(ClassIdentifierContext.class,0);
 		}
 		public ElementValueEnumContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1208,39 +1327,41 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 22, RULE_elementValueEnum);
 		try {
 			setState(593);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(588); annotationEnum();
+				setState(588);
+				annotationEnum();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(589); elementValueArrayEnum();
+				setState(589);
+				elementValueArrayEnum();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(590); constant();
+				setState(590);
+				constant();
 				}
 				break;
-
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(591); ((ElementValueEnumContext)_localctx).v = match(IDENT);
+				setState(591);
+				((ElementValueEnumContext)_localctx).v = match(IDENT);
 				}
 				break;
-
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(592); classIdentifier();
+				setState(592);
+				classIdentifier();
 				}
 				break;
 			}
@@ -1285,21 +1406,25 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(595); match(LCURLY);
+			setState(595);
+			match(LCURLY);
 			setState(604);
 			_la = _input.LA(1);
 			if (((((_la - 47)) & ~0x3f) == 0 && ((1L << (_la - 47)) & ((1L << (EVENTS - 47)) | (1L << (BOOLEAN_TRUE - 47)) | (1L << (BOOLEAN_FALSE - 47)) | (1L << (VALUE_NULL - 47)))) != 0) || ((((_la - 145)) & ~0x3f) == 0 && ((1L << (_la - 145)) & ((1L << (LCURLY - 145)) | (1L << (PLUS - 145)) | (1L << (MINUS - 145)) | (1L << (ATCHAR - 145)) | (1L << (TICKED_STRING_LITERAL - 145)) | (1L << (QUOTED_STRING_LITERAL - 145)) | (1L << (STRING_LITERAL - 145)) | (1L << (IDENT - 145)) | (1L << (IntegerLiteral - 145)) | (1L << (FloatingPointLiteral - 145)))) != 0)) {
 				{
-				setState(596); elementValueEnum();
+				setState(596);
+				elementValueEnum();
 				setState(601);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
-				while ( _alt!=2 && _alt!=-1 ) {
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(597); match(COMMA);
-						setState(598); elementValueEnum();
+						setState(597);
+						match(COMMA);
+						setState(598);
+						elementValueEnum();
 						}
 						} 
 					}
@@ -1314,11 +1439,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
-				setState(606); match(COMMA);
+				setState(606);
+				match(COMMA);
 				}
 			}
 
-			setState(609); match(RCURLY);
+			setState(609);
+			match(RCURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1333,17 +1460,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class EplExpressionContext extends ParserRuleContext {
-		public UpdateExprContext updateExpr() {
-			return getRuleContext(UpdateExprContext.class,0);
+		public SelectExprContext selectExpr() {
+			return getRuleContext(SelectExprContext.class,0);
 		}
-		public CreateSchemaExprContext createSchemaExpr() {
-			return getRuleContext(CreateSchemaExprContext.class,0);
-		}
-		public CreateContextExprContext createContextExpr() {
-			return getRuleContext(CreateContextExprContext.class,0);
-		}
-		public FafDeleteContext fafDelete() {
-			return getRuleContext(FafDeleteContext.class,0);
+		public CreateWindowExprContext createWindowExpr() {
+			return getRuleContext(CreateWindowExprContext.class,0);
 		}
 		public CreateIndexExprContext createIndexExpr() {
 			return getRuleContext(CreateIndexExprContext.class,0);
@@ -1351,35 +1472,41 @@ public class EsperEPL2GrammarParser extends Parser {
 		public CreateVariableExprContext createVariableExpr() {
 			return getRuleContext(CreateVariableExprContext.class,0);
 		}
-		public FafUpdateContext fafUpdate() {
-			return getRuleContext(FafUpdateContext.class,0);
-		}
-		public ForExprContext forExpr() {
-			return getRuleContext(ForExprContext.class,0);
-		}
-		public SelectExprContext selectExpr() {
-			return getRuleContext(SelectExprContext.class,0);
-		}
-		public CreateWindowExprContext createWindowExpr() {
-			return getRuleContext(CreateWindowExprContext.class,0);
-		}
-		public OnExprContext onExpr() {
-			return getRuleContext(OnExprContext.class,0);
-		}
 		public CreateTableExprContext createTableExpr() {
 			return getRuleContext(CreateTableExprContext.class,0);
+		}
+		public CreateSchemaExprContext createSchemaExpr() {
+			return getRuleContext(CreateSchemaExprContext.class,0);
+		}
+		public CreateContextExprContext createContextExpr() {
+			return getRuleContext(CreateContextExprContext.class,0);
 		}
 		public CreateExpressionExprContext createExpressionExpr() {
 			return getRuleContext(CreateExpressionExprContext.class,0);
 		}
-		public ContextExprContext contextExpr() {
-			return getRuleContext(ContextExprContext.class,0);
+		public OnExprContext onExpr() {
+			return getRuleContext(OnExprContext.class,0);
+		}
+		public UpdateExprContext updateExpr() {
+			return getRuleContext(UpdateExprContext.class,0);
+		}
+		public CreateDataflowContext createDataflow() {
+			return getRuleContext(CreateDataflowContext.class,0);
+		}
+		public FafDeleteContext fafDelete() {
+			return getRuleContext(FafDeleteContext.class,0);
+		}
+		public FafUpdateContext fafUpdate() {
+			return getRuleContext(FafUpdateContext.class,0);
 		}
 		public FafInsertContext fafInsert() {
 			return getRuleContext(FafInsertContext.class,0);
 		}
-		public CreateDataflowContext createDataflow() {
-			return getRuleContext(CreateDataflowContext.class,0);
+		public ContextExprContext contextExpr() {
+			return getRuleContext(ContextExprContext.class,0);
+		}
+		public ForExprContext forExpr() {
+			return getRuleContext(ForExprContext.class,0);
 		}
 		public EplExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1406,93 +1533,96 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==CONTEXT) {
 				{
-				setState(611); contextExpr();
+				setState(611);
+				contextExpr();
 				}
 			}
 
 			setState(628);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
 			case 1:
 				{
-				setState(614); selectExpr();
+				setState(614);
+				selectExpr();
 				}
 				break;
-
 			case 2:
 				{
-				setState(615); createWindowExpr();
+				setState(615);
+				createWindowExpr();
 				}
 				break;
-
 			case 3:
 				{
-				setState(616); createIndexExpr();
+				setState(616);
+				createIndexExpr();
 				}
 				break;
-
 			case 4:
 				{
-				setState(617); createVariableExpr();
+				setState(617);
+				createVariableExpr();
 				}
 				break;
-
 			case 5:
 				{
-				setState(618); createTableExpr();
+				setState(618);
+				createTableExpr();
 				}
 				break;
-
 			case 6:
 				{
-				setState(619); createSchemaExpr();
+				setState(619);
+				createSchemaExpr();
 				}
 				break;
-
 			case 7:
 				{
-				setState(620); createContextExpr();
+				setState(620);
+				createContextExpr();
 				}
 				break;
-
 			case 8:
 				{
-				setState(621); createExpressionExpr();
+				setState(621);
+				createExpressionExpr();
 				}
 				break;
-
 			case 9:
 				{
-				setState(622); onExpr();
+				setState(622);
+				onExpr();
 				}
 				break;
-
 			case 10:
 				{
-				setState(623); updateExpr();
+				setState(623);
+				updateExpr();
 				}
 				break;
-
 			case 11:
 				{
-				setState(624); createDataflow();
+				setState(624);
+				createDataflow();
 				}
 				break;
-
 			case 12:
 				{
-				setState(625); fafDelete();
+				setState(625);
+				fafDelete();
 				}
 				break;
-
 			case 13:
 				{
-				setState(626); fafUpdate();
+				setState(626);
+				fafUpdate();
 				}
 				break;
-
 			case 14:
 				{
-				setState(627); fafInsert();
+				setState(627);
+				fafInsert();
 				}
 				break;
 			}
@@ -1500,7 +1630,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==FOR) {
 				{
-				setState(630); forExpr();
+				setState(630);
+				forExpr();
 				}
 			}
 
@@ -1541,8 +1672,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(633); match(CONTEXT);
-			setState(634); ((ContextExprContext)_localctx).i = match(IDENT);
+			setState(633);
+			match(CONTEXT);
+			setState(634);
+			((ContextExprContext)_localctx).i = match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1557,53 +1690,53 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class SelectExprContext extends ParserRuleContext {
-		public TerminalNode BY(int i) {
-			return getToken(EsperEPL2GrammarParser.BY, i);
-		}
-		public IntoTableExprContext intoTableExpr() {
-			return getRuleContext(IntoTableExprContext.class,0);
-		}
+		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public SelectClauseContext selectClause() {
 			return getRuleContext(SelectClauseContext.class,0);
 		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
 		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
-		public RowLimitContext rowLimit() {
-			return getRuleContext(RowLimitContext.class,0);
+		public IntoTableExprContext intoTableExpr() {
+			return getRuleContext(IntoTableExprContext.class,0);
 		}
 		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public InsertIntoExprContext insertIntoExpr() {
+			return getRuleContext(InsertIntoExprContext.class,0);
+		}
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public FromClauseContext fromClause() {
 			return getRuleContext(FromClauseContext.class,0);
 		}
-		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
+		public MatchRecogContext matchRecog() {
+			return getRuleContext(MatchRecogContext.class,0);
+		}
 		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode ORDER() { return getToken(EsperEPL2GrammarParser.ORDER, 0); }
-		public TerminalNode HAVING() { return getToken(EsperEPL2GrammarParser.HAVING, 0); }
-		public OrderByListExprContext orderByListExpr() {
-			return getRuleContext(OrderByListExprContext.class,0);
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
+		}
+		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
+		public TerminalNode BY(int i) {
+			return getToken(EsperEPL2GrammarParser.BY, i);
 		}
 		public GroupByListExprContext groupByListExpr() {
 			return getRuleContext(GroupByListExprContext.class,0);
 		}
+		public TerminalNode HAVING() { return getToken(EsperEPL2GrammarParser.HAVING, 0); }
 		public HavingClauseContext havingClause() {
 			return getRuleContext(HavingClauseContext.class,0);
 		}
-		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
 		public TerminalNode OUTPUT() { return getToken(EsperEPL2GrammarParser.OUTPUT, 0); }
-		public TerminalNode ROW_LIMIT_EXPR() { return getToken(EsperEPL2GrammarParser.ROW_LIMIT_EXPR, 0); }
-		public MatchRecogContext matchRecog() {
-			return getRuleContext(MatchRecogContext.class,0);
-		}
 		public OutputLimitContext outputLimit() {
 			return getRuleContext(OutputLimitContext.class,0);
 		}
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
-		public InsertIntoExprContext insertIntoExpr() {
-			return getRuleContext(InsertIntoExprContext.class,0);
+		public TerminalNode ORDER() { return getToken(EsperEPL2GrammarParser.ORDER, 0); }
+		public OrderByListExprContext orderByListExpr() {
+			return getRuleContext(OrderByListExprContext.class,0);
 		}
-		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public TerminalNode ROW_LIMIT_EXPR() { return getToken(EsperEPL2GrammarParser.ROW_LIMIT_EXPR, 0); }
+		public RowLimitContext rowLimit() {
+			return getRuleContext(RowLimitContext.class,0);
+		}
 		public SelectExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1629,8 +1762,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
-				setState(636); match(INTO);
-				setState(637); intoTableExpr();
+				setState(636);
+				match(INTO);
+				setState(637);
+				intoTableExpr();
 				}
 			}
 
@@ -1638,19 +1773,25 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
-				setState(640); match(INSERT);
-				setState(641); insertIntoExpr();
+				setState(640);
+				match(INSERT);
+				setState(641);
+				insertIntoExpr();
 				}
 			}
 
-			setState(644); match(SELECT);
-			setState(645); selectClause();
+			setState(644);
+			match(SELECT);
+			setState(645);
+			selectClause();
 			setState(648);
 			_la = _input.LA(1);
 			if (_la==FROM) {
 				{
-				setState(646); match(FROM);
-				setState(647); fromClause();
+				setState(646);
+				match(FROM);
+				setState(647);
+				fromClause();
 				}
 			}
 
@@ -1658,7 +1799,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==MATCH_RECOGNIZE) {
 				{
-				setState(650); matchRecog();
+				setState(650);
+				matchRecog();
 				}
 			}
 
@@ -1666,8 +1808,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(653); match(WHERE);
-				setState(654); whereClause();
+				setState(653);
+				match(WHERE);
+				setState(654);
+				whereClause();
 				}
 			}
 
@@ -1675,9 +1819,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
-				setState(657); match(GROUP);
-				setState(658); match(BY);
-				setState(659); groupByListExpr();
+				setState(657);
+				match(GROUP);
+				setState(658);
+				match(BY);
+				setState(659);
+				groupByListExpr();
 				}
 			}
 
@@ -1685,8 +1832,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==HAVING) {
 				{
-				setState(662); match(HAVING);
-				setState(663); havingClause();
+				setState(662);
+				match(HAVING);
+				setState(663);
+				havingClause();
 				}
 			}
 
@@ -1694,8 +1843,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==OUTPUT) {
 				{
-				setState(666); match(OUTPUT);
-				setState(667); outputLimit();
+				setState(666);
+				match(OUTPUT);
+				setState(667);
+				outputLimit();
 				}
 			}
 
@@ -1703,9 +1854,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
-				setState(670); match(ORDER);
-				setState(671); match(BY);
-				setState(672); orderByListExpr();
+				setState(670);
+				match(ORDER);
+				setState(671);
+				match(BY);
+				setState(672);
+				orderByListExpr();
 				}
 			}
 
@@ -1713,8 +1867,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==ROW_LIMIT_EXPR) {
 				{
-				setState(675); match(ROW_LIMIT_EXPR);
-				setState(676); rowLimit();
+				setState(675);
+				match(ROW_LIMIT_EXPR);
+				setState(676);
+				rowLimit();
 				}
 			}
 
@@ -1732,30 +1888,33 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OnExprContext extends ParserRuleContext {
-		public OnUpdateExprContext onUpdateExpr() {
-			return getRuleContext(OnUpdateExprContext.class,0);
-		}
+		public TerminalNode ON() { return getToken(EsperEPL2GrammarParser.ON, 0); }
 		public OnStreamExprContext onStreamExpr() {
 			return getRuleContext(OnStreamExprContext.class,0);
-		}
-		public OnSelectExprContext onSelectExpr() {
-			return getRuleContext(OnSelectExprContext.class,0);
-		}
-		public TerminalNode ON() { return getToken(EsperEPL2GrammarParser.ON, 0); }
-		public OnSelectInsertExprContext onSelectInsertExpr() {
-			return getRuleContext(OnSelectInsertExprContext.class,0);
-		}
-		public OutputClauseInsertContext outputClauseInsert() {
-			return getRuleContext(OutputClauseInsertContext.class,0);
-		}
-		public OnSetExprContext onSetExpr() {
-			return getRuleContext(OnSetExprContext.class,0);
 		}
 		public OnDeleteExprContext onDeleteExpr() {
 			return getRuleContext(OnDeleteExprContext.class,0);
 		}
+		public OnSelectExprContext onSelectExpr() {
+			return getRuleContext(OnSelectExprContext.class,0);
+		}
+		public OnSetExprContext onSetExpr() {
+			return getRuleContext(OnSetExprContext.class,0);
+		}
+		public OnUpdateExprContext onUpdateExpr() {
+			return getRuleContext(OnUpdateExprContext.class,0);
+		}
 		public OnMergeExprContext onMergeExpr() {
 			return getRuleContext(OnMergeExprContext.class,0);
+		}
+		public List<OnSelectInsertExprContext> onSelectInsertExpr() {
+			return getRuleContexts(OnSelectInsertExprContext.class);
+		}
+		public OnSelectInsertExprContext onSelectInsertExpr(int i) {
+			return getRuleContext(OnSelectInsertExprContext.class,i);
+		}
+		public OutputClauseInsertContext outputClauseInsert() {
+			return getRuleContext(OutputClauseInsertContext.class,0);
 		}
 		public OnExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1778,19 +1937,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(679); match(ON);
-			setState(680); onStreamExpr();
+			setState(679);
+			match(ON);
+			setState(680);
+			onStreamExpr();
 			setState(696);
 			switch (_input.LA(1)) {
 			case DELETE:
 				{
-				setState(681); onDeleteExpr();
+				setState(681);
+				onDeleteExpr();
 				}
 				break;
 			case SELECT:
 			case INSERT:
 				{
-				setState(682); onSelectExpr();
+				setState(682);
+				onSelectExpr();
 				setState(691);
 				_la = _input.LA(1);
 				if (_la==INSERT) {
@@ -1801,7 +1964,8 @@ public class EsperEPL2GrammarParser extends Parser {
 					do {
 						{
 						{
-						setState(683); onSelectInsertExpr();
+						setState(683);
+						onSelectInsertExpr();
 						}
 						}
 						setState(686); 
@@ -1812,7 +1976,8 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if (_la==OUTPUT) {
 						{
-						setState(688); outputClauseInsert();
+						setState(688);
+						outputClauseInsert();
 						}
 					}
 
@@ -1823,17 +1988,20 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			case SET:
 				{
-				setState(693); onSetExpr();
+				setState(693);
+				onSetExpr();
 				}
 				break;
 			case UPDATE:
 				{
-				setState(694); onUpdateExpr();
+				setState(694);
+				onUpdateExpr();
 				}
 				break;
 			case MERGE:
 				{
-				setState(695); onMergeExpr();
+				setState(695);
+				onMergeExpr();
 				}
 				break;
 			default:
@@ -1854,14 +2022,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class OnStreamExprContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public EventFilterExpressionContext eventFilterExpression() {
 			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public PatternInclusionExpressionContext patternInclusionExpression() {
 			return getRuleContext(PatternInclusionExpressionContext.class,0);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public OnStreamExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1888,12 +2056,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(698); eventFilterExpression();
+				setState(698);
+				eventFilterExpression();
 				}
 				break;
 			case PATTERN:
 				{
-				setState(699); patternInclusionExpression();
+				setState(699);
+				patternInclusionExpression();
 				}
 				break;
 			default:
@@ -1903,13 +2073,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(702); match(AS);
-				setState(703); ((OnStreamExprContext)_localctx).i = match(IDENT);
+				setState(702);
+				match(AS);
+				setState(703);
+				((OnStreamExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(704); ((OnStreamExprContext)_localctx).i = match(IDENT);
+				setState(704);
+				((OnStreamExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case SELECT:
@@ -1936,8 +2109,8 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class UpdateExprContext extends ParserRuleContext {
-		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
 		public TerminalNode UPDATE() { return getToken(EsperEPL2GrammarParser.UPDATE, 0); }
+		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
 		public UpdateDetailsContext updateDetails() {
 			return getRuleContext(UpdateDetailsContext.class,0);
 		}
@@ -1961,9 +2134,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(707); match(UPDATE);
-			setState(708); match(ISTREAM);
-			setState(709); updateDetails();
+			setState(707);
+			match(UPDATE);
+			setState(708);
+			match(ISTREAM);
+			setState(709);
+			updateDetails();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1979,17 +2155,17 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class UpdateDetailsContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
+		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
 		public OnSetAssignmentListContext onSetAssignmentList() {
 			return getRuleContext(OnSetAssignmentListContext.class,0);
+		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
 		}
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public UpdateDetailsContext(ParserRuleContext parent, int invokingState) {
@@ -2013,18 +2189,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(711); classIdentifier();
+			setState(711);
+			classIdentifier();
 			setState(715);
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(712); match(AS);
-				setState(713); ((UpdateDetailsContext)_localctx).i = match(IDENT);
+				setState(712);
+				match(AS);
+				setState(713);
+				((UpdateDetailsContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(714); ((UpdateDetailsContext)_localctx).i = match(IDENT);
+				setState(714);
+				((UpdateDetailsContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case SET:
@@ -2032,14 +2212,18 @@ public class EsperEPL2GrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(717); match(SET);
-			setState(718); onSetAssignmentList();
+			setState(717);
+			match(SET);
+			setState(718);
+			onSetAssignmentList();
 			setState(721);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(719); match(WHERE);
-				setState(720); whereClause();
+				setState(719);
+				match(WHERE);
+				setState(720);
+				whereClause();
 				}
 			}
 
@@ -2059,23 +2243,23 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class OnMergeExprContext extends ParserRuleContext {
 		public Token n;
 		public Token i;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public MergeItemContext mergeItem(int i) {
-			return getRuleContext(MergeItemContext.class,i);
-		}
-		public List<MergeItemContext> mergeItem() {
-			return getRuleContexts(MergeItemContext.class);
-		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
-		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
+		public TerminalNode MERGE() { return getToken(EsperEPL2GrammarParser.MERGE, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
-		public TerminalNode MERGE() { return getToken(EsperEPL2GrammarParser.MERGE, 0); }
+		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
+		}
+		public List<MergeItemContext> mergeItem() {
+			return getRuleContexts(MergeItemContext.class);
+		}
+		public MergeItemContext mergeItem(int i) {
+			return getRuleContext(MergeItemContext.class,i);
+		}
 		public OnMergeExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2097,27 +2281,33 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(723); match(MERGE);
+			setState(723);
+			match(MERGE);
 			setState(725);
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
-				setState(724); match(INTO);
+				setState(724);
+				match(INTO);
 				}
 			}
 
-			setState(727); ((OnMergeExprContext)_localctx).n = match(IDENT);
+			setState(727);
+			((OnMergeExprContext)_localctx).n = match(IDENT);
 			setState(731);
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(728); match(AS);
-				setState(729); ((OnMergeExprContext)_localctx).i = match(IDENT);
+				setState(728);
+				match(AS);
+				setState(729);
+				((OnMergeExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(730); ((OnMergeExprContext)_localctx).i = match(IDENT);
+				setState(730);
+				((OnMergeExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case WHERE:
@@ -2130,8 +2320,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(733); match(WHERE);
-				setState(734); whereClause();
+				setState(733);
+				match(WHERE);
+				setState(734);
+				whereClause();
 				}
 			}
 
@@ -2141,7 +2333,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			do {
 				{
 				{
-				setState(737); mergeItem();
+				setState(737);
+				mergeItem();
 				}
 				}
 				setState(740); 
@@ -2189,16 +2382,18 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(744);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,45,_ctx) ) {
 			case 1:
 				{
-				setState(742); mergeMatched();
+				setState(742);
+				mergeMatched();
 				}
 				break;
-
 			case 2:
 				{
-				setState(743); mergeUnmatched();
+				setState(743);
+				mergeUnmatched();
 				}
 				break;
 			}
@@ -2216,18 +2411,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MergeMatchedContext extends ParserRuleContext {
+		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
+		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
+		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
-		}
-		public MergeMatchedItemContext mergeMatchedItem(int i) {
-			return getRuleContext(MergeMatchedItemContext.class,i);
 		}
 		public List<MergeMatchedItemContext> mergeMatchedItem() {
 			return getRuleContexts(MergeMatchedItemContext.class);
 		}
-		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
-		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
-		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
+		public MergeMatchedItemContext mergeMatchedItem(int i) {
+			return getRuleContext(MergeMatchedItemContext.class,i);
+		}
 		public MergeMatchedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2249,14 +2444,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(746); match(WHEN);
-			setState(747); match(MATCHED);
+			setState(746);
+			match(WHEN);
+			setState(747);
+			match(MATCHED);
 			setState(750);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
-				setState(748); match(AND_EXPR);
-				setState(749); expression();
+				setState(748);
+				match(AND_EXPR);
+				setState(749);
+				expression();
 				}
 			}
 
@@ -2266,7 +2465,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			do {
 				{
 				{
-				setState(752); mergeMatchedItem();
+				setState(752);
+				mergeMatchedItem();
 				}
 				}
 				setState(755); 
@@ -2289,20 +2489,20 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class MergeMatchedItemContext extends ParserRuleContext {
 		public Token u;
 		public Token d;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
 		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
 		public MergeInsertContext mergeInsert() {
 			return getRuleContext(MergeInsertContext.class,0);
 		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
+		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
+		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
 		public OnSetAssignmentListContext onSetAssignmentList() {
 			return getRuleContext(OnSetAssignmentListContext.class,0);
 		}
-		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
 		public TerminalNode UPDATE() { return getToken(EsperEPL2GrammarParser.UPDATE, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
+		}
 		public MergeMatchedItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2324,22 +2524,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(757); match(THEN);
+			setState(757);
+			match(THEN);
 			setState(772);
 			switch (_input.LA(1)) {
 			case UPDATE:
 				{
 				{
-				setState(758); ((MergeMatchedItemContext)_localctx).u = match(UPDATE);
-				setState(759); match(SET);
-				setState(760); onSetAssignmentList();
+				setState(758);
+				((MergeMatchedItemContext)_localctx).u = match(UPDATE);
+				setState(759);
+				match(SET);
+				setState(760);
+				onSetAssignmentList();
 				}
 				setState(764);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
-					setState(762); match(WHERE);
-					setState(763); whereClause();
+					setState(762);
+					match(WHERE);
+					setState(763);
+					whereClause();
 					}
 				}
 
@@ -2347,13 +2553,16 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			case DELETE:
 				{
-				setState(766); ((MergeMatchedItemContext)_localctx).d = match(DELETE);
+				setState(766);
+				((MergeMatchedItemContext)_localctx).d = match(DELETE);
 				setState(769);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
-					setState(767); match(WHERE);
-					setState(768); whereClause();
+					setState(767);
+					match(WHERE);
+					setState(768);
+					whereClause();
 					}
 				}
 
@@ -2361,7 +2570,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			case INSERT:
 				{
-				setState(771); mergeInsert();
+				setState(771);
+				mergeInsert();
 				}
 				break;
 			default:
@@ -2381,19 +2591,19 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MergeUnmatchedContext extends ParserRuleContext {
+		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
 		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
-		public MergeUnmatchedItemContext mergeUnmatchedItem(int i) {
-			return getRuleContext(MergeUnmatchedItemContext.class,i);
+		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
+		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public List<MergeUnmatchedItemContext> mergeUnmatchedItem() {
 			return getRuleContexts(MergeUnmatchedItemContext.class);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public MergeUnmatchedItemContext mergeUnmatchedItem(int i) {
+			return getRuleContext(MergeUnmatchedItemContext.class,i);
 		}
-		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
-		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
-		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
 		public MergeUnmatchedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2415,15 +2625,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(774); match(WHEN);
-			setState(775); match(NOT_EXPR);
-			setState(776); match(MATCHED);
+			setState(774);
+			match(WHEN);
+			setState(775);
+			match(NOT_EXPR);
+			setState(776);
+			match(MATCHED);
 			setState(779);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
-				setState(777); match(AND_EXPR);
-				setState(778); expression();
+				setState(777);
+				match(AND_EXPR);
+				setState(778);
+				expression();
 				}
 			}
 
@@ -2433,7 +2648,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			do {
 				{
 				{
-				setState(781); mergeUnmatchedItem();
+				setState(781);
+				mergeUnmatchedItem();
 				}
 				}
 				setState(784); 
@@ -2478,8 +2694,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(786); match(THEN);
-			setState(787); mergeInsert();
+			setState(786);
+			match(THEN);
+			setState(787);
+			mergeInsert();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2494,23 +2712,23 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MergeInsertContext extends ParserRuleContext {
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public ColumnListContext columnList() {
-			return getRuleContext(ColumnListContext.class,0);
-		}
-		public ClassIdentifierContext classIdentifier() {
-			return getRuleContext(ClassIdentifierContext.class,0);
-		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
-		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public SelectionListContext selectionList() {
 			return getRuleContext(SelectionListContext.class,0);
+		}
+		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
+		public ClassIdentifierContext classIdentifier() {
+			return getRuleContext(ClassIdentifierContext.class,0);
+		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public ColumnListContext columnList() {
+			return getRuleContext(ColumnListContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
 		}
 		public MergeInsertContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2533,13 +2751,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(789); match(INSERT);
+			setState(789);
+			match(INSERT);
 			setState(792);
 			_la = _input.LA(1);
 			if (_la==INTO) {
 				{
-				setState(790); match(INTO);
-				setState(791); classIdentifier();
+				setState(790);
+				match(INTO);
+				setState(791);
+				classIdentifier();
 				}
 			}
 
@@ -2547,20 +2768,27 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(794); match(LPAREN);
-				setState(795); columnList();
-				setState(796); match(RPAREN);
+				setState(794);
+				match(LPAREN);
+				setState(795);
+				columnList();
+				setState(796);
+				match(RPAREN);
 				}
 			}
 
-			setState(800); match(SELECT);
-			setState(801); selectionList();
+			setState(800);
+			match(SELECT);
+			setState(801);
+			selectionList();
 			setState(804);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(802); match(WHERE);
-				setState(803); whereClause();
+				setState(802);
+				match(WHERE);
+				setState(803);
+				whereClause();
 				}
 			}
 
@@ -2579,44 +2807,44 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class OnSelectExprContext extends ParserRuleContext {
 		public Token d;
-		public TerminalNode BY(int i) {
-			return getToken(EsperEPL2GrammarParser.BY, i);
+		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
+		public SelectionListContext selectionList() {
+			return getRuleContext(SelectionListContext.class,0);
 		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
+		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public InsertIntoExprContext insertIntoExpr() {
+			return getRuleContext(InsertIntoExprContext.class,0);
 		}
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public OnExprFromContext onExprFrom() {
 			return getRuleContext(OnExprFromContext.class,0);
 		}
-		public RowLimitContext rowLimit() {
-			return getRuleContext(RowLimitContext.class,0);
-		}
-		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
-		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
-		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode ORDER() { return getToken(EsperEPL2GrammarParser.ORDER, 0); }
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
-		public TerminalNode HAVING() { return getToken(EsperEPL2GrammarParser.HAVING, 0); }
-		public OrderByListExprContext orderByListExpr() {
-			return getRuleContext(OrderByListExprContext.class,0);
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
+		}
+		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
+		public TerminalNode BY(int i) {
+			return getToken(EsperEPL2GrammarParser.BY, i);
 		}
 		public GroupByListExprContext groupByListExpr() {
 			return getRuleContext(GroupByListExprContext.class,0);
 		}
+		public TerminalNode HAVING() { return getToken(EsperEPL2GrammarParser.HAVING, 0); }
 		public HavingClauseContext havingClause() {
 			return getRuleContext(HavingClauseContext.class,0);
 		}
-		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
-		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
+		public TerminalNode ORDER() { return getToken(EsperEPL2GrammarParser.ORDER, 0); }
+		public OrderByListExprContext orderByListExpr() {
+			return getRuleContext(OrderByListExprContext.class,0);
+		}
 		public TerminalNode ROW_LIMIT_EXPR() { return getToken(EsperEPL2GrammarParser.ROW_LIMIT_EXPR, 0); }
-		public SelectionListContext selectionList() {
-			return getRuleContext(SelectionListContext.class,0);
+		public RowLimitContext rowLimit() {
+			return getRuleContext(RowLimitContext.class,0);
 		}
-		public InsertIntoExprContext insertIntoExpr() {
-			return getRuleContext(InsertIntoExprContext.class,0);
-		}
-		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
+		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
 		public OnSelectExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2643,12 +2871,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
-				setState(806); match(INSERT);
-				setState(807); insertIntoExpr();
+				setState(806);
+				match(INSERT);
+				setState(807);
+				insertIntoExpr();
 				}
 			}
 
-			setState(810); match(SELECT);
+			setState(810);
+			match(SELECT);
 			setState(815);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR || _la==DELETE) {
@@ -2657,11 +2888,13 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==AND_EXPR) {
 					{
-					setState(811); match(AND_EXPR);
+					setState(811);
+					match(AND_EXPR);
 					}
 				}
 
-				setState(814); ((OnSelectExprContext)_localctx).d = match(DELETE);
+				setState(814);
+				((OnSelectExprContext)_localctx).d = match(DELETE);
 				}
 			}
 
@@ -2669,16 +2902,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
-				setState(817); match(DISTINCT);
+				setState(817);
+				match(DISTINCT);
 				}
 			}
 
-			setState(820); selectionList();
+			setState(820);
+			selectionList();
 			setState(822);
 			_la = _input.LA(1);
 			if (_la==FROM) {
 				{
-				setState(821); onExprFrom();
+				setState(821);
+				onExprFrom();
 				}
 			}
 
@@ -2686,8 +2922,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(824); match(WHERE);
-				setState(825); whereClause();
+				setState(824);
+				match(WHERE);
+				setState(825);
+				whereClause();
 				}
 			}
 
@@ -2695,9 +2933,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
-				setState(828); match(GROUP);
-				setState(829); match(BY);
-				setState(830); groupByListExpr();
+				setState(828);
+				match(GROUP);
+				setState(829);
+				match(BY);
+				setState(830);
+				groupByListExpr();
 				}
 			}
 
@@ -2705,8 +2946,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==HAVING) {
 				{
-				setState(833); match(HAVING);
-				setState(834); havingClause();
+				setState(833);
+				match(HAVING);
+				setState(834);
+				havingClause();
 				}
 			}
 
@@ -2714,9 +2957,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==ORDER) {
 				{
-				setState(837); match(ORDER);
-				setState(838); match(BY);
-				setState(839); orderByListExpr();
+				setState(837);
+				match(ORDER);
+				setState(838);
+				match(BY);
+				setState(839);
+				orderByListExpr();
 				}
 			}
 
@@ -2724,12 +2970,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==ROW_LIMIT_EXPR) {
 				{
-				setState(842); match(ROW_LIMIT_EXPR);
-				setState(843); rowLimit();
+				setState(842);
+				match(ROW_LIMIT_EXPR);
+				setState(843);
+				rowLimit();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -2746,19 +2995,19 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class OnUpdateExprContext extends ParserRuleContext {
 		public Token n;
 		public Token i;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode UPDATE() { return getToken(EsperEPL2GrammarParser.UPDATE, 0); }
 		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
 		public OnSetAssignmentListContext onSetAssignmentList() {
 			return getRuleContext(OnSetAssignmentListContext.class,0);
 		}
-		public TerminalNode UPDATE() { return getToken(EsperEPL2GrammarParser.UPDATE, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
 		}
 		public OnUpdateExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2782,19 +3031,24 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(846); match(UPDATE);
-			setState(847); ((OnUpdateExprContext)_localctx).n = match(IDENT);
+			setState(846);
+			match(UPDATE);
+			setState(847);
+			((OnUpdateExprContext)_localctx).n = match(IDENT);
 			setState(851);
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(848); match(AS);
-				setState(849); ((OnUpdateExprContext)_localctx).i = match(IDENT);
+				setState(848);
+				match(AS);
+				setState(849);
+				((OnUpdateExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(850); ((OnUpdateExprContext)_localctx).i = match(IDENT);
+				setState(850);
+				((OnUpdateExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case SET:
@@ -2802,18 +3056,23 @@ public class EsperEPL2GrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(853); match(SET);
-			setState(854); onSetAssignmentList();
+			setState(853);
+			match(SET);
+			setState(854);
+			onSetAssignmentList();
 			setState(857);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(855); match(WHERE);
-				setState(856); whereClause();
+				setState(855);
+				match(WHERE);
+				setState(856);
+				whereClause();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -2828,17 +3087,17 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OnSelectInsertExprContext extends ParserRuleContext {
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
 		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public InsertIntoExprContext insertIntoExpr() {
+			return getRuleContext(InsertIntoExprContext.class,0);
+		}
 		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public SelectionListContext selectionList() {
 			return getRuleContext(SelectionListContext.class,0);
 		}
-		public InsertIntoExprContext insertIntoExpr() {
-			return getRuleContext(InsertIntoExprContext.class,0);
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
 		}
 		public OnSelectInsertExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2862,20 +3121,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(859); match(INSERT);
-			setState(860); insertIntoExpr();
-			setState(861); match(SELECT);
-			setState(862); selectionList();
+			setState(859);
+			match(INSERT);
+			setState(860);
+			insertIntoExpr();
+			setState(861);
+			match(SELECT);
+			setState(862);
+			selectionList();
 			setState(865);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(863); match(WHERE);
-				setState(864); whereClause();
+				setState(863);
+				match(WHERE);
+				setState(864);
+				whereClause();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -2892,9 +3158,9 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class OutputClauseInsertContext extends ParserRuleContext {
 		public Token f;
 		public Token a;
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
-		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
 		public TerminalNode OUTPUT() { return getToken(EsperEPL2GrammarParser.OUTPUT, 0); }
+		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
 		public OutputClauseInsertContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2915,17 +3181,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(867); match(OUTPUT);
+			setState(867);
+			match(OUTPUT);
 			setState(870);
 			switch (_input.LA(1)) {
 			case FIRST:
 				{
-				setState(868); ((OutputClauseInsertContext)_localctx).f = match(FIRST);
+				setState(868);
+				((OutputClauseInsertContext)_localctx).f = match(FIRST);
 				}
 				break;
 			case ALL:
 				{
-				setState(869); ((OutputClauseInsertContext)_localctx).a = match(ALL);
+				setState(869);
+				((OutputClauseInsertContext)_localctx).a = match(ALL);
 				}
 				break;
 			default:
@@ -2945,14 +3214,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OnDeleteExprContext extends ParserRuleContext {
+		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
+		public OnExprFromContext onExprFrom() {
+			return getRuleContext(OnExprFromContext.class,0);
+		}
 		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
 		public WhereClauseContext whereClause() {
 			return getRuleContext(WhereClauseContext.class,0);
 		}
-		public OnExprFromContext onExprFrom() {
-			return getRuleContext(OnExprFromContext.class,0);
-		}
-		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
 		public OnDeleteExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2975,18 +3244,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(872); match(DELETE);
-			setState(873); onExprFrom();
+			setState(872);
+			match(DELETE);
+			setState(873);
+			onExprFrom();
 			setState(876);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(874); match(WHERE);
-				setState(875); whereClause();
+				setState(874);
+				match(WHERE);
+				setState(875);
+				whereClause();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -3026,9 +3300,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(878); match(SET);
-			setState(879); onSetAssignmentList();
+			setState(878);
+			match(SET);
+			setState(879);
+			onSetAssignmentList();
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -3046,10 +3323,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<OnSetAssignmentContext> onSetAssignment() {
 			return getRuleContexts(OnSetAssignmentContext.class);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public OnSetAssignmentContext onSetAssignment(int i) {
 			return getRuleContext(OnSetAssignmentContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -3074,15 +3351,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(881); onSetAssignment();
+			setState(881);
+			onSetAssignment();
 			setState(886);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(882); match(COMMA);
-				setState(883); onSetAssignment();
+				setState(882);
+				match(COMMA);
+				setState(883);
+				onSetAssignment();
 				}
 				}
 				setState(888);
@@ -3103,10 +3383,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OnSetAssignmentContext extends ParserRuleContext {
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -3129,20 +3409,24 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 68, RULE_onSetAssignment);
 		try {
 			setState(894);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,72,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(889); eventProperty();
-				setState(890); match(EQUALS);
-				setState(891); expression();
+				setState(889);
+				eventProperty();
+				setState(890);
+				match(EQUALS);
+				setState(891);
+				expression();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(893); expression();
+				setState(893);
+				expression();
 				}
 				break;
 			}
@@ -3161,12 +3445,12 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class OnExprFromContext extends ParserRuleContext {
 		public Token n;
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public OnExprFromContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3187,19 +3471,24 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(896); match(FROM);
-			setState(897); ((OnExprFromContext)_localctx).n = match(IDENT);
+			setState(896);
+			match(FROM);
+			setState(897);
+			((OnExprFromContext)_localctx).n = match(IDENT);
 			setState(901);
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(898); match(AS);
-				setState(899); ((OnExprFromContext)_localctx).i = match(IDENT);
+				setState(898);
+				match(AS);
+				setState(899);
+				((OnExprFromContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(900); ((OnExprFromContext)_localctx).i = match(IDENT);
+				setState(900);
+				((OnExprFromContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case EOF:
@@ -3232,35 +3521,35 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token ru;
 		public Token ri;
 		public Token i1;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
 		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
 		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
-		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
-		public ViewExpressionContext viewExpression(int i) {
-			return getRuleContext(ViewExpressionContext.class,i);
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public CreateWindowExprModelAfterContext createWindowExprModelAfter() {
+			return getRuleContext(CreateWindowExprModelAfterContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public CreateColumnListContext createColumnList() {
 			return getRuleContext(CreateColumnListContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
-		}
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public CreateWindowExprModelAfterContext createWindowExprModelAfter() {
-			return getRuleContext(CreateWindowExprModelAfterContext.class,0);
 		}
 		public List<ViewExpressionContext> viewExpression() {
 			return getRuleContexts(ViewExpressionContext.class);
 		}
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public ViewExpressionContext viewExpression(int i) {
+			return getRuleContext(ViewExpressionContext.class,i);
+		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
+		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
+		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
 		public CreateWindowExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3282,23 +3571,30 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(903); match(CREATE);
-			setState(904); match(WINDOW);
-			setState(905); ((CreateWindowExprContext)_localctx).i = match(IDENT);
+			setState(903);
+			match(CREATE);
+			setState(904);
+			match(WINDOW);
+			setState(905);
+			((CreateWindowExprContext)_localctx).i = match(IDENT);
 			setState(915);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(906); match(DOT);
-				setState(907); viewExpression();
+				setState(906);
+				match(DOT);
+				setState(907);
+				viewExpression();
 				setState(912);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==DOT) {
 					{
 					{
-					setState(908); match(DOT);
-					setState(909); viewExpression();
+					setState(908);
+					match(DOT);
+					setState(909);
+					viewExpression();
 					}
 					}
 					setState(914);
@@ -3312,12 +3608,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
-				setState(917); ((CreateWindowExprContext)_localctx).ru = match(RETAINUNION);
+				setState(917);
+				((CreateWindowExprContext)_localctx).ru = match(RETAINUNION);
 				}
 				break;
 			case RETAININTERSECTION:
 				{
-				setState(918); ((CreateWindowExprContext)_localctx).ri = match(RETAININTERSECTION);
+				setState(918);
+				((CreateWindowExprContext)_localctx).ri = match(RETAININTERSECTION);
 				}
 				break;
 			case AS:
@@ -3334,7 +3632,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(921); match(AS);
+				setState(921);
+				match(AS);
 				}
 			}
 
@@ -3345,14 +3644,18 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(924); createWindowExprModelAfter();
+				setState(924);
+				createWindowExprModelAfter();
 				}
 				break;
 			case LPAREN:
 				{
-				setState(925); match(LPAREN);
-				setState(926); createColumnList();
-				setState(927); match(RPAREN);
+				setState(925);
+				match(LPAREN);
+				setState(926);
+				createColumnList();
+				setState(927);
+				match(RPAREN);
 				}
 				break;
 			default:
@@ -3362,13 +3665,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==INSERT) {
 				{
-				setState(931); ((CreateWindowExprContext)_localctx).i1 = match(INSERT);
+				setState(931);
+				((CreateWindowExprContext)_localctx).i1 = match(INSERT);
 				setState(934);
 				_la = _input.LA(1);
 				if (_la==WHERE) {
 					{
-					setState(932); match(WHERE);
-					setState(933); expression();
+					setState(932);
+					match(WHERE);
+					setState(933);
+					expression();
 					}
 				}
 
@@ -3389,13 +3695,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateWindowExprModelAfterContext extends ParserRuleContext {
-		public CreateSelectionListContext createSelectionList() {
-			return getRuleContext(CreateSelectionListContext.class,0);
-		}
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
 		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
+		public CreateSelectionListContext createSelectionList() {
+			return getRuleContext(CreateSelectionListContext.class,0);
+		}
 		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public CreateWindowExprModelAfterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3422,13 +3728,17 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==SELECT) {
 				{
-				setState(938); match(SELECT);
-				setState(939); createSelectionList();
-				setState(940); match(FROM);
+				setState(938);
+				match(SELECT);
+				setState(939);
+				createSelectionList();
+				setState(940);
+				match(FROM);
 				}
 			}
 
-			setState(944); classIdentifier();
+			setState(944);
+			classIdentifier();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3446,18 +3756,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token u;
 		public Token n;
 		public Token w;
+		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
+		public TerminalNode INDEX() { return getToken(EsperEPL2GrammarParser.INDEX, 0); }
+		public TerminalNode ON() { return getToken(EsperEPL2GrammarParser.ON, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public CreateIndexColumnListContext createIndexColumnList() {
 			return getRuleContext(CreateIndexColumnListContext.class,0);
 		}
-		public TerminalNode ON() { return getToken(EsperEPL2GrammarParser.ON, 0); }
-		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
-		public TerminalNode INDEX() { return getToken(EsperEPL2GrammarParser.INDEX, 0); }
 		public CreateIndexExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3479,22 +3789,31 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(946); match(CREATE);
+			setState(946);
+			match(CREATE);
 			setState(948);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(947); ((CreateIndexExprContext)_localctx).u = match(IDENT);
+				setState(947);
+				((CreateIndexExprContext)_localctx).u = match(IDENT);
 				}
 			}
 
-			setState(950); match(INDEX);
-			setState(951); ((CreateIndexExprContext)_localctx).n = match(IDENT);
-			setState(952); match(ON);
-			setState(953); ((CreateIndexExprContext)_localctx).w = match(IDENT);
-			setState(954); match(LPAREN);
-			setState(955); createIndexColumnList();
-			setState(956); match(RPAREN);
+			setState(950);
+			match(INDEX);
+			setState(951);
+			((CreateIndexExprContext)_localctx).n = match(IDENT);
+			setState(952);
+			match(ON);
+			setState(953);
+			((CreateIndexExprContext)_localctx).w = match(IDENT);
+			setState(954);
+			match(LPAREN);
+			setState(955);
+			createIndexColumnList();
+			setState(956);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -3509,13 +3828,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateIndexColumnListContext extends ParserRuleContext {
+		public List<CreateIndexColumnContext> createIndexColumn() {
+			return getRuleContexts(CreateIndexColumnContext.class);
+		}
 		public CreateIndexColumnContext createIndexColumn(int i) {
 			return getRuleContext(CreateIndexColumnContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<CreateIndexColumnContext> createIndexColumn() {
-			return getRuleContexts(CreateIndexColumnContext.class);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -3540,15 +3859,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(958); createIndexColumn();
+			setState(958);
+			createIndexColumn();
 			setState(963);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(959); match(COMMA);
-				setState(960); createIndexColumn();
+				setState(959);
+				match(COMMA);
+				setState(960);
+				createIndexColumn();
 				}
 				}
 				setState(965);
@@ -3596,12 +3918,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(966); ((CreateIndexColumnContext)_localctx).c = match(IDENT);
+			setState(966);
+			((CreateIndexColumnContext)_localctx).c = match(IDENT);
 			setState(968);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(967); ((CreateIndexColumnContext)_localctx).t = match(IDENT);
+				setState(967);
+				((CreateIndexColumnContext)_localctx).t = match(IDENT);
 				}
 			}
 
@@ -3623,19 +3947,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token arr;
 		public Token p;
 		public Token n;
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
 		public TerminalNode VARIABLE() { return getToken(EsperEPL2GrammarParser.VARIABLE, 0); }
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
-		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
 		}
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public CreateVariableExprContext(ParserRuleContext parent, int invokingState) {
@@ -3659,41 +3983,51 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(970); match(CREATE);
+			setState(970);
+			match(CREATE);
 			setState(972);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(971); ((CreateVariableExprContext)_localctx).c = match(IDENT);
+				setState(971);
+				((CreateVariableExprContext)_localctx).c = match(IDENT);
 				}
 			}
 
-			setState(974); match(VARIABLE);
-			setState(975); classIdentifier();
+			setState(974);
+			match(VARIABLE);
+			setState(975);
+			classIdentifier();
 			setState(981);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(976); ((CreateVariableExprContext)_localctx).arr = match(LBRACK);
+				setState(976);
+				((CreateVariableExprContext)_localctx).arr = match(LBRACK);
 				setState(978);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(977); ((CreateVariableExprContext)_localctx).p = match(IDENT);
+					setState(977);
+					((CreateVariableExprContext)_localctx).p = match(IDENT);
 					}
 				}
 
-				setState(980); match(RBRACK);
+				setState(980);
+				match(RBRACK);
 				}
 			}
 
-			setState(983); ((CreateVariableExprContext)_localctx).n = match(IDENT);
+			setState(983);
+			((CreateVariableExprContext)_localctx).n = match(IDENT);
 			setState(986);
 			_la = _input.LA(1);
 			if (_la==EQUALS) {
 				{
-				setState(984); match(EQUALS);
-				setState(985); expression();
+				setState(984);
+				match(EQUALS);
+				setState(985);
+				expression();
 				}
 			}
 
@@ -3712,15 +4046,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateTableExprContext extends ParserRuleContext {
 		public Token n;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
+		public TerminalNode TABLE() { return getToken(EsperEPL2GrammarParser.TABLE, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public CreateTableColumnListContext createTableColumnList() {
 			return getRuleContext(CreateTableColumnListContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode TABLE() { return getToken(EsperEPL2GrammarParser.TABLE, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public CreateTableExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3742,20 +4076,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(988); match(CREATE);
-			setState(989); match(TABLE);
-			setState(990); ((CreateTableExprContext)_localctx).n = match(IDENT);
+			setState(988);
+			match(CREATE);
+			setState(989);
+			match(TABLE);
+			setState(990);
+			((CreateTableExprContext)_localctx).n = match(IDENT);
 			setState(992);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(991); match(AS);
+				setState(991);
+				match(AS);
 				}
 			}
 
-			setState(994); match(LPAREN);
-			setState(995); createTableColumnList();
-			setState(996); match(RPAREN);
+			setState(994);
+			match(LPAREN);
+			setState(995);
+			createTableColumnList();
+			setState(996);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -3773,12 +4114,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<CreateTableColumnContext> createTableColumn() {
 			return getRuleContexts(CreateTableColumnContext.class);
 		}
+		public CreateTableColumnContext createTableColumn(int i) {
+			return getRuleContext(CreateTableColumnContext.class,i);
+		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
-		public CreateTableColumnContext createTableColumn(int i) {
-			return getRuleContext(CreateTableColumnContext.class,i);
 		}
 		public CreateTableColumnListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3801,15 +4142,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(998); createTableColumn();
+			setState(998);
+			createTableColumn();
 			setState(1003);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(999); match(COMMA);
-				setState(1000); createTableColumn();
+				setState(999);
+				match(COMMA);
+				setState(1000);
+				createTableColumn();
 				}
 				}
 				setState(1005);
@@ -3833,30 +4177,30 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token n;
 		public Token p;
 		public Token k;
-		public List<AnnotationEnumContext> annotationEnum() {
-			return getRuleContexts(AnnotationEnumContext.class);
-		}
-		public LibFunctionContext libFunction() {
-			return getRuleContext(LibFunctionContext.class,0);
-		}
-		public BuiltinFuncContext builtinFunc() {
-			return getRuleContext(BuiltinFuncContext.class,0);
-		}
-		public PropertyExpressionAnnotationContext propertyExpressionAnnotation(int i) {
-			return getRuleContext(PropertyExpressionAnnotationContext.class,i);
-		}
-		public List<PropertyExpressionAnnotationContext> propertyExpressionAnnotation() {
-			return getRuleContexts(PropertyExpressionAnnotationContext.class);
-		}
-		public AnnotationEnumContext annotationEnum(int i) {
-			return getRuleContext(AnnotationEnumContext.class,i);
+		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
+		public TerminalNode IDENT(int i) {
+			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
 		public CreateTableColumnPlainContext createTableColumnPlain() {
 			return getRuleContext(CreateTableColumnPlainContext.class,0);
 		}
-		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
-		public TerminalNode IDENT(int i) {
-			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		public BuiltinFuncContext builtinFunc() {
+			return getRuleContext(BuiltinFuncContext.class,0);
+		}
+		public LibFunctionContext libFunction() {
+			return getRuleContext(LibFunctionContext.class,0);
+		}
+		public List<PropertyExpressionAnnotationContext> propertyExpressionAnnotation() {
+			return getRuleContexts(PropertyExpressionAnnotationContext.class);
+		}
+		public PropertyExpressionAnnotationContext propertyExpressionAnnotation(int i) {
+			return getRuleContext(PropertyExpressionAnnotationContext.class,i);
+		}
+		public List<AnnotationEnumContext> annotationEnum() {
+			return getRuleContexts(AnnotationEnumContext.class);
+		}
+		public AnnotationEnumContext annotationEnum(int i) {
+			return getRuleContext(AnnotationEnumContext.class,i);
 		}
 		public CreateTableColumnContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3879,32 +4223,37 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1006); ((CreateTableColumnContext)_localctx).n = match(IDENT);
+			setState(1006);
+			((CreateTableColumnContext)_localctx).n = match(IDENT);
 			setState(1010);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,91,_ctx) ) {
 			case 1:
 				{
-				setState(1007); createTableColumnPlain();
+				setState(1007);
+				createTableColumnPlain();
 				}
 				break;
-
 			case 2:
 				{
-				setState(1008); builtinFunc();
+				setState(1008);
+				builtinFunc();
 				}
 				break;
-
 			case 3:
 				{
-				setState(1009); libFunction();
+				setState(1009);
+				libFunction();
 				}
 				break;
 			}
 			setState(1013);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,92,_ctx) ) {
 			case 1:
 				{
-				setState(1012); ((CreateTableColumnContext)_localctx).p = match(IDENT);
+				setState(1012);
+				((CreateTableColumnContext)_localctx).p = match(IDENT);
 				}
 				break;
 			}
@@ -3912,7 +4261,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(1015); ((CreateTableColumnContext)_localctx).k = match(IDENT);
+				setState(1015);
+				((CreateTableColumnContext)_localctx).k = match(IDENT);
 				}
 			}
 
@@ -3922,16 +4272,18 @@ public class EsperEPL2GrammarParser extends Parser {
 			while (_la==ATCHAR) {
 				{
 				setState(1020);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,94,_ctx) ) {
 				case 1:
 					{
-					setState(1018); propertyExpressionAnnotation();
+					setState(1018);
+					propertyExpressionAnnotation();
 					}
 					break;
-
 				case 2:
 					{
-					setState(1019); annotationEnum();
+					setState(1019);
+					annotationEnum();
 					}
 					break;
 				}
@@ -3956,12 +4308,12 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class CreateTableColumnPlainContext extends ParserRuleContext {
 		public Token b;
 		public Token p;
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CreateTableColumnPlainContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3983,21 +4335,25 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1025); classIdentifier();
+			setState(1025);
+			classIdentifier();
 			setState(1031);
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(1026); ((CreateTableColumnPlainContext)_localctx).b = match(LBRACK);
+				setState(1026);
+				((CreateTableColumnPlainContext)_localctx).b = match(LBRACK);
 				setState(1028);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(1027); ((CreateTableColumnPlainContext)_localctx).p = match(IDENT);
+					setState(1027);
+					((CreateTableColumnPlainContext)_localctx).p = match(IDENT);
 					}
 				}
 
-				setState(1030); match(RBRACK);
+				setState(1030);
+				match(RBRACK);
 				}
 			}
 
@@ -4015,13 +4371,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateColumnListContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<CreateColumnListElementContext> createColumnListElement() {
 			return getRuleContexts(CreateColumnListElementContext.class);
 		}
 		public CreateColumnListElementContext createColumnListElement(int i) {
 			return getRuleContext(CreateColumnListElementContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -4047,15 +4403,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1033); createColumnListElement();
+			setState(1033);
+			createColumnListElement();
 			setState(1038);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1034); match(COMMA);
-				setState(1035); createColumnListElement();
+				setState(1034);
+				match(COMMA);
+				setState(1035);
+				createColumnListElement();
 				}
 				}
 				setState(1040);
@@ -4063,6 +4422,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -4079,16 +4439,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class CreateColumnListElementContext extends ParserRuleContext {
 		public Token b;
 		public Token p;
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public List<ClassIdentifierContext> classIdentifier() {
 			return getRuleContexts(ClassIdentifierContext.class);
 		}
-		public TerminalNode VALUE_NULL() { return getToken(EsperEPL2GrammarParser.VALUE_NULL, 0); }
 		public ClassIdentifierContext classIdentifier(int i) {
 			return getRuleContext(ClassIdentifierContext.class,i);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode VALUE_NULL() { return getToken(EsperEPL2GrammarParser.VALUE_NULL, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CreateColumnListElementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4110,12 +4470,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1041); classIdentifier();
+			setState(1041);
+			classIdentifier();
 			setState(1051);
 			switch (_input.LA(1)) {
 			case VALUE_NULL:
 				{
-				setState(1042); match(VALUE_NULL);
+				setState(1042);
+				match(VALUE_NULL);
 				}
 				break;
 			case EVENTS:
@@ -4123,21 +4485,25 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				{
 				{
-				setState(1043); classIdentifier();
+				setState(1043);
+				classIdentifier();
 				setState(1049);
 				_la = _input.LA(1);
 				if (_la==LBRACK) {
 					{
-					setState(1044); ((CreateColumnListElementContext)_localctx).b = match(LBRACK);
+					setState(1044);
+					((CreateColumnListElementContext)_localctx).b = match(LBRACK);
 					setState(1046);
 					_la = _input.LA(1);
 					if (_la==IDENT) {
 						{
-						setState(1045); ((CreateColumnListElementContext)_localctx).p = match(IDENT);
+						setState(1045);
+						((CreateColumnListElementContext)_localctx).p = match(IDENT);
 						}
 					}
 
-					setState(1048); match(RBRACK);
+					setState(1048);
+					match(RBRACK);
 					}
 				}
 
@@ -4161,15 +4527,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateSelectionListContext extends ParserRuleContext {
+		public List<CreateSelectionListElementContext> createSelectionListElement() {
+			return getRuleContexts(CreateSelectionListElementContext.class);
+		}
 		public CreateSelectionListElementContext createSelectionListElement(int i) {
 			return getRuleContext(CreateSelectionListElementContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
-		public List<CreateSelectionListElementContext> createSelectionListElement() {
-			return getRuleContexts(CreateSelectionListElementContext.class);
 		}
 		public CreateSelectionListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4193,15 +4559,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1053); createSelectionListElement();
+			setState(1053);
+			createSelectionListElement();
 			setState(1058);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1054); match(COMMA);
-				setState(1055); createSelectionListElement();
+				setState(1054);
+				match(COMMA);
+				setState(1055);
+				createSelectionListElement();
 				}
 				}
 				setState(1060);
@@ -4209,6 +4578,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -4225,15 +4595,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class CreateSelectionListElementContext extends ParserRuleContext {
 		public Token s;
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public ConstantContext constant() {
 			return getRuleContext(ConstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CreateSelectionListElementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4258,7 +4628,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case STAR:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1061); ((CreateSelectionListElementContext)_localctx).s = match(STAR);
+				setState(1061);
+				((CreateSelectionListElementContext)_localctx).s = match(STAR);
 				}
 				break;
 			case WINDOW:
@@ -4314,13 +4685,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1062); eventProperty();
+				setState(1062);
+				eventProperty();
 				setState(1065);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
-					setState(1063); match(AS);
-					setState(1064); ((CreateSelectionListElementContext)_localctx).i = match(IDENT);
+					setState(1063);
+					match(AS);
+					setState(1064);
+					((CreateSelectionListElementContext)_localctx).i = match(IDENT);
 					}
 				}
 
@@ -4337,9 +4711,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1067); constant();
-				setState(1068); match(AS);
-				setState(1069); ((CreateSelectionListElementContext)_localctx).i = match(IDENT);
+				setState(1067);
+				constant();
+				setState(1068);
+				match(AS);
+				setState(1069);
+				((CreateSelectionListElementContext)_localctx).i = match(IDENT);
 				}
 				break;
 			default:
@@ -4385,16 +4762,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1073); match(CREATE);
+			setState(1073);
+			match(CREATE);
 			setState(1075);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(1074); ((CreateSchemaExprContext)_localctx).keyword = match(IDENT);
+				setState(1074);
+				((CreateSchemaExprContext)_localctx).keyword = match(IDENT);
 				}
 			}
 
-			setState(1077); createSchemaDef();
+			setState(1077);
+			createSchemaDef();
 			}
 		}
 		catch (RecognitionException re) {
@@ -4410,23 +4790,23 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateSchemaDefContext extends ParserRuleContext {
 		public Token name;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode SCHEMA() { return getToken(EsperEPL2GrammarParser.SCHEMA, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public VariantListContext variantList() {
 			return getRuleContext(VariantListContext.class,0);
 		}
-		public TerminalNode SCHEMA() { return getToken(EsperEPL2GrammarParser.SCHEMA, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public List<CreateSchemaQualContext> createSchemaQual() {
 			return getRuleContexts(CreateSchemaQualContext.class);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public CreateSchemaQualContext createSchemaQual(int i) {
 			return getRuleContext(CreateSchemaQualContext.class,i);
 		}
 		public CreateColumnListContext createColumnList() {
 			return getRuleContext(CreateColumnListContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CreateSchemaDefContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4448,13 +4828,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1079); match(SCHEMA);
-			setState(1080); ((CreateSchemaDefContext)_localctx).name = match(IDENT);
+			setState(1079);
+			match(SCHEMA);
+			setState(1080);
+			((CreateSchemaDefContext)_localctx).name = match(IDENT);
 			setState(1082);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1081); match(AS);
+				setState(1081);
+				match(AS);
 				}
 			}
 
@@ -4465,21 +4848,25 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(1084); variantList();
+				setState(1084);
+				variantList();
 				}
 				break;
 			case LPAREN:
 				{
-				setState(1085); match(LPAREN);
+				setState(1085);
+				match(LPAREN);
 				setState(1087);
 				_la = _input.LA(1);
 				if (_la==EVENTS || _la==TICKED_STRING_LITERAL || _la==IDENT) {
 					{
-					setState(1086); createColumnList();
+					setState(1086);
+					createColumnList();
 					}
 				}
 
-				setState(1089); match(RPAREN);
+				setState(1089);
+				match(RPAREN);
 				}
 				break;
 			default:
@@ -4491,7 +4878,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			while (_la==IDENT) {
 				{
 				{
-				setState(1092); createSchemaQual();
+				setState(1092);
+				createSchemaQual();
 				}
 				}
 				setState(1097);
@@ -4513,17 +4901,17 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class FafDeleteContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
 		public WhereClauseContext whereClause() {
 			return getRuleContext(WhereClauseContext.class,0);
 		}
-		public TerminalNode DELETE() { return getToken(EsperEPL2GrammarParser.DELETE, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public FafDeleteContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4545,20 +4933,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1098); match(DELETE);
-			setState(1099); match(FROM);
-			setState(1100); classIdentifier();
+			setState(1098);
+			match(DELETE);
+			setState(1099);
+			match(FROM);
+			setState(1100);
+			classIdentifier();
 			setState(1104);
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(1101); match(AS);
-				setState(1102); ((FafDeleteContext)_localctx).i = match(IDENT);
+				setState(1101);
+				match(AS);
+				setState(1102);
+				((FafDeleteContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(1103); ((FafDeleteContext)_localctx).i = match(IDENT);
+				setState(1103);
+				((FafDeleteContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case EOF:
@@ -4572,8 +4966,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(1106); match(WHERE);
-				setState(1107); whereClause();
+				setState(1106);
+				match(WHERE);
+				setState(1107);
+				whereClause();
 				}
 			}
 
@@ -4615,8 +5011,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1110); match(UPDATE);
-			setState(1111); updateDetails();
+			setState(1110);
+			match(UPDATE);
+			setState(1111);
+			updateDetails();
 			}
 		}
 		catch (RecognitionException re) {
@@ -4631,16 +5029,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class FafInsertContext extends ParserRuleContext {
+		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
+		public InsertIntoExprContext insertIntoExpr() {
+			return getRuleContext(InsertIntoExprContext.class,0);
+		}
+		public TerminalNode VALUES() { return getToken(EsperEPL2GrammarParser.VALUES, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode INSERT() { return getToken(EsperEPL2GrammarParser.INSERT, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode VALUES() { return getToken(EsperEPL2GrammarParser.VALUES, 0); }
-		public InsertIntoExprContext insertIntoExpr() {
-			return getRuleContext(InsertIntoExprContext.class,0);
-		}
 		public FafInsertContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4661,12 +5059,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1113); match(INSERT);
-			setState(1114); insertIntoExpr();
-			setState(1115); match(VALUES);
-			setState(1116); match(LPAREN);
-			setState(1117); expressionList();
-			setState(1118); match(RPAREN);
+			setState(1113);
+			match(INSERT);
+			setState(1114);
+			insertIntoExpr();
+			setState(1115);
+			match(VALUES);
+			setState(1116);
+			match(LPAREN);
+			setState(1117);
+			expressionList();
+			setState(1118);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4682,13 +5086,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateDataflowContext extends ParserRuleContext {
 		public Token name;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
+		public TerminalNode DATAFLOW() { return getToken(EsperEPL2GrammarParser.DATAFLOW, 0); }
 		public GopListContext gopList() {
 			return getRuleContext(GopListContext.class,0);
 		}
-		public TerminalNode DATAFLOW() { return getToken(EsperEPL2GrammarParser.DATAFLOW, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public CreateDataflowContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4710,18 +5114,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1120); match(CREATE);
-			setState(1121); match(DATAFLOW);
-			setState(1122); ((CreateDataflowContext)_localctx).name = match(IDENT);
+			setState(1120);
+			match(CREATE);
+			setState(1121);
+			match(DATAFLOW);
+			setState(1122);
+			((CreateDataflowContext)_localctx).name = match(IDENT);
 			setState(1124);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1123); match(AS);
+				setState(1123);
+				match(AS);
 				}
 			}
 
-			setState(1126); gopList();
+			setState(1126);
+			gopList();
 			}
 		}
 		catch (RecognitionException re) {
@@ -4736,11 +5145,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopListContext extends ParserRuleContext {
-		public GopContext gop(int i) {
-			return getRuleContext(GopContext.class,i);
-		}
 		public List<GopContext> gop() {
 			return getRuleContexts(GopContext.class);
+		}
+		public GopContext gop(int i) {
+			return getRuleContext(GopContext.class,i);
 		}
 		public GopListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4763,14 +5172,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1128); gop();
+			setState(1128);
+			gop();
 			setState(1132);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==CREATE || _la==SELECT || _la==ATCHAR || _la==IDENT) {
 				{
 				{
-				setState(1129); gop();
+				setState(1129);
+				gop();
 				}
 				}
 				setState(1134);
@@ -4793,28 +5204,28 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class GopContext extends ParserRuleContext {
 		public Token opName;
 		public Token s;
+		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public List<AnnotationEnumContext> annotationEnum() {
 			return getRuleContexts(AnnotationEnumContext.class);
 		}
-		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
-		public CreateSchemaExprContext createSchemaExpr() {
-			return getRuleContext(CreateSchemaExprContext.class,0);
+		public AnnotationEnumContext annotationEnum(int i) {
+			return getRuleContext(AnnotationEnumContext.class,i);
+		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
+		public GopParamsContext gopParams() {
+			return getRuleContext(GopParamsContext.class,0);
+		}
+		public GopOutContext gopOut() {
+			return getRuleContext(GopOutContext.class,0);
 		}
 		public GopDetailContext gopDetail() {
 			return getRuleContext(GopDetailContext.class,0);
 		}
 		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public GopOutContext gopOut() {
-			return getRuleContext(GopOutContext.class,0);
-		}
-		public AnnotationEnumContext annotationEnum(int i) {
-			return getRuleContext(AnnotationEnumContext.class,i);
-		}
-		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
-		public GopParamsContext gopParams() {
-			return getRuleContext(GopParamsContext.class,0);
+		public CreateSchemaExprContext createSchemaExpr() {
+			return getRuleContext(CreateSchemaExprContext.class,0);
 		}
 		public GopContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4848,7 +5259,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				while (_la==ATCHAR) {
 					{
 					{
-					setState(1135); annotationEnum();
+					setState(1135);
+					annotationEnum();
 					}
 					}
 					setState(1140);
@@ -4859,12 +5271,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case IDENT:
 					{
-					setState(1141); ((GopContext)_localctx).opName = match(IDENT);
+					setState(1141);
+					((GopContext)_localctx).opName = match(IDENT);
 					}
 					break;
 				case SELECT:
 					{
-					setState(1142); ((GopContext)_localctx).s = match(SELECT);
+					setState(1142);
+					((GopContext)_localctx).s = match(SELECT);
 					}
 					break;
 				default:
@@ -4874,7 +5288,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==LPAREN) {
 					{
-					setState(1145); gopParams();
+					setState(1145);
+					gopParams();
 					}
 				}
 
@@ -4882,16 +5297,19 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==FOLLOWED_BY) {
 					{
-					setState(1148); gopOut();
+					setState(1148);
+					gopOut();
 					}
 				}
 
-				setState(1151); match(LCURLY);
+				setState(1151);
+				match(LCURLY);
 				setState(1153);
 				_la = _input.LA(1);
 				if (_la==SELECT || _la==IDENT) {
 					{
-					setState(1152); gopDetail();
+					setState(1152);
+					gopDetail();
 					}
 				}
 
@@ -4899,18 +5317,22 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(1155); match(COMMA);
+					setState(1155);
+					match(COMMA);
 					}
 				}
 
-				setState(1158); match(RCURLY);
+				setState(1158);
+				match(RCURLY);
 				}
 				break;
 			case CREATE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1159); createSchemaExpr();
-				setState(1160); match(COMMA);
+				setState(1159);
+				createSchemaExpr();
+				setState(1160);
+				match(COMMA);
 				}
 				break;
 			default:
@@ -4929,11 +5351,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopParamsContext extends ParserRuleContext {
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public GopParamsItemListContext gopParamsItemList() {
 			return getRuleContext(GopParamsItemListContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public GopParamsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4954,9 +5376,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1164); match(LPAREN);
-			setState(1165); gopParamsItemList();
-			setState(1166); match(RPAREN);
+			setState(1164);
+			match(LPAREN);
+			setState(1165);
+			gopParamsItemList();
+			setState(1166);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -4971,13 +5396,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopParamsItemListContext extends ParserRuleContext {
+		public List<GopParamsItemContext> gopParamsItem() {
+			return getRuleContexts(GopParamsItemContext.class);
+		}
 		public GopParamsItemContext gopParamsItem(int i) {
 			return getRuleContext(GopParamsItemContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<GopParamsItemContext> gopParamsItem() {
-			return getRuleContexts(GopParamsItemContext.class);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -5002,15 +5427,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1168); gopParamsItem();
+			setState(1168);
+			gopParamsItem();
 			setState(1173);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1169); match(COMMA);
-				setState(1170); gopParamsItem();
+				setState(1169);
+				match(COMMA);
+				setState(1170);
+				gopParamsItem();
 				}
 				}
 				setState(1175);
@@ -5032,14 +5460,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GopParamsItemContext extends ParserRuleContext {
 		public ClassIdentifierContext n;
-		public GopParamsItemAsContext gopParamsItemAs() {
-			return getRuleContext(GopParamsItemAsContext.class,0);
+		public GopParamsItemManyContext gopParamsItemMany() {
+			return getRuleContext(GopParamsItemManyContext.class,0);
 		}
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public GopParamsItemManyContext gopParamsItemMany() {
-			return getRuleContext(GopParamsItemManyContext.class,0);
+		public GopParamsItemAsContext gopParamsItemAs() {
+			return getRuleContext(GopParamsItemAsContext.class,0);
 		}
 		public GopParamsItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5068,12 +5496,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(1176); ((GopParamsItemContext)_localctx).n = classIdentifier();
+				setState(1176);
+				((GopParamsItemContext)_localctx).n = classIdentifier();
 				}
 				break;
 			case LPAREN:
 				{
-				setState(1177); gopParamsItemMany();
+				setState(1177);
+				gopParamsItemMany();
 				}
 				break;
 			default:
@@ -5083,7 +5513,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1180); gopParamsItemAs();
+				setState(1180);
+				gopParamsItemAs();
 				}
 			}
 
@@ -5101,15 +5532,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopParamsItemManyContext extends ParserRuleContext {
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<ClassIdentifierContext> classIdentifier() {
 			return getRuleContexts(ClassIdentifierContext.class);
 		}
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ClassIdentifierContext classIdentifier(int i) {
 			return getRuleContext(ClassIdentifierContext.class,i);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
 		public GopParamsItemManyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5130,13 +5561,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1183); match(LPAREN);
-			setState(1184); classIdentifier();
+			setState(1183);
+			match(LPAREN);
+			setState(1184);
+			classIdentifier();
 			{
-			setState(1185); match(COMMA);
-			setState(1186); classIdentifier();
+			setState(1185);
+			match(COMMA);
+			setState(1186);
+			classIdentifier();
 			}
-			setState(1188); match(RPAREN);
+			setState(1188);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5174,8 +5610,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1190); match(AS);
-			setState(1191); ((GopParamsItemAsContext)_localctx).a = match(IDENT);
+			setState(1190);
+			match(AS);
+			setState(1191);
+			((GopParamsItemAsContext)_localctx).a = match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5190,14 +5628,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopOutContext extends ParserRuleContext {
+		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
 		public List<GopOutItemContext> gopOutItem() {
 			return getRuleContexts(GopOutItemContext.class);
 		}
-		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public GopOutItemContext gopOutItem(int i) {
 			return getRuleContext(GopOutItemContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -5222,16 +5660,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1193); match(FOLLOWED_BY);
-			setState(1194); gopOutItem();
+			setState(1193);
+			match(FOLLOWED_BY);
+			setState(1194);
+			gopOutItem();
 			setState(1199);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1195); match(COMMA);
-				setState(1196); gopOutItem();
+				setState(1195);
+				match(COMMA);
+				setState(1196);
+				gopOutItem();
 				}
 				}
 				setState(1201);
@@ -5253,11 +5695,11 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GopOutItemContext extends ParserRuleContext {
 		public ClassIdentifierContext n;
-		public GopOutTypeListContext gopOutTypeList() {
-			return getRuleContext(GopOutTypeListContext.class,0);
-		}
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
+		}
+		public GopOutTypeListContext gopOutTypeList() {
+			return getRuleContext(GopOutTypeListContext.class,0);
 		}
 		public GopOutItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5280,12 +5722,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1202); ((GopOutItemContext)_localctx).n = classIdentifier();
+			setState(1202);
+			((GopOutItemContext)_localctx).n = classIdentifier();
 			setState(1204);
 			_la = _input.LA(1);
 			if (_la==LT) {
 				{
-				setState(1203); gopOutTypeList();
+				setState(1203);
+				gopOutTypeList();
 				}
 			}
 
@@ -5304,16 +5748,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GopOutTypeListContext extends ParserRuleContext {
 		public TerminalNode LT() { return getToken(EsperEPL2GrammarParser.LT, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<GopOutTypeParamContext> gopOutTypeParam() {
 			return getRuleContexts(GopOutTypeParamContext.class);
 		}
-		public TerminalNode GT() { return getToken(EsperEPL2GrammarParser.GT, 0); }
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
 		public GopOutTypeParamContext gopOutTypeParam(int i) {
 			return getRuleContext(GopOutTypeParamContext.class,i);
+		}
+		public TerminalNode GT() { return getToken(EsperEPL2GrammarParser.GT, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
 		public GopOutTypeListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5336,23 +5780,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1206); match(LT);
-			setState(1207); gopOutTypeParam();
+			setState(1206);
+			match(LT);
+			setState(1207);
+			gopOutTypeParam();
 			setState(1212);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1208); match(COMMA);
-				setState(1209); gopOutTypeParam();
+				setState(1208);
+				match(COMMA);
+				setState(1209);
+				gopOutTypeParam();
 				}
 				}
 				setState(1214);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1215); match(GT);
+			setState(1215);
+			match(GT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5368,10 +5817,10 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GopOutTypeParamContext extends ParserRuleContext {
 		public Token q;
-		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
 		public GopOutTypeItemContext gopOutTypeItem() {
 			return getRuleContext(GopOutTypeItemContext.class,0);
 		}
+		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
 		public GopOutTypeParamContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5398,12 +5847,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(1217); gopOutTypeItem();
+				setState(1217);
+				gopOutTypeItem();
 				}
 				break;
 			case QUESTION:
 				{
-				setState(1218); ((GopOutTypeParamContext)_localctx).q = match(QUESTION);
+				setState(1218);
+				((GopOutTypeParamContext)_localctx).q = match(QUESTION);
 				}
 				break;
 			default:
@@ -5423,11 +5874,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopOutTypeItemContext extends ParserRuleContext {
-		public GopOutTypeListContext gopOutTypeList() {
-			return getRuleContext(GopOutTypeListContext.class,0);
-		}
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
+		}
+		public GopOutTypeListContext gopOutTypeList() {
+			return getRuleContext(GopOutTypeListContext.class,0);
 		}
 		public GopOutTypeItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5450,12 +5901,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1221); classIdentifier();
+			setState(1221);
+			classIdentifier();
 			setState(1223);
 			_la = _input.LA(1);
 			if (_la==LT) {
 				{
-				setState(1222); gopOutTypeList();
+				setState(1222);
+				gopOutTypeList();
 				}
 			}
 
@@ -5473,13 +5926,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GopDetailContext extends ParserRuleContext {
+		public List<GopConfigContext> gopConfig() {
+			return getRuleContexts(GopConfigContext.class);
+		}
 		public GopConfigContext gopConfig(int i) {
 			return getRuleContext(GopConfigContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<GopConfigContext> gopConfig() {
-			return getRuleContexts(GopConfigContext.class);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -5504,16 +5957,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1225); gopConfig();
+			setState(1225);
+			gopConfig();
 			setState(1230);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,129,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(1226); match(COMMA);
-					setState(1227); gopConfig();
+					setState(1226);
+					match(COMMA);
+					setState(1227);
+					gopConfig();
 					}
 					} 
 				}
@@ -5536,21 +5992,21 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GopConfigContext extends ParserRuleContext {
 		public Token n;
+		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public SelectExprContext selectExpr() {
 			return getRuleContext(SelectExprContext.class,0);
 		}
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
-		public JsonobjectContext jsonobject() {
-			return getRuleContext(JsonobjectContext.class,0);
-		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public JsonobjectContext jsonobject() {
+			return getRuleContext(JsonobjectContext.class,0);
+		}
 		public JsonarrayContext jsonarray() {
 			return getRuleContext(JsonarrayContext.class,0);
 		}
@@ -5578,45 +6034,54 @@ public class EsperEPL2GrammarParser extends Parser {
 			case SELECT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1233); match(SELECT);
+				setState(1233);
+				match(SELECT);
 				setState(1234);
 				_la = _input.LA(1);
 				if ( !(_la==EQUALS || _la==COLON) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
-				setState(1235); match(LPAREN);
-				setState(1236); selectExpr();
-				setState(1237); match(RPAREN);
+				setState(1235);
+				match(LPAREN);
+				setState(1236);
+				selectExpr();
+				setState(1237);
+				match(RPAREN);
 				}
 				break;
 			case IDENT:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1239); ((GopConfigContext)_localctx).n = match(IDENT);
+				setState(1239);
+				((GopConfigContext)_localctx).n = match(IDENT);
 				setState(1240);
 				_la = _input.LA(1);
 				if ( !(_la==EQUALS || _la==COLON) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
 				setState(1244);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,130,_ctx) ) {
 				case 1:
 					{
-					setState(1241); expression();
+					setState(1241);
+					expression();
 					}
 					break;
-
 				case 2:
 					{
-					setState(1242); jsonobject();
+					setState(1242);
+					jsonobject();
 					}
 					break;
-
 				case 3:
 					{
-					setState(1243); jsonarray();
+					setState(1243);
+					jsonarray();
 					}
 					break;
 				}
@@ -5639,13 +6104,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateContextExprContext extends ParserRuleContext {
 		public Token name;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode CREATE() { return getToken(EsperEPL2GrammarParser.CREATE, 0); }
 		public TerminalNode CONTEXT() { return getToken(EsperEPL2GrammarParser.CONTEXT, 0); }
 		public CreateContextDetailContext createContextDetail() {
 			return getRuleContext(CreateContextDetailContext.class,0);
 		}
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public CreateContextExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5667,18 +6132,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1248); match(CREATE);
-			setState(1249); match(CONTEXT);
-			setState(1250); ((CreateContextExprContext)_localctx).name = match(IDENT);
+			setState(1248);
+			match(CREATE);
+			setState(1249);
+			match(CONTEXT);
+			setState(1250);
+			((CreateContextExprContext)_localctx).name = match(IDENT);
 			setState(1252);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1251); match(AS);
+				setState(1251);
+				match(AS);
 				}
 			}
 
-			setState(1254); createContextDetail();
+			setState(1254);
+			createContextDetail();
 			}
 		}
 		catch (RecognitionException re) {
@@ -5717,8 +6187,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1256); match(CREATE);
-			setState(1257); expressionDecl();
+			setState(1256);
+			match(CREATE);
+			setState(1257);
+			expressionDecl();
 			}
 		}
 		catch (RecognitionException re) {
@@ -5733,18 +6205,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateContextDetailContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public CreateContextChoiceContext createContextChoice() {
+			return getRuleContext(CreateContextChoiceContext.class,0);
+		}
 		public List<ContextContextNestedContext> contextContextNested() {
 			return getRuleContexts(ContextContextNestedContext.class);
 		}
 		public ContextContextNestedContext contextContextNested(int i) {
 			return getRuleContext(ContextContextNestedContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
-		public CreateContextChoiceContext createContextChoice() {
-			return getRuleContext(CreateContextChoiceContext.class,0);
 		}
 		public CreateContextDetailContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5774,23 +6246,29 @@ public class EsperEPL2GrammarParser extends Parser {
 			case INITIATED:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1259); createContextChoice();
+				setState(1259);
+				createContextChoice();
 				}
 				break;
 			case CONTEXT:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1260); contextContextNested();
-				setState(1261); match(COMMA);
-				setState(1262); contextContextNested();
+				setState(1260);
+				contextContextNested();
+				setState(1261);
+				match(COMMA);
+				setState(1262);
+				contextContextNested();
 				setState(1267);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(1263); match(COMMA);
-					setState(1264); contextContextNested();
+					setState(1263);
+					match(COMMA);
+					setState(1264);
+					contextContextNested();
 					}
 					}
 					setState(1269);
@@ -5816,12 +6294,12 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class ContextContextNestedContext extends ParserRuleContext {
 		public Token name;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode CONTEXT() { return getToken(EsperEPL2GrammarParser.CONTEXT, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CreateContextChoiceContext createContextChoice() {
 			return getRuleContext(CreateContextChoiceContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public ContextContextNestedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5843,17 +6321,21 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1272); match(CONTEXT);
-			setState(1273); ((ContextContextNestedContext)_localctx).name = match(IDENT);
+			setState(1272);
+			match(CONTEXT);
+			setState(1273);
+			((ContextContextNestedContext)_localctx).name = match(IDENT);
 			setState(1275);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1274); match(AS);
+				setState(1274);
+				match(AS);
 				}
 			}
 
-			setState(1277); createContextChoice();
+			setState(1277);
+			createContextChoice();
 			}
 		}
 		catch (RecognitionException re) {
@@ -5873,60 +6355,60 @@ public class EsperEPL2GrammarParser extends Parser {
 		public CreateContextRangePointContext r2;
 		public Token g;
 		public Token p;
+		public TerminalNode START() { return getToken(EsperEPL2GrammarParser.START, 0); }
+		public TerminalNode END() { return getToken(EsperEPL2GrammarParser.END, 0); }
+		public List<CreateContextRangePointContext> createContextRangePoint() {
+			return getRuleContexts(CreateContextRangePointContext.class);
+		}
+		public CreateContextRangePointContext createContextRangePoint(int i) {
+			return getRuleContext(CreateContextRangePointContext.class,i);
+		}
+		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
+		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
+		public TerminalNode IDENT(int i) {
+			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode INITIATED() { return getToken(EsperEPL2GrammarParser.INITIATED, 0); }
 		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
+		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
+		public TerminalNode BY(int i) {
+			return getToken(EsperEPL2GrammarParser.BY, i);
+		}
+		public CreateContextDistinctContext createContextDistinct() {
+			return getRuleContext(CreateContextDistinctContext.class,0);
+		}
+		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
+		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
+		public List<CreateContextPartitionItemContext> createContextPartitionItem() {
+			return getRuleContexts(CreateContextPartitionItemContext.class);
+		}
+		public CreateContextPartitionItemContext createContextPartitionItem(int i) {
+			return getRuleContext(CreateContextPartitionItemContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		}
+		public List<CreateContextGroupItemContext> createContextGroupItem() {
+			return getRuleContexts(CreateContextGroupItemContext.class);
+		}
+		public CreateContextGroupItemContext createContextGroupItem(int i) {
+			return getRuleContext(CreateContextGroupItemContext.class,i);
+		}
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public EventFilterExpressionContext eventFilterExpression() {
 			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
 		public TerminalNode COALESCE() { return getToken(EsperEPL2GrammarParser.COALESCE, 0); }
-		public CreateContextPartitionItemContext createContextPartitionItem(int i) {
-			return getRuleContext(CreateContextPartitionItemContext.class,i);
-		}
-		public TerminalNode INITIATED() { return getToken(EsperEPL2GrammarParser.INITIATED, 0); }
-		public List<CreateContextGroupItemContext> createContextGroupItem() {
-			return getRuleContexts(CreateContextGroupItemContext.class);
-		}
-		public List<CreateContextRangePointContext> createContextRangePoint() {
-			return getRuleContexts(CreateContextRangePointContext.class);
-		}
-		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
-		public NumberContext number() {
-			return getRuleContext(NumberContext.class,0);
-		}
-		public List<TerminalNode> BY() { return getTokens(EsperEPL2GrammarParser.BY); }
-		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
-		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
-		public CreateContextRangePointContext createContextRangePoint(int i) {
-			return getRuleContext(CreateContextRangePointContext.class,i);
-		}
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
-		public CreateContextDistinctContext createContextDistinct() {
-			return getRuleContext(CreateContextDistinctContext.class,0);
-		}
-		public TerminalNode BY(int i) {
-			return getToken(EsperEPL2GrammarParser.BY, i);
-		}
 		public List<CreateContextCoalesceItemContext> createContextCoalesceItem() {
 			return getRuleContexts(CreateContextCoalesceItemContext.class);
-		}
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
-		public TerminalNode START() { return getToken(EsperEPL2GrammarParser.START, 0); }
-		public CreateContextGroupItemContext createContextGroupItem(int i) {
-			return getRuleContext(CreateContextGroupItemContext.class,i);
-		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
-		public List<CreateContextPartitionItemContext> createContextPartitionItem() {
-			return getRuleContexts(CreateContextPartitionItemContext.class);
 		}
 		public CreateContextCoalesceItemContext createContextCoalesceItem(int i) {
 			return getRuleContext(CreateContextCoalesceItemContext.class,i);
 		}
-		public TerminalNode IDENT(int i) {
-			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
 		}
-		public TerminalNode END() { return getToken(EsperEPL2GrammarParser.END, 0); }
 		public CreateContextChoiceContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5952,13 +6434,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			case START:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1279); match(START);
+				setState(1279);
+				match(START);
 				setState(1283);
 				switch (_input.LA(1)) {
 				case ATCHAR:
 					{
-					setState(1280); match(ATCHAR);
-					setState(1281); ((CreateContextChoiceContext)_localctx).i = match(IDENT);
+					setState(1280);
+					match(ATCHAR);
+					setState(1281);
+					((CreateContextChoiceContext)_localctx).i = match(IDENT);
 					}
 					break;
 				case EVENTS:
@@ -5968,25 +6453,30 @@ public class EsperEPL2GrammarParser extends Parser {
 				case TICKED_STRING_LITERAL:
 				case IDENT:
 					{
-					setState(1282); ((CreateContextChoiceContext)_localctx).r1 = createContextRangePoint();
+					setState(1282);
+					((CreateContextChoiceContext)_localctx).r1 = createContextRangePoint();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(1285); match(END);
-				setState(1286); ((CreateContextChoiceContext)_localctx).r2 = createContextRangePoint();
+				setState(1285);
+				match(END);
+				setState(1286);
+				((CreateContextChoiceContext)_localctx).r2 = createContextRangePoint();
 				}
 				break;
 			case INITIATED:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1287); match(INITIATED);
+				setState(1287);
+				match(INITIATED);
 				setState(1289);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
-					setState(1288); match(BY);
+					setState(1288);
+					match(BY);
 					}
 				}
 
@@ -5994,7 +6484,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==DISTINCT) {
 					{
-					setState(1291); createContextDistinct();
+					setState(1291);
+					createContextDistinct();
 					}
 				}
 
@@ -6002,47 +6493,59 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==ATCHAR) {
 					{
-					setState(1294); match(ATCHAR);
-					setState(1295); ((CreateContextChoiceContext)_localctx).i = match(IDENT);
-					setState(1296); match(AND_EXPR);
+					setState(1294);
+					match(ATCHAR);
+					setState(1295);
+					((CreateContextChoiceContext)_localctx).i = match(IDENT);
+					setState(1296);
+					match(AND_EXPR);
 					}
 				}
 
-				setState(1299); ((CreateContextChoiceContext)_localctx).r1 = createContextRangePoint();
-				setState(1300); match(TERMINATED);
+				setState(1299);
+				((CreateContextChoiceContext)_localctx).r1 = createContextRangePoint();
+				setState(1300);
+				match(TERMINATED);
 				setState(1302);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
-					setState(1301); match(BY);
+					setState(1301);
+					match(BY);
 					}
 				}
 
-				setState(1304); ((CreateContextChoiceContext)_localctx).r2 = createContextRangePoint();
+				setState(1304);
+				((CreateContextChoiceContext)_localctx).r2 = createContextRangePoint();
 				}
 				break;
 			case PARTITION:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1306); match(PARTITION);
+				setState(1306);
+				match(PARTITION);
 				setState(1308);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
-					setState(1307); match(BY);
+					setState(1307);
+					match(BY);
 					}
 				}
 
-				setState(1310); createContextPartitionItem();
+				setState(1310);
+				createContextPartitionItem();
 				setState(1315);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,142,_ctx);
-				while ( _alt!=2 && _alt!=-1 ) {
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(1311); match(COMMA);
-						setState(1312); createContextPartitionItem();
+						setState(1311);
+						match(COMMA);
+						setState(1312);
+						createContextPartitionItem();
 						}
 						} 
 					}
@@ -6055,59 +6558,72 @@ public class EsperEPL2GrammarParser extends Parser {
 			case GROUP:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1318); createContextGroupItem();
+				setState(1318);
+				createContextGroupItem();
 				setState(1323);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(1319); match(COMMA);
-					setState(1320); createContextGroupItem();
+					setState(1319);
+					match(COMMA);
+					setState(1320);
+					createContextGroupItem();
 					}
 					}
 					setState(1325);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(1326); match(FROM);
-				setState(1327); eventFilterExpression();
+				setState(1326);
+				match(FROM);
+				setState(1327);
+				eventFilterExpression();
 				}
 				break;
 			case COALESCE:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1329); match(COALESCE);
+				setState(1329);
+				match(COALESCE);
 				setState(1331);
 				_la = _input.LA(1);
 				if (_la==BY) {
 					{
-					setState(1330); match(BY);
+					setState(1330);
+					match(BY);
 					}
 				}
 
-				setState(1333); createContextCoalesceItem();
+				setState(1333);
+				createContextCoalesceItem();
 				setState(1338);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(1334); match(COMMA);
-					setState(1335); createContextCoalesceItem();
+					setState(1334);
+					match(COMMA);
+					setState(1335);
+					createContextCoalesceItem();
 					}
 					}
 					setState(1340);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(1341); ((CreateContextChoiceContext)_localctx).g = match(IDENT);
-				setState(1342); number();
+				setState(1341);
+				((CreateContextChoiceContext)_localctx).g = match(IDENT);
+				setState(1342);
+				number();
 				setState(1344);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(1343); ((CreateContextChoiceContext)_localctx).p = match(IDENT);
+					setState(1343);
+					((CreateContextChoiceContext)_localctx).p = match(IDENT);
 					}
 				}
 
@@ -6129,12 +6645,12 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateContextDistinctContext extends ParserRuleContext {
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public CreateContextDistinctContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6156,17 +6672,21 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1348); match(DISTINCT);
-			setState(1349); match(LPAREN);
+			setState(1348);
+			match(DISTINCT);
+			setState(1349);
+			match(LPAREN);
 			setState(1351);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(1350); expressionList();
+				setState(1350);
+				expressionList();
 				}
 			}
 
-			setState(1353); match(RPAREN);
+			setState(1353);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -6182,20 +6702,20 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateContextRangePointContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
 		public CreateContextFilterContext createContextFilter() {
 			return getRuleContext(CreateContextFilterContext.class,0);
 		}
-		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public PatternInclusionExpressionContext patternInclusionExpression() {
 			return getRuleContext(PatternInclusionExpressionContext.class,0);
 		}
-		public TimePeriodContext timePeriod() {
-			return getRuleContext(TimePeriodContext.class,0);
-		}
+		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public CrontabLimitParameterSetContext crontabLimitParameterSet() {
 			return getRuleContext(CrontabLimitParameterSetContext.class,0);
+		}
+		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
+		public TimePeriodContext timePeriod() {
+			return getRuleContext(TimePeriodContext.class,0);
 		}
 		public CreateContextRangePointContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6223,19 +6743,23 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1355); createContextFilter();
+				setState(1355);
+				createContextFilter();
 				}
 				break;
 			case PATTERN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1356); patternInclusionExpression();
+				setState(1356);
+				patternInclusionExpression();
 				setState(1359);
 				_la = _input.LA(1);
 				if (_la==ATCHAR) {
 					{
-					setState(1357); match(ATCHAR);
-					setState(1358); ((CreateContextRangePointContext)_localctx).i = match(IDENT);
+					setState(1357);
+					match(ATCHAR);
+					setState(1358);
+					((CreateContextRangePointContext)_localctx).i = match(IDENT);
 					}
 				}
 
@@ -6244,14 +6768,17 @@ public class EsperEPL2GrammarParser extends Parser {
 			case LPAREN:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1361); crontabLimitParameterSet();
+				setState(1361);
+				crontabLimitParameterSet();
 				}
 				break;
 			case AFTER:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(1362); match(AFTER);
-				setState(1363); timePeriod();
+				setState(1362);
+				match(AFTER);
+				setState(1363);
+				timePeriod();
 				}
 				break;
 			default:
@@ -6271,11 +6798,11 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateContextFilterContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public EventFilterExpressionContext eventFilterExpression() {
 			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public CreateContextFilterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6297,7 +6824,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1366); eventFilterExpression();
+			setState(1366);
+			eventFilterExpression();
 			setState(1371);
 			_la = _input.LA(1);
 			if (_la==AS || _la==IDENT) {
@@ -6306,11 +6834,13 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
-					setState(1367); match(AS);
+					setState(1367);
+					match(AS);
 					}
 				}
 
-				setState(1370); ((CreateContextFilterContext)_localctx).i = match(IDENT);
+				setState(1370);
+				((CreateContextFilterContext)_localctx).i = match(IDENT);
 				}
 			}
 
@@ -6328,24 +6858,24 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateContextPartitionItemContext extends ParserRuleContext {
-		public EventFilterExpressionContext eventFilterExpression() {
-			return getRuleContext(EventFilterExpressionContext.class,0);
-		}
-		public TerminalNode AND_EXPR(int i) {
-			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		public List<EventPropertyContext> eventProperty() {
+			return getRuleContexts(EventPropertyContext.class);
 		}
 		public EventPropertyContext eventProperty(int i) {
 			return getRuleContext(EventPropertyContext.class,i);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<EventPropertyContext> eventProperty() {
-			return getRuleContexts(EventPropertyContext.class);
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
+		public EventFilterExpressionContext eventFilterExpression() {
+			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
 		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
+		public TerminalNode AND_EXPR(int i) {
+			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
 		public CreateContextPartitionItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6367,7 +6897,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1373); eventProperty();
+			setState(1373);
+			eventProperty();
 			setState(1378);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -6378,17 +6909,21 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==AND_EXPR || _la==COMMA) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
-				setState(1375); eventProperty();
+				setState(1375);
+				eventProperty();
 				}
 				}
 				setState(1380);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1381); match(FROM);
-			setState(1382); eventFilterExpression();
+			setState(1381);
+			match(FROM);
+			setState(1382);
+			eventFilterExpression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -6403,13 +6938,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CreateContextCoalesceItemContext extends ParserRuleContext {
-		public EventFilterExpressionContext eventFilterExpression() {
-			return getRuleContext(EventFilterExpressionContext.class,0);
-		}
 		public LibFunctionNoClassContext libFunctionNoClass() {
 			return getRuleContext(LibFunctionNoClassContext.class,0);
 		}
 		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
+		public EventFilterExpressionContext eventFilterExpression() {
+			return getRuleContext(EventFilterExpressionContext.class,0);
+		}
 		public CreateContextCoalesceItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6430,9 +6965,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1384); libFunctionNoClass();
-			setState(1385); match(FROM);
-			setState(1386); eventFilterExpression();
+			setState(1384);
+			libFunctionNoClass();
+			setState(1385);
+			match(FROM);
+			setState(1386);
+			eventFilterExpression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -6448,13 +6986,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class CreateContextGroupItemContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public TerminalNode BY() { return getToken(EsperEPL2GrammarParser.BY, 0); }
+		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public TerminalNode BY() { return getToken(EsperEPL2GrammarParser.BY, 0); }
 		public CreateContextGroupItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6476,18 +7014,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1388); match(GROUP);
+			setState(1388);
+			match(GROUP);
 			setState(1390);
 			_la = _input.LA(1);
 			if (_la==BY) {
 				{
-				setState(1389); match(BY);
+				setState(1389);
+				match(BY);
 				}
 			}
 
-			setState(1392); expression();
-			setState(1393); match(AS);
-			setState(1394); ((CreateContextGroupItemContext)_localctx).i = match(IDENT);
+			setState(1392);
+			expression();
+			setState(1393);
+			match(AS);
+			setState(1394);
+			((CreateContextGroupItemContext)_localctx).i = match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -6527,8 +7070,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1396); ((CreateSchemaQualContext)_localctx).i = match(IDENT);
-			setState(1397); columnList();
+			setState(1396);
+			((CreateSchemaQualContext)_localctx).i = match(IDENT);
+			setState(1397);
+			columnList();
 			}
 		}
 		catch (RecognitionException re) {
@@ -6543,15 +7088,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class VariantListContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<VariantListElementContext> variantListElement() {
 			return getRuleContexts(VariantListElementContext.class);
 		}
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
 		public VariantListElementContext variantListElement(int i) {
 			return getRuleContext(VariantListElementContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
 		public VariantListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6574,16 +7119,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1399); variantListElement();
+			setState(1399);
+			variantListElement();
 			setState(1404);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,155,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(1400); match(COMMA);
-					setState(1401); variantListElement();
+					setState(1400);
+					match(COMMA);
+					setState(1401);
+					variantListElement();
 					}
 					} 
 				}
@@ -6605,10 +7153,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class VariantListElementContext extends ParserRuleContext {
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public VariantListElementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6632,7 +7180,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case STAR:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1407); match(STAR);
+				setState(1407);
+				match(STAR);
 				}
 				break;
 			case EVENTS:
@@ -6640,7 +7189,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1408); classIdentifier();
+				setState(1408);
+				classIdentifier();
 				}
 				break;
 			default:
@@ -6683,9 +7233,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1411); match(TABLE);
-			setState(1412); ((IntoTableExprContext)_localctx).i = match(IDENT);
+			setState(1411);
+			match(TABLE);
+			setState(1412);
+			((IntoTableExprContext)_localctx).i = match(IDENT);
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -6703,18 +7256,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i;
 		public Token r;
 		public Token ir;
-		public TerminalNode RSTREAM() { return getToken(EsperEPL2GrammarParser.RSTREAM, 0); }
-		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
-		public ColumnListContext columnList() {
-			return getRuleContext(ColumnListContext.class,0);
-		}
+		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public TerminalNode INTO() { return getToken(EsperEPL2GrammarParser.INTO, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode IRSTREAM() { return getToken(EsperEPL2GrammarParser.IRSTREAM, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
+		public TerminalNode RSTREAM() { return getToken(EsperEPL2GrammarParser.RSTREAM, 0); }
+		public TerminalNode IRSTREAM() { return getToken(EsperEPL2GrammarParser.IRSTREAM, 0); }
+		public ColumnListContext columnList() {
+			return getRuleContext(ColumnListContext.class,0);
+		}
 		public InsertIntoExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6741,17 +7294,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case ISTREAM:
 				{
-				setState(1414); ((InsertIntoExprContext)_localctx).i = match(ISTREAM);
+				setState(1414);
+				((InsertIntoExprContext)_localctx).i = match(ISTREAM);
 				}
 				break;
 			case RSTREAM:
 				{
-				setState(1415); ((InsertIntoExprContext)_localctx).r = match(RSTREAM);
+				setState(1415);
+				((InsertIntoExprContext)_localctx).r = match(RSTREAM);
 				}
 				break;
 			case IRSTREAM:
 				{
-				setState(1416); ((InsertIntoExprContext)_localctx).ir = match(IRSTREAM);
+				setState(1416);
+				((InsertIntoExprContext)_localctx).ir = match(IRSTREAM);
 				}
 				break;
 			case INTO:
@@ -6759,26 +7315,32 @@ public class EsperEPL2GrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(1419); match(INTO);
-			setState(1420); classIdentifier();
+			setState(1419);
+			match(INTO);
+			setState(1420);
+			classIdentifier();
 			setState(1426);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(1421); match(LPAREN);
+				setState(1421);
+				match(LPAREN);
 				setState(1423);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(1422); columnList();
+					setState(1422);
+					columnList();
 					}
 				}
 
-				setState(1425); match(RPAREN);
+				setState(1425);
+				match(RPAREN);
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -6793,13 +7355,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ColumnListContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
 		public ColumnListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6822,16 +7384,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1428); match(IDENT);
+			setState(1428);
+			match(IDENT);
 			setState(1433);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,160,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(1429); match(COMMA);
-					setState(1430); match(IDENT);
+					setState(1429);
+					match(COMMA);
+					setState(1430);
+					match(IDENT);
 					}
 					} 
 				}
@@ -6853,14 +7418,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class FromClauseContext extends ParserRuleContext {
+		public StreamExpressionContext streamExpression() {
+			return getRuleContext(StreamExpressionContext.class,0);
+		}
 		public RegularJoinContext regularJoin() {
 			return getRuleContext(RegularJoinContext.class,0);
 		}
 		public OuterJoinListContext outerJoinList() {
 			return getRuleContext(OuterJoinListContext.class,0);
-		}
-		public StreamExpressionContext streamExpression() {
-			return getRuleContext(StreamExpressionContext.class,0);
 		}
 		public FromClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6883,7 +7448,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1436); streamExpression();
+			setState(1436);
+			streamExpression();
 			setState(1439);
 			switch (_input.LA(1)) {
 			case EOF:
@@ -6898,7 +7464,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RPAREN:
 			case COMMA:
 				{
-				setState(1437); regularJoin();
+				setState(1437);
+				regularJoin();
 				}
 				break;
 			case INNER:
@@ -6907,13 +7474,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			case RIGHT:
 			case FULL:
 				{
-				setState(1438); outerJoinList();
+				setState(1438);
+				outerJoinList();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -6928,15 +7497,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class RegularJoinContext extends ParserRuleContext {
-		public StreamExpressionContext streamExpression(int i) {
-			return getRuleContext(StreamExpressionContext.class,i);
-		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		}
 		public List<StreamExpressionContext> streamExpression() {
 			return getRuleContexts(StreamExpressionContext.class);
 		}
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		public StreamExpressionContext streamExpression(int i) {
+			return getRuleContext(StreamExpressionContext.class,i);
 		}
 		public RegularJoinContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6965,8 +7534,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			while (_la==COMMA) {
 				{
 				{
-				setState(1441); match(COMMA);
-				setState(1442); streamExpression();
+				setState(1441);
+				match(COMMA);
+				setState(1442);
+				streamExpression();
 				}
 				}
 				setState(1447);
@@ -6987,11 +7558,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OuterJoinListContext extends ParserRuleContext {
-		public OuterJoinContext outerJoin(int i) {
-			return getRuleContext(OuterJoinContext.class,i);
-		}
 		public List<OuterJoinContext> outerJoin() {
 			return getRuleContexts(OuterJoinContext.class);
+		}
+		public OuterJoinContext outerJoin(int i) {
+			return getRuleContext(OuterJoinContext.class,i);
 		}
 		public OuterJoinListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -7014,14 +7585,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1448); outerJoin();
+			setState(1448);
+			outerJoin();
 			setState(1452);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INNER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL))) != 0)) {
 				{
 				{
-				setState(1449); outerJoin();
+				setState(1449);
+				outerJoin();
 				}
 				}
 				setState(1454);
@@ -7046,18 +7619,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token tr;
 		public Token tf;
 		public Token i;
-		public TerminalNode OUTER() { return getToken(EsperEPL2GrammarParser.OUTER, 0); }
 		public TerminalNode JOIN() { return getToken(EsperEPL2GrammarParser.JOIN, 0); }
-		public TerminalNode FULL() { return getToken(EsperEPL2GrammarParser.FULL, 0); }
-		public OuterJoinIdentContext outerJoinIdent() {
-			return getRuleContext(OuterJoinIdentContext.class,0);
-		}
 		public StreamExpressionContext streamExpression() {
 			return getRuleContext(StreamExpressionContext.class,0);
 		}
+		public OuterJoinIdentContext outerJoinIdent() {
+			return getRuleContext(OuterJoinIdentContext.class,0);
+		}
+		public TerminalNode OUTER() { return getToken(EsperEPL2GrammarParser.OUTER, 0); }
 		public TerminalNode INNER() { return getToken(EsperEPL2GrammarParser.INNER, 0); }
 		public TerminalNode LEFT() { return getToken(EsperEPL2GrammarParser.LEFT, 0); }
 		public TerminalNode RIGHT() { return getToken(EsperEPL2GrammarParser.RIGHT, 0); }
+		public TerminalNode FULL() { return getToken(EsperEPL2GrammarParser.FULL, 0); }
 		public OuterJoinContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7095,23 +7668,27 @@ public class EsperEPL2GrammarParser extends Parser {
 					switch (_input.LA(1)) {
 					case LEFT:
 						{
-						setState(1455); ((OuterJoinContext)_localctx).tl = match(LEFT);
+						setState(1455);
+						((OuterJoinContext)_localctx).tl = match(LEFT);
 						}
 						break;
 					case RIGHT:
 						{
-						setState(1456); ((OuterJoinContext)_localctx).tr = match(RIGHT);
+						setState(1456);
+						((OuterJoinContext)_localctx).tr = match(RIGHT);
 						}
 						break;
 					case FULL:
 						{
-						setState(1457); ((OuterJoinContext)_localctx).tf = match(FULL);
+						setState(1457);
+						((OuterJoinContext)_localctx).tf = match(FULL);
 						}
 						break;
 					default:
 						throw new NoViableAltException(this);
 					}
-					setState(1460); match(OUTER);
+					setState(1460);
+					match(OUTER);
 					}
 				}
 
@@ -7120,24 +7697,29 @@ public class EsperEPL2GrammarParser extends Parser {
 			case INNER:
 				{
 				{
-				setState(1463); ((OuterJoinContext)_localctx).i = match(INNER);
+				setState(1463);
+				((OuterJoinContext)_localctx).i = match(INNER);
 				}
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(1466); match(JOIN);
-			setState(1467); streamExpression();
+			setState(1466);
+			match(JOIN);
+			setState(1467);
+			streamExpression();
 			setState(1469);
 			_la = _input.LA(1);
 			if (_la==ON) {
 				{
-				setState(1468); outerJoinIdent();
+				setState(1468);
+				outerJoinIdent();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -7153,16 +7735,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class OuterJoinIdentContext extends ParserRuleContext {
 		public TerminalNode ON() { return getToken(EsperEPL2GrammarParser.ON, 0); }
-		public TerminalNode AND_EXPR(int i) {
-			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		public List<OuterJoinIdentPairContext> outerJoinIdentPair() {
+			return getRuleContexts(OuterJoinIdentPairContext.class);
 		}
 		public OuterJoinIdentPairContext outerJoinIdentPair(int i) {
 			return getRuleContext(OuterJoinIdentPairContext.class,i);
 		}
-		public List<OuterJoinIdentPairContext> outerJoinIdentPair() {
-			return getRuleContexts(OuterJoinIdentPairContext.class);
-		}
 		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
+		public TerminalNode AND_EXPR(int i) {
+			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		}
 		public OuterJoinIdentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7184,16 +7766,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1471); match(ON);
-			setState(1472); outerJoinIdentPair();
+			setState(1471);
+			match(ON);
+			setState(1472);
+			outerJoinIdentPair();
 			setState(1477);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==AND_EXPR) {
 				{
 				{
-				setState(1473); match(AND_EXPR);
-				setState(1474); outerJoinIdentPair();
+				setState(1473);
+				match(AND_EXPR);
+				setState(1474);
+				outerJoinIdentPair();
 				}
 				}
 				setState(1479);
@@ -7214,13 +7800,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OuterJoinIdentPairContext extends ParserRuleContext {
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
-		public EventPropertyContext eventProperty(int i) {
-			return getRuleContext(EventPropertyContext.class,i);
-		}
 		public List<EventPropertyContext> eventProperty() {
 			return getRuleContexts(EventPropertyContext.class);
 		}
+		public EventPropertyContext eventProperty(int i) {
+			return getRuleContext(EventPropertyContext.class,i);
+		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public OuterJoinIdentPairContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7241,9 +7827,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1480); eventProperty();
-			setState(1481); match(EQUALS);
-			setState(1482); eventProperty();
+			setState(1480);
+			eventProperty();
+			setState(1481);
+			match(EQUALS);
+			setState(1482);
+			eventProperty();
 			}
 		}
 		catch (RecognitionException re) {
@@ -7282,8 +7871,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1484); evalOrExpression();
+			setState(1484);
+			evalOrExpression();
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -7300,13 +7891,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class SelectClauseContext extends ParserRuleContext {
 		public Token s;
 		public Token d;
-		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
-		public TerminalNode RSTREAM() { return getToken(EsperEPL2GrammarParser.RSTREAM, 0); }
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
-		public TerminalNode IRSTREAM() { return getToken(EsperEPL2GrammarParser.IRSTREAM, 0); }
 		public SelectionListContext selectionList() {
 			return getRuleContext(SelectionListContext.class,0);
 		}
+		public TerminalNode RSTREAM() { return getToken(EsperEPL2GrammarParser.RSTREAM, 0); }
+		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
+		public TerminalNode IRSTREAM() { return getToken(EsperEPL2GrammarParser.IRSTREAM, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public SelectClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7330,22 +7921,24 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1489);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,169,_ctx) ) {
 			case 1:
 				{
-				setState(1486); ((SelectClauseContext)_localctx).s = match(RSTREAM);
+				setState(1486);
+				((SelectClauseContext)_localctx).s = match(RSTREAM);
 				}
 				break;
-
 			case 2:
 				{
-				setState(1487); ((SelectClauseContext)_localctx).s = match(ISTREAM);
+				setState(1487);
+				((SelectClauseContext)_localctx).s = match(ISTREAM);
 				}
 				break;
-
 			case 3:
 				{
-				setState(1488); ((SelectClauseContext)_localctx).s = match(IRSTREAM);
+				setState(1488);
+				((SelectClauseContext)_localctx).s = match(IRSTREAM);
 				}
 				break;
 			}
@@ -7353,12 +7946,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
-				setState(1491); ((SelectClauseContext)_localctx).d = match(DISTINCT);
+				setState(1491);
+				((SelectClauseContext)_localctx).d = match(DISTINCT);
 				}
 			}
 
-			setState(1494); selectionList();
+			setState(1494);
+			selectionList();
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -7373,13 +7969,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class SelectionListContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<SelectionListElementContext> selectionListElement() {
 			return getRuleContexts(SelectionListElementContext.class);
 		}
 		public SelectionListElementContext selectionListElement(int i) {
 			return getRuleContext(SelectionListElementContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -7404,15 +8000,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1496); selectionListElement();
+			setState(1496);
+			selectionListElement();
 			setState(1501);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1497); match(COMMA);
-				setState(1498); selectionListElement();
+				setState(1497);
+				match(COMMA);
+				setState(1498);
+				selectionListElement();
 				}
 				}
 				setState(1503);
@@ -7434,10 +8033,10 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class SelectionListElementContext extends ParserRuleContext {
 		public Token s;
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public StreamSelectorContext streamSelector() {
 			return getRuleContext(StreamSelectorContext.class,0);
 		}
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public SelectionListElementExprContext selectionListElementExpr() {
 			return getRuleContext(SelectionListElementExprContext.class,0);
 		}
@@ -7460,25 +8059,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 192, RULE_selectionListElement);
 		try {
 			setState(1507);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,172,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1504); ((SelectionListElementContext)_localctx).s = match(STAR);
+				setState(1504);
+				((SelectionListElementContext)_localctx).s = match(STAR);
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1505); streamSelector();
+				setState(1505);
+				streamSelector();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1506); selectionListElementExpr();
+				setState(1506);
+				selectionListElementExpr();
 				}
 				break;
 			}
@@ -7495,16 +8096,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class SelectionListElementExprContext extends ParserRuleContext {
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public KeywordAllowedIdentContext keywordAllowedIdent() {
-			return getRuleContext(KeywordAllowedIdentContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public SelectionListElementAnnoContext selectionListElementAnno() {
 			return getRuleContext(SelectionListElementAnnoContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public KeywordAllowedIdentContext keywordAllowedIdent() {
+			return getRuleContext(KeywordAllowedIdentContext.class,0);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public SelectionListElementExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7526,16 +8127,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1509); expression();
+			setState(1509);
+			expression();
 			setState(1511);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
-				setState(1510); selectionListElementAnno();
+				setState(1510);
+				selectionListElementAnno();
 				}
 			}
 
 			setState(1517);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,175,_ctx) ) {
 			case 1:
 				{
@@ -7543,11 +8147,13 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
-					setState(1513); match(AS);
+					setState(1513);
+					match(AS);
 					}
 				}
 
-				setState(1516); keywordAllowedIdent();
+				setState(1516);
+				keywordAllowedIdent();
 				}
 				break;
 			}
@@ -7588,8 +8194,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1519); match(ATCHAR);
-			setState(1520); ((SelectionListElementAnnoContext)_localctx).i = match(IDENT);
+			setState(1519);
+			match(ATCHAR);
+			setState(1520);
+			((SelectionListElementAnnoContext)_localctx).i = match(IDENT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -7606,13 +8214,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class StreamSelectorContext extends ParserRuleContext {
 		public Token s;
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode DOT() { return getToken(EsperEPL2GrammarParser.DOT, 0); }
 		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public StreamSelectorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7634,15 +8242,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1522); ((StreamSelectorContext)_localctx).s = match(IDENT);
-			setState(1523); match(DOT);
-			setState(1524); match(STAR);
+			setState(1522);
+			((StreamSelectorContext)_localctx).s = match(IDENT);
+			setState(1523);
+			match(DOT);
+			setState(1524);
+			match(STAR);
 			setState(1527);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1525); match(AS);
-				setState(1526); ((StreamSelectorContext)_localctx).i = match(IDENT);
+				setState(1525);
+				match(AS);
+				setState(1526);
+				((StreamSelectorContext)_localctx).i = match(IDENT);
 				}
 			}
 
@@ -7664,33 +8277,33 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token u;
 		public Token ru;
 		public Token ri;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
 		public EventFilterExpressionContext eventFilterExpression() {
 			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
-		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
-		public ViewExpressionContext viewExpression(int i) {
-			return getRuleContext(ViewExpressionContext.class,i);
+		public PatternInclusionExpressionContext patternInclusionExpression() {
+			return getRuleContext(PatternInclusionExpressionContext.class,0);
 		}
 		public DatabaseJoinExpressionContext databaseJoinExpression() {
 			return getRuleContext(DatabaseJoinExpressionContext.class,0);
 		}
+		public MethodJoinExpressionContext methodJoinExpression() {
+			return getRuleContext(MethodJoinExpressionContext.class,0);
+		}
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
 		}
 		public List<ViewExpressionContext> viewExpression() {
 			return getRuleContexts(ViewExpressionContext.class);
 		}
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
-		public MethodJoinExpressionContext methodJoinExpression() {
-			return getRuleContext(MethodJoinExpressionContext.class,0);
+		public ViewExpressionContext viewExpression(int i) {
+			return getRuleContext(ViewExpressionContext.class,i);
 		}
-		public TerminalNode UNIDIRECTIONAL() { return getToken(EsperEPL2GrammarParser.UNIDIRECTIONAL, 0); }
-		public PatternInclusionExpressionContext patternInclusionExpression() {
-			return getRuleContext(PatternInclusionExpressionContext.class,0);
-		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode UNIDIRECTIONAL() { return getToken(EsperEPL2GrammarParser.UNIDIRECTIONAL, 0); }
+		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
+		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
 		public StreamExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7713,28 +8326,30 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1533);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,177,_ctx) ) {
 			case 1:
 				{
-				setState(1529); eventFilterExpression();
+				setState(1529);
+				eventFilterExpression();
 				}
 				break;
-
 			case 2:
 				{
-				setState(1530); patternInclusionExpression();
+				setState(1530);
+				patternInclusionExpression();
 				}
 				break;
-
 			case 3:
 				{
-				setState(1531); databaseJoinExpression();
+				setState(1531);
+				databaseJoinExpression();
 				}
 				break;
-
 			case 4:
 				{
-				setState(1532); methodJoinExpression();
+				setState(1532);
+				methodJoinExpression();
 				}
 				break;
 			}
@@ -7742,16 +8357,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(1535); match(DOT);
-				setState(1536); viewExpression();
+				setState(1535);
+				match(DOT);
+				setState(1536);
+				viewExpression();
 				setState(1541);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==DOT) {
 					{
 					{
-					setState(1537); match(DOT);
-					setState(1538); viewExpression();
+					setState(1537);
+					match(DOT);
+					setState(1538);
+					viewExpression();
 					}
 					}
 					setState(1543);
@@ -7765,13 +8384,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(1546); match(AS);
-				setState(1547); ((StreamExpressionContext)_localctx).i = match(IDENT);
+				setState(1546);
+				match(AS);
+				setState(1547);
+				((StreamExpressionContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(1548); ((StreamExpressionContext)_localctx).i = match(IDENT);
+				setState(1548);
+				((StreamExpressionContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case EOF:
@@ -7802,7 +8424,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==UNIDIRECTIONAL) {
 				{
-				setState(1551); ((StreamExpressionContext)_localctx).u = match(UNIDIRECTIONAL);
+				setState(1551);
+				((StreamExpressionContext)_localctx).u = match(UNIDIRECTIONAL);
 				}
 			}
 
@@ -7810,12 +8433,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
-				setState(1554); ((StreamExpressionContext)_localctx).ru = match(RETAINUNION);
+				setState(1554);
+				((StreamExpressionContext)_localctx).ru = match(RETAINUNION);
 				}
 				break;
 			case RETAININTERSECTION:
 				{
-				setState(1555); ((StreamExpressionContext)_localctx).ri = match(RETAININTERSECTION);
+				setState(1555);
+				((StreamExpressionContext)_localctx).ri = match(RETAININTERSECTION);
 				}
 				break;
 			case EOF:
@@ -7854,13 +8479,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class ForExprContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
-		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public ForExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7882,22 +8507,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1558); match(FOR);
-			setState(1559); ((ForExprContext)_localctx).i = match(IDENT);
+			setState(1558);
+			match(FOR);
+			setState(1559);
+			((ForExprContext)_localctx).i = match(IDENT);
 			setState(1565);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(1560); match(LPAREN);
+				setState(1560);
+				match(LPAREN);
 				setState(1562);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(1561); expressionList();
+					setState(1561);
+					expressionList();
 					}
 				}
 
-				setState(1564); match(RPAREN);
+				setState(1564);
+				match(RPAREN);
 				}
 			}
 
@@ -7915,18 +8545,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class PatternInclusionExpressionContext extends ParserRuleContext {
-		public List<AnnotationEnumContext> annotationEnum() {
-			return getRuleContexts(AnnotationEnumContext.class);
-		}
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode PATTERN() { return getToken(EsperEPL2GrammarParser.PATTERN, 0); }
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public PatternExpressionContext patternExpression() {
 			return getRuleContext(PatternExpressionContext.class,0);
 		}
-		public TerminalNode PATTERN() { return getToken(EsperEPL2GrammarParser.PATTERN, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public List<AnnotationEnumContext> annotationEnum() {
+			return getRuleContexts(AnnotationEnumContext.class);
+		}
 		public AnnotationEnumContext annotationEnum(int i) {
 			return getRuleContext(AnnotationEnumContext.class,i);
 		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public PatternInclusionExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -7948,23 +8578,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1567); match(PATTERN);
+			setState(1567);
+			match(PATTERN);
 			setState(1571);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==ATCHAR) {
 				{
 				{
-				setState(1568); annotationEnum();
+				setState(1568);
+				annotationEnum();
 				}
 				}
 				setState(1573);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1574); match(LBRACK);
-			setState(1575); patternExpression();
-			setState(1576); match(RBRACK);
+			setState(1574);
+			match(LBRACK);
+			setState(1575);
+			patternExpression();
+			setState(1576);
+			match(RBRACK);
 			}
 		}
 		catch (RecognitionException re) {
@@ -7982,20 +8617,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i;
 		public Token s;
 		public Token s2;
-		public TerminalNode METADATASQL() { return getToken(EsperEPL2GrammarParser.METADATASQL, 0); }
+		public TerminalNode SQL() { return getToken(EsperEPL2GrammarParser.SQL, 0); }
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public List<TerminalNode> STRING_LITERAL() { return getTokens(EsperEPL2GrammarParser.STRING_LITERAL); }
 		public TerminalNode STRING_LITERAL(int i) {
 			return getToken(EsperEPL2GrammarParser.STRING_LITERAL, i);
 		}
+		public List<TerminalNode> QUOTED_STRING_LITERAL() { return getTokens(EsperEPL2GrammarParser.QUOTED_STRING_LITERAL); }
 		public TerminalNode QUOTED_STRING_LITERAL(int i) {
 			return getToken(EsperEPL2GrammarParser.QUOTED_STRING_LITERAL, i);
 		}
-		public List<TerminalNode> STRING_LITERAL() { return getTokens(EsperEPL2GrammarParser.STRING_LITERAL); }
-		public List<TerminalNode> QUOTED_STRING_LITERAL() { return getTokens(EsperEPL2GrammarParser.QUOTED_STRING_LITERAL); }
-		public TerminalNode SQL() { return getToken(EsperEPL2GrammarParser.SQL, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public TerminalNode METADATASQL() { return getToken(EsperEPL2GrammarParser.METADATASQL, 0); }
 		public DatabaseJoinExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -8018,20 +8653,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1578); match(SQL);
-			setState(1579); match(COLON);
-			setState(1580); ((DatabaseJoinExpressionContext)_localctx).i = match(IDENT);
-			setState(1581); match(LBRACK);
+			setState(1578);
+			match(SQL);
+			setState(1579);
+			match(COLON);
+			setState(1580);
+			((DatabaseJoinExpressionContext)_localctx).i = match(IDENT);
+			setState(1581);
+			match(LBRACK);
 			setState(1584);
 			switch (_input.LA(1)) {
 			case STRING_LITERAL:
 				{
-				setState(1582); ((DatabaseJoinExpressionContext)_localctx).s = match(STRING_LITERAL);
+				setState(1582);
+				((DatabaseJoinExpressionContext)_localctx).s = match(STRING_LITERAL);
 				}
 				break;
 			case QUOTED_STRING_LITERAL:
 				{
-				setState(1583); ((DatabaseJoinExpressionContext)_localctx).s = match(QUOTED_STRING_LITERAL);
+				setState(1583);
+				((DatabaseJoinExpressionContext)_localctx).s = match(QUOTED_STRING_LITERAL);
 				}
 				break;
 			default:
@@ -8041,17 +8682,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==METADATASQL) {
 				{
-				setState(1586); match(METADATASQL);
+				setState(1586);
+				match(METADATASQL);
 				setState(1589);
 				switch (_input.LA(1)) {
 				case STRING_LITERAL:
 					{
-					setState(1587); ((DatabaseJoinExpressionContext)_localctx).s2 = match(STRING_LITERAL);
+					setState(1587);
+					((DatabaseJoinExpressionContext)_localctx).s2 = match(STRING_LITERAL);
 					}
 					break;
 				case QUOTED_STRING_LITERAL:
 					{
-					setState(1588); ((DatabaseJoinExpressionContext)_localctx).s2 = match(QUOTED_STRING_LITERAL);
+					setState(1588);
+					((DatabaseJoinExpressionContext)_localctx).s2 = match(QUOTED_STRING_LITERAL);
 					}
 					break;
 				default:
@@ -8060,8 +8704,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 			}
 
-			setState(1593); match(RBRACK);
+			setState(1593);
+			match(RBRACK);
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8077,16 +8723,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MethodJoinExpressionContext extends ParserRuleContext {
 		public Token i;
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
 		public MethodJoinExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -8109,27 +8755,34 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1595); ((MethodJoinExpressionContext)_localctx).i = match(IDENT);
-			setState(1596); match(COLON);
-			setState(1597); classIdentifier();
+			setState(1595);
+			((MethodJoinExpressionContext)_localctx).i = match(IDENT);
+			setState(1596);
+			match(COLON);
+			setState(1597);
+			classIdentifier();
 			setState(1603);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(1598); match(LPAREN);
+				setState(1598);
+				match(LPAREN);
 				setState(1600);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(1599); expressionList();
+					setState(1599);
+					expressionList();
 					}
 				}
 
-				setState(1602); match(RPAREN);
+				setState(1602);
+				match(RPAREN);
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8147,16 +8800,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token ns;
 		public Token i;
 		public Token m;
-		public ExpressionWithTimeListContext expressionWithTimeList() {
-			return getRuleContext(ExpressionWithTimeListContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode MERGE() { return getToken(EsperEPL2GrammarParser.MERGE, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode MERGE() { return getToken(EsperEPL2GrammarParser.MERGE, 0); }
+		public ExpressionWithTimeListContext expressionWithTimeList() {
+			return getRuleContext(ExpressionWithTimeListContext.class,0);
 		}
 		public ViewExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -8180,34 +8833,42 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1605); ((ViewExpressionContext)_localctx).ns = match(IDENT);
-			setState(1606); match(COLON);
+			setState(1605);
+			((ViewExpressionContext)_localctx).ns = match(IDENT);
+			setState(1606);
+			match(COLON);
 			setState(1609);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
-				setState(1607); ((ViewExpressionContext)_localctx).i = match(IDENT);
+				setState(1607);
+				((ViewExpressionContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case MERGE:
 				{
-				setState(1608); ((ViewExpressionContext)_localctx).m = match(MERGE);
+				setState(1608);
+				((ViewExpressionContext)_localctx).m = match(MERGE);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(1611); match(LPAREN);
+			setState(1611);
+			match(LPAREN);
 			setState(1613);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(1612); expressionWithTimeList();
+				setState(1612);
+				expressionWithTimeList();
 				}
 			}
 
-			setState(1615); match(RPAREN);
+			setState(1615);
+			match(RPAREN);
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8222,11 +8883,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GroupByListExprContext extends ParserRuleContext {
-		public GroupByListChoiceContext groupByListChoice(int i) {
-			return getRuleContext(GroupByListChoiceContext.class,i);
-		}
 		public List<GroupByListChoiceContext> groupByListChoice() {
 			return getRuleContexts(GroupByListChoiceContext.class);
+		}
+		public GroupByListChoiceContext groupByListChoice(int i) {
+			return getRuleContext(GroupByListChoiceContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -8254,15 +8915,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1617); groupByListChoice();
+			setState(1617);
+			groupByListChoice();
 			setState(1622);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1618); match(COMMA);
-				setState(1619); groupByListChoice();
+				setState(1618);
+				match(COMMA);
+				setState(1619);
+				groupByListChoice();
 				}
 				}
 				setState(1624);
@@ -8270,6 +8934,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8285,14 +8950,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GroupByListChoiceContext extends ParserRuleContext {
 		public ExpressionContext e1;
-		public GroupByGroupingSetsContext groupByGroupingSets() {
-			return getRuleContext(GroupByGroupingSetsContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public GroupByCubeOrRollupContext groupByCubeOrRollup() {
 			return getRuleContext(GroupByCubeOrRollupContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public GroupByGroupingSetsContext groupByGroupingSets() {
+			return getRuleContext(GroupByGroupingSetsContext.class,0);
 		}
 		public GroupByListChoiceContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -8313,25 +8978,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 214, RULE_groupByListChoice);
 		try {
 			setState(1628);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,194,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1625); ((GroupByListChoiceContext)_localctx).e1 = expression();
+				setState(1625);
+				((GroupByListChoiceContext)_localctx).e1 = expression();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1626); groupByCubeOrRollup();
+				setState(1626);
+				groupByCubeOrRollup();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1627); groupByGroupingSets();
+				setState(1627);
+				groupByGroupingSets();
 				}
 				break;
 			}
@@ -8348,17 +9015,17 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GroupByCubeOrRollupContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<GroupByCombinableExprContext> groupByCombinableExpr() {
 			return getRuleContexts(GroupByCombinableExprContext.class);
 		}
-		public TerminalNode ROLLUP() { return getToken(EsperEPL2GrammarParser.ROLLUP, 0); }
-		public TerminalNode CUBE() { return getToken(EsperEPL2GrammarParser.CUBE, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public GroupByCombinableExprContext groupByCombinableExpr(int i) {
 			return getRuleContext(GroupByCombinableExprContext.class,i);
 		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode CUBE() { return getToken(EsperEPL2GrammarParser.CUBE, 0); }
+		public TerminalNode ROLLUP() { return getToken(EsperEPL2GrammarParser.ROLLUP, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -8387,25 +9054,31 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==CUBE || _la==ROLLUP) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
-			setState(1631); match(LPAREN);
-			setState(1632); groupByCombinableExpr();
+			setState(1631);
+			match(LPAREN);
+			setState(1632);
+			groupByCombinableExpr();
 			setState(1637);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1633); match(COMMA);
-				setState(1634); groupByCombinableExpr();
+				setState(1633);
+				match(COMMA);
+				setState(1634);
+				groupByCombinableExpr();
 				}
 				}
 				setState(1639);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1640); match(RPAREN);
+			setState(1640);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -8420,17 +9093,17 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GroupByGroupingSetsContext extends ParserRuleContext {
+		public TerminalNode GROUPING() { return getToken(EsperEPL2GrammarParser.GROUPING, 0); }
+		public TerminalNode SETS() { return getToken(EsperEPL2GrammarParser.SETS, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<GroupBySetsChoiceContext> groupBySetsChoice() {
 			return getRuleContexts(GroupBySetsChoiceContext.class);
 		}
 		public GroupBySetsChoiceContext groupBySetsChoice(int i) {
 			return getRuleContext(GroupBySetsChoiceContext.class,i);
 		}
-		public TerminalNode SETS() { return getToken(EsperEPL2GrammarParser.SETS, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode GROUPING() { return getToken(EsperEPL2GrammarParser.GROUPING, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -8455,25 +9128,32 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1642); match(GROUPING);
-			setState(1643); match(SETS);
-			setState(1644); match(LPAREN);
-			setState(1645); groupBySetsChoice();
+			setState(1642);
+			match(GROUPING);
+			setState(1643);
+			match(SETS);
+			setState(1644);
+			match(LPAREN);
+			setState(1645);
+			groupBySetsChoice();
 			setState(1650);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1646); match(COMMA);
-				setState(1647); groupBySetsChoice();
+				setState(1646);
+				match(COMMA);
+				setState(1647);
+				groupBySetsChoice();
 				}
 				}
 				setState(1652);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1653); match(RPAREN);
+			setState(1653);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -8518,7 +9198,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case ROLLUP:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1655); groupByCubeOrRollup();
+				setState(1655);
+				groupByCubeOrRollup();
 				}
 				break;
 			case WINDOW:
@@ -8596,7 +9277,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1656); groupByCombinableExpr();
+				setState(1656);
+				groupByCombinableExpr();
 				}
 				break;
 			default:
@@ -8616,15 +9298,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class GroupByCombinableExprContext extends ParserRuleContext {
 		public ExpressionContext e1;
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -8648,31 +9330,36 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1672);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,200,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1659); ((GroupByCombinableExprContext)_localctx).e1 = expression();
+				setState(1659);
+				((GroupByCombinableExprContext)_localctx).e1 = expression();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1660); match(LPAREN);
+				setState(1660);
+				match(LPAREN);
 				setState(1669);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(1661); expression();
+					setState(1661);
+					expression();
 					setState(1666);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						setState(1662); match(COMMA);
-						setState(1663); expression();
+						setState(1662);
+						match(COMMA);
+						setState(1663);
+						expression();
 						}
 						}
 						setState(1668);
@@ -8682,7 +9369,8 @@ public class EsperEPL2GrammarParser extends Parser {
 					}
 				}
 
-				setState(1671); match(RPAREN);
+				setState(1671);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -8699,11 +9387,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OrderByListExprContext extends ParserRuleContext {
-		public OrderByListElementContext orderByListElement(int i) {
-			return getRuleContext(OrderByListElementContext.class,i);
-		}
 		public List<OrderByListElementContext> orderByListElement() {
 			return getRuleContexts(OrderByListElementContext.class);
+		}
+		public OrderByListElementContext orderByListElement(int i) {
+			return getRuleContext(OrderByListElementContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -8731,15 +9419,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1674); orderByListElement();
+			setState(1674);
+			orderByListElement();
 			setState(1679);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1675); match(COMMA);
-				setState(1676); orderByListElement();
+				setState(1675);
+				match(COMMA);
+				setState(1676);
+				orderByListElement();
 				}
 				}
 				setState(1681);
@@ -8747,6 +9438,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8763,11 +9455,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class OrderByListElementContext extends ParserRuleContext {
 		public Token a;
 		public Token d;
-		public TerminalNode DESC() { return getToken(EsperEPL2GrammarParser.DESC, 0); }
-		public TerminalNode ASC() { return getToken(EsperEPL2GrammarParser.ASC, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode ASC() { return getToken(EsperEPL2GrammarParser.ASC, 0); }
+		public TerminalNode DESC() { return getToken(EsperEPL2GrammarParser.DESC, 0); }
 		public OrderByListElementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -8788,17 +9480,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1682); expression();
+			setState(1682);
+			expression();
 			setState(1685);
 			switch (_input.LA(1)) {
 			case ASC:
 				{
-				setState(1683); ((OrderByListElementContext)_localctx).a = match(ASC);
+				setState(1683);
+				((OrderByListElementContext)_localctx).a = match(ASC);
 				}
 				break;
 			case DESC:
 				{
-				setState(1684); ((OrderByListElementContext)_localctx).d = match(DESC);
+				setState(1684);
+				((OrderByListElementContext)_localctx).d = match(DESC);
 				}
 				break;
 			case EOF:
@@ -8849,8 +9544,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1687); evalOrExpression();
+			setState(1687);
+			evalOrExpression();
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -8872,39 +9569,39 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token at;
 		public Token wh;
 		public Token t;
-		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
-		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
+		public OutputLimitAfterContext outputLimitAfter() {
+			return getRuleContext(OutputLimitAfterContext.class,0);
+		}
+		public OutputLimitAndTermContext outputLimitAndTerm() {
+			return getRuleContext(OutputLimitAndTermContext.class,0);
+		}
 		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
 		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
+		public TerminalNode SNAPSHOT() { return getToken(EsperEPL2GrammarParser.SNAPSHOT, 0); }
+		public CrontabLimitParameterSetContext crontabLimitParameterSet() {
+			return getRuleContext(CrontabLimitParameterSetContext.class,0);
+		}
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
+		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
+		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
+		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
+		public TimePeriodContext timePeriod() {
+			return getRuleContext(TimePeriodContext.class,0);
+		}
+		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
 		public OnSetExprContext onSetExpr() {
 			return getRuleContext(OnSetExprContext.class,0);
 		}
 		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
-		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
-		public OutputLimitAfterContext outputLimitAfter() {
-			return getRuleContext(OutputLimitAfterContext.class,0);
-		}
-		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
-		public CrontabLimitParameterSetContext crontabLimitParameterSet() {
-			return getRuleContext(CrontabLimitParameterSetContext.class,0);
-		}
-		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
-		public TimePeriodContext timePeriod() {
-			return getRuleContext(TimePeriodContext.class,0);
-		}
 		public NumberContext number() {
 			return getRuleContext(NumberContext.class,0);
 		}
-		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
-		public OutputLimitAndTermContext outputLimitAndTerm() {
-			return getRuleContext(OutputLimitAndTermContext.class,0);
-		}
-		public TerminalNode SNAPSHOT() { return getToken(EsperEPL2GrammarParser.SNAPSHOT, 0); }
+		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
 		public OutputLimitContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -8931,7 +9628,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AFTER) {
 				{
-				setState(1689); outputLimitAfter();
+				setState(1689);
+				outputLimitAfter();
 				}
 			}
 
@@ -8939,22 +9637,26 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case ALL:
 				{
-				setState(1692); ((OutputLimitContext)_localctx).k = match(ALL);
+				setState(1692);
+				((OutputLimitContext)_localctx).k = match(ALL);
 				}
 				break;
 			case FIRST:
 				{
-				setState(1693); ((OutputLimitContext)_localctx).k = match(FIRST);
+				setState(1693);
+				((OutputLimitContext)_localctx).k = match(FIRST);
 				}
 				break;
 			case LAST:
 				{
-				setState(1694); ((OutputLimitContext)_localctx).k = match(LAST);
+				setState(1694);
+				((OutputLimitContext)_localctx).k = match(LAST);
 				}
 				break;
 			case SNAPSHOT:
 				{
-				setState(1695); ((OutputLimitContext)_localctx).k = match(SNAPSHOT);
+				setState(1695);
+				((OutputLimitContext)_localctx).k = match(SNAPSHOT);
 				}
 				break;
 			case EOF:
@@ -8971,19 +9673,22 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			setState(1726);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,210,_ctx) ) {
 			case 1:
 				{
 				{
-				setState(1698); ((OutputLimitContext)_localctx).ev = match(EVERY_EXPR);
+				setState(1698);
+				((OutputLimitContext)_localctx).ev = match(EVERY_EXPR);
 				setState(1705);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,206,_ctx) ) {
 				case 1:
 					{
-					setState(1699); timePeriod();
+					setState(1699);
+					timePeriod();
 					}
 					break;
-
 				case 2:
 					{
 					setState(1702);
@@ -8991,19 +9696,22 @@ public class EsperEPL2GrammarParser extends Parser {
 					case IntegerLiteral:
 					case FloatingPointLiteral:
 						{
-						setState(1700); number();
+						setState(1700);
+						number();
 						}
 						break;
 					case IDENT:
 						{
-						setState(1701); ((OutputLimitContext)_localctx).i = match(IDENT);
+						setState(1701);
+						((OutputLimitContext)_localctx).i = match(IDENT);
 						}
 						break;
 					default:
 						throw new NoViableAltException(this);
 					}
 					{
-					setState(1704); ((OutputLimitContext)_localctx).e = match(EVENTS);
+					setState(1704);
+					((OutputLimitContext)_localctx).e = match(EVENTS);
 					}
 					}
 					break;
@@ -9011,45 +9719,53 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 				}
 				break;
-
 			case 2:
 				{
 				{
-				setState(1707); ((OutputLimitContext)_localctx).at = match(AT);
-				setState(1708); crontabLimitParameterSet();
+				setState(1707);
+				((OutputLimitContext)_localctx).at = match(AT);
+				setState(1708);
+				crontabLimitParameterSet();
 				}
 				}
 				break;
-
 			case 3:
 				{
 				{
-				setState(1709); ((OutputLimitContext)_localctx).wh = match(WHEN);
-				setState(1710); expression();
+				setState(1709);
+				((OutputLimitContext)_localctx).wh = match(WHEN);
+				setState(1710);
+				expression();
 				setState(1713);
 				_la = _input.LA(1);
 				if (_la==THEN) {
 					{
-					setState(1711); match(THEN);
-					setState(1712); onSetExpr();
+					setState(1711);
+					match(THEN);
+					setState(1712);
+					onSetExpr();
 					}
 				}
 
 				}
 				}
 				break;
-
 			case 4:
 				{
 				{
-				setState(1715); ((OutputLimitContext)_localctx).t = match(WHEN);
-				setState(1716); match(TERMINATED);
+				setState(1715);
+				((OutputLimitContext)_localctx).t = match(WHEN);
+				setState(1716);
+				match(TERMINATED);
 				setState(1719);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,208,_ctx) ) {
 				case 1:
 					{
-					setState(1717); match(AND_EXPR);
-					setState(1718); expression();
+					setState(1717);
+					match(AND_EXPR);
+					setState(1718);
+					expression();
 					}
 					break;
 				}
@@ -9057,15 +9773,16 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==THEN) {
 					{
-					setState(1721); match(THEN);
-					setState(1722); onSetExpr();
+					setState(1721);
+					match(THEN);
+					setState(1722);
+					onSetExpr();
 					}
 				}
 
 				}
 				}
 				break;
-
 			case 5:
 				{
 				}
@@ -9075,11 +9792,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
-				setState(1728); outputLimitAndTerm();
+				setState(1728);
+				outputLimitAndTerm();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -9094,19 +9813,19 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class OutputLimitAndTermContext extends ParserRuleContext {
-		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
-		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
+		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
 		public TerminalNode AND_EXPR(int i) {
 			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
 		}
+		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
+		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
 		public OnSetExprContext onSetExpr() {
 			return getRuleContext(OnSetExprContext.class,0);
 		}
-		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
-		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
 		public OutputLimitAndTermContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9128,15 +9847,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1731); match(AND_EXPR);
-			setState(1732); match(WHEN);
-			setState(1733); match(TERMINATED);
+			setState(1731);
+			match(AND_EXPR);
+			setState(1732);
+			match(WHEN);
+			setState(1733);
+			match(TERMINATED);
 			setState(1736);
 			_la = _input.LA(1);
 			if (_la==AND_EXPR) {
 				{
-				setState(1734); match(AND_EXPR);
-				setState(1735); expression();
+				setState(1734);
+				match(AND_EXPR);
+				setState(1735);
+				expression();
 				}
 			}
 
@@ -9144,8 +9868,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==THEN) {
 				{
-				setState(1738); match(THEN);
-				setState(1739); onSetExpr();
+				setState(1738);
+				match(THEN);
+				setState(1739);
+				onSetExpr();
 				}
 			}
 
@@ -9164,14 +9890,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class OutputLimitAfterContext extends ParserRuleContext {
 		public Token a;
-		public NumberContext number() {
-			return getRuleContext(NumberContext.class,0);
-		}
-		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
 		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
 		public TimePeriodContext timePeriod() {
 			return getRuleContext(TimePeriodContext.class,0);
 		}
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
+		}
+		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
 		public OutputLimitAfterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9192,19 +9918,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1742); ((OutputLimitAfterContext)_localctx).a = match(AFTER);
+			setState(1742);
+			((OutputLimitAfterContext)_localctx).a = match(AFTER);
 			setState(1747);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,214,_ctx) ) {
 			case 1:
 				{
-				setState(1743); timePeriod();
+				setState(1743);
+				timePeriod();
 				}
 				break;
-
 			case 2:
 				{
-				setState(1744); number();
-				setState(1745); match(EVENTS);
+				setState(1744);
+				number();
+				setState(1745);
+				match(EVENTS);
 				}
 				break;
 			}
@@ -9228,18 +9958,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token o;
 		public NumberconstantContext n2;
 		public Token i2;
-		public TerminalNode OFFSET() { return getToken(EsperEPL2GrammarParser.OFFSET, 0); }
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public NumberconstantContext numberconstant(int i) {
-			return getRuleContext(NumberconstantContext.class,i);
-		}
 		public List<NumberconstantContext> numberconstant() {
 			return getRuleContexts(NumberconstantContext.class);
+		}
+		public NumberconstantContext numberconstant(int i) {
+			return getRuleContext(NumberconstantContext.class,i);
 		}
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
+		public TerminalNode OFFSET() { return getToken(EsperEPL2GrammarParser.OFFSET, 0); }
 		public RowLimitContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9269,12 +9999,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(1749); ((RowLimitContext)_localctx).n1 = numberconstant();
+				setState(1749);
+				((RowLimitContext)_localctx).n1 = numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(1750); ((RowLimitContext)_localctx).i1 = match(IDENT);
+				setState(1750);
+				((RowLimitContext)_localctx).i1 = match(IDENT);
 				}
 				break;
 			default:
@@ -9288,12 +10020,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case COMMA:
 					{
-					setState(1753); ((RowLimitContext)_localctx).c = match(COMMA);
+					setState(1753);
+					((RowLimitContext)_localctx).c = match(COMMA);
 					}
 					break;
 				case OFFSET:
 					{
-					setState(1754); ((RowLimitContext)_localctx).o = match(OFFSET);
+					setState(1754);
+					((RowLimitContext)_localctx).o = match(OFFSET);
 					}
 					break;
 				default:
@@ -9306,12 +10040,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				case IntegerLiteral:
 				case FloatingPointLiteral:
 					{
-					setState(1757); ((RowLimitContext)_localctx).n2 = numberconstant();
+					setState(1757);
+					((RowLimitContext)_localctx).n2 = numberconstant();
 					}
 					break;
 				case IDENT:
 					{
-					setState(1758); ((RowLimitContext)_localctx).i2 = match(IDENT);
+					setState(1758);
+					((RowLimitContext)_localctx).i2 = match(IDENT);
 					}
 					break;
 				default:
@@ -9321,6 +10057,7 @@ public class EsperEPL2GrammarParser extends Parser {
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -9335,11 +10072,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CrontabLimitParameterSetContext extends ParserRuleContext {
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionWithTimeListContext expressionWithTimeList() {
 			return getRuleContext(ExpressionWithTimeListContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public CrontabLimitParameterSetContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9360,9 +10097,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1763); match(LPAREN);
-			setState(1764); expressionWithTimeList();
-			setState(1765); match(RPAREN);
+			setState(1763);
+			match(LPAREN);
+			setState(1764);
+			expressionWithTimeList();
+			setState(1765);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -9377,14 +10117,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class WhenClauseContext extends ParserRuleContext {
-		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
+		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode WHEN() { return getToken(EsperEPL2GrammarParser.WHEN, 0); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode THEN() { return getToken(EsperEPL2GrammarParser.THEN, 0); }
 		public WhenClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9406,10 +10146,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			{
-			setState(1767); match(WHEN);
-			setState(1768); expression();
-			setState(1769); match(THEN);
-			setState(1770); expression();
+			setState(1767);
+			match(WHEN);
+			setState(1768);
+			expression();
+			setState(1769);
+			match(THEN);
+			setState(1770);
+			expression();
 			}
 			}
 		}
@@ -9450,8 +10194,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			{
-			setState(1772); match(ELSE);
-			setState(1773); expression();
+			setState(1772);
+			match(ELSE);
+			setState(1773);
+			expression();
 			}
 			}
 		}
@@ -9467,29 +10213,29 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MatchRecogContext extends ParserRuleContext {
+		public TerminalNode MATCH_RECOGNIZE() { return getToken(EsperEPL2GrammarParser.MATCH_RECOGNIZE, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public MatchRecogMeasuresContext matchRecogMeasures() {
+			return getRuleContext(MatchRecogMeasuresContext.class,0);
+		}
 		public MatchRecogPatternContext matchRecogPattern() {
 			return getRuleContext(MatchRecogPatternContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public MatchRecogPartitionByContext matchRecogPartitionBy() {
+			return getRuleContext(MatchRecogPartitionByContext.class,0);
+		}
+		public MatchRecogMatchesSelectionContext matchRecogMatchesSelection() {
+			return getRuleContext(MatchRecogMatchesSelectionContext.class,0);
+		}
+		public MatchRecogMatchesAfterSkipContext matchRecogMatchesAfterSkip() {
+			return getRuleContext(MatchRecogMatchesAfterSkipContext.class,0);
 		}
 		public MatchRecogMatchesIntervalContext matchRecogMatchesInterval() {
 			return getRuleContext(MatchRecogMatchesIntervalContext.class,0);
 		}
-		public MatchRecogPartitionByContext matchRecogPartitionBy() {
-			return getRuleContext(MatchRecogPartitionByContext.class,0);
-		}
 		public MatchRecogDefineContext matchRecogDefine() {
 			return getRuleContext(MatchRecogDefineContext.class,0);
-		}
-		public MatchRecogMeasuresContext matchRecogMeasures() {
-			return getRuleContext(MatchRecogMeasuresContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode MATCH_RECOGNIZE() { return getToken(EsperEPL2GrammarParser.MATCH_RECOGNIZE, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public MatchRecogMatchesAfterSkipContext matchRecogMatchesAfterSkip() {
-			return getRuleContext(MatchRecogMatchesAfterSkipContext.class,0);
-		}
-		public MatchRecogMatchesSelectionContext matchRecogMatchesSelection() {
-			return getRuleContext(MatchRecogMatchesSelectionContext.class,0);
 		}
 		public MatchRecogContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -9512,22 +10258,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1775); match(MATCH_RECOGNIZE);
-			setState(1776); match(LPAREN);
+			setState(1775);
+			match(MATCH_RECOGNIZE);
+			setState(1776);
+			match(LPAREN);
 			setState(1778);
 			_la = _input.LA(1);
 			if (_la==PARTITION) {
 				{
-				setState(1777); matchRecogPartitionBy();
+				setState(1777);
+				matchRecogPartitionBy();
 				}
 			}
 
-			setState(1780); matchRecogMeasures();
+			setState(1780);
+			matchRecogMeasures();
 			setState(1782);
 			_la = _input.LA(1);
 			if (_la==ALL) {
 				{
-				setState(1781); matchRecogMatchesSelection();
+				setState(1781);
+				matchRecogMatchesSelection();
 				}
 			}
 
@@ -9535,16 +10286,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AFTER) {
 				{
-				setState(1784); matchRecogMatchesAfterSkip();
+				setState(1784);
+				matchRecogMatchesAfterSkip();
 				}
 			}
 
-			setState(1787); matchRecogPattern();
+			setState(1787);
+			matchRecogPattern();
 			setState(1789);
 			_la = _input.LA(1);
 			if (_la==IDENT) {
 				{
-				setState(1788); matchRecogMatchesInterval();
+				setState(1788);
+				matchRecogMatchesInterval();
 				}
 			}
 
@@ -9552,11 +10306,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==DEFINE) {
 				{
-				setState(1791); matchRecogDefine();
+				setState(1791);
+				matchRecogDefine();
 				}
 			}
 
-			setState(1794); match(RPAREN);
+			setState(1794);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -9571,15 +10327,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MatchRecogPartitionByContext extends ParserRuleContext {
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
 		public TerminalNode BY() { return getToken(EsperEPL2GrammarParser.BY, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -9604,17 +10360,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1796); match(PARTITION);
-			setState(1797); match(BY);
-			setState(1798); expression();
+			setState(1796);
+			match(PARTITION);
+			setState(1797);
+			match(BY);
+			setState(1798);
+			expression();
 			setState(1803);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1799); match(COMMA);
-				setState(1800); expression();
+				setState(1799);
+				match(COMMA);
+				setState(1800);
+				expression();
 				}
 				}
 				setState(1805);
@@ -9636,13 +10397,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MatchRecogMeasuresContext extends ParserRuleContext {
 		public TerminalNode MEASURES() { return getToken(EsperEPL2GrammarParser.MEASURES, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<MatchRecogMeasureItemContext> matchRecogMeasureItem() {
 			return getRuleContexts(MatchRecogMeasureItemContext.class);
 		}
 		public MatchRecogMeasureItemContext matchRecogMeasureItem(int i) {
 			return getRuleContext(MatchRecogMeasureItemContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -9667,16 +10428,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1806); match(MEASURES);
-			setState(1807); matchRecogMeasureItem();
+			setState(1806);
+			match(MEASURES);
+			setState(1807);
+			matchRecogMeasureItem();
 			setState(1812);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1808); match(COMMA);
-				setState(1809); matchRecogMeasureItem();
+				setState(1808);
+				match(COMMA);
+				setState(1809);
+				matchRecogMeasureItem();
 				}
 				}
 				setState(1814);
@@ -9698,10 +10463,10 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MatchRecogMeasureItemContext extends ParserRuleContext {
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public MatchRecogMeasureItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -9724,17 +10489,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1815); expression();
+			setState(1815);
+			expression();
 			setState(1820);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(1816); match(AS);
+				setState(1816);
+				match(AS);
 				setState(1818);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(1817); ((MatchRecogMeasureItemContext)_localctx).i = match(IDENT);
+					setState(1817);
+					((MatchRecogMeasureItemContext)_localctx).i = match(IDENT);
 					}
 				}
 
@@ -9777,8 +10545,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1822); match(ALL);
-			setState(1823); match(MATCHES);
+			setState(1822);
+			match(ALL);
+			setState(1823);
+			match(MATCHES);
 			}
 		}
 		catch (RecognitionException re) {
@@ -9794,11 +10564,11 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MatchRecogPatternContext extends ParserRuleContext {
 		public TerminalNode PATTERN() { return getToken(EsperEPL2GrammarParser.PATTERN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public MatchRecogPatternAlterationContext matchRecogPatternAlteration() {
 			return getRuleContext(MatchRecogPatternAlterationContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public MatchRecogPatternContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9819,10 +10589,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1825); match(PATTERN);
-			setState(1826); match(LPAREN);
-			setState(1827); matchRecogPatternAlteration();
-			setState(1828); match(RPAREN);
+			setState(1825);
+			match(PATTERN);
+			setState(1826);
+			match(LPAREN);
+			setState(1827);
+			matchRecogPatternAlteration();
+			setState(1828);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -9842,13 +10616,13 @@ public class EsperEPL2GrammarParser extends Parser {
 		public KeywordAllowedIdentContext i3;
 		public KeywordAllowedIdentContext i4;
 		public KeywordAllowedIdentContext i5;
-		public KeywordAllowedIdentContext keywordAllowedIdent(int i) {
-			return getRuleContext(KeywordAllowedIdentContext.class,i);
-		}
+		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
 		public List<KeywordAllowedIdentContext> keywordAllowedIdent() {
 			return getRuleContexts(KeywordAllowedIdentContext.class);
 		}
-		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
+		public KeywordAllowedIdentContext keywordAllowedIdent(int i) {
+			return getRuleContext(KeywordAllowedIdentContext.class,i);
+		}
 		public MatchRecogMatchesAfterSkipContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9869,12 +10643,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1830); match(AFTER);
-			setState(1831); ((MatchRecogMatchesAfterSkipContext)_localctx).i1 = keywordAllowedIdent();
-			setState(1832); ((MatchRecogMatchesAfterSkipContext)_localctx).i2 = keywordAllowedIdent();
-			setState(1833); ((MatchRecogMatchesAfterSkipContext)_localctx).i3 = keywordAllowedIdent();
-			setState(1834); ((MatchRecogMatchesAfterSkipContext)_localctx).i4 = keywordAllowedIdent();
-			setState(1835); ((MatchRecogMatchesAfterSkipContext)_localctx).i5 = keywordAllowedIdent();
+			setState(1830);
+			match(AFTER);
+			setState(1831);
+			((MatchRecogMatchesAfterSkipContext)_localctx).i1 = keywordAllowedIdent();
+			setState(1832);
+			((MatchRecogMatchesAfterSkipContext)_localctx).i2 = keywordAllowedIdent();
+			setState(1833);
+			((MatchRecogMatchesAfterSkipContext)_localctx).i3 = keywordAllowedIdent();
+			setState(1834);
+			((MatchRecogMatchesAfterSkipContext)_localctx).i4 = keywordAllowedIdent();
+			setState(1835);
+			((MatchRecogMatchesAfterSkipContext)_localctx).i5 = keywordAllowedIdent();
 			}
 		}
 		catch (RecognitionException re) {
@@ -9891,12 +10671,12 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class MatchRecogMatchesIntervalContext extends ParserRuleContext {
 		public Token i;
 		public Token t;
-		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
-		public TerminalNode OR_EXPR() { return getToken(EsperEPL2GrammarParser.OR_EXPR, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public TimePeriodContext timePeriod() {
 			return getRuleContext(TimePeriodContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode OR_EXPR() { return getToken(EsperEPL2GrammarParser.OR_EXPR, 0); }
+		public TerminalNode TERMINATED() { return getToken(EsperEPL2GrammarParser.TERMINATED, 0); }
 		public MatchRecogMatchesIntervalContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -9918,14 +10698,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1837); ((MatchRecogMatchesIntervalContext)_localctx).i = match(IDENT);
-			setState(1838); timePeriod();
+			setState(1837);
+			((MatchRecogMatchesIntervalContext)_localctx).i = match(IDENT);
+			setState(1838);
+			timePeriod();
 			setState(1841);
 			_la = _input.LA(1);
 			if (_la==OR_EXPR) {
 				{
-				setState(1839); match(OR_EXPR);
-				setState(1840); ((MatchRecogMatchesIntervalContext)_localctx).t = match(TERMINATED);
+				setState(1839);
+				match(OR_EXPR);
+				setState(1840);
+				((MatchRecogMatchesIntervalContext)_localctx).t = match(TERMINATED);
 				}
 			}
 
@@ -9944,15 +10728,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MatchRecogPatternAlterationContext extends ParserRuleContext {
 		public Token o;
-		public TerminalNode BOR(int i) {
-			return getToken(EsperEPL2GrammarParser.BOR, i);
-		}
-		public List<TerminalNode> BOR() { return getTokens(EsperEPL2GrammarParser.BOR); }
 		public List<MatchRecogPatternConcatContext> matchRecogPatternConcat() {
 			return getRuleContexts(MatchRecogPatternConcatContext.class);
 		}
 		public MatchRecogPatternConcatContext matchRecogPatternConcat(int i) {
 			return getRuleContext(MatchRecogPatternConcatContext.class,i);
+		}
+		public List<TerminalNode> BOR() { return getTokens(EsperEPL2GrammarParser.BOR); }
+		public TerminalNode BOR(int i) {
+			return getToken(EsperEPL2GrammarParser.BOR, i);
 		}
 		public MatchRecogPatternAlterationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -9975,15 +10759,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1843); matchRecogPatternConcat();
+			setState(1843);
+			matchRecogPatternConcat();
 			setState(1848);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==BOR) {
 				{
 				{
-				setState(1844); ((MatchRecogPatternAlterationContext)_localctx).o = match(BOR);
-				setState(1845); matchRecogPatternConcat();
+				setState(1844);
+				((MatchRecogPatternAlterationContext)_localctx).o = match(BOR);
+				setState(1845);
+				matchRecogPatternConcat();
 				}
 				}
 				setState(1850);
@@ -10037,7 +10824,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			do {
 				{
 				{
-				setState(1851); matchRecogPatternUnary();
+				setState(1851);
+				matchRecogPatternUnary();
 				}
 				}
 				setState(1854); 
@@ -10061,11 +10849,11 @@ public class EsperEPL2GrammarParser extends Parser {
 		public MatchRecogPatternPermuteContext matchRecogPatternPermute() {
 			return getRuleContext(MatchRecogPatternPermuteContext.class,0);
 		}
-		public MatchRecogPatternAtomContext matchRecogPatternAtom() {
-			return getRuleContext(MatchRecogPatternAtomContext.class,0);
-		}
 		public MatchRecogPatternNestedContext matchRecogPatternNested() {
 			return getRuleContext(MatchRecogPatternNestedContext.class,0);
+		}
+		public MatchRecogPatternAtomContext matchRecogPatternAtom() {
+			return getRuleContext(MatchRecogPatternAtomContext.class,0);
 		}
 		public MatchRecogPatternUnaryContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -10090,19 +10878,22 @@ public class EsperEPL2GrammarParser extends Parser {
 			case MATCH_RECOGNIZE_PERMUTE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1856); matchRecogPatternPermute();
+				setState(1856);
+				matchRecogPatternPermute();
 				}
 				break;
 			case LPAREN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1857); matchRecogPatternNested();
+				setState(1857);
+				matchRecogPatternNested();
 				}
 				break;
 			case IDENT:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1858); matchRecogPatternAtom();
+				setState(1858);
+				matchRecogPatternAtom();
 				}
 				break;
 			default:
@@ -10122,17 +10913,17 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MatchRecogPatternNestedContext extends ParserRuleContext {
 		public Token s;
-		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public MatchRecogPatternAlterationContext matchRecogPatternAlteration() {
 			return getRuleContext(MatchRecogPatternAlterationContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
-		public TerminalNode PLUS() { return getToken(EsperEPL2GrammarParser.PLUS, 0); }
 		public MatchRecogPatternRepeatContext matchRecogPatternRepeat() {
 			return getRuleContext(MatchRecogPatternRepeatContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
+		public TerminalNode PLUS() { return getToken(EsperEPL2GrammarParser.PLUS, 0); }
+		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
 		public MatchRecogPatternNestedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10154,24 +10945,30 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1861); match(LPAREN);
-			setState(1862); matchRecogPatternAlteration();
-			setState(1863); match(RPAREN);
+			setState(1861);
+			match(LPAREN);
+			setState(1862);
+			matchRecogPatternAlteration();
+			setState(1863);
+			match(RPAREN);
 			setState(1867);
 			switch (_input.LA(1)) {
 			case STAR:
 				{
-				setState(1864); ((MatchRecogPatternNestedContext)_localctx).s = match(STAR);
+				setState(1864);
+				((MatchRecogPatternNestedContext)_localctx).s = match(STAR);
 				}
 				break;
 			case PLUS:
 				{
-				setState(1865); ((MatchRecogPatternNestedContext)_localctx).s = match(PLUS);
+				setState(1865);
+				((MatchRecogPatternNestedContext)_localctx).s = match(PLUS);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(1866); ((MatchRecogPatternNestedContext)_localctx).s = match(QUESTION);
+				setState(1866);
+				((MatchRecogPatternNestedContext)_localctx).s = match(QUESTION);
 				}
 				break;
 			case MATCH_RECOGNIZE_PERMUTE:
@@ -10189,7 +10986,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LCURLY) {
 				{
-				setState(1869); matchRecogPatternRepeat();
+				setState(1869);
+				matchRecogPatternRepeat();
 				}
 			}
 
@@ -10207,18 +11005,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MatchRecogPatternPermuteContext extends ParserRuleContext {
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode MATCH_RECOGNIZE_PERMUTE() { return getToken(EsperEPL2GrammarParser.MATCH_RECOGNIZE_PERMUTE, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<MatchRecogPatternAlterationContext> matchRecogPatternAlteration() {
 			return getRuleContexts(MatchRecogPatternAlterationContext.class);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode MATCH_RECOGNIZE_PERMUTE() { return getToken(EsperEPL2GrammarParser.MATCH_RECOGNIZE_PERMUTE, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
 		public MatchRecogPatternAlterationContext matchRecogPatternAlteration(int i) {
 			return getRuleContext(MatchRecogPatternAlterationContext.class,i);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
 		public MatchRecogPatternPermuteContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -10241,24 +11039,30 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1872); match(MATCH_RECOGNIZE_PERMUTE);
-			setState(1873); match(LPAREN);
-			setState(1874); matchRecogPatternAlteration();
+			setState(1872);
+			match(MATCH_RECOGNIZE_PERMUTE);
+			setState(1873);
+			match(LPAREN);
+			setState(1874);
+			matchRecogPatternAlteration();
 			setState(1879);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1875); match(COMMA);
-				setState(1876); matchRecogPatternAlteration();
+				setState(1875);
+				match(COMMA);
+				setState(1876);
+				matchRecogPatternAlteration();
 				}
 				}
 				setState(1881);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(1882); match(RPAREN);
+			setState(1882);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -10276,16 +11080,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i;
 		public Token s;
 		public Token reluctant;
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public MatchRecogPatternRepeatContext matchRecogPatternRepeat() {
+			return getRuleContext(MatchRecogPatternRepeatContext.class,0);
+		}
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
+		public TerminalNode PLUS() { return getToken(EsperEPL2GrammarParser.PLUS, 0); }
 		public List<TerminalNode> QUESTION() { return getTokens(EsperEPL2GrammarParser.QUESTION); }
 		public TerminalNode QUESTION(int i) {
 			return getToken(EsperEPL2GrammarParser.QUESTION, i);
 		}
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
-		public TerminalNode PLUS() { return getToken(EsperEPL2GrammarParser.PLUS, 0); }
-		public MatchRecogPatternRepeatContext matchRecogPatternRepeat() {
-			return getRuleContext(MatchRecogPatternRepeatContext.class,0);
-		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public MatchRecogPatternAtomContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10307,7 +11111,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1884); ((MatchRecogPatternAtomContext)_localctx).i = match(IDENT);
+			setState(1884);
+			((MatchRecogPatternAtomContext)_localctx).i = match(IDENT);
 			setState(1893);
 			_la = _input.LA(1);
 			if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (STAR - 140)))) != 0)) {
@@ -10316,17 +11121,20 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case STAR:
 					{
-					setState(1885); ((MatchRecogPatternAtomContext)_localctx).s = match(STAR);
+					setState(1885);
+					((MatchRecogPatternAtomContext)_localctx).s = match(STAR);
 					}
 					break;
 				case PLUS:
 					{
-					setState(1886); ((MatchRecogPatternAtomContext)_localctx).s = match(PLUS);
+					setState(1886);
+					((MatchRecogPatternAtomContext)_localctx).s = match(PLUS);
 					}
 					break;
 				case QUESTION:
 					{
-					setState(1887); ((MatchRecogPatternAtomContext)_localctx).s = match(QUESTION);
+					setState(1887);
+					((MatchRecogPatternAtomContext)_localctx).s = match(QUESTION);
 					}
 					break;
 				default:
@@ -10336,7 +11144,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==QUESTION) {
 					{
-					setState(1890); ((MatchRecogPatternAtomContext)_localctx).reluctant = match(QUESTION);
+					setState(1890);
+					((MatchRecogPatternAtomContext)_localctx).reluctant = match(QUESTION);
 					}
 				}
 
@@ -10347,7 +11156,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LCURLY) {
 				{
-				setState(1895); matchRecogPatternRepeat();
+				setState(1895);
+				matchRecogPatternRepeat();
 				}
 			}
 
@@ -10368,15 +11178,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		public ExpressionContext e1;
 		public Token comma;
 		public ExpressionContext e2;
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
 		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
 		public MatchRecogPatternRepeatContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10398,12 +11208,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1898); match(LCURLY);
+			setState(1898);
+			match(LCURLY);
 			setState(1900);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,239,_ctx) ) {
 			case 1:
 				{
-				setState(1899); ((MatchRecogPatternRepeatContext)_localctx).e1 = expression();
+				setState(1899);
+				((MatchRecogPatternRepeatContext)_localctx).e1 = expression();
 				}
 				break;
 			}
@@ -10411,7 +11224,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
-				setState(1902); ((MatchRecogPatternRepeatContext)_localctx).comma = match(COMMA);
+				setState(1902);
+				((MatchRecogPatternRepeatContext)_localctx).comma = match(COMMA);
 				}
 			}
 
@@ -10419,11 +11233,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(1905); ((MatchRecogPatternRepeatContext)_localctx).e2 = expression();
+				setState(1905);
+				((MatchRecogPatternRepeatContext)_localctx).e2 = expression();
 				}
 			}
 
-			setState(1908); match(RCURLY);
+			setState(1908);
+			match(RCURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -10438,14 +11254,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MatchRecogDefineContext extends ParserRuleContext {
-		public MatchRecogDefineItemContext matchRecogDefineItem(int i) {
-			return getRuleContext(MatchRecogDefineItemContext.class,i);
-		}
 		public TerminalNode DEFINE() { return getToken(EsperEPL2GrammarParser.DEFINE, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public List<MatchRecogDefineItemContext> matchRecogDefineItem() {
 			return getRuleContexts(MatchRecogDefineItemContext.class);
 		}
+		public MatchRecogDefineItemContext matchRecogDefineItem(int i) {
+			return getRuleContext(MatchRecogDefineItemContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -10470,16 +11286,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1910); match(DEFINE);
-			setState(1911); matchRecogDefineItem();
+			setState(1910);
+			match(DEFINE);
+			setState(1911);
+			matchRecogDefineItem();
 			setState(1916);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(1912); match(COMMA);
-				setState(1913); matchRecogDefineItem();
+				setState(1912);
+				match(COMMA);
+				setState(1913);
+				matchRecogDefineItem();
 				}
 				}
 				setState(1918);
@@ -10526,9 +11346,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1919); ((MatchRecogDefineItemContext)_localctx).i = match(IDENT);
-			setState(1920); match(AS);
-			setState(1921); expression();
+			setState(1919);
+			((MatchRecogDefineItemContext)_localctx).i = match(IDENT);
+			setState(1920);
+			match(AS);
+			setState(1921);
+			expression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -10566,7 +11389,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1923); caseExpression();
+			setState(1923);
+			caseExpression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -10581,23 +11405,23 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class CaseExpressionContext extends ParserRuleContext {
-		public ElseClauseContext elseClause() {
-			return getRuleContext(ElseClauseContext.class,0);
-		}
-		public EvalOrExpressionContext evalOrExpression() {
-			return getRuleContext(EvalOrExpressionContext.class,0);
+		public TerminalNode CASE() { return getToken(EsperEPL2GrammarParser.CASE, 0); }
+		public TerminalNode END() { return getToken(EsperEPL2GrammarParser.END, 0); }
+		public List<WhenClauseContext> whenClause() {
+			return getRuleContexts(WhenClauseContext.class);
 		}
 		public WhenClauseContext whenClause(int i) {
 			return getRuleContext(WhenClauseContext.class,i);
 		}
-		public TerminalNode CASE() { return getToken(EsperEPL2GrammarParser.CASE, 0); }
+		public ElseClauseContext elseClause() {
+			return getRuleContext(ElseClauseContext.class,0);
+		}
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public List<WhenClauseContext> whenClause() {
-			return getRuleContexts(WhenClauseContext.class);
+		public EvalOrExpressionContext evalOrExpression() {
+			return getRuleContext(EvalOrExpressionContext.class,0);
 		}
-		public TerminalNode END() { return getToken(EsperEPL2GrammarParser.END, 0); }
 		public CaseExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10618,19 +11442,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(1953);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,247,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
 				 paraphrases.push("case expression"); 
-				setState(1926); match(CASE);
+				setState(1926);
+				match(CASE);
 				setState(1928); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(1927); whenClause();
+					setState(1927);
+					whenClause();
 					}
 					}
 					setState(1930); 
@@ -10641,28 +11468,32 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==ELSE) {
 					{
-					setState(1932); elseClause();
+					setState(1932);
+					elseClause();
 					}
 				}
 
-				setState(1935); match(END);
+				setState(1935);
+				match(END);
 				 paraphrases.pop(); 
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				 paraphrases.push("case expression"); 
-				setState(1939); match(CASE);
-				setState(1940); expression();
+				setState(1939);
+				match(CASE);
+				setState(1940);
+				expression();
 				setState(1942); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(1941); whenClause();
+					setState(1941);
+					whenClause();
 					}
 					}
 					setState(1944); 
@@ -10673,19 +11504,21 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==ELSE) {
 					{
-					setState(1946); elseClause();
+					setState(1946);
+					elseClause();
 					}
 				}
 
-				setState(1949); match(END);
+				setState(1949);
+				match(END);
 				 paraphrases.pop(); 
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(1952); evalOrExpression();
+				setState(1952);
+				evalOrExpression();
 				}
 				break;
 			}
@@ -10703,15 +11536,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class EvalOrExpressionContext extends ParserRuleContext {
 		public Token op;
+		public List<EvalAndExpressionContext> evalAndExpression() {
+			return getRuleContexts(EvalAndExpressionContext.class);
+		}
 		public EvalAndExpressionContext evalAndExpression(int i) {
 			return getRuleContext(EvalAndExpressionContext.class,i);
 		}
 		public List<TerminalNode> OR_EXPR() { return getTokens(EsperEPL2GrammarParser.OR_EXPR); }
 		public TerminalNode OR_EXPR(int i) {
 			return getToken(EsperEPL2GrammarParser.OR_EXPR, i);
-		}
-		public List<EvalAndExpressionContext> evalAndExpression() {
-			return getRuleContexts(EvalAndExpressionContext.class);
 		}
 		public EvalOrExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -10734,15 +11567,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1955); evalAndExpression();
+			setState(1955);
+			evalAndExpression();
 			setState(1960);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==OR_EXPR) {
 				{
 				{
-				setState(1956); ((EvalOrExpressionContext)_localctx).op = match(OR_EXPR);
-				setState(1957); evalAndExpression();
+				setState(1956);
+				((EvalOrExpressionContext)_localctx).op = match(OR_EXPR);
+				setState(1957);
+				evalAndExpression();
 				}
 				}
 				setState(1962);
@@ -10764,16 +11600,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class EvalAndExpressionContext extends ParserRuleContext {
 		public Token op;
-		public BitWiseExpressionContext bitWiseExpression(int i) {
-			return getRuleContext(BitWiseExpressionContext.class,i);
-		}
-		public TerminalNode AND_EXPR(int i) {
-			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
-		}
 		public List<BitWiseExpressionContext> bitWiseExpression() {
 			return getRuleContexts(BitWiseExpressionContext.class);
 		}
+		public BitWiseExpressionContext bitWiseExpression(int i) {
+			return getRuleContext(BitWiseExpressionContext.class,i);
+		}
 		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
+		public TerminalNode AND_EXPR(int i) {
+			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		}
 		public EvalAndExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10795,16 +11631,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1963); bitWiseExpression();
+			setState(1963);
+			bitWiseExpression();
 			setState(1968);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,249,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(1964); ((EvalAndExpressionContext)_localctx).op = match(AND_EXPR);
-					setState(1965); bitWiseExpression();
+					setState(1964);
+					((EvalAndExpressionContext)_localctx).op = match(AND_EXPR);
+					setState(1965);
+					bitWiseExpression();
 					}
 					} 
 				}
@@ -10826,23 +11665,23 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class BitWiseExpressionContext extends ParserRuleContext {
-		public List<TerminalNode> BXOR() { return getTokens(EsperEPL2GrammarParser.BXOR); }
-		public List<TerminalNode> BAND() { return getTokens(EsperEPL2GrammarParser.BAND); }
-		public TerminalNode BOR(int i) {
-			return getToken(EsperEPL2GrammarParser.BOR, i);
-		}
 		public List<NegatedExpressionContext> negatedExpression() {
 			return getRuleContexts(NegatedExpressionContext.class);
 		}
-		public TerminalNode BXOR(int i) {
-			return getToken(EsperEPL2GrammarParser.BXOR, i);
-		}
-		public List<TerminalNode> BOR() { return getTokens(EsperEPL2GrammarParser.BOR); }
 		public NegatedExpressionContext negatedExpression(int i) {
 			return getRuleContext(NegatedExpressionContext.class,i);
 		}
+		public List<TerminalNode> BAND() { return getTokens(EsperEPL2GrammarParser.BAND); }
 		public TerminalNode BAND(int i) {
 			return getToken(EsperEPL2GrammarParser.BAND, i);
+		}
+		public List<TerminalNode> BOR() { return getTokens(EsperEPL2GrammarParser.BOR); }
+		public TerminalNode BOR(int i) {
+			return getToken(EsperEPL2GrammarParser.BOR, i);
+		}
+		public List<TerminalNode> BXOR() { return getTokens(EsperEPL2GrammarParser.BXOR); }
+		public TerminalNode BXOR(int i) {
+			return getToken(EsperEPL2GrammarParser.BXOR, i);
 		}
 		public BitWiseExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -10865,7 +11704,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1971); negatedExpression();
+			setState(1971);
+			negatedExpression();
 			setState(1976);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -10876,9 +11716,11 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(((((_la - 169)) & ~0x3f) == 0 && ((1L << (_la - 169)) & ((1L << (BXOR - 169)) | (1L << (BOR - 169)) | (1L << (BAND - 169)))) != 0)) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
-				setState(1973); negatedExpression();
+				setState(1973);
+				negatedExpression();
 				}
 				}
 				setState(1978);
@@ -10899,10 +11741,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class NegatedExpressionContext extends ParserRuleContext {
-		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
 		public EvalEqualsExpressionContext evalEqualsExpression() {
 			return getRuleContext(EvalEqualsExpressionContext.class,0);
 		}
+		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
 		public NegatedExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10996,14 +11838,17 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1979); evalEqualsExpression();
+				setState(1979);
+				evalEqualsExpression();
 				}
 				break;
 			case NOT_EXPR:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1980); match(NOT_EXPR);
-				setState(1981); evalEqualsExpression();
+				setState(1980);
+				match(NOT_EXPR);
+				setState(1981);
+				evalEqualsExpression();
 				}
 				break;
 			default:
@@ -11028,63 +11873,63 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token sqlne;
 		public Token ne;
 		public Token a;
+		public List<EvalRelationalExpressionContext> evalRelationalExpression() {
+			return getRuleContexts(EvalRelationalExpressionContext.class);
+		}
 		public EvalRelationalExpressionContext evalRelationalExpression(int i) {
 			return getRuleContext(EvalRelationalExpressionContext.class,i);
 		}
-		public List<ExpressionListContext> expressionList() {
-			return getRuleContexts(ExpressionListContext.class);
+		public List<TerminalNode> NOT_EXPR() { return getTokens(EsperEPL2GrammarParser.NOT_EXPR); }
+		public TerminalNode NOT_EXPR(int i) {
+			return getToken(EsperEPL2GrammarParser.NOT_EXPR, i);
 		}
-		public TerminalNode ANY(int i) {
-			return getToken(EsperEPL2GrammarParser.ANY, i);
+		public List<TerminalNode> EQUALS() { return getTokens(EsperEPL2GrammarParser.EQUALS); }
+		public TerminalNode EQUALS(int i) {
+			return getToken(EsperEPL2GrammarParser.EQUALS, i);
+		}
+		public List<TerminalNode> IS() { return getTokens(EsperEPL2GrammarParser.IS); }
+		public TerminalNode IS(int i) {
+			return getToken(EsperEPL2GrammarParser.IS, i);
+		}
+		public List<TerminalNode> SQL_NE() { return getTokens(EsperEPL2GrammarParser.SQL_NE); }
+		public TerminalNode SQL_NE(int i) {
+			return getToken(EsperEPL2GrammarParser.SQL_NE, i);
+		}
+		public List<TerminalNode> NOT_EQUAL() { return getTokens(EsperEPL2GrammarParser.NOT_EQUAL); }
+		public TerminalNode NOT_EQUAL(int i) {
+			return getToken(EsperEPL2GrammarParser.NOT_EQUAL, i);
+		}
+		public List<SubSelectGroupExpressionContext> subSelectGroupExpression() {
+			return getRuleContexts(SubSelectGroupExpressionContext.class);
 		}
 		public SubSelectGroupExpressionContext subSelectGroupExpression(int i) {
 			return getRuleContext(SubSelectGroupExpressionContext.class,i);
 		}
-		public TerminalNode IS(int i) {
-			return getToken(EsperEPL2GrammarParser.IS, i);
-		}
-		public ExpressionListContext expressionList(int i) {
-			return getRuleContext(ExpressionListContext.class,i);
-		}
-		public List<TerminalNode> IS() { return getTokens(EsperEPL2GrammarParser.IS); }
-		public List<TerminalNode> NOT_EQUAL() { return getTokens(EsperEPL2GrammarParser.NOT_EQUAL); }
-		public TerminalNode SQL_NE(int i) {
-			return getToken(EsperEPL2GrammarParser.SQL_NE, i);
-		}
-		public List<TerminalNode> NOT_EXPR() { return getTokens(EsperEPL2GrammarParser.NOT_EXPR); }
-		public List<TerminalNode> SOME() { return getTokens(EsperEPL2GrammarParser.SOME); }
-		public TerminalNode NOT_EXPR(int i) {
-			return getToken(EsperEPL2GrammarParser.NOT_EXPR, i);
-		}
-		public List<TerminalNode> ALL() { return getTokens(EsperEPL2GrammarParser.ALL); }
-		public List<TerminalNode> EQUALS() { return getTokens(EsperEPL2GrammarParser.EQUALS); }
-		public TerminalNode RPAREN(int i) {
-			return getToken(EsperEPL2GrammarParser.RPAREN, i);
-		}
 		public List<TerminalNode> ANY() { return getTokens(EsperEPL2GrammarParser.ANY); }
-		public List<SubSelectGroupExpressionContext> subSelectGroupExpression() {
-			return getRuleContexts(SubSelectGroupExpressionContext.class);
+		public TerminalNode ANY(int i) {
+			return getToken(EsperEPL2GrammarParser.ANY, i);
 		}
-		public List<TerminalNode> LPAREN() { return getTokens(EsperEPL2GrammarParser.LPAREN); }
+		public List<TerminalNode> SOME() { return getTokens(EsperEPL2GrammarParser.SOME); }
 		public TerminalNode SOME(int i) {
 			return getToken(EsperEPL2GrammarParser.SOME, i);
 		}
-		public TerminalNode NOT_EQUAL(int i) {
-			return getToken(EsperEPL2GrammarParser.NOT_EQUAL, i);
-		}
-		public TerminalNode EQUALS(int i) {
-			return getToken(EsperEPL2GrammarParser.EQUALS, i);
-		}
-		public TerminalNode LPAREN(int i) {
-			return getToken(EsperEPL2GrammarParser.LPAREN, i);
-		}
-		public List<TerminalNode> SQL_NE() { return getTokens(EsperEPL2GrammarParser.SQL_NE); }
+		public List<TerminalNode> ALL() { return getTokens(EsperEPL2GrammarParser.ALL); }
 		public TerminalNode ALL(int i) {
 			return getToken(EsperEPL2GrammarParser.ALL, i);
 		}
+		public List<TerminalNode> LPAREN() { return getTokens(EsperEPL2GrammarParser.LPAREN); }
+		public TerminalNode LPAREN(int i) {
+			return getToken(EsperEPL2GrammarParser.LPAREN, i);
+		}
 		public List<TerminalNode> RPAREN() { return getTokens(EsperEPL2GrammarParser.RPAREN); }
-		public List<EvalRelationalExpressionContext> evalRelationalExpression() {
-			return getRuleContexts(EvalRelationalExpressionContext.class);
+		public TerminalNode RPAREN(int i) {
+			return getToken(EsperEPL2GrammarParser.RPAREN, i);
+		}
+		public List<ExpressionListContext> expressionList() {
+			return getRuleContexts(ExpressionListContext.class);
+		}
+		public ExpressionListContext expressionList(int i) {
+			return getRuleContext(ExpressionListContext.class,i);
 		}
 		public EvalEqualsExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -11107,7 +11952,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1984); evalRelationalExpression();
+			setState(1984);
+			evalRelationalExpression();
 			setState(2011);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -11115,35 +11961,38 @@ public class EsperEPL2GrammarParser extends Parser {
 				{
 				{
 				setState(1991);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,252,_ctx) ) {
 				case 1:
 					{
-					setState(1985); ((EvalEqualsExpressionContext)_localctx).eq = match(EQUALS);
+					setState(1985);
+					((EvalEqualsExpressionContext)_localctx).eq = match(EQUALS);
 					}
 					break;
-
 				case 2:
 					{
-					setState(1986); ((EvalEqualsExpressionContext)_localctx).is = match(IS);
+					setState(1986);
+					((EvalEqualsExpressionContext)_localctx).is = match(IS);
 					}
 					break;
-
 				case 3:
 					{
-					setState(1987); ((EvalEqualsExpressionContext)_localctx).isnot = match(IS);
-					setState(1988); match(NOT_EXPR);
+					setState(1987);
+					((EvalEqualsExpressionContext)_localctx).isnot = match(IS);
+					setState(1988);
+					match(NOT_EXPR);
 					}
 					break;
-
 				case 4:
 					{
-					setState(1989); ((EvalEqualsExpressionContext)_localctx).sqlne = match(SQL_NE);
+					setState(1989);
+					((EvalEqualsExpressionContext)_localctx).sqlne = match(SQL_NE);
 					}
 					break;
-
 				case 5:
 					{
-					setState(1990); ((EvalEqualsExpressionContext)_localctx).ne = match(NOT_EQUAL);
+					setState(1990);
+					((EvalEqualsExpressionContext)_localctx).ne = match(NOT_EQUAL);
 					}
 					break;
 				}
@@ -11221,7 +12070,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				case IntegerLiteral:
 				case FloatingPointLiteral:
 					{
-					setState(1993); evalRelationalExpression();
+					setState(1993);
+					evalRelationalExpression();
 					}
 					break;
 				case ALL:
@@ -11232,44 +12082,51 @@ public class EsperEPL2GrammarParser extends Parser {
 					switch (_input.LA(1)) {
 					case ANY:
 						{
-						setState(1994); ((EvalEqualsExpressionContext)_localctx).a = match(ANY);
+						setState(1994);
+						((EvalEqualsExpressionContext)_localctx).a = match(ANY);
 						}
 						break;
 					case SOME:
 						{
-						setState(1995); ((EvalEqualsExpressionContext)_localctx).a = match(SOME);
+						setState(1995);
+						((EvalEqualsExpressionContext)_localctx).a = match(SOME);
 						}
 						break;
 					case ALL:
 						{
-						setState(1996); ((EvalEqualsExpressionContext)_localctx).a = match(ALL);
+						setState(1996);
+						((EvalEqualsExpressionContext)_localctx).a = match(ALL);
 						}
 						break;
 					default:
 						throw new NoViableAltException(this);
 					}
 					setState(2005);
+					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,255,_ctx) ) {
 					case 1:
 						{
 						{
-						setState(1999); match(LPAREN);
+						setState(1999);
+						match(LPAREN);
 						setState(2001);
 						_la = _input.LA(1);
 						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 							{
-							setState(2000); expressionList();
+							setState(2000);
+							expressionList();
 							}
 						}
 
-						setState(2003); match(RPAREN);
+						setState(2003);
+						match(RPAREN);
 						}
 						}
 						break;
-
 					case 2:
 						{
-						setState(2004); subSelectGroupExpression();
+						setState(2004);
+						subSelectGroupExpression();
 						}
 						break;
 					}
@@ -11308,49 +12165,88 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token between;
 		public Token like;
 		public Token regex;
-		public TerminalNode IN_SET() { return getToken(EsperEPL2GrammarParser.IN_SET, 0); }
-		public ConcatenationExprContext concatenationExpr(int i) {
-			return getRuleContext(ConcatenationExprContext.class,i);
-		}
 		public List<ConcatenationExprContext> concatenationExpr() {
 			return getRuleContexts(ConcatenationExprContext.class);
 		}
-		public TerminalNode REGEXP() { return getToken(EsperEPL2GrammarParser.REGEXP, 0); }
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public ConcatenationExprContext concatenationExpr(int i) {
+			return getRuleContext(ConcatenationExprContext.class,i);
 		}
-		public TerminalNode LE() { return getToken(EsperEPL2GrammarParser.LE, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode GE() { return getToken(EsperEPL2GrammarParser.GE, 0); }
-		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
-		public TerminalNode SOME() { return getToken(EsperEPL2GrammarParser.SOME, 0); }
-		public TerminalNode LIKE() { return getToken(EsperEPL2GrammarParser.LIKE, 0); }
-		public StringconstantContext stringconstant() {
-			return getRuleContext(StringconstantContext.class,0);
-		}
-		public TerminalNode ESCAPE() { return getToken(EsperEPL2GrammarParser.ESCAPE, 0); }
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
-		public TerminalNode ANY() { return getToken(EsperEPL2GrammarParser.ANY, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public SubSelectGroupExpressionContext subSelectGroupExpression() {
-			return getRuleContext(SubSelectGroupExpressionContext.class,0);
-		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
-		public TerminalNode BETWEEN() { return getToken(EsperEPL2GrammarParser.BETWEEN, 0); }
 		public InSubSelectQueryContext inSubSelectQuery() {
 			return getRuleContext(InSubSelectQueryContext.class,0);
 		}
-		public TerminalNode LT() { return getToken(EsperEPL2GrammarParser.LT, 0); }
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
 		public BetweenListContext betweenList() {
 			return getRuleContext(BetweenListContext.class,0);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode GT() { return getToken(EsperEPL2GrammarParser.GT, 0); }
+		public TerminalNode IN_SET() { return getToken(EsperEPL2GrammarParser.IN_SET, 0); }
+		public TerminalNode BETWEEN() { return getToken(EsperEPL2GrammarParser.BETWEEN, 0); }
+		public TerminalNode LIKE() { return getToken(EsperEPL2GrammarParser.LIKE, 0); }
+		public TerminalNode REGEXP() { return getToken(EsperEPL2GrammarParser.REGEXP, 0); }
+		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode ESCAPE() { return getToken(EsperEPL2GrammarParser.ESCAPE, 0); }
+		public StringconstantContext stringconstant() {
+			return getRuleContext(StringconstantContext.class,0);
+		}
+		public List<TerminalNode> LPAREN() { return getTokens(EsperEPL2GrammarParser.LPAREN); }
+		public TerminalNode LPAREN(int i) {
+			return getToken(EsperEPL2GrammarParser.LPAREN, i);
+		}
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public List<TerminalNode> RPAREN() { return getTokens(EsperEPL2GrammarParser.RPAREN); }
+		public TerminalNode RPAREN(int i) {
+			return getToken(EsperEPL2GrammarParser.RPAREN, i);
+		}
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public List<TerminalNode> LT() { return getTokens(EsperEPL2GrammarParser.LT); }
+		public TerminalNode LT(int i) {
+			return getToken(EsperEPL2GrammarParser.LT, i);
+		}
+		public List<TerminalNode> GT() { return getTokens(EsperEPL2GrammarParser.GT); }
+		public TerminalNode GT(int i) {
+			return getToken(EsperEPL2GrammarParser.GT, i);
+		}
+		public List<TerminalNode> LE() { return getTokens(EsperEPL2GrammarParser.LE); }
+		public TerminalNode LE(int i) {
+			return getToken(EsperEPL2GrammarParser.LE, i);
+		}
+		public List<TerminalNode> GE() { return getTokens(EsperEPL2GrammarParser.GE); }
+		public TerminalNode GE(int i) {
+			return getToken(EsperEPL2GrammarParser.GE, i);
+		}
+		public List<SubSelectGroupExpressionContext> subSelectGroupExpression() {
+			return getRuleContexts(SubSelectGroupExpressionContext.class);
+		}
+		public SubSelectGroupExpressionContext subSelectGroupExpression(int i) {
+			return getRuleContext(SubSelectGroupExpressionContext.class,i);
+		}
 		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public List<TerminalNode> ANY() { return getTokens(EsperEPL2GrammarParser.ANY); }
+		public TerminalNode ANY(int i) {
+			return getToken(EsperEPL2GrammarParser.ANY, i);
+		}
+		public List<TerminalNode> SOME() { return getTokens(EsperEPL2GrammarParser.SOME); }
+		public TerminalNode SOME(int i) {
+			return getToken(EsperEPL2GrammarParser.SOME, i);
+		}
+		public List<TerminalNode> ALL() { return getTokens(EsperEPL2GrammarParser.ALL); }
+		public TerminalNode ALL(int i) {
+			return getToken(EsperEPL2GrammarParser.ALL, i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		}
+		public List<ExpressionListContext> expressionList() {
+			return getRuleContexts(ExpressionListContext.class);
+		}
+		public ExpressionListContext expressionList(int i) {
+			return getRuleContext(ExpressionListContext.class,i);
+		}
 		public EvalRelationalExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -11372,8 +12268,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2014); concatenationExpr();
+			setState(2014);
+			concatenationExpr();
 			setState(2080);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,271,_ctx) ) {
 			case 1:
 				{
@@ -11388,22 +12286,26 @@ public class EsperEPL2GrammarParser extends Parser {
 					switch (_input.LA(1)) {
 					case LT:
 						{
-						setState(2015); ((EvalRelationalExpressionContext)_localctx).r = match(LT);
+						setState(2015);
+						((EvalRelationalExpressionContext)_localctx).r = match(LT);
 						}
 						break;
 					case GT:
 						{
-						setState(2016); ((EvalRelationalExpressionContext)_localctx).r = match(GT);
+						setState(2016);
+						((EvalRelationalExpressionContext)_localctx).r = match(GT);
 						}
 						break;
 					case LE:
 						{
-						setState(2017); ((EvalRelationalExpressionContext)_localctx).r = match(LE);
+						setState(2017);
+						((EvalRelationalExpressionContext)_localctx).r = match(LE);
 						}
 						break;
 					case GE:
 						{
-						setState(2018); ((EvalRelationalExpressionContext)_localctx).r = match(GE);
+						setState(2018);
+						((EvalRelationalExpressionContext)_localctx).r = match(GE);
 						}
 						break;
 					default:
@@ -11483,7 +12385,8 @@ public class EsperEPL2GrammarParser extends Parser {
 					case IntegerLiteral:
 					case FloatingPointLiteral:
 						{
-						setState(2021); concatenationExpr();
+						setState(2021);
+						concatenationExpr();
 						}
 						break;
 					case ALL:
@@ -11494,44 +12397,51 @@ public class EsperEPL2GrammarParser extends Parser {
 						switch (_input.LA(1)) {
 						case ANY:
 							{
-							setState(2022); ((EvalRelationalExpressionContext)_localctx).g = match(ANY);
+							setState(2022);
+							((EvalRelationalExpressionContext)_localctx).g = match(ANY);
 							}
 							break;
 						case SOME:
 							{
-							setState(2023); ((EvalRelationalExpressionContext)_localctx).g = match(SOME);
+							setState(2023);
+							((EvalRelationalExpressionContext)_localctx).g = match(SOME);
 							}
 							break;
 						case ALL:
 							{
-							setState(2024); ((EvalRelationalExpressionContext)_localctx).g = match(ALL);
+							setState(2024);
+							((EvalRelationalExpressionContext)_localctx).g = match(ALL);
 							}
 							break;
 						default:
 							throw new NoViableAltException(this);
 						}
 						setState(2033);
+						_errHandler.sync(this);
 						switch ( getInterpreter().adaptivePredict(_input,261,_ctx) ) {
 						case 1:
 							{
 							{
-							setState(2027); match(LPAREN);
+							setState(2027);
+							match(LPAREN);
 							setState(2029);
 							_la = _input.LA(1);
 							if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 								{
-								setState(2028); expressionList();
+								setState(2028);
+								expressionList();
 								}
 							}
 
-							setState(2031); match(RPAREN);
+							setState(2031);
+							match(RPAREN);
 							}
 							}
 							break;
-
 						case 2:
 							{
-							setState(2032); subSelectGroupExpression();
+							setState(2032);
+							subSelectGroupExpression();
 							}
 							break;
 						}
@@ -11549,47 +12459,54 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 				}
 				break;
-
 			case 2:
 				{
 				setState(2043);
 				_la = _input.LA(1);
 				if (_la==NOT_EXPR) {
 					{
-					setState(2042); ((EvalRelationalExpressionContext)_localctx).n = match(NOT_EXPR);
+					setState(2042);
+					((EvalRelationalExpressionContext)_localctx).n = match(NOT_EXPR);
 					}
 				}
 
 				setState(2078);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,270,_ctx) ) {
 				case 1:
 					{
 					{
-					setState(2045); ((EvalRelationalExpressionContext)_localctx).in = match(IN_SET);
+					setState(2045);
+					((EvalRelationalExpressionContext)_localctx).in = match(IN_SET);
 					setState(2048);
 					switch (_input.LA(1)) {
 					case LPAREN:
 						{
-						setState(2046); ((EvalRelationalExpressionContext)_localctx).l = match(LPAREN);
+						setState(2046);
+						((EvalRelationalExpressionContext)_localctx).l = match(LPAREN);
 						}
 						break;
 					case LBRACK:
 						{
-						setState(2047); ((EvalRelationalExpressionContext)_localctx).l = match(LBRACK);
+						setState(2047);
+						((EvalRelationalExpressionContext)_localctx).l = match(LBRACK);
 						}
 						break;
 					default:
 						throw new NoViableAltException(this);
 					}
-					setState(2050); expression();
+					setState(2050);
+					expression();
 					setState(2060);
 					switch (_input.LA(1)) {
 					case COLON:
 						{
 						{
-						setState(2051); ((EvalRelationalExpressionContext)_localctx).col = match(COLON);
+						setState(2051);
+						((EvalRelationalExpressionContext)_localctx).col = match(COLON);
 						{
-						setState(2052); expression();
+						setState(2052);
+						expression();
 						}
 						}
 						}
@@ -11605,8 +12522,10 @@ public class EsperEPL2GrammarParser extends Parser {
 						while (_la==COMMA) {
 							{
 							{
-							setState(2053); match(COMMA);
-							setState(2054); expression();
+							setState(2053);
+							match(COMMA);
+							setState(2054);
+							expression();
 							}
 							}
 							setState(2059);
@@ -11623,12 +12542,14 @@ public class EsperEPL2GrammarParser extends Parser {
 					switch (_input.LA(1)) {
 					case RPAREN:
 						{
-						setState(2062); ((EvalRelationalExpressionContext)_localctx).r = match(RPAREN);
+						setState(2062);
+						((EvalRelationalExpressionContext)_localctx).r = match(RPAREN);
 						}
 						break;
 					case RBRACK:
 						{
-						setState(2063); ((EvalRelationalExpressionContext)_localctx).r = match(RBRACK);
+						setState(2063);
+						((EvalRelationalExpressionContext)_localctx).r = match(RBRACK);
 						}
 						break;
 					default:
@@ -11637,41 +12558,48 @@ public class EsperEPL2GrammarParser extends Parser {
 					}
 					}
 					break;
-
 				case 2:
 					{
-					setState(2066); ((EvalRelationalExpressionContext)_localctx).inset = match(IN_SET);
-					setState(2067); inSubSelectQuery();
+					setState(2066);
+					((EvalRelationalExpressionContext)_localctx).inset = match(IN_SET);
+					setState(2067);
+					inSubSelectQuery();
 					}
 					break;
-
 				case 3:
 					{
-					setState(2068); ((EvalRelationalExpressionContext)_localctx).between = match(BETWEEN);
-					setState(2069); betweenList();
+					setState(2068);
+					((EvalRelationalExpressionContext)_localctx).between = match(BETWEEN);
+					setState(2069);
+					betweenList();
 					}
 					break;
-
 				case 4:
 					{
-					setState(2070); ((EvalRelationalExpressionContext)_localctx).like = match(LIKE);
-					setState(2071); concatenationExpr();
+					setState(2070);
+					((EvalRelationalExpressionContext)_localctx).like = match(LIKE);
+					setState(2071);
+					concatenationExpr();
 					setState(2074);
+					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,269,_ctx) ) {
 					case 1:
 						{
-						setState(2072); match(ESCAPE);
-						setState(2073); stringconstant();
+						setState(2072);
+						match(ESCAPE);
+						setState(2073);
+						stringconstant();
 						}
 						break;
 					}
 					}
 					break;
-
 				case 5:
 					{
-					setState(2076); ((EvalRelationalExpressionContext)_localctx).regex = match(REGEXP);
-					setState(2077); concatenationExpr();
+					setState(2076);
+					((EvalRelationalExpressionContext)_localctx).regex = match(REGEXP);
+					setState(2077);
+					concatenationExpr();
 					}
 					break;
 				}
@@ -11715,7 +12643,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2082); subQueryExpr();
+			setState(2082);
+			subQueryExpr();
 			}
 		}
 		catch (RecognitionException re) {
@@ -11734,12 +12663,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<AdditiveExpressionContext> additiveExpression() {
 			return getRuleContexts(AdditiveExpressionContext.class);
 		}
-		public TerminalNode LOR(int i) {
-			return getToken(EsperEPL2GrammarParser.LOR, i);
-		}
-		public List<TerminalNode> LOR() { return getTokens(EsperEPL2GrammarParser.LOR); }
 		public AdditiveExpressionContext additiveExpression(int i) {
 			return getRuleContext(AdditiveExpressionContext.class,i);
+		}
+		public List<TerminalNode> LOR() { return getTokens(EsperEPL2GrammarParser.LOR); }
+		public TerminalNode LOR(int i) {
+			return getToken(EsperEPL2GrammarParser.LOR, i);
 		}
 		public ConcatenationExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -11762,21 +12691,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2084); additiveExpression();
+			setState(2084);
+			additiveExpression();
 			setState(2094);
 			_la = _input.LA(1);
 			if (_la==LOR) {
 				{
-				setState(2085); ((ConcatenationExprContext)_localctx).c = match(LOR);
-				setState(2086); additiveExpression();
+				setState(2085);
+				((ConcatenationExprContext)_localctx).c = match(LOR);
+				setState(2086);
+				additiveExpression();
 				setState(2091);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==LOR) {
 					{
 					{
-					setState(2087); match(LOR);
-					setState(2088); additiveExpression();
+					setState(2087);
+					match(LOR);
+					setState(2088);
+					additiveExpression();
 					}
 					}
 					setState(2093);
@@ -11803,16 +12737,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<MultiplyExpressionContext> multiplyExpression() {
 			return getRuleContexts(MultiplyExpressionContext.class);
 		}
-		public TerminalNode MINUS(int i) {
-			return getToken(EsperEPL2GrammarParser.MINUS, i);
-		}
 		public MultiplyExpressionContext multiplyExpression(int i) {
 			return getRuleContext(MultiplyExpressionContext.class,i);
 		}
-		public List<TerminalNode> MINUS() { return getTokens(EsperEPL2GrammarParser.MINUS); }
 		public List<TerminalNode> PLUS() { return getTokens(EsperEPL2GrammarParser.PLUS); }
 		public TerminalNode PLUS(int i) {
 			return getToken(EsperEPL2GrammarParser.PLUS, i);
+		}
+		public List<TerminalNode> MINUS() { return getTokens(EsperEPL2GrammarParser.MINUS); }
+		public TerminalNode MINUS(int i) {
+			return getToken(EsperEPL2GrammarParser.MINUS, i);
 		}
 		public AdditiveExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -11836,11 +12770,12 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2096); multiplyExpression();
+			setState(2096);
+			multiplyExpression();
 			setState(2101);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,274,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -11848,9 +12783,11 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==PLUS || _la==MINUS) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
-					setState(2098); multiplyExpression();
+					setState(2098);
+					multiplyExpression();
 					}
 					} 
 				}
@@ -11872,24 +12809,24 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class MultiplyExpressionContext extends ParserRuleContext {
-		public List<TerminalNode> DIV() { return getTokens(EsperEPL2GrammarParser.DIV); }
 		public List<UnaryExpressionContext> unaryExpression() {
 			return getRuleContexts(UnaryExpressionContext.class);
-		}
-		public TerminalNode DIV(int i) {
-			return getToken(EsperEPL2GrammarParser.DIV, i);
-		}
-		public List<TerminalNode> STAR() { return getTokens(EsperEPL2GrammarParser.STAR); }
-		public TerminalNode MOD(int i) {
-			return getToken(EsperEPL2GrammarParser.MOD, i);
 		}
 		public UnaryExpressionContext unaryExpression(int i) {
 			return getRuleContext(UnaryExpressionContext.class,i);
 		}
+		public List<TerminalNode> STAR() { return getTokens(EsperEPL2GrammarParser.STAR); }
 		public TerminalNode STAR(int i) {
 			return getToken(EsperEPL2GrammarParser.STAR, i);
 		}
+		public List<TerminalNode> DIV() { return getTokens(EsperEPL2GrammarParser.DIV); }
+		public TerminalNode DIV(int i) {
+			return getToken(EsperEPL2GrammarParser.DIV, i);
+		}
 		public List<TerminalNode> MOD() { return getTokens(EsperEPL2GrammarParser.MOD); }
+		public TerminalNode MOD(int i) {
+			return getToken(EsperEPL2GrammarParser.MOD, i);
+		}
 		public MultiplyExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -11911,7 +12848,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2104); unaryExpression();
+			setState(2104);
+			unaryExpression();
 			setState(2109);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -11922,9 +12860,11 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(((((_la - 153)) & ~0x3f) == 0 && ((1L << (_la - 153)) & ((1L << (DIV - 153)) | (1L << (STAR - 153)) | (1L << (MOD - 153)))) != 0)) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
-				setState(2106); unaryExpression();
+				setState(2106);
+				unaryExpression();
 				}
 				}
 				setState(2111);
@@ -11947,64 +12887,64 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class UnaryExpressionContext extends ParserRuleContext {
 		public Token inner;
 		public Token b;
-		public TerminalNode NEWKW() { return getToken(EsperEPL2GrammarParser.NEWKW, 0); }
-		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
-		public BuiltinFuncContext builtinFunc() {
-			return getRuleContext(BuiltinFuncContext.class,0);
-		}
-		public ClassIdentifierContext classIdentifier() {
-			return getRuleContext(ClassIdentifierContext.class,0);
-		}
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public SubstitutionCanChainContext substitutionCanChain() {
-			return getRuleContext(SubstitutionCanChainContext.class,0);
-		}
-		public List<NewAssignContext> newAssign() {
-			return getRuleContexts(NewAssignContext.class);
+		public TerminalNode MINUS() { return getToken(EsperEPL2GrammarParser.MINUS, 0); }
+		public EventPropertyContext eventProperty() {
+			return getRuleContext(EventPropertyContext.class,0);
 		}
 		public ConstantContext constant() {
 			return getRuleContext(ConstantContext.class,0);
 		}
+		public SubstitutionCanChainContext substitutionCanChain() {
+			return getRuleContext(SubstitutionCanChainContext.class,0);
+		}
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public RowSubSelectExpressionContext rowSubSelectExpression() {
-			return getRuleContext(RowSubSelectExpressionContext.class,0);
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
+		}
+		public BuiltinFuncContext builtinFunc() {
+			return getRuleContext(BuiltinFuncContext.class,0);
+		}
+		public EventPropertyOrLibFunctionContext eventPropertyOrLibFunction() {
+			return getRuleContext(EventPropertyOrLibFunctionContext.class,0);
 		}
 		public ArrayExpressionContext arrayExpression() {
 			return getRuleContext(ArrayExpressionContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
-		public TerminalNode MINUS() { return getToken(EsperEPL2GrammarParser.MINUS, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public NewAssignContext newAssign(int i) {
-			return getRuleContext(NewAssignContext.class,i);
-		}
-		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		public RowSubSelectExpressionContext rowSubSelectExpression() {
+			return getRuleContext(RowSubSelectExpressionContext.class,0);
 		}
 		public ExistsSubSelectExpressionContext existsSubSelectExpression() {
 			return getRuleContext(ExistsSubSelectExpressionContext.class,0);
 		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
-		public EventPropertyOrLibFunctionContext eventPropertyOrLibFunction() {
-			return getRuleContext(EventPropertyOrLibFunctionContext.class,0);
+		public TerminalNode NEWKW() { return getToken(EsperEPL2GrammarParser.NEWKW, 0); }
+		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
+		public List<NewAssignContext> newAssign() {
+			return getRuleContexts(NewAssignContext.class);
 		}
-		public EventPropertyContext eventProperty() {
-			return getRuleContext(EventPropertyContext.class,0);
+		public NewAssignContext newAssign(int i) {
+			return getRuleContext(NewAssignContext.class,i);
 		}
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		}
+		public ClassIdentifierContext classIdentifier() {
+			return getRuleContext(ClassIdentifierContext.class,0);
+		}
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public JsonobjectContext jsonobject() {
 			return getRuleContext(JsonobjectContext.class,0);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public UnaryExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -12025,124 +12965,140 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(2171);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,283,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2112); match(MINUS);
-				setState(2113); eventProperty();
+				setState(2112);
+				match(MINUS);
+				setState(2113);
+				eventProperty();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2114); constant();
+				setState(2114);
+				constant();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2115); substitutionCanChain();
+				setState(2115);
+				substitutionCanChain();
 				}
 				break;
-
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2116); ((UnaryExpressionContext)_localctx).inner = match(LPAREN);
-				setState(2117); expression();
-				setState(2118); match(RPAREN);
+				setState(2116);
+				((UnaryExpressionContext)_localctx).inner = match(LPAREN);
+				setState(2117);
+				expression();
+				setState(2118);
+				match(RPAREN);
 				setState(2120);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2119); chainedFunction();
+					setState(2119);
+					chainedFunction();
 					}
 				}
 
 				}
 				break;
-
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(2122); builtinFunc();
+				setState(2122);
+				builtinFunc();
 				}
 				break;
-
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(2123); eventPropertyOrLibFunction();
+				setState(2123);
+				eventPropertyOrLibFunction();
 				}
 				break;
-
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(2124); arrayExpression();
+				setState(2124);
+				arrayExpression();
 				}
 				break;
-
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(2125); rowSubSelectExpression();
+				setState(2125);
+				rowSubSelectExpression();
 				}
 				break;
-
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(2126); existsSubSelectExpression();
+				setState(2126);
+				existsSubSelectExpression();
 				}
 				break;
-
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(2127); match(NEWKW);
-				setState(2128); match(LCURLY);
-				setState(2129); newAssign();
+				setState(2127);
+				match(NEWKW);
+				setState(2128);
+				match(LCURLY);
+				setState(2129);
+				newAssign();
 				setState(2134);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(2130); match(COMMA);
-					setState(2131); newAssign();
+					setState(2130);
+					match(COMMA);
+					setState(2131);
+					newAssign();
 					}
 					}
 					setState(2136);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(2137); match(RCURLY);
+				setState(2137);
+				match(RCURLY);
 				}
 				break;
-
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(2139); match(NEWKW);
-				setState(2140); classIdentifier();
-				setState(2141); match(LPAREN);
+				setState(2139);
+				match(NEWKW);
+				setState(2140);
+				classIdentifier();
+				setState(2141);
+				match(LPAREN);
 				setState(2150);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2142); expression();
+					setState(2142);
+					expression();
 					setState(2147);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						setState(2143); match(COMMA);
-						setState(2144); expression();
+						setState(2143);
+						match(COMMA);
+						setState(2144);
+						expression();
 						}
 						}
 						setState(2149);
@@ -12152,54 +13108,62 @@ public class EsperEPL2GrammarParser extends Parser {
 					}
 				}
 
-				setState(2152); match(RPAREN);
+				setState(2152);
+				match(RPAREN);
 				setState(2154);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2153); chainedFunction();
+					setState(2153);
+					chainedFunction();
 					}
 				}
 
 				}
 				break;
-
 			case 12:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(2156); ((UnaryExpressionContext)_localctx).b = match(IDENT);
-				setState(2157); match(LBRACK);
-				setState(2158); expression();
+				setState(2156);
+				((UnaryExpressionContext)_localctx).b = match(IDENT);
+				setState(2157);
+				match(LBRACK);
+				setState(2158);
+				expression();
 				setState(2163);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(2159); match(COMMA);
-					setState(2160); expression();
+					setState(2159);
+					match(COMMA);
+					setState(2160);
+					expression();
 					}
 					}
 					setState(2165);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(2166); match(RBRACK);
+				setState(2166);
+				match(RBRACK);
 				setState(2168);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2167); chainedFunction();
+					setState(2167);
+					chainedFunction();
 					}
 				}
 
 				}
 				break;
-
 			case 13:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(2170); jsonobject();
+				setState(2170);
+				jsonobject();
 				}
 				break;
 			}
@@ -12216,11 +13180,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class SubstitutionCanChainContext extends ParserRuleContext {
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
+		}
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
 		}
 		public SubstitutionCanChainContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -12243,12 +13207,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2173); substitution();
+			setState(2173);
+			substitution();
 			setState(2175);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(2174); chainedFunction();
+				setState(2174);
+				chainedFunction();
 				}
 			}
 
@@ -12270,12 +13236,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<LibFunctionNoClassContext> libFunctionNoClass() {
 			return getRuleContexts(LibFunctionNoClassContext.class);
 		}
+		public LibFunctionNoClassContext libFunctionNoClass(int i) {
+			return getRuleContext(LibFunctionNoClassContext.class,i);
+		}
 		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
-		}
-		public LibFunctionNoClassContext libFunctionNoClass(int i) {
-			return getRuleContext(LibFunctionNoClassContext.class,i);
 		}
 		public ChainedFunctionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -12298,16 +13264,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2177); ((ChainedFunctionContext)_localctx).d = match(DOT);
-			setState(2178); libFunctionNoClass();
+			setState(2177);
+			((ChainedFunctionContext)_localctx).d = match(DOT);
+			setState(2178);
+			libFunctionNoClass();
 			setState(2183);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(2179); ((ChainedFunctionContext)_localctx).d = match(DOT);
-				setState(2180); libFunctionNoClass();
+				setState(2179);
+				((ChainedFunctionContext)_localctx).d = match(DOT);
+				setState(2180);
+				libFunctionNoClass();
 				}
 				}
 				setState(2185);
@@ -12328,10 +13298,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class NewAssignContext extends ParserRuleContext {
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -12356,13 +13326,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2186); eventProperty();
+			setState(2186);
+			eventProperty();
 			setState(2189);
 			_la = _input.LA(1);
 			if (_la==EQUALS) {
 				{
-				setState(2187); match(EQUALS);
-				setState(2188); expression();
+				setState(2187);
+				match(EQUALS);
+				setState(2188);
+				expression();
 				}
 			}
 
@@ -12407,12 +13380,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2191); subQueryExpr();
+			setState(2191);
+			subQueryExpr();
 			setState(2193);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(2192); chainedFunction();
+				setState(2192);
+				chainedFunction();
 				}
 			}
 
@@ -12453,7 +13428,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2195); subQueryExpr();
+			setState(2195);
+			subQueryExpr();
 			}
 		}
 		catch (RecognitionException re) {
@@ -12492,8 +13468,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2197); match(EXISTS);
-			setState(2198); subQueryExpr();
+			setState(2197);
+			match(EXISTS);
+			setState(2198);
+			subQueryExpr();
 			}
 		}
 		catch (RecognitionException re) {
@@ -12508,26 +13486,26 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class SubQueryExprContext extends ParserRuleContext {
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
-		public SubSelectFilterExprContext subSelectFilterExpr() {
-			return getRuleContext(SubSelectFilterExprContext.class,0);
-		}
-		public GroupByListExprContext groupByListExpr() {
-			return getRuleContext(GroupByListExprContext.class,0);
-		}
-		public WhereClauseContext whereClause() {
-			return getRuleContext(WhereClauseContext.class,0);
-		}
-		public TerminalNode BY() { return getToken(EsperEPL2GrammarParser.BY, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
+		public TerminalNode SELECT() { return getToken(EsperEPL2GrammarParser.SELECT, 0); }
 		public SelectionListContext selectionList() {
 			return getRuleContext(SelectionListContext.class,0);
 		}
+		public TerminalNode FROM() { return getToken(EsperEPL2GrammarParser.FROM, 0); }
+		public SubSelectFilterExprContext subSelectFilterExpr() {
+			return getRuleContext(SubSelectFilterExprContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public WhereClauseContext whereClause() {
+			return getRuleContext(WhereClauseContext.class,0);
+		}
 		public TerminalNode GROUP() { return getToken(EsperEPL2GrammarParser.GROUP, 0); }
+		public TerminalNode BY() { return getToken(EsperEPL2GrammarParser.BY, 0); }
+		public GroupByListExprContext groupByListExpr() {
+			return getRuleContext(GroupByListExprContext.class,0);
+		}
 		public SubQueryExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -12550,25 +13528,33 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2200); match(LPAREN);
-			setState(2201); match(SELECT);
+			setState(2200);
+			match(LPAREN);
+			setState(2201);
+			match(SELECT);
 			setState(2203);
 			_la = _input.LA(1);
 			if (_la==DISTINCT) {
 				{
-				setState(2202); match(DISTINCT);
+				setState(2202);
+				match(DISTINCT);
 				}
 			}
 
-			setState(2205); selectionList();
-			setState(2206); match(FROM);
-			setState(2207); subSelectFilterExpr();
+			setState(2205);
+			selectionList();
+			setState(2206);
+			match(FROM);
+			setState(2207);
+			subSelectFilterExpr();
 			setState(2210);
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(2208); match(WHERE);
-				setState(2209); whereClause();
+				setState(2208);
+				match(WHERE);
+				setState(2209);
+				whereClause();
 				}
 			}
 
@@ -12576,14 +13562,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==GROUP) {
 				{
-				setState(2212); match(GROUP);
-				setState(2213); match(BY);
-				setState(2214); groupByListExpr();
+				setState(2212);
+				match(GROUP);
+				setState(2213);
+				match(BY);
+				setState(2214);
+				groupByListExpr();
 				}
 			}
 
-			setState(2217); match(RPAREN);
+			setState(2217);
+			match(RPAREN);
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -12601,23 +13592,23 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i;
 		public Token ru;
 		public Token ri;
-		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public List<ViewExpressionContext> viewExpression() {
-			return getRuleContexts(ViewExpressionContext.class);
-		}
 		public EventFilterExpressionContext eventFilterExpression() {
 			return getRuleContext(EventFilterExpressionContext.class,0);
 		}
 		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
-		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
-		public ViewExpressionContext viewExpression(int i) {
-			return getRuleContext(ViewExpressionContext.class,i);
-		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
 		}
+		public List<ViewExpressionContext> viewExpression() {
+			return getRuleContexts(ViewExpressionContext.class);
+		}
+		public ViewExpressionContext viewExpression(int i) {
+			return getRuleContext(ViewExpressionContext.class,i);
+		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
+		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
 		public SubSelectFilterExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -12640,21 +13631,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2219); eventFilterExpression();
+			setState(2219);
+			eventFilterExpression();
 			setState(2229);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(2220); match(DOT);
-				setState(2221); viewExpression();
+				setState(2220);
+				match(DOT);
+				setState(2221);
+				viewExpression();
 				setState(2226);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==DOT) {
 					{
 					{
-					setState(2222); match(DOT);
-					setState(2223); viewExpression();
+					setState(2222);
+					match(DOT);
+					setState(2223);
+					viewExpression();
 					}
 					}
 					setState(2228);
@@ -12668,13 +13664,16 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case AS:
 				{
-				setState(2231); match(AS);
-				setState(2232); ((SubSelectFilterExprContext)_localctx).i = match(IDENT);
+				setState(2231);
+				match(AS);
+				setState(2232);
+				((SubSelectFilterExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case IDENT:
 				{
-				setState(2233); ((SubSelectFilterExprContext)_localctx).i = match(IDENT);
+				setState(2233);
+				((SubSelectFilterExprContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case WHERE:
@@ -12690,12 +13689,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case RETAINUNION:
 				{
-				setState(2236); ((SubSelectFilterExprContext)_localctx).ru = match(RETAINUNION);
+				setState(2236);
+				((SubSelectFilterExprContext)_localctx).ru = match(RETAINUNION);
 				}
 				break;
 			case RETAININTERSECTION:
 				{
-				setState(2237); ((SubSelectFilterExprContext)_localctx).ri = match(RETAININTERSECTION);
+				setState(2237);
+				((SubSelectFilterExprContext)_localctx).ri = match(RETAININTERSECTION);
 				}
 				break;
 			case WHERE:
@@ -12706,6 +13707,7 @@ public class EsperEPL2GrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -12720,21 +13722,21 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ArrayExpressionContext extends ParserRuleContext {
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
 		public TerminalNode LCURLY() { return getToken(EsperEPL2GrammarParser.LCURLY, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
+		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
-		public TerminalNode RCURLY() { return getToken(EsperEPL2GrammarParser.RCURLY, 0); }
 		public ArrayExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -12756,20 +13758,24 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2240); match(LCURLY);
+			setState(2240);
+			match(LCURLY);
 			setState(2249);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(2241); expression();
+				setState(2241);
+				expression();
 				setState(2246);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(2242); match(COMMA);
-					setState(2243); expression();
+					setState(2242);
+					match(COMMA);
+					setState(2243);
+					expression();
 					}
 					}
 					setState(2248);
@@ -12779,12 +13785,14 @@ public class EsperEPL2GrammarParser extends Parser {
 				}
 			}
 
-			setState(2251); match(RCURLY);
+			setState(2251);
+			match(RCURLY);
 			setState(2253);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(2252); chainedFunction();
+				setState(2252);
+				chainedFunction();
 				}
 			}
 
@@ -12813,19 +13821,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_prevContext extends BuiltinFuncContext {
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
+		public TerminalNode PREVIOUS() { return getToken(EsperEPL2GrammarParser.PREVIOUS, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode PREVIOUS() { return getToken(EsperEPL2GrammarParser.PREVIOUS, 0); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
+		}
 		public Builtin_prevContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12837,14 +13845,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_medianContext extends BuiltinFuncContext {
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode MEDIAN() { return getToken(EsperEPL2GrammarParser.MEDIAN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode MEDIAN() { return getToken(EsperEPL2GrammarParser.MEDIAN, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_medianContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12857,13 +13865,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 	public static class Builtin_stddevContext extends BuiltinFuncContext {
 		public TerminalNode STDDEV() { return getToken(EsperEPL2GrammarParser.STDDEV, 0); }
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_stddevContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12875,14 +13883,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_sumContext extends BuiltinFuncContext {
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
 		public TerminalNode SUM() { return getToken(EsperEPL2GrammarParser.SUM, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_sumContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12894,15 +13902,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_prevwindowContext extends BuiltinFuncContext {
+		public TerminalNode PREVIOUSWINDOW() { return getToken(EsperEPL2GrammarParser.PREVIOUSWINDOW, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ChainedFunctionContext chainedFunction() {
 			return getRuleContext(ChainedFunctionContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode PREVIOUSWINDOW() { return getToken(EsperEPL2GrammarParser.PREVIOUSWINDOW, 0); }
 		public Builtin_prevwindowContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12915,15 +13923,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 	public static class Builtin_priorContext extends BuiltinFuncContext {
 		public TerminalNode PRIOR() { return getToken(EsperEPL2GrammarParser.PRIOR, 0); }
-		public EventPropertyContext eventProperty() {
-			return getRuleContext(EventPropertyContext.class,0);
-		}
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
+		public EventPropertyContext eventProperty() {
+			return getRuleContext(EventPropertyContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_priorContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12935,12 +13943,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_typeofContext extends BuiltinFuncContext {
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode TYPEOF() { return getToken(EsperEPL2GrammarParser.TYPEOF, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_typeofContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12952,14 +13960,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_avgContext extends BuiltinFuncContext {
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode AVG() { return getToken(EsperEPL2GrammarParser.AVG, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode AVG() { return getToken(EsperEPL2GrammarParser.AVG, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_avgContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -12971,26 +13979,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_castContext extends BuiltinFuncContext {
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public ExpressionNamedParameterContext expressionNamedParameter() {
-			return getRuleContext(ExpressionNamedParameterContext.class,0);
+		public TerminalNode CAST() { return getToken(EsperEPL2GrammarParser.CAST, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
-		public TerminalNode CAST() { return getToken(EsperEPL2GrammarParser.CAST, 0); }
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public ExpressionNamedParameterContext expressionNamedParameter() {
+			return getRuleContext(ExpressionNamedParameterContext.class,0);
+		}
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
+		}
 		public Builtin_castContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13002,22 +14010,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_instanceofContext extends BuiltinFuncContext {
-		public List<ClassIdentifierContext> classIdentifier() {
-			return getRuleContexts(ClassIdentifierContext.class);
-		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode INSTANCEOF() { return getToken(EsperEPL2GrammarParser.INSTANCEOF, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(EsperEPL2GrammarParser.COMMA, i);
+		}
+		public List<ClassIdentifierContext> classIdentifier() {
+			return getRuleContexts(ClassIdentifierContext.class);
 		}
 		public ClassIdentifierContext classIdentifier(int i) {
 			return getRuleContext(ClassIdentifierContext.class,i);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode COMMA(int i) {
-			return getToken(EsperEPL2GrammarParser.COMMA, i);
-		}
-		public TerminalNode INSTANCEOF() { return getToken(EsperEPL2GrammarParser.INSTANCEOF, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_instanceofContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13029,12 +14037,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_groupingidContext extends BuiltinFuncContext {
+		public TerminalNode GROUPING_ID() { return getToken(EsperEPL2GrammarParser.GROUPING_ID, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListContext expressionList() {
 			return getRuleContext(ExpressionListContext.class,0);
 		}
-		public TerminalNode GROUPING_ID() { return getToken(EsperEPL2GrammarParser.GROUPING_ID, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public Builtin_groupingidContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13046,19 +14054,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_coalesceContext extends BuiltinFuncContext {
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
 		public TerminalNode COALESCE() { return getToken(EsperEPL2GrammarParser.COALESCE, 0); }
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_coalesceContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13070,14 +14078,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_avedevContext extends BuiltinFuncContext {
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode AVEDEV() { return getToken(EsperEPL2GrammarParser.AVEDEV, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode AVEDEV() { return getToken(EsperEPL2GrammarParser.AVEDEV, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_avedevContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13092,13 +14100,13 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token a;
 		public Token d;
 		public TerminalNode COUNT() { return getToken(EsperEPL2GrammarParser.COUNT, 0); }
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public Builtin_cntContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13107,30 +14115,6 @@ public class EsperEPL2GrammarParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).exitBuiltin_cnt(this);
-		}
-	}
-	public static class Builtin_prevtailContext extends BuiltinFuncContext {
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public TerminalNode PREVIOUSTAIL() { return getToken(EsperEPL2GrammarParser.PREVIOUSTAIL, 0); }
-		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public ChainedFunctionContext chainedFunction() {
-			return getRuleContext(ChainedFunctionContext.class,0);
-		}
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public Builtin_prevtailContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).enterBuiltin_prevtail(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).exitBuiltin_prevtail(this);
 		}
 	}
 	public static class Builtin_firstlastwindowContext extends BuiltinFuncContext {
@@ -13147,10 +14131,34 @@ public class EsperEPL2GrammarParser extends Parser {
 			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).exitBuiltin_firstlastwindow(this);
 		}
 	}
+	public static class Builtin_prevtailContext extends BuiltinFuncContext {
+		public TerminalNode PREVIOUSTAIL() { return getToken(EsperEPL2GrammarParser.PREVIOUSTAIL, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode COMMA() { return getToken(EsperEPL2GrammarParser.COMMA, 0); }
+		public ChainedFunctionContext chainedFunction() {
+			return getRuleContext(ChainedFunctionContext.class,0);
+		}
+		public Builtin_prevtailContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).enterBuiltin_prevtail(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof EsperEPL2GrammarListener ) ((EsperEPL2GrammarListener)listener).exitBuiltin_prevtail(this);
+		}
+	}
 	public static class Builtin_istreamContext extends BuiltinFuncContext {
 		public TerminalNode ISTREAM() { return getToken(EsperEPL2GrammarParser.ISTREAM, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_istreamContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13163,11 +14171,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 	public static class Builtin_prevcountContext extends BuiltinFuncContext {
 		public TerminalNode PREVIOUSCOUNT() { return getToken(EsperEPL2GrammarParser.PREVIOUSCOUNT, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_prevcountContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13180,11 +14188,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 	public static class Builtin_currtsContext extends BuiltinFuncContext {
 		public TerminalNode CURRENT_TIMESTAMP() { return getToken(EsperEPL2GrammarParser.CURRENT_TIMESTAMP, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ChainedFunctionContext chainedFunction() {
 			return getRuleContext(ChainedFunctionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public Builtin_currtsContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13197,11 +14205,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 	public static class Builtin_existsContext extends BuiltinFuncContext {
 		public TerminalNode EXISTS() { return getToken(EsperEPL2GrammarParser.EXISTS, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public Builtin_existsContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13213,12 +14221,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		}
 	}
 	public static class Builtin_groupingContext extends BuiltinFuncContext {
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode GROUPING() { return getToken(EsperEPL2GrammarParser.GROUPING, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode GROUPING() { return getToken(EsperEPL2GrammarParser.GROUPING, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public Builtin_groupingContext(BuiltinFuncContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -13241,8 +14249,10 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_sumContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2255); match(SUM);
-				setState(2256); match(LPAREN);
+				setState(2255);
+				match(SUM);
+				setState(2256);
+				match(LPAREN);
 				setState(2258);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
@@ -13251,21 +14261,26 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 				}
 
-				setState(2260); expressionListWithNamed();
-				setState(2261); match(RPAREN);
+				setState(2260);
+				expressionListWithNamed();
+				setState(2261);
+				match(RPAREN);
 				}
 				break;
 			case AVG:
 				_localctx = new Builtin_avgContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2263); match(AVG);
-				setState(2264); match(LPAREN);
+				setState(2263);
+				match(AVG);
+				setState(2264);
+				match(LPAREN);
 				setState(2266);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
@@ -13274,31 +14289,38 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 				}
 
-				setState(2268); expressionListWithNamed();
-				setState(2269); match(RPAREN);
+				setState(2268);
+				expressionListWithNamed();
+				setState(2269);
+				match(RPAREN);
 				}
 				break;
 			case COUNT:
 				_localctx = new Builtin_cntContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2271); match(COUNT);
-				setState(2272); match(LPAREN);
+				setState(2271);
+				match(COUNT);
+				setState(2272);
+				match(LPAREN);
 				setState(2275);
 				switch (_input.LA(1)) {
 				case ALL:
 					{
-					setState(2273); ((Builtin_cntContext)_localctx).a = match(ALL);
+					setState(2273);
+					((Builtin_cntContext)_localctx).a = match(ALL);
 					}
 					break;
 				case DISTINCT:
 					{
-					setState(2274); ((Builtin_cntContext)_localctx).d = match(DISTINCT);
+					setState(2274);
+					((Builtin_cntContext)_localctx).d = match(DISTINCT);
 					}
 					break;
 				case WINDOW:
@@ -13380,16 +14402,20 @@ public class EsperEPL2GrammarParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(2277); expressionListWithNamed();
-				setState(2278); match(RPAREN);
+				setState(2277);
+				expressionListWithNamed();
+				setState(2278);
+				match(RPAREN);
 				}
 				break;
 			case MEDIAN:
 				_localctx = new Builtin_medianContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2280); match(MEDIAN);
-				setState(2281); match(LPAREN);
+				setState(2280);
+				match(MEDIAN);
+				setState(2281);
+				match(LPAREN);
 				setState(2283);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
@@ -13398,21 +14424,26 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 				}
 
-				setState(2285); expressionListWithNamed();
-				setState(2286); match(RPAREN);
+				setState(2285);
+				expressionListWithNamed();
+				setState(2286);
+				match(RPAREN);
 				}
 				break;
 			case STDDEV:
 				_localctx = new Builtin_stddevContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(2288); match(STDDEV);
-				setState(2289); match(LPAREN);
+				setState(2288);
+				match(STDDEV);
+				setState(2289);
+				match(LPAREN);
 				setState(2291);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
@@ -13421,21 +14452,26 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 				}
 
-				setState(2293); expressionListWithNamed();
-				setState(2294); match(RPAREN);
+				setState(2293);
+				expressionListWithNamed();
+				setState(2294);
+				match(RPAREN);
 				}
 				break;
 			case AVEDEV:
 				_localctx = new Builtin_avedevContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(2296); match(AVEDEV);
-				setState(2297); match(LPAREN);
+				setState(2296);
+				match(AVEDEV);
+				setState(2297);
+				match(LPAREN);
 				setState(2299);
 				_la = _input.LA(1);
 				if (_la==DISTINCT || _la==ALL) {
@@ -13444,13 +14480,16 @@ public class EsperEPL2GrammarParser extends Parser {
 					_la = _input.LA(1);
 					if ( !(_la==DISTINCT || _la==ALL) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 				}
 
-				setState(2301); expressionListWithNamed();
-				setState(2302); match(RPAREN);
+				setState(2301);
+				expressionListWithNamed();
+				setState(2302);
+				match(RPAREN);
 				}
 				break;
 			case WINDOW:
@@ -13459,57 +14498,73 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_firstlastwindowContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(2304); firstLastWindowAggregation();
+				setState(2304);
+				firstLastWindowAggregation();
 				}
 				break;
 			case COALESCE:
 				_localctx = new Builtin_coalesceContext(_localctx);
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(2305); match(COALESCE);
-				setState(2306); match(LPAREN);
-				setState(2307); expression();
-				setState(2308); match(COMMA);
-				setState(2309); expression();
+				setState(2305);
+				match(COALESCE);
+				setState(2306);
+				match(LPAREN);
+				setState(2307);
+				expression();
+				setState(2308);
+				match(COMMA);
+				setState(2309);
+				expression();
 				setState(2314);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(2310); match(COMMA);
-					setState(2311); expression();
+					setState(2310);
+					match(COMMA);
+					setState(2311);
+					expression();
 					}
 					}
 					setState(2316);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(2317); match(RPAREN);
+				setState(2317);
+				match(RPAREN);
 				}
 				break;
 			case PREVIOUS:
 				_localctx = new Builtin_prevContext(_localctx);
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(2319); match(PREVIOUS);
-				setState(2320); match(LPAREN);
-				setState(2321); expression();
+				setState(2319);
+				match(PREVIOUS);
+				setState(2320);
+				match(LPAREN);
+				setState(2321);
+				expression();
 				setState(2324);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(2322); match(COMMA);
-					setState(2323); expression();
+					setState(2322);
+					match(COMMA);
+					setState(2323);
+					expression();
 					}
 				}
 
-				setState(2326); match(RPAREN);
+				setState(2326);
+				match(RPAREN);
 				setState(2328);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2327); chainedFunction();
+					setState(2327);
+					chainedFunction();
 					}
 				}
 
@@ -13519,24 +14574,31 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_prevtailContext(_localctx);
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(2330); match(PREVIOUSTAIL);
-				setState(2331); match(LPAREN);
-				setState(2332); expression();
+				setState(2330);
+				match(PREVIOUSTAIL);
+				setState(2331);
+				match(LPAREN);
+				setState(2332);
+				expression();
 				setState(2335);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(2333); match(COMMA);
-					setState(2334); expression();
+					setState(2333);
+					match(COMMA);
+					setState(2334);
+					expression();
 					}
 				}
 
-				setState(2337); match(RPAREN);
+				setState(2337);
+				match(RPAREN);
 				setState(2339);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2338); chainedFunction();
+					setState(2338);
+					chainedFunction();
 					}
 				}
 
@@ -13546,25 +14608,34 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_prevcountContext(_localctx);
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(2341); match(PREVIOUSCOUNT);
-				setState(2342); match(LPAREN);
-				setState(2343); expression();
-				setState(2344); match(RPAREN);
+				setState(2341);
+				match(PREVIOUSCOUNT);
+				setState(2342);
+				match(LPAREN);
+				setState(2343);
+				expression();
+				setState(2344);
+				match(RPAREN);
 				}
 				break;
 			case PREVIOUSWINDOW:
 				_localctx = new Builtin_prevwindowContext(_localctx);
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(2346); match(PREVIOUSWINDOW);
-				setState(2347); match(LPAREN);
-				setState(2348); expression();
-				setState(2349); match(RPAREN);
+				setState(2346);
+				match(PREVIOUSWINDOW);
+				setState(2347);
+				match(LPAREN);
+				setState(2348);
+				expression();
+				setState(2349);
+				match(RPAREN);
 				setState(2351);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2350); chainedFunction();
+					setState(2350);
+					chainedFunction();
 					}
 				}
 
@@ -13574,99 +14645,134 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_priorContext(_localctx);
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(2353); match(PRIOR);
-				setState(2354); match(LPAREN);
-				setState(2355); expression();
-				setState(2356); match(COMMA);
-				setState(2357); eventProperty();
-				setState(2358); match(RPAREN);
+				setState(2353);
+				match(PRIOR);
+				setState(2354);
+				match(LPAREN);
+				setState(2355);
+				expression();
+				setState(2356);
+				match(COMMA);
+				setState(2357);
+				eventProperty();
+				setState(2358);
+				match(RPAREN);
 				}
 				break;
 			case GROUPING:
 				_localctx = new Builtin_groupingContext(_localctx);
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(2360); match(GROUPING);
-				setState(2361); match(LPAREN);
-				setState(2362); expression();
-				setState(2363); match(RPAREN);
+				setState(2360);
+				match(GROUPING);
+				setState(2361);
+				match(LPAREN);
+				setState(2362);
+				expression();
+				setState(2363);
+				match(RPAREN);
 				}
 				break;
 			case GROUPING_ID:
 				_localctx = new Builtin_groupingidContext(_localctx);
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(2365); match(GROUPING_ID);
-				setState(2366); match(LPAREN);
-				setState(2367); expressionList();
-				setState(2368); match(RPAREN);
+				setState(2365);
+				match(GROUPING_ID);
+				setState(2366);
+				match(LPAREN);
+				setState(2367);
+				expressionList();
+				setState(2368);
+				match(RPAREN);
 				}
 				break;
 			case INSTANCEOF:
 				_localctx = new Builtin_instanceofContext(_localctx);
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(2370); match(INSTANCEOF);
-				setState(2371); match(LPAREN);
-				setState(2372); expression();
-				setState(2373); match(COMMA);
-				setState(2374); classIdentifier();
+				setState(2370);
+				match(INSTANCEOF);
+				setState(2371);
+				match(LPAREN);
+				setState(2372);
+				expression();
+				setState(2373);
+				match(COMMA);
+				setState(2374);
+				classIdentifier();
 				setState(2379);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(2375); match(COMMA);
-					setState(2376); classIdentifier();
+					setState(2375);
+					match(COMMA);
+					setState(2376);
+					classIdentifier();
 					}
 					}
 					setState(2381);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(2382); match(RPAREN);
+				setState(2382);
+				match(RPAREN);
 				}
 				break;
 			case TYPEOF:
 				_localctx = new Builtin_typeofContext(_localctx);
 				enterOuterAlt(_localctx, 17);
 				{
-				setState(2384); match(TYPEOF);
-				setState(2385); match(LPAREN);
-				setState(2386); expression();
-				setState(2387); match(RPAREN);
+				setState(2384);
+				match(TYPEOF);
+				setState(2385);
+				match(LPAREN);
+				setState(2386);
+				expression();
+				setState(2387);
+				match(RPAREN);
 				}
 				break;
 			case CAST:
 				_localctx = new Builtin_castContext(_localctx);
 				enterOuterAlt(_localctx, 18);
 				{
-				setState(2389); match(CAST);
-				setState(2390); match(LPAREN);
-				setState(2391); expression();
+				setState(2389);
+				match(CAST);
+				setState(2390);
+				match(LPAREN);
+				setState(2391);
+				expression();
 				setState(2392);
 				_la = _input.LA(1);
 				if ( !(_la==AS || _la==COMMA) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
-				setState(2393); classIdentifier();
+				setState(2393);
+				classIdentifier();
 				setState(2396);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(2394); match(COMMA);
-					setState(2395); expressionNamedParameter();
+					setState(2394);
+					match(COMMA);
+					setState(2395);
+					expressionNamedParameter();
 					}
 				}
 
-				setState(2398); match(RPAREN);
+				setState(2398);
+				match(RPAREN);
 				setState(2400);
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2399); chainedFunction();
+					setState(2399);
+					chainedFunction();
 					}
 				}
 
@@ -13676,23 +14782,31 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_existsContext(_localctx);
 				enterOuterAlt(_localctx, 19);
 				{
-				setState(2402); match(EXISTS);
-				setState(2403); match(LPAREN);
-				setState(2404); eventProperty();
-				setState(2405); match(RPAREN);
+				setState(2402);
+				match(EXISTS);
+				setState(2403);
+				match(LPAREN);
+				setState(2404);
+				eventProperty();
+				setState(2405);
+				match(RPAREN);
 				}
 				break;
 			case CURRENT_TIMESTAMP:
 				_localctx = new Builtin_currtsContext(_localctx);
 				enterOuterAlt(_localctx, 20);
 				{
-				setState(2407); match(CURRENT_TIMESTAMP);
+				setState(2407);
+				match(CURRENT_TIMESTAMP);
 				setState(2410);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,313,_ctx) ) {
 				case 1:
 					{
-					setState(2408); match(LPAREN);
-					setState(2409); match(RPAREN);
+					setState(2408);
+					match(LPAREN);
+					setState(2409);
+					match(RPAREN);
 					}
 					break;
 				}
@@ -13700,7 +14814,8 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==DOT) {
 					{
-					setState(2412); chainedFunction();
+					setState(2412);
+					chainedFunction();
 					}
 				}
 
@@ -13710,9 +14825,12 @@ public class EsperEPL2GrammarParser extends Parser {
 				_localctx = new Builtin_istreamContext(_localctx);
 				enterOuterAlt(_localctx, 21);
 				{
-				setState(2415); match(ISTREAM);
-				setState(2416); match(LPAREN);
-				setState(2417); match(RPAREN);
+				setState(2415);
+				match(ISTREAM);
+				setState(2416);
+				match(LPAREN);
+				setState(2417);
+				match(RPAREN);
 				}
 				break;
 			default:
@@ -13732,17 +14850,17 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class FirstLastWindowAggregationContext extends ParserRuleContext {
 		public Token q;
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
 		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
 		public ExpressionListWithNamedContext expressionListWithNamed() {
 			return getRuleContext(ExpressionListWithNamedContext.class,0);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ChainedFunctionContext chainedFunction() {
 			return getRuleContext(ChainedFunctionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
 		public FirstLastWindowAggregationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -13768,37 +14886,44 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case FIRST:
 				{
-				setState(2420); ((FirstLastWindowAggregationContext)_localctx).q = match(FIRST);
+				setState(2420);
+				((FirstLastWindowAggregationContext)_localctx).q = match(FIRST);
 				}
 				break;
 			case LAST:
 				{
-				setState(2421); ((FirstLastWindowAggregationContext)_localctx).q = match(LAST);
+				setState(2421);
+				((FirstLastWindowAggregationContext)_localctx).q = match(LAST);
 				}
 				break;
 			case WINDOW:
 				{
-				setState(2422); ((FirstLastWindowAggregationContext)_localctx).q = match(WINDOW);
+				setState(2422);
+				((FirstLastWindowAggregationContext)_localctx).q = match(WINDOW);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2425); match(LPAREN);
+			setState(2425);
+			match(LPAREN);
 			setState(2427);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(2426); expressionListWithNamed();
+				setState(2426);
+				expressionListWithNamed();
 				}
 			}
 
-			setState(2429); match(RPAREN);
+			setState(2429);
+			match(RPAREN);
 			setState(2431);
 			_la = _input.LA(1);
 			if (_la==DOT) {
 				{
-				setState(2430); chainedFunction();
+				setState(2430);
+				chainedFunction();
 				}
 			}
 
@@ -13816,11 +14941,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class EventPropertyOrLibFunctionContext extends ParserRuleContext {
-		public LibFunctionContext libFunction() {
-			return getRuleContext(LibFunctionContext.class,0);
-		}
 		public EventPropertyContext eventProperty() {
 			return getRuleContext(EventPropertyContext.class,0);
+		}
+		public LibFunctionContext libFunction() {
+			return getRuleContext(LibFunctionContext.class,0);
 		}
 		public EventPropertyOrLibFunctionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -13841,18 +14966,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 326, RULE_eventPropertyOrLibFunction);
 		try {
 			setState(2435);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,319,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2433); eventProperty();
+				setState(2433);
+				eventProperty();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2434); libFunction();
+				setState(2434);
+				libFunction();
 				}
 				break;
 			}
@@ -13869,15 +14996,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class LibFunctionContext extends ParserRuleContext {
-		public List<LibFunctionNoClassContext> libFunctionNoClass() {
-			return getRuleContexts(LibFunctionNoClassContext.class);
-		}
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public LibFunctionWithClassContext libFunctionWithClass() {
 			return getRuleContext(LibFunctionWithClassContext.class,0);
 		}
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
+		}
+		public List<LibFunctionNoClassContext> libFunctionNoClass() {
+			return getRuleContexts(LibFunctionNoClassContext.class);
 		}
 		public LibFunctionNoClassContext libFunctionNoClass(int i) {
 			return getRuleContext(LibFunctionNoClassContext.class,i);
@@ -13903,15 +15030,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2437); libFunctionWithClass();
+			setState(2437);
+			libFunctionWithClass();
 			setState(2442);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(2438); match(DOT);
-				setState(2439); libFunctionNoClass();
+				setState(2438);
+				match(DOT);
+				setState(2439);
+				libFunctionNoClass();
 				}
 				}
 				setState(2444);
@@ -13933,21 +15063,21 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class LibFunctionWithClassContext extends ParserRuleContext {
 		public Token l;
-		public LibFunctionArgsContext libFunctionArgs() {
-			return getRuleContext(LibFunctionArgsContext.class,0);
-		}
 		public FuncIdentTopContext funcIdentTop() {
 			return getRuleContext(FuncIdentTopContext.class,0);
 		}
-		public TerminalNode DOT() { return getToken(EsperEPL2GrammarParser.DOT, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
+		public TerminalNode DOT() { return getToken(EsperEPL2GrammarParser.DOT, 0); }
 		public FuncIdentInnerContext funcIdentInner() {
 			return getRuleContext(FuncIdentInnerContext.class,0);
 		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public LibFunctionArgsContext libFunctionArgs() {
+			return getRuleContext(LibFunctionArgsContext.class,0);
+		}
 		public LibFunctionWithClassContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -13970,37 +15100,45 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2450);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,321,_ctx) ) {
 			case 1:
 				{
 				{
-				setState(2445); classIdentifier();
-				setState(2446); match(DOT);
-				setState(2447); funcIdentInner();
+				setState(2445);
+				classIdentifier();
+				setState(2446);
+				match(DOT);
+				setState(2447);
+				funcIdentInner();
 				}
 				}
 				break;
-
 			case 2:
 				{
-				setState(2449); funcIdentTop();
+				setState(2449);
+				funcIdentTop();
 				}
 				break;
 			}
 			setState(2457);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,323,_ctx) ) {
 			case 1:
 				{
-				setState(2452); ((LibFunctionWithClassContext)_localctx).l = match(LPAREN);
+				setState(2452);
+				((LibFunctionWithClassContext)_localctx).l = match(LPAREN);
 				setState(2454);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << DISTINCT) | (1L << ALL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2453); libFunctionArgs();
+					setState(2453);
+					libFunctionArgs();
 					}
 				}
 
-				setState(2456); match(RPAREN);
+				setState(2456);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -14019,14 +15157,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class LibFunctionNoClassContext extends ParserRuleContext {
 		public Token l;
-		public LibFunctionArgsContext libFunctionArgs() {
-			return getRuleContext(LibFunctionArgsContext.class,0);
-		}
 		public FuncIdentChainedContext funcIdentChained() {
 			return getRuleContext(FuncIdentChainedContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public LibFunctionArgsContext libFunctionArgs() {
+			return getRuleContext(LibFunctionArgsContext.class,0);
+		}
 		public LibFunctionNoClassContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14048,21 +15186,26 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2459); funcIdentChained();
+			setState(2459);
+			funcIdentChained();
 			setState(2465);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,325,_ctx) ) {
 			case 1:
 				{
-				setState(2460); ((LibFunctionNoClassContext)_localctx).l = match(LPAREN);
+				setState(2460);
+				((LibFunctionNoClassContext)_localctx).l = match(LPAREN);
 				setState(2462);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << DISTINCT) | (1L << ALL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2461); libFunctionArgs();
+					setState(2461);
+					libFunctionArgs();
 					}
 				}
 
-				setState(2464); match(RPAREN);
+				setState(2464);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -14083,8 +15226,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		public EscapableIdentContext escapableIdent() {
 			return getRuleContext(EscapableIdentContext.class,0);
 		}
-		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
 		public TerminalNode MAX() { return getToken(EsperEPL2GrammarParser.MAX, 0); }
+		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
 		public FuncIdentTopContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14109,19 +15252,22 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2467); escapableIdent();
+				setState(2467);
+				escapableIdent();
 				}
 				break;
 			case MAX:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2468); match(MAX);
+				setState(2468);
+				match(MAX);
 				}
 				break;
 			case MIN:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2469); match(MIN);
+				setState(2469);
+				match(MIN);
 				}
 				break;
 			default:
@@ -14140,12 +15286,12 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class FuncIdentInnerContext extends ParserRuleContext {
-		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
-		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
 		public EscapableIdentContext escapableIdent() {
 			return getRuleContext(EscapableIdentContext.class,0);
 		}
 		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
+		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
 		public FuncIdentInnerContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14170,25 +15316,29 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2472); escapableIdent();
+				setState(2472);
+				escapableIdent();
 				}
 				break;
 			case LAST:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2473); match(LAST);
+				setState(2473);
+				match(LAST);
 				}
 				break;
 			case FIRST:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2474); match(FIRST);
+				setState(2474);
+				match(FIRST);
 				}
 				break;
 			case WINDOW:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2475); match(WINDOW);
+				setState(2475);
+				match(WINDOW);
 				}
 				break;
 			default:
@@ -14207,18 +15357,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class FuncIdentChainedContext extends ParserRuleContext {
-		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode BETWEEN() { return getToken(EsperEPL2GrammarParser.BETWEEN, 0); }
-		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
-		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
 		public EscapableIdentContext escapableIdent() {
 			return getRuleContext(EscapableIdentContext.class,0);
 		}
-		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
-		public TerminalNode MAX() { return getToken(EsperEPL2GrammarParser.MAX, 0); }
-		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
 		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
+		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
+		public TerminalNode MAX() { return getToken(EsperEPL2GrammarParser.MAX, 0); }
+		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public TerminalNode SET() { return getToken(EsperEPL2GrammarParser.SET, 0); }
+		public TerminalNode AFTER() { return getToken(EsperEPL2GrammarParser.AFTER, 0); }
+		public TerminalNode BETWEEN() { return getToken(EsperEPL2GrammarParser.BETWEEN, 0); }
 		public FuncIdentChainedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14243,61 +15393,71 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2478); escapableIdent();
+				setState(2478);
+				escapableIdent();
 				}
 				break;
 			case LAST:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2479); match(LAST);
+				setState(2479);
+				match(LAST);
 				}
 				break;
 			case FIRST:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2480); match(FIRST);
+				setState(2480);
+				match(FIRST);
 				}
 				break;
 			case WINDOW:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2481); match(WINDOW);
+				setState(2481);
+				match(WINDOW);
 				}
 				break;
 			case MAX:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(2482); match(MAX);
+				setState(2482);
+				match(MAX);
 				}
 				break;
 			case MIN:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(2483); match(MIN);
+				setState(2483);
+				match(MIN);
 				}
 				break;
 			case WHERE:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(2484); match(WHERE);
+				setState(2484);
+				match(WHERE);
 				}
 				break;
 			case SET:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(2485); match(SET);
+				setState(2485);
+				match(SET);
 				}
 				break;
 			case AFTER:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(2486); match(AFTER);
+				setState(2486);
+				match(AFTER);
 				}
 				break;
 			case BETWEEN:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(2487); match(BETWEEN);
+				setState(2487);
+				match(BETWEEN);
 				}
 				break;
 			default:
@@ -14316,18 +15476,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class LibFunctionArgsContext extends ParserRuleContext {
-		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
-		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public List<LibFunctionArgItemContext> libFunctionArgItem() {
 			return getRuleContexts(LibFunctionArgItemContext.class);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public LibFunctionArgItemContext libFunctionArgItem(int i) {
 			return getRuleContext(LibFunctionArgItemContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
+		public TerminalNode ALL() { return getToken(EsperEPL2GrammarParser.ALL, 0); }
+		public TerminalNode DISTINCT() { return getToken(EsperEPL2GrammarParser.DISTINCT, 0); }
 		public LibFunctionArgsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14357,20 +15517,24 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==DISTINCT || _la==ALL) ) {
 				_errHandler.recoverInline(this);
+				} else {
+					consume();
 				}
-				consume();
 				}
 			}
 
-			setState(2493); libFunctionArgItem();
+			setState(2493);
+			libFunctionArgItem();
 			setState(2498);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2494); match(COMMA);
-				setState(2495); libFunctionArgItem();
+				setState(2494);
+				match(COMMA);
+				setState(2495);
+				libFunctionArgItem();
 				}
 				}
 				setState(2500);
@@ -14391,11 +15555,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class LibFunctionArgItemContext extends ParserRuleContext {
-		public ExpressionLambdaDeclContext expressionLambdaDecl() {
-			return getRuleContext(ExpressionLambdaDeclContext.class,0);
-		}
 		public ExpressionWithNamedContext expressionWithNamed() {
 			return getRuleContext(ExpressionWithNamedContext.class,0);
+		}
+		public ExpressionLambdaDeclContext expressionLambdaDecl() {
+			return getRuleContext(ExpressionLambdaDeclContext.class,0);
 		}
 		public LibFunctionArgItemContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -14418,14 +15582,17 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2502);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,331,_ctx) ) {
 			case 1:
 				{
-				setState(2501); expressionLambdaDecl();
+				setState(2501);
+				expressionLambdaDecl();
 				}
 				break;
 			}
-			setState(2504); expressionWithNamed();
+			setState(2504);
+			expressionWithNamed();
 			}
 		}
 		catch (RecognitionException re) {
@@ -14440,11 +15607,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class BetweenListContext extends ParserRuleContext {
-		public ConcatenationExprContext concatenationExpr(int i) {
-			return getRuleContext(ConcatenationExprContext.class,i);
-		}
 		public List<ConcatenationExprContext> concatenationExpr() {
 			return getRuleContexts(ConcatenationExprContext.class);
+		}
+		public ConcatenationExprContext concatenationExpr(int i) {
+			return getRuleContext(ConcatenationExprContext.class,i);
 		}
 		public TerminalNode AND_EXPR() { return getToken(EsperEPL2GrammarParser.AND_EXPR, 0); }
 		public BetweenListContext(ParserRuleContext parent, int invokingState) {
@@ -14467,9 +15634,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2506); concatenationExpr();
-			setState(2507); match(AND_EXPR);
-			setState(2508); concatenationExpr();
+			setState(2506);
+			concatenationExpr();
+			setState(2507);
+			match(AND_EXPR);
+			setState(2508);
+			concatenationExpr();
 			}
 		}
 		catch (RecognitionException re) {
@@ -14508,8 +15678,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2510); followedByExpression();
+			setState(2510);
+			followedByExpression();
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -14524,14 +15696,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class FollowedByExpressionContext extends ParserRuleContext {
-		public FollowedByRepeatContext followedByRepeat(int i) {
-			return getRuleContext(FollowedByRepeatContext.class,i);
-		}
 		public OrExpressionContext orExpression() {
 			return getRuleContext(OrExpressionContext.class,0);
 		}
 		public List<FollowedByRepeatContext> followedByRepeat() {
 			return getRuleContexts(FollowedByRepeatContext.class);
+		}
+		public FollowedByRepeatContext followedByRepeat(int i) {
+			return getRuleContext(FollowedByRepeatContext.class,i);
 		}
 		public FollowedByExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -14554,14 +15726,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2512); orExpression();
+			setState(2512);
+			orExpression();
 			setState(2516);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==FOLLOWMAX_BEGIN || _la==FOLLOWED_BY) {
 				{
 				{
-				setState(2513); followedByRepeat();
+				setState(2513);
+				followedByRepeat();
 				}
 				}
 				setState(2518);
@@ -14584,15 +15758,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class FollowedByRepeatContext extends ParserRuleContext {
 		public Token f;
 		public Token g;
-		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
-		public TerminalNode FOLLOWMAX_END() { return getToken(EsperEPL2GrammarParser.FOLLOWMAX_END, 0); }
 		public OrExpressionContext orExpression() {
 			return getRuleContext(OrExpressionContext.class,0);
 		}
-		public TerminalNode FOLLOWMAX_BEGIN() { return getToken(EsperEPL2GrammarParser.FOLLOWMAX_BEGIN, 0); }
+		public TerminalNode FOLLOWED_BY() { return getToken(EsperEPL2GrammarParser.FOLLOWED_BY, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode FOLLOWMAX_END() { return getToken(EsperEPL2GrammarParser.FOLLOWMAX_END, 0); }
+		public TerminalNode FOLLOWMAX_BEGIN() { return getToken(EsperEPL2GrammarParser.FOLLOWMAX_BEGIN, 0); }
 		public FollowedByRepeatContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14617,22 +15791,27 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case FOLLOWED_BY:
 				{
-				setState(2519); ((FollowedByRepeatContext)_localctx).f = match(FOLLOWED_BY);
+				setState(2519);
+				((FollowedByRepeatContext)_localctx).f = match(FOLLOWED_BY);
 				}
 				break;
 			case FOLLOWMAX_BEGIN:
 				{
 				{
-				setState(2520); ((FollowedByRepeatContext)_localctx).g = match(FOLLOWMAX_BEGIN);
-				setState(2521); expression();
-				setState(2522); match(FOLLOWMAX_END);
+				setState(2520);
+				((FollowedByRepeatContext)_localctx).g = match(FOLLOWMAX_BEGIN);
+				setState(2521);
+				expression();
+				setState(2522);
+				match(FOLLOWMAX_END);
 				}
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2526); orExpression();
+			setState(2526);
+			orExpression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -14648,13 +15827,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class OrExpressionContext extends ParserRuleContext {
 		public Token o;
-		public List<TerminalNode> OR_EXPR() { return getTokens(EsperEPL2GrammarParser.OR_EXPR); }
 		public List<AndExpressionContext> andExpression() {
 			return getRuleContexts(AndExpressionContext.class);
 		}
 		public AndExpressionContext andExpression(int i) {
 			return getRuleContext(AndExpressionContext.class,i);
 		}
+		public List<TerminalNode> OR_EXPR() { return getTokens(EsperEPL2GrammarParser.OR_EXPR); }
 		public TerminalNode OR_EXPR(int i) {
 			return getToken(EsperEPL2GrammarParser.OR_EXPR, i);
 		}
@@ -14679,15 +15858,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2528); andExpression();
+			setState(2528);
+			andExpression();
 			setState(2533);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==OR_EXPR) {
 				{
 				{
-				setState(2529); ((OrExpressionContext)_localctx).o = match(OR_EXPR);
-				setState(2530); andExpression();
+				setState(2529);
+				((OrExpressionContext)_localctx).o = match(OR_EXPR);
+				setState(2530);
+				andExpression();
 				}
 				}
 				setState(2535);
@@ -14712,13 +15894,13 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<MatchUntilExpressionContext> matchUntilExpression() {
 			return getRuleContexts(MatchUntilExpressionContext.class);
 		}
-		public TerminalNode AND_EXPR(int i) {
-			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
-		}
 		public MatchUntilExpressionContext matchUntilExpression(int i) {
 			return getRuleContext(MatchUntilExpressionContext.class,i);
 		}
 		public List<TerminalNode> AND_EXPR() { return getTokens(EsperEPL2GrammarParser.AND_EXPR); }
+		public TerminalNode AND_EXPR(int i) {
+			return getToken(EsperEPL2GrammarParser.AND_EXPR, i);
+		}
 		public AndExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14740,15 +15922,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2536); matchUntilExpression();
+			setState(2536);
+			matchUntilExpression();
 			setState(2541);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==AND_EXPR) {
 				{
 				{
-				setState(2537); ((AndExpressionContext)_localctx).a = match(AND_EXPR);
-				setState(2538); matchUntilExpression();
+				setState(2537);
+				((AndExpressionContext)_localctx).a = match(AND_EXPR);
+				setState(2538);
+				matchUntilExpression();
 				}
 				}
 				setState(2543);
@@ -14771,15 +15956,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class MatchUntilExpressionContext extends ParserRuleContext {
 		public MatchUntilRangeContext r;
 		public QualifyExpressionContext until;
-		public MatchUntilRangeContext matchUntilRange() {
-			return getRuleContext(MatchUntilRangeContext.class,0);
-		}
 		public List<QualifyExpressionContext> qualifyExpression() {
 			return getRuleContexts(QualifyExpressionContext.class);
 		}
-		public TerminalNode UNTIL() { return getToken(EsperEPL2GrammarParser.UNTIL, 0); }
 		public QualifyExpressionContext qualifyExpression(int i) {
 			return getRuleContext(QualifyExpressionContext.class,i);
+		}
+		public TerminalNode UNTIL() { return getToken(EsperEPL2GrammarParser.UNTIL, 0); }
+		public MatchUntilRangeContext matchUntilRange() {
+			return getRuleContext(MatchUntilRangeContext.class,0);
 		}
 		public MatchUntilExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -14806,17 +15991,21 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(2544); ((MatchUntilExpressionContext)_localctx).r = matchUntilRange();
+				setState(2544);
+				((MatchUntilExpressionContext)_localctx).r = matchUntilRange();
 				}
 			}
 
-			setState(2547); qualifyExpression();
+			setState(2547);
+			qualifyExpression();
 			setState(2550);
 			_la = _input.LA(1);
 			if (_la==UNTIL) {
 				{
-				setState(2548); match(UNTIL);
-				setState(2549); ((MatchUntilExpressionContext)_localctx).until = qualifyExpression();
+				setState(2548);
+				match(UNTIL);
+				setState(2549);
+				((MatchUntilExpressionContext)_localctx).until = qualifyExpression();
 				}
 			}
 
@@ -14837,17 +16026,17 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token e;
 		public Token n;
 		public Token d;
-		public MatchUntilRangeContext matchUntilRange() {
-			return getRuleContext(MatchUntilRangeContext.class,0);
-		}
-		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
 		public GuardPostFixContext guardPostFix() {
 			return getRuleContext(GuardPostFixContext.class,0);
 		}
-		public TerminalNode EVERY_DISTINCT_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_DISTINCT_EXPR, 0); }
-		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
 		public DistinctExpressionListContext distinctExpressionList() {
 			return getRuleContext(DistinctExpressionListContext.class,0);
+		}
+		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
+		public TerminalNode NOT_EXPR() { return getToken(EsperEPL2GrammarParser.NOT_EXPR, 0); }
+		public TerminalNode EVERY_DISTINCT_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_DISTINCT_EXPR, 0); }
+		public MatchUntilRangeContext matchUntilRange() {
+			return getRuleContext(MatchUntilRangeContext.class,0);
 		}
 		public QualifyExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -14878,18 +16067,22 @@ public class EsperEPL2GrammarParser extends Parser {
 				switch (_input.LA(1)) {
 				case EVERY_EXPR:
 					{
-					setState(2552); ((QualifyExpressionContext)_localctx).e = match(EVERY_EXPR);
+					setState(2552);
+					((QualifyExpressionContext)_localctx).e = match(EVERY_EXPR);
 					}
 					break;
 				case NOT_EXPR:
 					{
-					setState(2553); ((QualifyExpressionContext)_localctx).n = match(NOT_EXPR);
+					setState(2553);
+					((QualifyExpressionContext)_localctx).n = match(NOT_EXPR);
 					}
 					break;
 				case EVERY_DISTINCT_EXPR:
 					{
-					setState(2554); ((QualifyExpressionContext)_localctx).d = match(EVERY_DISTINCT_EXPR);
-					setState(2555); distinctExpressionList();
+					setState(2554);
+					((QualifyExpressionContext)_localctx).d = match(EVERY_DISTINCT_EXPR);
+					setState(2555);
+					distinctExpressionList();
 					}
 					break;
 				default:
@@ -14899,14 +16092,16 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (_la==LBRACK) {
 					{
-					setState(2558); matchUntilRange();
+					setState(2558);
+					matchUntilRange();
 					}
 				}
 
 				}
 			}
 
-			setState(2563); guardPostFix();
+			setState(2563);
+			guardPostFix();
 			}
 		}
 		catch (RecognitionException re) {
@@ -14924,22 +16119,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token l;
 		public Token wh;
 		public Token wi;
-		public TerminalNode WHILE() { return getToken(EsperEPL2GrammarParser.WHILE, 0); }
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public GuardWhileExpressionContext guardWhileExpression() {
-			return getRuleContext(GuardWhileExpressionContext.class,0);
-		}
 		public AtomicExpressionContext atomicExpression() {
 			return getRuleContext(AtomicExpressionContext.class,0);
-		}
-		public GuardWhereExpressionContext guardWhereExpression() {
-			return getRuleContext(GuardWhereExpressionContext.class,0);
 		}
 		public PatternExpressionContext patternExpression() {
 			return getRuleContext(PatternExpressionContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public GuardWhereExpressionContext guardWhereExpression() {
+			return getRuleContext(GuardWhereExpressionContext.class,0);
+		}
+		public GuardWhileExpressionContext guardWhileExpression() {
+			return getRuleContext(GuardWhileExpressionContext.class,0);
+		}
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
+		public TerminalNode WHILE() { return getToken(EsperEPL2GrammarParser.WHILE, 0); }
 		public GuardPostFixContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -14966,14 +16161,18 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(2565); atomicExpression();
+				setState(2565);
+				atomicExpression();
 				}
 				break;
 			case LPAREN:
 				{
-				setState(2566); ((GuardPostFixContext)_localctx).l = match(LPAREN);
-				setState(2567); patternExpression();
-				setState(2568); match(RPAREN);
+				setState(2566);
+				((GuardPostFixContext)_localctx).l = match(LPAREN);
+				setState(2567);
+				patternExpression();
+				setState(2568);
+				match(RPAREN);
 				}
 				break;
 			default:
@@ -14984,16 +16183,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case WHERE:
 				{
 				{
-				setState(2572); ((GuardPostFixContext)_localctx).wh = match(WHERE);
-				setState(2573); guardWhereExpression();
+				setState(2572);
+				((GuardPostFixContext)_localctx).wh = match(WHERE);
+				setState(2573);
+				guardWhereExpression();
 				}
 				}
 				break;
 			case WHILE:
 				{
 				{
-				setState(2574); ((GuardPostFixContext)_localctx).wi = match(WHILE);
-				setState(2575); guardWhileExpression();
+				setState(2574);
+				((GuardPostFixContext)_localctx).wi = match(WHILE);
+				setState(2575);
+				guardWhileExpression();
 				}
 				}
 				break;
@@ -15023,15 +16226,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class DistinctExpressionListContext extends ParserRuleContext {
-		public DistinctExpressionAtomContext distinctExpressionAtom(int i) {
-			return getRuleContext(DistinctExpressionAtomContext.class,i);
-		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<DistinctExpressionAtomContext> distinctExpressionAtom() {
 			return getRuleContexts(DistinctExpressionAtomContext.class);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
+		public DistinctExpressionAtomContext distinctExpressionAtom(int i) {
+			return getRuleContext(DistinctExpressionAtomContext.class,i);
+		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -15056,23 +16259,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2578); match(LPAREN);
-			setState(2579); distinctExpressionAtom();
+			setState(2578);
+			match(LPAREN);
+			setState(2579);
+			distinctExpressionAtom();
 			setState(2584);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2580); match(COMMA);
-				setState(2581); distinctExpressionAtom();
+				setState(2580);
+				match(COMMA);
+				setState(2581);
+				distinctExpressionAtom();
 				}
 				}
 				setState(2586);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(2587); match(RPAREN);
+			setState(2587);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15110,7 +16318,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2589); expressionWithTime();
+			setState(2589);
+			expressionWithTime();
 			}
 		}
 		catch (RecognitionException re) {
@@ -15150,18 +16359,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 366, RULE_atomicExpression);
 		try {
 			setState(2593);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,344,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2591); observerExpression();
+				setState(2591);
+				observerExpression();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2592); patternFilterExpression();
+				setState(2592);
+				patternFilterExpression();
 				}
 				break;
 			}
@@ -15181,16 +16392,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token ns;
 		public Token nm;
 		public Token a;
-		public ExpressionListWithNamedWithTimeContext expressionListWithNamedWithTime() {
-			return getRuleContext(ExpressionListWithNamedWithTimeContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
+		public ExpressionListWithNamedWithTimeContext expressionListWithNamedWithTime() {
+			return getRuleContext(ExpressionListWithNamedWithTimeContext.class,0);
 		}
 		public ObserverExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -15213,33 +16424,40 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2595); ((ObserverExpressionContext)_localctx).ns = match(IDENT);
-			setState(2596); match(COLON);
+			setState(2595);
+			((ObserverExpressionContext)_localctx).ns = match(IDENT);
+			setState(2596);
+			match(COLON);
 			setState(2599);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
-				setState(2597); ((ObserverExpressionContext)_localctx).nm = match(IDENT);
+				setState(2597);
+				((ObserverExpressionContext)_localctx).nm = match(IDENT);
 				}
 				break;
 			case AT:
 				{
-				setState(2598); ((ObserverExpressionContext)_localctx).a = match(AT);
+				setState(2598);
+				((ObserverExpressionContext)_localctx).a = match(AT);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2601); match(LPAREN);
+			setState(2601);
+			match(LPAREN);
 			setState(2603);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(2602); expressionListWithNamedWithTime();
+				setState(2602);
+				expressionListWithNamedWithTime();
 				}
 			}
 
-			setState(2605); match(RPAREN);
+			setState(2605);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15254,15 +16472,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GuardWhereExpressionContext extends ParserRuleContext {
-		public ExpressionWithTimeListContext expressionWithTimeList() {
-			return getRuleContext(ExpressionWithTimeListContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		}
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public ExpressionWithTimeListContext expressionWithTimeList() {
+			return getRuleContext(ExpressionWithTimeListContext.class,0);
 		}
 		public GuardWhereExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -15285,19 +16503,25 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2607); match(IDENT);
-			setState(2608); match(COLON);
-			setState(2609); match(IDENT);
-			setState(2610); match(LPAREN);
+			setState(2607);
+			match(IDENT);
+			setState(2608);
+			match(COLON);
+			setState(2609);
+			match(IDENT);
+			setState(2610);
+			match(LPAREN);
 			setState(2612);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 				{
-				setState(2611); expressionWithTimeList();
+				setState(2611);
+				expressionWithTimeList();
 				}
 			}
 
-			setState(2614); match(RPAREN);
+			setState(2614);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15312,11 +16536,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class GuardWhileExpressionContext extends ParserRuleContext {
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public GuardWhileExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15337,9 +16561,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2616); match(LPAREN);
-			setState(2617); expression();
-			setState(2618); match(RPAREN);
+			setState(2616);
+			match(LPAREN);
+			setState(2617);
+			expression();
+			setState(2618);
+			match(RPAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15359,12 +16586,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		public ExpressionContext high;
 		public Token c2;
 		public ExpressionContext upper;
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
 		}
 		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public MatchUntilRangeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15386,7 +16616,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2620); match(LBRACK);
+			setState(2620);
+			match(LBRACK);
 			setState(2630);
 			switch (_input.LA(1)) {
 			case WINDOW:
@@ -15463,17 +16694,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2621); ((MatchUntilRangeContext)_localctx).low = expression();
+				setState(2621);
+				((MatchUntilRangeContext)_localctx).low = expression();
 				setState(2626);
 				_la = _input.LA(1);
 				if (_la==COLON) {
 					{
-					setState(2622); ((MatchUntilRangeContext)_localctx).c1 = match(COLON);
+					setState(2622);
+					((MatchUntilRangeContext)_localctx).c1 = match(COLON);
 					setState(2624);
 					_la = _input.LA(1);
 					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 						{
-						setState(2623); ((MatchUntilRangeContext)_localctx).high = expression();
+						setState(2623);
+						((MatchUntilRangeContext)_localctx).high = expression();
 						}
 					}
 
@@ -15484,14 +16718,17 @@ public class EsperEPL2GrammarParser extends Parser {
 				break;
 			case COLON:
 				{
-				setState(2628); ((MatchUntilRangeContext)_localctx).c2 = match(COLON);
-				setState(2629); ((MatchUntilRangeContext)_localctx).upper = expression();
+				setState(2628);
+				((MatchUntilRangeContext)_localctx).c2 = match(COLON);
+				setState(2629);
+				((MatchUntilRangeContext)_localctx).upper = expression();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2632); match(RBRACK);
+			setState(2632);
+			match(RBRACK);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15507,19 +16744,19 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class EventFilterExpressionContext extends ParserRuleContext {
 		public Token i;
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public PropertyExpressionContext propertyExpression() {
 			return getRuleContext(PropertyExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
 		public EventFilterExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15543,29 +16780,36 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2636);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,351,_ctx) ) {
 			case 1:
 				{
-				setState(2634); ((EventFilterExpressionContext)_localctx).i = match(IDENT);
-				setState(2635); match(EQUALS);
+				setState(2634);
+				((EventFilterExpressionContext)_localctx).i = match(IDENT);
+				setState(2635);
+				match(EQUALS);
 				}
 				break;
 			}
-			setState(2638); classIdentifier();
+			setState(2638);
+			classIdentifier();
 			setState(2644);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(2639); match(LPAREN);
+				setState(2639);
+				match(LPAREN);
 				setState(2641);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2640); expressionList();
+					setState(2640);
+					expressionList();
 					}
 				}
 
-				setState(2643); match(RPAREN);
+				setState(2643);
+				match(RPAREN);
 				}
 			}
 
@@ -15573,11 +16817,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(2646); propertyExpression();
+				setState(2646);
+				propertyExpression();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -15619,14 +16865,16 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2649); propertyExpressionAtomic();
+			setState(2649);
+			propertyExpressionAtomic();
 			setState(2653);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==LBRACK) {
 				{
 				{
-				setState(2650); propertyExpressionAtomic();
+				setState(2650);
+				propertyExpressionAtomic();
 				}
 				}
 				setState(2655);
@@ -15649,23 +16897,23 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class PropertyExpressionAtomicContext extends ParserRuleContext {
 		public Token n;
 		public ExpressionContext where;
-		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
+		}
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public PropertyExpressionSelectContext propertyExpressionSelect() {
+			return getRuleContext(PropertyExpressionSelectContext.class,0);
 		}
 		public PropertyExpressionAnnotationContext propertyExpressionAnnotation() {
 			return getRuleContext(PropertyExpressionAnnotationContext.class,0);
 		}
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public TerminalNode WHERE() { return getToken(EsperEPL2GrammarParser.WHERE, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public PropertyExpressionSelectContext propertyExpressionSelect() {
-			return getRuleContext(PropertyExpressionSelectContext.class,0);
-		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public PropertyExpressionAtomicContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15687,21 +16935,25 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2656); match(LBRACK);
+			setState(2656);
+			match(LBRACK);
 			setState(2658);
 			_la = _input.LA(1);
 			if (_la==SELECT) {
 				{
-				setState(2657); propertyExpressionSelect();
+				setState(2657);
+				propertyExpressionSelect();
 				}
 			}
 
-			setState(2660); expression();
+			setState(2660);
+			expression();
 			setState(2662);
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
-				setState(2661); propertyExpressionAnnotation();
+				setState(2661);
+				propertyExpressionAnnotation();
 				}
 			}
 
@@ -15709,8 +16961,10 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(2664); match(AS);
-				setState(2665); ((PropertyExpressionAtomicContext)_localctx).n = match(IDENT);
+				setState(2664);
+				match(AS);
+				setState(2665);
+				((PropertyExpressionAtomicContext)_localctx).n = match(IDENT);
 				}
 			}
 
@@ -15718,12 +16972,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WHERE) {
 				{
-				setState(2668); match(WHERE);
-				setState(2669); ((PropertyExpressionAtomicContext)_localctx).where = expression();
+				setState(2668);
+				match(WHERE);
+				setState(2669);
+				((PropertyExpressionAtomicContext)_localctx).where = expression();
 				}
 			}
 
-			setState(2672); match(RBRACK);
+			setState(2672);
+			match(RBRACK);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15763,9 +17020,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2674); match(SELECT);
-			setState(2675); propertySelectionList();
-			setState(2676); match(FROM);
+			setState(2674);
+			match(SELECT);
+			setState(2675);
+			propertySelectionList();
+			setState(2676);
+			match(FROM);
 			}
 		}
 		catch (RecognitionException re) {
@@ -15782,13 +17042,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class PropertyExpressionAnnotationContext extends ParserRuleContext {
 		public Token n;
 		public Token v;
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public PropertyExpressionAnnotationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15809,12 +17069,17 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2678); match(ATCHAR);
-			setState(2679); ((PropertyExpressionAnnotationContext)_localctx).n = match(IDENT);
+			setState(2678);
+			match(ATCHAR);
+			setState(2679);
+			((PropertyExpressionAnnotationContext)_localctx).n = match(IDENT);
 			{
-			setState(2680); match(LPAREN);
-			setState(2681); ((PropertyExpressionAnnotationContext)_localctx).v = match(IDENT);
-			setState(2682); match(RPAREN);
+			setState(2680);
+			match(LPAREN);
+			setState(2681);
+			((PropertyExpressionAnnotationContext)_localctx).v = match(IDENT);
+			setState(2682);
+			match(RPAREN);
 			}
 			}
 		}
@@ -15830,11 +17095,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class PropertySelectionListContext extends ParserRuleContext {
-		public PropertySelectionListElementContext propertySelectionListElement(int i) {
-			return getRuleContext(PropertySelectionListElementContext.class,i);
-		}
 		public List<PropertySelectionListElementContext> propertySelectionListElement() {
 			return getRuleContexts(PropertySelectionListElementContext.class);
+		}
+		public PropertySelectionListElementContext propertySelectionListElement(int i) {
+			return getRuleContext(PropertySelectionListElementContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -15861,15 +17126,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2684); propertySelectionListElement();
+			setState(2684);
+			propertySelectionListElement();
 			setState(2689);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2685); match(COMMA);
-				setState(2686); propertySelectionListElement();
+				setState(2685);
+				match(COMMA);
+				setState(2686);
+				propertySelectionListElement();
 				}
 				}
 				setState(2691);
@@ -15891,16 +17159,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class PropertySelectionListElementContext extends ParserRuleContext {
 		public Token s;
-		public KeywordAllowedIdentContext keywordAllowedIdent() {
-			return getRuleContext(KeywordAllowedIdentContext.class,0);
-		}
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
 		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public PropertyStreamSelectorContext propertyStreamSelector() {
 			return getRuleContext(PropertyStreamSelectorContext.class,0);
+		}
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
+		public KeywordAllowedIdentContext keywordAllowedIdent() {
+			return getRuleContext(KeywordAllowedIdentContext.class,0);
 		}
 		public PropertySelectionListElementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -15922,31 +17190,35 @@ public class EsperEPL2GrammarParser extends Parser {
 		int _la;
 		try {
 			setState(2699);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,362,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2692); ((PropertySelectionListElementContext)_localctx).s = match(STAR);
+				setState(2692);
+				((PropertySelectionListElementContext)_localctx).s = match(STAR);
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2693); propertyStreamSelector();
+				setState(2693);
+				propertyStreamSelector();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2694); expression();
+				setState(2694);
+				expression();
 				setState(2697);
 				_la = _input.LA(1);
 				if (_la==AS) {
 					{
-					setState(2695); match(AS);
-					setState(2696); keywordAllowedIdent();
+					setState(2695);
+					match(AS);
+					setState(2696);
+					keywordAllowedIdent();
 					}
 				}
 
@@ -15968,13 +17240,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class PropertyStreamSelectorContext extends ParserRuleContext {
 		public Token s;
 		public Token i;
-		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public TerminalNode DOT() { return getToken(EsperEPL2GrammarParser.DOT, 0); }
 		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
 		public TerminalNode IDENT(int i) {
 			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
+		public TerminalNode AS() { return getToken(EsperEPL2GrammarParser.AS, 0); }
 		public PropertyStreamSelectorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -15996,15 +17268,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2701); ((PropertyStreamSelectorContext)_localctx).s = match(IDENT);
-			setState(2702); match(DOT);
-			setState(2703); match(STAR);
+			setState(2701);
+			((PropertyStreamSelectorContext)_localctx).s = match(IDENT);
+			setState(2702);
+			match(DOT);
+			setState(2703);
+			match(STAR);
 			setState(2706);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(2704); match(AS);
-				setState(2705); ((PropertyStreamSelectorContext)_localctx).i = match(IDENT);
+				setState(2704);
+				match(AS);
+				setState(2705);
+				((PropertyStreamSelectorContext)_localctx).i = match(IDENT);
 				}
 			}
 
@@ -16023,22 +17300,22 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class PatternFilterExpressionContext extends ParserRuleContext {
 		public Token i;
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
 		public ClassIdentifierContext classIdentifier() {
 			return getRuleContext(ClassIdentifierContext.class,0);
 		}
+		public TerminalNode EQUALS() { return getToken(EsperEPL2GrammarParser.EQUALS, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public PatternFilterAnnotationContext patternFilterAnnotation() {
-			return getRuleContext(PatternFilterAnnotationContext.class,0);
-		}
 		public PropertyExpressionContext propertyExpression() {
 			return getRuleContext(PropertyExpressionContext.class,0);
 		}
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public PatternFilterAnnotationContext patternFilterAnnotation() {
+			return getRuleContext(PatternFilterAnnotationContext.class,0);
+		}
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
 		public PatternFilterExpressionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -16062,29 +17339,36 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2710);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,364,_ctx) ) {
 			case 1:
 				{
-				setState(2708); ((PatternFilterExpressionContext)_localctx).i = match(IDENT);
-				setState(2709); match(EQUALS);
+				setState(2708);
+				((PatternFilterExpressionContext)_localctx).i = match(IDENT);
+				setState(2709);
+				match(EQUALS);
 				}
 				break;
 			}
-			setState(2712); classIdentifier();
+			setState(2712);
+			classIdentifier();
 			setState(2718);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(2713); match(LPAREN);
+				setState(2713);
+				match(LPAREN);
 				setState(2715);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2714); expressionList();
+					setState(2714);
+					expressionList();
 					}
 				}
 
-				setState(2717); match(RPAREN);
+				setState(2717);
+				match(RPAREN);
 				}
 			}
 
@@ -16092,7 +17376,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==LBRACK) {
 				{
-				setState(2720); propertyExpression();
+				setState(2720);
+				propertyExpression();
 				}
 			}
 
@@ -16100,11 +17385,13 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==ATCHAR) {
 				{
-				setState(2723); patternFilterAnnotation();
+				setState(2723);
+				patternFilterAnnotation();
 				}
 			}
 
 			}
+			_ctx.stop = _input.LT(-1);
 			 paraphrases.pop(); 
 		}
 		catch (RecognitionException re) {
@@ -16120,13 +17407,13 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class PatternFilterAnnotationContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
 		public NumberContext number() {
 			return getRuleContext(NumberContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
-		public TerminalNode ATCHAR() { return getToken(EsperEPL2GrammarParser.ATCHAR, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public PatternFilterAnnotationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -16148,15 +17435,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2726); match(ATCHAR);
-			setState(2727); ((PatternFilterAnnotationContext)_localctx).i = match(IDENT);
+			setState(2726);
+			match(ATCHAR);
+			setState(2727);
+			((PatternFilterAnnotationContext)_localctx).i = match(IDENT);
 			setState(2732);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(2728); match(LPAREN);
-				setState(2729); number();
-				setState(2730); match(RPAREN);
+				setState(2728);
+				match(LPAREN);
+				setState(2729);
+				number();
+				setState(2730);
+				match(RPAREN);
 				}
 			}
 
@@ -16176,13 +17468,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class ClassIdentifierContext extends ParserRuleContext {
 		public EscapableStrContext i1;
 		public EscapableStrContext i2;
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
-		public EscapableStrContext escapableStr(int i) {
-			return getRuleContext(EscapableStrContext.class,i);
-		}
 		public List<EscapableStrContext> escapableStr() {
 			return getRuleContexts(EscapableStrContext.class);
 		}
+		public EscapableStrContext escapableStr(int i) {
+			return getRuleContext(EscapableStrContext.class,i);
+		}
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
 		}
@@ -16207,16 +17499,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2734); ((ClassIdentifierContext)_localctx).i1 = escapableStr();
+			setState(2734);
+			((ClassIdentifierContext)_localctx).i1 = escapableStr();
 			setState(2739);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,370,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(2735); match(DOT);
-					setState(2736); ((ClassIdentifierContext)_localctx).i2 = escapableStr();
+					setState(2735);
+					match(DOT);
+					setState(2736);
+					((ClassIdentifierContext)_localctx).i2 = escapableStr();
 					}
 					} 
 				}
@@ -16241,15 +17536,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token d;
 		public EscapableStrContext i1;
 		public EscapableStrContext i2;
-		public List<TerminalNode> DIV() { return getTokens(EsperEPL2GrammarParser.DIV); }
-		public TerminalNode DIV(int i) {
-			return getToken(EsperEPL2GrammarParser.DIV, i);
+		public List<EscapableStrContext> escapableStr() {
+			return getRuleContexts(EscapableStrContext.class);
 		}
 		public EscapableStrContext escapableStr(int i) {
 			return getRuleContext(EscapableStrContext.class,i);
 		}
-		public List<EscapableStrContext> escapableStr() {
-			return getRuleContexts(EscapableStrContext.class);
+		public List<TerminalNode> DIV() { return getTokens(EsperEPL2GrammarParser.DIV); }
+		public TerminalNode DIV(int i) {
+			return getToken(EsperEPL2GrammarParser.DIV, i);
 		}
 		public SlashIdentifierContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -16277,20 +17572,24 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==DIV) {
 				{
-				setState(2742); ((SlashIdentifierContext)_localctx).d = match(DIV);
+				setState(2742);
+				((SlashIdentifierContext)_localctx).d = match(DIV);
 				}
 			}
 
-			setState(2745); ((SlashIdentifierContext)_localctx).i1 = escapableStr();
+			setState(2745);
+			((SlashIdentifierContext)_localctx).i1 = escapableStr();
 			setState(2750);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,372,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(2746); match(DIV);
-					setState(2747); ((SlashIdentifierContext)_localctx).i2 = escapableStr();
+					setState(2746);
+					match(DIV);
+					setState(2747);
+					((SlashIdentifierContext)_localctx).i2 = escapableStr();
 					}
 					} 
 				}
@@ -16312,11 +17611,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionListWithNamedContext extends ParserRuleContext {
-		public ExpressionWithNamedContext expressionWithNamed(int i) {
-			return getRuleContext(ExpressionWithNamedContext.class,i);
-		}
 		public List<ExpressionWithNamedContext> expressionWithNamed() {
 			return getRuleContexts(ExpressionWithNamedContext.class);
+		}
+		public ExpressionWithNamedContext expressionWithNamed(int i) {
+			return getRuleContext(ExpressionWithNamedContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -16343,15 +17642,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2753); expressionWithNamed();
+			setState(2753);
+			expressionWithNamed();
 			setState(2758);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2754); match(COMMA);
-				setState(2755); expressionWithNamed();
+				setState(2754);
+				match(COMMA);
+				setState(2755);
+				expressionWithNamed();
 				}
 				}
 				setState(2760);
@@ -16375,10 +17677,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		public List<ExpressionWithNamedWithTimeContext> expressionWithNamedWithTime() {
 			return getRuleContexts(ExpressionWithNamedWithTimeContext.class);
 		}
-		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public ExpressionWithNamedWithTimeContext expressionWithNamedWithTime(int i) {
 			return getRuleContext(ExpressionWithNamedWithTimeContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -16403,15 +17705,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2761); expressionWithNamedWithTime();
+			setState(2761);
+			expressionWithNamedWithTime();
 			setState(2766);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2762); match(COMMA);
-				setState(2763); expressionWithNamedWithTime();
+				setState(2762);
+				match(COMMA);
+				setState(2763);
+				expressionWithNamedWithTime();
 				}
 				}
 				setState(2768);
@@ -16457,18 +17762,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 404, RULE_expressionWithNamed);
 		try {
 			setState(2771);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,375,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2769); expressionNamedParameter();
+				setState(2769);
+				expressionNamedParameter();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2770); expressionWithTime();
+				setState(2770);
+				expressionWithTime();
 				}
 				break;
 			}
@@ -16485,11 +17792,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionWithNamedWithTimeContext extends ParserRuleContext {
-		public ExpressionWithTimeInclLastContext expressionWithTimeInclLast() {
-			return getRuleContext(ExpressionWithTimeInclLastContext.class,0);
-		}
 		public ExpressionNamedParameterWithTimeContext expressionNamedParameterWithTime() {
 			return getRuleContext(ExpressionNamedParameterWithTimeContext.class,0);
+		}
+		public ExpressionWithTimeInclLastContext expressionWithTimeInclLast() {
+			return getRuleContext(ExpressionWithTimeInclLastContext.class,0);
 		}
 		public ExpressionWithNamedWithTimeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -16510,18 +17817,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 406, RULE_expressionWithNamedWithTime);
 		try {
 			setState(2775);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,376,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2773); expressionNamedParameterWithTime();
+				setState(2773);
+				expressionNamedParameterWithTime();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2774); expressionWithTimeInclLast();
+				setState(2774);
+				expressionWithTimeInclLast();
 				}
 				break;
 			}
@@ -16538,16 +17847,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionNamedParameterContext extends ParserRuleContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
 		public ExpressionNamedParameterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -16569,28 +17878,34 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2777); match(IDENT);
-			setState(2778); match(COLON);
+			setState(2777);
+			match(IDENT);
+			setState(2778);
+			match(COLON);
 			setState(2785);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,378,_ctx) ) {
 			case 1:
 				{
-				setState(2779); expression();
+				setState(2779);
+				expression();
 				}
 				break;
-
 			case 2:
 				{
-				setState(2780); match(LPAREN);
+				setState(2780);
+				match(LPAREN);
 				setState(2782);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2781); expressionList();
+					setState(2781);
+					expressionList();
 					}
 				}
 
-				setState(2784); match(RPAREN);
+				setState(2784);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -16608,16 +17923,16 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionNamedParameterWithTimeContext extends ParserRuleContext {
-		public ExpressionWithTimeListContext expressionWithTimeList() {
-			return getRuleContext(ExpressionWithTimeListContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public ExpressionWithTimeContext expressionWithTime() {
 			return getRuleContext(ExpressionWithTimeContext.class,0);
 		}
 		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
+		public ExpressionWithTimeListContext expressionWithTimeList() {
+			return getRuleContext(ExpressionWithTimeListContext.class,0);
+		}
 		public ExpressionNamedParameterWithTimeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -16639,28 +17954,34 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2787); match(IDENT);
-			setState(2788); match(COLON);
+			setState(2787);
+			match(IDENT);
+			setState(2788);
+			match(COLON);
 			setState(2795);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,380,_ctx) ) {
 			case 1:
 				{
-				setState(2789); expressionWithTime();
+				setState(2789);
+				expressionWithTime();
 				}
 				break;
-
 			case 2:
 				{
-				setState(2790); match(LPAREN);
+				setState(2790);
+				match(LPAREN);
 				setState(2792);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WINDOW) | (1L << ESCAPE) | (1L << NOT_EXPR) | (1L << EVERY_EXPR) | (1L << SUM) | (1L << AVG) | (1L << MAX) | (1L << MIN) | (1L << COALESCE) | (1L << MEDIAN) | (1L << STDDEV) | (1L << AVEDEV) | (1L << COUNT) | (1L << CASE) | (1L << OUTER) | (1L << JOIN) | (1L << LEFT) | (1L << RIGHT) | (1L << FULL) | (1L << EVENTS) | (1L << FIRST) | (1L << LAST) | (1L << ISTREAM) | (1L << UNIDIRECTIONAL) | (1L << RETAINUNION) | (1L << RETAININTERSECTION) | (1L << PATTERN))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SQL - 64)) | (1L << (METADATASQL - 64)) | (1L << (PREVIOUS - 64)) | (1L << (PREVIOUSTAIL - 64)) | (1L << (PREVIOUSCOUNT - 64)) | (1L << (PREVIOUSWINDOW - 64)) | (1L << (PRIOR - 64)) | (1L << (EXISTS - 64)) | (1L << (WEEKDAY - 64)) | (1L << (LW - 64)) | (1L << (INSTANCEOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (CAST - 64)) | (1L << (CURRENT_TIMESTAMP - 64)) | (1L << (SNAPSHOT - 64)) | (1L << (VARIABLE - 64)) | (1L << (TABLE - 64)) | (1L << (UNTIL - 64)) | (1L << (AT - 64)) | (1L << (INDEX - 64)) | (1L << (BOOLEAN_TRUE - 64)) | (1L << (BOOLEAN_FALSE - 64)) | (1L << (VALUE_NULL - 64)) | (1L << (DEFINE - 64)) | (1L << (PARTITION - 64)) | (1L << (MATCHES - 64)) | (1L << (FOR - 64)) | (1L << (WHILE - 64)) | (1L << (USING - 64)) | (1L << (MERGE - 64)) | (1L << (MATCHED - 64)) | (1L << (NEWKW - 64)) | (1L << (CONTEXT - 64)))) != 0) || ((((_la - 131)) & ~0x3f) == 0 && ((1L << (_la - 131)) & ((1L << (GROUPING - 131)) | (1L << (GROUPING_ID - 131)) | (1L << (QUESTION - 131)) | (1L << (LPAREN - 131)) | (1L << (LBRACK - 131)) | (1L << (LCURLY - 131)) | (1L << (PLUS - 131)) | (1L << (MINUS - 131)) | (1L << (STAR - 131)) | (1L << (TICKED_STRING_LITERAL - 131)) | (1L << (QUOTED_STRING_LITERAL - 131)) | (1L << (STRING_LITERAL - 131)) | (1L << (IDENT - 131)) | (1L << (IntegerLiteral - 131)) | (1L << (FloatingPointLiteral - 131)))) != 0)) {
 					{
-					setState(2791); expressionWithTimeList();
+					setState(2791);
+					expressionWithTimeList();
 					}
 				}
 
-				setState(2794); match(RPAREN);
+				setState(2794);
+				match(RPAREN);
 				}
 				break;
 			}
@@ -16678,13 +17999,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionListContext extends ParserRuleContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -16709,15 +18030,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2797); expression();
+			setState(2797);
+			expression();
 			setState(2802);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2798); match(COMMA);
-				setState(2799); expression();
+				setState(2798);
+				match(COMMA);
+				setState(2799);
+				expression();
 				}
 				}
 				setState(2804);
@@ -16769,15 +18093,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2805); expressionWithTimeInclLast();
+			setState(2805);
+			expressionWithTimeInclLast();
 			setState(2810);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2806); match(COMMA);
-				setState(2807); expressionWithTimeInclLast();
+				setState(2806);
+				match(COMMA);
+				setState(2807);
+				expressionWithTimeInclLast();
 				}
 				}
 				setState(2812);
@@ -16798,33 +18125,33 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class ExpressionWithTimeContext extends ParserRuleContext {
+		public LastWeekdayOperandContext lastWeekdayOperand() {
+			return getRuleContext(LastWeekdayOperandContext.class,0);
+		}
+		public TimePeriodContext timePeriod() {
+			return getRuleContext(TimePeriodContext.class,0);
+		}
+		public ExpressionQualifyableContext expressionQualifyable() {
+			return getRuleContext(ExpressionQualifyableContext.class,0);
+		}
+		public RangeOperandContext rangeOperand() {
+			return getRuleContext(RangeOperandContext.class,0);
+		}
+		public FrequencyOperandContext frequencyOperand() {
+			return getRuleContext(FrequencyOperandContext.class,0);
+		}
+		public LastOperatorContext lastOperator() {
+			return getRuleContext(LastOperatorContext.class,0);
+		}
 		public WeekDayOperatorContext weekDayOperator() {
 			return getRuleContext(WeekDayOperatorContext.class,0);
 		}
 		public NumericParameterListContext numericParameterList() {
 			return getRuleContext(NumericParameterListContext.class,0);
 		}
-		public LastOperatorContext lastOperator() {
-			return getRuleContext(LastOperatorContext.class,0);
-		}
-		public ExpressionQualifyableContext expressionQualifyable() {
-			return getRuleContext(ExpressionQualifyableContext.class,0);
-		}
-		public LastWeekdayOperandContext lastWeekdayOperand() {
-			return getRuleContext(LastWeekdayOperandContext.class,0);
-		}
-		public RangeOperandContext rangeOperand() {
-			return getRuleContext(RangeOperandContext.class,0);
-		}
 		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
 		public PropertyStreamSelectorContext propertyStreamSelector() {
 			return getRuleContext(PropertyStreamSelectorContext.class,0);
-		}
-		public FrequencyOperandContext frequencyOperand() {
-			return getRuleContext(FrequencyOperandContext.class,0);
-		}
-		public TimePeriodContext timePeriod() {
-			return getRuleContext(TimePeriodContext.class,0);
 		}
 		public ExpressionWithTimeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -16845,74 +18172,76 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 416, RULE_expressionWithTime);
 		try {
 			setState(2823);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,383,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2813); lastWeekdayOperand();
+				setState(2813);
+				lastWeekdayOperand();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2814); timePeriod();
+				setState(2814);
+				timePeriod();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2815); expressionQualifyable();
+				setState(2815);
+				expressionQualifyable();
 				}
 				break;
-
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2816); rangeOperand();
+				setState(2816);
+				rangeOperand();
 				}
 				break;
-
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(2817); frequencyOperand();
+				setState(2817);
+				frequencyOperand();
 				}
 				break;
-
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(2818); lastOperator();
+				setState(2818);
+				lastOperator();
 				}
 				break;
-
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(2819); weekDayOperator();
+				setState(2819);
+				weekDayOperator();
 				}
 				break;
-
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(2820); numericParameterList();
+				setState(2820);
+				numericParameterList();
 				}
 				break;
-
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(2821); match(STAR);
+				setState(2821);
+				match(STAR);
 				}
 				break;
-
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(2822); propertyStreamSelector();
+				setState(2822);
+				propertyStreamSelector();
 				}
 				break;
 			}
@@ -16954,18 +18283,20 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 418, RULE_expressionWithTimeInclLast);
 		try {
 			setState(2827);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,384,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2825); lastOperand();
+				setState(2825);
+				lastOperand();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2826); expressionWithTime();
+				setState(2826);
+				expressionWithTime();
 				}
 				break;
 			}
@@ -16985,14 +18316,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token a;
 		public Token d;
 		public Token s;
-		public TerminalNode TIMEPERIOD_SECOND() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECOND, 0); }
-		public TerminalNode DESC() { return getToken(EsperEPL2GrammarParser.DESC, 0); }
-		public TerminalNode TIMEPERIOD_SEC() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SEC, 0); }
-		public TerminalNode ASC() { return getToken(EsperEPL2GrammarParser.ASC, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode ASC() { return getToken(EsperEPL2GrammarParser.ASC, 0); }
+		public TerminalNode DESC() { return getToken(EsperEPL2GrammarParser.DESC, 0); }
 		public TerminalNode TIMEPERIOD_SECONDS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECONDS, 0); }
+		public TerminalNode TIMEPERIOD_SECOND() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECOND, 0); }
+		public TerminalNode TIMEPERIOD_SEC() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SEC, 0); }
 		public ExpressionQualifyableContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17013,32 +18344,38 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2829); expression();
+			setState(2829);
+			expression();
 			setState(2835);
 			switch (_input.LA(1)) {
 			case ASC:
 				{
-				setState(2830); ((ExpressionQualifyableContext)_localctx).a = match(ASC);
+				setState(2830);
+				((ExpressionQualifyableContext)_localctx).a = match(ASC);
 				}
 				break;
 			case DESC:
 				{
-				setState(2831); ((ExpressionQualifyableContext)_localctx).d = match(DESC);
+				setState(2831);
+				((ExpressionQualifyableContext)_localctx).d = match(DESC);
 				}
 				break;
 			case TIMEPERIOD_SECONDS:
 				{
-				setState(2832); ((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SECONDS);
+				setState(2832);
+				((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SECONDS);
 				}
 				break;
 			case TIMEPERIOD_SECOND:
 				{
-				setState(2833); ((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SECOND);
+				setState(2833);
+				((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SECOND);
 				}
 				break;
 			case TIMEPERIOD_SEC:
 				{
-				setState(2834); ((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SEC);
+				setState(2834);
+				((ExpressionQualifyableContext)_localctx).s = match(TIMEPERIOD_SEC);
 				}
 				break;
 			case RPAREN:
@@ -17082,7 +18419,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2837); match(LW);
+			setState(2837);
+			match(LW);
 			}
 		}
 		catch (RecognitionException re) {
@@ -17118,7 +18456,8 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2839); match(LAST);
+			setState(2839);
+			match(LAST);
 			}
 		}
 		catch (RecognitionException re) {
@@ -17134,15 +18473,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class FrequencyOperandContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
+		public TerminalNode DIV() { return getToken(EsperEPL2GrammarParser.DIV, 0); }
 		public NumberContext number() {
 			return getRuleContext(NumberContext.class,0);
 		}
-		public TerminalNode DIV() { return getToken(EsperEPL2GrammarParser.DIV, 0); }
-		public TerminalNode STAR() { return getToken(EsperEPL2GrammarParser.STAR, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public FrequencyOperandContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17163,24 +18502,29 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2841); match(STAR);
-			setState(2842); match(DIV);
+			setState(2841);
+			match(STAR);
+			setState(2842);
+			match(DIV);
 			setState(2846);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2843); number();
+				setState(2843);
+				number();
 				}
 				break;
 			case IDENT:
 				{
-				setState(2844); ((FrequencyOperandContext)_localctx).i = match(IDENT);
+				setState(2844);
+				((FrequencyOperandContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(2845); substitution();
+				setState(2845);
+				substitution();
 				}
 				break;
 			default:
@@ -17206,22 +18550,22 @@ public class EsperEPL2GrammarParser extends Parser {
 		public NumberContext n2;
 		public Token i2;
 		public SubstitutionContext s2;
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public List<NumberContext> number() {
 			return getRuleContexts(NumberContext.class);
 		}
 		public NumberContext number(int i) {
 			return getRuleContext(NumberContext.class,i);
 		}
-		public SubstitutionContext substitution(int i) {
-			return getRuleContext(SubstitutionContext.class,i);
+		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
+		public TerminalNode IDENT(int i) {
+			return getToken(EsperEPL2GrammarParser.IDENT, i);
 		}
 		public List<SubstitutionContext> substitution() {
 			return getRuleContexts(SubstitutionContext.class);
 		}
-		public List<TerminalNode> IDENT() { return getTokens(EsperEPL2GrammarParser.IDENT); }
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
-		public TerminalNode IDENT(int i) {
-			return getToken(EsperEPL2GrammarParser.IDENT, i);
+		public SubstitutionContext substitution(int i) {
+			return getRuleContext(SubstitutionContext.class,i);
 		}
 		public RangeOperandContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -17248,39 +18592,46 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2848); ((RangeOperandContext)_localctx).n1 = number();
+				setState(2848);
+				((RangeOperandContext)_localctx).n1 = number();
 				}
 				break;
 			case IDENT:
 				{
-				setState(2849); ((RangeOperandContext)_localctx).i1 = match(IDENT);
+				setState(2849);
+				((RangeOperandContext)_localctx).i1 = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(2850); ((RangeOperandContext)_localctx).s1 = substitution();
+				setState(2850);
+				((RangeOperandContext)_localctx).s1 = substitution();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2853); match(COLON);
+			setState(2853);
+			match(COLON);
 			setState(2857);
 			switch (_input.LA(1)) {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2854); ((RangeOperandContext)_localctx).n2 = number();
+				setState(2854);
+				((RangeOperandContext)_localctx).n2 = number();
 				}
 				break;
 			case IDENT:
 				{
-				setState(2855); ((RangeOperandContext)_localctx).i2 = match(IDENT);
+				setState(2855);
+				((RangeOperandContext)_localctx).i2 = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(2856); ((RangeOperandContext)_localctx).s2 = substitution();
+				setState(2856);
+				((RangeOperandContext)_localctx).s2 = substitution();
 				}
 				break;
 			default:
@@ -17301,14 +18652,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class LastOperatorContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
 		public NumberContext number() {
 			return getRuleContext(NumberContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public LastOperatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17334,23 +18685,27 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2859); number();
+				setState(2859);
+				number();
 				}
 				break;
 			case IDENT:
 				{
-				setState(2860); ((LastOperatorContext)_localctx).i = match(IDENT);
+				setState(2860);
+				((LastOperatorContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(2861); substitution();
+				setState(2861);
+				substitution();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2864); match(LAST);
+			setState(2864);
+			match(LAST);
 			}
 		}
 		catch (RecognitionException re) {
@@ -17366,14 +18721,14 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class WeekDayOperatorContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode WEEKDAY() { return getToken(EsperEPL2GrammarParser.WEEKDAY, 0); }
 		public NumberContext number() {
 			return getRuleContext(NumberContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode WEEKDAY() { return getToken(EsperEPL2GrammarParser.WEEKDAY, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public WeekDayOperatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17399,23 +18754,27 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(2866); number();
+				setState(2866);
+				number();
 				}
 				break;
 			case IDENT:
 				{
-				setState(2867); ((WeekDayOperatorContext)_localctx).i = match(IDENT);
+				setState(2867);
+				((WeekDayOperatorContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(2868); substitution();
+				setState(2868);
+				substitution();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(2871); match(WEEKDAY);
+			setState(2871);
+			match(WEEKDAY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -17430,18 +18789,18 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class NumericParameterListContext extends ParserRuleContext {
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public List<NumericListParameterContext> numericListParameter() {
+			return getRuleContexts(NumericListParameterContext.class);
+		}
 		public NumericListParameterContext numericListParameter(int i) {
 			return getRuleContext(NumericListParameterContext.class,i);
 		}
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
-		public List<NumericListParameterContext> numericListParameter() {
-			return getRuleContexts(NumericListParameterContext.class);
-		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public NumericParameterListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17463,23 +18822,28 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2873); match(LBRACK);
-			setState(2874); numericListParameter();
+			setState(2873);
+			match(LBRACK);
+			setState(2874);
+			numericListParameter();
 			setState(2879);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(2875); match(COMMA);
-				setState(2876); numericListParameter();
+				setState(2875);
+				match(COMMA);
+				setState(2876);
+				numericListParameter();
 				}
 				}
 				setState(2881);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(2882); match(RBRACK);
+			setState(2882);
+			match(RBRACK);
 			}
 		}
 		catch (RecognitionException re) {
@@ -17497,11 +18861,11 @@ public class EsperEPL2GrammarParser extends Parser {
 		public RangeOperandContext rangeOperand() {
 			return getRuleContext(RangeOperandContext.class,0);
 		}
-		public NumberconstantContext numberconstant() {
-			return getRuleContext(NumberconstantContext.class,0);
-		}
 		public FrequencyOperandContext frequencyOperand() {
 			return getRuleContext(FrequencyOperandContext.class,0);
+		}
+		public NumberconstantContext numberconstant() {
+			return getRuleContext(NumberconstantContext.class,0);
 		}
 		public NumericListParameterContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -17522,25 +18886,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		enterRule(_localctx, 436, RULE_numericListParameter);
 		try {
 			setState(2887);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,392,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2884); rangeOperand();
+				setState(2884);
+				rangeOperand();
 				}
 				break;
-
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2885); frequencyOperand();
+				setState(2885);
+				frequencyOperand();
 				}
 				break;
-
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2886); numberconstant();
+				setState(2886);
+				numberconstant();
 				}
 				break;
 			}
@@ -17557,13 +18923,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class EventPropertyContext extends ParserRuleContext {
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public List<EventPropertyAtomicContext> eventPropertyAtomic() {
 			return getRuleContexts(EventPropertyAtomicContext.class);
 		}
 		public EventPropertyAtomicContext eventPropertyAtomic(int i) {
 			return getRuleContext(EventPropertyAtomicContext.class,i);
 		}
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
 		}
@@ -17588,15 +18954,18 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2889); eventPropertyAtomic();
+			setState(2889);
+			eventPropertyAtomic();
 			setState(2894);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(2890); match(DOT);
-				setState(2891); eventPropertyAtomic();
+				setState(2890);
+				match(DOT);
+				setState(2891);
+				eventPropertyAtomic();
 				}
 				}
 				setState(2896);
@@ -17623,19 +18992,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token lp;
 		public Token s;
 		public Token q1;
-		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
-		public NumberContext number() {
-			return getRuleContext(NumberContext.class,0);
-		}
-		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
-		public TerminalNode STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.STRING_LITERAL, 0); }
-		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public EventPropertyIdentContext eventPropertyIdent() {
 			return getRuleContext(EventPropertyIdentContext.class,0);
 		}
-		public TerminalNode QUOTED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.QUOTED_STRING_LITERAL, 0); }
-		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
+		public TerminalNode RPAREN() { return getToken(EsperEPL2GrammarParser.RPAREN, 0); }
 		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
+		}
+		public TerminalNode LPAREN() { return getToken(EsperEPL2GrammarParser.LPAREN, 0); }
+		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
+		public TerminalNode STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.STRING_LITERAL, 0); }
+		public TerminalNode QUOTED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.QUOTED_STRING_LITERAL, 0); }
 		public EventPropertyAtomicContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17656,58 +19025,70 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2897); eventPropertyIdent();
+			setState(2897);
+			eventPropertyIdent();
 			setState(2914);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,397,_ctx) ) {
 			case 1:
 				{
-				setState(2898); ((EventPropertyAtomicContext)_localctx).lb = match(LBRACK);
-				setState(2899); ((EventPropertyAtomicContext)_localctx).ni = number();
-				setState(2900); match(RBRACK);
+				setState(2898);
+				((EventPropertyAtomicContext)_localctx).lb = match(LBRACK);
+				setState(2899);
+				((EventPropertyAtomicContext)_localctx).ni = number();
+				setState(2900);
+				match(RBRACK);
 				setState(2902);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,394,_ctx) ) {
 				case 1:
 					{
-					setState(2901); ((EventPropertyAtomicContext)_localctx).q = match(QUESTION);
+					setState(2901);
+					((EventPropertyAtomicContext)_localctx).q = match(QUESTION);
 					}
 					break;
 				}
 				}
 				break;
-
 			case 2:
 				{
-				setState(2904); ((EventPropertyAtomicContext)_localctx).lp = match(LPAREN);
+				setState(2904);
+				((EventPropertyAtomicContext)_localctx).lp = match(LPAREN);
 				setState(2907);
 				switch (_input.LA(1)) {
 				case STRING_LITERAL:
 					{
-					setState(2905); ((EventPropertyAtomicContext)_localctx).s = match(STRING_LITERAL);
+					setState(2905);
+					((EventPropertyAtomicContext)_localctx).s = match(STRING_LITERAL);
 					}
 					break;
 				case QUOTED_STRING_LITERAL:
 					{
-					setState(2906); ((EventPropertyAtomicContext)_localctx).s = match(QUOTED_STRING_LITERAL);
+					setState(2906);
+					((EventPropertyAtomicContext)_localctx).s = match(QUOTED_STRING_LITERAL);
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(2909); match(RPAREN);
+				setState(2909);
+				match(RPAREN);
 				setState(2911);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,396,_ctx) ) {
 				case 1:
 					{
-					setState(2910); ((EventPropertyAtomicContext)_localctx).q = match(QUESTION);
+					setState(2910);
+					((EventPropertyAtomicContext)_localctx).q = match(QUESTION);
 					}
 					break;
 				}
 				}
 				break;
-
 			case 3:
 				{
-				setState(2913); ((EventPropertyAtomicContext)_localctx).q1 = match(QUESTION);
+				setState(2913);
+				((EventPropertyAtomicContext)_localctx).q1 = match(QUESTION);
 				}
 				break;
 			}
@@ -17727,17 +19108,17 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class EventPropertyIdentContext extends ParserRuleContext {
 		public KeywordAllowedIdentContext ipi;
 		public KeywordAllowedIdentContext ipi2;
-		public KeywordAllowedIdentContext keywordAllowedIdent(int i) {
-			return getRuleContext(KeywordAllowedIdentContext.class,i);
-		}
 		public List<KeywordAllowedIdentContext> keywordAllowedIdent() {
 			return getRuleContexts(KeywordAllowedIdentContext.class);
 		}
+		public KeywordAllowedIdentContext keywordAllowedIdent(int i) {
+			return getRuleContext(KeywordAllowedIdentContext.class,i);
+		}
 		public List<TerminalNode> ESCAPECHAR() { return getTokens(EsperEPL2GrammarParser.ESCAPECHAR); }
-		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode ESCAPECHAR(int i) {
 			return getToken(EsperEPL2GrammarParser.ESCAPECHAR, i);
 		}
+		public List<TerminalNode> DOT() { return getTokens(EsperEPL2GrammarParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(EsperEPL2GrammarParser.DOT, i);
 		}
@@ -17762,20 +19143,25 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2916); ((EventPropertyIdentContext)_localctx).ipi = keywordAllowedIdent();
+			setState(2916);
+			((EventPropertyIdentContext)_localctx).ipi = keywordAllowedIdent();
 			setState(2924);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==ESCAPECHAR) {
 				{
 				{
-				setState(2917); match(ESCAPECHAR);
-				setState(2918); match(DOT);
+				setState(2917);
+				match(ESCAPECHAR);
+				setState(2918);
+				match(DOT);
 				setState(2920);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,398,_ctx) ) {
 				case 1:
 					{
-					setState(2919); ((EventPropertyIdentContext)_localctx).ipi2 = keywordAllowedIdent();
+					setState(2919);
+					((EventPropertyIdentContext)_localctx).ipi2 = keywordAllowedIdent();
 					}
 					break;
 				}
@@ -17801,57 +19187,57 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class KeywordAllowedIdentContext extends ParserRuleContext {
 		public Token i1;
 		public Token i2;
-		public TerminalNode METADATASQL() { return getToken(EsperEPL2GrammarParser.METADATASQL, 0); }
-		public TerminalNode OUTER() { return getToken(EsperEPL2GrammarParser.OUTER, 0); }
-		public TerminalNode JOIN() { return getToken(EsperEPL2GrammarParser.JOIN, 0); }
-		public TerminalNode COALESCE() { return getToken(EsperEPL2GrammarParser.COALESCE, 0); }
-		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
-		public TerminalNode SUM() { return getToken(EsperEPL2GrammarParser.SUM, 0); }
-		public TerminalNode FULL() { return getToken(EsperEPL2GrammarParser.FULL, 0); }
-		public TerminalNode PREVIOUSTAIL() { return getToken(EsperEPL2GrammarParser.PREVIOUSTAIL, 0); }
-		public TerminalNode MATCHES() { return getToken(EsperEPL2GrammarParser.MATCHES, 0); }
-		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
-		public TerminalNode TYPEOF() { return getToken(EsperEPL2GrammarParser.TYPEOF, 0); }
-		public TerminalNode TICKED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.TICKED_STRING_LITERAL, 0); }
-		public TerminalNode MAX() { return getToken(EsperEPL2GrammarParser.MAX, 0); }
-		public TerminalNode SQL() { return getToken(EsperEPL2GrammarParser.SQL, 0); }
-		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
-		public TerminalNode COUNT() { return getToken(EsperEPL2GrammarParser.COUNT, 0); }
-		public TerminalNode TABLE() { return getToken(EsperEPL2GrammarParser.TABLE, 0); }
-		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
-		public TerminalNode SNAPSHOT() { return getToken(EsperEPL2GrammarParser.SNAPSHOT, 0); }
-		public TerminalNode ESCAPE() { return getToken(EsperEPL2GrammarParser.ESCAPE, 0); }
-		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
-		public TerminalNode VARIABLE() { return getToken(EsperEPL2GrammarParser.VARIABLE, 0); }
-		public TerminalNode PRIOR() { return getToken(EsperEPL2GrammarParser.PRIOR, 0); }
-		public TerminalNode AVG() { return getToken(EsperEPL2GrammarParser.AVG, 0); }
-		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
-		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
-		public TerminalNode LW() { return getToken(EsperEPL2GrammarParser.LW, 0); }
-		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
-		public TerminalNode WEEKDAY() { return getToken(EsperEPL2GrammarParser.WEEKDAY, 0); }
-		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
-		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
-		public TerminalNode USING() { return getToken(EsperEPL2GrammarParser.USING, 0); }
-		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
-		public TerminalNode DEFINE() { return getToken(EsperEPL2GrammarParser.DEFINE, 0); }
-		public TerminalNode CONTEXT() { return getToken(EsperEPL2GrammarParser.CONTEXT, 0); }
-		public TerminalNode LEFT() { return getToken(EsperEPL2GrammarParser.LEFT, 0); }
-		public TerminalNode WHILE() { return getToken(EsperEPL2GrammarParser.WHILE, 0); }
-		public TerminalNode PATTERN() { return getToken(EsperEPL2GrammarParser.PATTERN, 0); }
-		public TerminalNode UNTIL() { return getToken(EsperEPL2GrammarParser.UNTIL, 0); }
-		public TerminalNode UNIDIRECTIONAL() { return getToken(EsperEPL2GrammarParser.UNIDIRECTIONAL, 0); }
-		public TerminalNode PREVIOUS() { return getToken(EsperEPL2GrammarParser.PREVIOUS, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
-		public TerminalNode INSTANCEOF() { return getToken(EsperEPL2GrammarParser.INSTANCEOF, 0); }
-		public TerminalNode CAST() { return getToken(EsperEPL2GrammarParser.CAST, 0); }
+		public TerminalNode TICKED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.TICKED_STRING_LITERAL, 0); }
+		public TerminalNode AT() { return getToken(EsperEPL2GrammarParser.AT, 0); }
+		public TerminalNode COUNT() { return getToken(EsperEPL2GrammarParser.COUNT, 0); }
+		public TerminalNode ESCAPE() { return getToken(EsperEPL2GrammarParser.ESCAPE, 0); }
+		public TerminalNode EVERY_EXPR() { return getToken(EsperEPL2GrammarParser.EVERY_EXPR, 0); }
+		public TerminalNode SUM() { return getToken(EsperEPL2GrammarParser.SUM, 0); }
+		public TerminalNode AVG() { return getToken(EsperEPL2GrammarParser.AVG, 0); }
+		public TerminalNode MAX() { return getToken(EsperEPL2GrammarParser.MAX, 0); }
+		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
+		public TerminalNode COALESCE() { return getToken(EsperEPL2GrammarParser.COALESCE, 0); }
 		public TerminalNode MEDIAN() { return getToken(EsperEPL2GrammarParser.MEDIAN, 0); }
 		public TerminalNode STDDEV() { return getToken(EsperEPL2GrammarParser.STDDEV, 0); }
-		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
 		public TerminalNode AVEDEV() { return getToken(EsperEPL2GrammarParser.AVEDEV, 0); }
-		public TerminalNode RIGHT() { return getToken(EsperEPL2GrammarParser.RIGHT, 0); }
+		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
+		public TerminalNode FIRST() { return getToken(EsperEPL2GrammarParser.FIRST, 0); }
+		public TerminalNode LAST() { return getToken(EsperEPL2GrammarParser.LAST, 0); }
+		public TerminalNode WHILE() { return getToken(EsperEPL2GrammarParser.WHILE, 0); }
 		public TerminalNode MERGE() { return getToken(EsperEPL2GrammarParser.MERGE, 0); }
+		public TerminalNode MATCHED() { return getToken(EsperEPL2GrammarParser.MATCHED, 0); }
+		public TerminalNode UNIDIRECTIONAL() { return getToken(EsperEPL2GrammarParser.UNIDIRECTIONAL, 0); }
+		public TerminalNode RETAINUNION() { return getToken(EsperEPL2GrammarParser.RETAINUNION, 0); }
+		public TerminalNode RETAININTERSECTION() { return getToken(EsperEPL2GrammarParser.RETAININTERSECTION, 0); }
+		public TerminalNode UNTIL() { return getToken(EsperEPL2GrammarParser.UNTIL, 0); }
+		public TerminalNode PATTERN() { return getToken(EsperEPL2GrammarParser.PATTERN, 0); }
+		public TerminalNode SQL() { return getToken(EsperEPL2GrammarParser.SQL, 0); }
+		public TerminalNode METADATASQL() { return getToken(EsperEPL2GrammarParser.METADATASQL, 0); }
+		public TerminalNode PREVIOUS() { return getToken(EsperEPL2GrammarParser.PREVIOUS, 0); }
+		public TerminalNode PREVIOUSTAIL() { return getToken(EsperEPL2GrammarParser.PREVIOUSTAIL, 0); }
+		public TerminalNode PRIOR() { return getToken(EsperEPL2GrammarParser.PRIOR, 0); }
+		public TerminalNode WEEKDAY() { return getToken(EsperEPL2GrammarParser.WEEKDAY, 0); }
+		public TerminalNode LW() { return getToken(EsperEPL2GrammarParser.LW, 0); }
+		public TerminalNode INSTANCEOF() { return getToken(EsperEPL2GrammarParser.INSTANCEOF, 0); }
+		public TerminalNode TYPEOF() { return getToken(EsperEPL2GrammarParser.TYPEOF, 0); }
+		public TerminalNode CAST() { return getToken(EsperEPL2GrammarParser.CAST, 0); }
+		public TerminalNode SNAPSHOT() { return getToken(EsperEPL2GrammarParser.SNAPSHOT, 0); }
+		public TerminalNode VARIABLE() { return getToken(EsperEPL2GrammarParser.VARIABLE, 0); }
+		public TerminalNode TABLE() { return getToken(EsperEPL2GrammarParser.TABLE, 0); }
 		public TerminalNode INDEX() { return getToken(EsperEPL2GrammarParser.INDEX, 0); }
+		public TerminalNode WINDOW() { return getToken(EsperEPL2GrammarParser.WINDOW, 0); }
+		public TerminalNode LEFT() { return getToken(EsperEPL2GrammarParser.LEFT, 0); }
+		public TerminalNode RIGHT() { return getToken(EsperEPL2GrammarParser.RIGHT, 0); }
+		public TerminalNode OUTER() { return getToken(EsperEPL2GrammarParser.OUTER, 0); }
+		public TerminalNode FULL() { return getToken(EsperEPL2GrammarParser.FULL, 0); }
+		public TerminalNode JOIN() { return getToken(EsperEPL2GrammarParser.JOIN, 0); }
+		public TerminalNode DEFINE() { return getToken(EsperEPL2GrammarParser.DEFINE, 0); }
+		public TerminalNode PARTITION() { return getToken(EsperEPL2GrammarParser.PARTITION, 0); }
+		public TerminalNode MATCHES() { return getToken(EsperEPL2GrammarParser.MATCHES, 0); }
+		public TerminalNode CONTEXT() { return getToken(EsperEPL2GrammarParser.CONTEXT, 0); }
+		public TerminalNode FOR() { return getToken(EsperEPL2GrammarParser.FOR, 0); }
+		public TerminalNode USING() { return getToken(EsperEPL2GrammarParser.USING, 0); }
 		public KeywordAllowedIdentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -17875,307 +19261,358 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2927); ((KeywordAllowedIdentContext)_localctx).i1 = match(IDENT);
+				setState(2927);
+				((KeywordAllowedIdentContext)_localctx).i1 = match(IDENT);
 				}
 				break;
 			case TICKED_STRING_LITERAL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2928); ((KeywordAllowedIdentContext)_localctx).i2 = match(TICKED_STRING_LITERAL);
+				setState(2928);
+				((KeywordAllowedIdentContext)_localctx).i2 = match(TICKED_STRING_LITERAL);
 				}
 				break;
 			case AT:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2929); match(AT);
+				setState(2929);
+				match(AT);
 				}
 				break;
 			case COUNT:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(2930); match(COUNT);
+				setState(2930);
+				match(COUNT);
 				}
 				break;
 			case ESCAPE:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(2931); match(ESCAPE);
+				setState(2931);
+				match(ESCAPE);
 				}
 				break;
 			case EVERY_EXPR:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(2932); match(EVERY_EXPR);
+				setState(2932);
+				match(EVERY_EXPR);
 				}
 				break;
 			case SUM:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(2933); match(SUM);
+				setState(2933);
+				match(SUM);
 				}
 				break;
 			case AVG:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(2934); match(AVG);
+				setState(2934);
+				match(AVG);
 				}
 				break;
 			case MAX:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(2935); match(MAX);
+				setState(2935);
+				match(MAX);
 				}
 				break;
 			case MIN:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(2936); match(MIN);
+				setState(2936);
+				match(MIN);
 				}
 				break;
 			case COALESCE:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(2937); match(COALESCE);
+				setState(2937);
+				match(COALESCE);
 				}
 				break;
 			case MEDIAN:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(2938); match(MEDIAN);
+				setState(2938);
+				match(MEDIAN);
 				}
 				break;
 			case STDDEV:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(2939); match(STDDEV);
+				setState(2939);
+				match(STDDEV);
 				}
 				break;
 			case AVEDEV:
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(2940); match(AVEDEV);
+				setState(2940);
+				match(AVEDEV);
 				}
 				break;
 			case EVENTS:
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(2941); match(EVENTS);
+				setState(2941);
+				match(EVENTS);
 				}
 				break;
 			case FIRST:
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(2942); match(FIRST);
+				setState(2942);
+				match(FIRST);
 				}
 				break;
 			case LAST:
 				enterOuterAlt(_localctx, 17);
 				{
-				setState(2943); match(LAST);
+				setState(2943);
+				match(LAST);
 				}
 				break;
 			case WHILE:
 				enterOuterAlt(_localctx, 18);
 				{
-				setState(2944); match(WHILE);
+				setState(2944);
+				match(WHILE);
 				}
 				break;
 			case MERGE:
 				enterOuterAlt(_localctx, 19);
 				{
-				setState(2945); match(MERGE);
+				setState(2945);
+				match(MERGE);
 				}
 				break;
 			case MATCHED:
 				enterOuterAlt(_localctx, 20);
 				{
-				setState(2946); match(MATCHED);
+				setState(2946);
+				match(MATCHED);
 				}
 				break;
 			case UNIDIRECTIONAL:
 				enterOuterAlt(_localctx, 21);
 				{
-				setState(2947); match(UNIDIRECTIONAL);
+				setState(2947);
+				match(UNIDIRECTIONAL);
 				}
 				break;
 			case RETAINUNION:
 				enterOuterAlt(_localctx, 22);
 				{
-				setState(2948); match(RETAINUNION);
+				setState(2948);
+				match(RETAINUNION);
 				}
 				break;
 			case RETAININTERSECTION:
 				enterOuterAlt(_localctx, 23);
 				{
-				setState(2949); match(RETAININTERSECTION);
+				setState(2949);
+				match(RETAININTERSECTION);
 				}
 				break;
 			case UNTIL:
 				enterOuterAlt(_localctx, 24);
 				{
-				setState(2950); match(UNTIL);
+				setState(2950);
+				match(UNTIL);
 				}
 				break;
 			case PATTERN:
 				enterOuterAlt(_localctx, 25);
 				{
-				setState(2951); match(PATTERN);
+				setState(2951);
+				match(PATTERN);
 				}
 				break;
 			case SQL:
 				enterOuterAlt(_localctx, 26);
 				{
-				setState(2952); match(SQL);
+				setState(2952);
+				match(SQL);
 				}
 				break;
 			case METADATASQL:
 				enterOuterAlt(_localctx, 27);
 				{
-				setState(2953); match(METADATASQL);
+				setState(2953);
+				match(METADATASQL);
 				}
 				break;
 			case PREVIOUS:
 				enterOuterAlt(_localctx, 28);
 				{
-				setState(2954); match(PREVIOUS);
+				setState(2954);
+				match(PREVIOUS);
 				}
 				break;
 			case PREVIOUSTAIL:
 				enterOuterAlt(_localctx, 29);
 				{
-				setState(2955); match(PREVIOUSTAIL);
+				setState(2955);
+				match(PREVIOUSTAIL);
 				}
 				break;
 			case PRIOR:
 				enterOuterAlt(_localctx, 30);
 				{
-				setState(2956); match(PRIOR);
+				setState(2956);
+				match(PRIOR);
 				}
 				break;
 			case WEEKDAY:
 				enterOuterAlt(_localctx, 31);
 				{
-				setState(2957); match(WEEKDAY);
+				setState(2957);
+				match(WEEKDAY);
 				}
 				break;
 			case LW:
 				enterOuterAlt(_localctx, 32);
 				{
-				setState(2958); match(LW);
+				setState(2958);
+				match(LW);
 				}
 				break;
 			case INSTANCEOF:
 				enterOuterAlt(_localctx, 33);
 				{
-				setState(2959); match(INSTANCEOF);
+				setState(2959);
+				match(INSTANCEOF);
 				}
 				break;
 			case TYPEOF:
 				enterOuterAlt(_localctx, 34);
 				{
-				setState(2960); match(TYPEOF);
+				setState(2960);
+				match(TYPEOF);
 				}
 				break;
 			case CAST:
 				enterOuterAlt(_localctx, 35);
 				{
-				setState(2961); match(CAST);
+				setState(2961);
+				match(CAST);
 				}
 				break;
 			case SNAPSHOT:
 				enterOuterAlt(_localctx, 36);
 				{
-				setState(2962); match(SNAPSHOT);
+				setState(2962);
+				match(SNAPSHOT);
 				}
 				break;
 			case VARIABLE:
 				enterOuterAlt(_localctx, 37);
 				{
-				setState(2963); match(VARIABLE);
+				setState(2963);
+				match(VARIABLE);
 				}
 				break;
 			case TABLE:
 				enterOuterAlt(_localctx, 38);
 				{
-				setState(2964); match(TABLE);
+				setState(2964);
+				match(TABLE);
 				}
 				break;
 			case INDEX:
 				enterOuterAlt(_localctx, 39);
 				{
-				setState(2965); match(INDEX);
+				setState(2965);
+				match(INDEX);
 				}
 				break;
 			case WINDOW:
 				enterOuterAlt(_localctx, 40);
 				{
-				setState(2966); match(WINDOW);
+				setState(2966);
+				match(WINDOW);
 				}
 				break;
 			case LEFT:
 				enterOuterAlt(_localctx, 41);
 				{
-				setState(2967); match(LEFT);
+				setState(2967);
+				match(LEFT);
 				}
 				break;
 			case RIGHT:
 				enterOuterAlt(_localctx, 42);
 				{
-				setState(2968); match(RIGHT);
+				setState(2968);
+				match(RIGHT);
 				}
 				break;
 			case OUTER:
 				enterOuterAlt(_localctx, 43);
 				{
-				setState(2969); match(OUTER);
+				setState(2969);
+				match(OUTER);
 				}
 				break;
 			case FULL:
 				enterOuterAlt(_localctx, 44);
 				{
-				setState(2970); match(FULL);
+				setState(2970);
+				match(FULL);
 				}
 				break;
 			case JOIN:
 				enterOuterAlt(_localctx, 45);
 				{
-				setState(2971); match(JOIN);
+				setState(2971);
+				match(JOIN);
 				}
 				break;
 			case DEFINE:
 				enterOuterAlt(_localctx, 46);
 				{
-				setState(2972); match(DEFINE);
+				setState(2972);
+				match(DEFINE);
 				}
 				break;
 			case PARTITION:
 				enterOuterAlt(_localctx, 47);
 				{
-				setState(2973); match(PARTITION);
+				setState(2973);
+				match(PARTITION);
 				}
 				break;
 			case MATCHES:
 				enterOuterAlt(_localctx, 48);
 				{
-				setState(2974); match(MATCHES);
+				setState(2974);
+				match(MATCHES);
 				}
 				break;
 			case CONTEXT:
 				enterOuterAlt(_localctx, 49);
 				{
-				setState(2975); match(CONTEXT);
+				setState(2975);
+				match(CONTEXT);
 				}
 				break;
 			case FOR:
 				enterOuterAlt(_localctx, 50);
 				{
-				setState(2976); match(FOR);
+				setState(2976);
+				match(FOR);
 				}
 				break;
 			case USING:
 				enterOuterAlt(_localctx, 51);
 				{
-				setState(2977); match(USING);
+				setState(2977);
+				match(USING);
 				}
 				break;
 			default:
@@ -18197,9 +19634,9 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i1;
 		public Token i2;
 		public Token i3;
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public TerminalNode EVENTS() { return getToken(EsperEPL2GrammarParser.EVENTS, 0); }
 		public TerminalNode TICKED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.TICKED_STRING_LITERAL, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public EscapableStrContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18223,19 +19660,22 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2980); ((EscapableStrContext)_localctx).i1 = match(IDENT);
+				setState(2980);
+				((EscapableStrContext)_localctx).i1 = match(IDENT);
 				}
 				break;
 			case EVENTS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2981); ((EscapableStrContext)_localctx).i2 = match(EVENTS);
+				setState(2981);
+				((EscapableStrContext)_localctx).i2 = match(EVENTS);
 				}
 				break;
 			case TICKED_STRING_LITERAL:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(2982); ((EscapableStrContext)_localctx).i3 = match(TICKED_STRING_LITERAL);
+				setState(2982);
+				((EscapableStrContext)_localctx).i3 = match(TICKED_STRING_LITERAL);
 				}
 				break;
 			default:
@@ -18255,8 +19695,8 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class EscapableIdentContext extends ParserRuleContext {
 		public Token t;
-		public TerminalNode TICKED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.TICKED_STRING_LITERAL, 0); }
 		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
+		public TerminalNode TICKED_STRING_LITERAL() { return getToken(EsperEPL2GrammarParser.TICKED_STRING_LITERAL, 0); }
 		public EscapableIdentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18280,13 +19720,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2985); match(IDENT);
+				setState(2985);
+				match(IDENT);
 				}
 				break;
 			case TICKED_STRING_LITERAL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(2986); ((EscapableIdentContext)_localctx).t = match(TICKED_STRING_LITERAL);
+				setState(2986);
+				((EscapableIdentContext)_localctx).t = match(TICKED_STRING_LITERAL);
 				}
 				break;
 			default:
@@ -18305,20 +19747,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class TimePeriodContext extends ParserRuleContext {
-		public HourPartContext hourPart() {
-			return getRuleContext(HourPartContext.class,0);
-		}
-		public MonthPartContext monthPart() {
-			return getRuleContext(MonthPartContext.class,0);
-		}
 		public YearPartContext yearPart() {
 			return getRuleContext(YearPartContext.class,0);
 		}
-		public MillisecondPartContext millisecondPart() {
-			return getRuleContext(MillisecondPartContext.class,0);
-		}
-		public SecondPartContext secondPart() {
-			return getRuleContext(SecondPartContext.class,0);
+		public MonthPartContext monthPart() {
+			return getRuleContext(MonthPartContext.class,0);
 		}
 		public WeekPartContext weekPart() {
 			return getRuleContext(WeekPartContext.class,0);
@@ -18326,8 +19759,17 @@ public class EsperEPL2GrammarParser extends Parser {
 		public DayPartContext dayPart() {
 			return getRuleContext(DayPartContext.class,0);
 		}
+		public HourPartContext hourPart() {
+			return getRuleContext(HourPartContext.class,0);
+		}
 		public MinutePartContext minutePart() {
 			return getRuleContext(MinutePartContext.class,0);
+		}
+		public SecondPartContext secondPart() {
+			return getRuleContext(SecondPartContext.class,0);
+		}
+		public MillisecondPartContext millisecondPart() {
+			return getRuleContext(MillisecondPartContext.class,0);
 		}
 		public TimePeriodContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -18351,55 +19793,69 @@ public class EsperEPL2GrammarParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(3081);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,431,_ctx) ) {
 			case 1:
 				{
-				setState(2989); yearPart();
+				setState(2989);
+				yearPart();
 				setState(2991);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,403,_ctx) ) {
 				case 1:
 					{
-					setState(2990); monthPart();
+					setState(2990);
+					monthPart();
 					}
 					break;
 				}
 				setState(2994);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,404,_ctx) ) {
 				case 1:
 					{
-					setState(2993); weekPart();
+					setState(2993);
+					weekPart();
 					}
 					break;
 				}
 				setState(2997);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,405,_ctx) ) {
 				case 1:
 					{
-					setState(2996); dayPart();
+					setState(2996);
+					dayPart();
 					}
 					break;
 				}
 				setState(3000);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,406,_ctx) ) {
 				case 1:
 					{
-					setState(2999); hourPart();
+					setState(2999);
+					hourPart();
 					}
 					break;
 				}
 				setState(3003);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,407,_ctx) ) {
 				case 1:
 					{
-					setState(3002); minutePart();
+					setState(3002);
+					minutePart();
 					}
 					break;
 				}
 				setState(3006);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,408,_ctx) ) {
 				case 1:
 					{
-					setState(3005); secondPart();
+					setState(3005);
+					secondPart();
 					}
 					break;
 				}
@@ -18407,53 +19863,64 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3008); millisecondPart();
+					setState(3008);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 2:
 				{
-				setState(3011); monthPart();
+				setState(3011);
+				monthPart();
 				setState(3013);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,410,_ctx) ) {
 				case 1:
 					{
-					setState(3012); weekPart();
+					setState(3012);
+					weekPart();
 					}
 					break;
 				}
 				setState(3016);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,411,_ctx) ) {
 				case 1:
 					{
-					setState(3015); dayPart();
+					setState(3015);
+					dayPart();
 					}
 					break;
 				}
 				setState(3019);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,412,_ctx) ) {
 				case 1:
 					{
-					setState(3018); hourPart();
+					setState(3018);
+					hourPart();
 					}
 					break;
 				}
 				setState(3022);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,413,_ctx) ) {
 				case 1:
 					{
-					setState(3021); minutePart();
+					setState(3021);
+					minutePart();
 					}
 					break;
 				}
 				setState(3025);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,414,_ctx) ) {
 				case 1:
 					{
-					setState(3024); secondPart();
+					setState(3024);
+					secondPart();
 					}
 					break;
 				}
@@ -18461,45 +19928,54 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3027); millisecondPart();
+					setState(3027);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 3:
 				{
-				setState(3030); weekPart();
+				setState(3030);
+				weekPart();
 				setState(3032);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,416,_ctx) ) {
 				case 1:
 					{
-					setState(3031); dayPart();
+					setState(3031);
+					dayPart();
 					}
 					break;
 				}
 				setState(3035);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,417,_ctx) ) {
 				case 1:
 					{
-					setState(3034); hourPart();
+					setState(3034);
+					hourPart();
 					}
 					break;
 				}
 				setState(3038);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,418,_ctx) ) {
 				case 1:
 					{
-					setState(3037); minutePart();
+					setState(3037);
+					minutePart();
 					}
 					break;
 				}
 				setState(3041);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,419,_ctx) ) {
 				case 1:
 					{
-					setState(3040); secondPart();
+					setState(3040);
+					secondPart();
 					}
 					break;
 				}
@@ -18507,37 +19983,44 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3043); millisecondPart();
+					setState(3043);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 4:
 				{
-				setState(3046); dayPart();
+				setState(3046);
+				dayPart();
 				setState(3048);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,421,_ctx) ) {
 				case 1:
 					{
-					setState(3047); hourPart();
+					setState(3047);
+					hourPart();
 					}
 					break;
 				}
 				setState(3051);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,422,_ctx) ) {
 				case 1:
 					{
-					setState(3050); minutePart();
+					setState(3050);
+					minutePart();
 					}
 					break;
 				}
 				setState(3054);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,423,_ctx) ) {
 				case 1:
 					{
-					setState(3053); secondPart();
+					setState(3053);
+					secondPart();
 					}
 					break;
 				}
@@ -18545,29 +20028,34 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3056); millisecondPart();
+					setState(3056);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 5:
 				{
-				setState(3059); hourPart();
+				setState(3059);
+				hourPart();
 				setState(3061);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,425,_ctx) ) {
 				case 1:
 					{
-					setState(3060); minutePart();
+					setState(3060);
+					minutePart();
 					}
 					break;
 				}
 				setState(3064);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,426,_ctx) ) {
 				case 1:
 					{
-					setState(3063); secondPart();
+					setState(3063);
+					secondPart();
 					}
 					break;
 				}
@@ -18575,21 +20063,24 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3066); millisecondPart();
+					setState(3066);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 6:
 				{
-				setState(3069); minutePart();
+				setState(3069);
+				minutePart();
 				setState(3071);
+				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,428,_ctx) ) {
 				case 1:
 					{
-					setState(3070); secondPart();
+					setState(3070);
+					secondPart();
 					}
 					break;
 				}
@@ -18597,30 +20088,32 @@ public class EsperEPL2GrammarParser extends Parser {
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3073); millisecondPart();
+					setState(3073);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 7:
 				{
-				setState(3076); secondPart();
+				setState(3076);
+				secondPart();
 				setState(3078);
 				_la = _input.LA(1);
 				if (((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (QUESTION - 140)) | (1L << (PLUS - 140)) | (1L << (MINUS - 140)) | (1L << (IDENT - 140)) | (1L << (IntegerLiteral - 140)) | (1L << (FloatingPointLiteral - 140)))) != 0)) {
 					{
-					setState(3077); millisecondPart();
+					setState(3077);
+					millisecondPart();
 					}
 				}
 
 				}
 				break;
-
 			case 8:
 				{
-				setState(3080); millisecondPart();
+				setState(3080);
+				millisecondPart();
 				}
 				break;
 			}
@@ -18639,15 +20132,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class YearPartContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode TIMEPERIOD_YEARS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_YEARS, 0); }
 		public TerminalNode TIMEPERIOD_YEAR() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_YEAR, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_YEARS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_YEARS, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public YearPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18676,17 +20169,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3083); numberconstant();
+				setState(3083);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3084); ((YearPartContext)_localctx).i = match(IDENT);
+				setState(3084);
+				((YearPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3085); substitution();
+				setState(3085);
+				substitution();
 				}
 				break;
 			default:
@@ -18696,8 +20192,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_YEAR || _la==TIMEPERIOD_YEARS) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -18718,10 +20215,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public MonthPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18750,17 +20247,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3090); numberconstant();
+				setState(3090);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3091); ((MonthPartContext)_localctx).i = match(IDENT);
+				setState(3091);
+				((MonthPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3092); substitution();
+				setState(3092);
+				substitution();
 				}
 				break;
 			default:
@@ -18770,8 +20270,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_MONTH || _la==TIMEPERIOD_MONTHS) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -18792,10 +20293,10 @@ public class EsperEPL2GrammarParser extends Parser {
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public WeekPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18824,17 +20325,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3097); numberconstant();
+				setState(3097);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3098); ((WeekPartContext)_localctx).i = match(IDENT);
+				setState(3098);
+				((WeekPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3099); substitution();
+				setState(3099);
+				substitution();
 				}
 				break;
 			default:
@@ -18844,8 +20348,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_WEEK || _la==TIMEPERIOD_WEEKS) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -18861,15 +20366,15 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class DayPartContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode TIMEPERIOD_DAYS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_DAYS, 0); }
+		public TerminalNode TIMEPERIOD_DAY() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_DAY, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_DAY() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_DAY, 0); }
-		public TerminalNode TIMEPERIOD_DAYS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_DAYS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public DayPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18898,17 +20403,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3104); numberconstant();
+				setState(3104);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3105); ((DayPartContext)_localctx).i = match(IDENT);
+				setState(3105);
+				((DayPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3106); substitution();
+				setState(3106);
+				substitution();
 				}
 				break;
 			default:
@@ -18918,8 +20426,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_DAY || _la==TIMEPERIOD_DAYS) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -18936,14 +20445,14 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class HourPartContext extends ParserRuleContext {
 		public Token i;
 		public TerminalNode TIMEPERIOD_HOURS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_HOURS, 0); }
+		public TerminalNode TIMEPERIOD_HOUR() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_HOUR, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_HOUR() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_HOUR, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public HourPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -18972,17 +20481,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3111); numberconstant();
+				setState(3111);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3112); ((HourPartContext)_localctx).i = match(IDENT);
+				setState(3112);
+				((HourPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3113); substitution();
+				setState(3113);
+				substitution();
 				}
 				break;
 			default:
@@ -18992,8 +20504,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TIMEPERIOD_HOUR || _la==TIMEPERIOD_HOURS) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19009,16 +20522,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class MinutePartContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode TIMEPERIOD_MINUTES() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MINUTES, 0); }
+		public TerminalNode TIMEPERIOD_MINUTE() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MINUTE, 0); }
 		public TerminalNode MIN() { return getToken(EsperEPL2GrammarParser.MIN, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_MINUTE() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MINUTE, 0); }
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_MINUTES() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MINUTES, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public MinutePartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19047,17 +20560,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3118); numberconstant();
+				setState(3118);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3119); ((MinutePartContext)_localctx).i = match(IDENT);
+				setState(3119);
+				((MinutePartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3120); substitution();
+				setState(3120);
+				substitution();
 				}
 				break;
 			default:
@@ -19067,8 +20583,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==MIN || _la==TIMEPERIOD_MINUTE || _la==TIMEPERIOD_MINUTES) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19084,16 +20601,16 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	public static class SecondPartContext extends ParserRuleContext {
 		public Token i;
+		public TerminalNode TIMEPERIOD_SECONDS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECONDS, 0); }
 		public TerminalNode TIMEPERIOD_SECOND() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECOND, 0); }
 		public TerminalNode TIMEPERIOD_SEC() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SEC, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_SECONDS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_SECONDS, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SecondPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19122,17 +20639,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3125); numberconstant();
+				setState(3125);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3126); ((SecondPartContext)_localctx).i = match(IDENT);
+				setState(3126);
+				((SecondPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3127); substitution();
+				setState(3127);
+				substitution();
 				}
 				break;
 			default:
@@ -19142,8 +20662,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(((((_la - 98)) & ~0x3f) == 0 && ((1L << (_la - 98)) & ((1L << (TIMEPERIOD_SEC - 98)) | (1L << (TIMEPERIOD_SECOND - 98)) | (1L << (TIMEPERIOD_SECONDS - 98)))) != 0)) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19161,14 +20682,14 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token i;
 		public TerminalNode TIMEPERIOD_MILLISECONDS() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MILLISECONDS, 0); }
 		public TerminalNode TIMEPERIOD_MILLISECOND() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MILLISECOND, 0); }
+		public TerminalNode TIMEPERIOD_MILLISEC() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MILLISEC, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
-		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public SubstitutionContext substitution() {
 			return getRuleContext(SubstitutionContext.class,0);
 		}
-		public TerminalNode TIMEPERIOD_MILLISEC() { return getToken(EsperEPL2GrammarParser.TIMEPERIOD_MILLISEC, 0); }
+		public TerminalNode IDENT() { return getToken(EsperEPL2GrammarParser.IDENT, 0); }
 		public MillisecondPartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19197,17 +20718,20 @@ public class EsperEPL2GrammarParser extends Parser {
 			case IntegerLiteral:
 			case FloatingPointLiteral:
 				{
-				setState(3132); numberconstant();
+				setState(3132);
+				numberconstant();
 				}
 				break;
 			case IDENT:
 				{
-				setState(3133); ((MillisecondPartContext)_localctx).i = match(IDENT);
+				setState(3133);
+				((MillisecondPartContext)_localctx).i = match(IDENT);
 				}
 				break;
 			case QUESTION:
 				{
-				setState(3134); substitution();
+				setState(3134);
+				substitution();
 				}
 				break;
 			default:
@@ -19217,8 +20741,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(((((_la - 101)) & ~0x3f) == 0 && ((1L << (_la - 101)) & ((1L << (TIMEPERIOD_MILLISEC - 101)) | (1L << (TIMEPERIOD_MILLISECOND - 101)) | (1L << (TIMEPERIOD_MILLISECONDS - 101)))) != 0)) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19260,8 +20785,9 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==IntegerLiteral || _la==FloatingPointLiteral) ) {
 			_errHandler.recoverInline(this);
+			} else {
+				consume();
 			}
-			consume();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19278,10 +20804,10 @@ public class EsperEPL2GrammarParser extends Parser {
 	public static class SubstitutionContext extends ParserRuleContext {
 		public Token q;
 		public TerminalNode QUESTION() { return getToken(EsperEPL2GrammarParser.QUESTION, 0); }
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public SlashIdentifierContext slashIdentifier() {
 			return getRuleContext(SlashIdentifierContext.class,0);
 		}
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public SubstitutionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19302,13 +20828,17 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3141); ((SubstitutionContext)_localctx).q = match(QUESTION);
+			setState(3141);
+			((SubstitutionContext)_localctx).q = match(QUESTION);
 			setState(3144);
+			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,440,_ctx) ) {
 			case 1:
 				{
-				setState(3142); match(COLON);
-				setState(3143); slashIdentifier();
+				setState(3142);
+				match(COLON);
+				setState(3143);
+				slashIdentifier();
 				}
 				break;
 			}
@@ -19329,15 +20859,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		public Token t;
 		public Token f;
 		public Token nu;
-		public TerminalNode BOOLEAN_TRUE() { return getToken(EsperEPL2GrammarParser.BOOLEAN_TRUE, 0); }
-		public TerminalNode VALUE_NULL() { return getToken(EsperEPL2GrammarParser.VALUE_NULL, 0); }
-		public TerminalNode BOOLEAN_FALSE() { return getToken(EsperEPL2GrammarParser.BOOLEAN_FALSE, 0); }
 		public NumberconstantContext numberconstant() {
 			return getRuleContext(NumberconstantContext.class,0);
 		}
 		public StringconstantContext stringconstant() {
 			return getRuleContext(StringconstantContext.class,0);
 		}
+		public TerminalNode BOOLEAN_TRUE() { return getToken(EsperEPL2GrammarParser.BOOLEAN_TRUE, 0); }
+		public TerminalNode BOOLEAN_FALSE() { return getToken(EsperEPL2GrammarParser.BOOLEAN_FALSE, 0); }
+		public TerminalNode VALUE_NULL() { return getToken(EsperEPL2GrammarParser.VALUE_NULL, 0); }
 		public ConstantContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19364,32 +20894,37 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(3146); numberconstant();
+				setState(3146);
+				numberconstant();
 				}
 				break;
 			case QUOTED_STRING_LITERAL:
 			case STRING_LITERAL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(3147); stringconstant();
+				setState(3147);
+				stringconstant();
 				}
 				break;
 			case BOOLEAN_TRUE:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(3148); ((ConstantContext)_localctx).t = match(BOOLEAN_TRUE);
+				setState(3148);
+				((ConstantContext)_localctx).t = match(BOOLEAN_TRUE);
 				}
 				break;
 			case BOOLEAN_FALSE:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(3149); ((ConstantContext)_localctx).f = match(BOOLEAN_FALSE);
+				setState(3149);
+				((ConstantContext)_localctx).f = match(BOOLEAN_FALSE);
 				}
 				break;
 			case VALUE_NULL:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(3150); ((ConstantContext)_localctx).nu = match(VALUE_NULL);
+				setState(3150);
+				((ConstantContext)_localctx).nu = match(VALUE_NULL);
 				}
 				break;
 			default:
@@ -19439,12 +20974,14 @@ public class EsperEPL2GrammarParser extends Parser {
 			switch (_input.LA(1)) {
 			case MINUS:
 				{
-				setState(3153); ((NumberconstantContext)_localctx).m = match(MINUS);
+				setState(3153);
+				((NumberconstantContext)_localctx).m = match(MINUS);
 				}
 				break;
 			case PLUS:
 				{
-				setState(3154); ((NumberconstantContext)_localctx).p = match(PLUS);
+				setState(3154);
+				((NumberconstantContext)_localctx).p = match(PLUS);
 				}
 				break;
 			case IntegerLiteral:
@@ -19453,7 +20990,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(3157); number();
+			setState(3157);
+			number();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19495,13 +21033,15 @@ public class EsperEPL2GrammarParser extends Parser {
 			case STRING_LITERAL:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(3159); ((StringconstantContext)_localctx).sl = match(STRING_LITERAL);
+				setState(3159);
+				((StringconstantContext)_localctx).sl = match(STRING_LITERAL);
 				}
 				break;
 			case QUOTED_STRING_LITERAL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(3160); ((StringconstantContext)_localctx).qsl = match(QUOTED_STRING_LITERAL);
+				setState(3160);
+				((StringconstantContext)_localctx).qsl = match(QUOTED_STRING_LITERAL);
 				}
 				break;
 			default:
@@ -19520,11 +21060,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class JsonvalueContext extends ParserRuleContext {
-		public JsonobjectContext jsonobject() {
-			return getRuleContext(JsonobjectContext.class,0);
-		}
 		public ConstantContext constant() {
 			return getRuleContext(ConstantContext.class,0);
+		}
+		public JsonobjectContext jsonobject() {
+			return getRuleContext(JsonobjectContext.class,0);
 		}
 		public JsonarrayContext jsonarray() {
 			return getRuleContext(JsonarrayContext.class,0);
@@ -19560,19 +21100,22 @@ public class EsperEPL2GrammarParser extends Parser {
 			case FloatingPointLiteral:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(3163); constant();
+				setState(3163);
+				constant();
 				}
 				break;
 			case LCURLY:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(3164); jsonobject();
+				setState(3164);
+				jsonobject();
 				}
 				break;
 			case LBRACK:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(3165); jsonarray();
+				setState(3165);
+				jsonarray();
 				}
 				break;
 			default:
@@ -19616,9 +21159,12 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3168); match(LCURLY);
-			setState(3169); jsonmembers();
-			setState(3170); match(RCURLY);
+			setState(3168);
+			match(LCURLY);
+			setState(3169);
+			jsonmembers();
+			setState(3170);
+			match(RCURLY);
 			}
 		}
 		catch (RecognitionException re) {
@@ -19633,11 +21179,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class JsonarrayContext extends ParserRuleContext {
+		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public TerminalNode RBRACK() { return getToken(EsperEPL2GrammarParser.RBRACK, 0); }
 		public JsonelementsContext jsonelements() {
 			return getRuleContext(JsonelementsContext.class,0);
 		}
-		public TerminalNode LBRACK() { return getToken(EsperEPL2GrammarParser.LBRACK, 0); }
 		public JsonarrayContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -19659,16 +21205,19 @@ public class EsperEPL2GrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3172); match(LBRACK);
+			setState(3172);
+			match(LBRACK);
 			setState(3174);
 			_la = _input.LA(1);
 			if (((((_la - 104)) & ~0x3f) == 0 && ((1L << (_la - 104)) & ((1L << (BOOLEAN_TRUE - 104)) | (1L << (BOOLEAN_FALSE - 104)) | (1L << (VALUE_NULL - 104)) | (1L << (LBRACK - 104)) | (1L << (LCURLY - 104)) | (1L << (PLUS - 104)) | (1L << (MINUS - 104)))) != 0) || ((((_la - 189)) & ~0x3f) == 0 && ((1L << (_la - 189)) & ((1L << (QUOTED_STRING_LITERAL - 189)) | (1L << (STRING_LITERAL - 189)) | (1L << (IntegerLiteral - 189)) | (1L << (FloatingPointLiteral - 189)))) != 0)) {
 				{
-				setState(3173); jsonelements();
+				setState(3173);
+				jsonelements();
 				}
 			}
 
-			setState(3176); match(RBRACK);
+			setState(3176);
+			match(RBRACK);
 			}
 		}
 		catch (RecognitionException re) {
@@ -19683,13 +21232,13 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class JsonelementsContext extends ParserRuleContext {
+		public List<JsonvalueContext> jsonvalue() {
+			return getRuleContexts(JsonvalueContext.class);
+		}
 		public JsonvalueContext jsonvalue(int i) {
 			return getRuleContext(JsonvalueContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
-		public List<JsonvalueContext> jsonvalue() {
-			return getRuleContexts(JsonvalueContext.class);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(EsperEPL2GrammarParser.COMMA, i);
 		}
@@ -19715,16 +21264,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3178); jsonvalue();
+			setState(3178);
+			jsonvalue();
 			setState(3183);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,446,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(3179); match(COMMA);
-					setState(3180); jsonvalue();
+					setState(3179);
+					match(COMMA);
+					setState(3180);
+					jsonvalue();
 					}
 					} 
 				}
@@ -19736,7 +21288,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
-				setState(3186); match(COMMA);
+				setState(3186);
+				match(COMMA);
 				}
 			}
 
@@ -19754,11 +21307,11 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class JsonmembersContext extends ParserRuleContext {
-		public JsonpairContext jsonpair(int i) {
-			return getRuleContext(JsonpairContext.class,i);
-		}
 		public List<JsonpairContext> jsonpair() {
 			return getRuleContexts(JsonpairContext.class);
+		}
+		public JsonpairContext jsonpair(int i) {
+			return getRuleContext(JsonpairContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(EsperEPL2GrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -19786,16 +21339,19 @@ public class EsperEPL2GrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3189); jsonpair();
+			setState(3189);
+			jsonpair();
 			setState(3194);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,448,_ctx);
-			while ( _alt!=2 && _alt!=-1 ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(3190); match(COMMA);
-					setState(3191); jsonpair();
+					setState(3190);
+					match(COMMA);
+					setState(3191);
+					jsonpair();
 					}
 					} 
 				}
@@ -19807,7 +21363,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==COMMA) {
 				{
-				setState(3197); match(COMMA);
+				setState(3197);
+				match(COMMA);
 				}
 			}
 
@@ -19825,15 +21382,15 @@ public class EsperEPL2GrammarParser extends Parser {
 	}
 
 	public static class JsonpairContext extends ParserRuleContext {
-		public KeywordAllowedIdentContext keywordAllowedIdent() {
-			return getRuleContext(KeywordAllowedIdentContext.class,0);
-		}
+		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public JsonvalueContext jsonvalue() {
 			return getRuleContext(JsonvalueContext.class,0);
 		}
-		public TerminalNode COLON() { return getToken(EsperEPL2GrammarParser.COLON, 0); }
 		public StringconstantContext stringconstant() {
 			return getRuleContext(StringconstantContext.class,0);
+		}
+		public KeywordAllowedIdentContext keywordAllowedIdent() {
+			return getRuleContext(KeywordAllowedIdentContext.class,0);
 		}
 		public JsonpairContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -19860,7 +21417,8 @@ public class EsperEPL2GrammarParser extends Parser {
 			case QUOTED_STRING_LITERAL:
 			case STRING_LITERAL:
 				{
-				setState(3200); stringconstant();
+				setState(3200);
+				stringconstant();
 				}
 				break;
 			case WINDOW:
@@ -19915,14 +21473,17 @@ public class EsperEPL2GrammarParser extends Parser {
 			case TICKED_STRING_LITERAL:
 			case IDENT:
 				{
-				setState(3201); keywordAllowedIdent();
+				setState(3201);
+				keywordAllowedIdent();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(3204); match(COLON);
-			setState(3205); jsonvalue();
+			setState(3204);
+			match(COLON);
+			setState(3205);
+			jsonvalue();
 			}
 		}
 		catch (RecognitionException re) {
@@ -19938,7 +21499,7 @@ public class EsperEPL2GrammarParser extends Parser {
 
 	private static final int _serializedATNSegments = 2;
 	private static final String _serializedATNSegment0 =
-		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\3\u00c3\u0c8a\4\2\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u00c3\u0c8a\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -20252,27 +21813,27 @@ public class EsperEPL2GrammarParser extends Parser {
 		"\u0c73\13\u00f4\3\u00f4\5\u00f4\u0c76\n\u00f4\3\u00f5\3\u00f5\3\u00f5"+
 		"\7\u00f5\u0c7b\n\u00f5\f\u00f5\16\u00f5\u0c7e\13\u00f5\3\u00f5\5\u00f5"+
 		"\u0c81\n\u00f5\3\u00f6\3\u00f6\5\u00f6\u0c85\n\u00f6\3\u00f6\3\u00f6\3"+
-		"\u00f6\3\u00f6\2\u00f7\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,"+
-		".\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086"+
-		"\u0088\u008a\u008c\u008e\u0090\u0092\u0094\u0096\u0098\u009a\u009c\u009e"+
-		"\u00a0\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4\u00b6"+
-		"\u00b8\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc\u00ce"+
-		"\u00d0\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4\u00e6"+
-		"\u00e8\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc\u00fe"+
-		"\u0100\u0102\u0104\u0106\u0108\u010a\u010c\u010e\u0110\u0112\u0114\u0116"+
-		"\u0118\u011a\u011c\u011e\u0120\u0122\u0124\u0126\u0128\u012a\u012c\u012e"+
-		"\u0130\u0132\u0134\u0136\u0138\u013a\u013c\u013e\u0140\u0142\u0144\u0146"+
-		"\u0148\u014a\u014c\u014e\u0150\u0152\u0154\u0156\u0158\u015a\u015c\u015e"+
-		"\u0160\u0162\u0164\u0166\u0168\u016a\u016c\u016e\u0170\u0172\u0174\u0176"+
-		"\u0178\u017a\u017c\u017e\u0180\u0182\u0184\u0186\u0188\u018a\u018c\u018e"+
-		"\u0190\u0192\u0194\u0196\u0198\u019a\u019c\u019e\u01a0\u01a2\u01a4\u01a6"+
-		"\u01a8\u01aa\u01ac\u01ae\u01b0\u01b2\u01b4\u01b6\u01b8\u01ba\u01bc\u01be"+
-		"\u01c0\u01c2\u01c4\u01c6\u01c8\u01ca\u01cc\u01ce\u01d0\u01d2\u01d4\u01d6"+
-		"\u01d8\u01da\u01dc\u01de\u01e0\u01e2\u01e4\u01e6\u01e8\u01ea\2\24\3\2"+
-		"\u008a\u008b\4\2\u008c\u008c\u0095\u0095\4\2\13\13\u0096\u0096\3\2\u0083"+
-		"\u0084\5\2\u00ab\u00ab\u00ad\u00ad\u00b0\u00b0\4\2\u009d\u009d\u00a0\u00a0"+
-		"\5\2\u009b\u009b\u00a3\u00a3\u00a5\u00a5\3\2,-\4\2\20\20\u0096\u0096\3"+
-		"\2XY\3\2Z[\3\2\\]\3\2^_\3\2`a\4\2\24\24bc\3\2df\3\2gi\3\2\u00c2\u00c3"+
+		"\u00f6\3\u00f6\2\2\u00f7\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&("+
+		"*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084"+
+		"\u0086\u0088\u008a\u008c\u008e\u0090\u0092\u0094\u0096\u0098\u009a\u009c"+
+		"\u009e\u00a0\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4"+
+		"\u00b6\u00b8\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc"+
+		"\u00ce\u00d0\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4"+
+		"\u00e6\u00e8\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc"+
+		"\u00fe\u0100\u0102\u0104\u0106\u0108\u010a\u010c\u010e\u0110\u0112\u0114"+
+		"\u0116\u0118\u011a\u011c\u011e\u0120\u0122\u0124\u0126\u0128\u012a\u012c"+
+		"\u012e\u0130\u0132\u0134\u0136\u0138\u013a\u013c\u013e\u0140\u0142\u0144"+
+		"\u0146\u0148\u014a\u014c\u014e\u0150\u0152\u0154\u0156\u0158\u015a\u015c"+
+		"\u015e\u0160\u0162\u0164\u0166\u0168\u016a\u016c\u016e\u0170\u0172\u0174"+
+		"\u0176\u0178\u017a\u017c\u017e\u0180\u0182\u0184\u0186\u0188\u018a\u018c"+
+		"\u018e\u0190\u0192\u0194\u0196\u0198\u019a\u019c\u019e\u01a0\u01a2\u01a4"+
+		"\u01a6\u01a8\u01aa\u01ac\u01ae\u01b0\u01b2\u01b4\u01b6\u01b8\u01ba\u01bc"+
+		"\u01be\u01c0\u01c2\u01c4\u01c6\u01c8\u01ca\u01cc\u01ce\u01d0\u01d2\u01d4"+
+		"\u01d6\u01d8\u01da\u01dc\u01de\u01e0\u01e2\u01e4\u01e6\u01e8\u01ea\2\24"+
+		"\3\2\u008a\u008b\4\2\u008c\u008c\u0095\u0095\4\2\13\13\u0096\u0096\3\2"+
+		"\u0083\u0084\5\2\u00ab\u00ab\u00ad\u00ad\u00b0\u00b0\4\2\u009d\u009d\u00a0"+
+		"\u00a0\5\2\u009b\u009b\u00a3\u00a3\u00a5\u00a5\3\2,-\4\2\20\20\u0096\u0096"+
+		"\3\2XY\3\2Z[\3\2\\]\3\2^_\3\2`a\4\2\24\24bc\3\2df\3\2gi\3\2\u00c2\u00c3"+
 		"\u0e24\2\u01f0\3\2\2\2\4\u01fa\3\2\2\2\6\u0200\3\2\2\2\b\u0203\3\2\2\2"+
 		"\n\u0206\3\2\2\2\f\u021f\3\2\2\2\16\u022d\3\2\2\2\20\u0234\3\2\2\2\22"+
 		"\u0238\3\2\2\2\24\u0242\3\2\2\2\26\u024a\3\2\2\2\30\u0253\3\2\2\2\32\u0255"+
@@ -20989,15 +22550,15 @@ public class EsperEPL2GrammarParser extends Parser {
 		"\3\2\2\2\u08e5\u08e6\3\2\2\2\u08e6\u08e7\3\2\2\2\u08e7\u08e8\5\u0192\u00ca"+
 		"\2\u08e8\u08e9\7\u0090\2\2\u08e9\u0975\3\2\2\2\u08ea\u08eb\7\26\2\2\u08eb"+
 		"\u08ed\7\u008f\2\2\u08ec\u08ee\t\t\2\2\u08ed\u08ec\3\2\2\2\u08ed\u08ee"+
-		"\3\2\2\2\u08ee\u08ef\3\2\2\2\u08ef";
+		"\3\2\2\2\u08ee\u08ef\3\2\2\2";
 	private static final String _serializedATNSegment1 =
-		"\u08f0\5\u0192\u00ca\2\u08f0\u08f1\7\u0090\2\2\u08f1\u0975\3\2\2\2\u08f2"+
-		"\u08f3\7\27\2\2\u08f3\u08f5\7\u008f\2\2\u08f4\u08f6\t\t\2\2\u08f5\u08f4"+
-		"\3\2\2\2\u08f5\u08f6\3\2\2\2\u08f6\u08f7\3\2\2\2\u08f7\u08f8\5\u0192\u00ca"+
-		"\2\u08f8\u08f9\7\u0090\2\2\u08f9\u0975\3\2\2\2\u08fa\u08fb\7\30\2\2\u08fb"+
-		"\u08fd\7\u008f\2\2\u08fc\u08fe\t\t\2\2\u08fd\u08fc\3\2\2\2\u08fd\u08fe"+
-		"\3\2\2\2\u08fe\u08ff\3\2\2\2\u08ff\u0900\5\u0192\u00ca\2\u0900\u0901\7"+
-		"\u0090\2\2\u0901\u0975\3\2\2\2\u0902\u0975\5\u0146\u00a4\2\u0903\u0904"+
+		"\u08ef\u08f0\5\u0192\u00ca\2\u08f0\u08f1\7\u0090\2\2\u08f1\u0975\3\2\2"+
+		"\2\u08f2\u08f3\7\27\2\2\u08f3\u08f5\7\u008f\2\2\u08f4\u08f6\t\t\2\2\u08f5"+
+		"\u08f4\3\2\2\2\u08f5\u08f6\3\2\2\2\u08f6\u08f7\3\2\2\2\u08f7\u08f8\5\u0192"+
+		"\u00ca\2\u08f8\u08f9\7\u0090\2\2\u08f9\u0975\3\2\2\2\u08fa\u08fb\7\30"+
+		"\2\2\u08fb\u08fd\7\u008f\2\2\u08fc\u08fe\t\t\2\2\u08fd\u08fc\3\2\2\2\u08fd"+
+		"\u08fe\3\2\2\2\u08fe\u08ff\3\2\2\2\u08ff\u0900\5\u0192\u00ca\2\u0900\u0901"+
+		"\7\u0090\2\2\u0901\u0975\3\2\2\2\u0902\u0975\5\u0146\u00a4\2\u0903\u0904"+
 		"\7\25\2\2\u0904\u0905\7\u008f\2\2\u0905\u0906\5\u0118\u008d\2\u0906\u0907"+
 		"\7\u0096\2\2\u0907\u090c\5\u0118\u008d\2\u0908\u0909\7\u0096\2\2\u0909"+
 		"\u090b\5\u0118\u008d\2\u090a\u0908\3\2\2\2\u090b\u090e\3\2\2\2\u090c\u090a"+
@@ -21405,7 +22966,7 @@ public class EsperEPL2GrammarParser extends Parser {
 		""
 	);
 	public static final ATN _ATN =
-		ATNSimulator.deserialize(_serializedATN.toCharArray());
+		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
 		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];
 		for (int i = 0; i < _ATN.getNumberOfDecisions(); i++) {

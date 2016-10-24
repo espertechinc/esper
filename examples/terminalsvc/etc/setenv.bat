@@ -18,7 +18,7 @@ if not exist ..\..\..\esper-6.0.0.jar goto badenv_esperlib
 if not exist %LIB%\cglib-nodep-3.1.jar goto badenv
 if not exist %LIB%\commons-logging-1.1.3.jar goto badenv
 if not exist %LIB%\log4j-1.2.17.jar goto badenv
-if not exist %LIB%\antlr-runtime-4.1.jar goto badenv
+if not exist %LIB%\antlr-runtime-4.5.3.jar goto badenv
 
 set CLASSPATH=.
 set CLASSPATH=%CLASSPATH%;..\terminalsvc-receiver\target\example-terminalsvc-receiver-1.0.jar
@@ -30,7 +30,7 @@ set CLASSPATH=%CLASSPATH%;..\lib\jboss-client.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.1.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\commons-logging-1.1.3.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\log4j-1.2.17.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.1.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.5.3.jar
 
 goto EOF
 

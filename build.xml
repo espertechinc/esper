@@ -33,7 +33,7 @@
         examples/benchmark/lib/*.jar,
         examples/terminalsvc-jse/lib/*.jar,
         examples/cycledetect/lib/*.jar,
-        **/antlr-4.1-complete.jar,
+        **/antlr-4.5.3-complete.jar,
         **/junit-4.11.jar, **/junit.license,
         **/mysql-connector-java-*.jar,**/OTFeed*.jar"/>
 

@@ -22,7 +22,7 @@ set CLASSPATH=%CLASSPATH%;..\..\..\esper-6.0.0.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.1.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\commons-logging-1.1.3.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\log4j-1.2.17.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.1.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.5.3.jar
 set CLASSPATH=%CLASSPATH%;%EXLIB%\jms.jar
 set CLASSPATH=%CLASSPATH%;%IOLIB%\apache-activemq-6.0.0-incubator.jar
 

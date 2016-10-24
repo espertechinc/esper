@@ -1302,7 +1302,7 @@ NUM_LONG	: '\u18FF';  // assign bogus unicode characters so the token exists
 NUM_DOUBLE	: '\u18FE';
 NUM_FLOAT	: '\u18FD';
 ESCAPECHAR	: '\\';
-ESCAPEBACKTICK	: '\`';
+ESCAPEBACKTICK	: '`';
 ATCHAR		: '@';
 
 // Whitespace -- ignored

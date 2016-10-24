@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.1</version>
+			<version>4.5.3</version>
 		</dependency>
 		<!-- for javax.jms 1.1 dependency -->
 		<dependency>
