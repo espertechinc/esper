@@ -3,7 +3,7 @@
 	<name>EsperIO-CSV</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esperio-csv</artifactId>
-	<version>5.6.0</version>
+	<version>6.0.0</version>
 	<packaging>jar</packaging>
 	<description>EsperIO CSV</description>
 	<url>http://www.espertech.com/esper</url>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>esper</artifactId>
-			<version>5.6.0</version>
+			<version>6.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>

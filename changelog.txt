@@ -1,6 +1,11 @@
 Esper Changelog
 ===================
 
+Changes in version 6.0.0
+------------------------
+  - Requires Java 8
+  - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
+
 Changes in version 5.5.0
 ------------------------
   - Support for methods that take varargs (methods that take an arbitrary number of values as parameters)

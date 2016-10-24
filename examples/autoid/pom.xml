@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.espertech</groupId>
 		<artifactId>esper_examples</artifactId>
-		<version>5.6.0</version>
+		<version>6.0.0</version>
 	</parent>
 	<name>Esper Examples - AutoID</name>
 	<groupId>com.espertech</groupId>
