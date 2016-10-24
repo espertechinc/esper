@@ -23,8 +23,8 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.util.SerializableObjectCopier;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class TestGroupByMedianAndDeviation extends TestCase
@@ -247,5 +247,5 @@ public class TestGroupByMedianAndDeviation extends TestCase
 
 
 
-    private static final Log log = LogFactory.getLog(TestGroupByMedianAndDeviation.class);
+    private static final Logger log = LoggerFactory.getLogger(TestGroupByMedianAndDeviation.class);
 }

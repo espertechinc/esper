@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents an 'not' operator in the evaluation tree representing any event expressions.
@@ -39,5 +39,5 @@ public class EvalNotNode extends EvalNodeBase
         return new EvalNotStateNode(parentNode, this);
     }
 
-    private static final Log log = LogFactory.getLog(EvalNotNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalNotNode.class);
 }

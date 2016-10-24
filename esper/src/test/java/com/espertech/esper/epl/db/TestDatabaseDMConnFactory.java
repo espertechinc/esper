@@ -20,8 +20,8 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestDatabaseDMConnFactory extends TestCase
 {
@@ -78,5 +78,5 @@ public class TestDatabaseDMConnFactory extends TestCase
         connection.close();
     }
 
-    private final static Log log = LogFactory.getLog(TestDatabaseDMConnFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(TestDatabaseDMConnFactory.class);
 }

@@ -24,8 +24,8 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConditionHandlerFactory;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -286,5 +286,5 @@ public class TestFollowedByMaxOperator extends TestCase implements SupportBeanCo
         contexts.clear();
     }
 
-    private final static Log log = LogFactory.getLog(TestFollowedByMaxOperator.class);
+    private final static Logger log = LoggerFactory.getLogger(TestFollowedByMaxOperator.class);
 }

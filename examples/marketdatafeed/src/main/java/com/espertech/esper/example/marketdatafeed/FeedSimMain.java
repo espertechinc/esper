@@ -11,8 +11,8 @@ package com.espertech.esper.example.marketdatafeed;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Random;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FeedSimMain implements Runnable{
 
-    private static final Log log = LogFactory.getLog(FeedSimMain.class);
+    private static final Logger log = LoggerFactory.getLogger(FeedSimMain.class);
 
     public static void main(String[] args) throws IOException, InterruptedException {
         if (args.length < 3) {

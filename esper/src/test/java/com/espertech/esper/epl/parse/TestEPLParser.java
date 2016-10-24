@@ -20,8 +20,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestEPLParser extends TestCase
 {
@@ -822,5 +822,5 @@ public class TestEPLParser extends TestCase
         return SupportParserHelper.parseEPL(expression);
     }
 
-    static Log log = LogFactory.getLog(TestEPLParser.class);
+    static Logger log = LoggerFactory.getLogger(TestEPLParser.class);
 }

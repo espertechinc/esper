@@ -14,8 +14,8 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.event.NaturalEventBean;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  */
 public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategyObjectArr
 {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyObjectArrWStmt.class);
+    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyObjectArrWStmt.class);
 
     public ResultDeliveryStrategyObjectArrWStmt(EPStatement statement, Object subscriber, Method method) {
         super(statement, subscriber, method);

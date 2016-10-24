@@ -14,8 +14,8 @@ import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class SpringContextLoader implements PluginLoader
 {
-    private final Log log = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private AbstractXmlApplicationContext adapterSpringContext;
     private Map<String, Adapter> adapterMap = new HashMap<String, Adapter>();
 

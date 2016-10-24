@@ -17,8 +17,8 @@ import com.espertech.esper.client.util.EventPropertyRenderer;
 import com.espertech.esper.client.util.EventPropertyRendererContext;
 import com.espertech.esper.client.util.XMLEventRenderer;
 import com.espertech.esper.client.util.XMLRenderingOptions;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -30,7 +30,7 @@ import java.util.Stack;
  */
 public class XMLRendererImpl implements XMLEventRenderer
 {
-    private static final Log log = LogFactory.getLog(XMLRendererImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(XMLRendererImpl.class);
     private final static String NEWLINE = System.getProperty("line.separator");
     
     private final RendererMeta meta;

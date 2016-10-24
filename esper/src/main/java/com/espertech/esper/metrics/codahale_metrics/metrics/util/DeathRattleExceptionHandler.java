@@ -14,8 +14,8 @@
 package com.espertech.esper.metrics.codahale_metrics.metrics.util;
 
 import com.espertech.esper.metrics.codahale_metrics.metrics.core.Counter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * When a thread throws an Exception that was not caught, a DeathRattleExceptionHandler will
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
  * </code></pre>
  */
 public class DeathRattleExceptionHandler implements Thread.UncaughtExceptionHandler {
-    private static final Log log = LogFactory.getLog(DeathRattleExceptionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(DeathRattleExceptionHandler.class);
 
     private final Counter counter;
 

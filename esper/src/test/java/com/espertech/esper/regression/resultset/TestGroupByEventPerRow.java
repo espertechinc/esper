@@ -23,8 +23,8 @@ import com.espertech.esper.support.bean.SupportBeanString;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestGroupByEventPerRow extends TestCase
 {
@@ -315,5 +315,5 @@ public class TestGroupByEventPerRow extends TestCase
         return bean;
     }
 
-    private static final Log log = LogFactory.getLog(TestGroupByEventPerRow.class);
+    private static final Logger log = LoggerFactory.getLogger(TestGroupByEventPerRow.class);
 }

@@ -22,8 +22,8 @@ import com.espertech.esper.regression.support.*;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -527,5 +527,5 @@ public class TestFollowedByOperator extends TestCase implements SupportBeanConst
         epService.getEPRuntime().sendEvent(theEvent);
     }
 
-    private final static Log log = LogFactory.getLog(TestFollowedByOperator.class);
+    private final static Logger log = LoggerFactory.getLogger(TestFollowedByOperator.class);
 }

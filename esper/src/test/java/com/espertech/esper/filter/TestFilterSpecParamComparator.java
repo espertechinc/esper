@@ -17,8 +17,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestFilterSpecParamComparator extends TestCase
 {
@@ -83,5 +83,5 @@ public class TestFilterSpecParamComparator extends TestCase
         log.debug(".testCompareAll " + Arrays.toString(sorted.toArray()));
     }
 
-    private static final Log log = LogFactory.getLog(TestFilterSpecParamComparator.class);
+    private static final Logger log = LoggerFactory.getLogger(TestFilterSpecParamComparator.class);
 }

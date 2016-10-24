@@ -15,14 +15,15 @@ import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.AdapterSPI;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.adapter.AdapterStateManager;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created for ESPER.
  */
 public abstract class JMSInputAdapter implements InputAdapter, AdapterSPI
 {
-    private final Log log = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Manages adapter state.

@@ -11,8 +11,8 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -287,14 +287,14 @@ public final class IndexTreeBuilder
 
             if (nextPair == null)
             {
-                log.fatal(".removeFromIndex Expected an inner index to this index, this=" + filterCallback.toString());
+                log.error(".removeFromIndex Expected an inner index to this index, this=" + filterCallback.toString());
                 assert false;
                 return false;
             }
 
             if (nextPair.getIndex() != nextIndex)
             {
-                log.fatal(".removeFromIndex Expected an index for filterCallback that differs from the found index, this=" + filterCallback.toString() +
+                log.error(".removeFromIndex Expected an index for filterCallback that differs from the found index, this=" + filterCallback.toString() +
                         "  expected=" + nextPair.getIndex());
                 assert false;
                 return false;
@@ -469,5 +469,5 @@ public final class IndexTreeBuilder
                 new ArrayDeque[size];
     }
 
-    private static final Log log = LogFactory.getLog(IndexTreeBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(IndexTreeBuilder.class);
 }

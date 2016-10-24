@@ -9,14 +9,14 @@
 package com.espertech.esper.example.marketdatafeed;
 
 import com.espertech.esper.client.EPServiceProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
 public class MarketDataSendRunnable implements Runnable
 {
-    private static final Log log = LogFactory.getLog(MarketDataSendRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(MarketDataSendRunnable.class);
     private final EPServiceProvider engine;
     private final boolean continuousSimulation;
 

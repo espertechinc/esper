@@ -14,14 +14,14 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ResultDeliveryStrategyTypeArrWStmt extends ResultDeliveryStrategyTypeArr {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyTypeArrWStmt.class);
+    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyTypeArrWStmt.class);
 
     public ResultDeliveryStrategyTypeArrWStmt(EPStatement statement, Object subscriber, Method method, Class componentType) {
         super(statement, subscriber, method, componentType);

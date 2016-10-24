@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esperio.jms;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.client.EventType;
@@ -30,7 +30,7 @@ import java.io.Serializable;
  */
 public class JMSDefaultAnyMessageUnmarshaller implements JMSMessageUnmarshaller
 {
-    private static final Log log = LogFactory.getLog(JMSDefaultAnyMessageUnmarshaller.class);
+    private static final Logger log = LoggerFactory.getLogger(JMSDefaultAnyMessageUnmarshaller.class);
 
     public EventBean unmarshal(EventAdapterService eventAdapterService,
                                Message message) throws EPException

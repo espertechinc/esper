@@ -17,8 +17,8 @@ import com.espertech.esper.epl.spec.PluggableObjectType;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWViewFactoryImpl;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class ViewResolutionServiceImpl implements ViewResolutionService
 {
-    private static final Log log = LogFactory.getLog(ViewResolutionServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ViewResolutionServiceImpl.class);
 
     private final PluggableObjectRegistry viewObjects;
     private final String optionalNamedWindowName;

@@ -37,15 +37,15 @@ import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.LazyAllocatedMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 public class TableServiceImpl implements TableService {
 
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     private final Map<String, TableMetadata> tables = new HashMap<String, TableMetadata>();
     private final TableExprEvaluatorContext tableExprEvaluatorContext = new TableExprEvaluatorContext();
@@ -123,7 +123,7 @@ public class TableServiceImpl implements TableService {
         return metadata.getState(agentInstanceId);
     }
 
-    public static Log getQueryPlanLog() {
+    public static Logger getQueryPlanLog() {
         return queryPlanLog;
     }
 

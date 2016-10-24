@@ -12,8 +12,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.metric.MetricReportingService;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.util.AuditPath;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class NamedWindowRootView
 {
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     private final ValueAddEventProcessor revisionProcessor;
     private final boolean queryPlanLogging;
@@ -54,7 +54,7 @@ public class NamedWindowRootView
         return isChildBatching;
     }
 
-    public static Log getQueryPlanLog() {
+    public static Logger getQueryPlanLog() {
         return queryPlanLog;
     }
 

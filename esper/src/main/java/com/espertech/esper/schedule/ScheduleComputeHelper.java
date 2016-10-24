@@ -12,8 +12,8 @@ import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.CronParameter;
 import com.espertech.esper.type.ScheduleUnit;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -33,7 +33,7 @@ import java.util.TimeZone;
  */
 public final class ScheduleComputeHelper
 {
-    private static final Log log = LogFactory.getLog(ScheduleComputeHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(ScheduleComputeHelper.class);
 
     private static int[] DAY_OF_WEEK_ARRAY = new int[] {Calendar.SUNDAY,
         Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY,

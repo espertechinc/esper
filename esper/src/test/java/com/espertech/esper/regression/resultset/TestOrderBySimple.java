@@ -25,15 +25,15 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.text.Collator;
 
 public class TestOrderBySimple extends TestCase {
 
-	private static final Log log = LogFactory.getLog(TestOrderBySimple.class);
+	private static final Logger log = LoggerFactory.getLogger(TestOrderBySimple.class);
 	private EPServiceProvider epService;
     private List<Double> prices;
     private List<String> symbols;

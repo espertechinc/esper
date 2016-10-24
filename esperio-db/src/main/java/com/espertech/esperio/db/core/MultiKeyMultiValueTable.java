@@ -9,8 +9,8 @@
 package com.espertech.esperio.db.core;
 
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class MultiKeyMultiValueTable
 {
-    private static Log log = LogFactory.getLog(MultiKeyMultiValueTable.class);
+    private static Logger log = LoggerFactory.getLogger(MultiKeyMultiValueTable.class);
     private final String tableName;
     private final String[] keyFieldNames;
     private final int[] keyTypes;    // java.sql.Types

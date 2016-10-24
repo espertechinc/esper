@@ -16,8 +16,8 @@ import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
 import com.espertech.esper.util.MetaDefItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -106,5 +106,5 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
         return false;
     }
 
-    private static final Log log = LogFactory.getLog(TimerAtObserverFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(TimerAtObserverFactory.class);
 }

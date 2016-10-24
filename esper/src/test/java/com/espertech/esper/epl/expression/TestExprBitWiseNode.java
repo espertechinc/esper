@@ -18,8 +18,8 @@ import com.espertech.esper.epl.expression.ops.ExprBitWiseNode;
 import com.espertech.esper.support.epl.SupportExprNode;
 import com.espertech.esper.type.BitWiseOpEnum;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class TestExprBitWiseNode extends TestCase {
@@ -107,6 +107,6 @@ public class TestExprBitWiseNode extends TestCase {
         assertEquals("4&2", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_bitWiseNode));
     }
 
-    static Log log = LogFactory.getLog(TestExprBitWiseNode.class);
+    static Logger log = LoggerFactory.getLogger(TestExprBitWiseNode.class);
 
 }

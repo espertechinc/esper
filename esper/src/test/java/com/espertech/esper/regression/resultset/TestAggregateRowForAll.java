@@ -23,8 +23,8 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.bean.SupportPriceEvent;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestAggregateRowForAll extends TestCase
 {
@@ -284,5 +284,5 @@ public class TestAggregateRowForAll extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(msec));
     }
 
-    private static final Log log = LogFactory.getLog(TestAggregateRowForAll.class);
+    private static final Logger log = LoggerFactory.getLogger(TestAggregateRowForAll.class);
 }

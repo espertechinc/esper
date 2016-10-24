@@ -24,15 +24,15 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.filter.FilterService;
 import org.antlr.v4.runtime.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
 
 public class EPLModuleUtil
 {
-    private static Log log = LogFactory.getLog(EPLModuleUtil.class);
+    private static Logger log = LoggerFactory.getLogger(EPLModuleUtil.class);
 
     /**
      * Newline character.

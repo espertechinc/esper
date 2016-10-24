@@ -25,8 +25,8 @@ import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -39,7 +39,7 @@ import java.util.*;
  */
 public class EngineImportServiceImpl implements EngineImportService
 {
-    private static final Log log = LogFactory.getLog(EngineImportServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EngineImportServiceImpl.class);
 
 	private final List<String> imports;
     private final List<String> annotationImports;

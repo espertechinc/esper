@@ -38,8 +38,8 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.view.ViewFactoryChain;
 import com.espertech.esper.view.ViewProcessingException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -49,7 +49,7 @@ import java.util.*;
  */
 public final class FilterSpecCompiler
 {
-    private static final Log log = LogFactory.getLog(FilterSpecCompiler.class);
+    private static final Logger log = LoggerFactory.getLogger(FilterSpecCompiler.class);
 
     /**
      * Assigned for filter parameters that are based on boolean expression and not on

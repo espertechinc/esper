@@ -10,8 +10,8 @@ package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
-    private static Log log = LogFactory.getLog(BaseConfigurableEventType.class);
+    private static Logger log = LoggerFactory.getLogger(BaseConfigurableEventType.class);
 
     private EventAdapterService eventAdapterService;
     private final int eventTypeId;

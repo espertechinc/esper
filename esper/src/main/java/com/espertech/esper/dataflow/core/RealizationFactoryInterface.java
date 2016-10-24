@@ -21,14 +21,14 @@ import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 import com.espertech.esper.dataflow.util.*;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class RealizationFactoryInterface {
 
-    private static final Log log = LogFactory.getLog(RealizationFactoryInterface.class);
+    private static final Logger log = LoggerFactory.getLogger(RealizationFactoryInterface.class);
 
     public static DataflowStartDesc realize(String dataFlowName,
                                          Map<Integer, Object> operators,

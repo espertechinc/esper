@@ -14,8 +14,8 @@ import com.espertech.esper.client.EPRuntime;
 import java.util.List;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FeederOutputStream implements OutputStream
 {
@@ -72,5 +72,5 @@ public class FeederOutputStream implements OutputStream
         log.info(".sendTimerEvent Setting time to now + " + (msec - startTimeMSec));
     }
 
-    private static final Log log = LogFactory.getLog(TxnGenMain.class);
+    private static final Logger log = LoggerFactory.getLogger(TxnGenMain.class);
 }

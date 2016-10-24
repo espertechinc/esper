@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.filter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.IdentityHashMap;
 import java.util.TreeMap;
@@ -96,5 +96,5 @@ public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLo
         return rangesRWLock;
     }
 
-    private static final Log log = LogFactory.getLog(FilterParamIndexDoubleRangeBase.class);
+    private static final Logger log = LoggerFactory.getLogger(FilterParamIndexDoubleRangeBase.class);
 }

@@ -15,14 +15,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 
 public class ExprDotEvalArraySize implements ExprDotEval
 {
-    private static final Log log = LogFactory.getLog(ExprDotEvalArraySize.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotEvalArraySize.class);
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (target == null) {

@@ -18,15 +18,15 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.Serializer;
 import com.espertech.esper.util.SerializerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.CRC32;
 
 public class ContextControllerHashedGetterCRC32Serialized implements EventPropertyGetter {
-    private static final Log log = LogFactory.getLog(ContextControllerHashedGetterCRC32Serialized.class);
+    private static final Logger log = LoggerFactory.getLogger(ContextControllerHashedGetterCRC32Serialized.class);
 
     private final String statementName;
     private final ExprEvaluator[] evaluators;

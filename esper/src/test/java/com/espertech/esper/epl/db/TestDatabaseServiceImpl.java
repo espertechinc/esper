@@ -18,8 +18,8 @@ import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.support.epl.SupportDatabaseService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,10 +82,10 @@ public class TestDatabaseServiceImpl extends TestCase
         }
         catch (DatabaseConfigException ex)
         {
-            log.debug(ex);
+            log.debug(ex.getMessage());
             // expected
         }
     }
 
-    private final static Log log = LogFactory.getLog(TestDatabaseServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(TestDatabaseServiceImpl.class);
 }

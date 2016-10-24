@@ -12,8 +12,8 @@
 package com.espertech.esper.type;
 
 import junit.framework.*;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class TestLongValue extends TestCase
 {
@@ -108,5 +108,5 @@ public class TestLongValue extends TestCase
         }
     }
 
-    private static final Log log = LogFactory.getLog(TestLongValue.class);
+    private static final Logger log = LoggerFactory.getLogger(TestLongValue.class);
 }

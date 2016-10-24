@@ -12,8 +12,8 @@
 package com.espertech.esper.support.timer;
 
 import com.espertech.esper.timer.TimerCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,5 +38,5 @@ public class SupportTimerCallback implements TimerCallback
         return count;
     }
 
-    private static final Log log = LogFactory.getLog(SupportTimerCallback.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportTimerCallback.class);
 }

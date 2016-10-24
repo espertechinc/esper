@@ -26,7 +26,8 @@ CLASSPATH=$CLASSPATH:../../../esper-6.0.0.jar
 CLASSPATH=$CLASSPATH:../lib/jboss-jms-api_1.1_spec-1.0.0.Final.jar
 CLASSPATH=$CLASSPATH:../lib/jboss-client.jar
 CLASSPATH=$CLASSPATH:$LIB/cglib-nodep-3.2.4.jar
-CLASSPATH=$CLASSPATH:$LIB/commons-logging-1.1.3.jar
+CLASSPATH=$CLASSPATH:$LIB/slf4j-api-1.7.21.jar
+CLASSPATH=$CLASSPATH:$LIB/slf4j-log4j12-1.7.21.jar
 CLASSPATH=$CLASSPATH:$LIB/log4j-1.2.17.jar
 CLASSPATH=$CLASSPATH:$LIB/antlr-runtime-4.5.3.jar
 

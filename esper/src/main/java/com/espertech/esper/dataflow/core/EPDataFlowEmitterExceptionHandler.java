@@ -16,15 +16,15 @@ import com.espertech.esper.client.dataflow.EPDataFlowExceptionContext;
 import com.espertech.esper.client.dataflow.EPDataFlowExceptionHandler;
 import com.espertech.esper.util.AuditPath;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class EPDataFlowEmitterExceptionHandler {
 
-    private static final Log log = LogFactory.getLog(EPDataFlowEmitterExceptionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(EPDataFlowEmitterExceptionHandler.class);
 
     private final String engineURI;
     private final String statementName;

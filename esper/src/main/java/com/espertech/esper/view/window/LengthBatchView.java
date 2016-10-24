@@ -14,8 +14,8 @@ import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -191,5 +191,5 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
         return lengthBatchViewFactory;
     }
 
-    private static final Log log = LogFactory.getLog(LengthBatchView.class);
+    private static final Logger log = LoggerFactory.getLogger(LengthBatchView.class);
 }

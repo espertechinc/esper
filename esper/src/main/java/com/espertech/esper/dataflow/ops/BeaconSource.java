@@ -26,14 +26,14 @@ import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 @DataFlowOperator
 public class BeaconSource implements DataFlowSourceOperator {
-    private static final Log log = LogFactory.getLog(BeaconSource.class);
+    private static final Logger log = LoggerFactory.getLogger(BeaconSource.class);
 
     private final static List<String> PARAMETER_PROPERTIES = Arrays.asList("interval", "iterations", "initialDelay");
 

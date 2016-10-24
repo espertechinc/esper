@@ -19,8 +19,8 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestMTStmtNamedWindowMerge extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTStmtNamedWindowMerge.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTStmtNamedWindowMerge.class);
 
     public final static int NUM_STRINGS = 1;
     public final static int NUM_INTS = 1;

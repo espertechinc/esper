@@ -66,14 +66,14 @@ import com.espertech.esper.view.internal.BufferView;
 import com.espertech.esper.view.internal.PatternRemoveDispatchView;
 import com.espertech.esper.view.internal.PriorEventViewFactory;
 import com.espertech.esper.view.internal.SingleStreamDispatchView;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceFactoryBase {
 
-    private static final Log log = LogFactory.getLog(StatementAgentInstanceFactorySelect.class);
+    private static final Logger log = LoggerFactory.getLogger(StatementAgentInstanceFactorySelect.class);
 
     protected final int numStreams;
     protected final ViewableActivator[] eventStreamParentViewableActivators;

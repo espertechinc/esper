@@ -69,8 +69,8 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -80,7 +80,7 @@ import java.util.*;
  */
 public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
 {
-    private static final Log log = LogFactory.getLog(EPLTreeWalkerListener.class);
+    private static final Logger log = LoggerFactory.getLogger(EPLTreeWalkerListener.class);
 
     private static Set<Integer> EVENT_FILTER_WALK_EXCEPTIONS__RECURSIVE = new HashSet<>();
     private static Set<Integer> WHERE_CLAUSE_WALK_EXCEPTIONS__RECURSIVE = new HashSet<>();

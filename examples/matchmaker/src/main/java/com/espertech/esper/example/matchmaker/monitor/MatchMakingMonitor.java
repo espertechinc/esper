@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.example.matchmaker.eventbean.MatchAlertBean;
 import com.espertech.esper.example.matchmaker.eventbean.MobileUserBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 
@@ -114,5 +114,5 @@ public class MatchMakingMonitor
         });
     }
 
-    private static final Log log = LogFactory.getLog(MatchMakingMonitor.class);
+    private static final Logger log = LoggerFactory.getLogger(MatchMakingMonitor.class);
 }

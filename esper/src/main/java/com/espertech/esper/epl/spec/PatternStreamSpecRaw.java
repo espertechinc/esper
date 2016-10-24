@@ -35,8 +35,8 @@ import com.espertech.esper.pattern.observer.ObserverFactory;
 import com.espertech.esper.pattern.observer.ObserverParameterException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.UuidGenerator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -50,7 +50,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
 
-    private static final Log log = LogFactory.getLog(PatternStreamSpecRaw.class);
+    private static final Logger log = LoggerFactory.getLogger(PatternStreamSpecRaw.class);
     private static final long serialVersionUID = 6393401926404401433L;
 
     /**

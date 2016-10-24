@@ -14,15 +14,15 @@ package com.espertech.esper.core.thread;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPRuntimeImpl;
 import com.espertech.esper.core.service.EPServicesContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inbound work unit processing a map event.
  */
 public class InboundUnitSendObjectArray implements InboundUnitRunnable
 {
-    private static final Log log = LogFactory.getLog(InboundUnitSendObjectArray.class);
+    private static final Logger log = LoggerFactory.getLogger(InboundUnitSendObjectArray.class);
     private final Object[] properties;
     private final String eventTypeName;
     private final EPServicesContext services;

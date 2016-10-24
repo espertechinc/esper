@@ -14,8 +14,8 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.example.servershell.jms.JMSContext;
 import com.espertech.esper.example.servershell.jms.JMSContextFactory;
 import com.espertech.esper.example.servershell.jmx.EPServiceProviderJMX;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.MessageConsumer;
 import javax.management.MBeanServer;
@@ -30,7 +30,7 @@ import java.util.Properties;
 
 public class ServerShellMain
 {
-    private static Log log = LogFactory.getLog(ServerShellMain.class);
+    private static Logger log = LoggerFactory.getLogger(ServerShellMain.class);
 
     private boolean isShutdown;
 

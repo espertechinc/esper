@@ -12,8 +12,8 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.pattern.guard.GuardFactory;
 import com.espertech.esper.pattern.observer.ObserverFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class PatternObjectResolutionServiceImpl implements PatternObjectResolutionService
 {
-    private static final Log log = LogFactory.getLog(PatternObjectResolutionServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PatternObjectResolutionServiceImpl.class);
 
     private final PluggableObjectCollection patternObjects;
 

@@ -8,12 +8,12 @@ import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QualityOfServiceMain implements Runnable
 {
-    private static final Log log = LogFactory.getLog(QualityOfServiceMain.class);
+    private static final Logger log = LoggerFactory.getLogger(QualityOfServiceMain.class);
 
     private final boolean continuousSimulation;
     

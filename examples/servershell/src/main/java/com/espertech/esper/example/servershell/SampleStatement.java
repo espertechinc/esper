@@ -12,12 +12,12 @@ import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SampleStatement
 {
-    private static Log log = LogFactory.getLog(SampleStatement.class);
+    private static Logger log = LoggerFactory.getLogger(SampleStatement.class);
 
     public static void createStatement(EPAdministrator admin)
     {

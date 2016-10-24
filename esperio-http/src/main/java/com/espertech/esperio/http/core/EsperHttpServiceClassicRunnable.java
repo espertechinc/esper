@@ -1,7 +1,7 @@
 package com.espertech.esperio.http.core;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpService;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EsperHttpServiceClassicRunnable implements Runnable {
-    private static Log log = LogFactory.getLog(EsperHttpServiceClassicRunnable.class);
+    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceClassicRunnable.class);
 
     private String serviceName;
     private ServerSocket serversocket;

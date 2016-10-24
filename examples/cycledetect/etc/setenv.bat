@@ -19,7 +19,8 @@ set CLASSPATH=%CLASSPATH%;..\target\classes
 set CLASSPATH=%CLASSPATH%;..\..\..\esper-6.0.0.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\jgrapht-0.8.3.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.2.4.jar
-set CLASSPATH=%CLASSPATH%;%LIB%\commons-logging-1.1.3.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-api-1.7.21.jar
+set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-log4j12-1.7.21.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\log4j-1.2.17.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\antlr-runtime-4.5.3.jar
 

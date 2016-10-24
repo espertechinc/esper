@@ -4,12 +4,12 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.example.transaction.sim.TxnGenMain;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionSamplePlugin implements PluginLoader
 {
-    private static final Log log = LogFactory.getLog(TransactionSamplePlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(TransactionSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
 

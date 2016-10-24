@@ -10,8 +10,8 @@ import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -22,7 +22,7 @@ import java.util.*;
 
 public class EsperHttpRequestHandler implements HttpRequestHandler {
 
-    private static Log log = LogFactory.getLog(EsperHttpRequestHandler.class);
+    private static Logger log = LoggerFactory.getLogger(EsperHttpRequestHandler.class);
 
     private final EPServiceProviderSPI engineSPI;
     private final Map<String, EsperHttpRequestCacheEntry> streamCache = new HashMap<String, EsperHttpRequestCacheEntry>();

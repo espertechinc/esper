@@ -21,14 +21,14 @@ import com.espertech.esper.support.bean.SupportBeanString;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
 public class TestOrderByRowForAll extends TestCase
 {
-	private static final Log log = LogFactory.getLog(TestOrderByRowForAll.class);
+	private static final Logger log = LoggerFactory.getLogger(TestOrderByRowForAll.class);
 	private EPServiceProvider epService;
 
     public void setUp()

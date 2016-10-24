@@ -11,15 +11,15 @@
 
 package com.espertech.esper.core.thread;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Thread factory for threading options.
  */
 public class EngineThreadFactory implements java.util.concurrent.ThreadFactory
 {
-    private static final Log log = LogFactory.getLog(EngineThreadFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(EngineThreadFactory.class);
     private final String engineURI;
     private final String prefix;
     private final ThreadGroup threadGroup;

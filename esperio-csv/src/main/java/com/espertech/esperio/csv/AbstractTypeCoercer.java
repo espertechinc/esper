@@ -11,8 +11,8 @@ package com.espertech.esperio.csv;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -27,7 +27,7 @@ public abstract class AbstractTypeCoercer {
     /**
      * For logging.
      */
-    protected static final Log log = LogFactory.getLog(AbstractTypeCoercer.class);
+    protected static final Logger log = LoggerFactory.getLogger(AbstractTypeCoercer.class);
 
     /**
      * Constructors for coercion.

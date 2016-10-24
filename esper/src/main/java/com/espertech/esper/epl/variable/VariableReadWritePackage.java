@@ -21,8 +21,8 @@ import com.espertech.esper.event.EventBeanCopyMethod;
 import com.espertech.esper.event.EventPropertyWriter;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ import java.util.*;
  */
 public class VariableReadWritePackage
 {
-    private static final Log log = LogFactory.getLog(VariableReadWritePackage.class);
+    private static final Logger log = LoggerFactory.getLogger(VariableReadWritePackage.class);
 
     private final VariableTriggerSetDesc[] assignments;
     private final VariableMetaData[] metaData;

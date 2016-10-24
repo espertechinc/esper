@@ -14,8 +14,8 @@ package com.espertech.esper.multithread;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPRuntimeSPI;
 import com.espertech.esper.support.bean.SupportBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class StmtNamedWindowUpdateCallable implements Callable<StmtNamedWindowUp
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return null;
         }
         long end = System.currentTimeMillis();
@@ -110,5 +110,5 @@ public class StmtNamedWindowUpdateCallable implements Callable<StmtNamedWindowUp
         }
     }
 
-    private static final Log log = LogFactory.getLog(StmtNamedWindowUpdateCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtNamedWindowUpdateCallable.class);
 }

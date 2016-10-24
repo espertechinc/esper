@@ -17,8 +17,8 @@ import com.espertech.esper.client.util.EventPropertyRenderer;
 import com.espertech.esper.client.util.EventPropertyRendererContext;
 import com.espertech.esper.client.util.JSONEventRenderer;
 import com.espertech.esper.client.util.JSONRenderingOptions;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -30,7 +30,7 @@ import java.util.Stack;
  */
 public class JSONRendererImpl implements JSONEventRenderer
 {
-    private static final Log log = LogFactory.getLog(JSONRendererImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JSONRendererImpl.class);
 
     private final static String NEWLINE = System.getProperty("line.separator");
     private final static String COMMA_DELIMITER_NEWLINE = "," + NEWLINE;

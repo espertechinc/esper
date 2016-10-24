@@ -12,8 +12,8 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import java.io.Serializable;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class SupportJMSSender
 {
-    private static final Log log = LogFactory.getLog(SupportJMSSender.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportJMSSender.class);
 
     private AbstractXmlApplicationContext springContext;
     private JmsTemplate jmsTemplate;

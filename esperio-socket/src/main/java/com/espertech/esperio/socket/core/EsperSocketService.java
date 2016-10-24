@@ -2,8 +2,8 @@ package com.espertech.esperio.socket.core;
 
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.socket.config.SocketConfig;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,7 +11,7 @@ import java.net.ServerSocket;
 
 public class EsperSocketService {
 
-    private static Log log = LogFactory.getLog(EsperSocketService.class);
+    private static Logger log = LoggerFactory.getLogger(EsperSocketService.class);
 
     private final String serviceName;
     private final SocketConfig serviceConfig;

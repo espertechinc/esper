@@ -27,8 +27,8 @@ import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.schedule.SchedulingService;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class for administrative interface.
@@ -190,5 +190,5 @@ public class EPAdministratorHelper
         }
     }
 
-    private static Log log = LogFactory.getLog(EPAdministratorHelper.class);
+    private static Logger log = LoggerFactory.getLogger(EPAdministratorHelper.class);
 }

@@ -50,8 +50,8 @@ import com.espertech.esper.view.ViewServiceCreateResult;
 import com.espertech.esper.view.Viewable;
 import com.espertech.esper.view.internal.BufferView;
 import com.espertech.esper.view.internal.PriorEventViewFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -60,7 +60,7 @@ import java.util.*;
  */
 public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStrategyFactory
 {
-    private static Log log = LogFactory.getLog(SubSelectStrategyFactoryLocalViewPreloaded.class);
+    private static Logger log = LoggerFactory.getLogger(SubSelectStrategyFactoryLocalViewPreloaded.class);
     private final static SubordTableLookupStrategyNullRow NULL_ROW_STRATEGY = new SubordTableLookupStrategyNullRow();
 
     private final int subqueryNumber;

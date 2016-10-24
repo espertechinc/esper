@@ -23,8 +23,8 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
@@ -171,5 +171,5 @@ public class TestMinMaxCases extends TestCase
         epService.getEPRuntime().sendEvent(bean);
     }
 
-    private final static Log log = LogFactory.getLog(TestMinMaxCases.class);
+    private final static Logger log = LoggerFactory.getLogger(TestMinMaxCases.class);
 }

@@ -15,8 +15,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class PropertyUtility
 {
-    private static final Log log = LogFactory.getLog(PropertyUtility.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertyUtility.class);
 
     /**
      * Returns a multi-key for an event and key property getters

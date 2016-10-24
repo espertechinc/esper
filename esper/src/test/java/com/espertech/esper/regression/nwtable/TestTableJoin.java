@@ -26,11 +26,11 @@ import com.espertech.esper.support.util.IndexAssertion;
 import com.espertech.esper.support.util.IndexAssertionEventSend;
 import com.espertech.esper.support.util.IndexBackingTableInfo;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestTableJoin extends TestCase implements IndexBackingTableInfo {
-    private final static Log log = LogFactory.getLog(TestTableJoin.class);
+    private final static Logger log = LoggerFactory.getLogger(TestTableJoin.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

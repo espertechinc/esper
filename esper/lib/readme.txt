@@ -1,12 +1,12 @@
 Required runtime libraries
 ==========================
 
-antlr-runtime-4.5.3
+antlr-runtime-4.5.3.jar
 - runtime for ANTLR parser generator
 - required for runtime
 
-commons-logging-1.1.3.jar
-- Apache Commons Logging, for logging
+slf4j-api-1.7.21.jar
+- Simple Logging Facade for Java (SLF4J), for logging
 - required for runtime
 
 cglib-nodep-3.2.4.jar
@@ -17,9 +17,13 @@ cglib-nodep-3.2.4.jar
 Optional runtime libraries
 ==========================
 
+slf4j-log4j12-1.7.21.jar
+- SLF4J implementation for Log4j 1.2.17
+- runtime, optional (consider using a different log provider)
+
 log4j-1.2.17.jar
 - Log4j Library for logging
-- runtime, optional
+- runtime, optional (consider using a different log provider)
 
 
 Compile and Build-time libraries - Not part of the binary distribution and not required for runtime

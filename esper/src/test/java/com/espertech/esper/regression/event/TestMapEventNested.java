@@ -19,8 +19,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -658,7 +658,7 @@ public class TestMapEventNested extends TestCase
         }
         catch (Exception ex)
         {
-            log.error(ex, ex);
+            log.error(ex.getMessage(), ex);
             assertTrue("expected '" + message + "' but received '" + ex.getMessage(), ex.getMessage().contains(message));
         }
     }
@@ -850,5 +850,5 @@ public class TestMapEventNested extends TestCase
         return epService;
     }
 
-    private final static Log log = LogFactory.getLog(TestMapEvent.class);
+    private final static Logger log = LoggerFactory.getLogger(TestMapEvent.class);
 }

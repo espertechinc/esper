@@ -16,8 +16,8 @@ import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.annotations.OutputType;
 import com.espertech.esper.dataflow.annotations.OutputTypes;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.StringTokenizer;
 
@@ -28,7 +28,7 @@ import java.util.StringTokenizer;
     @OutputType(name = "charCount", type = int.class)
     })
 public class MyTokenizerCounter {
-    private static final Log log = LogFactory.getLog(MyTokenizerCounter.class);
+    private static final Logger log = LoggerFactory.getLogger(MyTokenizerCounter.class);
 
     @DataFlowContext
     private EPDataFlowEmitter graphContext;

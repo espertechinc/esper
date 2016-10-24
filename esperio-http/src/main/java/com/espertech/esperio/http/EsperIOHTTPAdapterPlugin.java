@@ -11,15 +11,15 @@ package com.espertech.esperio.http;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
 import com.espertech.esperio.http.config.ConfigurationHTTPAdapter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 
 public class EsperIOHTTPAdapterPlugin implements PluginLoader
 {
-    private static Log log = LogFactory.getLog(EsperIOHTTPAdapterPlugin.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapterPlugin.class);
 
     private static final String ESPERIO_HTTP_CONFIG_FILE = "esperio.http.configuration.file";
 

@@ -31,8 +31,8 @@ import com.espertech.esper.schedule.ScheduleHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.ThreadLogUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.*;
@@ -75,7 +75,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     {
         if (theEvent == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -95,7 +95,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     {
         if (document == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -118,7 +118,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     {
         if (document == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -863,5 +863,5 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         threadWorkQueue.addBack(theEvent);
     }
 
-    private static final Log log = LogFactory.getLog(EPRuntimeImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EPRuntimeImpl.class);
 }

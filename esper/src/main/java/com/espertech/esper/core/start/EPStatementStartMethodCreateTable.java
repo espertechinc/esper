@@ -40,8 +40,8 @@ import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -50,7 +50,7 @@ import java.util.*;
  */
 public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBase
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateTable.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateTable.class);
 
     public EPStatementStartMethodCreateTable(StatementSpecCompiled statementSpec) {
         super(statementSpec);

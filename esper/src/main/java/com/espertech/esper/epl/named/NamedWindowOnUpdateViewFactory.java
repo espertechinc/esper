@@ -14,15 +14,15 @@ import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
 public class NamedWindowOnUpdateViewFactory extends NamedWindowOnExprBaseViewFactory
 {
-    private static final Log log = LogFactory.getLog(NamedWindowOnUpdateViewFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(NamedWindowOnUpdateViewFactory.class);
     private final StatementResultService statementResultService;
     private final EventBeanUpdateHelper updateHelper;
 

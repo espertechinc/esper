@@ -24,8 +24,8 @@ import com.espertech.esper.view.internal.PriorEventViewFactory;
 import com.espertech.esper.view.internal.PriorEventViewRelAccess;
 import com.espertech.esper.view.window.RandomAccessByIndex;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class EPStatementStartMethodHelperPrior
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodHelperPrior.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodHelperPrior.class);
 
     public static PriorEventViewFactory findPriorViewFactory(List<ViewFactory> factories) {
         ViewFactory factoryFound = null;

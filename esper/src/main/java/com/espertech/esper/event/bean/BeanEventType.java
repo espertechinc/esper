@@ -17,8 +17,8 @@ import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -954,5 +954,5 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
         writeablePropertyDescriptors = desc;
     }
 
-    private static final Log log = LogFactory.getLog(BeanEventType.class);
+    private static final Logger log = LoggerFactory.getLogger(BeanEventType.class);
 }

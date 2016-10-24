@@ -7,8 +7,8 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 @rem # the classpath
 @rem # you need to get an Esper distribution separately from the benchmark kit
-set LCP=..\..\esper\target\classes;target\classes;..\..\esper\lib\commons-logging-1.1.3.jar;..\..\esper\lib\cglib-nodep-3.2.4.jar;..\..\esper\lib\antlr-runtime-4.5.3.jar;..\..\esper\lib\log4j-1.2.17.jar
-set CP=etc;bin;%LCP%;lib\esper-6.0.0.jar;lib\esper_examples_benchmark-6.0.0.jar;lib\commons-logging-1.1.3.jar;lib\cglib-nodep-3.2.4.jar;lib\antlr-runtime-4.5.3.jar;lib\log4j-1.2.17.jar
+set LCP=..\..\esper\target\classes;target\classes;..\..\esper\lib\slf4j-api-1.7.21.jar;..\..\esper\lib\slf4j-log4j12-1.7.21.jar;..\..\esper\lib\cglib-nodep-3.2.4.jar;..\..\esper\lib\antlr-runtime-4.5.3.jar;..\..\esper\lib\log4j-1.2.17.jar
+set CP=etc;bin;%LCP%;lib\esper-6.0.0.jar;lib\esper_examples_benchmark-6.0.0.jar;lib\slf4j-log4j12-1.7.21.jar;lib\slf4j-api-1.7.21.jar;lib\cglib-nodep-3.2.4.jar;lib\antlr-runtime-4.5.3.jar;lib\log4j-1.2.17.jar
 
 @rem # JVM options
 set OPT=-Xms128m -Xmx128m

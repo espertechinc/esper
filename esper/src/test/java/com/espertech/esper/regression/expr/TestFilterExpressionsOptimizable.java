@@ -20,8 +20,8 @@ import com.espertech.esper.filter.*;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.Date;
 
 public class TestFilterExpressionsOptimizable extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestFilterExpressionsOptimizable.class);
+    private static final Logger log = LoggerFactory.getLogger(TestFilterExpressionsOptimizable.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

@@ -10,8 +10,8 @@ package com.espertech.esperio.db.core;
 
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +21,7 @@ import java.util.*;
 
 public class DMLStatement
 {
-    private static Log log = LogFactory.getLog(DMLStatement.class);
+    private static Logger log = LoggerFactory.getLogger(DMLStatement.class);
 
     private final StoreExceptionHandler storeExceptionHandler;
     private final String dmlSQL;

@@ -30,16 +30,16 @@ import com.espertech.esper.util.AuditContext;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 
 import java.util.Collections;
 
 public class TestAudit extends TestCase {
 
-    private static final Log log = LogFactory.getLog(TestAudit.class);
-    private static final Log auditLog = LogFactory.getLog(AuditPath.AUDIT_LOG);
+    private static final Logger log = LoggerFactory.getLogger(TestAudit.class);
+    private static final Logger auditLog = LoggerFactory.getLogger(AuditPath.AUDIT_LOG);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

@@ -22,8 +22,8 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.xml.SupportXPathFunctionResolver;
 import com.espertech.esper.support.xml.SupportXPathVariableResolver;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -563,7 +563,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         epService.getEPRuntime().sendEvent(simpleDoc);
     }
 
-    private static final Log log = LogFactory.getLog(TestNoSchemaXMLEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(TestNoSchemaXMLEvent.class);
 }
 
 

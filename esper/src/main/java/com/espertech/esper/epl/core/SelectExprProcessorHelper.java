@@ -34,8 +34,8 @@ import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.event.vaevent.VariantEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -46,7 +46,7 @@ import java.util.*;
  */
 public class SelectExprProcessorHelper
 {
-    private static final Log log = LogFactory.getLog(SelectExprProcessorHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorHelper.class);
 
     private final Collection<Integer> assignedTypeNumberStack;
     private final List<SelectClauseExprCompiledSpec> selectionList;

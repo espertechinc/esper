@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -32,7 +32,7 @@ import java.lang.reflect.Array;
  */
 public class XPathPropertyGetter implements EventPropertyGetter
 {
-    private static final Log log = LogFactory.getLog(XPathPropertyGetter.class);
+    private static final Logger log = LoggerFactory.getLogger(XPathPropertyGetter.class);
 	private final XPathExpression expression;
     private final String expressionText;
     private final String property;

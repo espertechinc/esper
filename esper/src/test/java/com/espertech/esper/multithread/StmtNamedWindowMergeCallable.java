@@ -14,8 +14,8 @@ package com.espertech.esper.multithread;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPRuntimeSPI;
 import com.espertech.esper.support.bean.SupportBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 
@@ -42,12 +42,12 @@ public class StmtNamedWindowMergeCallable implements Callable<Boolean>
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return null;
         }
         long end = System.currentTimeMillis();
         return true;
     }
 
-    private static final Log log = LogFactory.getLog(StmtNamedWindowMergeCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtNamedWindowMergeCallable.class);
 }

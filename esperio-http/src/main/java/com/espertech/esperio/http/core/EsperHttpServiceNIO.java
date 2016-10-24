@@ -3,8 +3,8 @@ package com.espertech.esperio.http.core;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.http.EventLogger;
 import com.espertech.esperio.http.config.Service;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class EsperHttpServiceNIO extends EsperHttpServiceBase {
-    private static Log log = LogFactory.getLog(EsperHttpServiceNIO.class);
+    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIO.class);
 
     private EsperHttpServiceNIORunnable runnable;
     private Thread reactorThread;

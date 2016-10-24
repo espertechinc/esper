@@ -9,8 +9,8 @@
 package com.espertech.esper.example.stockticker;
 
 import com.espertech.esper.client.EPRuntime;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Utility methods for monitoring a EPRuntime instance.
@@ -105,5 +105,5 @@ public class EPRuntimeUtil
         return true;
     }
 
-    private static final Log log = LogFactory.getLog(EPRuntimeUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(EPRuntimeUtil.class);
 }

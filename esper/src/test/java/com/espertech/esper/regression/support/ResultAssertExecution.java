@@ -21,8 +21,8 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.support.bean.SupportBean;
 import org.junit.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -30,8 +30,8 @@ import java.util.TreeMap;
 
 public class ResultAssertExecution
 {
-    private static final Log log = LogFactory.getLog(ResultAssertExecution.class);
-    private static final Log preformatlog = LogFactory.getLog("PREFORMATTED");
+    private static final Logger log = LoggerFactory.getLogger(ResultAssertExecution.class);
+    private static final Logger preformatlog = LoggerFactory.getLogger("PREFORMATTED");
 
     private final EPServiceProvider engine;
     private EPStatement stmt;

@@ -9,8 +9,8 @@
 package com.espertech.esper.schedule;
 
 import com.espertech.esper.timer.TimeSourceService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -44,5 +44,5 @@ public final class SchedulingMgmtServiceImpl implements SchedulingMgmtService
         return new ScheduleBucket(curBucketNum);
     }
 
-    private static final Log log = LogFactory.getLog(SchedulingMgmtServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SchedulingMgmtServiceImpl.class);
 }

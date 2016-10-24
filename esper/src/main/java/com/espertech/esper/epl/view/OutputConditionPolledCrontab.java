@@ -11,8 +11,8 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Output condition handling crontab-at schedule output.
@@ -55,5 +55,5 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
         return output;
     }
 
-    private static final Log log = LogFactory.getLog(OutputConditionPolledCrontab.class);
+    private static final Logger log = LoggerFactory.getLogger(OutputConditionPolledCrontab.class);
 }

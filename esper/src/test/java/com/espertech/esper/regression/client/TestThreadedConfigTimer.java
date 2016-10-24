@@ -16,14 +16,14 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.epl.SupportStaticMethodLib;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 public class TestThreadedConfigTimer extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestThreadedConfigTimer.class);
+    private static final Logger log = LoggerFactory.getLogger(TestThreadedConfigTimer.class);
 
     public void testOp() throws Exception
     {

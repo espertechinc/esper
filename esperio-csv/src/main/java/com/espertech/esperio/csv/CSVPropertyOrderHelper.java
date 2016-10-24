@@ -13,8 +13,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.espertech.esper.client.EPException;
 
@@ -25,7 +25,7 @@ import com.espertech.esper.client.EPException;
  */
 public class CSVPropertyOrderHelper
 {
-	private static final Log log = LogFactory.getLog(CSVPropertyOrderHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(CSVPropertyOrderHelper.class);
 
 	/**
 	 * Resolve the order of the properties that appear in the CSV file,

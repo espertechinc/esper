@@ -18,8 +18,8 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventAdapterServiceImpl;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
 import com.espertech.esper.util.CollectionUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -31,7 +31,7 @@ import java.util.*;
  */
 public class EPAssertionUtil
 {
-    private static final Log log = LogFactory.getLog(EPAssertionUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(EPAssertionUtil.class);
 
     /**
      * Deep compare two 2-dimensional string arrays for the exact same length of arrays and order.

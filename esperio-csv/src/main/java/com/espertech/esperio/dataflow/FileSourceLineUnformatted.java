@@ -25,8 +25,8 @@ import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esperio.AdapterInputSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.Set;
 @DataFlowOpProvideSignal
 public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
-    private static final Log log = LogFactory.getLog(FileSourceLineUnformatted.class);
+    private static final Logger log = LoggerFactory.getLogger(FileSourceLineUnformatted.class);
 
     private final AdapterInputSource inputSource;
     private final String propertyNameLine;

@@ -14,8 +14,8 @@ package com.espertech.esper.support.schedule;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.schedule.ScheduleHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCallback 
 {
@@ -49,5 +49,5 @@ public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCa
         return 0;
     }
 
-    private static final Log log = LogFactory.getLog(SupportScheduleCallback.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportScheduleCallback.class);
 }

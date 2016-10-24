@@ -26,11 +26,11 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EsperHttpServiceNIORunnable implements Runnable {
-    private static Log log = LogFactory.getLog(EsperHttpServiceNIORunnable.class);
+    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIORunnable.class);
 
     private final String serviceName;
     private final int port;

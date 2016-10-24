@@ -15,8 +15,8 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
@@ -288,5 +288,5 @@ public class SchemaXMLPropertyParser
         return property instanceof MappedProperty ? ((MappedProperty) property).getKey() : ((DynamicMappedProperty) property).getKey();
     }
 
-    private static Log log = LogFactory.getLog(SchemaXMLPropertyParser.class);
+    private static Logger log = LoggerFactory.getLogger(SchemaXMLPropertyParser.class);
 }

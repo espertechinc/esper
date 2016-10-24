@@ -20,7 +20,7 @@ import com.espertech.esper.epl.join.table.EventTableUtil;
 import com.espertech.esper.epl.join.util.*;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 
 public class SubordinateQueryPlannerUtil
 {
-    public static void queryPlanLogOnExpr(boolean queryPlanLogging, Log queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations) {
+    public static void queryPlanLogOnExpr(boolean queryPlanLogging, Logger queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations) {
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             String prefix = "On-Expr ";
@@ -54,7 +54,7 @@ public class SubordinateQueryPlannerUtil
         }
     }
 
-    public static void queryPlanLogOnSubq(boolean queryPlanLogging, Log queryPlanLog, SubordinateQueryPlanDesc plan, int subqueryNum, Annotation[] annotations) {
+    public static void queryPlanLogOnSubq(boolean queryPlanLogging, Logger queryPlanLog, SubordinateQueryPlanDesc plan, int subqueryNum, Annotation[] annotations) {
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             String prefix = "Subquery " + subqueryNum + " ";

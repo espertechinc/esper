@@ -3038,11 +3038,11 @@ config.addVariantStream("OutgoingEvent", variant);]]></programlisting>
 		</para>
 
 		<para>
-		   Esper logs all messages to Apache commons logging under an appropriate log level. To output log messages you can add Log4j to classpath and configure Log4j as below.
+		   Esper logs all messages to SLF4J under an appropriate log level. To output log messages you can add Log4j and SLF4J-Log4j (1.2) to classpath and configure Log4j as below.
 		</para>
 		
 		<para>
-			Esper's only direct dependency for logging is the Apache Commons Logging interfaces. You may use Log4j as described here, or you may use SLF4J instead (for example) as described in http://www.slf4j.org/legacy.html. You can also redirect SLF4J to any backend you want - nop, logback, jul as needed.
+			Esper's only direct dependency for logging is the SLF4J interfaces (<literal>slf4j-api-x.y.z.jar</literal>). Please see the SLF4J documentation on redirecting logs to other logging frameworks.
 		</para>
 		
 		<para>
@@ -3059,10 +3059,6 @@ config.addVariantStream("OutgoingEvent", variant);]]></programlisting>
 		
 		<para>
 		  More information on configuring engine-level settings for logging are at <xref linkend="config-engine-logging"/>.
-		</para>
-
-		<para>
-			Apache Commons Logging uses an automatic discovery mechanism to find a log framework that it will delegate to.  If your application has another component using logback, please inspect you logback configuration and add <literal>com.espertech</literal>.
 		</para>
 
 		<para>

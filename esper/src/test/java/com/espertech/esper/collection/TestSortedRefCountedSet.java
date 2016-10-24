@@ -12,8 +12,8 @@
 package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
@@ -108,5 +108,5 @@ public class TestSortedRefCountedSet extends TestCase
         refSet.remove("a");
     }
 
-    private final static Log log = LogFactory.getLog(TestSortedRefCountedSet.class);
+    private final static Logger log = LoggerFactory.getLogger(TestSortedRefCountedSet.class);
 }

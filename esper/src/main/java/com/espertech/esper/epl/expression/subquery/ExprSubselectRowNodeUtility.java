@@ -13,14 +13,14 @@ package com.espertech.esper.epl.expression.subquery;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 public class ExprSubselectRowNodeUtility {
 
-    private static final Log log = LogFactory.getLog(ExprSubselectRowNodeUtility.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprSubselectRowNodeUtility.class);
 
     public static EventBean evaluateFilterExpectSingleMatch(EventBean[] eventsZeroSubselect, boolean newData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext, ExprSubselectRowNode parent) {
 

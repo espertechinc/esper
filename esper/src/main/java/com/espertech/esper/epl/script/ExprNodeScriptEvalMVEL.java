@@ -16,8 +16,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.mvel.MVELInvoker;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
 
-    private static final Log log = LogFactory.getLog(ExprNodeScriptEvalMVEL.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeScriptEvalMVEL.class);
 
     private final Object executable;
 

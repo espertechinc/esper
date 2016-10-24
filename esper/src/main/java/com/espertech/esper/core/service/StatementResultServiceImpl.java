@@ -29,8 +29,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -41,7 +41,7 @@ import java.util.*;
  */
 public class StatementResultServiceImpl implements StatementResultService
 {
-    private static Log log = LogFactory.getLog(StatementResultServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(StatementResultServiceImpl.class);
 
     private final String statementName;
     private final StatementLifecycleSvc statementLifecycleSvc;

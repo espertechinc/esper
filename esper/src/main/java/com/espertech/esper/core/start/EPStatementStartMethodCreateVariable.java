@@ -26,8 +26,8 @@ import com.espertech.esper.epl.variable.*;
 import com.espertech.esper.util.DestroyCallback;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
@@ -36,7 +36,7 @@ import java.util.Collections;
  */
 public class EPStatementStartMethodCreateVariable extends EPStatementStartMethodBase
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateVariable.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateVariable.class);
 
     public EPStatementStartMethodCreateVariable(StatementSpecCompiled statementSpec) {
         super(statementSpec);

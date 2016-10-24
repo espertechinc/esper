@@ -15,8 +15,8 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -24,7 +24,7 @@ import javax.script.ScriptException;
 
 public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
 
-    private static final Log log = LogFactory.getLog(ExprNodeScriptEvalJSR223.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeScriptEvalJSR223.class);
 
     private final CompiledScript executable;
 

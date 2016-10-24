@@ -1,14 +1,14 @@
 package com.espertech.esper.example.namedwinquery;
 
 import com.espertech.esper.client.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class NamedWindowQueryMain
 {
-    private static final Log log = LogFactory.getLog(NamedWindowQueryMain.class);
+    private static final Logger log = LoggerFactory.getLogger(NamedWindowQueryMain.class);
 
     public static void main(String[] args)
     {

@@ -28,8 +28,8 @@ import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConditionHandlerFactory;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -494,5 +494,5 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         return supportBean;
     }
 
-    private final static Log log = LogFactory.getLog(TestRowPatternMaxStatesEngineWide.class);
+    private final static Logger log = LoggerFactory.getLogger(TestRowPatternMaxStatesEngineWide.class);
 }

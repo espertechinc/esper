@@ -20,8 +20,8 @@ import com.espertech.esper.support.bean.SupportLegacyBean;
 import java.util.List;
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPropertyListBuilderPublic extends TestCase
 {
@@ -60,5 +60,5 @@ public class TestPropertyListBuilderPublic extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(expected.toArray(), descList.toArray());
     }
 
-    private final static Log log = LogFactory.getLog(TestPropertyListBuilderPublic.class);
+    private final static Logger log = LoggerFactory.getLogger(TestPropertyListBuilderPublic.class);
 }

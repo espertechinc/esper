@@ -12,8 +12,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.timer.TimeSourceService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Convenience view for dispatching view updates received from a parent view to update listeners
@@ -61,5 +61,5 @@ public class UpdateDispatchViewBlockingSpin extends UpdateDispatchViewBase
         }
     }
 
-    private static Log log = LogFactory.getLog(UpdateDispatchViewBlockingSpin.class);
+    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBlockingSpin.class);
 }

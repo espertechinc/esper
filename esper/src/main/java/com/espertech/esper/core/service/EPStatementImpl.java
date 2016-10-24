@@ -16,8 +16,8 @@ import com.espertech.esper.collection.UnsafeIteratorWTableImpl;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Iterator;
  */
 public class EPStatementImpl implements EPStatementSPI
 {
-    private static Log log = LogFactory.getLog(EPStatementImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EPStatementImpl.class);
 
     private final EPStatementListenerSet statementListenerSet;
     private final String expressionNoAnnotations;

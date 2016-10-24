@@ -14,8 +14,8 @@ package com.espertech.esper.epl.enummethod.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 public class EnumEvalSequenceEqual extends EnumEvalBase implements EnumEval {
 
-    private static final Log log = LogFactory.getLog(EnumEvalSequenceEqual.class);
+    private static final Logger log = LoggerFactory.getLogger(EnumEvalSequenceEqual.class);
 
     public EnumEvalSequenceEqual(ExprEvaluator innerExpression, int streamCountIncoming) {
         super(innerExpression, streamCountIncoming);

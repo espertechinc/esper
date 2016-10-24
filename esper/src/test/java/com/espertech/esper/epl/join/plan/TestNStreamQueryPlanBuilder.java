@@ -20,8 +20,8 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.util.DependencyGraph;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -167,5 +167,5 @@ public class TestNStreamQueryPlanBuilder extends TestCase
         return new ExprIdentNodeImpl(typesPerStream[stream], p, stream);
     }
 
-    private final static Log log = LogFactory.getLog(TestNStreamQueryPlanBuilder.class);
+    private final static Logger log = LoggerFactory.getLogger(TestNStreamQueryPlanBuilder.class);
 }

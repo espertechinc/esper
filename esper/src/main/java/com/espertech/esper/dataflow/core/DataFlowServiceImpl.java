@@ -37,8 +37,8 @@ import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.DependencyGraph;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.PopulateUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -47,7 +47,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class DataFlowServiceImpl implements DataFlowService {
-    private static final Log log = LogFactory.getLog(DataFlowServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(DataFlowServiceImpl.class);
 
     private static final String EVENT_WRAPPED_TYPE = "eventbean";
 

@@ -15,14 +15,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class EvalInsertWildcardWrapper extends EvalBaseMap implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalInsertWildcardWrapper.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalInsertWildcardWrapper.class);
 
     public EvalInsertWildcardWrapper(SelectExprContext selectExprContext, EventType resultEventType) {
         super(selectExprContext, resultEventType);

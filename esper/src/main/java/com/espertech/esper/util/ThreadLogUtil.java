@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -139,5 +139,5 @@ public class ThreadLogUtil
         log.info(".write Thread " + Thread.currentThread().getId() + " " + text);
     }
 
-    private static final Log log = LogFactory.getLog(ThreadLogUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ThreadLogUtil.class);
 }

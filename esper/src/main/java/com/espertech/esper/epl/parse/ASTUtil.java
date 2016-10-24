@@ -16,8 +16,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class ASTUtil
 {
-    private static Log log = LogFactory.getLog(ASTUtil.class);
+    private static Logger log = LoggerFactory.getLogger(ASTUtil.class);
 
     private final static String PROPERTY_ENABLED_AST_DUMP = "ENABLE_AST_DUMP";
 

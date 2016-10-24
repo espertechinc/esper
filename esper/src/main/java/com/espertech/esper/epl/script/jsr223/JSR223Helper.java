@@ -13,14 +13,14 @@ package com.espertech.esper.epl.script.jsr223;
 
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.script.*;
 
 public class JSR223Helper {
 
-    private static final Log log = LogFactory.getLog(JSR223Helper.class);
+    private static final Logger log = LoggerFactory.getLogger(JSR223Helper.class);
 
     public static CompiledScript verifyCompileScript(ExpressionScriptProvided script, String dialect) throws ExprValidationException {
         ScriptEngineManager manager = new ScriptEngineManager();

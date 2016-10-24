@@ -11,8 +11,8 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -31,7 +31,7 @@ import java.util.Iterator;
 public class OHLCBarPlugInView extends ViewSupport implements CloneableView
 {
     private final static int LATE_EVENT_SLACK_SECONDS = 5;
-    private static Log log = LogFactory.getLog(OHLCBarPlugInView.class);
+    private static Logger log = LoggerFactory.getLogger(OHLCBarPlugInView.class);
 
     private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final long scheduleSlot;

@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is always the root node in the evaluation tree representing an event expression.
@@ -71,5 +71,5 @@ public class EvalRootNode extends EvalNodeBase implements PatternStarter
         return new EvalRootStateNode(childNode);
     }
 
-    private static final Log log = LogFactory.getLog(EvalRootNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalRootNode.class);
 }

@@ -15,12 +15,12 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExprDotMethodEvalNoDuckUnderlying extends ExprDotMethodEvalNoDuck
 {
-    private static final Log log = LogFactory.getLog(ExprDotMethodEvalNoDuckUnderlying.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalNoDuckUnderlying.class);
 
     public ExprDotMethodEvalNoDuckUnderlying(String statementName, FastMethod method, ExprEvaluator[] parameters) {
         super(statementName, method, parameters);

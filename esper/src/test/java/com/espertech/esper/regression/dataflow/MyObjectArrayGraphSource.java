@@ -14,14 +14,14 @@ package com.espertech.esper.regression.dataflow;
 import com.espertech.esper.client.dataflow.EPDataFlowSignalFinalMarker;
 import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.interfaces.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Iterator;
 
 public class MyObjectArrayGraphSource implements DataFlowSourceOperator {
-    private static final Log log = LogFactory.getLog(MyObjectArrayGraphSource.class);
+    private static final Logger log = LoggerFactory.getLogger(MyObjectArrayGraphSource.class);
 
     private final Iterator<Object[]> iterator;
 

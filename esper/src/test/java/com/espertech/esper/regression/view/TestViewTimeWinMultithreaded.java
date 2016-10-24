@@ -16,8 +16,8 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import org.junit.Assert;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -190,5 +190,5 @@ public class TestViewTimeWinMultithreaded extends TestCase {
         }
     }
 
-    private static final Log log = LogFactory.getLog(TestViewTimeWinMultithreaded.class);
+    private static final Logger log = LoggerFactory.getLogger(TestViewTimeWinMultithreaded.class);
 }

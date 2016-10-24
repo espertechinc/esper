@@ -3,15 +3,15 @@ package com.espertech.esper.example.ohlc;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PluginLoader for added this example as part of an Esper configuration file and therefore execute it during startup.
  */
 public class OHLCSamplePlugin implements PluginLoader
 {
-    private static final Log log = LogFactory.getLog(OHLCSamplePlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(OHLCSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
 

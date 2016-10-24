@@ -17,8 +17,8 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.support.bean.SupportBeanCombinedProps;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class TestPerfPropertyAccess extends TestCase
@@ -71,5 +71,5 @@ public class TestPerfPropertyAccess extends TestCase
         epService.getEPRuntime().sendEvent(theEvent);
     }
 
-    private static final Log log = LogFactory.getLog(TestPerfPropertyAccess.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerfPropertyAccess.class);
 }

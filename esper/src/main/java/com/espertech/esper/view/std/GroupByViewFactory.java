@@ -16,8 +16,8 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 {
-    private static Log log = LogFactory.getLog(GroupByViewFactory.class);
+    private static Logger log = LoggerFactory.getLogger(GroupByViewFactory.class);
 
     /**
      * View parameters.

@@ -12,8 +12,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -130,5 +130,5 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
         return PatternExpressionPrecedenceEnum.UNARY;
     }
 
-    private static final Log log = LogFactory.getLog(EvalEveryNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalEveryNode.class);
 }

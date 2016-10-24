@@ -16,8 +16,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Output condition that is satisfied at the end
@@ -127,5 +127,5 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
         }
     }
 
-    private static final Log log = LogFactory.getLog(OutputConditionTime.class);
+    private static final Logger log = LoggerFactory.getLogger(OutputConditionTime.class);
 }

@@ -17,8 +17,8 @@ import com.espertech.esper.support.event.SupportEventTypeFactory;
 import com.espertech.esper.view.EventStream;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -149,5 +149,5 @@ public class SupportStreamImpl implements EventStream
         return childViews.length > 0;
     }
 
-    private static final Log log = LogFactory.getLog(SupportStreamImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportStreamImpl.class);
 }

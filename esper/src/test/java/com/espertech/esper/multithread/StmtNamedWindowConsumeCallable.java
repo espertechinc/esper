@@ -19,8 +19,8 @@ import java.util.concurrent.Callable;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StmtNamedWindowConsumeCallable implements Callable
 {
@@ -50,7 +50,7 @@ public class StmtNamedWindowConsumeCallable implements Callable
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return null;
         }
         return eventKeys;
@@ -62,5 +62,5 @@ public class StmtNamedWindowConsumeCallable implements Callable
         engine.getEPRuntime().sendEvent(bean);
     }
 
-    private static final Log log = LogFactory.getLog(StmtNamedWindowConsumeCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtNamedWindowConsumeCallable.class);
 }

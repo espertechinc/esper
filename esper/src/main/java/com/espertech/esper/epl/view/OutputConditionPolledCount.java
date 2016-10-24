@@ -11,8 +11,8 @@ package com.espertech.esper.epl.view;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.sun.org.apache.xpath.internal.operations.Variable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Output limit condition that is satisfied when either
@@ -65,5 +65,5 @@ public final class OutputConditionPolledCount implements OutputConditionPolled
     	return (state.getNewEventsCount() >= state.getEventRate()) || (state.getOldEventsCount() >= state.getEventRate());
     }
 
-    private static final Log log = LogFactory.getLog(OutputConditionPolledCount.class);
+    private static final Logger log = LoggerFactory.getLogger(OutputConditionPolledCount.class);
 }

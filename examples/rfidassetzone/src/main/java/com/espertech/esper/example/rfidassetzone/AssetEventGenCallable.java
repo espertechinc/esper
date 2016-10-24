@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.example.rfidassetzone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class AssetEventGenCallable implements Callable<Boolean>
 {
     public static final int NUM_ZONES = 20;
 
-    private static final Log log = LogFactory.getLog(AssetEventGenCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(AssetEventGenCallable.class);
     private final EPServiceProvider engine;
     private final String[][] assetIds;
     private final int[][] zoneIds;
@@ -97,7 +97,7 @@ public class AssetEventGenCallable implements Callable<Boolean>
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;

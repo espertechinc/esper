@@ -14,15 +14,15 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.core.start.EPPreparedExecuteMethod;
 import com.espertech.esper.core.start.EPPreparedExecuteMethodQuery;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides prepared query functionality.
  */
 public class EPPreparedQueryImpl implements EPOnDemandPreparedQuerySPI
 {
-    private static final Log log = LogFactory.getLog(EPPreparedQueryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EPPreparedQueryImpl.class);
 
     private final EPPreparedExecuteMethod executeMethod;
     private final String epl;

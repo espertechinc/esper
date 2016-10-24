@@ -18,8 +18,8 @@ import com.espertech.esper.epl.db.DatabaseConnectionFactory;
 import com.espertech.esper.util.SQLTypeMapUtil;
 import com.espertech.esperio.db.config.*;
 import com.espertech.esperio.db.core.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class EsperIODBAdapter
 {
-    private static Log log = LogFactory.getLog(EsperIODBAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIODBAdapter.class);
 
     private final ConfigurationDBAdapter config;
     private final String engineURI;

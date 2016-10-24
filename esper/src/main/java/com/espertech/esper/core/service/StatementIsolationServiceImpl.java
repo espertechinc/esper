@@ -17,8 +17,8 @@ import com.espertech.esper.filter.FilterServiceProvider;
 import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.schedule.SchedulingServiceSPI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StatementIsolationServiceImpl implements StatementIsolationService
 {
-    private static final Log log = LogFactory.getLog(StatementIsolationServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(StatementIsolationServiceImpl.class);
 
     private final Map<String, EPServiceProviderIsolatedImpl> isolatedProviders;
     private EPServicesContext epServicesContext;

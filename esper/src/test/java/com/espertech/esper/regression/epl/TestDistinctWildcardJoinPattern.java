@@ -20,14 +20,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class TestDistinctWildcardJoinPattern extends TestCase
 {
-	private final static Log log = LogFactory.getLog(TestDistinctWildcardJoinPattern.class);
+	private final static Logger log = LoggerFactory.getLogger(TestDistinctWildcardJoinPattern.class);
 	
     private EPServiceProvider epService;
     private SupportSubscriberMRD subscriber;

@@ -17,8 +17,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.SupportMTUpdateListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestMTDeterminismListener extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTDeterminismListener.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTDeterminismListener.class);
     private EPServiceProvider engine;
 
     public void tearDown()

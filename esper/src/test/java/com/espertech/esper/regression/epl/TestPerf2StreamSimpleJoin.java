@@ -20,8 +20,8 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPerf2StreamSimpleJoin extends TestCase
 {
@@ -137,5 +137,5 @@ public class TestPerf2StreamSimpleJoin extends TestCase
         return new SupportMarketDataBean(id, 0, (long) 0, "");
     }
 
-    private static final Log log = LogFactory.getLog(TestPerf2StreamSimpleJoin.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerf2StreamSimpleJoin.class);
 }

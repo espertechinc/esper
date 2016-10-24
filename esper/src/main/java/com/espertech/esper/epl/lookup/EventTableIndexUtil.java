@@ -19,15 +19,15 @@ import com.espertech.esper.epl.join.hint.IndexHintInstructionIndexName;
 import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexType;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
 
 public class EventTableIndexUtil
 {
-    private static final Log log = LogFactory.getLog(EventTableIndexUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(EventTableIndexUtil.class);
     private final static IndexComparatorShortestPath INDEX_COMPARATOR_INSTANCE = new IndexComparatorShortestPath();
 
     public static EventTableCreateIndexDesc validateCompileExplicitIndex(boolean unique, List<CreateIndexItem> columns, EventType eventType)

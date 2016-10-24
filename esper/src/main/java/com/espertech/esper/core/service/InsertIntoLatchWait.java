@@ -9,8 +9,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A suspend-and-notify implementation of a latch for use in guaranteeing delivery between
@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class InsertIntoLatchWait
 {
-    private static final Log log = LogFactory.getLog(InsertIntoLatchWait.class);
+    private static final Logger log = LoggerFactory.getLogger(InsertIntoLatchWait.class);
 
     // The earlier latch is the latch generated before this latch
     private InsertIntoLatchWait earlier;
@@ -88,7 +88,7 @@ public class InsertIntoLatchWait
                     }
                     catch (InterruptedException e)
                     {
-                        log.error(e);
+                        log.error("Interrupted: " + e.getMessage(), e);
                     }
                 }
             }

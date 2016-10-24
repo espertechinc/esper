@@ -17,13 +17,13 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.BitSet;
 
 public class Antlr4ErrorListener implements ANTLRErrorListener {
-    private static Log log = LogFactory.getLog(Antlr4ErrorListener.class);
+    private static Logger log = LoggerFactory.getLogger(Antlr4ErrorListener.class);
 
     public final static Antlr4ErrorListener INSTANCE = new Antlr4ErrorListener();
 

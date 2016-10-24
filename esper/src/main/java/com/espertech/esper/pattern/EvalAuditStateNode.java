@@ -14,8 +14,8 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.Set;
@@ -191,5 +191,5 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
         }
     }
 
-    private static final Log log = LogFactory.getLog(EvalAuditStateNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalAuditStateNode.class);
 }

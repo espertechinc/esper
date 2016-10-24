@@ -9,8 +9,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EPStatement;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.sf.cglib.reflect.FastMethod;
 import net.sf.cglib.reflect.FastClass;
 import com.espertech.esper.client.EventBean;
@@ -27,7 +27,7 @@ import java.lang.reflect.Array;
  */
 public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy
 {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyImpl.class);
+    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
     protected final EPStatement statement;
     protected final Object subscriber;
     protected final FastMethod fastMethod;

@@ -14,15 +14,15 @@ package com.espertech.esper.core.thread;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.EPRuntimeImpl;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inbound unit for DOM events.
  */
 public class InboundUnitSendDOM implements InboundUnitRunnable
 {
-    private static final Log log = LogFactory.getLog(InboundUnitSendDOM.class);
+    private static final Logger log = LoggerFactory.getLogger(InboundUnitSendDOM.class);
 
     private final org.w3c.dom.Node theEvent;
     private final EPServicesContext services;

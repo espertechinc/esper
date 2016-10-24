@@ -21,8 +21,8 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.*;
 import net.sf.cglib.core.ReflectUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.io.EOFException;
@@ -33,7 +33,7 @@ import java.util.*;
  */
 public class CSVInputAdapter extends AbstractCoordinatedAdapter implements InputAdapter
 {
-	private static final Log log = LogFactory.getLog(CSVInputAdapter.class);
+	private static final Logger log = LoggerFactory.getLogger(CSVInputAdapter.class);
 
 	private Integer eventsPerSec;
 	private CSVReader reader;

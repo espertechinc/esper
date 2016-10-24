@@ -29,8 +29,8 @@ import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexType;
 import com.espertech.esper.filter.Range;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -39,7 +39,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
 
     private static EventTableOrganization TABLE_ORGANIZATION = new EventTableOrganization(null, false, false, 0, null, EventTableOrganizationType.VDW);
 
-    private static final Log log = LogFactory.getLog(VirtualDWViewImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(VirtualDWViewImpl.class);
 
     private final VirtualDataWindow dataExternal;
     private final EventType eventType;

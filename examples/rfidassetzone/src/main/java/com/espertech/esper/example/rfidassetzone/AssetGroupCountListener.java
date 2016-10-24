@@ -10,12 +10,12 @@ package com.espertech.esper.example.rfidassetzone;
 
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AssetGroupCountListener implements UpdateListener
 {
-    private static final Log log = LogFactory.getLog(AssetGroupCountListener.class);
+    private static final Logger log = LoggerFactory.getLogger(AssetGroupCountListener.class);
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents)
     {

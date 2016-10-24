@@ -17,8 +17,8 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import org.antlr.v4.runtime.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.Set;
@@ -29,7 +29,7 @@ import java.util.Stack;
  */
 public class ExceptionConvertor
 {
-    private static final Log log = LogFactory.getLog(ExceptionConvertor.class);
+    private static final Logger log = LoggerFactory.getLogger(ExceptionConvertor.class);
 
     protected final static String END_OF_INPUT_TEXT = "end-of-input";
 

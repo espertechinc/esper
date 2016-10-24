@@ -22,12 +22,12 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestRowPatternRecognitionAfter extends TestCase {
 
-    private static final Log log = LogFactory.getLog(TestRowPatternRecognitionAfter.class);
+    private static final Logger log = LoggerFactory.getLogger(TestRowPatternRecognitionAfter.class);
 
     public void testAfterCurrentRow() throws Exception
     {

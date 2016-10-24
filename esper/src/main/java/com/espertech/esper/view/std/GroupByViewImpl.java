@@ -20,8 +20,8 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -176,7 +176,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         if (!groupView.hasViews())
         {
             String message = "Unexpected empty list of child nodes for group view";
-            log.fatal(".copySubViews " + message);
+            log.error(".copySubViews " + message);
             throw new EPException(message);
         }
 
@@ -319,7 +319,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         if (originalChildView instanceof MergeView)
         {
             String message = "Unexpected merge view as child of group-by view";
-            log.fatal(".copySubViews " + message);
+            log.error(".copySubViews " + message);
             throw new EPException(message);
         }
 
@@ -431,5 +431,5 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         return EventBeanUtility.toArray((ArrayDeque<EventBean>) eventOrDeque);
     }
 
-    private static final Log log = LogFactory.getLog(GroupByViewImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GroupByViewImpl.class);
 }

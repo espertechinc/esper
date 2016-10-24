@@ -10,8 +10,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -83,5 +83,5 @@ public final class FilterParamIndexStringRangeInverted extends FilterParamIndexS
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(null);}
     }
 
-    private static final Log log = LogFactory.getLog(FilterParamIndexStringRangeInverted.class);
+    private static final Logger log = LoggerFactory.getLogger(FilterParamIndexStringRangeInverted.class);
 }

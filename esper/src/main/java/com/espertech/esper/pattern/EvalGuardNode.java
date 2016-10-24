@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a guard in the evaluation tree representing an event expressions.
@@ -39,5 +39,5 @@ public class EvalGuardNode extends EvalNodeBase
         return new EvalGuardStateNode(parentNode, this);
     }
 
-    private static final Log log = LogFactory.getLog(EvalGuardNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalGuardNode.class);
 }

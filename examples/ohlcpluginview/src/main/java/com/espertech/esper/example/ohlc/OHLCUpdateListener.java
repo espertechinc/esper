@@ -4,14 +4,14 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
 public class OHLCUpdateListener implements StatementAwareUpdateListener
 {
-    private static Log log = LogFactory.getLog(OHLCUpdateListener.class);
+    private static Logger log = LoggerFactory.getLogger(OHLCUpdateListener.class);
 
     public void update(EventBean[] newData, EventBean[] oldData, EPStatement epStatement, EPServiceProvider epServiceProvider)
     {

@@ -13,8 +13,8 @@ import com.espertech.esper.example.transaction.TxnEventBase;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Subclass to output events in your preferred format.
  *
@@ -34,5 +34,5 @@ public class PrinterOutputStream implements OutputStream {
         }
         log.info(".output End of bucket");
     }
-    private static final Log log = LogFactory.getLog(PrinterOutputStream.class);
+    private static final Logger log = LoggerFactory.getLogger(PrinterOutputStream.class);
 }

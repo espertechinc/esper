@@ -15,8 +15,8 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.socket.config.ConfigurationSocketAdapter;
 import com.espertech.esperio.socket.config.SocketConfig;
 import com.espertech.esperio.socket.core.EsperSocketService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class EsperIOSocketAdapter
 {
-    private static Log log = LogFactory.getLog(EsperIOSocketAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapter.class);
 
     private final ConfigurationSocketAdapter config;
     private final String engineURI;

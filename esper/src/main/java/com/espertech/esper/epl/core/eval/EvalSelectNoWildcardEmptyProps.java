@@ -15,14 +15,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
 public class EvalSelectNoWildcardEmptyProps implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalSelectNoWildcardEmptyProps.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalSelectNoWildcardEmptyProps.class);
 
     private final SelectExprContext selectExprContext;
     private final EventType resultEventType;

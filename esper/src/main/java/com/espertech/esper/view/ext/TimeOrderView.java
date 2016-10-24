@@ -21,8 +21,8 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -381,5 +381,5 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         return timeOrderViewFactory;
     }
 
-    private static final Log log = LogFactory.getLog(TimeOrderView.class);
+    private static final Logger log = LoggerFactory.getLogger(TimeOrderView.class);
 }

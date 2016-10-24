@@ -29,8 +29,8 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.DependencyGraph;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +43,7 @@ import java.util.SortedSet;
  */
 public class JoinSetComposerPrototypeFactory
 {
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     /**
      * Builds join tuple composer.
@@ -434,5 +434,5 @@ public class JoinSetComposerPrototypeFactory
         }
     }
 
-    private static final Log log = LogFactory.getLog(JoinSetComposerPrototypeFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(JoinSetComposerPrototypeFactory.class);
 }

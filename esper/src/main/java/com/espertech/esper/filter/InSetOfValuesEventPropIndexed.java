@@ -15,15 +15,15 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Event property value in a list of values following an in-keyword.
  */
 public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
 {
-    private static final Log log = LogFactory.getLog(InSetOfValuesEventPropIndexed.class);
+    private static final Logger log = LoggerFactory.getLogger(InSetOfValuesEventPropIndexed.class);
     private final String resultEventAsName;
     private final int resultEventIndex;
     private final String resultEventProperty;

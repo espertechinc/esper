@@ -20,8 +20,8 @@ import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class ExprDotMethodEvalDuck implements ExprDotEval
 {
-    private static final Log log = LogFactory.getLog(ExprDotMethodEvalDuck.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalDuck.class);
 
     private final String statementName;
     private final EngineImportService engineImportService;

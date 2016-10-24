@@ -1,12 +1,12 @@
 package com.espertech.esper.example.virtualdw;
 
 import com.espertech.esper.client.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SampleVirtualDataWindowMain
 {
-    private static final Log log = LogFactory.getLog(SampleVirtualDataWindowMain.class);
+    private static final Logger log = LoggerFactory.getLogger(SampleVirtualDataWindowMain.class);
 
     public static void main(String[] args)
     {

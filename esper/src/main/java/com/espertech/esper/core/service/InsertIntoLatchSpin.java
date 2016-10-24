@@ -9,8 +9,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A spin-locking implementation of a latch for use in guaranteeing delivery between
@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class InsertIntoLatchSpin
 {
-    private static final Log log = LogFactory.getLog(InsertIntoLatchSpin.class);
+    private static final Logger log = LoggerFactory.getLogger(InsertIntoLatchSpin.class);
 
     // The earlier latch is the latch generated before this latch
     private InsertIntoLatchFactory factory;

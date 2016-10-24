@@ -23,8 +23,8 @@ import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @DataFlowOperator
 public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLifecycle, StatementLifecycleObserver {
-    private static final Log log = LogFactory.getLog(EPStatementSource.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementSource.class);
 
     @DataFlowOpParameter
     private String statementName;

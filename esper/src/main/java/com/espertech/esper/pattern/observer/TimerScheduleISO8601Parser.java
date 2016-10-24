@@ -10,8 +10,8 @@ package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.schedule.ScheduleParameterException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.Calendar;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class TimerScheduleISO8601Parser
 {
-    private static final Log log = LogFactory.getLog(TimerScheduleISO8601Parser.class);
+    private static final Logger log = LoggerFactory.getLogger(TimerScheduleISO8601Parser.class);
 
     public static TimerScheduleSpec parse(String iso) throws ScheduleParameterException {
         if (iso == null) {

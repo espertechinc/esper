@@ -20,8 +20,8 @@ import com.espertech.esper.support.view.SupportViewFactoryOne;
 import com.espertech.esper.support.view.SupportViewFactoryTwo;
 import com.espertech.esper.view.stat.UnivariateStatisticsViewFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -112,5 +112,5 @@ public class TestViewResolutionService extends TestCase
         return new ViewResolutionServiceImpl(registry, null, null);
     }
 
-    private static final Log log = LogFactory.getLog(TestViewResolutionService.class);
+    private static final Logger log = LoggerFactory.getLogger(TestViewResolutionService.class);
 }

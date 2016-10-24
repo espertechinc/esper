@@ -11,15 +11,15 @@
 
 package com.espertech.esper.regression.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.management.ThreadMXBean;
 import java.lang.management.ManagementFactory;
 
 public class MyMetricFunctions
 {
-    private static final Log log = LogFactory.getLog(MyMetricFunctions.class);
+    private static final Logger log = LoggerFactory.getLogger(MyMetricFunctions.class);
 
     public static boolean takeCPUTime(long nanoSecTarget)
     {

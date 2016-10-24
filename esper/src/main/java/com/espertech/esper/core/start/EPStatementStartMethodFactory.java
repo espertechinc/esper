@@ -9,15 +9,15 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Starts and provides the stop method for EPL statements.
  */
 public class EPStatementStartMethodFactory
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodFactory.class);
 
     /**
      * Ctor.

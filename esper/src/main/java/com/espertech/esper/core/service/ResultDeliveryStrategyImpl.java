@@ -16,8 +16,8 @@ import com.espertech.esper.event.NaturalEventBean;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +30,7 @@ import java.util.Arrays;
  */
 public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyImpl.class);
+    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
     private final EPStatement statement;
     private final Object subscriber;
     private final FastMethod updateMethodFast;
@@ -182,7 +182,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param method the method to call
      * @throws EPException converted from the passed invocation exception
      */
-    protected static void handle(String statementName, Log logger, InvocationTargetException e, Object[] parameters, Object subscriber, FastMethod method) {
+    protected static void handle(String statementName, Logger logger, InvocationTargetException e, Object[] parameters, Object subscriber, FastMethod method) {
         String message = JavaClassHelper.getMessageInvocationTarget(statementName, method.getJavaMethod(), subscriber.getClass().getName(), parameters, e);
         logger.error(message, e.getTargetException());
     }
@@ -196,7 +196,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param method the method to call
      * @throws EPException converted from the passed invocation exception
      */
-    protected static void handleThrowable(Log logger, Throwable t, Object[] parameters, Object subscriber, FastMethod method) {
+    protected static void handleThrowable(Logger logger, Throwable t, Object[] parameters, Object subscriber, FastMethod method) {
         String message = "Unexpected exception when invoking method '" + method.getName() +
                 "' on subscriber class '" + subscriber.getClass().getSimpleName() +
                 "' for parameters " + ((parameters == null) ? "null" : Arrays.toString(parameters)) +

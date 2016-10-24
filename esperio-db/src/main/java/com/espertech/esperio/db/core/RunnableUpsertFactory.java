@@ -10,14 +10,14 @@ package com.espertech.esperio.db.core;
 
 import com.espertech.esper.client.EventBean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executor;
 
 public class RunnableUpsertFactory implements RunnableFactory
 {
-    private static Log log = LogFactory.getLog(RunnableUpsertFactory.class);
+    private static Logger log = LoggerFactory.getLogger(RunnableUpsertFactory.class);
 
     private final RunnableUpsertContext context;
 

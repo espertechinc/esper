@@ -15,15 +15,15 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
 
 public class EvalInsertNoWildcardSingleColCoercionRevisionObjectArray extends EvalBaseFirstProp implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalInsertNoWildcardSingleColCoercionRevisionObjectArray.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionRevisionObjectArray.class);
 
     private final ValueAddEventProcessor vaeProcessor;
     private final EventType vaeInnerEventType;

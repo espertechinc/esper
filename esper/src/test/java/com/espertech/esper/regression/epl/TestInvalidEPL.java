@@ -20,8 +20,8 @@ import com.espertech.esper.client.EPStatementSyntaxException;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestInvalidEPL extends TestCase
 {
@@ -201,5 +201,5 @@ public class TestInvalidEPL extends TestCase
         return exceptionText;
     }
 
-    private final static Log log = LogFactory.getLog(TestInvalidEPL.class);
+    private final static Logger log = LoggerFactory.getLogger(TestInvalidEPL.class);
 }

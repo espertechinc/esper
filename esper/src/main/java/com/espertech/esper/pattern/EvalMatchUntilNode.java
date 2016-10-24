@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a match-until observer in the evaluation tree representing any event expressions.
@@ -44,5 +44,5 @@ public class EvalMatchUntilNode extends EvalNodeBase {
         return new EvalMatchUntilStateNode(parentNode, this);
     }
 
-    private static final Log log = LogFactory.getLog(EvalMatchUntilNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalMatchUntilNode.class);
 }

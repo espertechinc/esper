@@ -19,8 +19,8 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -39,7 +39,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
     // Posted events in ordered form (for applying to aggregates) and summarized per type
     // Using ArrayList as random access is a requirement.
 
-	private static final Log log = LogFactory.getLog(OutputProcessViewConditionDefault.class);
+	private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionDefault.class);
 
     public OutputProcessViewConditionDefault(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, boolean isJoin) {
         super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);

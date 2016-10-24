@@ -8,15 +8,15 @@
  **************************************************************************************/
 package com.espertech.esper.epl.metric;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Global boolean for enabling and disable metrics reporting.
  */
 public class MetricReportingPath
 {
-    private static final Log log = LogFactory.getLog(MetricReportingPath.class);
+    private static final Logger log = LoggerFactory.getLogger(MetricReportingPath.class);
 
     /**
      * Public access.

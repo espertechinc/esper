@@ -36,8 +36,8 @@ import com.espertech.esper.epl.virtualdw.VirtualDWViewProviderForAgentInstance;
 import com.espertech.esper.view.DerivedValueView;
 import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -45,7 +45,7 @@ import java.util.concurrent.locks.Lock;
 
 public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
 
-    private static final Log log = LogFactory.getLog(JoinSetComposerPrototypeFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(JoinSetComposerPrototypeFactory.class);
 
     private final String statementName;
     private final int statementId;

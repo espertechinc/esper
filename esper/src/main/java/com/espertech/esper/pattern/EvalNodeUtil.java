@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class EvalNodeUtil
 {
-    private static final Log log = LogFactory.getLog(EvalNodeUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalNodeUtil.class);
 
     /**
      * Searched recursivly for pattern evaluation filter nodes.

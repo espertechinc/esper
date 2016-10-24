@@ -18,8 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Generates events for a continuous stream of transactions.
  * Rules for generating events are coded in {@link #createNextTransaction()}.
@@ -115,5 +115,5 @@ public class TransactionEventSource extends EventSource {
         return this.next();
     }
 
-    private static final Log log = LogFactory.getLog(TransactionEventSource.class);
+    private static final Logger log = LoggerFactory.getLogger(TransactionEventSource.class);
 }

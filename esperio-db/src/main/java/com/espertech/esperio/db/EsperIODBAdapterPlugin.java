@@ -11,15 +11,15 @@ package com.espertech.esperio.db;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
 import com.espertech.esperio.db.config.ConfigurationDBAdapter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 
 public class EsperIODBAdapterPlugin implements PluginLoader
 {
-    private static Log log = LogFactory.getLog(EsperIODBAdapterPlugin.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIODBAdapterPlugin.class);
 
     private static final String ESPERIO_DB_CONFIG_FILE = "esperio.db.configuration.file";
 

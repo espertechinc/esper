@@ -22,13 +22,13 @@ import com.espertech.esper.epl.join.rep.Cursor;
 import com.espertech.esper.epl.lookup.LookupStrategyDesc;
 import com.espertech.esper.epl.lookup.LookupStrategyType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookupStrategy {
-    private static final Log log = LogFactory.getLog(JoinExecTableLookupStrategyVirtualDW.class);
+    private static final Logger log = LoggerFactory.getLogger(JoinExecTableLookupStrategyVirtualDW.class);
 
     private final String namedWindowName;
     private final VirtualDataWindowLookup externalIndex;

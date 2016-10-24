@@ -16,8 +16,8 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.util.SupportMTUpdateListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -82,7 +82,7 @@ public class StmtNamedWindowSubqueryLookupCallable implements Callable<Boolean>
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;
@@ -95,5 +95,5 @@ public class StmtNamedWindowSubqueryLookupCallable implements Callable<Boolean>
         engine.getEPRuntime().sendEvent(theEvent, "MyUpdateEvent");
     }
 
-    private static final Log log = LogFactory.getLog(StmtNamedWindowSubqueryLookupCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtNamedWindowSubqueryLookupCallable.class);
 }

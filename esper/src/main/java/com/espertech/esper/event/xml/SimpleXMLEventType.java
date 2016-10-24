@@ -17,8 +17,8 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class SimpleXMLEventType extends BaseXMLEventType {
 
-    private static final Log log = LogFactory.getLog(SimpleXMLEventType.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleXMLEventType.class);
     private final Map<String, EventPropertyGetter> propertyGetterCache;
     private String defaultNamespacePrefix;
     private final boolean isResolvePropertiesAbsolute;

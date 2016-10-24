@@ -17,8 +17,8 @@ import com.espertech.esper.epl.spec.OrderByItem;
 import com.espertech.esper.epl.spec.RowLimitSpec;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.variable.VariableService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,7 +28,7 @@ import java.util.List;
  * Factory for {@link com.espertech.esper.epl.core.OrderByProcessor} processors.
  */
 public class OrderByProcessorFactoryFactory {
-	private static final Log log = LogFactory.getLog(OrderByProcessorFactoryFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(OrderByProcessorFactoryFactory.class);
 
     /**
      * Returns processor for order-by clauses.

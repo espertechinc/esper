@@ -15,11 +15,11 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetterMapped;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExprDotEvalPropertyExprMapped extends ExprDotEvalPropertyExprBase {
-    private static final Log log = LogFactory.getLog(ExprDotEvalPropertyExprMapped.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotEvalPropertyExprMapped.class);
 
     private final EventPropertyGetterMapped mappedGetter;
 

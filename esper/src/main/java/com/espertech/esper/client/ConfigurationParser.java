@@ -15,8 +15,8 @@ import com.espertech.esper.type.StringPatternSetLike;
 import com.espertech.esper.type.StringPatternSetRegex;
 import com.espertech.esper.util.DOMElementIterator;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1764,5 +1764,5 @@ class ConfigurationParser {
         }
     }
 
-    private static Log log = LogFactory.getLog(ConfigurationParser.class);
+    private static Logger log = LoggerFactory.getLogger(ConfigurationParser.class);
 }

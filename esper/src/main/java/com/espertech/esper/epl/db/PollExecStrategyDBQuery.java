@@ -19,8 +19,8 @@ import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.DatabaseTypeBinding;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -31,9 +31,9 @@ import java.util.Date;
  */
 public class PollExecStrategyDBQuery implements PollExecStrategy
 {
-    private static final Log jdbcPerfLog = LogFactory.getLog(AuditPath.JDBC_LOG);
+    private static final Logger jdbcPerfLog = LoggerFactory.getLogger(AuditPath.JDBC_LOG);
 
-    private static final Log log = LogFactory.getLog(PollExecStrategyDBQuery.class);
+    private static final Logger log = LoggerFactory.getLogger(PollExecStrategyDBQuery.class);
     private final EventAdapterService eventAdapterService;
     private final String preparedStatementText;
     private final Map<String, DBOutputTypeDesc> outputTypes;

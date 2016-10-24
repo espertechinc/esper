@@ -28,5 +28,4 @@ Import-Package: com.espertech.esper.client,
  javax.xml.parsers,
  javax.xml.xpath,
  net.sf.cglib.reflect,
- org.apache.commons.beanutils,
- org.apache.commons.logging
+ org.apache.commons.beanutils

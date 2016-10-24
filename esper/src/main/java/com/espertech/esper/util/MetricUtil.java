@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
@@ -19,7 +19,7 @@ import java.lang.management.ThreadMXBean;
  */
 public class MetricUtil
 {
-    private static final Log log = LogFactory.getLog(MetricUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(MetricUtil.class);
 
     private static ThreadMXBean threadMXBean;
     private static boolean isCPUEnabled;

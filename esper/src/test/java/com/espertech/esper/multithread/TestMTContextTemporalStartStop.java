@@ -18,15 +18,15 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test for multithread-safety (or lack thereof) for iterators: iterators fail with concurrent mods as expected behavior
  */
 public class TestMTContextTemporalStartStop extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTContextTemporalStartStop.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTContextTemporalStartStop.class);
 
     private EPServiceProvider epService;
 

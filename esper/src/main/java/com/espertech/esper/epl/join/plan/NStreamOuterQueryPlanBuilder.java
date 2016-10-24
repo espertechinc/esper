@@ -22,8 +22,8 @@ import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.DependencyGraph;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -721,5 +721,5 @@ public class NStreamOuterQueryPlanBuilder
         return buf.toString();
     }
 
-    private static Log log = LogFactory.getLog(NStreamOuterQueryPlanBuilder.class);
+    private static Logger log = LoggerFactory.getLogger(NStreamOuterQueryPlanBuilder.class);
 }

@@ -26,15 +26,15 @@ import com.espertech.esper.support.util.IndexAssertionEventSend;
 import com.espertech.esper.support.util.IndexBackingTableInfo;
 import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
 
 public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 {
-    private final static Log log = LogFactory.getLog(TestInfraOnSelect.class);
+    private final static Logger log = LoggerFactory.getLogger(TestInfraOnSelect.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listenerSelect;

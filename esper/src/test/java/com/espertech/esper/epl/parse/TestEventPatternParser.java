@@ -17,8 +17,8 @@ import com.espertech.esper.support.epl.parse.SupportParserHelper;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestEventPatternParser extends TestCase
 {
@@ -435,5 +435,5 @@ public class TestEventPatternParser extends TestCase
         return SupportParserHelper.parsePattern(expression);
     }
 
-    static Log log = LogFactory.getLog(TestEventPatternParser.class);
+    static Logger log = LoggerFactory.getLogger(TestEventPatternParser.class);
 }

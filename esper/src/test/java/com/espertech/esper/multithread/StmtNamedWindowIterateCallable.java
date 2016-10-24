@@ -20,8 +20,8 @@ import com.espertech.esper.client.EventBean;
 
 import java.util.concurrent.Callable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 
 public class StmtNamedWindowIterateCallable implements Callable
@@ -68,7 +68,7 @@ public class StmtNamedWindowIterateCallable implements Callable
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;
@@ -80,5 +80,5 @@ public class StmtNamedWindowIterateCallable implements Callable
         engine.getEPRuntime().sendEvent(bean);
     }
 
-    private static final Log log = LogFactory.getLog(StmtNamedWindowIterateCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtNamedWindowIterateCallable.class);
 }

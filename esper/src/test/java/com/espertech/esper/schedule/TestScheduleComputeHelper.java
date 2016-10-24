@@ -14,8 +14,8 @@ package com.espertech.esper.schedule;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.type.ScheduleUnit;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -346,5 +346,5 @@ public class TestScheduleComputeHelper extends TestCase
         }
     }
 
-    private static final Log log = LogFactory.getLog(TestScheduleComputeHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(TestScheduleComputeHelper.class);
 }

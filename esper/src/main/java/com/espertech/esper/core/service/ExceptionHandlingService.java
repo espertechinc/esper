@@ -13,15 +13,15 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
 
 public class ExceptionHandlingService {
 
-    private static final Log log = LogFactory.getLog(ExceptionHandlingService.class);
+    private static final Logger log = LoggerFactory.getLogger(ExceptionHandlingService.class);
 
     private final String engineURI;
     private final List<ExceptionHandler> exceptionHandlers;

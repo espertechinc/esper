@@ -17,15 +17,15 @@ import com.espertech.esper.client.EventBean;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inbound work unit processing a map event.
  */
 public class InboundUnitSendMap implements InboundUnitRunnable
 {
-    private static final Log log = LogFactory.getLog(InboundUnitSendMap.class);
+    private static final Logger log = LoggerFactory.getLogger(InboundUnitSendMap.class);
     private final Map map;
     private final String eventTypeName;
     private final EPServicesContext services;

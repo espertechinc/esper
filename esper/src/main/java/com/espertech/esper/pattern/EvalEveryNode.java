@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents an 'every' operator in the evaluation tree representing an event expression.
@@ -39,5 +39,5 @@ public class EvalEveryNode extends EvalNodeBase
         return new EvalEveryStateNode(parentNode, this);
     }
 
-    private static final Log log = LogFactory.getLog(EvalEveryNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalEveryNode.class);
 }

@@ -24,12 +24,12 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestOrderByEventPerRow extends TestCase
 {
-	private static final Log log = LogFactory.getLog(TestOrderByEventPerRow.class);
+	private static final Logger log = LoggerFactory.getLogger(TestOrderByEventPerRow.class);
 	private EPServiceProvider epService;
 	private SupportUpdateListener testListener;
 

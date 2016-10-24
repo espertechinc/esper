@@ -16,8 +16,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
 {
-    private static final Log log = LogFactory.getLog(AggSvcGroupByReclaimAgedImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AggSvcGroupByReclaimAgedImpl.class);
 
     public static final long DEFAULT_MAX_AGE_MSEC = 60000L;
 

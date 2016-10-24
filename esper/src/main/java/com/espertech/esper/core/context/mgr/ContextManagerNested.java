@@ -32,13 +32,13 @@ import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecLookupable;
 import com.espertech.esper.filter.FilterValueSetParam;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ContextManagerNested implements ContextManager, ContextControllerLifecycleCallback, ContextIteratorHandler, FilterFaultHandler {
-    private static final Log log = LogFactory.getLog(ContextManagerNested.class);
+    private static final Logger log = LoggerFactory.getLogger(ContextManagerNested.class);
 
     private final String contextName;
     private final EPServicesContext servicesContext;

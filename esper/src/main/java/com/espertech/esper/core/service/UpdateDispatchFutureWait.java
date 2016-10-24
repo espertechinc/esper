@@ -9,8 +9,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.dispatch.Dispatchable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UpdateDispatchFutureWait can be added to a dispatch queue that is thread-local. It represents
@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class UpdateDispatchFutureWait implements Dispatchable
 {
-    private static final Log log = LogFactory.getLog(UpdateDispatchFutureWait.class);
+    private static final Logger log = LoggerFactory.getLogger(UpdateDispatchFutureWait.class);
     private UpdateDispatchViewBlockingWait view;
     private UpdateDispatchFutureWait earlier;
     private UpdateDispatchFutureWait later;
@@ -81,7 +81,7 @@ public class UpdateDispatchFutureWait implements Dispatchable
                     }
                     catch (InterruptedException e)
                     {
-                        log.error(e);
+                        log.error("Interupted: " + e.getMessage());
                     }
                 }
             }

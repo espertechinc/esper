@@ -16,15 +16,15 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 
 import javax.jms.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Marshals the response out of the event bean into a jms map message.
  */
 public class JMSDefaultMapMessageMarshaller implements JMSMessageMarshaller
 {
-    private final Log log = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public Message marshal(EventBean eventBean, Session session,
                            long timestamp) throws EPException

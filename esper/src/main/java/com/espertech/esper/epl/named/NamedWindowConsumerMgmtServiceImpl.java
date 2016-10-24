@@ -13,12 +13,12 @@ package com.espertech.esper.epl.named;
 
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NamedWindowConsumerMgmtServiceImpl implements NamedWindowConsumerMgmtService {
 
-    private static Log log = LogFactory.getLog(NamedWindowConsumerMgmtServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(NamedWindowConsumerMgmtServiceImpl.class);
 
     public final static NamedWindowConsumerMgmtServiceImpl INSTANCE = new NamedWindowConsumerMgmtServiceImpl();
 

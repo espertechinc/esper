@@ -33,7 +33,7 @@ import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.lookup.IndexedPropDesc;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.*;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -46,7 +46,7 @@ public class FireAndForgetQueryExec
                                           VirtualDWView virtualDataWindow,
                                           EventTableIndexRepository indexRepository,
                                           boolean queryPlanLogging,
-                                          Log queryPlanLogDestination,
+                                          Logger queryPlanLogDestination,
                                           String objectName,
                                           AgentInstanceContext agentInstanceContext) {
 

@@ -20,8 +20,8 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -325,5 +325,5 @@ public class TestMapEventType extends TestCase
         return levelZero;
     }
 
-    private static final Log log = LogFactory.getLog(TestMapEventType.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMapEventType.class);
 }

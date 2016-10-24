@@ -14,8 +14,8 @@ package com.espertech.esper.core.thread;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.core.service.EPRuntimeImpl;
 import com.espertech.esper.core.service.EPServicesContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
@@ -24,7 +24,7 @@ import java.util.concurrent.*;
  */
 public class ThreadingServiceImpl implements ThreadingService
 {
-    private static final Log log = LogFactory.getLog(ThreadingServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ThreadingServiceImpl.class);
 
     private final ConfigurationEngineDefaults.Threading config;
     private final boolean isTimerThreading;

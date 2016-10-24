@@ -9,14 +9,14 @@ import com.espertech.esper.example.matchmaker.eventbean.HairColor;
 import com.espertech.esper.example.matchmaker.eventbean.MobileUserBean;
 import com.espertech.esper.example.matchmaker.monitor.MatchAlertListener;
 import com.espertech.esper.example.matchmaker.monitor.MatchMakingMonitor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
 public class MatchMakerMain implements Runnable
 {
-    private static final Log log = LogFactory.getLog(MatchMakerMain.class);
+    private static final Logger log = LoggerFactory.getLogger(MatchMakerMain.class);
 
     private final String engineURI;
     private final boolean continuousSimulation;

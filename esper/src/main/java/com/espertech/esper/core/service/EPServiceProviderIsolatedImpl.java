@@ -12,8 +12,8 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ import java.util.*;
  */
 public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedSPI
 {
-    private static final Log log = LogFactory.getLog(EPServiceProviderIsolatedImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EPServiceProviderIsolatedImpl.class);
 
     private final String name;
     private final EPRuntimeIsolatedSPI runtime;

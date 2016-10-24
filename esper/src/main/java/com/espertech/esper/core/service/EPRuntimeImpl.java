@@ -53,8 +53,8 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.MetricUtil;
 import com.espertech.esper.util.ThreadLogUtil;
 import com.espertech.esper.util.UuidGenerator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import java.lang.annotation.Annotation;
@@ -193,7 +193,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     {
         if (theEvent == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -220,7 +220,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     {
         if (document == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -250,7 +250,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
     {
         if (document == null)
         {
-            log.fatal(".sendEvent Null object supplied");
+            log.error(".sendEvent Null object supplied");
             return;
         }
 
@@ -1855,5 +1855,5 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         }
     }
 
-    protected static final Log log = LogFactory.getLog(EPRuntimeImpl.class);
+    protected static final Logger log = LoggerFactory.getLogger(EPRuntimeImpl.class);
 }

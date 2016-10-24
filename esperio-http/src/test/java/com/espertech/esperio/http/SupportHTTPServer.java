@@ -7,8 +7,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,7 +16,7 @@ import java.net.ServerSocket;
 import com.espertech.esperio.http.core.EsperHttpServiceClassicRunnable;
 
 public class SupportHTTPServer {
-    private static Log log = LogFactory.getLog(SupportHTTPServer.class);
+    private static Logger log = LoggerFactory.getLogger(SupportHTTPServer.class);
 
     private final int port;
     private ServerSocket serversocket;

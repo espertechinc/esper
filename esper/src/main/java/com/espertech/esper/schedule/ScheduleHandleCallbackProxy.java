@@ -14,8 +14,8 @@ package com.espertech.esper.schedule;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.lang.reflect.Method;

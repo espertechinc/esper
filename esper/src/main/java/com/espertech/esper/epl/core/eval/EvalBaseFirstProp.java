@@ -17,12 +17,12 @@ import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventAdapterService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class EvalBaseFirstProp implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalBaseFirstProp.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalBaseFirstProp.class);
 
     private final SelectExprContext selectExprContext;
     private final EventType resultEventType;

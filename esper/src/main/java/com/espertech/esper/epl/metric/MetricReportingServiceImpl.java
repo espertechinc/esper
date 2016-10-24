@@ -17,8 +17,8 @@ import com.espertech.esper.core.service.StatementLifecycleEvent;
 import com.espertech.esper.core.service.StatementLifecycleObserver;
 import com.espertech.esper.core.service.StatementResultListener;
 import com.espertech.esper.util.MetricUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class MetricReportingServiceImpl implements MetricReportingServiceSPI, MetricEventRouter, StatementLifecycleObserver
 {
-    private static final Log log = LogFactory.getLog(MetricReportingServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(MetricReportingServiceImpl.class);
 
     private final ConfigurationMetricsReporting specification;
     private final String engineUri;

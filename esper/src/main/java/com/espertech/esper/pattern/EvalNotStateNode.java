@@ -10,8 +10,8 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -124,5 +124,5 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator
         return "EvalNotStateNode child=" + childNode;
     }
 
-    private static final Log log = LogFactory.getLog(EvalNotStateNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalNotStateNode.class);
 }

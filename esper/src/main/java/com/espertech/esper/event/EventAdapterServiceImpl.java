@@ -25,8 +25,8 @@ import com.espertech.esper.event.xml.*;
 import com.espertech.esper.plugin.*;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.URIUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventAdapterServiceImpl implements EventAdapterService
 {
-    private static Log log = LogFactory.getLog(EventAdapterServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EventAdapterServiceImpl.class);
 
     private final ConcurrentHashMap<Class, BeanEventType> typesPerJavaBean;
     private final Map<String, EventType> nameToTypeMap;

@@ -58,8 +58,8 @@ import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.HistoricalEventViewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -67,7 +67,7 @@ import java.util.*;
 @DataFlowOperator
 public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
 
-    private static final Log log = LogFactory.getLog(Select.class);
+    private static final Logger log = LoggerFactory.getLogger(Select.class);
 
     @DataFlowOpParameter
     private StatementSpecRaw select;

@@ -14,15 +14,15 @@ package com.espertech.esper.core.thread;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPRuntimeImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Route execution work unit.
  */
 public class RouteUnitMultiple implements RouteUnitRunnable
 {
-    private static final Log log = LogFactory.getLog(RouteUnitMultiple.class);
+    private static final Logger log = LoggerFactory.getLogger(RouteUnitMultiple.class);
 
     private final EPRuntimeImpl epRuntime;
     private final EventBean theEvent;

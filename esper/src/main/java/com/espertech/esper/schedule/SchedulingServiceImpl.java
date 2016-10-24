@@ -12,8 +12,8 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.metrics.jmx.JmxGetter;
 import com.espertech.esper.timer.TimeSourceService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -256,5 +256,5 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         }
     }
 
-    private static final Log log = LogFactory.getLog(SchedulingServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SchedulingServiceImpl.class);
 }

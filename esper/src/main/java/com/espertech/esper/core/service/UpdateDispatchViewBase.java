@@ -13,8 +13,8 @@ import com.espertech.esper.dispatch.Dispatchable;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -87,5 +87,5 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
         return statementResultService;
     }
 
-    private static Log log = LogFactory.getLog(UpdateDispatchViewBase.class);
+    private static Logger log = LoggerFactory.getLogger(UpdateDispatchViewBase.class);
 }

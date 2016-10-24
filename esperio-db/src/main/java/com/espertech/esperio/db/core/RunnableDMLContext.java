@@ -10,12 +10,12 @@ package com.espertech.esperio.db.core;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.db.DatabaseConnectionFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RunnableDMLContext
 {
-    private static Log log = LogFactory.getLog(RunnableDMLContext.class);
+    private static Logger log = LoggerFactory.getLogger(RunnableDMLContext.class);
 
     private final String name;
     private final DatabaseConnectionFactory connectionFactory;

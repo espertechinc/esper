@@ -18,8 +18,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestSelectExprSQLCompat extends TestCase
 {
@@ -92,5 +92,5 @@ public class TestSelectExprSQLCompat extends TestCase
         engine.getEPRuntime().sendEvent(bean);
     }
 
-    private static final Log log = LogFactory.getLog(TestSelectExpr.class);
+    private static final Logger log = LoggerFactory.getLogger(TestSelectExpr.class);
 }

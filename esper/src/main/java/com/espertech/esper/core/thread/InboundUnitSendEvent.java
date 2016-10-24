@@ -12,15 +12,15 @@
 package com.espertech.esper.core.thread;
 
 import com.espertech.esper.core.service.EPRuntimeImpl;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Inbound unit for unwrapped events.
  */
 public class InboundUnitSendEvent implements InboundUnitRunnable
 {
-    private static final Log log = LogFactory.getLog(InboundUnitSendEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(InboundUnitSendEvent.class);
     private final Object theEvent;
     private final EPRuntimeImpl runtime;
 

@@ -1,7 +1,7 @@
 package com.espertech.esperio.http;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SupportHTTPServerReqestHandler implements HttpRequestHandler {
 
-    private static Log log = LogFactory.getLog(SupportHTTPServerReqestHandler.class);
+    private static Logger log = LoggerFactory.getLogger(SupportHTTPServerReqestHandler.class);
 
     private static List<String> targets = new ArrayList<String>();
 

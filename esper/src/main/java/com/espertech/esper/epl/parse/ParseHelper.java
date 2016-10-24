@@ -18,8 +18,8 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -392,5 +392,5 @@ public class ParseHelper {
         }
     }
 
-    private static Log log = LogFactory.getLog(ParseHelper.class);
+    private static Logger log = LoggerFactory.getLogger(ParseHelper.class);
 }

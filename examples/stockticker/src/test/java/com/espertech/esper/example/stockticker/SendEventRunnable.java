@@ -9,8 +9,8 @@
 package com.espertech.esper.example.stockticker;
 
 import com.espertech.esper.client.EPServiceProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SendEventRunnable implements Runnable
 {
@@ -31,9 +31,9 @@ public class SendEventRunnable implements Runnable
         }
         catch (Exception ex)
         {
-            log.fatal(ex);
+            log.error("Failed to run: {}", ex.getMessage(), ex);
         }
     }
 
-    private static final Log log = LogFactory.getLog(SendEventRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(SendEventRunnable.class);
 }

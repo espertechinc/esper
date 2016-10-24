@@ -15,8 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.concurrent.*;
  */
 public class TestMTContextListenerDispatch extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTContextListenerDispatch.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTContextListenerDispatch.class);
     private EPServiceProvider engine;
 
     public void setUp()

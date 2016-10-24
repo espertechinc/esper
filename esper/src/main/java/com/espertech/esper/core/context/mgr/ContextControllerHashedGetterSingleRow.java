@@ -23,14 +23,14 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class ContextControllerHashedGetterSingleRow implements EventPropertyGetter {
-    private static final Log log = LogFactory.getLog(ContextControllerHashedGetterSingleRow.class);
+    private static final Logger log = LoggerFactory.getLogger(ContextControllerHashedGetterSingleRow.class);
 
     private final String statementName;
     private final FastMethod fastMethod;

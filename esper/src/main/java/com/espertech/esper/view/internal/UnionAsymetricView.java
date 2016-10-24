@@ -17,8 +17,8 @@ import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.collection.RefCountedSet;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class UnionAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer, ViewContainer
 {
-    private static final Log log = LogFactory.getLog(UnionAsymetricView.class);
+    private static final Logger log = LoggerFactory.getLogger(UnionAsymetricView.class);
 
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final UnionViewFactory unionViewFactory;

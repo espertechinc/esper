@@ -1,12 +1,12 @@
 package com.espertech.esper.example.trivia;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 
 public class SimulatorThreadFactory implements ThreadFactory {
-    private static Log log = LogFactory.getLog(SimulatorThreadFactory.class);
+    private static Logger log = LoggerFactory.getLogger(SimulatorThreadFactory.class);
 
     private final String engineURI;
     private final String name;

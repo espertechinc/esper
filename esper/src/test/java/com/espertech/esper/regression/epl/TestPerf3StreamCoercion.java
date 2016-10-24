@@ -18,8 +18,8 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPerf3StreamCoercion extends TestCase
 {
@@ -144,5 +144,5 @@ public class TestPerf3StreamCoercion extends TestCase
         epService.getEPRuntime().sendEvent(bean);
     }
 
-    private static final Log log = LogFactory.getLog(TestPerf3StreamCoercion.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerf3StreamCoercion.class);
 }

@@ -13,15 +13,15 @@ package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 
 public class CalendarOpPlusFastAddHelper {
 
     private static boolean DEBUG = false;
-    private static Log log = LogFactory.getLog(CalendarOpPlusFastAddHelper.class);
+    private static Logger log = LoggerFactory.getLogger(CalendarOpPlusFastAddHelper.class);
 
     public static CalendarOpPlusFastAddResult computeNextDue(long currentTime, TimePeriod timePeriod, Calendar reference) {
         if (reference.getTimeInMillis() > currentTime) {

@@ -15,12 +15,12 @@ import com.espertech.esper.metrics.codahale_metrics.metrics.MetricNameFactory;
 import com.espertech.esper.metrics.codahale_metrics.metrics.core.MetricName;
 import com.espertech.esper.metrics.jmx.*;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestAnnotationJMX extends TestCase {
 
-    private static final Log log = LogFactory.getLog(TestAnnotationJMX.class);
+    private static final Logger log = LoggerFactory.getLogger(TestAnnotationJMX.class);
 
     public void testAnnotations() throws Exception {
         MetricName metricName = MetricNameFactory.name("default", "test", TestAnnotationJMX.class);

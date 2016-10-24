@@ -18,8 +18,8 @@ import com.espertech.esper.epl.spec.CreateDataFlowDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.ZeroDepthStreamNoIterate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
@@ -28,7 +28,7 @@ import java.util.Collections;
  */
 public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBase
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateGraph.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateGraph.class);
 
     public EPStatementStartMethodCreateGraph(StatementSpecCompiled statementSpec) {
         super(statementSpec);

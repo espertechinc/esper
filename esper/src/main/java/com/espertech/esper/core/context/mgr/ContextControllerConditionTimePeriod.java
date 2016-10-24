@@ -21,14 +21,14 @@ import com.espertech.esper.epl.spec.ContextDetailConditionTimePeriod;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
 public class ContextControllerConditionTimePeriod implements ContextControllerCondition {
 
-    private static final Log log = LogFactory.getLog(ContextControllerConditionTimePeriod.class);
+    private static final Logger log = LoggerFactory.getLogger(ContextControllerConditionTimePeriod.class);
 
     private final String contextName;
     private final AgentInstanceContext agentInstanceContext;

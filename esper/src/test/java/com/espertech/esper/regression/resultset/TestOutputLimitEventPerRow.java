@@ -26,8 +26,8 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.regression.support.ResultAssertTestResult;
 import com.espertech.esper.regression.support.ResultAssertExecution;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class TestOutputLimitEventPerRow extends TestCase
@@ -1180,5 +1180,5 @@ public class TestOutputLimitEventPerRow extends TestCase
 	    epService.getEPRuntime().sendEvent(bean);
 	}
 
-    private static final Log log = LogFactory.getLog(TestOutputLimitEventPerRow.class);
+    private static final Logger log = LoggerFactory.getLogger(TestOutputLimitEventPerRow.class);
 }

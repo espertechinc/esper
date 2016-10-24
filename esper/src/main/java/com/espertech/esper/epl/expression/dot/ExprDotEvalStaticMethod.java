@@ -19,14 +19,14 @@ import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGetter
 {
-    private static final Log log = LogFactory.getLog(ExprDotEvalStaticMethod.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotEvalStaticMethod.class);
 
     private final String statementName;
     private final String classOrPropertyName;

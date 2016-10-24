@@ -228,7 +228,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
         return type;
     }
 
-    public Object getMultirowMessage() {
+    public String getMultirowMessage() {
         return "Subselect of statement '" + statementName + "' returned more then one row in subselect " + subselectNumber + " '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this) + "', returning null result";
     }
 

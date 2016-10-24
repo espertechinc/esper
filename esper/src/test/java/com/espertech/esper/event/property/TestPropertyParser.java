@@ -14,8 +14,8 @@ package com.espertech.esper.event.property;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -67,5 +67,5 @@ public class TestPropertyParser extends TestCase
         return ((MappedProperty)property).getKey();
     }
 
-    private final static Log log = LogFactory.getLog(TestPropertyParser.class);
+    private final static Logger log = LoggerFactory.getLogger(TestPropertyParser.class);
 }

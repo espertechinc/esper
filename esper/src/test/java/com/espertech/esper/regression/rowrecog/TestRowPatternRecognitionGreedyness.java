@@ -20,12 +20,12 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestRowPatternRecognitionGreedyness extends TestCase {
 
-    private static final Log log = LogFactory.getLog(TestRowPatternRecognitionGreedyness.class);
+    private static final Logger log = LoggerFactory.getLogger(TestRowPatternRecognitionGreedyness.class);
 
     public void testReluctantZeroToOne()
     {

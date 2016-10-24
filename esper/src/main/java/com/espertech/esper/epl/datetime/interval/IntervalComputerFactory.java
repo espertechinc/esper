@@ -17,8 +17,8 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaNonConst;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -347,7 +347,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerCoincidesWithDeltaExpr implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerCoincidesWithDeltaExpr.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerCoincidesWithDeltaExpr.class);
 
         private final IntervalDeltaExprEvaluator start;
         private final IntervalDeltaExprEvaluator finish;
@@ -524,7 +524,7 @@ public class IntervalComputerFactory {
     }
 
     public static class IntervalComputerFinishesThreshold implements IntervalComputer {
-        private static final Log log = LogFactory.getLog(IntervalComputerFinishesThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerFinishesThreshold.class);
 
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
@@ -561,7 +561,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerFinishedByThreshold implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerFinishedByThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerFinishedByThreshold.class);
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerFinishedByThreshold(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -596,7 +596,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerMeetsThreshold implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerMeetsThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerMeetsThreshold.class);
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerMeetsThreshold(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -627,7 +627,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerMetByThreshold implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerMetByThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerMetByThreshold.class);
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
         public IntervalComputerMetByThreshold(IntervalDeltaExprEvaluator thresholdExpr) {
@@ -745,7 +745,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerStartsThreshold implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerStartsThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerStartsThreshold.class);
 
         private final IntervalDeltaExprEvaluator thresholdExpr;
 
@@ -778,7 +778,7 @@ public class IntervalComputerFactory {
 
     public static class IntervalComputerStartedByThreshold implements IntervalComputer {
 
-        private static final Log log = LogFactory.getLog(IntervalComputerStartedByThreshold.class);
+        private static final Logger log = LoggerFactory.getLogger(IntervalComputerStartedByThreshold.class);
 
         private final IntervalDeltaExprEvaluator thresholdExpr;
 

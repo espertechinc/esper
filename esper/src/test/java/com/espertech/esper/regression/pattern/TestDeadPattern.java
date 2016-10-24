@@ -20,8 +20,8 @@ import com.espertech.esper.support.bean.SupportBean_B;
 import com.espertech.esper.support.bean.SupportBean_C;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class TestDeadPattern extends TestCase
 {
@@ -63,5 +63,5 @@ public class TestDeadPattern extends TestCase
         assertTrue("performance: delta=" +  delta, delta < 20);
     }
 
-    private final static Log log = LogFactory.getLog(TestDeadPattern.class);
+    private final static Logger log = LoggerFactory.getLogger(TestDeadPattern.class);
 }

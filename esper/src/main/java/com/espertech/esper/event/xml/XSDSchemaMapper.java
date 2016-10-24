@@ -20,8 +20,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -56,7 +56,7 @@ import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
  */
 public class XSDSchemaMapper
 {
-    private static final Log log = LogFactory.getLog(XSDSchemaMapper.class);
+    private static final Logger log = LoggerFactory.getLogger(XSDSchemaMapper.class);
 
     private static final int JAVA5_COMPLEX_TYPE = 13;
     private static final int JAVA5_SIMPLE_TYPE = 14;

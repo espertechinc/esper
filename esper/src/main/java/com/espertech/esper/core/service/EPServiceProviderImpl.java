@@ -37,8 +37,8 @@ import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.SerializableObjectCopier;
 import com.espertech.esper.util.Version;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -54,7 +54,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public class EPServiceProviderImpl implements EPServiceProviderSPI
 {
-    private static final Log log = LogFactory.getLog(EPServiceProviderImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EPServiceProviderImpl.class);
     private volatile EPServiceEngine engine;
     private ConfigurationInformation configSnapshot;
     private String engineURI;

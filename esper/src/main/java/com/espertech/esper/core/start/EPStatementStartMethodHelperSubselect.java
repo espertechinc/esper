@@ -63,15 +63,15 @@ import com.espertech.esper.view.StoppableView;
 import com.espertech.esper.view.ViewFactoryChain;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.ViewServiceHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class EPStatementStartMethodHelperSubselect
 {
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
     private final static String MSG_SUBQUERY_REQUIRES_WINDOW = "Subqueries require one or more views to limit the stream, consider declaring a length or time window (applies to correlated or non-fully-aggregated subqueries)";
 
     protected static SubSelectActivationCollection createSubSelectActivation(EPServicesContext services, StatementSpecCompiled statementSpecContainer, StatementContext statementContext, EPStatementDestroyCallbackList destroyCallbacks)

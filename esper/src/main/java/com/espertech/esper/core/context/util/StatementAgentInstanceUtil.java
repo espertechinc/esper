@@ -44,14 +44,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.rowregex.RegexExprPreviousEvalStrategy;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class StatementAgentInstanceUtil {
 
-    private static final Log log = LogFactory.getLog(EPStatementStopMethodImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStopMethodImpl.class);
 
     public static void handleFilterFault(EventBean theEvent, long version, EPServicesContext servicesContext, Map<Integer, ContextControllerTreeAgentInstanceList> agentInstanceListMap) {
         for (Map.Entry<Integer, ContextControllerTreeAgentInstanceList> agentInstanceEntry : agentInstanceListMap.entrySet()) {

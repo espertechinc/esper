@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestMTStmtNamedWindowSubqueryLookup extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTStmtNamedWindowSubqueryLookup.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTStmtNamedWindowSubqueryLookup.class);
 
     private EPServiceProvider engine;
 

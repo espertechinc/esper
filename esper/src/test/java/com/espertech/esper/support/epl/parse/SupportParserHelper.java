@@ -29,8 +29,8 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -148,5 +148,5 @@ public class SupportParserHelper
         return new Pair<Tree, CommonTokenStream>(ctx, tokens);
     }
 
-    private final static Log log = LogFactory.getLog(SupportParserHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(SupportParserHelper.class);
 }

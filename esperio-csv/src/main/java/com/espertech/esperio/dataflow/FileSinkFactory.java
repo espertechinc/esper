@@ -14,12 +14,12 @@ package com.espertech.esperio.dataflow;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.dataflow.interfaces.DataFlowOperatorFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileSinkFactory implements DataFlowOperatorFactory {
 
-    private static final Log log = LogFactory.getLog(FileSinkFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(FileSinkFactory.class);
 
     @DataFlowOpParameter
     private String file;

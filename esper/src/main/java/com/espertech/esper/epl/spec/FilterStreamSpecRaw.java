@@ -25,8 +25,8 @@ import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.MetaDefItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw, MetaDefItem, Serializable
 {
-    private static Log log = LogFactory.getLog(FilterStreamSpecRaw.class);
+    private static Logger log = LoggerFactory.getLogger(FilterStreamSpecRaw.class);
     private FilterSpecRaw rawFilterSpec;
     private static final long serialVersionUID = -7919060568262701953L;
 

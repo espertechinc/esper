@@ -29,8 +29,8 @@ import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.util.NullableObject;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InternalEventRouterImpl implements InternalEventRouter
 {
-    private static final Log log = LogFactory.getLog(InternalEventRouterImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(InternalEventRouterImpl.class);
 
     private final ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>> preprocessors;
     private final Map<UpdateDesc, IRDescEntry> descriptors;

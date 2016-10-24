@@ -21,12 +21,12 @@ import com.espertech.esper.support.bean.SupportBean_ST0;
 import com.espertech.esper.support.bean.SupportBean_ST1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPerf3StreamRangeJoin extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestPerf3StreamRangeJoin.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerf3StreamRangeJoin.class);
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
 

@@ -17,8 +17,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestDoubleRangeComparator extends TestCase
 {
@@ -63,5 +63,5 @@ public class TestDoubleRangeComparator extends TestCase
         assertEquals(count, TEST_SET.length);
     }
 
-    private static final Log log = LogFactory.getLog(TestDoubleRangeComparator.class);
+    private static final Logger log = LoggerFactory.getLogger(TestDoubleRangeComparator.class);
 }

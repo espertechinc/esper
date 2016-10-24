@@ -18,8 +18,8 @@ import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.support.bean.SupportBean_N;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestInvalidPattern extends TestCase
 {
@@ -220,5 +220,5 @@ public class TestInvalidPattern extends TestCase
         epService.getEPAdministrator().createPattern(eplInvalidPattern);
     }
 
-    private final static Log log = LogFactory.getLog(TestInvalidPattern.class);
+    private final static Logger log = LoggerFactory.getLogger(TestInvalidPattern.class);
 }

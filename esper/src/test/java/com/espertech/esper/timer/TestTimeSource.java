@@ -13,8 +13,8 @@ package com.espertech.esper.timer;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ensure that TimeSourceMills and TimeSourceMills
@@ -60,5 +60,5 @@ public class TestTimeSource extends TestCase
         assertTrue("Diff "+diff+" >= "+TOLERANCE_MILLISECS, Math.abs(diff) < TOLERANCE_MILLISECS);
 	}
 
-    private static final Log log = LogFactory.getLog(TestTimeSource.class);
+    private static final Logger log = LoggerFactory.getLogger(TestTimeSource.class);
 }

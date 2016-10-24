@@ -19,8 +19,8 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.event.EventTypeAssertionUtil;
 import com.espertech.esper.util.FileUtil;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -408,5 +408,5 @@ public class TestSchemaXMLEvent extends TestCase
     }
      */
 
-    private static final Log log = LogFactory.getLog(TestSchemaXMLEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(TestSchemaXMLEvent.class);
 }

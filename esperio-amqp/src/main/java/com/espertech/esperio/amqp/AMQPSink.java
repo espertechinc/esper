@@ -19,15 +19,15 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.AMQP.BasicProperties.Builder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import java.io.IOException;
 
 @DataFlowOperator
 public class AMQPSink implements DataFlowOpLifecycle {
-    private static final Log log = LogFactory.getLog(AMQPSink.class);
+    private static final Logger log = LoggerFactory.getLogger(AMQPSink.class);
 
     @DataFlowOpPropertyHolder
     private AMQPSettingsSink settings;

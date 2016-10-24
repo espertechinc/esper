@@ -12,8 +12,8 @@ import com.espertech.esper.example.servershell.ServerShellConstants;
 import com.espertech.esper.example.servershell.jms.JMSContext;
 import com.espertech.esper.example.servershell.jms.JMSContextFactory;
 import com.espertech.esper.example.servershell.jmx.EPServiceProviderJMXMBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
@@ -31,7 +31,7 @@ import java.util.Random;
 
 public class ServerShellClientMain
 {
-    private static Log log = LogFactory.getLog(ServerShellClientMain.class);
+    private static Logger log = LoggerFactory.getLogger(ServerShellClientMain.class);
 
     public static void main(String[] args) throws Exception
     {

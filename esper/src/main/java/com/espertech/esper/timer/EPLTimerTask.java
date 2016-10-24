@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.timer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 final class EPLTimerTask implements Runnable
 {
-    private static final Log log = LogFactory.getLog(EPLTimerTask.class);
+    private static final Logger log = LoggerFactory.getLogger(EPLTimerTask.class);
     private final TimerCallback callback;
     private ScheduledFuture<?> future;
     private boolean isCancelled;

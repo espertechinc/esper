@@ -23,8 +23,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestCGLibPropertyGetter extends TestCase
 {
@@ -125,5 +125,5 @@ public class TestCGLibPropertyGetter extends TestCase
         fastClassNested.getMethod(methodNested);        
     }
 
-    private static final Log log = LogFactory.getLog(TestCGLibPropertyGetter.class);
+    private static final Logger log = LoggerFactory.getLogger(TestCGLibPropertyGetter.class);
 }

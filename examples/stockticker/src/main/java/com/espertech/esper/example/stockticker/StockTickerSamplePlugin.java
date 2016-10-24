@@ -3,12 +3,12 @@ package com.espertech.esper.example.stockticker;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StockTickerSamplePlugin implements PluginLoader
 {
-    private static final Log log = LogFactory.getLog(StockTickerSamplePlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(StockTickerSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
 

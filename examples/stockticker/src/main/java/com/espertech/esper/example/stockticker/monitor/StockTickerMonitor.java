@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
 import com.espertech.esper.example.stockticker.eventbean.StockTick;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StockTickerMonitor
 {
@@ -128,5 +128,5 @@ public class StockTickerMonitor
         if (highPriceListener != null) highPriceListener.removeAllListeners();
     }
 
-    private static final Log log = LogFactory.getLog(StockTickerMonitor.class);
+    private static final Logger log = LoggerFactory.getLogger(StockTickerMonitor.class);
 }

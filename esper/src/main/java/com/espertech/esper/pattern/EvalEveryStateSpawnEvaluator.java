@@ -11,8 +11,8 @@
 
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains the state of an 'every' operator in the evaluation state tree.
@@ -53,6 +53,6 @@ public final class EvalEveryStateSpawnEvaluator implements Evaluator
         return true;
     }
 
-    private static final Log log = LogFactory.getLog(EvalEveryStateSpawnEvaluator.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalEveryStateSpawnEvaluator.class);
 }
 

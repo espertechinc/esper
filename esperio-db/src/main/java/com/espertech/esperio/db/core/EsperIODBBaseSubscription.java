@@ -11,15 +11,15 @@ package com.espertech.esperio.db.core;
 import com.espertech.esper.adapter.BaseSubscription;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.filter.FilterHandleCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
 
 public class EsperIODBBaseSubscription extends BaseSubscription
 {
-    private static Log log = LogFactory.getLog(EsperIODBBaseSubscription.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIODBBaseSubscription.class);
 
     private final RunnableFactory runnableFactory;
     private final Executor executor;

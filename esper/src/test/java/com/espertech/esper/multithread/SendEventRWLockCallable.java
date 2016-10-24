@@ -17,8 +17,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SendEventRWLockCallable implements Callable
 {
@@ -48,7 +48,7 @@ public class SendEventRWLockCallable implements Callable
         }
         catch (RuntimeException ex)
         {
-            log.fatal("Error in thread " + threadNum, ex);
+            log.error("Error in thread " + threadNum, ex);
             return false;
         }
         log.info(".call Thread " + Thread.currentThread().getId() + " done");
@@ -56,5 +56,5 @@ public class SendEventRWLockCallable implements Callable
         return true;
     }
 
-    private static final Log log = LogFactory.getLog(SendEventRWLockCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(SendEventRWLockCallable.class);
 }

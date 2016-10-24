@@ -19,8 +19,8 @@ import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class TestReflectionPropMethodGetter extends TestCase
 {
@@ -84,5 +84,5 @@ public class TestReflectionPropMethodGetter extends TestCase
         return getter;
     }
 
-    private static final Log log = LogFactory.getLog(TestReflectionPropMethodGetter.class);
+    private static final Logger log = LoggerFactory.getLogger(TestReflectionPropMethodGetter.class);
 }

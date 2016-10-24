@@ -12,8 +12,8 @@
 package com.espertech.esper.metrics.jmx;
 
 import com.espertech.esper.metrics.codahale_metrics.metrics.core.MetricName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import javax.management.modelmbean.*;
@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class CommonJMXUtil {
-    private static Log log = LogFactory.getLog(CommonJMXUtil.class);
+    private static Logger log = LoggerFactory.getLogger(CommonJMXUtil.class);
 
     private static final Object LOCK = new Object();
 

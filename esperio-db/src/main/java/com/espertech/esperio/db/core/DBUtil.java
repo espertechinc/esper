@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esperio.db.core;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ import java.sql.Blob;
 
 public class DBUtil
 {
-    private static Log log = LogFactory.getLog(DBUtil.class);
+    private static Logger log = LoggerFactory.getLogger(DBUtil.class);
 
     /**
      * Returns the object value for a given column and type.

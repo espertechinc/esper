@@ -17,8 +17,8 @@ import junit.framework.TestCase;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestASTFilterSpecHelper extends TestCase
 {
@@ -132,5 +132,5 @@ public class TestASTFilterSpecHelper extends TestCase
         }
     }
 
-    private static final Log log = LogFactory.getLog(TestASTFilterSpecHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(TestASTFilterSpecHelper.class);
 }

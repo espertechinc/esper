@@ -27,8 +27,8 @@ import com.espertech.esper.support.epl.SupportDatabaseService;
 import com.espertech.esper.support.epl.SupportQueryPlanIndexHook;
 import com.espertech.esper.support.util.IndexBackingTableInfo;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -334,5 +334,5 @@ public class TestDatabaseJoinPerfWithCache extends TestCase implements IndexBack
         assertTrue("Delta=" + delta, delta < 500);
     }
 
-    private static final Log log = LogFactory.getLog(TestDatabaseJoinPerfWithCache.class);
+    private static final Logger log = LoggerFactory.getLogger(TestDatabaseJoinPerfWithCache.class);
 }

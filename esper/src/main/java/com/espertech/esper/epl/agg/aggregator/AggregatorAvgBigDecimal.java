@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.epl.agg.aggregator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -20,7 +20,7 @@ import java.math.MathContext;
  */
 public class AggregatorAvgBigDecimal implements AggregationMethod
 {
-    private static final Log log = LogFactory.getLog(AggregatorAvgBigDecimal.class);
+    private static final Logger log = LoggerFactory.getLogger(AggregatorAvgBigDecimal.class);
     protected BigDecimal sum;
     protected long numDataPoints;
     protected MathContext optionalMathContext;

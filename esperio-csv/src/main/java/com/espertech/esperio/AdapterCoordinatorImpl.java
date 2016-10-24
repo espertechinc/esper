@@ -23,15 +23,15 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.InputAdapter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of AdapterCoordinator.
  */
 public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implements AdapterCoordinator
 {
-	private static final Log log = LogFactory.getLog(AdapterCoordinatorImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(AdapterCoordinatorImpl.class);
 
     private final Map<SendableEvent, CoordinatedAdapter> eventsFromAdapters = new HashMap<SendableEvent, CoordinatedAdapter>();
 	private final Set<CoordinatedAdapter> emptyAdapters = new HashSet<CoordinatedAdapter>();

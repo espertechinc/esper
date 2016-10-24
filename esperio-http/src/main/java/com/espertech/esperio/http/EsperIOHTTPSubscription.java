@@ -8,8 +8,8 @@ import com.espertech.esper.filter.FilterHandleCallback;
 import com.espertech.esper.util.PlaceholderParser;
 import com.espertech.esper.util.PlaceholderParseException;
 import com.espertech.esperio.http.core.URIUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.HttpClient;
@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class EsperIOHTTPSubscription extends BaseSubscription
 {
-    private static Log log = LogFactory.getLog(EsperIOHTTPSubscription.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPSubscription.class);
 
     private String uuid = UUID.randomUUID().toString();
 

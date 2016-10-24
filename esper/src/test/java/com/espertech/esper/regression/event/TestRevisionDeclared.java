@@ -28,12 +28,12 @@ import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestRevisionDeclared extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestRevisionDeclared.class);
+    private static final Logger log = LoggerFactory.getLogger(TestRevisionDeclared.class);
     private EPServiceProvider epService;
     private EPStatement stmtCreateWin;
     private SupportUpdateListener listenerOne;

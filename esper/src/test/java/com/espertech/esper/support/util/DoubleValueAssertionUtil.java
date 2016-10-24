@@ -11,8 +11,8 @@
 
 package com.espertech.esper.support.util;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Utility class for comparing double values up to a given precision
@@ -60,5 +60,5 @@ public class DoubleValueAssertionUtil
         return true;
     }
 
-    private static final Log log = LogFactory.getLog(DoubleValueAssertionUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(DoubleValueAssertionUtil.class);
 }

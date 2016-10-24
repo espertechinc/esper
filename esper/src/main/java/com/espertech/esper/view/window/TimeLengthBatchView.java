@@ -19,8 +19,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ import java.util.Iterator;
  * The view starts the first interval when the view is created.
  */
 public class TimeLengthBatchView extends ViewSupport implements CloneableView, StoppableView, StopCallback, DataWindowView {
-    private static final Log log = LogFactory.getLog(TimeLengthBatchView.class);
+    private static final Logger log = LoggerFactory.getLogger(TimeLengthBatchView.class);
 
     // View parameters
     private final TimeLengthBatchViewFactory timeLengthBatchViewFactory;

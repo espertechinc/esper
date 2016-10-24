@@ -23,8 +23,8 @@ import com.espertech.esper.support.util.IndexAssertionEventSend;
 import com.espertech.esper.support.util.IndexBackingTableInfo;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class TestNamedWindowJoin extends TestCase implements IndexBackingTableInfo
 {
-    private final static Log log = LogFactory.getLog(TestNamedWindowJoin.class);
+    private final static Logger log = LoggerFactory.getLogger(TestNamedWindowJoin.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listenerWindow;

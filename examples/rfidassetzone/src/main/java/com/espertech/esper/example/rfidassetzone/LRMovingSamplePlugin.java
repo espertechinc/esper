@@ -3,12 +3,12 @@ package com.espertech.esper.example.rfidassetzone;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LRMovingSamplePlugin implements PluginLoader
 {
-    private static final Log log = LogFactory.getLog(LRMovingSamplePlugin.class);
+    private static final Logger log = LoggerFactory.getLogger(LRMovingSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
 

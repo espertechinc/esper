@@ -14,8 +14,8 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.type.RangeParameter;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -26,7 +26,7 @@ import java.io.StringWriter;
  */
 public class ExprNumberSetRange extends ExprNodeBase implements ExprEvaluator
 {
-    private static final Log log = LogFactory.getLog(ExprNumberSetRange.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNumberSetRange.class);
     private transient ExprEvaluator evaluators[];
     private static final long serialVersionUID = -3777415170380735662L;
 

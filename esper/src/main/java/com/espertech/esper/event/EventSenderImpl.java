@@ -15,8 +15,8 @@ import com.espertech.esper.core.service.EPRuntimeEventSender;
 import com.espertech.esper.core.thread.InboundUnitSendWrapped;
 import com.espertech.esper.core.thread.ThreadingOption;
 import com.espertech.esper.core.thread.ThreadingService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class EventSenderImpl implements EventSender
 {
-    private static Log log = LogFactory.getLog(EventSenderImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EventSenderImpl.class);
     private final List<EventSenderURIDesc> handlingFactories;
     private final EPRuntimeEventSender epRuntime;
     private final ThreadingService threadingService;

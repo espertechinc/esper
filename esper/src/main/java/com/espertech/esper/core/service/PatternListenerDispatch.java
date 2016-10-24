@@ -15,15 +15,15 @@ import com.espertech.esper.dispatch.Dispatchable;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dispatchable for dispatching events to update listeners.
  */
 public class PatternListenerDispatch implements Dispatchable
 {
-    private static Log log = LogFactory.getLog(PatternListenerDispatch.class);
+    private static Logger log = LoggerFactory.getLogger(PatternListenerDispatch.class);
     private final Set<UpdateListener> listeners;
 
     private EventBean singleEvent;

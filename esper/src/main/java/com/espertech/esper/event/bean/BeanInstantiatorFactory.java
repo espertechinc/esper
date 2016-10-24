@@ -16,8 +16,8 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventBeanManufactureException;
 import com.espertech.esper.util.OnDemandSunReflectionFactory;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 
 public class BeanInstantiatorFactory
 {
-    private static Log log = LogFactory.getLog(BeanInstantiatorFactory.class);
+    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorFactory.class);
 
     private static final Constructor<Object> SUN_JVM_OBJECT_CONSTRUCTOR;
 

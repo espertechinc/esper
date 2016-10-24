@@ -21,8 +21,8 @@ import com.espertech.esper.util.ThreadLogUtil;
 
 import java.util.concurrent.Callable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import junit.framework.AssertionFailedError;
 
@@ -130,12 +130,12 @@ public class StmtMgmtCallable implements Callable
         }
         catch (AssertionFailedError ex)
         {
-            log.fatal("Assertion error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Assertion error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;
@@ -147,5 +147,5 @@ public class StmtMgmtCallable implements Callable
         return theEvent;
     }
 
-    private static final Log log = LogFactory.getLog(StmtMgmtCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtMgmtCallable.class);
 }

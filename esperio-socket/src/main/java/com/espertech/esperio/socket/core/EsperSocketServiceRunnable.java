@@ -4,8 +4,8 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EsperSocketServiceRunnable implements Runnable {
-    private static Log log = LogFactory.getLog(EsperSocketServiceRunnable.class);
+    private static Logger log = LoggerFactory.getLogger(EsperSocketServiceRunnable.class);
 
     private String serviceName;
     private SocketConfig serviceConfig;

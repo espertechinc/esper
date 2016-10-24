@@ -1,5 +1,5 @@
 Drop jars in this folder to have them take into account for the build and run classpath
-(esper, log4j, commons logging, antlr, cglib jars)
+(esper, log4j, slf4j, antlr, cglib jars)
 
 You can also drop additionnal jars.
 

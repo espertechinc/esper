@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esperio.db.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
@@ -27,7 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class ConfigurationDBAdapter {
-    private static Log log = LogFactory.getLog(ConfigurationDBAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapter.class);
 
     private Map<String, ConfigurationDBRef> jdbcConnections;
     private List<DMLQuery> dmlQueries;

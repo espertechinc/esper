@@ -21,12 +21,12 @@ import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestTableMTGroupedJoinReadMergeWriteSecondaryIndexUpd extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestTableMTGroupedJoinReadMergeWriteSecondaryIndexUpd.class);
+    private static final Logger log = LoggerFactory.getLogger(TestTableMTGroupedJoinReadMergeWriteSecondaryIndexUpd.class);
 
     private static final int NUM_KEYS = 10;
     private static final int OFFSET_ADDED = 100000000;

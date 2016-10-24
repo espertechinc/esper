@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.NaturalEventBean;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
 {
-    private static Log log = LogFactory.getLog(ResultDeliveryStrategyMap.class);
+    private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMap.class);
     protected final EPStatement statement;
     protected final Object subscriber;
     protected final FastMethod fastMethod;

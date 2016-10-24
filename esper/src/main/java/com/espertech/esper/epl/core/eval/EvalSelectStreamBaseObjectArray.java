@@ -17,14 +17,14 @@ import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public abstract class EvalSelectStreamBaseObjectArray extends EvalSelectStreamBase implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalSelectStreamBaseObjectArray.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalSelectStreamBaseObjectArray.class);
 
     public EvalSelectStreamBaseObjectArray(SelectExprContext selectExprContext, EventType resultEventType, List<SelectClauseStreamCompiledSpec> namedStreams, boolean usingWildcard) {
         super(selectExprContext, resultEventType, namedStreams, usingWildcard);

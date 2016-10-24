@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esperio.http.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ConfigurationHTTPAdapter {
-    private static Log log = LogFactory.getLog(ConfigurationHTTPAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(ConfigurationHTTPAdapter.class);
 
     private Map<String, Service> services;
     private List<GetHandler> getHandlers;

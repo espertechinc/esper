@@ -21,8 +21,8 @@ import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRangeIn;
 import com.espertech.esper.epl.join.plan.QueryGraphValueEntryRangeRelOp;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStrategy {
 
-    private static final Log log = LogFactory.getLog(SubordTableLookupStrategyVirtualDW.class);
+    private static final Logger log = LoggerFactory.getLogger(SubordTableLookupStrategyVirtualDW.class);
 
     private final String namedWindowName;
     private final VirtualDataWindowLookup externalIndex;

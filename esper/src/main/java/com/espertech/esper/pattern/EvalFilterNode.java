@@ -9,8 +9,8 @@
 package com.espertech.esper.pattern;
 
 import com.espertech.esper.filter.FilterValueSetParam;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a filter of events in the evaluation tree representing any event expressions.
@@ -48,5 +48,5 @@ public class EvalFilterNode extends EvalNodeBase
         return new EvalFilterStateNode(parentNode, this);
     }
 
-    private static final Log log = LogFactory.getLog(EvalFilterNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalFilterNode.class);
 }

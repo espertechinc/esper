@@ -18,12 +18,12 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.client.*;
 import com.espertech.esper.regression.client.SupportListenerTimerHRes;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestThreadedConfigRoute extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestThreadedConfigRoute.class);
+    private static final Logger log = LoggerFactory.getLogger(TestThreadedConfigRoute.class);
 
     public void testOp() throws Exception
     {

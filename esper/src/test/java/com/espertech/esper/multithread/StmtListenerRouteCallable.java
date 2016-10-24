@@ -23,8 +23,8 @@ import java.util.concurrent.Callable;
 
 import junit.framework.AssertionFailedError;
 import org.junit.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StmtListenerRouteCallable implements Callable
 {
@@ -56,12 +56,12 @@ public class StmtListenerRouteCallable implements Callable
         }
         catch (AssertionFailedError ex)
         {
-            log.fatal("Assertion error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Assertion error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         catch (Exception ex)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;
@@ -112,5 +112,5 @@ public class StmtListenerRouteCallable implements Callable
         }
     }
 
-    private static final Log log = LogFactory.getLog(StmtListenerRouteCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtListenerRouteCallable.class);
 }

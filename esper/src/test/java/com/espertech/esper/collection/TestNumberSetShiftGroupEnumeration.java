@@ -18,12 +18,12 @@ import java.util.TreeSet;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestNumberSetShiftGroupEnumeration extends TestCase {
 
-    private final static Log log = LogFactory.getLog(TestNumberSetShiftGroupEnumeration.class);
+    private final static Logger log = LoggerFactory.getLogger(TestNumberSetShiftGroupEnumeration.class);
 
     public void testGen() {
 

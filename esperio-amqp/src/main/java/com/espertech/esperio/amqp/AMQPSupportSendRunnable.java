@@ -15,15 +15,15 @@ import com.espertech.esper.util.SerializerUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AMQPSupportSendRunnable implements Runnable {
 
-    private static final Log log = LogFactory.getLog(AMQPSupportSendRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(AMQPSupportSendRunnable.class);
 
     private final String hostName;
     private final String queueName;

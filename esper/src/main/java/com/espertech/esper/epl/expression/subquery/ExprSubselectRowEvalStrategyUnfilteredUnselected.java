@@ -11,8 +11,8 @@ package com.espertech.esper.epl.expression.subquery;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class ExprSubselectRowEvalStrategyUnfilteredUnselected implements ExprSubselectRowEvalStrategy {
 
-    private static final Log log = LogFactory.getLog(ExprSubselectRowEvalStrategyUnfilteredUnselected.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprSubselectRowEvalStrategyUnfilteredUnselected.class);
 
     // No filter and no select-clause: return underlying event
     public Object evaluate(EventBean[] eventsPerStream, boolean newData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext,

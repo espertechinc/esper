@@ -20,8 +20,8 @@ import com.espertech.esper.support.event.SupportEventTypeFactory;
 import com.espertech.esper.support.filter.SupportFilterHandle;
 import com.espertech.esper.support.filter.SupportFilterSpecBuilder;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -198,5 +198,5 @@ public class TestFilterServiceImpl extends TestCase
         return SupportEventBeanFactory.createObject(bean);
     }
 
-    private static final Log log = LogFactory.getLog(TestFilterServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TestFilterServiceImpl.class);
 }

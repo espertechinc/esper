@@ -16,8 +16,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.support.util.ObjectReservationSingleton;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -71,7 +71,7 @@ public class IndexTreeBuilderRunnable implements Runnable
 
         if (matches.size() != 0)
         {
-            log.fatal(".run (" + currentThreadId + ") Got a match but expected no-match, matchCount=" + matches.size() + "  bean=" + unmatchedEvent +
+            log.error(".run (" + currentThreadId + ") Got a match but expected no-match, matchCount=" + matches.size() + "  bean=" + unmatchedEvent +
                       "  match=" + matches.get(0).hashCode());
             TestCase.assertFalse(true);
         }
@@ -81,7 +81,7 @@ public class IndexTreeBuilderRunnable implements Runnable
 
         if (matches.size() != 1)
         {
-            log.fatal(".run (" + currentThreadId + ") Got zero or two or more match but expected a match, count=" + matches.size() +
+            log.error(".run (" + currentThreadId + ") Got zero or two or more match but expected a match, count=" + matches.size() +
                     "  bean=" + matchedEvent);
             TestCase.assertFalse(true);
         }
@@ -93,5 +93,5 @@ public class IndexTreeBuilderRunnable implements Runnable
         ObjectReservationSingleton.getInstance().unreserve(filterSpec);
     }
 
-    private static final Log log = LogFactory.getLog(IndexTreeBuilderRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(IndexTreeBuilderRunnable.class);
 }

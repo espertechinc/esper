@@ -20,8 +20,8 @@ import com.espertech.esper.client.PropertyAccessException;
 
 import java.lang.reflect.Field;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestReflectionPropFieldGetter extends TestCase
 {
@@ -58,5 +58,5 @@ public class TestReflectionPropFieldGetter extends TestCase
         return getter;
     }
 
-    private static final Log log = LogFactory.getLog(TestReflectionPropFieldGetter.class);
+    private static final Logger log = LoggerFactory.getLogger(TestReflectionPropFieldGetter.class);
 }

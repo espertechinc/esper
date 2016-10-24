@@ -10,8 +10,8 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.collection.Pair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -128,5 +128,5 @@ public abstract class ConnectionCache
         return new Pair<Connection, PreparedStatement>(connection, preparedStatement);
     }
 
-    private static Log log = LogFactory.getLog(ConnectionCache.class);
+    private static Logger log = LoggerFactory.getLogger(ConnectionCache.class);
 }

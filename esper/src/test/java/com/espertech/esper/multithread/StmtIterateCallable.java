@@ -21,12 +21,12 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import junit.framework.AssertionFailedError;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StmtIterateCallable implements Callable
 {
-    private static final Log log = LogFactory.getLog(StmtIterateCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(StmtIterateCallable.class);
     private final int threadNum;
     private final EPServiceProvider engine;
     private final EPStatement stmt[];
@@ -72,12 +72,12 @@ public class StmtIterateCallable implements Callable
         }
         catch (AssertionFailedError ex)
         {
-            log.fatal("Assertion error in thread " + Thread.currentThread().getId(), ex);
+            log.error("Assertion error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         catch (Throwable t)
         {
-            log.fatal("Error in thread " + Thread.currentThread().getId(), t);
+            log.error("Error in thread " + Thread.currentThread().getId(), t);
             return false;
         }
         return true;

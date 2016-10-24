@@ -15,14 +15,14 @@ import com.espertech.esper.client.hook.ConditionPatternEngineSubexpressionMax;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.EvalNode;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PatternSubexpressionPoolEngineSvc {
-    private static final Log log = LogFactory.getLog(PatternSubexpressionPoolEngineSvc.class);
+    private static final Logger log = LoggerFactory.getLogger(PatternSubexpressionPoolEngineSvc.class);
 
     private volatile long maxPoolCountConfigured;
     private final boolean preventStart;

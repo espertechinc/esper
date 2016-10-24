@@ -13,12 +13,12 @@ import com.espertech.esper.client.EventBean;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientSideUpdateListener implements Serializable, UpdateListener
 {
-    private static Log log = LogFactory.getLog(ClientSideUpdateListener.class);
+    private static Logger log = LoggerFactory.getLogger(ClientSideUpdateListener.class);
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents)
     {

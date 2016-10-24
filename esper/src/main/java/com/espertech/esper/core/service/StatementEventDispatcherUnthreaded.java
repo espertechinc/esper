@@ -16,15 +16,15 @@ import com.espertech.esper.client.EPServiceProvider;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dispatcher for statement lifecycle events to service provider statement state listeners.
  */
 public class StatementEventDispatcherUnthreaded implements StatementLifecycleObserver
 {
-    private static Log log = LogFactory.getLog(StatementEventDispatcherUnthreaded.class);
+    private static Logger log = LoggerFactory.getLogger(StatementEventDispatcherUnthreaded.class);
     private final EPServiceProvider serviceProvider;
     private final Iterable<EPStatementStateListener> statementListeners;
 

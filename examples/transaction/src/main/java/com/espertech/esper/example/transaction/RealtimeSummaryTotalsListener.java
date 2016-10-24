@@ -10,8 +10,8 @@ package com.espertech.esper.example.transaction;
 
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealtimeSummaryTotalsListener implements UpdateListener
 {
@@ -37,5 +37,5 @@ public class RealtimeSummaryTotalsListener implements UpdateListener
                 );
     }
 
-    private static final Log log = LogFactory.getLog(RealtimeSummaryTotalsListener.class);
+    private static final Logger log = LoggerFactory.getLogger(RealtimeSummaryTotalsListener.class);
 }

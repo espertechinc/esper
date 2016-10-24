@@ -11,8 +11,8 @@ package com.espertech.esper.client;
 import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.dataflow.ops.BeaconSource;
 import com.espertech.esper.event.EventTypeUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import java.io.*;
@@ -37,7 +37,7 @@ import java.util.*;
 public class Configuration implements ConfigurationOperations, ConfigurationInformation, Serializable
 {
     private static final long serialVersionUID = -220881974438617882L;
-    private static Log log = LogFactory.getLog( Configuration.class );
+    private static Logger log = LoggerFactory.getLogger( Configuration.class );
 
     /**
      * Import name of the package that hosts the annotation classes.

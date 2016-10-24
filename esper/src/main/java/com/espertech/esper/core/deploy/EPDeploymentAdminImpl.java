@@ -19,8 +19,8 @@ import com.espertech.esper.core.service.StatementIsolationService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.util.DependencyGraph;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.*;
  */
 public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
 {
-    private static Log log = LogFactory.getLog(EPDeploymentAdminImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EPDeploymentAdminImpl.class);
 
     private final EPAdministratorSPI epService;
     private final DeploymentStateService deploymentStateService;

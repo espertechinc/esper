@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPermutationEnumeration extends TestCase
 {
@@ -170,5 +170,5 @@ public class TestPermutationEnumeration extends TestCase
         assertEquals(720, PermutationEnumeration.faculty(6));
     }
 
-    private final static Log log = LogFactory.getLog(TestPermutationEnumeration.class);
+    private final static Logger log = LoggerFactory.getLogger(TestPermutationEnumeration.class);
 }

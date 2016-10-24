@@ -17,8 +17,8 @@ import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Property evaluator that considers only level one and considers a where-clause,
@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PropertyEvaluatorSimple implements PropertyEvaluator
 {
-    private static final Log log = LogFactory.getLog(PropertyEvaluatorSimple.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorSimple.class);
     private final ContainedEventEval containedEventEval;
     private final FragmentEventType fragmentEventType;
     private final ExprEvaluator filter;

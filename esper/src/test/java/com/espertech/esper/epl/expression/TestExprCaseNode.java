@@ -21,8 +21,8 @@ import com.espertech.esper.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestExprCaseNode extends TestCase
 {
@@ -127,5 +127,5 @@ public class TestExprCaseNode extends TestCase
         return new EventBean[] {SupportEventBeanFactory.createObject(theEvent)};
     }
 
-     private static final Log log = LogFactory.getLog(TestExprCaseNode.class);
+     private static final Logger log = LoggerFactory.getLogger(TestExprCaseNode.class);
 }

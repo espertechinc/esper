@@ -35,8 +35,8 @@ import com.espertech.esper.view.DataWindowViewFactory;
 import com.espertech.esper.view.ViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactory;
 import com.espertech.esper.view.std.MergeViewFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,7 +45,7 @@ import java.util.Set;
 
 public class EPStatementStartMethodHelperValidate
 {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodHelperValidate.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodHelperValidate.class);
 
     public static void validateNoDataWindowOnNamedWindow(List<ViewFactory> viewFactories) throws ExprValidationException {
         for (ViewFactory viewFactory : viewFactories)

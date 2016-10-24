@@ -19,12 +19,12 @@ import com.espertech.esper.support.util.NoActionUpdateListener;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestMTInsertIntoTimerConcurrency extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTInsertIntoTimerConcurrency.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTInsertIntoTimerConcurrency.class);
     private AtomicLong idCounter;
     private ExecutorService executorService;
     private EPRuntime epRuntime;

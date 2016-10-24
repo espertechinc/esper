@@ -19,8 +19,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -233,5 +233,5 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
         return factory;
     }
 
-    private static final Log log = LogFactory.getLog(TimeAccumView.class);
+    private static final Logger log = LoggerFactory.getLogger(TimeAccumView.class);
 }

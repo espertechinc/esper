@@ -23,8 +23,8 @@ import com.espertech.esper.core.thread.InboundUnitSendWrapped;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Event sender for POJO Java object events.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class EventSenderBean implements EventSender
 {
-    private static final Log log = LogFactory.getLog(EventSenderBean.class);
+    private static final Logger log = LoggerFactory.getLogger(EventSenderBean.class);
     private final EPRuntimeEventSender runtime;
     private final BeanEventType beanEventType;
     private final EventAdapterService eventAdapterService;

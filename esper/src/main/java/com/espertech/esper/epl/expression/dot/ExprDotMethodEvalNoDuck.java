@@ -18,14 +18,14 @@ import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class ExprDotMethodEvalNoDuck implements ExprDotEval
 {
-    private static final Log log = LogFactory.getLog(ExprDotMethodEvalNoDuck.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalNoDuck.class);
 
     protected final String statementName;
     protected final FastMethod method;

@@ -16,8 +16,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.event.EventTypeAssertionUtil;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestSchemaXMLEventTypes extends TestCase
 {
@@ -77,5 +77,5 @@ public class TestSchemaXMLEventTypes extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
-    private static final Log log = LogFactory.getLog(TestSchemaXMLEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(TestSchemaXMLEvent.class);
 }

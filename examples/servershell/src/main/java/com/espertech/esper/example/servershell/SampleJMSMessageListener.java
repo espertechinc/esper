@@ -9,8 +9,8 @@
 package com.espertech.esper.example.servershell;
 
 import com.espertech.esper.client.EPRuntime;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -19,7 +19,7 @@ import javax.jms.MessageListener;
 
 public class SampleJMSMessageListener implements MessageListener
 {
-    private static Log log = LogFactory.getLog(SampleJMSMessageListener.class);
+    private static Logger log = LoggerFactory.getLogger(SampleJMSMessageListener.class);
     private EPRuntime engine;
     private int count;
 

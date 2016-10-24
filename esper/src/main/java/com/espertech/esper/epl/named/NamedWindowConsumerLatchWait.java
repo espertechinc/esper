@@ -9,8 +9,8 @@
 package com.espertech.esper.epl.named;
 
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
 {
-    private static final Log log = LogFactory.getLog(NamedWindowConsumerLatchWait.class);
+    private static final Logger log = LoggerFactory.getLogger(NamedWindowConsumerLatchWait.class);
 
     // The earlier latch is the latch generated before this latch
     private final NamedWindowConsumerLatchFactory factory;
@@ -94,7 +94,7 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
                     this.wait(factory.getMsecWait());
                 }
                 catch (InterruptedException e) {
-                    log.error(e);
+                    log.error("Interrupted: " + e.getMessage(), e);
                 }
             }
         }

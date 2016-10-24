@@ -10,8 +10,8 @@ package com.espertech.esper.example.marketdatafeed;
 
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RateReportingListener implements UpdateListener
 {
@@ -33,5 +33,5 @@ public class RateReportingListener implements UpdateListener
                   " is " + theEvent.get("cnt"));
     }
 
-    private static final Log log = LogFactory.getLog(RateReportingListener.class);
+    private static final Logger log = LoggerFactory.getLogger(RateReportingListener.class);
 }

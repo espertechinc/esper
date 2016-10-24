@@ -17,8 +17,8 @@ import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.util.JavaClassHelper;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.Tree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ASTContextHelper
 {
-    private static final Log log = LogFactory.getLog(ASTContextHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(ASTContextHelper.class);
 
     public static CreateContextDesc walkCreateContext(EsperEPL2GrammarParser.CreateContextExprContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, FilterSpecRaw filterSpec)
     {

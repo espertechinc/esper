@@ -20,15 +20,15 @@ import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.EventBeanSPI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 @DataFlowOperator
 public class Filter implements DataFlowOpLifecycle {
 
-    private static final Log log = LogFactory.getLog(Filter.class);
+    private static final Logger log = LoggerFactory.getLogger(Filter.class);
 
     @DataFlowOpParameter
     private ExprNode filter;

@@ -18,12 +18,12 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.support.bean.word.SentenceEvent;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestMTStmtStateless extends TestCase
 {
-    private final static Log log = LogFactory.getLog(TestMTStmtStateless.class);
+    private final static Logger log = LoggerFactory.getLogger(TestMTStmtStateless.class);
     private EPServiceProvider engine;
 
     public void setUp()

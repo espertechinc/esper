@@ -19,14 +19,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumeration;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorEnumerationGivenEvent;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 public class PropertyExprEvaluatorScalarCollection implements ExprEvaluatorEnumeration, ExprEvaluatorEnumerationGivenEvent {
 
-    private static final Log log = LogFactory.getLog(PropertyExprEvaluatorScalarCollection.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertyExprEvaluatorScalarCollection.class);
 
     private final String propertyName;
     private final int streamId;

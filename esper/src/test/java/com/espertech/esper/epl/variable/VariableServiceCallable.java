@@ -13,15 +13,15 @@ package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import org.junit.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class VariableServiceCallable implements Callable
 {
-    private static final Log log = LogFactory.getLog(VariableServiceCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(VariableServiceCallable.class);
     private final Random random;
     private final String[] variables;
     private final VariableReader[] readers;

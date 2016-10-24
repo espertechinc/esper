@@ -24,15 +24,15 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterServiceHelper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
 public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFactory, VirtualDWViewFactory {
-    private static Log log = LogFactory.getLog(VirtualDWViewFactoryImpl.class);
+    private static Logger log = LoggerFactory.getLogger(VirtualDWViewFactoryImpl.class);
 
     private Serializable customConfiguration;
     private ViewFactoryContext viewFactoryContext;

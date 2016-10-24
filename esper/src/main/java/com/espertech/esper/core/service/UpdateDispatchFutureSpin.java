@@ -10,8 +10,8 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.dispatch.Dispatchable;
 import com.espertech.esper.timer.TimeSourceService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UpdateDispatchFutureSpin can be added to a dispatch queue that is thread-local. It represents
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class UpdateDispatchFutureSpin implements Dispatchable
 {
-    private static final Log log = LogFactory.getLog(UpdateDispatchFutureSpin.class);
+    private static final Logger log = LoggerFactory.getLogger(UpdateDispatchFutureSpin.class);
     private UpdateDispatchViewBlockingSpin view;
     private UpdateDispatchFutureSpin earlier;
     private volatile boolean isCompleted;

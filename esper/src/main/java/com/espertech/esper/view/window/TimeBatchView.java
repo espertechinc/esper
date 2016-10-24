@@ -20,8 +20,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -303,5 +303,5 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         return timeBatchViewFactory;
     }
 
-    private static final Log log = LogFactory.getLog(TimeBatchView.class);
+    private static final Logger log = LoggerFactory.getLogger(TimeBatchView.class);
 }

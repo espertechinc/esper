@@ -13,8 +13,8 @@ package com.espertech.esper.client.dataflow.io;
 
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.SerializerUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
  * </p>
  */
 public class DataInputToObjectCollectorSerializable implements DataInputToObjectCollector {
-    private static final Log log = LogFactory.getLog(DataInputToObjectCollectorSerializable.class);
+    private static final Logger log = LoggerFactory.getLogger(DataInputToObjectCollectorSerializable.class);
 
     public void collect(DataInputToObjectCollectorContext context) throws IOException {
         int size = context.getDataInput().readInt();

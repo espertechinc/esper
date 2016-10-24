@@ -15,8 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.CronParameter;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -27,7 +27,7 @@ import java.io.StringWriter;
  */
 public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluator
 {
-    private static final Log log = LogFactory.getLog(ExprNumberSetCronParam.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNumberSetCronParam.class);
 
     private final CronOperatorEnum cronOperator;
     private transient ExprEvaluator evaluator;

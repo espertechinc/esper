@@ -19,14 +19,14 @@ import com.espertech.esper.client.dataflow.EPDataFlowSignalFinalMarker;
 import com.espertech.esper.dataflow.interfaces.DataFlowSourceOperator;
 import com.espertech.esper.dataflow.util.DataFlowSignalListener;
 import com.espertech.esper.util.AuditPath;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GraphSourceRunnable implements BaseRunnable, DataFlowSignalListener {
-    private static final Log log = LogFactory.getLog(GraphSourceRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(GraphSourceRunnable.class);
 
     private final String engineURI;
     private final String statementName;

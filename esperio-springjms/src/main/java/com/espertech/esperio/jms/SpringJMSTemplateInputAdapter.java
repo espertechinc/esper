@@ -10,7 +10,8 @@ package com.espertech.esperio.jms;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.adapter.AdapterState;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.*;
 import org.w3c.dom.Node;
 
@@ -24,7 +25,7 @@ public class SpringJMSTemplateInputAdapter extends JMSInputAdapter
 {
     private JmsTemplate jmsTemplate;
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Returns the jms template.

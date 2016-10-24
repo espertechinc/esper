@@ -15,12 +15,12 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPSupportReceiveRunnable implements Runnable {
 
-    private static final Log log = LogFactory.getLog(AMQPSupportReceiveRunnable.class);
+    private static final Logger log = LoggerFactory.getLogger(AMQPSupportReceiveRunnable.class);
 
     private final String hostName;
     private final String queueName;

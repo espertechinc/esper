@@ -23,8 +23,8 @@ import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleTypeCaster;
 import com.espertech.esper.util.SimpleTypeCasterFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -35,7 +35,7 @@ import java.util.*;
  */
 public class AnnotationUtil
 {
-    private static final Log log = LogFactory.getLog(AnnotationUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(AnnotationUtil.class);
 
     public static Map<String, List<AnnotationDesc>> mapByNameLowerCase(List<AnnotationDesc> annotations) {
         Map<String, List<AnnotationDesc>> map = new HashMap<String, List<AnnotationDesc>>();

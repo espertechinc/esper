@@ -59,8 +59,8 @@ import com.espertech.esper.util.EventRepresentationUtil;
 import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.view.ViewProcessingException;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -71,7 +71,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
 {
-    private static Log log = LogFactory.getLog(StatementLifecycleSvcImpl.class);
+    private static Logger log = LoggerFactory.getLogger(StatementLifecycleSvcImpl.class);
 
     /**
      * Services context for statement lifecycle management.

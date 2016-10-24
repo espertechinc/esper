@@ -13,8 +13,8 @@
 package com.espertech.esper.metrics.codahale_metrics.metrics.reporting;
 
 import com.espertech.esper.metrics.codahale_metrics.metrics.core.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.lang.management.ManagementFactory;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class JmxReporter extends AbstractReporter implements MetricsRegistryListener,
         MetricProcessor<JmxReporter.Context> {
 
-    private static final Log log = LogFactory.getLog(JmxReporter.class);
+    private static final Logger log = LoggerFactory.getLogger(JmxReporter.class);
 
     private final Map<MetricName, ObjectName> registeredBeans;
     private final MBeanServer server;

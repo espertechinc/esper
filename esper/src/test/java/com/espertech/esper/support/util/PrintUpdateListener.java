@@ -13,12 +13,12 @@ package com.espertech.esper.support.util;
 
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrintUpdateListener implements UpdateListener
 {
-    private static final Log log = LogFactory.getLog(PrintUpdateListener.class);
+    private static final Logger log = LoggerFactory.getLogger(PrintUpdateListener.class);
 
     private final String listenerName;
 

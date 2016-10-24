@@ -40,8 +40,8 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -50,8 +50,8 @@ import java.util.*;
  */
 public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
 {
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
-    private static final Log log = LogFactory.getLog(EPPreparedExecuteMethodQuery.class);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+    private static final Logger log = LoggerFactory.getLogger(EPPreparedExecuteMethodQuery.class);
 
     private final StatementSpecCompiled statementSpec;
     private final ResultSetProcessor resultSetProcessor;

@@ -47,8 +47,8 @@ import com.espertech.esper.schedule.ScheduleSpecUtil;
 import com.espertech.esper.util.*;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -57,7 +57,7 @@ import java.util.*;
 
 public class ExprNodeUtility {
 
-    private static final Log log = LogFactory.getLog(ExprNodeUtility.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeUtility.class);
 
     public static final ExprNode[] EMPTY_EXPR_ARRAY = new ExprNode[0];
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];

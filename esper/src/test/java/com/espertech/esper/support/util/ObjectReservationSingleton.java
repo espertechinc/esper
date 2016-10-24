@@ -11,8 +11,8 @@
 
 package com.espertech.esper.support.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,7 +70,7 @@ public class ObjectReservationSingleton
 
         if (!reservedObjects.contains(object))
         {
-            log.fatal(".unreserve FAILED, object=" + object);
+            log.error(".unreserve FAILED, object=" + object);
             reservedIdsLock.unlock();
             return;
         }
@@ -80,5 +80,5 @@ public class ObjectReservationSingleton
         reservedIdsLock.unlock();
     }
 
-    private static final Log log = LogFactory.getLog(ObjectReservationSingleton.class);
+    private static final Logger log = LoggerFactory.getLogger(ObjectReservationSingleton.class);
 }

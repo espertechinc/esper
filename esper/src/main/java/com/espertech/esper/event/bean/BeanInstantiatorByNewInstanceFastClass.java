@@ -13,14 +13,14 @@ package com.espertech.esper.event.bean;
 
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class BeanInstantiatorByNewInstanceFastClass implements BeanInstantiator
 {
-    private static Log log = LogFactory.getLog(BeanInstantiatorByNewInstanceFastClass.class);
+    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceFastClass.class);
 
     private final FastClass fastClass;
 

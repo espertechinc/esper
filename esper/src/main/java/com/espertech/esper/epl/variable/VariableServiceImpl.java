@@ -19,8 +19,8 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -85,7 +85,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class VariableServiceImpl implements VariableService
 {
-    private static Log log = LogFactory.getLog(VariableServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(VariableServiceImpl.class);
 
     /**
      * Sets the boundary above which a reader considers the high-version list of variable values.

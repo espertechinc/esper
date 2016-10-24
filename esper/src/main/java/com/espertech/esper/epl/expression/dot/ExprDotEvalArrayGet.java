@@ -16,14 +16,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 
 public class ExprDotEvalArrayGet implements ExprDotEval
 {
-    private static final Log log = LogFactory.getLog(ExprDotEvalArrayGet.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotEvalArrayGet.class);
 
     private final EPType typeInfo;
     private final ExprEvaluator indexExpression;

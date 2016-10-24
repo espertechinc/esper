@@ -14,8 +14,8 @@ package com.espertech.esper.multithread.dispatchmodel;
 import junit.framework.TestCase;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.DispatchServiceImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.concurrent.*;
  */
 public class TestMTDispatch extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestMTDispatch.class);
+    private static final Logger log = LoggerFactory.getLogger(TestMTDispatch.class);
 
     public void testSceneOne() throws Exception
     {
@@ -105,7 +105,7 @@ public class TestMTDispatch extends TestCase
 
     public static class DispatchCallable implements Callable
     {
-        private static final Log log = LogFactory.getLog(DispatchCallable.class);
+        private static final Logger log = LoggerFactory.getLogger(DispatchCallable.class);
         
         private DispatchProducer sharedProducer;
         private final int threadNum;

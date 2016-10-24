@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.dispatch;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 
@@ -58,5 +58,5 @@ public class DispatchServiceImpl implements DispatchService
         }
     }
 
-    private static final Log log = LogFactory.getLog(DispatchServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(DispatchServiceImpl.class);
 }

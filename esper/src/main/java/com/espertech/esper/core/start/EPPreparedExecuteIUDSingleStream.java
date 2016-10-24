@@ -23,8 +23,8 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -33,8 +33,8 @@ import java.util.*;
  */
 public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExecuteMethod
 {
-    private static final Log queryPlanLog = LogFactory.getLog(AuditPath.QUERYPLAN_LOG);
-    private static final Log log = LogFactory.getLog(EPPreparedExecuteIUDSingleStream.class);
+    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+    private static final Logger log = LoggerFactory.getLogger(EPPreparedExecuteIUDSingleStream.class);
 
     protected final StatementSpecCompiled statementSpec;
     protected final FireAndForgetProcessor processor;

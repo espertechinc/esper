@@ -17,8 +17,8 @@ import com.espertech.esper.event.ExplicitPropertyDescriptor;
 import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class SchemaXMLEventType extends BaseXMLEventType
 {
-    private static final Log log = LogFactory.getLog(SchemaXMLEventType.class);
+    private static final Logger log = LoggerFactory.getLogger(SchemaXMLEventType.class);
 
     private final SchemaModel schemaModel;
     private final SchemaElementComplex schemaModelRoot;

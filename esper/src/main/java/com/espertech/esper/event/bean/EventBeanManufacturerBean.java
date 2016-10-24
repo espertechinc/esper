@@ -18,8 +18,8 @@ import com.espertech.esper.event.EventBeanManufactureException;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  */
 public class EventBeanManufacturerBean implements EventBeanManufacturer
 {
-    private static Log log = LogFactory.getLog(EventBeanManufacturerBean.class);
+    private static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBean.class);
 
     private final BeanInstantiator beanInstantiator;
     private final BeanEventType beanEventType;

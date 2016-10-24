@@ -22,8 +22,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.EventStream;
 import com.espertech.esper.view.ZeroDepthStreamIterable;
 import com.espertech.esper.view.ZeroDepthStreamNoIterate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -54,7 +54,7 @@ import java.util.IdentityHashMap;
  */
 public class StreamFactorySvcImpl implements StreamFactoryService
 {
-    private static Log log = LogFactory.getLog(StreamFactorySvcImpl.class);
+    private static Logger log = LoggerFactory.getLogger(StreamFactorySvcImpl.class);
 
     // Using identify hash map - ignoring the equals semantics on filter specs
     // Thus two filter specs objects are always separate entries in the map

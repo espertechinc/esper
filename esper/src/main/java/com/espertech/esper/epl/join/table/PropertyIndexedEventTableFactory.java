@@ -10,8 +10,8 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -109,5 +109,5 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
                 streamNum, propertyNames, EventTableOrganizationType.HASH);
     }
 
-    private static Log log = LogFactory.getLog(PropertyIndexedEventTableFactory.class);
+    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableFactory.class);
 }

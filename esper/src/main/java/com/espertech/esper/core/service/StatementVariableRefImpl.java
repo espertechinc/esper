@@ -17,8 +17,8 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.util.ManagedReadWriteLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class StatementVariableRefImpl implements StatementVariableRef
 {
-    private static final Log log = LogFactory.getLog(StatementVariableRefImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(StatementVariableRefImpl.class);
 
     private final ManagedReadWriteLock mapLock;
     private final HashMap<String, Set<String>> variableToStmt;

@@ -11,15 +11,15 @@ package com.espertech.esperio.db.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.db.DatabaseConfigException;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class RunnableDML implements Runnable
 {
-    private static Log log = LogFactory.getLog(RunnableDML.class);
+    private static Logger log = LoggerFactory.getLogger(RunnableDML.class);
 
     private final RunnableDMLContext context;
     private final EventBean theEvent;

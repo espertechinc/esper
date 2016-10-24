@@ -17,8 +17,8 @@ import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class EvalSelectStreamNoUndWEventBeanToObjObjArray extends EvalSelectStreamBaseObjectArray implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalSelectStreamNoUndWEventBeanToObjObjArray.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalSelectStreamNoUndWEventBeanToObjObjArray.class);
 
     private final Set<Integer> eventBeanToObjectIndexes;
 

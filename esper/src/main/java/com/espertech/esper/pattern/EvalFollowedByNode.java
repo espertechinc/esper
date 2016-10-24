@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a followed-by operator in the evaluation tree representing any event expressions.
@@ -54,5 +54,5 @@ public class EvalFollowedByNode extends EvalNodeBase
                factoryNode.getOpType() == EvalFollowedByNodeOpType.MAX_POOL;
     }
 
-    private static final Log log = LogFactory.getLog(EvalFollowedByNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalFollowedByNode.class);
 }

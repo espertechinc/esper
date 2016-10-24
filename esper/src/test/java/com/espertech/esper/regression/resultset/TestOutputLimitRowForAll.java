@@ -29,8 +29,8 @@ import com.espertech.esper.support.bean.SupportMarketDataBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestOutputLimitRowForAll extends TestCase
 {
@@ -876,7 +876,7 @@ public class TestOutputLimitRowForAll extends TestCase
         }
     }
 
-    private final static Log log = LogFactory.getLog(TestOutputLimitRowForAll.class);
+    private final static Logger log = LoggerFactory.getLogger(TestOutputLimitRowForAll.class);
 }
 
 

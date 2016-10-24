@@ -30,15 +30,15 @@ import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class StatementAgentInstanceFactoryOnTriggerBase implements StatementAgentInstanceFactory {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateWindow.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateWindow.class);
 
     protected final StatementContext statementContext;
     protected final StatementSpecCompiled statementSpec;

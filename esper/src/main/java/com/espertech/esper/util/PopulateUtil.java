@@ -21,8 +21,8 @@ import com.espertech.esper.event.bean.PropertyHelper;
 import com.espertech.esper.event.property.MappedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -35,7 +35,7 @@ public class PopulateUtil {
     private final static String CLASS_PROPERTY_NAME = "class";
     private final static String SYSTEM_PROPETIES_NAME = "systemProperties".toLowerCase();
 
-    private static Log log = LogFactory.getLog(PopulateUtil.class);
+    private static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
 
     public static Object instantiatePopulateObject(Map<String, Object> objectProperties, Class topClass, EngineImportService engineImportService) throws ExprValidationException {
 

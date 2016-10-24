@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
 import com.espertech.esper.example.stockticker.eventbean.StockTick;
 import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class StockTickerAlertListener implements UpdateListener
 {
@@ -46,7 +46,7 @@ public class StockTickerAlertListener implements UpdateListener
         stockTickerResultListener.emitted(alert);
     }
 
-    private static final Log log = LogFactory.getLog(StockTickerAlertListener.class);
+    private static final Logger log = LoggerFactory.getLogger(StockTickerAlertListener.class);
 }
 
 

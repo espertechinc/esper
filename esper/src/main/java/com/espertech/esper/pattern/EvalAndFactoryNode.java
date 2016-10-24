@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -50,5 +50,5 @@ public class EvalAndFactoryNode extends EvalNodeFactoryBase
         return PatternExpressionPrecedenceEnum.AND;
     }
 
-    private static final Log log = LogFactory.getLog(EvalAndFactoryNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalAndFactoryNode.class);
 }

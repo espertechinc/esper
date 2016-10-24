@@ -13,8 +13,8 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.ManagedReadWriteLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class StatementEventTypeRefImpl implements StatementEventTypeRef
 {
-    private static final Log log = LogFactory.getLog(StatementEventTypeRefImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(StatementEventTypeRefImpl.class);
 
     private final ManagedReadWriteLock mapLock;
     private final HashMap<String, Set<String>> typeToStmt;

@@ -20,8 +20,8 @@ import com.espertech.esper.client.EventBean;
 import java.util.concurrent.*;
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test for multithread-safety of statements that are very similar that is share the same filter and views.
@@ -117,5 +117,5 @@ public class TestMTStmtSharedView extends TestCase
         return sum;
     }
 
-    private final static Log log = LogFactory.getLog(TestMTStmtSharedView.class);
+    private final static Logger log = LoggerFactory.getLogger(TestMTStmtSharedView.class);
 }

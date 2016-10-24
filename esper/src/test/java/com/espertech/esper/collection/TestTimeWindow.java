@@ -15,8 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 
@@ -160,5 +160,5 @@ public class TestTimeWindow extends TestCase
         return SupportEventBeanFactory.createObject(new SupportBean());
     }
 
-    private static final Log log = LogFactory.getLog(TestTimeWindow.class);
+    private static final Logger log = LoggerFactory.getLogger(TestTimeWindow.class);
 }

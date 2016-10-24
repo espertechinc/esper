@@ -11,8 +11,8 @@
 
 package com.espertech.esper.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ import java.io.ObjectStreamClass;
 
 public class ObjectInputStreamWithTCCL extends ObjectInputStream {
 
-    private static Log log = LogFactory.getLog(ObjectInputStreamWithTCCL.class);
+    private static Logger log = LoggerFactory.getLogger(ObjectInputStreamWithTCCL.class);
 
     public ObjectInputStreamWithTCCL(InputStream input) throws IOException {
         super(input);

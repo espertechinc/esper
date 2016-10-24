@@ -21,8 +21,8 @@ import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventBeanSPI;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import java.util.Map;
 @DataFlowOperator
 public class LogSink implements DataFlowOpLifecycle {
 
-    private static final Log logme = LogFactory.getLog(LogSink.class);
+    private static final Logger logme = LoggerFactory.getLogger(LogSink.class);
 
     @DataFlowOpParameter
     private String title;

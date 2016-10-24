@@ -19,8 +19,8 @@ import com.espertech.esper.core.deploy.EPDeploymentAdminImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.pattern.EvalFactoryNode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation for the admin interface.
@@ -326,5 +326,5 @@ public class EPAdministratorImpl implements EPAdministratorSPI
         return new EPContextPartitionAdminImpl(services);
     }
 
-    private static Log log = LogFactory.getLog(EPAdministratorImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EPAdministratorImpl.class);
 }

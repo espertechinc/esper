@@ -5,15 +5,15 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class OHLCMain
 {
-    private static final Log log = LogFactory.getLog(OHLCMain.class);
+    private static final Logger log = LoggerFactory.getLogger(OHLCMain.class);
 
     public static void main(String[] args)
     {

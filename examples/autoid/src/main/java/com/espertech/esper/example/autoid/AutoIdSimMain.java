@@ -21,12 +21,12 @@ import java.io.IOException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoIdSimMain implements Runnable {
 
-    private static Log log = LogFactory.getLog( AutoIdSimMain.class );
+    private static Logger log = LoggerFactory.getLogger( AutoIdSimMain.class );
 
     private final static Random RANDOM = new Random(System.currentTimeMillis());
     private final static String[] SENSOR_IDS = {"urn:epc:1:4.16.30", "urn:epc:1:4.16.32", "urn:epc:1:4.16.36", "urn:epc:1:4.16.38" };

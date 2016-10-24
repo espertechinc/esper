@@ -25,8 +25,8 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 import org.junit.Assert;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestHavingNoGroupBy extends TestCase
 {
@@ -359,5 +359,5 @@ public class TestHavingNoGroupBy extends TestCase
         epService.getEPRuntime().sendEvent(bean);
     }
 
-    private static final Log log = LogFactory.getLog(TestHavingNoGroupBy.class);
+    private static final Logger log = LoggerFactory.getLogger(TestHavingNoGroupBy.class);
 }

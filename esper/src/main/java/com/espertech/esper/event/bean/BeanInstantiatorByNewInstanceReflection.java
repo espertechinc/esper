@@ -12,14 +12,14 @@
 package com.espertech.esper.event.bean;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class BeanInstantiatorByNewInstanceReflection implements BeanInstantiator
 {
-    private static Log log = LogFactory.getLog(BeanInstantiatorByNewInstanceReflection.class);
+    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceReflection.class);
 
     private final Class clazz;
 

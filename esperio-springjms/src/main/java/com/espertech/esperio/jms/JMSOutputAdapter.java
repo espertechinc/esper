@@ -12,7 +12,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.adapter.*;
-import org.apache.commons.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import java.util.*;
@@ -45,7 +46,7 @@ public abstract class JMSOutputAdapter implements OutputAdapter, AdapterSPI
      */
     protected Destination destination;
 
-    private final Log log = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Returns the JMS message marshaller.

@@ -12,8 +12,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.util.SimpleNumberCoercer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a filter parameter containing a reference to another event's property
@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class FilterSpecParamEventProp extends FilterSpecParam
 {
-    private static final Log log = LogFactory.getLog(FilterSpecParamEventProp.class);
+    private static final Logger log = LoggerFactory.getLogger(FilterSpecParamEventProp.class);
 
     private final String resultEventAsName;
     private final String resultEventProperty;

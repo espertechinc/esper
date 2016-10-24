@@ -22,15 +22,15 @@ import com.espertech.esper.support.bean.SupportBeanRange;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class TestPerfNamedWindowSubquery extends TestCase
 {
-    private static final Log log = LogFactory.getLog(TestPerfNamedWindowSubquery.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerfNamedWindowSubquery.class);
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

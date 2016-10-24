@@ -13,8 +13,8 @@ package com.espertech.esper.timer;
 
 import junit.framework.*;
 import com.espertech.esper.support.timer.SupportTimerCallback;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class TestTimerServiceImpl extends TestCase
 {
@@ -90,9 +90,9 @@ public class TestTimerServiceImpl extends TestCase
         }
         catch (InterruptedException e)
         {
-            log.fatal(e);
+            log.error("Interrupted: {}", e.getMessage(), e);
         }
     }
 
-    private static final Log log = LogFactory.getLog(TestTimerServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TestTimerServiceImpl.class);
 }

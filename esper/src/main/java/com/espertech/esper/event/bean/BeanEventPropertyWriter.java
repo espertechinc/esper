@@ -14,8 +14,8 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventPropertyWriter;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class BeanEventPropertyWriter implements EventPropertyWriter
 {
-    private static final Log log = LogFactory.getLog(BeanEventPropertyWriter.class);
+    private static final Logger log = LoggerFactory.getLogger(BeanEventPropertyWriter.class);
 
     private final Class clazz;
     private final FastMethod writerMethod;

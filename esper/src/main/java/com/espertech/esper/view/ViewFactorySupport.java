@@ -15,8 +15,8 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public abstract class ViewFactorySupport implements ViewFactory
 {
-    private static Log log = LogFactory.getLog(ViewFactorySupport.class);
+    private static Logger log = LoggerFactory.getLogger(ViewFactorySupport.class);
 
     public boolean canReuse(View view)
     {

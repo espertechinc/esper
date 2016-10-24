@@ -11,8 +11,8 @@ package com.espertech.esperio.csv;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esperio.AdapterInputSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class CSVReader
 {
-	private static final Log log = LogFactory.getLog(CSVReader.class);
+	private static final Logger log = LoggerFactory.getLogger(CSVReader.class);
 
 	private boolean looping;
 	private boolean isUsingTitleRow;

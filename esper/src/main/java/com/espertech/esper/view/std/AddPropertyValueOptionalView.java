@@ -15,8 +15,8 @@ import com.espertech.esper.collection.OneEventCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -231,5 +231,5 @@ public final class AddPropertyValueOptionalView extends ViewSupport implements C
                 " propertyValue=" + propertyValues;
     }
 
-    private static final Log log = LogFactory.getLog(AddPropertyValueOptionalView.class);
+    private static final Logger log = LoggerFactory.getLogger(AddPropertyValueOptionalView.class);
 }

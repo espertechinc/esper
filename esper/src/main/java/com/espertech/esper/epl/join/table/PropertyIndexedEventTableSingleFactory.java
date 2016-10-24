@@ -11,8 +11,8 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Index factory that organizes events by the event property values into hash buckets. Based on a HashMap
@@ -69,5 +69,5 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
                 " propertyName=" + propertyName;
     }
 
-    private static Log log = LogFactory.getLog(PropertyIndexedEventTableSingleFactory.class);
+    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleFactory.class);
 }

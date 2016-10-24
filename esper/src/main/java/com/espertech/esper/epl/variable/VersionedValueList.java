@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.epl.variable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
@@ -32,7 +32,7 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
  */
 public class VersionedValueList<T>
 {
-    private static final Log log = LogFactory.getLog(VersionedValueList.class);
+    private static final Logger log = LoggerFactory.getLogger(VersionedValueList.class);
 
     // Variables name and read lock; read lock used when older version then the prior version is requested
     private final String name;

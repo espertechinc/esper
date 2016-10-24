@@ -34,7 +34,7 @@ import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.StatementStopCallback;
 import com.espertech.esper.view.StatementStopService;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
         this.tableService = tableService;
 
         boolean isLogging;
-        Log log;
+        Logger log;
         if (optionalTableMetadata != null) {
             isLogging = optionalTableMetadata.isQueryPlanLogging();
             log = TableServiceImpl.getQueryPlanLog();

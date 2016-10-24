@@ -4,8 +4,8 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.http.EsperHttpRequestHandler;
 import com.espertech.esperio.http.config.GetHandler;
 import com.espertech.esperio.http.config.Service;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EsperHttpServiceBase {
-    private static Log log = LogFactory.getLog(EsperHttpServiceBase.class);
+    private static Logger log = LoggerFactory.getLogger(EsperHttpServiceBase.class);
 
     private final String serviceName;
     private final Service serviceConfig;

@@ -21,8 +21,8 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBeanRange;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPerf2StreamRangeJoin extends TestCase
 {
@@ -422,7 +422,7 @@ public class TestPerf2StreamRangeJoin extends TestCase
         stmt.destroy();
     }
 
-    private static final Log log = LogFactory.getLog(TestPerf2StreamRangeJoin.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerf2StreamRangeJoin.class);
 
     private static interface AssertionCallback {
         public Object getEvent(int iteration);

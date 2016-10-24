@@ -20,13 +20,13 @@ import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.ContextDetailNested;
 import com.espertech.esper.epl.spec.CreateContextDesc;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ContextManagementServiceImpl implements ContextManagementService {
-    private static final Log log = LogFactory.getLog(ContextManagementServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ContextManagementServiceImpl.class);
 
     private final Map<String, ContextManagerEntry> contexts;
     private final Set<String> destroyedContexts = new HashSet<String>();

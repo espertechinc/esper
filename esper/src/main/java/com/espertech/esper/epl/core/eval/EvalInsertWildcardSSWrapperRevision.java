@@ -17,14 +17,14 @@ import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.DecoratingEventBean;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class EvalInsertWildcardSSWrapperRevision extends EvalBaseMap implements SelectExprProcessor {
 
-    private static final Log log = LogFactory.getLog(EvalInsertWildcardSSWrapperRevision.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalInsertWildcardSSWrapperRevision.class);
 
     private final ValueAddEventProcessor vaeProcessor;
 

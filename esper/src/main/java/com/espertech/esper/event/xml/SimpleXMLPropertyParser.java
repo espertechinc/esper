@@ -12,8 +12,8 @@ import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.type.IntValue;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -88,5 +88,5 @@ public class SimpleXMLPropertyParser
         return '/' + prefix + unescapedIdent;
     }
 
-    private static final Log log = LogFactory.getLog(SimpleXMLPropertyParser.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleXMLPropertyParser.class);
 }

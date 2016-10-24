@@ -11,15 +11,15 @@ package com.espertech.esperio.socket;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
 import com.espertech.esperio.socket.config.ConfigurationSocketAdapter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 
 public class EsperIOSocketAdapterPlugin implements PluginLoader
 {
-    private static Log log = LogFactory.getLog(EsperIOSocketAdapterPlugin.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapterPlugin.class);
 
     private static final String ESPERIO_SOCKET_CONFIG_FILE = "esperio.socket.configuration.file";
 

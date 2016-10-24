@@ -12,8 +12,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.pattern.guard.Guard;
 import com.espertech.esper.pattern.guard.Quitable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -170,5 +170,5 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardGuardQuit();}
     }
 
-    private static final Log log = LogFactory.getLog(EvalGuardStateNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalGuardStateNode.class);
 }

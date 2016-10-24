@@ -19,15 +19,15 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.StopCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
 public class OutputConditionExpression extends OutputConditionBase implements OutputCondition, VariableChangeCallback, StopCallback
 {
-    private static final Log log = LogFactory.getLog(OutputConditionExpression.class);
+    private static final Logger log = LoggerFactory.getLogger(OutputConditionExpression.class);
     private final AgentInstanceContext agentInstanceContext;
     private final OutputConditionExpressionFactory parent;
 

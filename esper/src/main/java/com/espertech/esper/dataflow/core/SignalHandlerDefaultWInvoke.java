@@ -14,15 +14,15 @@ package com.espertech.esper.dataflow.core;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class SignalHandlerDefaultWInvoke extends SignalHandlerDefault {
 
-    private static final Log log = LogFactory.getLog(SignalHandlerDefaultWInvoke.class);
+    private static final Logger log = LoggerFactory.getLogger(SignalHandlerDefaultWInvoke.class);
 
     protected final Object target;
     protected final FastMethod fastMethod;

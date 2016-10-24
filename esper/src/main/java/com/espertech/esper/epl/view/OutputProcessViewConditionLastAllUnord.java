@@ -19,8 +19,8 @@ import com.espertech.esper.epl.spec.OutputLimitLimitType;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -34,7 +34,7 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
     private final OutputCondition outputCondition;
     private final boolean isAll;
 
-	private static final Log log = LogFactory.getLog(OutputProcessViewConditionLastAllUnord.class);
+	private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionLastAllUnord.class);
 
     public OutputProcessViewConditionLastAllUnord(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
         super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);

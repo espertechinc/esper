@@ -14,15 +14,15 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.OnTriggerSetDesc;
 import com.espertech.esper.event.EventAdapterService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A factory for a view that handles the setting of variables upon receipt of a triggering event.
  */
 public class OnSetVariableViewFactory
 {
-    private static final Log log = LogFactory.getLog(OnSetVariableViewFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(OnSetVariableViewFactory.class);
     private final EventAdapterService eventAdapterService;
     private final VariableService variableService;
     private final EventType eventType;

@@ -16,14 +16,14 @@ import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpPropertyHolder;
 import com.espertech.esper.dataflow.interfaces.*;
 import com.rabbitmq.client.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class AMQPSource implements DataFlowSourceOperator {
 
-    private static final Log log = LogFactory.getLog(AMQPSource.class);
+    private static final Logger log = LoggerFactory.getLogger(AMQPSource.class);
 
     @DataFlowOpPropertyHolder
     private AMQPSettingsSource settings;

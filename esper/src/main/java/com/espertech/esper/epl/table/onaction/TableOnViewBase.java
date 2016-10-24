@@ -17,14 +17,14 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.ViewSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
 public abstract class TableOnViewBase extends ViewSupport implements StopCallback
 {
-    private static final Log log = LogFactory.getLog(TableOnViewBase.class);
+    private static final Logger log = LoggerFactory.getLogger(TableOnViewBase.class);
 
     protected final SubordWMatchExprLookupStrategy lookupStrategy;
     protected final TableStateInstance tableStateInstance;

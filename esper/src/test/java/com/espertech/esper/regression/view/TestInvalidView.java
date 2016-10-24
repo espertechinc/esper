@@ -19,8 +19,8 @@ import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_N;
 import com.espertech.esper.support.client.SupportConfigFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestInvalidView extends TestCase
 {
@@ -346,5 +346,5 @@ public class TestInvalidView extends TestCase
         epService.getEPAdministrator().createEPL(viewStmt);
     }
 
-    private final static Log log = LogFactory.getLog(TestInvalidView.class);
+    private final static Logger log = LoggerFactory.getLogger(TestInvalidView.class);
 }

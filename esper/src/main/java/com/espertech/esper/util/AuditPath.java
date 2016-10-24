@@ -14,8 +14,8 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -24,22 +24,22 @@ import java.io.StringWriter;
  */
 public class AuditPath {
 
-    private static final Log auditLogDestination = LogFactory.getLog(AuditPath.AUDIT_LOG);
+    private static final Logger auditLogDestination = LoggerFactory.getLogger(AuditPath.AUDIT_LOG);
 
     private volatile static AuditCallback auditCallback;
 
     /**
-     * Log destination for the query plan logging.
+     * Logger destination for the query plan logging.
      */
     public static final String QUERYPLAN_LOG = "com.espertech.esper.queryplan"; 
 
     /**
-     * Log destination for the JDBC logging.
+     * Logger destination for the JDBC logging.
      */
     public static final String JDBC_LOG = "com.espertech.esper.jdbc"; 
 
     /**
-     * Log destination for the audit logging.
+     * Logger destination for the audit logging.
      */
     public static final String AUDIT_LOG = "com.espertech.esper.audit";
 

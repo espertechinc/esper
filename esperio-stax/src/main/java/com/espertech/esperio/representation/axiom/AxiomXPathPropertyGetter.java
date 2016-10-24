@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jaxen.JaxenException;
 
 import javax.xml.namespace.QName;
@@ -28,7 +28,7 @@ import javax.xml.xpath.XPathConstants;
  */
 public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter
 {
-    private static final Log log = LogFactory.getLog(AxiomXPathPropertyGetter.class);
+    private static final Logger log = LoggerFactory.getLogger(AxiomXPathPropertyGetter.class);
     private final AXIOMXPath expression;
     private final String property;
     private final QName resultType;

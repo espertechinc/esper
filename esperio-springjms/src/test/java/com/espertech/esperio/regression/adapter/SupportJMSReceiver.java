@@ -8,8 +8,8 @@
  **************************************************************************************/
 package com.espertech.esperio.regression.adapter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
@@ -21,7 +21,7 @@ import java.util.Enumeration;
 
 public class SupportJMSReceiver
 {
-    private static final Log log = LogFactory.getLog(SupportJMSReceiver.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportJMSReceiver.class);
 
     private AbstractXmlApplicationContext springContext;
     private JmsTemplate jmsTemplate;

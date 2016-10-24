@@ -11,8 +11,8 @@
 
 package com.espertech.esper.client.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,7 +34,7 @@ public class DateTime {
      */
     public static final String DEFAULT_XMLLIKE_DATE_FORMAT_WITH_ZONE = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    private static final Log log = LogFactory.getLog(DateTime.class);
+    private static final Logger log = LoggerFactory.getLogger(DateTime.class);
 
     /**
      * Returns a calendar from a given string using the default SimpleDateFormat for parsing.

@@ -23,8 +23,8 @@ import com.espertech.esper.support.util.IndexAssertion;
 import com.espertech.esper.support.util.IndexAssertionEventSend;
 import com.espertech.esper.support.util.IndexBackingTableInfo;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +32,7 @@ import java.util.List;
 
 public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTableInfo
 {
-    private final static Log log = LogFactory.getLog(TestInfraSubqCorrelIndex.class);
+    private final static Logger log = LoggerFactory.getLogger(TestInfraSubqCorrelIndex.class);
 
     private EPServiceProvider epService;
     private EPRuntime epRuntime;

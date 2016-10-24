@@ -18,8 +18,8 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.filter.FilterSet;
 import com.espertech.esper.schedule.ScheduleSet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class EPAdministratorIsolatedImpl implements EPAdministratorIsolatedSPI
 {
-    private static Log log = LogFactory.getLog(EPAdministratorIsolatedImpl.class);
+    private static Logger log = LoggerFactory.getLogger(EPAdministratorIsolatedImpl.class);
 
     private final String isolatedServiceName;
     private final EPIsolationUnitServices services;

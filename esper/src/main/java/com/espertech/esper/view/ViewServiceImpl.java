@@ -20,8 +20,8 @@ import com.espertech.esper.view.std.GroupByViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
 import com.espertech.esper.view.std.MergeViewFactory;
 import com.espertech.esper.view.std.MergeViewFactoryMarker;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -273,5 +273,5 @@ public final class ViewServiceImpl implements ViewService
         }
     }
 
-    private static final Log log = LogFactory.getLog(ViewServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ViewServiceImpl.class);
 }

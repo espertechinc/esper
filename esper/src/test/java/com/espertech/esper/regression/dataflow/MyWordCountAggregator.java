@@ -17,15 +17,15 @@ import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.annotations.OutputType;
 import com.espertech.esper.dataflow.annotations.OutputTypes;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @DataFlowOperator
 @OutputTypes(value = {
     @OutputType(name = "stats", type = MyWordCountStats.class)
     })
 public class MyWordCountAggregator {
-    private static final Log log = LogFactory.getLog(MyWordCountAggregator.class);
+    private static final Logger log = LoggerFactory.getLogger(MyWordCountAggregator.class);
 
     @DataFlowContext
     private EPDataFlowEmitter graphContext;

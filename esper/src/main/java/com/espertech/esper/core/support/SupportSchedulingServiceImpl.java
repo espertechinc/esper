@@ -11,8 +11,8 @@
 
 package com.espertech.esper.core.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,5 +117,5 @@ public class SupportSchedulingServiceImpl implements SchedulingService
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    private static final Log log = LogFactory.getLog(SupportSchedulingServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SupportSchedulingServiceImpl.class);
 }

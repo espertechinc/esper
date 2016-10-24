@@ -9,15 +9,15 @@
 package com.espertech.esper.epl.agg.aggregator;
 
 import com.espertech.esper.type.MinMaxTypeEnum;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
  */
 public class AggregatorMinMaxEver implements AggregationMethod
 {
-    private static final Log log = LogFactory.getLog(AggregatorMinMaxEver.class);
+    private static final Logger log = LoggerFactory.getLogger(AggregatorMinMaxEver.class);
 
     protected final MinMaxTypeEnum minMaxTypeEnum;
 

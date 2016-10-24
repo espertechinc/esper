@@ -13,8 +13,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.pattern.MatchedEventConvertor;
 import com.espertech.esper.pattern.MatchedEventMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Guard implementation that keeps a timer instance and quits when the timer expired,
@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ExpressionGuard implements Guard
 {
-    private static Log log = LogFactory.getLog(ExpressionGuard.class);
+    private static Logger log = LoggerFactory.getLogger(ExpressionGuard.class);
 
     private final Quitable quitable;
     private final MatchedEventConvertor convertor;

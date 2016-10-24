@@ -33,8 +33,8 @@ import com.espertech.esper.epl.view.OutputProcessViewFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentInstanceFactoryBase {
-    private static final Log log = LogFactory.getLog(EPStatementStartMethodCreateWindow.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateWindow.class);
 
     protected final StatementContext statementContext;
     protected final StatementSpecCompiled statementSpec;

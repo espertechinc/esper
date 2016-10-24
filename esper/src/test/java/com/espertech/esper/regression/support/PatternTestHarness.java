@@ -22,8 +22,8 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import org.junit.Assert;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -157,7 +157,7 @@ public class PatternTestHarness implements SupportBeanConstants
                 {
                     text = "Model: " + model.toEPL();
                 }
-                log.fatal(".runTest Failed to create statement for style " + testStyle + " pattern expression=" + text, ex);
+                log.error(".runTest Failed to create statement for style " + testStyle + " pattern expression=" + text, ex);
                 TestCase.fail();
             }
 
@@ -476,5 +476,5 @@ public class PatternTestHarness implements SupportBeanConstants
         USE_EPL_AND_CONSUME_NOCHECK,
     }
 
-    private static final Log log = LogFactory.getLog(PatternTestHarness.class);
+    private static final Logger log = LoggerFactory.getLogger(PatternTestHarness.class);
 }

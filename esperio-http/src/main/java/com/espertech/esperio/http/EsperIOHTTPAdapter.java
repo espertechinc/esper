@@ -19,8 +19,8 @@ import com.espertech.esperio.http.config.Service;
 import com.espertech.esperio.http.core.EsperHttpServiceBase;
 import com.espertech.esperio.http.core.EsperHttpServiceClassic;
 import com.espertech.esperio.http.core.EsperHttpServiceNIO;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class EsperIOHTTPAdapter
 {
-    private static Log log = LogFactory.getLog(EsperIOHTTPAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapter.class);
 
     private final ConfigurationHTTPAdapter config;
     private final String engineURI;

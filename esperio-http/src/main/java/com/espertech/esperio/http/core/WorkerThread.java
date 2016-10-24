@@ -6,14 +6,14 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class WorkerThread extends Thread {
 
-    private static Log log = LogFactory.getLog(WorkerThread.class);
+    private static Logger log = LoggerFactory.getLogger(WorkerThread.class);
 
     private final HttpService httpservice;
     private final HttpServerConnection conn;

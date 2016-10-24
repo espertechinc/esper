@@ -17,8 +17,8 @@ import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.support.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -191,5 +191,5 @@ public class TestQueryGraph extends TestCase
         return new ExprIdentNodeImpl(types[stream], p, stream);
     }
 
-    private final static Log log = LogFactory.getLog(TestQueryGraph.class);
+    private final static Logger log = LoggerFactory.getLogger(TestQueryGraph.class);
 }

@@ -14,8 +14,8 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.type.FrequencyParameter;
 import com.espertech.esper.util.JavaClassHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -24,7 +24,7 @@ import java.io.StringWriter;
  */
 public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluator
 {
-    private static final Log log = LogFactory.getLog(ExprNumberSetFrequency.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNumberSetFrequency.class);
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -5389069399403078192L;
 

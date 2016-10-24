@@ -10,12 +10,12 @@ import com.espertech.esper.example.stockticker.monitor.StockTickerResultListener
 
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StockTickerMain implements Runnable
 {
-    private static final Log log = LogFactory.getLog(StockTickerMain.class);
+    private static final Logger log = LoggerFactory.getLogger(StockTickerMain.class);
 
     private final String engineURI;
     private final boolean continuousSimulation;

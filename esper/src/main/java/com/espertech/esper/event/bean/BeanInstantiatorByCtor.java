@@ -11,15 +11,15 @@
 
 package com.espertech.esper.event.bean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class BeanInstantiatorByCtor implements BeanInstantiator
 {
-    private static Log log = LogFactory.getLog(BeanInstantiatorByCtor.class);
+    private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByCtor.class);
 
     private final Constructor ctor;
 

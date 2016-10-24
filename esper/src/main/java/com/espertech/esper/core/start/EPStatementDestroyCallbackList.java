@@ -9,8 +9,8 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.util.DestroyCallback;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -20,7 +20,7 @@ import java.util.Deque;
  */
 public class EPStatementDestroyCallbackList implements EPStatementDestroyMethod
 {
-    private static final Log log = LogFactory.getLog(EPStatementDestroyCallbackList.class);
+    private static final Logger log = LoggerFactory.getLogger(EPStatementDestroyCallbackList.class);
 
     private Deque<DestroyCallback> callbacks;
 

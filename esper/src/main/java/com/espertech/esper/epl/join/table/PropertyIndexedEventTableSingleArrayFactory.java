@@ -11,8 +11,8 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -81,5 +81,5 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
                 " propertyNames=" + Arrays.toString(propertyNames);
     }
 
-    private static Log log = LogFactory.getLog(PropertyIndexedEventTableSingleArrayFactory.class);
+    private static Logger log = LoggerFactory.getLogger(PropertyIndexedEventTableSingleArrayFactory.class);
 }

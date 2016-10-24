@@ -16,8 +16,8 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.type.RelationalOpEnum;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
  */
 public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
 {
-    private static final Log log = LogFactory.getLog(ExprSubselectInNode.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprSubselectInNode.class);
     private final boolean isNot;
     private final boolean isAll;
     private final RelationalOpEnum relationalOp;

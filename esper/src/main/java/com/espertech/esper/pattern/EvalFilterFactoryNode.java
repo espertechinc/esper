@@ -11,8 +11,8 @@ package com.espertech.esper.pattern;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.FilterSpecRaw;
 import com.espertech.esper.filter.FilterSpecCompiled;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -139,5 +139,5 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
         return PatternExpressionPrecedenceEnum.ATOM;
     }
 
-    private static final Log log = LogFactory.getLog(EvalFilterFactoryNode.class);
+    private static final Logger log = LoggerFactory.getLogger(EvalFilterFactoryNode.class);
 }

@@ -14,8 +14,8 @@ import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.*;
 import java.io.StringWriter;
@@ -362,5 +362,5 @@ public class PropertyHelper
         return writer.toString();
     }
 
-    private static final Log log = LogFactory.getLog(PropertyHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertyHelper.class);
 }

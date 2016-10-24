@@ -12,14 +12,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.event.EventBeanUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 public class ExprSubselectRowEvalStrategyUnfilteredUnselectedTable extends ExprSubselectRowEvalStrategyUnfilteredUnselected {
 
-    private static final Log log = LogFactory.getLog(ExprSubselectRowEvalStrategyUnfilteredUnselectedTable.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprSubselectRowEvalStrategyUnfilteredUnselectedTable.class);
 
     private final TableMetadata tableMetadata;
 

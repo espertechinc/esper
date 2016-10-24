@@ -68,8 +68,8 @@ import com.espertech.esper.util.ManagedReadWriteLock;
 import com.espertech.esper.view.ViewServicePreviousFactoryImpl;
 import com.espertech.esper.view.stream.StreamFactoryService;
 import com.espertech.esper.view.stream.StreamFactoryServiceProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -81,7 +81,7 @@ import java.util.*;
  */
 public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 {
-    private static final Log log = LogFactory.getLog(EPServicesContextFactoryDefault.class);
+    private static final Logger log = LoggerFactory.getLogger(EPServicesContextFactoryDefault.class);
 
     public EPServicesContext createServicesContext(EPServiceProvider epServiceProvider, ConfigurationInformation configSnapshot)
     {

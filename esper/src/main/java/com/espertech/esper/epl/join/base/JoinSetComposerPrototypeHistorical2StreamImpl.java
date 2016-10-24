@@ -23,12 +23,12 @@ import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.Viewable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetComposerPrototype {
 
-    private static final Log log = LogFactory.getLog(JoinSetComposerPrototypeFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(JoinSetComposerPrototypeFactory.class);
 
     private final ExprNode optionalFilterNode;
     private final EventType[] streamTypes;

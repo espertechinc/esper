@@ -20,8 +20,8 @@ import com.espertech.esper.support.filter.IndexTreeBuilderRunnable;
 import com.espertech.esper.support.filter.SupportFilterHandle;
 import com.espertech.esper.support.filter.SupportFilterSpecBuilder;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.LinkedList;
@@ -198,7 +198,7 @@ public class TestIndexTreeBuilderMultithreaded extends TestCase
         }
         catch (InterruptedException e)
         {
-            log.warn(e);
+            log.warn("Interrupted: {}", e.getMessage(), e);
         }
     }
 
@@ -215,5 +215,5 @@ public class TestIndexTreeBuilderMultithreaded extends TestCase
         return SupportEventBeanFactory.createObject(bean);
     }
 
-    private static final Log log = LogFactory.getLog(TestIndexTreeBuilderMultithreaded.class);
+    private static final Logger log = LoggerFactory.getLogger(TestIndexTreeBuilderMultithreaded.class);
 }

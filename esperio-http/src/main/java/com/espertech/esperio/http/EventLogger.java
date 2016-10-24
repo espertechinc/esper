@@ -3,14 +3,14 @@ package com.espertech.esperio.http;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class EventLogger implements EventListener {
 
-    private static Log log = LogFactory.getLog(EventLogger.class);
+    private static Logger log = LoggerFactory.getLogger(EventLogger.class);
 
     public void connectionOpen(final NHttpConnection conn) {
         if (log.isInfoEnabled()) {

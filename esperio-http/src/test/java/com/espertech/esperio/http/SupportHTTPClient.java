@@ -5,8 +5,8 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import com.espertech.esperio.http.core.URIUtil;
 
 public class SupportHTTPClient {
-    private static Log log = LogFactory.getLog(SupportHTTPClient.class);
+    private static Logger log = LoggerFactory.getLogger(SupportHTTPClient.class);
 
     private final int port;
     private HttpClient httpclient;

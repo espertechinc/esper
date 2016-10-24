@@ -22,14 +22,14 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvaluatorEnumeration {
 
-    private static final Log log = LogFactory.getLog(ExprNodeScriptEvalBase.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeScriptEvalBase.class);
 
     protected final String scriptName;
     protected final String statementName;

@@ -13,13 +13,13 @@ package com.espertech.esper.epl.enummethod.dot;
 
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWrap {
-    private static final Log log = LogFactory.getLog(ExprDotStaticMethodWrapArrayScalar.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprDotStaticMethodWrapArrayScalar.class);
 
     private final String methodName;
     private final Class componentType;

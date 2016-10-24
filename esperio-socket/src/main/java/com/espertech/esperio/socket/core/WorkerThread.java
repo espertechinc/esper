@@ -22,8 +22,8 @@ import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
 import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,7 +31,7 @@ import java.util.*;
 
 public class WorkerThread extends Thread {
 
-    private static Log log = LogFactory.getLog(WorkerThread.class);
+    private static Logger log = LoggerFactory.getLogger(WorkerThread.class);
 
     private final EPServiceProviderSPI engine;
     private final EsperSocketServiceRunnable runnable;

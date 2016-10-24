@@ -18,8 +18,8 @@ import com.espertech.esper.collection.RefCountedSet;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class UnionView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer, ViewContainer
 {
-    private static final Log log = LogFactory.getLog(UnionView.class);
+    private static final Logger log = LoggerFactory.getLogger(UnionView.class);
 
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final UnionViewFactory unionViewFactory;

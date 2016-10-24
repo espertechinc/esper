@@ -32,8 +32,8 @@ import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -1419,5 +1419,5 @@ public class TestEPLTreeWalker extends TestCase
         return (SelectClauseExprRawSpec) raw;
     }
 
-    private static final Log log = LogFactory.getLog(TestEPLTreeWalker.class);
+    private static final Logger log = LoggerFactory.getLogger(TestEPLTreeWalker.class);
 }

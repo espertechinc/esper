@@ -16,8 +16,8 @@ import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,7 +32,7 @@ public class OutputProcessViewConditionSnapshot extends OutputProcessViewBaseWAf
 
     private final OutputCondition outputCondition;
 
-	private static final Log log = LogFactory.getLog(OutputProcessViewConditionSnapshot.class);
+	private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionSnapshot.class);
 
     public OutputProcessViewConditionSnapshot(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
         super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);

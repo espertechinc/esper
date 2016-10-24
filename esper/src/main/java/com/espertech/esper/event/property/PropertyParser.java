@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class PropertyParser
 {
-    private static final Log log = LogFactory.getLog(PropertyParser.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertyParser.class);
 
     private static Set<String> keywordCache;
 

@@ -13,12 +13,12 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExprNodeAdapterBase
 {
-    private static final Log log = LogFactory.getLog(ExprNodeAdapterBase.class);
+    private static final Logger log = LoggerFactory.getLogger(ExprNodeAdapterBase.class);
 
     private final int filterSpecId;
     private final int filterSpecParamPathNum;

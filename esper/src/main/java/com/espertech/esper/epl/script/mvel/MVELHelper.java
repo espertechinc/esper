@@ -15,8 +15,8 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionScriptCompiled;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class MVELHelper {
 
-    private static final Log log = LogFactory.getLog(MVELHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(MVELHelper.class);
 
     /**
      * Verify MVEL script (not compiling it).

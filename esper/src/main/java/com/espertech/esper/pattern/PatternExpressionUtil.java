@@ -16,8 +16,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class PatternExpressionUtil
 {
-    private static Log log = LogFactory.getLog(PatternExpressionUtil.class);
+    private static Logger log = LoggerFactory.getLogger(PatternExpressionUtil.class);
 
     public static Object getKeys(MatchedEventMap matchEvent, MatchedEventConvertor convertor, ExprEvaluator[] expressions, AgentInstanceContext agentInstanceContext) {
         EventBean[] eventsPerStream = convertor.convert(matchEvent);

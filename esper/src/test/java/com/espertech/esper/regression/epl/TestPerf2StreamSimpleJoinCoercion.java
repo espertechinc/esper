@@ -18,8 +18,8 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.client.SupportConfigFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPerf2StreamSimpleJoinCoercion extends TestCase
 {
@@ -108,5 +108,5 @@ public class TestPerf2StreamSimpleJoinCoercion extends TestCase
         return bean;
     }
 
-    private static final Log log = LogFactory.getLog(TestPerf2StreamSimpleJoinCoercion.class);
+    private static final Logger log = LoggerFactory.getLogger(TestPerf2StreamSimpleJoinCoercion.class);
 }

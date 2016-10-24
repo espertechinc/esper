@@ -18,8 +18,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.time.TimerControlEvent;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class TestStockTickerSimple extends TestCase
 {
@@ -154,7 +154,7 @@ public class TestStockTickerSimple extends TestCase
         }
         catch (InterruptedException e)
         {
-            log.fatal(e);
+            log.error("Interrupted: {}", e.getMessage(), e);
         }
     }
 
@@ -163,5 +163,5 @@ public class TestStockTickerSimple extends TestCase
         epService.getEPRuntime().sendEvent(theEvent);
     }
 
-    private static final Log log = LogFactory.getLog(TestStockTickerSimple.class);
+    private static final Logger log = LoggerFactory.getLogger(TestStockTickerSimple.class);
 }
