@@ -576,7 +576,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         services.getSchedulingService().init();
 
         // New admin
-        ConfigurationOperations configOps = new ConfigurationOperationsImpl(services.getEventAdapterService(), services.getEventTypeIdGenerator(), services.getEngineImportService(), services.getVariableService(), services.getEngineSettingsService(), services.getValueAddEventService(), services.getMetricsReportingService(), services.getStatementEventTypeRefService(), services.getStatementVariableRefService(), services.getPlugInViews(), services.getFilterService(), services.getPatternSubexpressionPoolSvc(), services.getMatchRecognizeStatePoolEngineSvc(), services.getTableService());
+        ConfigurationOperations configOps = new ConfigurationOperationsImpl(services.getEventAdapterService(), services.getEventTypeIdGenerator(), services.getEngineImportService(), services.getVariableService(), services.getEngineSettingsService(), services.getValueAddEventService(), services.getMetricsReportingService(), services.getStatementEventTypeRefService(), services.getStatementVariableRefService(), services.getPlugInViews(), services.getFilterService(), services.getPatternSubexpressionPoolSvc(), services.getMatchRecognizeStatePoolEngineSvc(), services.getTableService(), configSnapshot.getTransientConfiguration());
         SelectClauseStreamSelectorEnum defaultStreamSelector = SelectClauseStreamSelectorEnum.mapFromSODA(configSnapshot.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
         EPAdministratorSPI adminSPI;
         String adminClassName = configSnapshot.getEngineDefaults().getAlternativeContext().getAdmin();
@@ -789,7 +789,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
     {
         try
         {
-            return (ConfigurationInformation) SerializableObjectCopier.copy(configuration);
+            Configuration copy = (Configuration) SerializableObjectCopier.copy(configuration);
+            copy.setTransientConfiguration(configuration.getTransientConfiguration());
+            return copy;
         }
         catch (IOException e)
         {

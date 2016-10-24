@@ -601,4 +601,6 @@ public interface ConfigurationOperations
      * @throws ConfigurationException if the event type name could not be found or is not a Map
      */
     public void updateObjectArrayEventType(String myEvent, String[] namesNew, Object[] typesNew);
+
+    public Map<String, Object> getTransientConfiguration();
 }

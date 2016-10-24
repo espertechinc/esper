@@ -202,6 +202,9 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      */
     protected Map<String, ConfigurationVariantStream> variantStreams;
 
+
+    protected transient Map<String, Object> transientConfiguration;
+
     /**
      * Constructs an empty configuration. The auto import values
      * are set by default to java.lang, java.math, java.text and
@@ -249,6 +252,14 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
 
     public void addPlugInSingleRowFunction(String functionName, String className, String methodName, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable) throws ConfigurationException {
         addPlugInSingleRowFunction(functionName, className, methodName, ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, filterOptimizable);
+    }
+
+    public Map<String, Object> getTransientConfiguration() {
+        return transientConfiguration;
+    }
+
+    public void setTransientConfiguration(Map<String, Object> transientConfiguration) {
+        this.transientConfiguration = transientConfiguration;
     }
 
     /**

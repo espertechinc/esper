@@ -206,6 +206,8 @@ public interface ConfigurationInformation
      * @return object-array event types
      */
     public Map<String, Map<String, Object>> getEventTypesNestableObjectArrayEvents();
+
+    public Map<String, Object> getTransientConfiguration();
 }
 
 

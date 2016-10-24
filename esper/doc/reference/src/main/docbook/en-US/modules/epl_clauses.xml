@@ -6121,6 +6121,10 @@ on PageHitEvent(ip='0.0.0.0') pagehit set varPageHitZero.userId = pagehit.userId
 			</para>
 			<programlisting><![CDATA[admin.getConfiguration().addVariable("stateChecker", StateCheckerService.class, StateCheckerServiceFactory.makeService(), true);]]></programlisting>
 
+			<para>
+				Application objects can also be passed via transient configuration information as described in <xref linkend="configuration-transientobjects"/>.
+			</para>
+
 			<note>
 				When using non-constant class or event-type variables and when your EPL intends to set property values on the variable itself (i.e. <literal>set varPageHitZero.userId</literal>), please note the following requirements. In order for the engine to assign property values, the underlying event type must allow writing property values. If using JavaBean event classes the class must have setter methods and a default constructor. The underlying event type must also be copy-able i.e. implement <literal>Serializable</literal> or configure a copy method (only for non-constant variables and when setting property values).
 			</note>			

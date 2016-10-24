@@ -60,6 +60,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     private final PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc;
     private final MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc;
     private final TableService tableService;
+    private final Map<String, Object> transientConfiguration;
 
     /**
      * Ctor.
@@ -85,7 +86,8 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
                                        FilterService filterService,
                                        PatternSubexpressionPoolEngineSvc patternSubexpressionPoolSvc,
                                        MatchRecognizeStatePoolEngineSvc matchRecognizeStatePoolEngineSvc,
-                                       TableService tableService)
+                                       TableService tableService,
+                                       Map<String, Object> transientConfiguration)
     {
         this.eventAdapterService = eventAdapterService;
         this.eventTypeIdGenerator = eventTypeIdGenerator;
@@ -101,6 +103,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         this.patternSubexpressionPoolSvc = patternSubexpressionPoolSvc;
         this.matchRecognizeStatePoolEngineSvc = matchRecognizeStatePoolEngineSvc;
         this.tableService = tableService;
+        this.transientConfiguration = transientConfiguration;
     }
 
     public void addEventTypeAutoName(String javaPackageName)
@@ -626,5 +629,9 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         if (matchRecognizeStatePoolEngineSvc != null) {
             matchRecognizeStatePoolEngineSvc.setMatchRecognizeMaxStates(maxStates);
         }
+    }
+
+    public Map<String, Object> getTransientConfiguration() {
+        return transientConfiguration;
     }
 }

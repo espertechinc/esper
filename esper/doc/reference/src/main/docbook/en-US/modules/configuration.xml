@@ -76,10 +76,6 @@ configuration.configure();
 		<programlisting><![CDATA[Configuration configuration = new Configuration();		
 configuration.configure("myengine.esper.cfg.xml");
 ]]></programlisting>
-    </sect1>
-
-	<sect1 xml:id="configuration-xml" revision="1">
-        <title>XML Configuration File</title>
 
         <para>
 			Here is an example configuration file.
@@ -102,6 +98,47 @@ http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd">
 
         <para>
 			The example above is only a subset of the configuration items available. The next chapters outline the available configuration in greater detail.
+		</para>
+    </sect1>
+
+    <sect1 xml:id="configuration-transientobjects" revision="1">
+        <title>Passing Services or Transient Objects</title>
+		<indexterm><primary>configuration</primary><secondary>transient</secondary></indexterm>
+		
+        <para>
+			The <literal>Configuration</literal> object allows passing application objects such as services or other transient objects. 
+			This information can be used by extensions, listeners or subscribers, for example, to obtain application objects from the engine.			
+        </para>
+        
+        <para>
+			Use <literal>setTransientConfiguration</literal> and provide a <literal>Map&lt;String, Object&gt;</literal> that contains the application objects.
+			The engine retains and makes available the same <literal>Map</literal> instance as part of <literal>ConfigurationOperations</literal> that is available as part of the adminstrative interface,
+			and contents can be changed by an application at runtime.
+        </para>
+
+        <para>
+            Assuming your application has a service <literal>myLocalService</literal> instance, the example code is:
+        </para>
+
+		<programlisting><![CDATA[Configuration configuration = new Configuration();
+HashMap<String, Object> transients = new HashMap<String, Object>();
+transients.put(SERVICE_NAME, myLocalService); // SERVICE_NAME is a well-known string value defined elsewhere
+configuration.setTransientConfiguration(transients);
+
+EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);]]></programlisting>
+
+        <para>
+            A sample listener that receives a service from transient configuation is:
+        </para>
+		<programlisting><![CDATA[public class MyListener implements StatementAwareUpdateListener {
+  public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
+    MyLocalService service = (MyLocalService) epServiceProvider.getEPAdministrator().getConfiguration().getTransientConfiguration().get(SERVICE_NAME);
+    // use the service here
+  }
+}]]></programlisting>
+
+		<para>
+			An alternative means to obtain application services is to define a constant variable.
 		</para>
     </sect1>
 
