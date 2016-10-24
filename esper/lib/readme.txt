@@ -9,7 +9,7 @@ commons-logging-1.1.3.jar
 - Apache Commons Logging, for logging
 - required for runtime
 
-cglib-nodep-3.1.jar
+cglib-nodep-3.2.4.jar
 - CGLIB bytecode generator
 - required for runtime
 

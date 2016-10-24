@@ -4,8 +4,10 @@ Esper Changelog
 Changes in version 6.0.0
 ------------------------
   - Requires Java 8
+  - The following dependent jar files are upgraded:
+    - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.5.3.jar)
+    - CGLIB version is now 3.2.4 (cglib-nodep-3.2.4.jar) (previously cglib-nodep-3.1.jar)
   - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
-  - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.5.3.jar)
 
 Changes in version 5.5.0
 ------------------------
