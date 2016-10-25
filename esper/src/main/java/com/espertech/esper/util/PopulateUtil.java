@@ -286,7 +286,7 @@ public class PopulateUtil {
                 ExprIdentNode identNode = (ExprIdentNode) value;
                 Property prop;
                 try {
-                    prop = PropertyParser.parseAndWalk(identNode.getFullUnresolvedName());
+                    prop = PropertyParser.parseAndWalkLaxToSimple(identNode.getFullUnresolvedName());
                 }
                 catch (Exception ex) {
                     throw new ExprValidationException("Failed to parse property '" + identNode.getFullUnresolvedName() + "'");

@@ -99,7 +99,7 @@ public class TestPropertyResolution extends TestCase
             fail();
         }
         catch (EPException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'ab cd': Failed to find property 'ab cd', the property name does not parse (are you sure?): Incorrect syntax near 'cd' at line 1 column 3 [ab cd] [select `ab cd` from com.espertech.esper.support.bean.SupportBean]");
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'ab cd': Property named 'ab cd' is not valid in any stream [");
         }
 
         // test resolution as nested property
@@ -143,7 +143,7 @@ public class TestPropertyResolution extends TestCase
             fail();
         }
         catch (PropertyAccessException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Unrecognized control characters found in text");
+            SupportMessageAssertUtil.assertMessage(ex, "Property named 'a\u008F' is not a valid property name for this type");
         }
     }
 

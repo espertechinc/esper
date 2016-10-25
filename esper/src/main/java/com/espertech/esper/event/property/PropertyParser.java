@@ -46,8 +46,19 @@ public class PropertyParser
         return walk(parse(property), isRootedDynamic);
     }
 
-    public static Property parseAndWalk(String property) {
-        return walk(parse(property), false);
+    /**
+     * Parses property.
+     * For cases when the property is not following the property syntax assume we act lax and assume its a simple property.
+     * @param property to parse
+     * @return property or SimpleProperty if the property cannot be parsed
+     */
+    public static Property parseAndWalkLaxToSimple(String property) {
+        try {
+            return walk(parse(property), false);
+        }
+        catch (PropertyAccessException p) {
+            return new SimpleProperty(property);
+        }
     }
 
     /**
@@ -246,7 +257,7 @@ public class PropertyParser
         }
 
         // parse and render
-        Property property = PropertyParser.parseAndWalk(unescapedPropertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(unescapedPropertyName);
         if (property instanceof NestedProperty) {
             StringWriter writer = new StringWriter();
             property.toPropertyEPL(writer);

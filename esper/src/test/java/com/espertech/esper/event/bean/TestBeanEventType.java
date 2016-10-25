@@ -226,11 +226,8 @@ public class TestBeanEventType extends TestCase
         tryInvalidIsProperty(eventTypeComplex, "x[");
         tryInvalidIsProperty(eventTypeComplex, "dummy()");
         tryInvalidIsProperty(eventTypeComplex, "nested.xx['a']");
-        tryInvalidGetPropertyType(eventTypeComplex, "x[");
-        tryInvalidGetPropertyType(eventTypeComplex, "dummy()");
-        tryInvalidGetPropertyType(eventTypeComplex, "nested.xx['a']");
-        tryInvalidGetPropertyType(eventTypeNested, "dummy[(");
-        tryInvalidGetPropertyType(eventTypeNested, "array[1].mapprop[x].value");
+        tryInvalidIsProperty(eventTypeNested, "dummy[(");
+        tryInvalidIsProperty(eventTypeNested, "array[1].mapprop[x].value");
     }
 
     public void testGetDeepSuperTypes()
@@ -298,30 +295,10 @@ public class TestBeanEventType extends TestCase
                 new String[]{"d", "baseD", "baseDBase"});
     }
 
-    private static void tryInvalidGetPropertyType(BeanEventType type, String property)
-    {
-        try
-        {
-            type.getPropertyType(property);
-            fail();
-        }
-        catch (PropertyAccessException ex)
-        {
-            // expected
-        }
-    }
-
     private static void tryInvalidIsProperty(BeanEventType type, String property)
     {
-        try
-        {
-            type.getPropertyType(property);
-            fail();
-        }
-        catch (PropertyAccessException ex)
-        {
-            // expected
-        }
+        assertEquals(null, type.getPropertyType(property));
+        assertEquals(false, type.isProperty(property));
     }
 
     private static void runTest(List<PropTestDesc> tests, BeanEventType eventType, EventBean eventBean)

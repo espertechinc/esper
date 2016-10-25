@@ -9,7 +9,6 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.epl.parse.ASTFilterSpecHelper;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.MappedProperty;
@@ -319,7 +318,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI
             }
 
             // parse, can be an indexed property
-            Property property = PropertyParser.parseAndWalk(propertyName);
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (property instanceof IndexedProperty)
             {
                 IndexedProperty indexedProp = (IndexedProperty) property;
@@ -389,7 +388,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI
         if (nestedType == null)
         {
             // parse, can be an indexed property
-            Property property = PropertyParser.parseAndWalk(propertyMap);
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyMap);
             if (property instanceof IndexedProperty)
             {
                 IndexedProperty indexedProp = (IndexedProperty) property;

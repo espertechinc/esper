@@ -81,7 +81,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
             return pair.getSecond();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             MappedProperty mapProp = (MappedProperty) property;
             Integer index = getPropertiesIndexes().get(mapProp.getPropertyNameAtomic());
@@ -114,7 +114,7 @@ public class ObjectArrayEventType extends BaseNestableEventType {
             return pair.getFirst();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
             if (writer == null) {

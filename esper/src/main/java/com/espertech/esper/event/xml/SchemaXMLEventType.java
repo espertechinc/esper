@@ -9,7 +9,6 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.epl.parse.ASTFilterSpecHelper;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
@@ -142,7 +141,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
             return null;
         }
 
-        Property prop = PropertyParser.parseAndWalk(property);
+        Property prop = PropertyParser.parseAndWalkLaxToSimple(property);
 
         SchemaItem item = prop.getPropertyTypeSchema(schemaModelRoot, this.getEventAdapterService());
         if ((item == null) || (!canFragment(item)))
@@ -208,7 +207,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
         if ((!allowSimpleProperties) && (index == -1))
         {
             // parse, can be an indexed property
-            Property property = PropertyParser.parseAndWalk(propertyExpression);
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
             if (!property.isDynamic())
             {
                 if (!(property instanceof IndexedProperty))
@@ -225,7 +224,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
             }
         }
 
-        Property prop = PropertyParser.parseAndWalk(propertyExpression);
+        Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
         if (prop.isDynamic())
         {
             return Node.class;
@@ -258,7 +257,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
             if (index == -1)
             {
                 // parse, can be an indexed property
-                Property property = PropertyParser.parseAndWalk(propertyExpression);
+                Property property = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
                 if (!property.isDynamic())
                 {
                     if (!(property instanceof IndexedProperty))
@@ -291,7 +290,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
 
         if (!isPropertyExpressionXPath)
         {
-            Property prop = PropertyParser.parseAndWalk(propertyExpression);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
             boolean isDynamic = prop.isDynamic();
 
             if (!isDynamic)

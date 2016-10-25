@@ -511,7 +511,7 @@ public final class FilterSpecCompilerMakeParamUtil
 
     private static Pair<Integer, String> getStreamIndex(String resolvedPropertyName)
     {
-        Property property = PropertyParser.parseAndWalk(resolvedPropertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(resolvedPropertyName);
         if (!(property instanceof NestedProperty))
         {
             throw new IllegalStateException("Expected a nested property providing an index for array match '" + resolvedPropertyName + "'");

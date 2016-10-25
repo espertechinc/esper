@@ -48,13 +48,13 @@ public class TestInvalidView extends TestCase
         EventBean theEvent = stmt.iterator().next();
 
         String exceptionText = getSyntaxExceptionProperty("", theEvent);
-        assertEquals("Unexpected end-of-input []", exceptionText);
+        assertEquals("Property named '' is not a valid property name for this type", exceptionText);
 
         exceptionText = getSyntaxExceptionProperty("-", theEvent);
-        assertEquals("Incorrect syntax near '-' [-]", exceptionText);
+        assertEquals("Property named '-' is not a valid property name for this type", exceptionText);
 
         exceptionText = getSyntaxExceptionProperty("a[]", theEvent);
-        assertEquals("Incorrect syntax near ']' expecting any of the following tokens {IntegerLiteral, FloatingPointLiteral} but found a right angle bracket ']' at line 1 column 2 [a[]]", exceptionText);
+        assertEquals("Property named 'a[]' is not a valid property name for this type", exceptionText);
     }
 
     public void testInvalidSyntax()

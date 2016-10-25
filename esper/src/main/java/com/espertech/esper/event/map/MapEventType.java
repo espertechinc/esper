@@ -80,7 +80,7 @@ public class MapEventType extends BaseNestableEventType
             return pair.getSecond();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             MappedProperty mapProp = (MappedProperty) property;
             return new MapEventBeanPropertyWriterMapProp(mapProp.getPropertyNameAtomic(), mapProp.getKey());
@@ -105,7 +105,7 @@ public class MapEventType extends BaseNestableEventType
             return pair.getFirst();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
             if (writer == null) {

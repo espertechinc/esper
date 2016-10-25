@@ -138,7 +138,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             return simpleProp.getClazz();
         }
 
-        Property prop = PropertyParser.parseAndWalk(propertyName);
+        Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (prop instanceof SimpleProperty)
         {
             // there is no such property since it wasn't in simplePropertyTypes
@@ -186,7 +186,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             return getter;
         }
 
-        Property prop = PropertyParser.parseAndWalk(propertyName);
+        Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (prop instanceof SimpleProperty)
         {
             // there is no such property since it wasn't in simplePropertyGetters
@@ -767,7 +767,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             return EventBeanUtility.createNativeFragmentType(genericProp.getType(), genericProp.getGeneric(), eventAdapterService);
         }
 
-        Property prop = PropertyParser.parseAndWalk(propertyExpression);
+        Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
         if (prop instanceof SimpleProperty)
         {
             // there is no such property since it wasn't in simplePropertyTypes
@@ -792,7 +792,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             return pair.getSecond();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             MappedProperty mapProp = (MappedProperty) property;
             String methodName = PropertyHelper.getSetterMethodName(mapProp.getPropertyNameAtomic());
@@ -843,7 +843,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             return pair.getFirst();
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof MappedProperty) {
             EventPropertyWriter writer = getWriter(propertyName);
             if (writer == null) {

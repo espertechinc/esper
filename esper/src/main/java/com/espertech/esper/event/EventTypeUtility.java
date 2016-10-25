@@ -45,7 +45,7 @@ public class EventTypeUtility {
             return null;
         }
         // parse, can be an nested property
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (property instanceof PropertyBase) {
             return target.getPropertyDescriptor(((PropertyBase) property).getPropertyNameAtomic());
         }
@@ -515,12 +515,9 @@ public class EventTypeUtility {
             }
 
             // parse, can be an indexed property
-            Property property;
-            try {
-                property = PropertyParser.parseAndWalk(propertyName);
-            }
-            catch (Exception ex) {
-                // cannot parse property, return type
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
+
+            if (property instanceof SimpleProperty) {
                 PropertySetDescriptorItem propitem = simplePropertyTypes.get(propertyName);
                 if (propitem != null) {
                     return propitem.getSimplePropertyType();
@@ -605,7 +602,7 @@ public class EventTypeUtility {
         if (nestedType == null)
         {
             // parse, can be an indexed property
-            Property property = PropertyParser.parseAndWalk(propertyMap);
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyMap);
             if (property instanceof IndexedProperty)
             {
                 IndexedProperty indexedProp = (IndexedProperty) property;
@@ -738,7 +735,7 @@ public class EventTypeUtility {
         int index = ASTUtil.unescapedIndexOfDot(propertyName);
         if (index == -1)
         {
-            Property prop = PropertyParser.parseAndWalk(propertyName);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof DynamicProperty)
             {
                 EventPropertyGetter getterDyn = factory.getPropertyProvidedGetter(nestableTypes, propertyName, prop, eventAdapterService);
@@ -838,7 +835,7 @@ public class EventTypeUtility {
         if (nestedType == null)
         {
             // parse, can be an indexed property
-            Property property = PropertyParser.parseAndWalk(propertyMap);
+            Property property = PropertyParser.parseAndWalkLaxToSimple(propertyMap);
             if (property instanceof IndexedProperty)
             {
                 IndexedProperty indexedProp = (IndexedProperty) property;
@@ -921,7 +918,7 @@ public class EventTypeUtility {
         // The map contains another map, we resolve the property dynamically
         if (nestedType == Map.class)
         {
-            Property prop = PropertyParser.parseAndWalk(propertyNested);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyNested);
             MapEventPropertyGetter getterNestedMap = prop.getGetterMap(null, eventAdapterService);
             if (getterNestedMap == null)
             {
@@ -933,7 +930,7 @@ public class EventTypeUtility {
         }
         else if (nestedType instanceof Map)
         {
-            Property prop = PropertyParser.parseAndWalk(propertyNested);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyNested);
             Map nestedTypes = (Map) nestedType;
             MapEventPropertyGetter getterNestedMap = prop.getGetterMap(nestedTypes, eventAdapterService);
             if (getterNestedMap == null)

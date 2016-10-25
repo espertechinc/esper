@@ -48,6 +48,7 @@ public class TestSchemaXMLEventType extends TestCase {
 
     public void testSimpleProperies() {
         assertEquals("SAMPLE_V6", eventSchemaOne.get("prop4"));
+        assertFalse(eventSchemaOne.getEventType().isProperty("window(*)"));
     }
 
     public void testNestedProperties() {

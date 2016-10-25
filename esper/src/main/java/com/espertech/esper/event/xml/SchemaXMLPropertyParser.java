@@ -71,7 +71,7 @@ public class SchemaXMLPropertyParser
             }
         }
 
-        Property property = PropertyParser.parseAndWalk(propertyName);
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         boolean isDynamic = property.isDynamic();
 
         SchemaElementComplex rootComplexElement = SchemaUtil.findRootElement(schemaModel, namespace, rootElementName);

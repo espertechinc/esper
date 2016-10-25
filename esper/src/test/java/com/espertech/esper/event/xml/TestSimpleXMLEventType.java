@@ -70,6 +70,7 @@ public class TestSimpleXMLEventType extends TestCase {
 
 	public void testSimpleProperies() {
 		assertEquals("SAMPLE_V6", theEvent.get("prop4"));
+		assertTrue(theEvent.getEventType().isProperty("window(*)"));
 	}
 	
 	public void testNestedProperties() {

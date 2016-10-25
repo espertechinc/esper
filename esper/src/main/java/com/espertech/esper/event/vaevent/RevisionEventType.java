@@ -9,7 +9,6 @@
 package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.epl.parse.ASTFilterSpecHelper;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -92,7 +91,7 @@ public class RevisionEventType implements EventTypeSPI
         int index = ASTUtil.unescapedIndexOfDot(propertyName);
         if (index == -1)
         {
-            Property prop = PropertyParser.parseAndWalk(propertyName);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof SimpleProperty)
             {
                 // there is no such property since it wasn't found earlier

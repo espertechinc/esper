@@ -178,7 +178,7 @@ public class BaseNestableEventUtil
         Set<String> mapPropertiesToCopy = new HashSet<String>();
         Set<String> arrayPropertiesToCopy = new HashSet<String>();
         for (int i = 0; i < properties.length; i++) {
-            Property prop = PropertyParser.parseAndWalk(properties[i]);
+            Property prop = PropertyParser.parseAndWalkLaxToSimple(properties[i]);
             if (prop instanceof MappedProperty) {
                 MappedProperty mappedProperty = (MappedProperty) prop;
                 mapPropertiesToCopy.add(mappedProperty.getPropertyNameAtomic());
