@@ -67,6 +67,7 @@ public class TestExceptionHandler extends TestCase
         assertEquals(epl, ehc.getEpl());
         assertEquals("ABCName", ehc.getStatementName());
         assertEquals("Sample exception", ehc.getThrowable().getMessage());
+        assertNotNull(ehc.getCurrentEvent());
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }

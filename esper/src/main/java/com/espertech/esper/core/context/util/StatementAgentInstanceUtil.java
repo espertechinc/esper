@@ -94,7 +94,7 @@ public class StatementAgentInstanceUtil {
             stopMethod.stop();
         }
         catch (RuntimeException e) {
-            statementContext.getExceptionHandlingService().handleException(e, statementContext.getStatementName(), statementContext.getExpression(), ExceptionHandlerExceptionType.STOP);
+            statementContext.getExceptionHandlingService().handleException(e, statementContext.getStatementName(), statementContext.getExpression(), ExceptionHandlerExceptionType.STOP, null);
         }
     }
 
@@ -400,7 +400,7 @@ public class StatementAgentInstanceUtil {
 
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
 
         return false;
@@ -437,7 +437,7 @@ public class StatementAgentInstanceUtil {
             agentInstanceContext.getEpStatementAgentInstanceHandle().internalDispatch();
         }
         catch (RuntimeException ex) {
-            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
+            servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
         finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {

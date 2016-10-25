@@ -105,7 +105,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
             entry.getContextManager().stopStatement(statementName, statementId);
         }
         catch (RuntimeException ex) {
-            exceptionHandlingService.handleException(ex, statementName, epl, ExceptionHandlerExceptionType.STOP);
+            exceptionHandlingService.handleException(ex, statementName, epl, ExceptionHandlerExceptionType.STOP, null);
         }
     }
 

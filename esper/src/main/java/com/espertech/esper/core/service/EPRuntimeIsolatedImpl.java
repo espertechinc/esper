@@ -667,7 +667,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
         finally
         {
@@ -701,7 +701,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         catch (RuntimeException ex)
         {
-            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
         finally
         {

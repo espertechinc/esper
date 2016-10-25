@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import org.slf4j.Logger;
@@ -45,15 +46,15 @@ public class ExceptionHandlingService {
         }
     }
 
-    public void handleException(RuntimeException ex, EPStatementAgentInstanceHandle handle, ExceptionHandlerExceptionType type) {
-        handleException(ex, handle.getStatementHandle().getStatementName(), handle.getStatementHandle().getEPL(), type);
+    public void handleException(RuntimeException ex, EPStatementAgentInstanceHandle handle, ExceptionHandlerExceptionType type, EventBean optionalCurrentEvent) {
+        handleException(ex, handle.getStatementHandle().getStatementName(), handle.getStatementHandle().getEPL(), type, optionalCurrentEvent);
     }
 
     public String getEngineURI() {
         return engineURI;
     }
 
-    public void handleException(RuntimeException ex, String statementName, String epl, ExceptionHandlerExceptionType type) {
+    public void handleException(RuntimeException ex, String statementName, String epl, ExceptionHandlerExceptionType type, EventBean optionalCurrentEvent) {
         if (exceptionHandlers.isEmpty()) {
             StringWriter writer = new StringWriter();
             if (type == ExceptionHandlerExceptionType.PROCESS) {
@@ -79,7 +80,7 @@ public class ExceptionHandlingService {
             return;
         }
 
-        ExceptionHandlerContext context = new ExceptionHandlerContext(engineURI, ex, statementName, epl, type);
+        ExceptionHandlerContext context = new ExceptionHandlerContext(engineURI, ex, statementName, epl, type, optionalCurrentEvent);
         for (ExceptionHandler handler : exceptionHandlers) {
             handler.handle(context);
         }

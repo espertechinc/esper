@@ -11,6 +11,8 @@
 
 package com.espertech.esper.client.hook;
 
+import com.espertech.esper.client.EventBean;
+
 /**
  * Context provided to {@link ExceptionHandler} implementations providing
  * exception-contextual information as well as the exception itself.
@@ -23,6 +25,7 @@ public class ExceptionHandlerContext {
     private final String statementName;
     private final String epl;
     private final ExceptionHandlerExceptionType type;
+    private final EventBean currentEvent;
 
     /**
      * Ctor.
@@ -31,12 +34,13 @@ public class ExceptionHandlerContext {
      * @param statementName statement name
      * @param epl statement EPL expression text
      */
-    public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl, ExceptionHandlerExceptionType type) {
+    public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl, ExceptionHandlerExceptionType type, EventBean currentEvent) {
         this.engineURI = engineURI;
         this.throwable = throwable;
         this.statementName = statementName;
         this.epl = epl;
         this.type = type;
+        this.currentEvent = currentEvent;
     }
 
     /**
@@ -71,7 +75,19 @@ public class ExceptionHandlerContext {
         return epl;
     }
 
+    /**
+     * Returns exception type information
+     * @return type
+     */
     public ExceptionHandlerExceptionType getType() {
         return type;
+    }
+
+    /**
+     * Returns the current event, when available.
+     * @return current event or null if not available
+     */
+    public EventBean getCurrentEvent() {
+        return currentEvent;
     }
 }

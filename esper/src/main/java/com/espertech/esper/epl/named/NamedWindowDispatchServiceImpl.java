@@ -340,7 +340,7 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, null);
         }
         finally
         {
@@ -371,7 +371,7 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            exceptionHandlingService.handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, null);
         }
         finally
         {

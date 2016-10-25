@@ -1118,7 +1118,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, null);
         }
         finally
         {
@@ -1152,7 +1152,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS);
+            services.getExceptionHandlingService().handleException(ex, handle.getAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, null);
         }
         finally
         {
@@ -1204,7 +1204,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             }
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
         finally
         {
@@ -1250,7 +1250,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             handle.internalDispatch();
         }
         catch (RuntimeException ex) {
-            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS);
+            services.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
         finally
         {

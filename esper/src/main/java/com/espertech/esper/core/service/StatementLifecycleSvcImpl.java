@@ -958,7 +958,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                     destroyInternal(desc);
                 }
                 catch (RuntimeException ex) {
-                    services.getExceptionHandlingService().handleException(ex, desc.getEpStatement().getName(), desc.getEpStatement().getText(), ExceptionHandlerExceptionType.STOP);
+                    services.getExceptionHandlingService().handleException(ex, desc.getEpStatement().getName(), desc.getEpStatement().getText(), ExceptionHandlerExceptionType.STOP, null);
                 }
             }
         }
