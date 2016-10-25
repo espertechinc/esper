@@ -106,10 +106,10 @@ public class MethodPollingViewableFactory
                         strategy = MethodPollingExecStrategyEnum.TARGET_VAR;
                     }
                 }
-                methodReflection = engineImportService.resolveNonStaticMethod(variableMetaData.getType(), methodStreamSpec.getMethodName());
+                methodReflection = engineImportService.resolveNonStaticMethod(variableMetaData.getType(), methodStreamSpec.getMethodName(), methodStreamSpec.getExpressions().size());
             }
             else {
-                methodReflection = engineImportService.resolveMethod(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
+                methodReflection = engineImportService.resolveMethod(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName(), methodStreamSpec.getExpressions().size());
                 invocationTarget = null;
                 variableReader = null;
                 variableName = null;

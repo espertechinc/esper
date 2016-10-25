@@ -255,9 +255,7 @@ public class EngineImportServiceImpl implements EngineImportService
         }
     }
 
-    public Method resolveMethod(String className, String methodName)
-			throws EngineImportException
-    {
+    public Method resolveMethod(String className, String methodName, int numParameters) throws EngineImportException {
         Class clazz;
         try {
             clazz = resolveClassInternal(className, false, false);
@@ -265,13 +263,11 @@ public class EngineImportServiceImpl implements EngineImportService
         catch (ClassNotFoundException e) {
             throw new EngineImportException("Could not load class by name '" + className + "', please check imports", e);
         }
-        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
+        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC, numParameters);
     }
 
-    public Method resolveNonStaticMethod(Class clazz, String methodName)
-            throws EngineImportException
-    {
-        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC);
+    public Method resolveNonStaticMethod(Class clazz, String methodName, int numParameters) throws EngineImportException {
+        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC, numParameters);
     }
 
     public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException {
@@ -589,7 +585,7 @@ public class EngineImportServiceImpl implements EngineImportService
         }
     }
 
-    private Method resolveMethodInternal(Class clazz, String methodName, MethodModifiers methodModifiers)
+    private Method resolveMethodInternal(Class clazz, String methodName, MethodModifiers methodModifiers, int numParameters)
             throws EngineImportException
     {
         Method methods[] = clazz.getMethods();
@@ -597,9 +593,9 @@ public class EngineImportServiceImpl implements EngineImportService
 
         // check each method by name
         for (Method method : methods) {
-            if (method.getName().equals(methodName)) {
+            if (method.getParameterCount() == numParameters && method.getName().equals(methodName)) {
                 if (methodByName != null) {
-                    throw new EngineImportException("Ambiguous method name: method by name '" + methodName + "' is overloaded in class '" + clazz.getName() + "'");
+                    throw new EngineImportException("Ambiguous method name: method by name '" + methodName + "' taking " + numParameters + " parameters is overloaded in class '" + clazz.getName() + "'");
                 }
                 int modifiers = method.getModifiers();
                 boolean isPublic = Modifier.isPublic(modifiers);
@@ -611,7 +607,7 @@ public class EngineImportServiceImpl implements EngineImportService
         }
 
         if (methodByName == null) {
-            throw new EngineImportException("Could not find " + methodModifiers.getText() + " method named '" + methodName + "' in class '" + clazz.getName() + "'");
+            throw new EngineImportException("Could not find " + methodModifiers.getText() + " method named '" + methodName + "' taking " + numParameters + " parameters in class '" + clazz.getName() + "'");
         }
         return methodByName;
     }

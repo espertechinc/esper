@@ -29,17 +29,17 @@ public class TestEngineImportServiceImpl extends TestCase
 
     public void testResolveMethodNoArgTypes() throws Exception
     {
-        Method method = engineImportService.resolveMethod("java.lang.Math", "cbrt");
+        Method method = engineImportService.resolveMethod("java.lang.Math", "cbrt", 1);
         assertEquals(Math.class.getMethod("cbrt", new Class[] {double.class}), method);
 
         try
         {
-            engineImportService.resolveMethod("java.lang.Math", "abs");
+            engineImportService.resolveMethod("java.lang.Math", "abs", 1);
             fail();
         }
         catch (EngineImportException ex)
         {
-            assertEquals("Ambiguous method name: method by name 'abs' is overloaded in class 'java.lang.Math'", ex.getMessage());
+            assertEquals("Ambiguous method name: method by name 'abs' taking 1 parameters is overloaded in class 'java.lang.Math'", ex.getMessage());
         }
     }
 

@@ -840,4 +840,34 @@ public class SupportStaticMethodLib
             return mapint;
         }
     }
+
+    public static Map[] overloadedMethodForJoin()
+    {
+        return getOverloadedMethodForJoinResult(1, 2);
+    }
+
+    public static Map[] overloadedMethodForJoin(int first)
+    {
+        return getOverloadedMethodForJoinResult(first, 2);
+    }
+
+    public static Map[] overloadedMethodForJoin(int first, int second)
+    {
+        return getOverloadedMethodForJoinResult(first, second);
+    }
+
+    public static Map overloadedMethodForJoinMetadata()
+    {
+        Map<String, Class> values = new HashMap<String, Class>();
+        values.put("col1", Integer.class);
+        values.put("col2", Integer.class);
+        return values;
+    }
+
+    private static Map[] getOverloadedMethodForJoinResult(int first, int second) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("col1", first);
+        values.put("col2", second);
+        return new Map[] {values};
+    }
 }
