@@ -22,14 +22,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class ExprAggMultiFunctionLinearAccessNodeFactoryMethod implements AggregationMethodFactory
+public class AggregationMethodFactoryFirstLastUnbound implements AggregationMethodFactory
 {
-    private final ExprAggMultiFunctionLinearAccessNode parent;
+    protected final ExprAggMultiFunctionLinearAccessNode parent;
     private final EventType collectionEventType;
     private final Class resultType;
     private final int streamNum;
 
-    public ExprAggMultiFunctionLinearAccessNodeFactoryMethod(ExprAggMultiFunctionLinearAccessNode parent, EventType collectionEventType, Class resultType, int streamNum) {
+    public AggregationMethodFactoryFirstLastUnbound(ExprAggMultiFunctionLinearAccessNode parent, EventType collectionEventType, Class resultType, int streamNum) {
         this.parent = parent;
         this.collectionEventType = collectionEventType;
         this.resultType = resultType;
@@ -72,7 +72,7 @@ public class ExprAggMultiFunctionLinearAccessNodeFactoryMethod implements Aggreg
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
         com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
-        ExprAggMultiFunctionLinearAccessNodeFactoryMethod that = (ExprAggMultiFunctionLinearAccessNodeFactoryMethod) intoTableAgg;
+        AggregationMethodFactoryFirstLastUnbound that = (AggregationMethodFactoryFirstLastUnbound) intoTableAgg;
         com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateStreamNumZero(that.streamNum);
         if (collectionEventType != null) {
             com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateEventType(collectionEventType, that.collectionEventType);

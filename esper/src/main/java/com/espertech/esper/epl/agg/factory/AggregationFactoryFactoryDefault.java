@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.agg.factory;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.core.service.StatementExtensionSvcContext;
 import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
@@ -18,10 +19,7 @@ import com.espertech.esper.epl.agg.access.AggregationStateSortedSpec;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
-import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
-import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
-import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
-import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNodeFactory;
+import com.espertech.esper.epl.expression.accessagg.*;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.schedule.TimeProvider;
@@ -89,6 +87,10 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
 
     public AggregationMethodFactory makeStddev(StatementExtensionSvcContext statementExtensionSvcContext, ExprStddevNode exprStddevNode, Class childType) {
         return new AggregationMethodFactoryStddev(exprStddevNode, childType);
+    }
+
+    public AggregationMethodFactory makeLinearUnbounded(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode parent, EventType containedType, Class accessorResultType, int streamNum) {
+        return new AggregationMethodFactoryFirstLastUnbound(parent, containedType, accessorResultType, streamNum);
     }
 
     public AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {

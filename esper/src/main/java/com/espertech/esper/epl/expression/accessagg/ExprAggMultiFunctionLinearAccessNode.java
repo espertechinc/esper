@@ -188,7 +188,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         boolean isFafWindow = streamTypeService.isOnDemandStreams() && stateType == AggregationStateType.WINDOW;
         TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(containedType);
         if (tableMetadata == null && !isFafWindow && (istreamOnly || streamTypeService.isOnDemandStreams())) {
-            ExprAggMultiFunctionLinearAccessNodeFactoryMethod factory = new ExprAggMultiFunctionLinearAccessNodeFactoryMethod(this, containedType, accessorResultType, streamNum);
+            AggregationMethodFactory factory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinearUnbounded(validationContext.getStatementExtensionSvcContext(), this, containedType, accessorResultType, streamNum);
             return new LinearAggregationFactoryDesc(factory, containedType, scalarCollectionComponentType);
         }
 
