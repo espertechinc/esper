@@ -332,12 +332,12 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 	
 				<indexterm><primary>cast function</primary><secondary>date parsing</secondary></indexterm>
 				<para>
-					The <literal>cast</literal> function can parse string-type date-time values to long-type milliseconds, <literal>Date</literal> or <literal>Calendar</literal> objects.
+					The <literal>cast</literal> function can parse string-type date-time values to long-type milliseconds, <literal>Date</literal>, <literal>Calendar</literal>, <literal>LocalDateTime</literal>, <literal>ZonedDateTime</literal>, <literal>LocalDate</literal> and <literal>LocalTime</literal> objects.
 				</para>
 
 				<para>
 					You must provide the <literal>dateformat</literal> named parameter as the last parameter to the <literal>cast</literal> function. The date format can be any platform date format
-					(<literal>SimpleDateFormat</literal>) as a string-type value.
+					(<literal>SimpleDateFormat</literal> for <literal>long</literal>/<literal>Date</literal>/<literal>Calendar</literal> or <literal>DateTimeFormatter</literal> for <literal>LocalDateTime</literal>/<literal>ZonedDateTime</literal>/<literal>LocalDate</literal>/<literal>LocalTime</literal>) as a string-type value.
 				</para>
 				
 				<para>
@@ -346,7 +346,6 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 				<programlisting><![CDATA[select cast('20100502', date, dateformat: 'yyyyMMdd') from OrderEvent]]></programlisting>
 				
 				<para>
-					You may specify <literal>long</literal> for a millisecond value or <literal>Calendar</literal> for a calendar value instead of <literal>date</literal>.
 					You may use date-time methods when <literal>cast</literal> is returning a date-time value. Expressions can be any expression and do not need to be string constants.
 				</para>
 				
@@ -357,6 +356,54 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 					For example, assuming the <literal>orderDate</literal> property is a ISO 8601 formatted date, the engine can convert it to a long millisecond value like this:
 				</para>
 				<programlisting><![CDATA[select cast(orderDate, long, dateformat: 'iso') from OrderEvent]]></programlisting>
+				
+				<para>
+					The next table shows the recognized date types available:
+				</para>
+
+				<table frame="topbot" xml:id="epl-single-row-function-cast-parsedate-types" revision="2">
+					<title>Date Types for Casting/Parsing</title>
+					<tgroup cols="2">
+						<colspec colwidth="2.0*"/>
+						<colspec colwidth="1.5*"/>
+						<thead>
+							<row>
+								<entry>Value provided to Cast as the second parameter</entry>
+								<entry>Result Type</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>date</literal>, <literal>java.util.Date</literal></entry>
+								<entry><literal>java.util.Date</literal></entry>
+							</row>
+							<row>
+								<entry><literal>calendar</literal>, <literal>java.util.Calendar</literal></entry>
+								<entry><literal>java.util.Calendar</literal></entry>
+							</row>
+							<row>
+								<entry><literal>long</literal>, <literal>java.lang.Long</literal></entry>
+								<entry><literal>long</literal></entry>
+							</row>
+							<row>
+								<entry><literal>localdatetime</literal>, <literal>java.time.LocalDateTime</literal></entry>
+								<entry><literal>java.time.LocalDateTime</literal></entry>
+							</row>
+							<row>
+								<entry><literal>localdate</literal>, <literal>java.time.LocalDate</literal></entry>
+								<entry><literal>java.time.LocalDate</literal></entry>
+							</row>
+							<row>
+								<entry><literal>localtime</literal>, <literal>java.time.LocalTime</literal></entry>
+								<entry><literal>java.time.LocalTime</literal></entry>
+							</row>
+							<row>
+								<entry><literal>zoneddatetime</literal>, <literal>java.time.ZonedDateTime</literal></entry>
+								<entry><literal>java.time.ZonedDateTime</literal></entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
 			</sect3>
 
 		</sect2>

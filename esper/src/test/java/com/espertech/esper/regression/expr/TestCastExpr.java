@@ -25,6 +25,11 @@ import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class TestCastExpr extends TestCase
@@ -46,12 +51,13 @@ public class TestCastExpr extends TestCase
     }
 
     public void testCaseDates() throws Exception {
-        epService.getEPAdministrator().createEPL("create map schema MyType(yyyymmdd string)");
+        epService.getEPAdministrator().createEPL("create map schema MyType(yyyymmdd string, yyyymmddhhmmss string, hhmmss string, yyyymmddhhmmssvv string)");
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_StringAlphabetic.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
-        runAssertionDatetimeTypes(true);
-        runAssertionDatetimeTypes(false);
+        runAssertionDatetimeBaseTypes(true);
+        runAssertionDatetimeBaseTypes(false);
+        runAssertionDatetimeJava8Types();
 
         runAssertionDatetimeRenderOutCol();
 
@@ -76,7 +82,11 @@ public class TestCastExpr extends TestCase
                 "cast('1997-07-16T19:20:30.45',date,dateformat:'iso') as c7," +
                 "cast(theString,calendar,dateformat:'iso') as c8," +
                 "cast(theString,long,dateformat:'iso') as c9," +
-                "cast(theString,date,dateformat:'iso') as c10" +
+                "cast(theString,date,dateformat:'iso') as c10," +
+                "cast('1997-07-16T19:20:30.45',localdatetime,dateformat:'iso') as c11," +
+                "cast('1997-07-16T19:20:30+01:00',zoneddatetime,dateformat:'iso') as c12," +
+                "cast('1997-07-16',localdate,dateformat:'iso') as c13," +
+                "cast('19:20:30',localtime,dateformat:'iso') as c14" +
                 " from SupportBean";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -94,6 +104,10 @@ public class TestCastExpr extends TestCase
         for (String prop : "c8,c9,c10".split(",")) {
             assertNull(event.get(prop));
         }
+        assertEquals(LocalDateTime.parse("1997-07-16T19:20:30.45", DateTimeFormatter.ISO_DATE_TIME), event.get("c11"));
+        assertEquals(ZonedDateTime.parse("1997-07-16T19:20:30+01:00", DateTimeFormatter.ISO_ZONED_DATE_TIME), event.get("c12"));
+        assertEquals(LocalDate.parse("1997-07-16", DateTimeFormatter.ISO_DATE), event.get("c13"));
+        assertEquals(LocalTime.parse("19:20:30", DateTimeFormatter.ISO_TIME), event.get("c14"));
     }
 
     private void runAssertionConstantDate() throws Exception {
@@ -111,6 +125,7 @@ public class TestCastExpr extends TestCase
 
     private void runAssertionDynamicDateFormat() throws Exception {
 
+        // try legacy date types
         String epl = "select " +
                 "cast(a,date,dateformat:b) as c0," +
                 "cast(a,long,dateformat:b) as c1," +
@@ -140,6 +155,38 @@ public class TestCastExpr extends TestCase
         }
 
         stmt.destroy();
+
+        // try java 8 types
+        epService.getEPAdministrator().createEPL("create schema ValuesAndFormats(" +
+                "ldt string, ldtf string," +
+                "ld string, ldf string," +
+                "lt string, ltf string," +
+                "zdt string, zdtf string)");
+        String eplExtended = "select " +
+                "cast(ldt,localdatetime,dateformat:ldtf) as c0," +
+                "cast(ld,localdate,dateformat:ldf) as c1," +
+                "cast(lt,localtime,dateformat:ltf) as c2," +
+                "cast(zdt,zoneddatetime,dateformat:zdtf) as c3 " +
+                " from ValuesAndFormats";
+        Map<String, Object> event = new HashMap<>();
+        event.put("ldtf", "yyyyMMddHHmmss");
+        event.put("ldt", "19990102030405");
+        event.put("ldf", "yyyyMMdd");
+        event.put("ld", "19990102");
+        event.put("ltf", "HHmmss");
+        event.put("lt", "030405");
+        event.put("zdtf", "yyyyMMddHHmmssVV");
+        event.put("zdt", "20100510141516America/Los_Angeles");
+        EPStatement stmtExtended = epService.getEPAdministrator().createEPL(eplExtended);
+        stmtExtended.addListener(listener);
+        epService.getEPRuntime().sendEvent(event, "ValuesAndFormats");
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[] {
+                LocalDateTime.parse("19990102030405", DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
+                LocalDate.parse("19990102", DateTimeFormatter.ofPattern("yyyyMMdd")),
+                LocalTime.parse("030405", DateTimeFormatter.ofPattern("HHmmss")),
+                ZonedDateTime.parse("20100510141516America/Los_Angeles", DateTimeFormatter.ofPattern("yyyyMMddHHmmssVV")),
+                });
+        stmtExtended.destroy();;
     }
 
     private void runAssertionDynamicDateFormat(String date, String format) throws Exception {
@@ -165,7 +212,7 @@ public class TestCastExpr extends TestCase
 
         // invalid date format
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, date, dateformat:'BBBBMMDD') from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:\"BBB...(42 chars)': Invalid date format 'BBBBMMDD': Illegal pattern character 'B'");
+                "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:\"BBB...(42 chars)': Invalid date format 'BBBBMMDD' (as obtained from new SimpleDateFormat): Illegal pattern character 'B'");
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, date, dateformat:1) from SupportBean",
                 "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:1)': Failed to validate named parameter 'dateformat', expected a single expression returning a string-typed value");
 
@@ -175,7 +222,7 @@ public class TestCastExpr extends TestCase
 
         // invalid target
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, int, dateformat:'yyyyMMdd') from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'cast(theString,int,dateformat:\"yyyy...(41 chars)': Use of the 'dateformat' named parameter requires a target type of calendar, date or long [select cast(theString, int, dateformat:'yyyyMMdd') from SupportBean]");
+                "Error starting statement: Failed to validate select-clause expression 'cast(theString,int,dateformat:\"yyyy...(41 chars)': Use of the 'dateformat' named parameter requires a target type of calendar, date, long, localdatetime, localdate, localtime or zoneddatetime");
     }
 
     private void runAssertionDatetimeRenderOutCol() {
@@ -185,7 +232,46 @@ public class TestCastExpr extends TestCase
         stmt.destroy();
     }
 
-    private void runAssertionDatetimeTypes(boolean soda) throws Exception
+    private void runAssertionDatetimeJava8Types() {
+        String epl = "select " +
+                "cast(yyyymmdd,localdate,dateformat:\"yyyyMMdd\") as c0, " +
+                "cast(yyyymmdd,java.time.LocalDate,dateformat:\"yyyyMMdd\") as c1, " +
+                "cast(yyyymmddhhmmss,localdatetime,dateformat:\"yyyyMMddHHmmss\") as c2, " +
+                "cast(yyyymmddhhmmss,java.time.LocalDateTime,dateformat:\"yyyyMMddHHmmss\") as c3, " +
+                "cast(hhmmss,localtime,dateformat:\"HHmmss\") as c4, " +
+                "cast(hhmmss,java.time.LocalTime,dateformat:\"HHmmss\") as c5, " +
+                "cast(yyyymmddhhmmssvv,zoneddatetime,dateformat:\"yyyyMMddHHmmssVV\") as c6, " +
+                "cast(yyyymmddhhmmssvv,java.time.ZonedDateTime,dateformat:\"yyyyMMddHHmmssVV\") as c7 " +
+                "from MyType";
+        EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, false, epl);
+        stmt.addListener(listener);
+
+        String yyyymmdd = "20100510";
+        String yyyymmddhhmmss = "20100510141516";
+        String hhmmss = "141516";
+        String yyyymmddhhmmssvv = "20100510141516America/Los_Angeles";
+        Map<String, Object> values = new HashMap<String, Object>();
+        values.put("yyyymmdd", yyyymmdd);
+        values.put("yyyymmddhhmmss", yyyymmddhhmmss);
+        values.put("hhmmss", hhmmss);
+        values.put("yyyymmddhhmmssvv", yyyymmddhhmmssvv);
+        epService.getEPRuntime().sendEvent(values, "MyType");
+
+        LocalDate resultLocalDate = LocalDate.parse(yyyymmdd, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalDateTime resultLocalDateTime = LocalDateTime.parse(yyyymmddhhmmss, DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        LocalTime resultLocalTime = LocalTime.parse(hhmmss, DateTimeFormatter.ofPattern("HHmmss"));
+        ZonedDateTime resultZonedDateTime = ZonedDateTime.parse(yyyymmddhhmmssvv, DateTimeFormatter.ofPattern("yyyyMMddHHmmssVV"));
+
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[] {
+                resultLocalDate, resultLocalDate,
+                resultLocalDateTime, resultLocalDateTime,
+                resultLocalTime, resultLocalTime,
+                resultZonedDateTime, resultZonedDateTime});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionDatetimeBaseTypes(boolean soda) throws Exception
     {
         String epl = "select " +
                 "cast(yyyymmdd,date,dateformat:\"yyyyMMdd\") as c0, " +
