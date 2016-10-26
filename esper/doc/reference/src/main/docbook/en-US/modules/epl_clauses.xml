@@ -5335,6 +5335,10 @@ where asset.assetid = desc.assetid]]></programlisting>
 			<para>
 				Alternatively the example above could return a <literal>Collection</literal> wherein the method declares as <literal>public static Collection&lt;AssetDesc&gt; getAssetDescriptions() {...}</literal> or an <literal>Iterator</literal> wherein the method declares as <literal>public static Iterator&lt;AssetDesc&gt; getAssetDescriptions() {...}</literal>.
 			</para>
+			
+			<para>
+				Method overloading is allowed as long as overloaded methods return the same result type.
+			</para>
 
 			<sect3 xml:id="joining_method_exposing_instance" revision="1">
 				<title>Providing an Instance Method</title>

@@ -47,12 +47,14 @@ public class TestFromClauseMethod extends TestCase
     }
 
     public void testOverloaded() {
-        runAssertionOverloaded("", 1, 2);
-        runAssertionOverloaded("10", 10, 2);
-        runAssertionOverloaded("10, 20", 10, 20);
+        runAssertionOverloaded("", "A", "B");
+        runAssertionOverloaded("10", "10", "B");
+        runAssertionOverloaded("10, 20", "10", "20");
+        runAssertionOverloaded("'x'", "x", "B");
+        runAssertionOverloaded("'x', 50", "x", "50");
     }
 
-    private void runAssertionOverloaded(String params, int expectedFirst, int expectedSecond) {
+    private void runAssertionOverloaded(String params, String expectedFirst, String expectedSecond) {
         String epl = "select col1, col2 from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".overloadedMethodForJoin(" + params + ")";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -553,13 +555,13 @@ public class TestFromClauseMethod extends TestCase
     public void testInvalid()
     {
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchArrayGen()",
-                    "Error starting statement: Could not find public static method named 'fetchArrayGen' taking 0 parameters in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' [");
+                    "Error starting statement: Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find static method named 'fetchArrayGen' in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' taking no parameters (nearest match found was 'fetchArrayGen' taking type(s) 'int') [");
 
         tryInvalid(epService, "select * from SupportBean, method:.abc where 1=2",
                    "Incorrect syntax near '.' at line 1 column 34, please check the method invocation join within the from clause [select * from SupportBean, method:.abc where 1=2]");
 
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchObjectAndSleep(1)",
-                   "Error starting statement: Could not find public static method named 'fetchObjectAndSleep' taking 1 parameters in class 'com.espertech.esper.support.epl.SupportStaticMethodLib'");
+                   "Error starting statement: Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed 'Integer': Could not find static method named 'fetchObjectAndSleep' in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' with matching parameter number and expected parameter type(s) 'Integer' (nearest match found was 'fetchObjectAndSleep' taking type(s) 'String, int, long') [");
 
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.sleep(100) where 1=2",
                    "Error starting statement: Invalid return type for static method 'sleep' of class 'com.espertech.esper.support.epl.SupportStaticMethodLib', expecting a Java class [select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.sleep(100) where 1=2]");
@@ -577,7 +579,7 @@ public class TestFromClauseMethod extends TestCase
                    "Error starting statement: Method data joins do not allow views onto the data, view 'win:length' is not valid in this context [select * from SupportBean, method:Dummy.dummy().win:length(100) where 1=2]");
 
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.dummy where 1=2",
-                   "Error starting statement: Could not find public static method named 'dummy' taking 0 parameters in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' [select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.dummy where 1=2]");
+                   "Error starting statement: Could not find public static method named 'dummy' in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' [select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.dummy where 1=2]");
 
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.minusOne(10) where 1=2",
                    "Error starting statement: Invalid return type for static method 'minusOne' of class 'com.espertech.esper.support.epl.SupportStaticMethodLib', expecting a Java class [");
@@ -600,6 +602,9 @@ public class TestFromClauseMethod extends TestCase
 
         tryInvalid(epService, "select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()",
                 "Error starting statement: Getter method 'readRowWrongMetadataMetadata' does not return java.util.Map [select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()]");
+
+        tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.invalidOverloadForJoin(null)",
+                "Error starting statement: Method by name 'invalidOverloadForJoin' is overloaded in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' and overloaded methods do not return the same type");
     }
 
     private void sendBeanEvent(String theString)

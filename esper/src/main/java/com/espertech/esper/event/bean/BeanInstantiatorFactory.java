@@ -130,7 +130,7 @@ public class BeanInstantiatorFactory
         String methodName = factoryMethodName.substring(lastDotIndex + 1);
         try
         {
-            Method method = engineImportService.resolveMethod(className, methodName, new Class[0], new boolean[0], new boolean[0]);
+            Method method = engineImportService.resolveMethodOverloadChecked(className, methodName, new Class[0], new boolean[0], new boolean[0]);
             if (beanEventType.getFastClass() != null) {
                 FastClass fastClassFactory = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
                 return new BeanInstantiatorByFactoryFastClass(fastClassFactory.getMethod(method));

@@ -13,10 +13,7 @@ package com.espertech.esper.support.epl;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanNumeric;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
+import com.espertech.esper.support.bean.*;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -843,28 +840,46 @@ public class SupportStaticMethodLib
 
     public static Map[] overloadedMethodForJoin()
     {
-        return getOverloadedMethodForJoinResult(1, 2);
+        return getOverloadedMethodForJoinResult("A", "B");
     }
 
     public static Map[] overloadedMethodForJoin(int first)
     {
-        return getOverloadedMethodForJoinResult(first, 2);
+        return getOverloadedMethodForJoinResult(Integer.toString(first), "B");
+    }
+
+    public static Map[] overloadedMethodForJoin(String first)
+    {
+        return getOverloadedMethodForJoinResult(first, "B");
+    }
+
+    public static Map[] overloadedMethodForJoin(String first, int second)
+    {
+        return getOverloadedMethodForJoinResult(first, Integer.toString(second));
     }
 
     public static Map[] overloadedMethodForJoin(int first, int second)
     {
-        return getOverloadedMethodForJoinResult(first, second);
+        return getOverloadedMethodForJoinResult(Integer.toString(first), Integer.toString(second));
     }
 
     public static Map overloadedMethodForJoinMetadata()
     {
         Map<String, Class> values = new HashMap<String, Class>();
-        values.put("col1", Integer.class);
-        values.put("col2", Integer.class);
+        values.put("col1", String.class);
+        values.put("col2", String.class);
         return values;
     }
 
-    private static Map[] getOverloadedMethodForJoinResult(int first, int second) {
+    public static SupportBean_S0[] invalidOverloadForJoin(String first) {
+        return null;
+    }
+
+    public static SupportBean_S1[] invalidOverloadForJoin(Integer first) {
+        return null;
+    }
+
+    private static Map[] getOverloadedMethodForJoinResult(String first, String second) {
         Map<String, Object> values = new HashMap<>();
         values.put("col1", first);
         values.put("col2", second);

@@ -29,12 +29,12 @@ public class TestEngineImportServiceImpl extends TestCase
 
     public void testResolveMethodNoArgTypes() throws Exception
     {
-        Method method = engineImportService.resolveMethod("java.lang.Math", "cbrt", 1);
+        Method method = engineImportService.resolveMethodOverloadChecked("java.lang.Math", "cbrt");
         assertEquals(Math.class.getMethod("cbrt", new Class[] {double.class}), method);
 
         try
         {
-            engineImportService.resolveMethod("java.lang.Math", "abs", 1);
+            engineImportService.resolveMethodOverloadChecked("java.lang.Math", "abs");
             fail();
         }
         catch (EngineImportException ex)

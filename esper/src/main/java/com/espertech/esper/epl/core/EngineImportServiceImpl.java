@@ -14,7 +14,6 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
@@ -221,7 +220,7 @@ public class EngineImportServiceImpl implements EngineImportService
         return new Pair<Class, EngineImportSingleRowDesc>(clazz, pair);
     }
 
-    public Method resolveMethod(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
+    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType)
             throws EngineImportException
     {
         Class clazz;
@@ -255,7 +254,7 @@ public class EngineImportServiceImpl implements EngineImportService
         }
     }
 
-    public Method resolveMethod(String className, String methodName, int numParameters) throws EngineImportException {
+    public Method resolveMethodOverloadChecked(String className, String methodName) throws EngineImportException {
         Class clazz;
         try {
             clazz = resolveClassInternal(className, false, false);
@@ -263,11 +262,11 @@ public class EngineImportServiceImpl implements EngineImportService
         catch (ClassNotFoundException e) {
             throw new EngineImportException("Could not load class by name '" + className + "', please check imports", e);
         }
-        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC, numParameters);
+        return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
     }
 
-    public Method resolveNonStaticMethod(Class clazz, String methodName, int numParameters) throws EngineImportException {
-        return resolveMethodInternal(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC, numParameters);
+    public Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException {
+        return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC);
     }
 
     public Class resolveClass(String className, boolean forAnnotation) throws EngineImportException {
@@ -585,30 +584,46 @@ public class EngineImportServiceImpl implements EngineImportService
         }
     }
 
-    private Method resolveMethodInternal(Class clazz, String methodName, MethodModifiers methodModifiers, int numParameters)
+    private Method resolveMethodInternalCheckOverloads(Class clazz, String methodName, MethodModifiers methodModifiers)
             throws EngineImportException
     {
         Method methods[] = clazz.getMethods();
+        Set<Method> overloadeds = null;
         Method methodByName = null;
 
-        // check each method by name
+        // check each method by name, add to overloads when multiple methods for the same name
         for (Method method : methods) {
-            if (method.getParameterCount() == numParameters && method.getName().equals(methodName)) {
-                if (methodByName != null) {
-                    throw new EngineImportException("Ambiguous method name: method by name '" + methodName + "' taking " + numParameters + " parameters is overloaded in class '" + clazz.getName() + "'");
-                }
+            if (method.getName().equals(methodName)) {
                 int modifiers = method.getModifiers();
                 boolean isPublic = Modifier.isPublic(modifiers);
                 boolean isStatic = Modifier.isStatic(modifiers);
                 if (methodModifiers.acceptsPublicFlag(isPublic) && methodModifiers.acceptsStaticFlag(isStatic)) {
-                    methodByName = method;
+                    if (methodByName != null) {
+                        if (overloadeds == null) {
+                            overloadeds = new HashSet<>();
+                        }
+                        overloadeds.add(method);
+                    }
+                    else {
+                        methodByName = method;
+                    }
                 }
             }
         }
-
         if (methodByName == null) {
-            throw new EngineImportException("Could not find " + methodModifiers.getText() + " method named '" + methodName + "' taking " + numParameters + " parameters in class '" + clazz.getName() + "'");
+            throw new EngineImportException("Could not find " + methodModifiers.getText() + " method named '" + methodName + "' in class '" + clazz.getName() + "'");
         }
+        if (overloadeds == null) {
+            return methodByName;
+        }
+
+        // determine that all overloads have the same result type
+        for (Method overloaded : overloadeds) {
+            if (!overloaded.getReturnType().equals(methodByName.getReturnType())) {
+                throw new EngineImportException("Method by name '" + methodName + "' is overloaded in class '" + clazz.getName() + "' and overloaded methods do not return the same type");
+            }
+        }
+
         return methodByName;
     }
 

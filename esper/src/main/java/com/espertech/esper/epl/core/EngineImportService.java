@@ -95,7 +95,7 @@ public interface EngineImportService
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static method
      */
-    public Method resolveMethod(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws EngineImportException;
+    public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws EngineImportException;
 
     /**
      * Resolves a constructor matching list of parameter types.
@@ -131,7 +131,7 @@ public interface EngineImportService
      * @throws EngineImportException if the method cannot be resolved to a visible static method, or
      * if the method is overloaded
      */
-    public Method resolveMethod(String className, String methodName, int numParameters) throws EngineImportException;
+    public Method resolveMethodOverloadChecked(String className, String methodName) throws EngineImportException;
 
     /**
      * Resolves a given class and method name to a non-static method, expecting the method to exist
@@ -142,7 +142,7 @@ public interface EngineImportService
      * @throws EngineImportException if the method cannot be resolved to a visible static method, or
      * if the method is overloaded
      */
-    public Method resolveNonStaticMethod(Class clazz, String methodName, int numParameters) throws EngineImportException;
+    public Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException;
 
     /**
      * Resolves a given method name and list of parameter types to an instance or static method exposed by the given class.

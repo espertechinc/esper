@@ -67,7 +67,7 @@ public class TestFromClauseMethodVariable extends TestCase
 
         // invalid footprint
         SupportMessageAssertUtil.tryInvalid(epService, "select * from method:MyConstantServiceVariable.fetchABean() as h0",
-                "Error starting statement: Could not find public non-static method named 'fetchABean' taking 0 parameters in class 'com.espertech.esper.regression.epl.TestFromClauseMethodVariable$MyConstantServiceVariable' [");
+                "Error starting statement: Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find enumeration method, date-time method or instance method named 'fetchABean' in class 'com.espertech.esper.regression.epl.TestFromClauseMethodVariable$MyConstantServiceVariable' taking no parameters (nearest match found was 'fetchABean' taking type(s) 'int') [");
 
         // null variable value and metadata is instance method
         epService.getEPAdministrator().getConfiguration().addVariable("MyNullMap", MyMethodHandlerMap.class, null);

@@ -8,13 +8,15 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.ConfigurationDataCache;
+import com.espertech.esper.client.ConfigurationMethodRef;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.DataCacheFactory;
-import com.espertech.esper.epl.db.PollExecStrategy;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.MethodStreamSpec;
@@ -22,13 +24,10 @@ import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.bean.BeanEventBean;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.HistoricalEventViewable;
-import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -75,9 +74,8 @@ public class MethodPollingViewableFactory
         VariableReader variableReader;
         String variableName;
 
-        // Try to resolve the method
+        // Try to resolve one of the possibly-overloaded methods (the first, any), checking that all methods by the same name return the same-type value
         Method methodReflection;
-        FastMethod methodFastClass;
         Class declaringClass;
         Object invocationTarget;
         try
@@ -106,18 +104,16 @@ public class MethodPollingViewableFactory
                         strategy = MethodPollingExecStrategyEnum.TARGET_VAR;
                     }
                 }
-                methodReflection = engineImportService.resolveNonStaticMethod(variableMetaData.getType(), methodStreamSpec.getMethodName(), methodStreamSpec.getExpressions().size());
+                methodReflection = engineImportService.resolveNonStaticMethodOverloadChecked(variableMetaData.getType(), methodStreamSpec.getMethodName());
             }
             else {
-                methodReflection = engineImportService.resolveMethod(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName(), methodStreamSpec.getExpressions().size());
+                methodReflection = engineImportService.resolveMethodOverloadChecked(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
                 invocationTarget = null;
                 variableReader = null;
                 variableName = null;
                 strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
             }
             declaringClass = methodReflection.getDeclaringClass();
-            FastClass declaringFastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), methodReflection.getDeclaringClass());
-			methodFastClass = declaringFastClass.getMethod(methodReflection);
 		}
         catch(ExprValidationException e)
         {
@@ -129,14 +125,14 @@ public class MethodPollingViewableFactory
 		}
 
         // Determine object type returned by method
-        Class beanClass = methodFastClass.getReturnType();
+        Class beanClass = methodReflection.getReturnType();
         if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass)))
         {
-            throw new ExprValidationException("Invalid return type for static method '" + methodFastClass.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
+            throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
         }
-        if (methodFastClass.getReturnType().isArray())
+        if (methodReflection.getReturnType().isArray())
         {
-            beanClass = methodFastClass.getReturnType().getComponentType();
+            beanClass = methodReflection.getReturnType().getComponentType();
         }
 
         boolean isCollection = JavaClassHelper.isImplementsInterface(beanClass, Collection.class);
@@ -156,8 +152,8 @@ public class MethodPollingViewableFactory
         // If the method returns a Map, look up the map type
         Map<String, Object> mapType = null;
         String mapTypeName = null;
-        if ( (JavaClassHelper.isImplementsInterface(methodFastClass.getReturnType(), Map.class)) ||
-             (methodFastClass.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodFastClass.getReturnType().getComponentType(), Map.class)) ||
+        if ( (JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
+             (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
               (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
               (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class)))
         {
@@ -175,8 +171,8 @@ public class MethodPollingViewableFactory
         // If the method returns an Object[] or Object[][], look up the type information
         LinkedHashMap<String, Object> oaType = null;
         String oaTypeName = null;
-        if (methodFastClass.getReturnType() == Object[].class ||
-            methodFastClass.getReturnType() == Object[][].class ||
+        if (methodReflection.getReturnType() == Object[].class ||
+                methodReflection.getReturnType() == Object[][].class ||
             (isCollection && collectionClass == Object[].class) ||
             (isIterator && iteratorClass == Object[].class))
         {
@@ -203,59 +199,16 @@ public class MethodPollingViewableFactory
             eventType = eventAdapterService.addBeanType(beanClass.getName(), beanClass, false, true, true);
         }
 
-        // Construct polling strategy as a method invocation
         ConfigurationMethodRef configCache = engineImportService.getConfigurationMethodRef(declaringClass.getName());
-        if (configCache == null)
-        {
+        if (configCache == null) {
             configCache = engineImportService.getConfigurationMethodRef(declaringClass.getSimpleName());
         }
         ConfigurationDataCache dataCacheDesc = (configCache != null) ? configCache.getDataCacheDesc() : null;
         DataCache dataCache = dataCacheFactory.getDataCache(dataCacheDesc, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNumber);
-        PollExecStrategy methodPollStrategy;
-        if (mapType != null) {
-            if (methodFastClass.getReturnType().isArray()) {
-                methodPollStrategy = new MethodPollingExecStrategyMapArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isCollection) {
-                methodPollStrategy = new MethodPollingExecStrategyMapCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isIterator) {
-                methodPollStrategy = new MethodPollingExecStrategyMapIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else {
-                methodPollStrategy = new MethodPollingExecStrategyMapPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-        }
-        else if (oaType != null) {
-            if (methodFastClass.getReturnType() == Object[][].class) {
-                methodPollStrategy = new MethodPollingExecStrategyOAArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isCollection) {
-                methodPollStrategy = new MethodPollingExecStrategyOACollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isIterator) {
-                methodPollStrategy = new MethodPollingExecStrategyOAIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else {
-                methodPollStrategy = new MethodPollingExecStrategyOAPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-        }
-        else {
-            if (methodFastClass.getReturnType().isArray()) {
-                methodPollStrategy = new MethodPollingExecStrategyPOJOArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isCollection) {
-                methodPollStrategy = new MethodPollingExecStrategyPOJOCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else if (isIterator) {
-                methodPollStrategy = new MethodPollingExecStrategyPOJOIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-            else {
-                methodPollStrategy = new MethodPollingExecStrategyPOJOPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-        }
 
-        return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, streamNumber, methodStreamSpec.getExpressions(), methodPollStrategy, dataCache, eventType, exprEvaluatorContext);
+        MethodPollingViewableMeta meta = new MethodPollingViewableMeta(declaringClass, mapType, oaType, invocationTarget, strategy, isCollection, isIterator, variableReader, variableName);
+
+        return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, methodStreamSpec.getExpressions(), dataCache, eventType, exprEvaluatorContext, meta);
     }
 
     private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, EngineImportService engineImportService, Class metadataClass)
@@ -300,7 +253,7 @@ public class MethodPollingViewableFactory
                 typeGetterMethod = engineImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
             }
             else {
-                typeGetterMethod = engineImportService.resolveMethod(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
+                typeGetterMethod = engineImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
             }
         }
         catch(Exception e) {
