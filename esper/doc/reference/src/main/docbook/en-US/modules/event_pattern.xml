@@ -2194,7 +2194,8 @@ timer:within(125)</programlisting>
 						</row>
 						<row>
 							<entry><literal>date</literal></entry>
-							<entry>An expression returning a string-type ISO 8601 formatted date; The expression can also return a long-type, <literal>Date</literal>-typed or <literal>Calendar</literal>-typed value.</entry>
+							<entry>An expression returning a string-type ISO 8601 formatted date, or an expression that returns any of these types: 
+							<literal>long</literal>, <literal>Date</literal>, <literal>Calendar</literal>, <literal>LocalDateTime</literal>, <literal>ZonedDateTime</literal>.</entry>
 						</row>
 						<row>
 							<entry><literal>period</literal></entry>

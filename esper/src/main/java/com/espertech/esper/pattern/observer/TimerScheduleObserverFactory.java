@@ -9,14 +9,19 @@
 package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
+import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -82,7 +87,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             }
             try {
                 if (dateNamedNode != null) {
-                    allConstantResult = ExprNodeUtility.validateNamedExpectType(dateNamedNode, new Class[] {String.class, Calendar.class, Date.class, Long.class});
+                    allConstantResult = ExprNodeUtility.validateNamedExpectType(dateNamedNode, new Class[] {String.class, Calendar.class, Date.class, Long.class, LocalDateTime.class, ZonedDateTime.class});
                 }
                 if (repetitionsNamedNode != null) {
                     allConstantResult &= ExprNodeUtility.validateNamedExpectType(repetitionsNamedNode, new Class[] {Integer.class, Long.class});
@@ -171,18 +176,35 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 if (param instanceof String) {
                     optionalDate = TimerScheduleISO8601Parser.parseDate((String) param);
                 }
-                if (param instanceof Number) {
+                else if (param instanceof Number) {
                     long msec = ((Number) param).longValue();
                     optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(msec);
                 }
-                if (param instanceof Calendar) {
+                else if (param instanceof Calendar) {
                     optionalDate = (Calendar) param;
                 }
-                if (param instanceof Date) {
+                else if (param instanceof Date) {
                     optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(((Date) param).getTime());
                 }
+                else if (param instanceof LocalDateTime) {
+                    LocalDateTime ldt = (LocalDateTime) param;
+                    Date d = Date.from(ldt.atZone(timeZone.toZoneId()).toInstant());
+                    optionalDate = Calendar.getInstance(timeZone);
+                    optionalDate.setTimeInMillis(d.getTime());
+                }
+                else if (param instanceof ZonedDateTime) {
+                    ZonedDateTime zdt = (ZonedDateTime) param;
+                    optionalDate = GregorianCalendar.from(zdt);
+                }
+                else if (param == null){
+                    throw new EPException("Null date-time value returned from " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(dateNode));
+                }
+                else {
+                    throw new EPException("Unrecognized date-time value " + param.getClass());
+                }
+                System.out.println(DateTime.printWithZone(optionalDate));
             }
 
             TimePeriod optionalTimePeriod = null;

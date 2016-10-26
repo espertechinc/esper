@@ -26,6 +26,7 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -365,15 +366,16 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
     }
 
     private void runAssertionNameParameters() {
-        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("getThe1980Calendar", this.getClass().getName(), "getThe1980Calendar");
-        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("getThe1980Date", this.getClass().getName(), "getThe1980Date");
-        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("getThe1980Long", this.getClass().getName(), "getThe1980Long");
-        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("getTheSeconds", this.getClass().getName(), "getTheSeconds");
+        for (String name : "getThe1980Calendar,getThe1980Date,getThe1980Long,getTheSeconds,getThe1980LocalDateTime,getThe1980ZonedDateTime".split(",")) {
+            epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(name, this.getClass().getName(), name);
+        }
 
         runAssertionNameParameters("repetitions:-1L, date:'1980-01-01T00:00:00Z', period: 1 seconds");
         runAssertionNameParameters("repetitions:-1, date:getThe1980Calendar(), period: 1 seconds");
         runAssertionNameParameters("repetitions:-1, date:getThe1980Date(), period: getTheSeconds() seconds");
         runAssertionNameParameters("repetitions:-1, date:getThe1980Long(), period: 1 seconds");
+        runAssertionNameParameters("repetitions:-1, date:getThe1980LocalDateTime(), period: 1 seconds");
+        runAssertionNameParameters("repetitions:-1, date:getThe1980ZonedDateTime(), period: 1 seconds");
     }
 
     private void runAssertionNameParameters(String parameters) {
@@ -527,6 +529,16 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     public static int getTheSeconds() {
         return 1;
+    }
+
+    public static LocalDateTime getThe1980LocalDateTime() {
+        long millis = getThe1980Long();
+        Instant instant = Instant.ofEpochMilli(millis);
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
+    public static ZonedDateTime getThe1980ZonedDateTime() {
+        return ZonedDateTime.of(1980, 1, 1, 0, 0, 0, 0, ZoneId.of("GMT"));
     }
 }
 
