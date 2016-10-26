@@ -25,6 +25,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -1255,6 +1259,22 @@ public class JavaClassHelper
             return false;
         }
         if (propertyType == Date.class)
+        {
+            return false;
+        }
+        if (propertyType == LocalDateTime.class)
+        {
+            return false;
+        }
+        if (propertyType == ZonedDateTime.class)
+        {
+            return false;
+        }
+        if (propertyType == LocalDate.class)
+        {
+            return false;
+        }
+        if (propertyType == LocalTime.class)
         {
             return false;
         }

@@ -286,7 +286,7 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 				</listitem>
 				<listitem>
 					<para>
-						For parsing date-time values, any of the date-time types: <literal>date, calendar, long</literal>. For these types the <literal>dateformat</literal> parameter is required as discussed below.
+						For parsing date-time values, any of the date-time types: <literal>date, calendar, long, localdatetime, zoneddatetime, localdate, localtime</literal>. For these types the <literal>dateformat</literal> parameter is required as discussed below.
 					</para>
 				</listitem>
 			</itemizedlist>
