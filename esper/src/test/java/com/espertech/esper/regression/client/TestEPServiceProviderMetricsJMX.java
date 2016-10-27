@@ -47,7 +47,7 @@ public class TestEPServiceProviderMetricsJMX extends TestCase {
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec("2002-05-1T8:00:00.000")));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec("2002-05-1T08:00:00.000")));
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
         epService.getEPAdministrator().createEPL("select * from pattern [every a=SupportBean(theString like 'A%') -> b=SupportBean(theString like 'B') where timer:within(a.intPrimitive)]");

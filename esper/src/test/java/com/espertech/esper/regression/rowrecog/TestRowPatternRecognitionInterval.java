@@ -252,7 +252,7 @@ public class TestRowPatternRecognitionInterval extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        sendCurrentTime(epService, "2002-02-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-02-01T09:00:00.000");
         String text = "select * from SupportBean " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1 " +
@@ -266,10 +266,10 @@ public class TestRowPatternRecognitionInterval extends TestCase {
 
         epService.getEPRuntime().sendEvent(new SupportBean("A1", 0));
         epService.getEPRuntime().sendEvent(new SupportBean("B1", 0));
-        sendCurrentTimeWithMinus(epService, "2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus(epService, "2002-03-01T09:00:00.000", 1);
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendCurrentTime(epService, "2002-03-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-03-01T09:00:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "a,b0,b1".split(","),
                 new Object[][] {{"A1", "B1", null}});
 

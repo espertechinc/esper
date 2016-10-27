@@ -273,9 +273,9 @@ public class TestViewGroupBy extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBeanTimestamp.std:groupwin(timestamp.getDayOfWeek()).win:length(2)");
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E1", DateTime.parseDefaultMSec("2002-01-01T9:0:00.000")));
-        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E2", DateTime.parseDefaultMSec("2002-01-08T9:0:00.000")));
-        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E3", DateTime.parseDefaultMSec("2002-01-015T9:0:00.000")));
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E1", DateTime.parseDefaultMSec("2002-01-01T09:0:00.000")));
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E2", DateTime.parseDefaultMSec("2002-01-08T09:0:00.000")));
+        epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E3", DateTime.parseDefaultMSec("2002-01-015T09:0:00.000")));
         assertEquals(1, listener.getDataListsFlattened().getSecond().length);
     }
 

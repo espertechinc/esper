@@ -366,13 +366,13 @@ public class TestTimerIntervalObserver extends TestCase implements SupportBeanCo
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendCurrentTime(epService, "2002-02-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("select * from pattern [timer:interval(1 month)]").addListener(listener);
 
-        sendCurrentTimeWithMinus(epService, "2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus(epService, "2002-03-01T09:00:00.000", 1);
         assertFalse(listener.isInvoked());
 
-        sendCurrentTime(epService, "2002-03-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-03-01T09:00:00.000");
         assertTrue(listener.isInvoked());
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}

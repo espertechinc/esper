@@ -13,7 +13,13 @@ package com.espertech.esper.support.bean;
 
 import com.espertech.esper.client.util.DateTime;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -23,18 +29,15 @@ public class SupportDateTime {
     private Long msecdate;
     private Date utildate;
     private Calendar caldate;
+    private LocalDateTime localdate;
+    private ZonedDateTime zoneddate;
 
-    public SupportDateTime(String key, Long msecdate, Date utildate, Calendar caldate) {
-        this.key = key;
+    public SupportDateTime(Long msecdate, Date utildate, Calendar caldate, LocalDateTime localdate, ZonedDateTime zoneddate) {
         this.msecdate = msecdate;
         this.utildate = utildate;
         this.caldate = caldate;
-    }
-
-    public SupportDateTime(Long msecdate, Date utildate, Calendar caldate) {
-        this.msecdate = msecdate;
-        this.utildate = utildate;
-        this.caldate = caldate;
+        this.localdate = localdate;
+        this.zoneddate = zoneddate;
     }
 
     public Long getMsecdate() {
@@ -49,6 +52,13 @@ public class SupportDateTime {
         return caldate;
     }
 
+    public LocalDateTime getLocaldate() {
+        return localdate;
+    }
+
+    public ZonedDateTime getZoneddate() {
+        return zoneddate;
+    }
 
     public String getKey() {
         return key;
@@ -72,14 +82,16 @@ public class SupportDateTime {
 
     public static SupportDateTime make(String datestr) {
         if (datestr == null) {
-            return new SupportDateTime(null, null, null);
+            return new SupportDateTime(null, null, null, null, null);
         }
         // expected : 2002-05-30T09:00:00
         Date date = DateTime.parseDefaultDate(datestr);
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(date.getTime());
         cal.set(Calendar.MILLISECOND, 0);
-        return new SupportDateTime(date.getTime(), date, cal);
+        LocalDateTime localDateTime = LocalDateTime.parse(datestr, DateTimeFormatter.ofPattern(DateTime.DEFAULT_XMLLIKE_DATE_FORMAT));
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+        return new SupportDateTime(date.getTime(), date, cal, localDateTime, zonedDateTime);
     }
 
     public static SupportDateTime make(String key, String datestr) {
@@ -105,11 +117,25 @@ public class SupportDateTime {
             cal.setTimeInMillis(msec);
             return cal;
         }
+        else if (format.equalsIgnoreCase("ldt")) {
+            return LocalDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+        }
+        else if (format.equalsIgnoreCase("zdt")) {
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+        }
         else if (format.equalsIgnoreCase("sdf")) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(msec);
             SimpleDateFormat sdf = new SimpleDateFormat();
             return sdf.format(cal.getTime());
+        }
+        else if (format.equalsIgnoreCase("dtf_isodt")) {
+            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            return DateTimeFormatter.ISO_DATE_TIME.format(date);
+        }
+        else if (format.equalsIgnoreCase("dtf_isozdt")) {
+            ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date);
         }
         else if (format.equalsIgnoreCase("null")) {
             return null;

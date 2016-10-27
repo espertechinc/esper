@@ -11,8 +11,6 @@
 
 package com.espertech.esper.epl.datetime.reformatop;
 
-import com.espertech.esper.epl.datetime.reformatop.CalendarEval;
-
 import java.util.Calendar;
 
 public class CalendarEvalStatics {

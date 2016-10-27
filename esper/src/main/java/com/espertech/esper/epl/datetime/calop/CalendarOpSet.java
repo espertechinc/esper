@@ -15,6 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 public class CalendarOpSet implements CalendarOp {
@@ -33,5 +35,21 @@ public class CalendarOpSet implements CalendarOp {
             return;
         }
         cal.set(fieldName.getCalendarField(), value);
+    }
+
+    public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Integer value = CalendarOpUtil.getInt(valueExpr, eventsPerStream, isNewData, context);
+        if (value == null) {
+            return ldt;
+        }
+        return ldt.with(fieldName.getChronoField(), value);
+    }
+
+    public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Integer value = CalendarOpUtil.getInt(valueExpr, eventsPerStream, isNewData, context);
+        if (value == null) {
+            return zdt;
+        }
+        return zdt.with(fieldName.getChronoField(), value);
     }
 }

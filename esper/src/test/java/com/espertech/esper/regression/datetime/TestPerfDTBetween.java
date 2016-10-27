@@ -46,9 +46,9 @@ public class TestPerfDTBetween extends TestCase {
 
         // preload
         for (int i = 0; i < 10000; i++) {
-            epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("A" + i, "2002-05-30T9:00:00.000", 100));
+            epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("A" + i, "2002-05-30T09:00:00.000", 100));
         }
-        epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("AEarlier", "2002-05-30T8:00:00.000", 100));
+        epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("AEarlier", "2002-05-30T08:00:00.000", 100));
         epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("ALater", "2002-05-30T10:00:00.000", 100));
 
         String epl = "select a.key as c0 from SupportDateTime unidirectional, AWindow as a where msecdate.between(msecdateStart, msecdateEnd, false, true)";
@@ -58,7 +58,7 @@ public class TestPerfDTBetween extends TestCase {
         // query
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
-            epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T8:00:00.050"));
+            epService.getEPRuntime().sendEvent(SupportDateTime.make("2002-05-30T08:00:00.050"));
             assertEquals("AEarlier", listener.assertOneGetNewAndReset().get("c0"));
         }
         long endTime = System.currentTimeMillis();

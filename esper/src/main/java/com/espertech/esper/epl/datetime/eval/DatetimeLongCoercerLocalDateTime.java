@@ -9,17 +9,23 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.datetime.calop;
-
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+package com.espertech.esper.epl.datetime.eval;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.util.TimeZone;
 
-public interface CalendarOp {
-    public void evaluate(Calendar cal, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-    public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-    public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+public class DatetimeLongCoercerLocalDateTime implements DatetimeLongCoercer {
+    private final TimeZone timeZone;
+
+    public DatetimeLongCoercerLocalDateTime(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public long coerce(Object date) {
+        return coerce((LocalDateTime) date, timeZone);
+    }
+
+    public static long coerce(LocalDateTime ldt, TimeZone timeZone) {
+        return ldt.atZone(timeZone.toZoneId()).toInstant().toEpochMilli();
+    }
 }

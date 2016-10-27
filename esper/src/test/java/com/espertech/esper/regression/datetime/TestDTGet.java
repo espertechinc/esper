@@ -43,19 +43,21 @@ public class TestDTGet extends TestCase {
 
     public void testInput() {
 
-        String[] fields = "val0,val1,val2".split(",");
+        String[] fields = "val0,val1,val2,val3,val4".split(",");
         String epl = "select " +
                 "utildate.get('month') as val0," +
                 "msecdate.get('month') as val1," +
-                "caldate.get('month') as val2" +
+                "caldate.get('month') as val2, " +
+                "localdate.get('month') as val3, " +
+                "zoneddate.get('month') as val4 " +
                 " from SupportDateTime";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
-        LambdaAssertionUtil.assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Integer.class, Integer.class});
+        LambdaAssertionUtil.assertTypes(stmt.getEventType(), fields, new Class[]{Integer.class, Integer.class, Integer.class, Integer.class, Integer.class});
 
         String startTime = "2002-05-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{4, 4, 4});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{4, 4, 4, 5, 5});
 
         // try event as input
         ConfigurationEventTypeLegacy configBean = new ConfigurationEventTypeLegacy();

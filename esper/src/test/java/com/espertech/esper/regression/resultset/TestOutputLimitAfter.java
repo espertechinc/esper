@@ -92,15 +92,15 @@ public class TestOutputLimitAfter extends TestCase
 
      public void testMonthScoped() {
          epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-         sendCurrentTime("2002-02-01T9:00:00.000");
+         sendCurrentTime("2002-02-01T09:00:00.000");
          epService.getEPAdministrator().createEPL("select * from SupportBean output after 1 month").addListener(listener);
 
          epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-         sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+         sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
          epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
          assertFalse(listener.isInvoked());
 
-         sendCurrentTime("2002-03-01T9:00:00.000");
+         sendCurrentTime("2002-03-01T09:00:00.000");
          epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
          EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E3"});
      }

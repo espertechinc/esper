@@ -48,7 +48,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
         // LAST
         //
         // Last day of the month, at 5pm
-        runSequenceIsolated(epService, "2013-08-23T8:05:00.000",
+        runSequenceIsolated(epService, "2013-08-23T08:05:00.000",
                 "select * from pattern [ every timer:at(0, 17, last, *, *) ]",
                 new String[]{
                         "2013-08-31T17:00:00.000",
@@ -65,7 +65,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                 });
 
         // Last day of the month, at the earliest
-        runSequenceIsolated(epService, "2013-08-23T8:05:00.000",
+        runSequenceIsolated(epService, "2013-08-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, last, *, *) ]",
                 new String[]{
                         "2013-08-31T00:00:00.000",
@@ -103,14 +103,14 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
         runSequenceIsolated(epService, "2013-08-20T08:00:00.000",
                 "select * from pattern [ every timer:at(*, *, *, *, 5 last, *) ]",
                 new String[] {
-                        "2013-08-30T0:00:00.000",
-                        "2013-09-27T0:00:00.000",
-                        "2013-10-25T0:00:00.000",
-                        "2013-11-29T0:00:00.000",
-                        "2013-12-27T0:00:00.000",
-                        "2014-01-31T0:00:00.000",
-                        "2014-02-28T0:00:00.000",
-                        "2014-03-28T0:00:00.000",
+                        "2013-08-30T00:00:00.000",
+                        "2013-09-27T00:00:00.000",
+                        "2013-10-25T00:00:00.000",
+                        "2013-11-29T00:00:00.000",
+                        "2013-12-27T00:00:00.000",
+                        "2014-01-31T00:00:00.000",
+                        "2014-02-28T00:00:00.000",
+                        "2014-03-28T00:00:00.000",
                 });
 
         // Last day of week (Saturday)
@@ -170,7 +170,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
         //
 
         // Last weekday (last day that is not a weekend day)
-        runSequenceIsolated(epService, "2013-08-23T8:05:00.000",
+        runSequenceIsolated(epService, "2013-08-23T08:05:00.000",
                 "select * from pattern [ every timer:at(0, 17, lastweekday, *, *) ]",
                 new String[]{
                         "2013-08-30T17:00:00.000",
@@ -187,7 +187,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                 });
 
         // Last weekday, any time
-        runSequenceIsolated(epService, "2013-08-23T8:05:00.000",
+        runSequenceIsolated(epService, "2013-08-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, lastweekday, *, *, *) ]",
                 new String[]{
                         "2013-08-30T00:00:00.000",
@@ -199,7 +199,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                 });
 
         // Observer for last weekday of September, for 2007 it's Friday September 28th
-        runSequenceIsolated(epService, "2007-08-23T8:05:00.000",
+        runSequenceIsolated(epService, "2007-08-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, lastweekday, 9, *, *) ]",
                 new String[]{
                         "2007-09-28T00:00:00.000",
@@ -211,7 +211,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                 });
 
         // Observer for last weekday of February
-        runSequenceIsolated(epService, "2007-01-23T8:05:00.000",
+        runSequenceIsolated(epService, "2007-01-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, lastweekday, 2, *, *) ]",
                 new String[]{
                         "2007-02-28T00:00:00.000",
@@ -225,7 +225,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
         //
         // WEEKDAY
         //
-        runSequenceIsolated(epService, "2007-01-23T8:05:00.000",
+        runSequenceIsolated(epService, "2007-01-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, 1 weekday, 9, *, *) ]",
                 new String[]{
                         "2007-09-03T00:00:00.000",
@@ -237,7 +237,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                         "2013-09-02T00:00:00.000",
                 });
 
-        runSequenceIsolated(epService, "2007-01-23T8:05:00.000",
+        runSequenceIsolated(epService, "2007-01-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, 30 weekday, 9, *, *) ]",
                 new String[]{
                         "2007-09-28T00:00:00.000",
@@ -250,7 +250,7 @@ public class TestCronParameter extends TestCase implements SupportBeanConstants
                 });
 
         // nearest weekday for current month on the 10th
-        runSequenceIsolated(epService, "2013-01-23T8:05:00.000",
+        runSequenceIsolated(epService, "2013-01-23T08:05:00.000",
                 "select * from pattern [ every timer:at(*, *, 10 weekday, *, *, *) ]",
                 new String[]{
                         "2013-02-11T00:00:00.000",

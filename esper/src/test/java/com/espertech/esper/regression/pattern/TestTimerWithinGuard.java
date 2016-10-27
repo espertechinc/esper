@@ -372,7 +372,7 @@ public class TestTimerWithinGuard extends TestCase implements SupportBeanConstan
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendCurrentTime(epService, "2002-02-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("select * from pattern [(every SupportBean) where " +
                 (hasMax ? "timer:withinmax(1 month, 10)" : "timer:within(1 month)") +
                 "]").addListener(listener);
@@ -380,11 +380,11 @@ public class TestTimerWithinGuard extends TestCase implements SupportBeanConstan
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendCurrentTimeWithMinus(epService, "2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus(epService, "2002-03-01T09:00:00.000", 1);
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendCurrentTime(epService, "2002-03-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-03-01T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 0));
         assertFalse(listener.getAndClearIsInvoked());
 

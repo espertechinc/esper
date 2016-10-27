@@ -339,7 +339,7 @@ public class TestContextInitTerm extends TestCase {
         // test initiated
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) spi.getFilterService();
 
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         String eplCtx = "create context EverySupportBean as " +
                 "initiated by SupportBean as sb " +
                 "terminated after 1 minutes";
@@ -357,7 +357,7 @@ public class TestContextInitTerm extends TestCase {
         assertEquals(2, spi.getSchedulingService().getScheduleHandleCount());
         assertEquals(2, filterServiceSPI.getFilterCountApprox());
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         assertEquals(0, spi.getSchedulingService().getScheduleHandleCount());
         assertEquals(1, filterServiceSPI.getFilterCountApprox());
 
@@ -367,7 +367,7 @@ public class TestContextInitTerm extends TestCase {
     }
 
     public void testPatternInitiatedStraightSelect() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         String eplCtx = "create context EverySupportBean as " +
                 "initiated by pattern [every (a=SupportBean_S0 or b=SupportBean_S1)] " +
                 "terminated after 1 minutes";
@@ -395,7 +395,7 @@ public class TestContextInitTerm extends TestCase {
     }
 
     public void testFilterInitiatedStraightEquals() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         String ctxEPL = "create context EverySupportBean as " +
                 "initiated by SupportBean(theString like \"I%\") as sb " +
                 "terminated after 1 minutes";
@@ -424,7 +424,7 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(makeEvent("E4", 3, 15L));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{29L});
 
-        sendTimeEvent("2002-05-1T8:01:30.000");
+        sendTimeEvent("2002-05-1T08:01:30.000");
 
         epService.getEPRuntime().sendEvent(makeEvent("E", -1, -2L));
         assertFalse(listener.isInvoked());
@@ -558,7 +558,7 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_S0", SupportBean_S0.class);
 
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         String eplContext = "@Name('CTX') create context CtxInitiated " +
                 "initiated by SupportBean_S0 as sb0 " +
                 "terminated after 1 minute";
@@ -587,7 +587,7 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("G5", 5));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"G5", 14, "SB01"}, {"G5", 9, "SB02"}});
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("G6", 6));
         assertFalse(listener.getAndClearIsInvoked());
@@ -598,7 +598,7 @@ public class TestContextInitTerm extends TestCase {
     }
 
     public void testOutputSnapshotWhenTerminated() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min");
@@ -609,21 +609,21 @@ public class TestContextInitTerm extends TestCase {
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 
-        sendTimeEvent("2002-05-1T8:01:10.000");
+        sendTimeEvent("2002-05-1T08:01:10.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
 
-        sendTimeEvent("2002-05-1T8:01:59.999");
+        sendTimeEvent("2002-05-1T08:01:59.999");
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
         // terminate
-        sendTimeEvent("2002-05-1T8:02:00.000");
+        sendTimeEvent("2002-05-1T08:02:00.000");
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{1 + 2 + 3});
 
-        sendTimeEvent("2002-05-1T8:02:01.000");
+        sendTimeEvent("2002-05-1T08:02:01.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 5));
         epService.getEPRuntime().sendEvent(new SupportBean("E6", 6));
@@ -632,7 +632,7 @@ public class TestContextInitTerm extends TestCase {
         assertSODA(epl);
 
         // terminate
-        sendTimeEvent("2002-05-1T8:03:00.000");
+        sendTimeEvent("2002-05-1T08:03:00.000");
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{4 + 5 + 6});
 
         stmt.destroy();
@@ -646,7 +646,7 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E11", 2));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent("2002-05-1T8:04:00.000");
+        sendTimeEvent("2002-05-1T08:04:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E12", 3));
         assertFalse(listener.isInvoked());
 
@@ -654,12 +654,12 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{7});
 
         // terminate
-        sendTimeEvent("2002-05-1T8:05:00.000");
+        sendTimeEvent("2002-05-1T08:05:00.000");
         assertFalse(listener.isInvoked());
     }
 
     public void testOutputAllEvery2AndTerminated() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min");
@@ -670,22 +670,22 @@ public class TestContextInitTerm extends TestCase {
                 "select theString as c1, sum(intPrimitive) as c2 from SupportBean group by theString output all every 2 events and when terminated order by theString asc");
         stmt.addListener(listener);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 
-        sendTimeEvent("2002-05-1T8:01:10.000");
+        sendTimeEvent("2002-05-1T08:01:10.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E1", 1 + 2}});
 
-        sendTimeEvent("2002-05-1T8:01:59.999");
+        sendTimeEvent("2002-05-1T08:01:59.999");
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
         // terminate
-        sendTimeEvent("2002-05-1T8:02:00.000");
+        sendTimeEvent("2002-05-1T08:02:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E1", 1 + 2}, {"E2", 3}});
 
-        sendTimeEvent("2002-05-1T8:02:01.000");
+        sendTimeEvent("2002-05-1T08:02:01.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 5));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4", 4}, {"E5", 5}});
@@ -697,7 +697,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
 
         // terminate
-        sendTimeEvent("2002-05-1T8:03:00.000");
+        sendTimeEvent("2002-05-1T08:03:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", -1));
@@ -706,7 +706,7 @@ public class TestContextInitTerm extends TestCase {
     }
 
     public void testOutputWhenExprWhenTerminatedCondition() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min");
@@ -718,29 +718,29 @@ public class TestContextInitTerm extends TestCase {
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertFalse(listener.isInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
 
-        sendTimeEvent("2002-05-1T8:01:59.999");
+        sendTimeEvent("2002-05-1T08:01:59.999");
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
         // terminate, new context partition
-        sendTimeEvent("2002-05-1T8:02:00.000");
+        sendTimeEvent("2002-05-1T08:02:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E3"}});
 
-        sendTimeEvent("2002-05-1T8:02:10.000");
+        sendTimeEvent("2002-05-1T08:02:10.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         assertFalse(listener.isInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 5));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4"}, {"E5"}});
 
-        sendTimeEvent("2002-05-1T8:03:00.000");
+        sendTimeEvent("2002-05-1T08:03:00.000");
         assertFalse(listener.isInvoked());
 
         assertSODA(epl);
@@ -748,7 +748,7 @@ public class TestContextInitTerm extends TestCase {
 
     public void testOutputOnlyWhenTerminatedCondition() {
 
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min");
@@ -760,23 +760,23 @@ public class TestContextInitTerm extends TestCase {
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));
         assertFalse(listener.isInvoked());
 
         // terminate, new context partition
-        sendTimeEvent("2002-05-1T8:02:00.000");
+        sendTimeEvent("2002-05-1T08:02:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
 
         // terminate, new context partition
-        sendTimeEvent("2002-05-1T8:03:00.000");
+        sendTimeEvent("2002-05-1T08:03:00.000");
         assertFalse(listener.isInvoked());
     }
 
     public void testOutputOnlyWhenSetAndWhenTerminatedSet() {
 
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min");
@@ -791,12 +791,12 @@ public class TestContextInitTerm extends TestCase {
         EPStatementSPI stmtOne = (EPStatementSPI) epService.getEPAdministrator().createEPL(eplOne);
         stmtOne.addListener(listener);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertEquals(1, epService.getEPRuntime().getVariableValue("myvar"));
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2002-05-1T8:02:00.000"); // terminate, new context partition
+        sendTimeEvent("2002-05-1T08:02:00.000"); // terminate, new context partition
         assertTrue(listener.getAndClearIsInvoked());
         assertEquals(2, epService.getEPRuntime().getVariableValue("myvar"));
 
@@ -806,7 +806,7 @@ public class TestContextInitTerm extends TestCase {
     public void testOutputOnlyWhenTerminatedThenSet() {
 
         String[] fields = "c0".split(",");
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create variable int myvar = 0");
         epService.getEPAdministrator().createEPL("create context EverySupportBeanS0 as " +
                 "initiated by SupportBean_S0 as s0 " +
@@ -826,7 +826,7 @@ public class TestContextInitTerm extends TestCase {
         assertFalse(listener.isInvoked());
 
         // terminate, new context partition
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E4"}});
         assertEquals(10, epService.getEPRuntime().getVariableValue("myvar"));
 
@@ -835,7 +835,7 @@ public class TestContextInitTerm extends TestCase {
 
     public void testCrontab() {
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 3 min");
@@ -850,7 +850,7 @@ public class TestContextInitTerm extends TestCase {
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 0);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, null);
 
-        sendTimeEvent("2002-05-1T8:01:00.000");
+        sendTimeEvent("2002-05-1T08:01:00.000");
 
         assertEquals(1, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 1);
@@ -859,7 +859,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:01:59.999");
+        sendTimeEvent("2002-05-1T08:01:59.999");
 
         assertEquals(1, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 1);
@@ -868,7 +868,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:02:00.000");
+        sendTimeEvent("2002-05-1T08:02:00.000");
 
         assertEquals(2, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 2);
@@ -877,7 +877,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:02:59.999");
+        sendTimeEvent("2002-05-1T08:02:59.999");
 
         assertEquals(2, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 2);
@@ -886,7 +886,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:03:00.000");
+        sendTimeEvent("2002-05-1T08:03:00.000");
 
         assertEquals(3, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 3);
@@ -895,7 +895,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:04:00.000");
+        sendTimeEvent("2002-05-1T08:04:00.000");
 
         assertEquals(3, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 3);
@@ -904,7 +904,7 @@ public class TestContextInitTerm extends TestCase {
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(statement.iterator(), statement.safeIterator(), fields, expected);
 
-        sendTimeEvent("2002-05-1T8:05:00.000");
+        sendTimeEvent("2002-05-1T08:05:00.000");
 
         assertEquals(3, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 3);
@@ -932,7 +932,7 @@ public class TestContextInitTerm extends TestCase {
     public void testStartNowCalMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S1.class);
-        sendCurrentTime("2002-02-01T9:00:00.000");
+        sendCurrentTime("2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("create context MyCtx start SupportBean_S1 end after 1 month");
         epService.getEPAdministrator().createEPL("context MyCtx select * from SupportBean").addListener(listener);
 
@@ -940,11 +940,11 @@ public class TestContextInitTerm extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendCurrentTime("2002-03-01T9:00:00.000");
+        sendCurrentTime("2002-03-01T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
     }

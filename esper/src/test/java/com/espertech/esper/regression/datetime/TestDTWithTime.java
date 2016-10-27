@@ -25,6 +25,8 @@ import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -54,42 +56,44 @@ public class TestDTWithTime extends TestCase {
         epService.getEPAdministrator().createEPL("create variable int varmin");
         epService.getEPAdministrator().createEPL("create variable int varsec");
         epService.getEPAdministrator().createEPL("create variable int varmsec");
-        String startTime = "2002-05-30T9:00:00.000";
+        String startTime = "2002-05-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(startTime)));
 
-        String[] fields = "val0,val1,val2,val3".split(",");
+        String[] fields = "val0,val1,val2,val3,val4,val5".split(",");
         String eplFragment = "select " +
                 "current_timestamp.withTime(varhour, varmin, varsec, varmsec) as val0," +
                 "utildate.withTime(varhour, varmin, varsec, varmsec) as val1," +
                 "msecdate.withTime(varhour, varmin, varsec, varmsec) as val2," +
-                "caldate.withTime(varhour, varmin, varsec, varmsec) as val3" +
+                "caldate.withTime(varhour, varmin, varsec, varmsec) as val3," +
+                "localdate.withTime(varhour, varmin, varsec, varmsec) as val4," +
+                "zoneddate.withTime(varhour, varmin, varsec, varmsec) as val5" +
                 " from SupportDateTime";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
-        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Long.class, Date.class, Long.class, Calendar.class});
+        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Long.class, Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(null));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "msec"), null, null, null});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "msec"), null, null, null, null, null});
 
         String expectedTime = "2002-05-30T09:00:00.000";
         epService.getEPRuntime().setVariableValue("varhour", null); // variable is null
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal", "ldt", "zdt"));
 
-        expectedTime = "2002-05-30T1:02:03.004";
+        expectedTime = "2002-05-30T01:02:03.004";
         epService.getEPRuntime().setVariableValue("varhour", 1);
         epService.getEPRuntime().setVariableValue("varmin", 2);
         epService.getEPRuntime().setVariableValue("varsec", 3);
         epService.getEPRuntime().setVariableValue("varmsec", 4);
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal", "ldt", "zdt"));
 
-        expectedTime = "2002-05-30T0:00:00.006";
+        expectedTime = "2002-05-30T00:00:00.006";
         epService.getEPRuntime().setVariableValue("varhour", 0);
         epService.getEPRuntime().setVariableValue("varmin", null);
         epService.getEPRuntime().setVariableValue("varsec", null);
         epService.getEPRuntime().setVariableValue("varmsec", 6);
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "msec", "util", "msec", "cal", "ldt", "zdt"));
     }
 }

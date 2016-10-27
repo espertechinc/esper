@@ -112,7 +112,7 @@ public class TestTableAccessDotMethod extends TestCase {
     private Object[] makePopulateEvent() {
         return new Object[] {
                 "E1",
-                DateTime.parseDefaultMSec("2002-05-30T9:55:00.000"), // ts
+                DateTime.parseDefaultMSec("2002-05-30T09:55:00.000"), // ts
                 new MyBean(),   // mb
                 new MyBean[] {new MyBean(), new MyBean()},   // mbarr
                 new Object[] {"p0value"},   // me

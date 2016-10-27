@@ -20,6 +20,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +51,14 @@ public class ReformatOpGetField implements ReformatOp {
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
         return action(cal);
+    }
+
+    public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return ldt.get(fieldNum.getChronoField());
+    }
+
+    public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return zdt.get(fieldNum.getChronoField());
     }
 
     private int action(Calendar cal) {

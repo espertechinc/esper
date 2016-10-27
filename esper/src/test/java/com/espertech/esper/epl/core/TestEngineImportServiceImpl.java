@@ -39,7 +39,7 @@ public class TestEngineImportServiceImpl extends TestCase
         }
         catch (EngineImportException ex)
         {
-            assertEquals("Ambiguous method name: method by name 'abs' taking 1 parameters is overloaded in class 'java.lang.Math'", ex.getMessage());
+            assertEquals("Method by name 'abs' is overloaded in class 'java.lang.Math' and overloaded methods do not return the same type", ex.getMessage());
         }
     }
 

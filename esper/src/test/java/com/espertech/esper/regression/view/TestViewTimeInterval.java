@@ -169,11 +169,11 @@ public class TestViewTimeInterval extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean.win:ext_timed(longPrimitive, 1 month)");
         stmt.addListener(testListener);
 
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T9:00:00.000"), "E1");
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T9:00:00.000") - 1, "E2");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T09:00:00.000") - 1, "E2");
         assertFalse(testListener.isInvoked());
 
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T9:00:00.000"), "E3");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
         EPAssertionUtil.assertProps(testListener.assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E1"});
     }
 
@@ -183,11 +183,11 @@ public class TestViewTimeInterval extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:ext_timed_batch(longPrimitive, 1 month)");
         stmt.addListener(testListener);
 
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T9:00:00.000"), "E1");
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T9:00:00.000") - 1, "E2");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T09:00:00.000") - 1, "E2");
         assertFalse(testListener.isInvoked());
 
-        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T9:00:00.000"), "E3");
+        sendExtTimeEvent(DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
         EPAssertionUtil.assertPropsPerRow(testListener.getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
     }
 

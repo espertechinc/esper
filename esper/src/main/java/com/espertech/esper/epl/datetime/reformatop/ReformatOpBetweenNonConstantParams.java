@@ -22,9 +22,12 @@ import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStream;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class ReformatOpBetweenNonConstantParams implements ReformatOp {
 
@@ -34,6 +37,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
     private final ExprNode end;
     private final ExprEvaluator endEval;
     private final DatetimeLongCoercer secondCoercer;
+    private final TimeZone timeZone;
 
     private boolean includeBoth;
     private Boolean includeLow;
@@ -41,15 +45,16 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
     private ExprEvaluator evalIncludeLow;
     private ExprEvaluator evalIncludeHigh;
 
-    public ReformatOpBetweenNonConstantParams(List<ExprNode> parameters)
+    public ReformatOpBetweenNonConstantParams(List<ExprNode> parameters, TimeZone timeZone)
             throws ExprValidationException
     {
+        this.timeZone = timeZone;
         start = parameters.get(0);
         startEval = start.getExprEvaluator();
-        startCoercer = DatetimeLongCoercerFactory.getCoercer(startEval.getType());
+        startCoercer = DatetimeLongCoercerFactory.getCoercer(startEval.getType(), timeZone);
         end = parameters.get(1);
         endEval = end.getExprEvaluator();
-        secondCoercer = DatetimeLongCoercerFactory.getCoercer(endEval.getType());
+        secondCoercer = DatetimeLongCoercerFactory.getCoercer(endEval.getType(), timeZone);
 
         if (parameters.size() == 2) {
             includeBoth = true;
@@ -104,6 +109,14 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
             return null;
         }
         return evaluateInternal(cal.getTimeInMillis(), eventsPerStream, newData, exprEvaluatorContext);
+    }
+
+    public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return evaluateInternal(DatetimeLongCoercerLocalDateTime.coerce(ldt, timeZone), eventsPerStream, newData, exprEvaluatorContext);
+    }
+
+    public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return evaluateInternal(DatetimeLongCoercerZonedDateTime.coerce(zdt), eventsPerStream, newData, exprEvaluatorContext);
     }
 
     public Class getReturnType() {

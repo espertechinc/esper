@@ -50,40 +50,47 @@ public class TestDTToDateCalMSec extends TestCase {
 
     public void testToDateCalMilli() {
 
-        String startTime = "2002-05-30T9:00:00.000";
+        String startTime = "2002-05-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(startTime)));
 
-        String[] fields = "val0,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,val11".split(",");
+        String[] fields = "val0,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,val11,val12,val13,val14,val15,val16,val17".split(",");
         String eplFragment = "select " +
                 "current_timestamp.toDate() as val0," +
                 "utildate.toDate() as val1," +
                 "msecdate.toDate() as val2," +
                 "caldate.toDate() as val3," +
-                "current_timestamp.toCalendar() as val4," +
-                "utildate.toCalendar() as val5," +
-                "msecdate.toCalendar() as val6," +
-                "caldate.toCalendar() as val7," +
-                "current_timestamp.toMillisec() as val8," +
-                "utildate.toMillisec() as val9," +
-                "msecdate.toMillisec() as val10," +
-                "caldate.toMillisec() as val11" +
+                "localdate.toDate() as val4," +
+                "zoneddate.toDate() as val5," +
+                "current_timestamp.toCalendar() as val6," +
+                "utildate.toCalendar() as val7," +
+                "msecdate.toCalendar() as val8," +
+                "caldate.toCalendar() as val9," +
+                "localdate.toCalendar() as val10," +
+                "zoneddate.toCalendar() as val11," +
+                "current_timestamp.toMillisec() as val12," +
+                "utildate.toMillisec() as val13," +
+                "msecdate.toMillisec() as val14," +
+                "caldate.toMillisec() as val15," +
+                "localdate.toMillisec() as val16," +
+                "zoneddate.toMillisec() as val17" +
                 " from SupportDateTime";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
-        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class,
-                Calendar.class, Calendar.class, Calendar.class, Calendar.class, Long.class, Long.class, Long.class, Long.class});
+        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Date.class, Date.class, Date.class, Date.class, Date.class, Date.class,
+                Calendar.class, Calendar.class, Calendar.class, Calendar.class, Calendar.class, Calendar.class,
+                Long.class, Long.class, Long.class, Long.class, Long.class, Long.class});
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        Object[] expectedUtil = SupportDateTime.getArrayCoerced(startTime, "util", "util", "util", "util");
-        Object[] expectedCal = SupportDateTime.getArrayCoerced(startTime, "cal", "cal", "cal", "cal");
-        Object[] expectedMsec = SupportDateTime.getArrayCoerced(startTime, "msec", "msec", "msec", "msec");
+        Object[] expectedUtil = SupportDateTime.getArrayCoerced(startTime, "util", "util", "util", "util", "util", "util");
+        Object[] expectedCal = SupportDateTime.getArrayCoerced(startTime, "cal", "cal", "cal", "cal", "cal", "cal");
+        Object[] expectedMsec = SupportDateTime.getArrayCoerced(startTime, "msec", "msec", "msec", "msec", "msec", "msec");
         Object[] expected = EPAssertionUtil.concatenateArray(expectedUtil, expectedCal, expectedMsec);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, expected);
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(null));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{
-                SupportDateTime.getValueCoerced(startTime, "util"), null, null, null,
-                SupportDateTime.getValueCoerced(startTime, "cal"), null, null, null,
-                SupportDateTime.getValueCoerced(startTime, "msec"), null, null, null});
+                SupportDateTime.getValueCoerced(startTime, "util"), null, null, null, null, null,
+                SupportDateTime.getValueCoerced(startTime, "cal"), null, null, null, null, null,
+                SupportDateTime.getValueCoerced(startTime, "msec"), null, null, null, null, null});
     }
 }

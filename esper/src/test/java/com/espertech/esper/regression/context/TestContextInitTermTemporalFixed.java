@@ -189,7 +189,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testStartAfterEndAfter() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryNowAndThen as start after 5 sec end after 10 sec");
 
         String[] fields = "c1,c2,c3".split(",");
@@ -202,27 +202,27 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2002-05-1T8:00:05.000");
+        sendTimeEvent("2002-05-1T08:00:05.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T8:00:05.000"), DateTime.parseDefaultMSec("2002-05-1T8:00:15.000"), 2});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:05.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:15.000"), 2});
 
-        sendTimeEvent("2002-05-1T8:00:14.999");
+        sendTimeEvent("2002-05-1T08:00:14.999");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsShort, new Object[]{5});
 
-        sendTimeEvent("2002-05-1T8:00:15.000");
+        sendTimeEvent("2002-05-1T08:00:15.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent("2002-05-1T8:00:20.000");
+        sendTimeEvent("2002-05-1T08:00:20.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 5));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T8:00:20.000"), DateTime.parseDefaultMSec("2002-05-1T8:00:30.000"), 5});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:20.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:30.000"), 5});
 
-        sendTimeEvent("2002-05-1T8:00:30.000");
+        sendTimeEvent("2002-05-1T08:00:30.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E6", 6));
         assertFalse(listener.isInvoked());
@@ -270,7 +270,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testPatternStartedPatternEnded() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EveryNowAndThen as " +
                 "start pattern [s0=SupportBean_S0 -> timer:interval(1 sec)] " +
                 "end pattern [s1=SupportBean_S1 -> timer:interval(1 sec)]");
@@ -287,7 +287,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2002-05-1T8:00:01.000"); // 1 second passes
+        sendTimeEvent("2002-05-1T08:00:01.000"); // 1 second passes
 
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 4});
@@ -296,7 +296,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 9});
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(101, "S0_2"));    // ignored
-        sendTimeEvent("2002-05-1T8:00:03.000");
+        sendTimeEvent("2002-05-1T08:00:03.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E6", 6));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 15});
@@ -306,16 +306,16 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E7", 7));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 22});
 
-        sendTimeEvent("2002-05-1T8:00:04.000"); // terminates
+        sendTimeEvent("2002-05-1T08:00:04.000"); // terminates
 
         epService.getEPRuntime().sendEvent(new SupportBean("E8", 8));
         epService.getEPRuntime().sendEvent(new SupportBean_S1(102, "S1_2"));    // ignored
-        sendTimeEvent("2002-05-1T8:00:10.000");
+        sendTimeEvent("2002-05-1T08:00:10.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E9", 9));
         assertFalse(listener.getAndClearIsInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(103, "S0_3"));    // new instance
-        sendTimeEvent("2002-05-1T8:00:11.000");
+        sendTimeEvent("2002-05-1T08:00:11.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E10", 10));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_3", 10});
@@ -324,7 +324,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testContextCreateDestroy() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)");
 
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -334,15 +334,15 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean());
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2002-05-1T8:00:00.999");
+        sendTimeEvent("2002-05-1T08:00:00.999");
         epService.getEPRuntime().sendEvent(new SupportBean());
         assertTrue(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2002-05-1T8:00:01.000");
+        sendTimeEvent("2002-05-1T08:00:01.000");
         epService.getEPRuntime().sendEvent(new SupportBean());
         assertFalse(listener.getAndClearIsInvoked());
 
-        long start = DateTime.parseDefaultMSec("2002-05-1T8:00:01.999");
+        long start = DateTime.parseDefaultMSec("2002-05-1T08:00:01.999");
         for (int i = 0; i < 10; i++) {
             sendTimeEvent(start);
 
@@ -368,7 +368,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testDBHistorical() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         String[] fields = "s1.mychar".split(",");
@@ -381,7 +381,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(2));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"Y"});
 
@@ -392,14 +392,14 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(3));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"X"});
     }
 
     public void testPrevPriorAndAggregation() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         String[] fields = "col1,col2,col3,col4,col5".split(",");
@@ -413,7 +413,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
         
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         SupportBean event1 = new SupportBean("E1", 1);
         epService.getEPRuntime().sendEvent(event1);
         Object[][] expected = new Object[][]{{null, new SupportBean[]{event1}, "E1", null, 1}};
@@ -433,7 +433,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 0, 0, 0, 0);
 
         // now started
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
 
         SupportBean event3 = new SupportBean("E3", 9);
         epService.getEPRuntime().sendEvent(event3);
@@ -444,7 +444,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testJoin() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         String[] fields = "col1,col2,col3,col4".split(",");
@@ -459,7 +459,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{null, null, 1, "E1"});
 
@@ -474,9 +474,9 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
 
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 4));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 4, null, null});
 
@@ -485,7 +485,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testPatternWithTime() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -494,11 +494,11 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());   // from the context
         
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         assertEquals(2, spi.getSchedulingService().getScheduleHandleCount());   // context + pattern
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent("2002-05-1T9:00:10.000");
+        sendTimeEvent("2002-05-1T09:00:10.000");
         assertTrue(listener.isInvoked());
 
         // now gone
@@ -507,18 +507,18 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());   // from the context
 
         // now started
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
         assertEquals(2, spi.getSchedulingService().getScheduleHandleCount());   // context + pattern
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent("2002-05-2T9:00:10.000");
+        sendTimeEvent("2002-05-2T09:00:10.000");
         assertTrue(listener.isInvoked());
     }
 
     public void testSubselect() {
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
 
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         String[] fields = "theString,col".split(",");
@@ -528,7 +528,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertEquals(0, filterSPI.getFilterCountApprox());   // from the context
 
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         assertEquals(2, filterSPI.getFilterCountApprox());   // from the context
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -546,7 +546,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
         assertEquals(2, filterSPI.getFilterCountApprox());   // from the context
         assertFalse(listener.isInvoked());
 
@@ -569,7 +569,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
 
     public void testNWSameContextOnExpr() {
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("makeBean", this.getClass().getName(), "singleRowPluginMakeBean");
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         // no started yet
@@ -589,7 +589,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
@@ -610,14 +610,14 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         assertFalse(listener.isInvoked());
 
         // now started again but empty
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
     }
 
     public void testNWFireAndForget() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         epService.getEPAdministrator().createEPL("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
 
         // no started yet
@@ -628,7 +628,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         tryInvalidNWQuery();
 
         // now started
-        sendTimeEvent("2002-05-1T9:00:00.000");
+        sendTimeEvent("2002-05-1T09:00:00.000");
         tryNWQuery(0);
 
         // now not empty
@@ -643,13 +643,13 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean());
 
         // now started again but empty
-        sendTimeEvent("2002-05-2T9:00:00.000");
+        sendTimeEvent("2002-05-2T09:00:00.000");
         tryNWQuery(0);
         
         // fill some data
         epService.getEPRuntime().sendEvent(new SupportBean());
         epService.getEPRuntime().sendEvent(new SupportBean());
-        sendTimeEvent("2002-05-2T9:10:00.000");
+        sendTimeEvent("2002-05-2T09:10:00.000");
         tryNWQuery(2);
     }
 
@@ -669,7 +669,7 @@ public class TestContextInitTermTemporalFixed extends TestCase {
     }
 
     public void testStartTurnedOff() {
-        sendTimeEvent("2002-05-1T8:00:00.000");
+        sendTimeEvent("2002-05-1T08:00:00.000");
         String contextEPL = "@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
         EPStatement stmtContext = epService.getEPAdministrator().createEPL("@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
         assertContextEventType(stmtContext.getEventType());
@@ -681,9 +681,9 @@ public class TestContextInitTermTemporalFixed extends TestCase {
                 "select * from SupportBean");
         stmtOne.addListener(new SupportUpdateListener());
 
-        sendTimeAndAssert("2002-05-1T8:59:30.000", false, 1);
-        sendTimeAndAssert("2002-05-1T8:59:59.999", false, 1);
-        sendTimeAndAssert("2002-05-1T9:00:00.000", true, 1);
+        sendTimeAndAssert("2002-05-1T08:59:30.000", false, 1);
+        sendTimeAndAssert("2002-05-1T08:59:59.999", false, 1);
+        sendTimeAndAssert("2002-05-1T09:00:00.000", true, 1);
 
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("@Name('B') context NineToFive select * from SupportBean");
         stmtTwo.addListener(new SupportUpdateListener());
@@ -694,8 +694,8 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         EPStatement stmtThree = epService.getEPAdministrator().createEPL("@Name('C') context NineToFive select * from SupportBean");
         stmtThree.addListener(new SupportUpdateListener());
 
-        sendTimeAndAssert("2002-05-2T8:59:59.999", false, 3);
-        sendTimeAndAssert("2002-05-2T9:00:00.000", true, 3);
+        sendTimeAndAssert("2002-05-2T08:59:59.999", false, 3);
+        sendTimeAndAssert("2002-05-2T09:00:00.000", true, 3);
         sendTimeAndAssert("2002-05-2T16:59:59.000", true, 3);
         sendTimeAndAssert("2002-05-2T17:00:00.000", false, 3);
 
@@ -729,22 +729,22 @@ public class TestContextInitTermTemporalFixed extends TestCase {
         ContextManagementService ctxMgmtService = spi.getContextManagementService();
         assertEquals(0, ctxMgmtService.getContextCount());
 
-        sendTimeEvent("2002-05-1T9:15:00.000");
+        sendTimeEvent("2002-05-1T09:15:00.000");
         EPStatement stmtContext = epService.getEPAdministrator().createEPL("@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)");
         assertEquals(1, ctxMgmtService.getContextCount());
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context NineToFive select * from SupportBean");
         stmtOne.addListener(new SupportUpdateListener());
         
-        sendTimeAndAssert("2002-05-1T9:16:00.000", true, 1);
+        sendTimeAndAssert("2002-05-1T09:16:00.000", true, 1);
         sendTimeAndAssert("2002-05-1T16:59:59.000", true, 1);
         sendTimeAndAssert("2002-05-1T17:00:00.000", false, 1);
 
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("@Name('B') context NineToFive select * from SupportBean");
         stmtTwo.addListener(new SupportUpdateListener());
 
-        sendTimeAndAssert("2002-05-2T8:59:59.999", false, 2);
-        sendTimeAndAssert("2002-05-2T9:15:00.000", true, 2);
+        sendTimeAndAssert("2002-05-2T08:59:59.999", false, 2);
+        sendTimeAndAssert("2002-05-2T09:15:00.000", true, 2);
         sendTimeAndAssert("2002-05-2T16:59:59.000", true, 2);
         sendTimeAndAssert("2002-05-2T17:00:00.000", false, 2);
 

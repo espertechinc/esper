@@ -20,6 +20,9 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +39,14 @@ public class ReformatOpStringFormat implements ReformatOp {
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
         return action(cal.getTime());
+    }
+
+    public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return DateTimeFormatter.ISO_DATE_TIME.format(ldt);
+    }
+
+    public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(zdt);
     }
 
     private static String action(Date d) {

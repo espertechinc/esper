@@ -542,7 +542,7 @@ public class TestScriptExpression extends TestCase {
 
     private void tryDatetime(String dialect) {
 
-        long msecDate = DateTime.parseDefaultMSec("2002-05-30T9:00:00.000");
+        long msecDate = DateTime.parseDefaultMSec("2002-05-30T09:00:00.000");
         String expression = "expression long " + dialect + ":callIt() [ " + msecDate + "]";
         String epl = expression + " select callIt().getHourOfDay() as val0, callIt().getDayOfWeek() as val1 from SupportBean";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

@@ -42,7 +42,7 @@ public class ExprDotEvalDTFactory {
             throws ExprValidationException
     {
         // verify input
-        String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date or long value as input or events of an event type that declares a timestamp property";
+        String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property";
         if (inputType instanceof EventEPType) {
             if (((EventEPType) inputType).getType().getStartTimestampPropertyName() == null) {
                 throw new ExprValidationException(message);
@@ -97,7 +97,7 @@ public class ExprDotEvalDTFactory {
                 }
             }
             else if (opFactory instanceof IntervalOpFactory) {
-                intervalOp = ((IntervalOpFactory) opFactory).getOp(streamTypeService, currentMethod, currentMethodName, currentParameters, evaluators);
+                intervalOp = ((IntervalOpFactory) opFactory).getOp(streamTypeService, currentMethod, currentMethodName, currentParameters, evaluators, timeZone);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {

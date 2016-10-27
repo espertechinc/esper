@@ -92,7 +92,7 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
          * For Testing, could also use this:
          */
         /*
-        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSecWZone("2001-10-01T5:51:00.000GMT-0:00")));
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSecWZone("2001-10-01T05:51:00.000GMT-0:00")));
         epService.getEPAdministrator().createEPL("select * from pattern[timer:schedule('2008-03-01T13:00:00Z/P1Y2M10DT2H30M')]").addListener(listener);
 
         long next = epService.getEPRuntime().getNextScheduledTime();
@@ -105,17 +105,17 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("computeISO8601String", this.getClass().getName(), "computeISO8601String");
 
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:07.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:07.000GMT-0:00");
 
         String epl = "select * from pattern[every sb=SupportBean -> timer:schedule(iso: computeISO8601String(sb))]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
         SupportBean b1 = makeSendEvent(iso, "E1", 5);
 
-        sendCurrentTime(iso, "2012-10-01T5:51:9.999GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:9.999GMT-0:00");
         assertFalse(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-10-01T5:51:10.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:10.000GMT-0:00");
         assertEquals(b1, listener.assertOneGetNewAndReset().get("sb"));
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -124,26 +124,26 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionFollowedBy() {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:07.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:07.000GMT-0:00");
 
         String epl = "select * from pattern[every sb=SupportBean -> timer:schedule(iso: 'R/1980-01-01T00:00:00Z/PT15S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
         SupportBean b1 = makeSendEvent(iso, "E1");
 
-        sendCurrentTime(iso, "2012-10-01T5:51:14.999GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:14.999GMT-0:00");
         assertFalse(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-10-01T5:51:15.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:15.000GMT-0:00");
         assertEquals(b1, listener.assertOneGetNewAndReset().get("sb"));
 
-        sendCurrentTime(iso, "2012-10-01T5:51:16.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:16.000GMT-0:00");
         SupportBean b2 = makeSendEvent(iso, "E2");
 
-        sendCurrentTime(iso, "2012-10-01T5:51:18.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:18.000GMT-0:00");
         SupportBean b3 = makeSendEvent(iso, "E3");
 
-        sendCurrentTime(iso, "2012-10-01T5:51:30.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:30.000GMT-0:00");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "sb".split(","), new Object[][]{{b2}, {b3}});
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -191,13 +191,13 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionEquivalent(String epl) {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2001-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2001-10-01T05:51:00.000GMT-0:00");
 
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
         assertReceivedAtTime(iso, "2008-03-01T13:00:00.000GMT-0:00");
         assertReceivedAtTime(iso, "2009-05-11T15:30:00.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:52:04.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:52:04.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -210,14 +210,14 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionDateWithPeriod(String parameters) {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Repeat 3 times, starting "2012-10-01T05:52:00Z" (UTC), period of 2 seconds
         String epl = "select * from pattern[timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:02.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:52:04.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:02.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:52:04.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -232,16 +232,16 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
     private void runAssertionFullFormLimitedFutureDated(boolean audit, String parameters) {
 
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Repeat 3 times, starting "2012-10-01T05:52:00Z" (UTC), period of 2 seconds
         String epl = (audit ? "@Audit " : "") + "select * from pattern[every timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:02.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:04.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:52:06.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:02.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:04.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:52:06.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -255,14 +255,14 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionJustFutureDate(boolean hasEvery, String parameters) {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once at "2012-10-01T05:52:00Z" (UTC)
         String epl = "select * from pattern[" + (hasEvery ? "every " : "") + "timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:53:00.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:53:00.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -275,13 +275,13 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionJustPastDate(boolean hasEvery) {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once at "2012-10-01T05:52:00Z" (UTC)
         String epl = "select * from pattern[" + (hasEvery ? "every " : "") + "timer:schedule(iso: '2010-10-01T05:52:00Z')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertSendNoMoreCallback(iso, "2012-10-01T5:53:00.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:53:00.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -294,14 +294,14 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     private void runAssertionJustPeriod(String parameters) {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T5:51:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once after 1 day and 2 hours
         String epl = "select * from pattern[timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-02T7:51:00.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-03T9:51:00.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-02T07:51:00.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-03T09:51:00.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -317,14 +317,14 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Fire 3 times after 2 seconds from current time
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:02.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:04.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:06.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:52:08.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:02.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:04.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:06.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:52:08.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -335,14 +335,14 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Fire 3 times after 2 seconds from current time
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso:'R/PT1M10S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:53:10.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:54:20.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:55:30.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:56:40.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:53:10.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:54:20.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:55:30.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:56:40.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -353,13 +353,13 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso:'R/1980-01-01T00:00:00Z/PT1S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:01.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:02.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:03.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:01.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:02.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:03.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -382,13 +382,13 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(" + parameters + ")]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:01.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:02.000GMT-0:00");
-        assertReceivedAtTime(iso, "2012-10-01T5:52:03.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:01.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:02.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:03.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -399,22 +399,22 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
-        sendCurrentTime(iso, "2012-01-01T0:0:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso:'R/1980-01-01T00:00:00Z/PT10S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        sendCurrentTime(iso, "2012-01-01T0:0:15.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:15.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-01-01T0:0:20.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:20.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        assertReceivedAtTime(iso, "2012-01-01T0:0:30.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-01-01T00:0:30.000GMT-0:00");
 
-        sendCurrentTime(iso, "2012-01-01T0:0:55.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:55.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        assertReceivedAtTime(iso, "2012-01-01T0:1:00.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-01-01T00:1:00.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -424,22 +424,22 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
-        sendCurrentTime(iso, "2012-01-01T0:0:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso: 'R/PT10S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        sendCurrentTime(iso, "2012-01-01T0:0:15.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:15.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-01-01T0:0:20.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:20.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        assertReceivedAtTime(iso, "2012-01-01T0:0:30.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-01-01T00:0:30.000GMT-0:00");
 
-        sendCurrentTime(iso, "2012-01-01T0:0:55.000GMT-0:00");
+        sendCurrentTime(iso, "2012-01-01T00:0:55.000GMT-0:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        assertReceivedAtTime(iso, "2012-01-01T0:1:00.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-01-01T00:1:00.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -450,12 +450,12 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso: 'R8/2012-10-01T05:51:00Z/PT10S')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        assertReceivedAtTime(iso, "2012-10-01T5:52:10.000GMT-0:00");
-        assertSendNoMoreCallback(iso, "2012-10-01T5:52:20.000GMT-0:00");
+        assertReceivedAtTime(iso, "2012-10-01T05:52:10.000GMT-0:00");
+        assertSendNoMoreCallback(iso, "2012-10-01T05:52:20.000GMT-0:00");
 
         epService.getEPAdministrator().destroyAllStatements();
         iso.destroy();
@@ -465,7 +465,7 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
 
         // Repeat unlimited number of times, reference-dated to future date, period of 1 day
-        sendCurrentTime(iso, "2012-10-01T5:52:00.000GMT-0:00");
+        sendCurrentTime(iso, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "select * from pattern[every timer:schedule(iso: 'R/2013-01-01T02:00:05Z/P1D')]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
@@ -481,7 +481,7 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
     private void assertSendNoMoreCallback(EPServiceProviderIsolated iso, String time) {
         sendCurrentTime(iso, time);
         assertFalse(listener.getIsInvokedAndReset());
-        sendCurrentTime(iso, "2999-01-01T0:0:00.000GMT-0:00");
+        sendCurrentTime(iso, "2999-01-01T00:0:00.000GMT-0:00");
         assertFalse(listener.getIsInvokedAndReset());
     }
 
@@ -515,7 +515,7 @@ public class TestTimerScheduleObserver extends TestCase implements SupportBeanCo
 
     public static Calendar getThe1980Calendar() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-0:00"));
-        cal.setTimeInMillis(DateTime.parseDefaultMSecWZone("1980-01-01T0:0:0.000GMT-0:00"));
+        cal.setTimeInMillis(DateTime.parseDefaultMSecWZone("1980-01-01T00:0:0.000GMT-0:00"));
         return cal;
     }
 

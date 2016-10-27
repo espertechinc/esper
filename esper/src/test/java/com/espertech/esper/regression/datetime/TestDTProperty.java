@@ -21,6 +21,9 @@ import com.espertech.esper.support.bean.SupportDateTime;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class TestDTProperty extends TestCase {
 
     private EPServiceProvider epService;
@@ -42,11 +45,10 @@ public class TestDTProperty extends TestCase {
     }
 
     public void testProp() {
-
-        String startTime = "2002-05-30T9:01:02.003";
+        String startTime = "2002-05-30T09:01:02.003";   // use 2-digit hour, see https://bugs.openjdk.java.net/browse/JDK-8066806
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(startTime)));
 
-        String[] fields = "valmoh,valmoy,valdom,valdow,valdoy,valera,valhod,valmos,valsom,valwye,valyea,val1,val2,val3".split(",");
+        String[] fields = "valmoh,valmoy,valdom,valdow,valdoy,valera,valhod,valmos,valsom,valwye,valyea,val1,val2,val3,val4,val5".split(",");
         String eplFragment = "select " +
                 "current_timestamp.getMinuteOfHour() as valmoh,"+
                 "current_timestamp.getMonthOfYear() as valmoy,"+
@@ -61,7 +63,9 @@ public class TestDTProperty extends TestCase {
                 "current_timestamp.getyear() as valyea,"+
                 "utildate.gethourOfDay() as val1," +
                 "msecdate.gethourOfDay() as val2," +
-                "caldate.gethourOfDay() as val3" +
+                "caldate.gethourOfDay() as val3," +
+                "zoneddate.gethourOfDay() as val4," +
+                "localdate.gethourOfDay() as val5" +
                 " from SupportDateTime";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
@@ -71,7 +75,7 @@ public class TestDTProperty extends TestCase {
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{
-                1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9
+                1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9, 9, 9
         });
 
         // test Map inheritance via create-schema

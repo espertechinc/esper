@@ -1703,6 +1703,8 @@ public class JavaClassHelper
         }
         if ((!JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) &&
             (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) &&
+            (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) &&
+            (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) &&
             (JavaClassHelper.getBoxedType(inputType) != Long.class)) {
             return false;
         }

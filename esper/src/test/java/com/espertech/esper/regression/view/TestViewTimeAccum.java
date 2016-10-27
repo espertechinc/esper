@@ -52,16 +52,16 @@ public class TestViewTimeAccum extends TestCase
 
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        sendCurrentTime("2002-02-01T9:00:00.000");
+        sendCurrentTime("2002-02-01T09:00:00.000");
         EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean.win:time_accum(1 month)");
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
 
-        sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
         assertFalse(listener.isInvoked());
 
-        sendCurrentTime("2002-03-01T9:00:00.000");
+        sendCurrentTime("2002-03-01T09:00:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "theString".split(","), new Object[][] {{"E1"}, {"E2"}});
     }
 

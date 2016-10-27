@@ -1076,31 +1076,31 @@ public class TestOutputLimitSimple extends TestCase
 
     public void testSnapshotMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        sendCurrentTime("2002-02-01T9:00:00.000");
+        sendCurrentTime("2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("select * from SupportBean.std:lastevent() output snapshot every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendCurrentTime("2002-03-01T9:00:00.000");
+        sendCurrentTime("2002-03-01T09:00:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "theString".split(","), new Object[][] {{"E1"}});
     }
 
     public void testFirstMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        sendCurrentTime("2002-02-01T9:00:00.000");
+        sendCurrentTime("2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("select * from SupportBean.std:lastevent() output first every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
-        sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendCurrentTime("2002-03-01T9:00:00.000");
+        sendCurrentTime("2002-03-01T09:00:00.000");
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "theString".split(","), new Object[][] {{"E4"}});
     }

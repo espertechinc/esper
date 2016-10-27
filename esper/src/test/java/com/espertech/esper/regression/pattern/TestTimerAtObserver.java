@@ -309,17 +309,17 @@ public class TestTimerAtObserver extends TestCase implements SupportBeanConstant
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent("2008-08-3T6:00:00.000", epService);
+        sendTimeEvent("2008-08-3T06:00:00.000", epService);
         String expression = "select * from pattern [a=SupportBean -> every timer:at(2*a.intPrimitive,*,*,*,*)]";
         EPStatement statement = epService.getEPAdministrator().createEPL(expression);
         statement.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 20));
 
-        sendTimeEvent("2008-08-3T6:39:59.000", epService);
+        sendTimeEvent("2008-08-3T06:39:59.000", epService);
         assertFalse(listener.getAndClearIsInvoked());
 
-        sendTimeEvent("2008-08-3T6:40:00.000", epService);
+        sendTimeEvent("2008-08-3T06:40:00.000", epService);
         assertTrue(listener.getAndClearIsInvoked());
         statement.destroy();
 
@@ -330,13 +330,13 @@ public class TestTimerAtObserver extends TestCase implements SupportBeanConstant
 
         // test timezone
         if (TimeZone.getDefault().getRawOffset() == -5 * 60 * 60 * 1000)  {    // asserting only in EST timezone, see schedule util tests
-            sendTimeEvent("2008-01-4T6:50:00.000", epService);
+            sendTimeEvent("2008-01-4T06:50:00.000", epService);
             epService.getEPAdministrator().createEPL("select * from pattern [timer:at(0, 5, 4, 1, *, 0, 'PST')]").addListener(listener);
 
-            sendTimeEvent("2008-01-4T7:59:59.999", epService);
+            sendTimeEvent("2008-01-4T07:59:59.999", epService);
             assertFalse(listener.getAndClearIsInvoked());
 
-            sendTimeEvent("2008-01-4T8:00:00.000", epService);
+            sendTimeEvent("2008-01-4T08:00:00.000", epService);
             assertTrue(listener.getAndClearIsInvoked());
         }
         epService.getEPAdministrator().createEPL("select * from pattern [timer:at(0, 5, 4, 8, *, 0, 'xxx')]").addListener(listener);

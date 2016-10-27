@@ -17,6 +17,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
+import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDTIntervalDesc;
 import com.espertech.esper.epl.expression.core.*;
@@ -25,9 +27,12 @@ import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStream;
 import com.espertech.esper.util.JavaClassHelper;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class IntervalOpImpl implements IntervalOp {
 
@@ -39,7 +44,7 @@ public class IntervalOpImpl implements IntervalOp {
 
     private final IntervalOpEval intervalOpEval;
 
-    public IntervalOpImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions)
+    public IntervalOpImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeZone timeZone)
         throws ExprValidationException {
 
         ExprEvaluator evaluatorEndTimestamp = null;
@@ -125,6 +130,12 @@ public class IntervalOpImpl implements IntervalOp {
             else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
                 intervalOpEval = new IntervalOpEvalLong(intervalComputer);
             }
+            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
+                intervalOpEval = new IntervalOpEvalLocalDateTime(intervalComputer, timeZone);
+            }
+            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
+                intervalOpEval = new IntervalOpEvalZonedDateTime(intervalComputer);
+            }
             else {
                 throw new IllegalArgumentException("Invalid interval first parameter type '" + timestampType + "'");
             }
@@ -138,6 +149,12 @@ public class IntervalOpImpl implements IntervalOp {
             }
             else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
                 intervalOpEval = new IntervalOpEvalLongWithEnd(intervalComputer, evaluatorEndTimestamp);
+            }
+            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
+                intervalOpEval = new IntervalOpEvalLocalDateTimeWithEnd(intervalComputer, evaluatorEndTimestamp, timeZone);
+            }
+            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
+                intervalOpEval = new IntervalOpEvalZonedDateTimeWithEnd(intervalComputer, evaluatorEndTimestamp);
             }
             else {
                 throw new IllegalArgumentException("Invalid interval first parameter type '" + timestampType + "'");
@@ -248,6 +265,33 @@ public class IntervalOpImpl implements IntervalOp {
         }
     }
 
+    public static class IntervalOpEvalLocalDateTime extends IntervalOpEvalDateBase {
+
+        private final TimeZone timeZone;
+
+        public IntervalOpEvalLocalDateTime(IntervalComputer intervalComputer, TimeZone timeZone) {
+            super(intervalComputer);
+            this.timeZone = timeZone;
+        }
+
+        public Object evaluate(long startTs, long endTs, Object parameter, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+            long time = DatetimeLongCoercerLocalDateTime.coerce((LocalDateTime) parameter, timeZone);
+            return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
+        }
+    }
+
+    public static class IntervalOpEvalZonedDateTime extends IntervalOpEvalDateBase {
+
+        public IntervalOpEvalZonedDateTime(IntervalComputer intervalComputer) {
+            super(intervalComputer);
+        }
+
+        public Object evaluate(long startTs, long endTs, Object parameter, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+            long time = DatetimeLongCoercerZonedDateTime.coerce((ZonedDateTime) parameter);
+            return intervalComputer.compute(startTs, endTs, time, time, eventsPerStream, isNewData, context);
+        }
+    }
+
     public abstract static class IntervalOpEvalDateWithEndBase implements IntervalOpEval {
         protected final IntervalComputer intervalComputer;
         private final ExprEvaluator evaluatorEndTimestamp;
@@ -298,6 +342,31 @@ public class IntervalOpImpl implements IntervalOp {
 
         public Object evaluate(long startTs, long endTs, Object parameterStartTs, Object parameterEndTs, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
             return intervalComputer.compute(startTs, endTs, ((Calendar) parameterStartTs).getTimeInMillis(), ((Calendar) parameterEndTs).getTimeInMillis(), eventsPerStream, isNewData, context);
+        }
+    }
+
+    public static class IntervalOpEvalLocalDateTimeWithEnd extends IntervalOpEvalDateWithEndBase {
+
+        private final TimeZone timeZone;
+
+        public IntervalOpEvalLocalDateTimeWithEnd(IntervalComputer intervalComputer, ExprEvaluator evaluatorEndTimestamp, TimeZone timeZone) {
+            super(intervalComputer, evaluatorEndTimestamp);
+            this.timeZone = timeZone;
+        }
+
+        public Object evaluate(long startTs, long endTs, Object parameterStartTs, Object parameterEndTs, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+            return intervalComputer.compute(startTs, endTs, DatetimeLongCoercerLocalDateTime.coerce((LocalDateTime) parameterStartTs, timeZone), DatetimeLongCoercerLocalDateTime.coerce((LocalDateTime) parameterEndTs, timeZone), eventsPerStream, isNewData, context);
+        }
+    }
+
+    public static class IntervalOpEvalZonedDateTimeWithEnd extends IntervalOpEvalDateWithEndBase {
+
+        public IntervalOpEvalZonedDateTimeWithEnd(IntervalComputer intervalComputer, ExprEvaluator evaluatorEndTimestamp) {
+            super(intervalComputer, evaluatorEndTimestamp);
+        }
+
+        public Object evaluate(long startTs, long endTs, Object parameterStartTs, Object parameterEndTs, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+            return intervalComputer.compute(startTs, endTs, DatetimeLongCoercerZonedDateTime.coerce((ZonedDateTime) parameterStartTs), DatetimeLongCoercerZonedDateTime.coerce((ZonedDateTime) parameterEndTs), eventsPerStream, isNewData, context);
         }
     }
 }

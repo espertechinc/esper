@@ -12,25 +12,32 @@
 package com.espertech.esper.epl.datetime.calop;
 
 import java.io.StringWriter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.Calendar;
 
 public enum CalendarFieldEnum {
-    MILLISEC(Calendar.MILLISECOND, "msec,millisecond,milliseconds"),
-    SECOND(Calendar.SECOND, "sec,second,seconds"),
-    MINUTE(Calendar.MINUTE, "min,minute,minutes"),
-    HOUR(Calendar.HOUR_OF_DAY, "hour,hours"),
-    DAY(Calendar.DATE, "day,days"),
-    MONTH(Calendar.MONTH, "month,months"),
-    WEEK(Calendar.WEEK_OF_YEAR, "week,weeks"),
-    YEAR(Calendar.YEAR, "year,years")
+    MILLISEC(Calendar.MILLISECOND, "msec,millisecond,milliseconds", ChronoField.MILLI_OF_SECOND, ChronoUnit.MILLIS),
+    SECOND(Calendar.SECOND, "sec,second,seconds", ChronoField.SECOND_OF_MINUTE, ChronoUnit.SECONDS),
+    MINUTE(Calendar.MINUTE, "min,minute,minutes", ChronoField.MINUTE_OF_HOUR, ChronoUnit.MINUTES),
+    HOUR(Calendar.HOUR_OF_DAY, "hour,hours", ChronoField.HOUR_OF_DAY, ChronoUnit.HOURS),
+    DAY(Calendar.DATE, "day,days", ChronoField.DAY_OF_MONTH, ChronoUnit.DAYS),
+    MONTH(Calendar.MONTH, "month,months", ChronoField.MONTH_OF_YEAR, ChronoUnit.MONTHS),
+    WEEK(Calendar.WEEK_OF_YEAR, "week,weeks", ChronoField.ALIGNED_WEEK_OF_YEAR, ChronoUnit.WEEKS),
+    YEAR(Calendar.YEAR, "year,years", ChronoField.YEAR, ChronoUnit.YEARS)
     ;
 
     private final int calendarField;
     private final String[] names;
+    private final ChronoField chronoField;
+    private final ChronoUnit chronoUnit;
 
-    CalendarFieldEnum(int calendarField, String names) {
+    CalendarFieldEnum(int calendarField, String names, ChronoField chronoField, ChronoUnit chronoUnit) {
         this.calendarField = calendarField;
         this.names = names.split(",");
+        this.chronoField = chronoField;
+        this.chronoUnit = chronoUnit;
     }
 
     public static String getValidList() {
@@ -54,6 +61,10 @@ public enum CalendarFieldEnum {
         return names;
     }
 
+    public ChronoUnit getChronoUnit() {
+        return chronoUnit;
+    }
+
     public static CalendarFieldEnum fromString(String field) {
         String compareTo = field.trim().toLowerCase();
         for (CalendarFieldEnum v : CalendarFieldEnum.values()) {
@@ -64,6 +75,10 @@ public enum CalendarFieldEnum {
             }
         }
         return null;
+    }
+
+    public ChronoField getChronoField() {
+        return chronoField;
     }
 }
 

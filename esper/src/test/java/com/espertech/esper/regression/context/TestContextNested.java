@@ -184,7 +184,7 @@ public class TestContextNested extends TestCase {
         EPServiceProvider epService = allocateEngine(false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -197,13 +197,13 @@ public class TestContextNested extends TestCase {
         stmtUser.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        Object[][] expected = new Object[][]{{DateTime.parseDefaultMSec("2002-05-1T8:00:00.000"), "E1", 1}};
+        Object[][] expected = new Object[][]{{DateTime.parseDefaultMSec("2002-05-1T08:00:00.000"), "E1", 1}};
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(stmtUser.iterator(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(stmtUser.safeIterator(), fields, expected);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
-        expected = new Object[][]{{DateTime.parseDefaultMSec("2002-05-1T8:00:00.000"), "E1", 1}, {DateTime.parseDefaultMSec("2002-05-1T8:00:00.000"), "E1", 2}};
+        expected = new Object[][]{{DateTime.parseDefaultMSec("2002-05-1T08:00:00.000"), "E1", 1}, {DateTime.parseDefaultMSec("2002-05-1T08:00:00.000"), "E1", 2}};
         EPAssertionUtil.assertPropsPerRow(stmtUser.iterator(), fields, expected);
         EPAssertionUtil.assertPropsPerRow(stmtUser.safeIterator(), fields, expected);
 
@@ -359,7 +359,7 @@ public class TestContextNested extends TestCase {
     }
 
     private void runAssertionPartitionedNonOverlap(EPServiceProvider epService) {
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         String eplCtx = "create context NestedContext as " +
                 "context SegByString as partition by theString from SupportBean(intPrimitive > 0), " +
@@ -396,7 +396,7 @@ public class TestContextNested extends TestCase {
         EPServiceProvider epService = allocateEngine(false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         String eplCtx = "create context NestedContext as " +
                 "context ByCat as group intPrimitive < 0 as g1, group intPrimitive > 0 as g2, group intPrimitive = 0 as g3 from SupportBean, " +
@@ -438,7 +438,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 7));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"g2", "S0_1", "S1_2", 15}, {"g2", "S0_3", "S1_3", 7}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:10.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:10.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 8));
         assertFalse(listener.isInvoked());
@@ -544,7 +544,7 @@ public class TestContextNested extends TestCase {
 
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
-        sendTimeEvent(epService, "2002-05-1T7:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T07:00:00.000");
 
         String eplCtx = "create context NestedContext as " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -565,7 +565,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_2"));
         epService.getEPRuntime().sendEvent(new SupportBean_S1(100, "S1_2"));
@@ -577,7 +577,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "S1_2", "S2_2", 5}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:05.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:05.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S1(101, "S1_3"));
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 4));
@@ -587,12 +587,12 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E5", 5));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "S1_2", "S2_2", 14}, {"S0_2", "S1_2", "S2_3", 5}, {"S0_2", "S1_3", "S2_3", 5}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:10.000"); // terminate S2_2 leaf
+        sendTimeEvent(epService, "2002-05-1T08:00:10.000"); // terminate S2_2 leaf
 
         epService.getEPRuntime().sendEvent(new SupportBean("E6", 6));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "S1_2", "S2_3", 11}, {"S0_2", "S1_3", "S2_3", 11}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:15.000"); // terminate S0_2/S1_2/S2_3 and S0_2/S1_3/S2_3 leafs
+        sendTimeEvent(epService, "2002-05-1T08:00:15.000"); // terminate S0_2/S1_2/S2_3 and S0_2/S1_3/S2_3 leafs
 
         epService.getEPRuntime().sendEvent(new SupportBean("E7", 7));
         assertFalse(listener.isInvoked());
@@ -601,7 +601,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E8", 8));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "S1_2", "S2_4", 8}, {"S0_2", "S1_3", "S2_4", 8}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:30.000"); // terminate S1_2 branch
+        sendTimeEvent(epService, "2002-05-1T08:00:30.000"); // terminate S1_2 branch
 
         epService.getEPRuntime().sendEvent(new SupportBean("E9", 9));
         assertFalse(listener.isInvoked());
@@ -611,7 +611,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E10", 10));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "S1_3", "S2_5", 10}, {"S0_2", "S1_5", "S2_5", 10}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:60.000"); // terminate S0_2 branch, only the "8to9" is left
+        sendTimeEvent(epService, "2002-05-1T08:00:60.000"); // terminate S0_2 branch, only the "8to9" is left
 
         epService.getEPRuntime().sendEvent(new SupportBean("E11", 11));
         assertFalse(listener.isInvoked());
@@ -633,7 +633,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E14", 14));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent(epService, "2002-05-2T8:00:00.000"); // start next day
+        sendTimeEvent(epService, "2002-05-2T08:00:00.000"); // start next day
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(8, "S0_8"));
         epService.getEPRuntime().sendEvent(new SupportBean_S1(108, "S1_8"));
@@ -655,7 +655,7 @@ public class TestContextNested extends TestCase {
         EPServiceProvider epService = allocateEngine(false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         String eplCtx = "create context NestedContext as " +
                 "context InitCtx initiated by SupportBean_S0(id > 0) as s0 terminated after 10 seconds, " +
@@ -683,7 +683,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 5));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_2", "E3", 8});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:05.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:05.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(-2, "S0_3"));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_4"));
@@ -694,7 +694,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 7));
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"S0_2", "E4", 11}, {"S0_4", "E4", 7}});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:10.000"); // expires first context
+        sendTimeEvent(epService, "2002-05-1T08:00:10.000"); // expires first context
 
         epService.getEPRuntime().sendEvent(new SupportBean("E3", 8));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_4", "E3", 14});
@@ -702,7 +702,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 9));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_4", "E4", 16});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:15.000"); // expires second context
+        sendTimeEvent(epService, "2002-05-1T08:00:15.000"); // expires second context
 
         epService.getEPRuntime().sendEvent(new SupportBean("Ex", 1));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_5"));
@@ -712,7 +712,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E4", -10));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"S0_5", "E4", 10});
 
-        sendTimeEvent(epService, "2002-05-1T8:00:25.000"); // expires second context
+        sendTimeEvent(epService, "2002-05-1T08:00:25.000"); // expires second context
 
         epService.getEPRuntime().sendEvent(new SupportBean("E4", 10));
         assertFalse(listener.isInvoked());
@@ -724,7 +724,7 @@ public class TestContextNested extends TestCase {
         EPServiceProvider epService = allocateEngine(false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         String eplCtx = "create context NestedContext as " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -738,12 +738,12 @@ public class TestContextNested extends TestCase {
                 "context.ByCat.label as c1, context.SegmentedByString.key1 as c2, sum(longPrimitive) as c3 from SupportBean");
         stmtUser.addListener(listener);
 
-        runAssertion3Contexts(epService, listener, fields, "2002-05-1T9:00:00.000");
+        runAssertion3Contexts(epService, listener, fields, "2002-05-1T09:00:00.000");
 
         stmtCtx.destroy();
         stmtUser.destroy();
         
-        sendTimeEvent(epService, "2002-05-2T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-2T08:00:00.000");
 
         // test SODA
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(eplCtx);
@@ -755,7 +755,7 @@ public class TestContextNested extends TestCase {
                 "context.ByCat.label as c1, context.SegmentedByString.key1 as c2, sum(longPrimitive) as c3 from SupportBean");
         stmtUser.addListener(listener);
 
-        runAssertion3Contexts(epService, listener, fields, "2002-05-2T9:00:00.000");
+        runAssertion3Contexts(epService, listener, fields, "2002-05-2T09:00:00.000");
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -769,7 +769,7 @@ public class TestContextNested extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
 
-        sendTimeEvent(epService, "2002-05-1T7:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T07:00:00.000");
 
         EPStatement stmtCtx = epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -785,7 +785,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000"); // start context
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000"); // start context
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
@@ -796,12 +796,12 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
 
-        sendTimeEvent(epService, "2002-05-1T9:00:00.000"); // terminate
+        sendTimeEvent(epService, "2002-05-1T09:00:00.000"); // terminate
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
         assertFalse(listener.isInvoked());
 
-        sendTimeEvent(epService, "2002-05-2T8:00:00.000"); // start context
+        sendTimeEvent(epService, "2002-05-2T08:00:00.000"); // start context
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 0));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
@@ -818,7 +818,7 @@ public class TestContextNested extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
 
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
 
         epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context ByCat " +
@@ -862,7 +862,7 @@ public class TestContextNested extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean("E6", -1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"g1", "init_3", 3L});
 
-        sendTimeEvent(epService, "2002-05-1T8:11:00.000"); // terminates all
+        sendTimeEvent(epService, "2002-05-1T08:11:00.000"); // terminates all
 
         epService.getEPRuntime().sendEvent(new SupportBean("E7", 0));
         assertFalse(listener.isInvoked());
@@ -883,7 +883,7 @@ public class TestContextNested extends TestCase {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
 
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
-        sendTimeEvent(epService, "2002-05-1T7:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T07:00:00.000");
 
         EPStatement stmtCtx = epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -901,7 +901,7 @@ public class TestContextNested extends TestCase {
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
 
         // starts EightToNine context
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
         assertEquals(1, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -918,7 +918,7 @@ public class TestContextNested extends TestCase {
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
 
         // ends EightToNine context
-        sendTimeEvent(epService, "2002-05-1T9:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T09:00:00.000");
         assertEquals(0, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -926,7 +926,7 @@ public class TestContextNested extends TestCase {
         assertFalse(listener.isInvoked());
 
         // starts EightToNine context
-        sendTimeEvent(epService, "2002-05-2T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-2T08:00:00.000");
         assertEquals(1, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -969,7 +969,7 @@ public class TestContextNested extends TestCase {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
 
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
-        sendTimeEvent(epService, "2002-05-1T7:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T07:00:00.000");
 
         EPStatement stmtCtx = epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context SegmentedByAString partition by theString from SupportBean, " +
@@ -990,7 +990,7 @@ public class TestContextNested extends TestCase {
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
 
         // starts EightToNine context
-        sendTimeEvent(epService, "2002-05-1T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:00:00.000");
         assertEquals(2, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -1008,7 +1008,7 @@ public class TestContextNested extends TestCase {
         assertEquals(3, filterSPI.getFilterCountApprox());
 
         // ends EightToNine context
-        sendTimeEvent(epService, "2002-05-1T9:00:00.000");
+        sendTimeEvent(epService, "2002-05-1T09:00:00.000");
         assertEquals(1, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -1017,7 +1017,7 @@ public class TestContextNested extends TestCase {
         assertEquals(2, spi.getSchedulingService().getScheduleHandleCount());
 
         // starts EightToNine context
-        sendTimeEvent(epService, "2002-05-2T8:00:00.000");
+        sendTimeEvent(epService, "2002-05-2T08:00:00.000");
         assertEquals(3, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -1059,7 +1059,7 @@ public class TestContextNested extends TestCase {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
 
         FilterServiceSPI filterSPI = (FilterServiceSPI) spi.getFilterService();
-        sendTimeEvent(epService, "2002-05-1T8:30:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:30:00.000");
 
         EPStatement stmtCtx = epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
@@ -1080,14 +1080,14 @@ public class TestContextNested extends TestCase {
         assertEquals(1, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E1",
                 "NestedContext",
                 10, 1L});
         assertEquals(2, filterSPI.getFilterCountApprox());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E2",
                 "NestedContext",
                 20, 1L});
@@ -1102,7 +1102,7 @@ public class TestContextNested extends TestCase {
         statement.start();
         
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 30));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T8:30:00.000"),
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E2",
                 "NestedContext",
                 30, 1L});
@@ -1133,7 +1133,7 @@ public class TestContextNested extends TestCase {
         EPServiceProvider epService = allocateEngine(false);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendTimeEvent(epService, "2002-05-1T8:30:00.000");
+        sendTimeEvent(epService, "2002-05-1T08:30:00.000");
 
         EPStatement stmtCtx = epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +

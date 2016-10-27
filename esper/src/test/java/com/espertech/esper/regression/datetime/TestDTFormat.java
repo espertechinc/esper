@@ -47,25 +47,27 @@ public class TestDTFormat extends TestCase {
 
     public void testFormat() {
 
-        String startTime = "2002-05-30T9:00:00.000";
+        String startTime = "2002-05-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(DateTime.parseDefaultMSec(startTime)));
 
-        String[] fields = "val0,val1,val2,val3".split(",");
+        String[] fields = "val0,val1,val2,val3,val4,val5".split(",");
         String eplFragment = "select " +
                 "current_timestamp.format() as val0," +
                 "utildate.format() as val1," +
                 "msecdate.format() as val2," +
-                "caldate.format() as val3" +
+                "caldate.format() as val3," +
+                "localdate.format() as val4," +
+                "zoneddate.format() as val5" +
                 " from SupportDateTime";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
-        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{String.class, String.class, String.class, String.class});
+        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{String.class, String.class, String.class, String.class, String.class, String.class});
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf");
+        Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf", "dtf_isodt", "dtf_isozdt");
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, expected);
 
         epService.getEPRuntime().sendEvent(SupportDateTime.make(null));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null, null, null});
     }
 }

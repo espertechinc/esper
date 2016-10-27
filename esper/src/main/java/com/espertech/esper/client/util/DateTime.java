@@ -16,6 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -142,6 +146,24 @@ public class DateTime {
      */
     public static long parseDefaultMSec(String dateTime) {
         return parse(dateTime, new SimpleDateFormat(DEFAULT_XMLLIKE_DATE_FORMAT)).getTime();
+    }
+
+    /**
+     * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT}.
+     * @param dateTime date-time string
+     * @return LocalDateTime
+     */
+    public static LocalDateTime parseDefaultLocalDateTime(String dateTime) {
+        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(DEFAULT_XMLLIKE_DATE_FORMAT));
+    }
+
+    /**
+     * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT} assume System default time zone
+     * @param dateTime date-time string
+     * @return ZonedDateTime
+     */
+    public static ZonedDateTime parseDefaultZonedDateTime(String dateTime) {
+        return parseDefaultLocalDateTime(dateTime).atZone(ZoneId.systemDefault());
     }
 
     /**

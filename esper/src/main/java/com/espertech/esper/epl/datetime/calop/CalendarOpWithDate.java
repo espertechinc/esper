@@ -15,6 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 public class CalendarOpWithDate implements CalendarOp {
@@ -36,6 +38,20 @@ public class CalendarOpWithDate implements CalendarOp {
         action(cal, yearNum, monthNum, dayNum);
     }
 
+    public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Integer yearNum = getInt(year, eventsPerStream, isNewData, context);
+        Integer monthNum = getInt(month, eventsPerStream, isNewData, context);
+        Integer dayNum = getInt(day, eventsPerStream, isNewData, context);
+        return action(ldt, yearNum, monthNum, dayNum);
+    }
+
+    public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Integer yearNum = getInt(year, eventsPerStream, isNewData, context);
+        Integer monthNum = getInt(month, eventsPerStream, isNewData, context);
+        Integer dayNum = getInt(day, eventsPerStream, isNewData, context);
+        return action(zdt, yearNum, monthNum, dayNum);
+    }
+
     protected static Integer getInt(ExprEvaluator expr, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Object result = expr.evaluate(eventsPerStream, isNewData, context);
         if (result == null) {
@@ -54,5 +70,31 @@ public class CalendarOpWithDate implements CalendarOp {
         if (day != null) {
             cal.set(Calendar.DATE, day);
         }
+    }
+
+    private static LocalDateTime action(LocalDateTime ldt, Integer year, Integer month, Integer day) {
+        if (year != null) {
+            ldt = ldt.withYear(year);
+        }
+        if (month != null) {
+            ldt = ldt.withMonth(month);
+        }
+        if (day != null) {
+            ldt = ldt.withDayOfMonth(day);
+        }
+        return ldt;
+    }
+
+    private static ZonedDateTime action(ZonedDateTime zdt, Integer year, Integer month, Integer day) {
+        if (year != null) {
+            zdt = zdt.withYear(year);
+        }
+        if (month != null) {
+            zdt = zdt.withMonth(month);
+        }
+        if (day != null) {
+            zdt = zdt.withDayOfMonth(day);
+        }
+        return zdt;
     }
 }

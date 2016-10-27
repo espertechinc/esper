@@ -19,12 +19,13 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 import java.util.List;
+import java.util.TimeZone;
 
 public class IntervalOpFactory implements OpFactory {
-    public IntervalOp getOp(StreamTypeService streamTypeService, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprEvaluator[] evaluators)
+    public IntervalOp getOp(StreamTypeService streamTypeService, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprEvaluator[] evaluators, TimeZone timeZone)
         throws ExprValidationException {
 
-        return new IntervalOpImpl(method, methodNameUsed, streamTypeService, parameters);
+        return new IntervalOpImpl(method, methodNameUsed, streamTypeService, parameters, timeZone);
     }
 
 }

@@ -44,15 +44,15 @@ public class TestViewTimeOrder extends TestCase
 
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
-        sendCurrentTime("2002-02-01T9:00:00.000");
+        sendCurrentTime("2002-02-01T09:00:00.000");
         EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBeanTimestamp.ext:time_order(timestamp, 1 month)");
         stmt.addListener(listener);
 
-        sendEvent("E1", DateTime.parseDefaultMSec("2002-02-01T9:00:00.000"));
-        sendCurrentTimeWithMinus("2002-03-01T9:00:00.000", 1);
+        sendEvent("E1", DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"));
+        sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
         assertFalse(listener.isInvoked());
 
-        sendCurrentTime("2002-03-01T9:00:00.000");
+        sendCurrentTime("2002-03-01T09:00:00.000");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "id".split(","), new Object[][] {{"E1"}});
     }
 

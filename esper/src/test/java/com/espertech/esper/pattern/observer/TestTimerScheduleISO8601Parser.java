@@ -94,8 +94,8 @@ public class TestTimerScheduleISO8601Parser extends TestCase {
     }
 
     public void testParse() throws Exception {
-        assertParse("R3/2012-10-01T05:52:00Z/PT2S", 3L, "2012-10-01T5:52:00.000GMT-0:00", new TimePeriod().sec(2));
-        assertParse("2012-10-01T05:52:00Z", null, "2012-10-01T5:52:00.000GMT-0:00", null);
+        assertParse("R3/2012-10-01T05:52:00Z/PT2S", 3L, "2012-10-01T05:52:00.000GMT-0:00", new TimePeriod().sec(2));
+        assertParse("2012-10-01T05:52:00Z", null, "2012-10-01T05:52:00.000GMT-0:00", null);
         assertParse("R3/PT2S", 3L, null, new TimePeriod().sec(2));
 
         assertParseRepeat("R", -1);
@@ -124,11 +124,11 @@ public class TestTimerScheduleISO8601Parser extends TestCase {
     }
 
     private void assertParsePeriod(String period, TimePeriod expected) throws Exception {
-        assertParse("R/2012-10-01T05:52:00Z/P" + period, -1L, "2012-10-01T5:52:00.000GMT-0:00", expected);
+        assertParse("R/2012-10-01T05:52:00Z/P" + period, -1L, "2012-10-01T05:52:00.000GMT-0:00", expected);
     }
 
     private void assertParseRepeat(String repeat, long expected) throws Exception {
-        assertParse(repeat + "/2012-10-01T05:52:00Z/PT2S", expected, "2012-10-01T5:52:00.000GMT-0:00", new TimePeriod().sec(2));
+        assertParse(repeat + "/2012-10-01T05:52:00Z/PT2S", expected, "2012-10-01T05:52:00.000GMT-0:00", new TimePeriod().sec(2));
     }
 
     private void assertParse(String text, Long expectedNumRepeats, String expectedDate, TimePeriod expectedTimePeriod) throws Exception {

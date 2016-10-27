@@ -11,10 +11,14 @@
 
 package com.espertech.esper.epl.datetime.calop;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 
 public class CalendarOpRound implements CalendarOp {
@@ -40,5 +44,29 @@ public class CalendarOpRound implements CalendarOp {
 
     public void evaluate(Calendar cal, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         ApacheCommonsDateUtils.modify(cal, fieldName.getCalendarField(), code);
+    }
+
+    public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        if (code == ApacheCommonsDateUtils.MODIFY_TRUNCATE) {
+            return ldt.truncatedTo(fieldName.getChronoUnit());
+        }
+        else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
+            return ldt.plus(1, fieldName.getChronoUnit()).truncatedTo(fieldName.getChronoUnit());
+        }
+        else {
+            throw new EPException("Round-half operation not supported for LocalDateTime");
+        }
+    }
+
+    public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        if (code == ApacheCommonsDateUtils.MODIFY_TRUNCATE) {
+            return zdt.truncatedTo(fieldName.getChronoUnit());
+        }
+        else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
+            return zdt.plus(1, fieldName.getChronoUnit()).truncatedTo(fieldName.getChronoUnit());
+        }
+        else {
+            throw new EPException("Round-half operation not supported for ZonedDateTime");
+        }
     }
 }

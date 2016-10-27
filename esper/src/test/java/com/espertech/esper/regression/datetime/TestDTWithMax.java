@@ -23,6 +23,8 @@ import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -48,20 +50,22 @@ public class TestDTWithMax extends TestCase {
 
     public void testInput() {
 
-        String[] fields = "val0,val1,val2".split(",");
+        String[] fields = "val0,val1,val2,val3,val4".split(",");
         String eplFragment = "select " +
                 "utildate.withMax('month') as val0," +
                 "msecdate.withMax('month') as val1," +
-                "caldate.withMax('month') as val2" +
+                "caldate.withMax('month') as val2," +
+                "localdate.withMax('month') as val3," +
+                "zoneddate.withMax('month') as val4" +
                 " from SupportDateTime";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
-        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Date.class, Long.class, Calendar.class});
+        LambdaAssertionUtil.assertTypes(stmtFragment.getEventType(), fields, new Class[]{Date.class, Long.class, Calendar.class, LocalDateTime.class, ZonedDateTime.class});
 
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-12-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal", "ldt", "zdt"));
     }
 
     public void testFields() {

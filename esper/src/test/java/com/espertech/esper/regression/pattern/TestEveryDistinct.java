@@ -623,18 +623,18 @@ public class TestEveryDistinct extends TestCase implements SupportBeanConstants
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        sendCurrentTime(epService, "2002-02-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-02-01T09:00:00.000");
         epService.getEPAdministrator().createEPL("select * from pattern [every-distinct(theString, 1 month) a=SupportBean]").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 1});
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
-        sendCurrentTimeWithMinus(epService, "2002-03-01T9:00:00.000", 1);
+        sendCurrentTimeWithMinus(epService, "2002-03-01T09:00:00.000", 1);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 3));
         assertFalse(listener.isInvoked());
 
-        sendCurrentTime(epService, "2002-03-01T9:00:00.000");
+        sendCurrentTime(epService, "2002-03-01T09:00:00.000");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 4));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 4});

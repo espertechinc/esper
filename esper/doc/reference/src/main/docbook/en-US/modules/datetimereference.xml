@@ -21,8 +21,35 @@
 		<orderedlist>
 			<listitem>
 				<para>
-                    Any expression or event property that returns either a long-type millisecond value, a <literal>java.util.Calendar</literal> or <literal>java.util.Date</literal> including subclasses. Consider the built-in single-row function <literal>current_timestamp</literal> for use with date-time methods.
+                    Any expression or event property that returns one of the below values:
                 </para>
+				<orderedlist>
+					<listitem>
+						<para>
+							A long-type millisecond value.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							A <literal>java.util.Calendar</literal> object including subclasses.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							A <literal>java.util.Date</literal> object including subclasses.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							A <literal>java.time.LocalDateTime</literal> object including subclasses.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							A <literal>java.time.ZonedDateTime</literal> object including subclasses.
+						</para>
+					</listitem>
+				</orderedlist>
 			</listitem>
 			<listitem>
 				<para>
@@ -431,7 +458,7 @@
 			</para>
 			
 			<para>
-				The input value can be any expression or event property that returns a value of type long or <literal>java.util.Calendar</literal> or <literal>java.util.Date</literal>. If the input value is null, the expression result is also null.
+				The input value can be any expression or event property that returns a value of type long or <literal>java.util.Calendar</literal> or <literal>java.util.Date</literal> or <literal>java.time.LocalDateTime</literal> or <literal>java.time.ZonedDateTime</literal>. If the input value is null, the expression result is also null.
 			</para>
 			
 			<para>
@@ -528,8 +555,36 @@ from RFIDEvent.std:lastevent() rfid, WifiEvent.std:lastevent() wifi]]></programl
 			</para>
 			
 			<para>
-				The method takes no parameters. It returns the date-time value formatted using the default locale format obtained from <literal>new SimpleDateFormat()</literal>.
+				The method takes no parameters. It returns the date-time value formatted using the formatter as follows:
 			</para>
+			
+			<table frame="topbot" xml:id="datetime-method-format-table" revision="2">
+				<title>RoundHalf Examples</title>
+				<tgroup cols="2">
+					<colspec colwidth="1.0*"/>
+					<colspec colwidth="1.0*"/>
+					<thead>
+						<row>
+							<entry>Input</entry>
+							<entry>String Formatter</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>long, Date, Calendar</literal></entry>
+							<entry><literal>new SimpleDateFormat()</literal></entry>
+						</row>
+						<row>
+							<entry><literal>java.time.LocalTimeDate</literal></entry>
+							<entry><literal>DateTimeFormatter.ISO_DATE_TIME</literal></entry>
+						</row>
+						<row>
+							<entry><literal>java.time.ZonedTimeDate</literal></entry>
+							<entry><literal>DateTimeFormatter.ISO_ZONED_DATE_TIME</literal></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
 
 			<para>
 				The example below outputs the time-taken property value of the RFID event:
@@ -548,7 +603,7 @@ from RFIDEvent.std:lastevent() rfid, WifiEvent.std:lastevent() wifi]]></programl
 			</para>
 
 			<para>
-				The method returns the numeric value of the field within the date-time value. The value returned adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11.
+				The method returns the numeric value of the field within the date-time value. The value returned adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11 (Note: for <literal>LocalDateTime</literal> and <literal>ZonedDateTime</literal> the range for month is 1 to 12).
 			</para>
 
 			<para>
@@ -564,7 +619,7 @@ from RFIDEvent.std:lastevent() rfid, WifiEvent.std:lastevent() wifi]]></programl
 			</para>
 			
 			<para>
-				All get-methods take no parameter and return the numeric value of the field within the date-time value. The value returned adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11.
+				All get-methods take no parameter and return the numeric value of the field within the date-time value. The value returned adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11 (Note: for <literal>LocalDateTime</literal> and <literal>ZonedDateTime</literal> the range for month is 1 to 12).
 			</para>
 
 			<para>
@@ -701,6 +756,10 @@ from RFIDEvent.std:lastevent() rfid, WifiEvent.std:lastevent() wifi]]></programl
 					</tbody>
 				</tgroup>
 			</table>		
+			
+			<para>
+				This method is not support for <literal>LocalDateTime</literal> and <literal>ZonedDateTime</literal> input values.
+			</para>
 		</sect2>
 				
 		<sect2 xml:id="datetime-method-set">
@@ -715,7 +774,7 @@ from RFIDEvent.std:lastevent() rfid, WifiEvent.std:lastevent() wifi]]></programl
 			</para>
 
 			<para>
-				The method returns the new date-time value with the field set to the provided value. Note that value adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11.
+				The method returns the new date-time value with the field set to the provided value. Note that value adheres to <literal>Calendar</literal>-class semantics: For example, the value for <literal>month</literal> starts at zero and has a maximum of 11 (Note: for <literal>LocalDateTime</literal> and <literal>ZonedDateTime</literal> the range for month is 1 to 12).
 			</para>
 
 			<para>

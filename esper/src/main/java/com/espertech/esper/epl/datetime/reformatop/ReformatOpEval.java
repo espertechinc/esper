@@ -19,18 +19,24 @@ import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class ReformatOpCalendarEval implements ReformatOp {
+public class ReformatOpEval implements ReformatOp {
 
     private final CalendarEval calendarEval;
+    private final LocalDateTimeEval localDateTimeEval;
+    private final ZonedDateTimeEval zonedDateTimeEval;
     private final TimeZone timeZone;
 
-    public ReformatOpCalendarEval(CalendarEval calendarEval, TimeZone timeZone) {
+    public ReformatOpEval(CalendarEval calendarEval, LocalDateTimeEval localDateTimeEval, ZonedDateTimeEval zonedDateTimeEval, TimeZone timeZone) {
         this.calendarEval = calendarEval;
+        this.localDateTimeEval = localDateTimeEval;
+        this.zonedDateTimeEval = zonedDateTimeEval;
         this.timeZone = timeZone;
     }
 
@@ -44,6 +50,14 @@ public class ReformatOpCalendarEval implements ReformatOp {
         Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(d.getTime());
         return calendarEval.evaluateInternal(cal);
+    }
+
+    public Object evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return localDateTimeEval.evaluateInternal(ldt);
+    }
+
+    public Object evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
+        return zonedDateTimeEval.evaluateInternal(zdt);
     }
 
     public Object evaluate(Calendar cal, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

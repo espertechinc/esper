@@ -69,10 +69,10 @@ public class TestDTDocSamples extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName(), leg);
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), leg);
 
-        tryRun("a.msecdateStart.after(b)", "2002-05-30T9:00:00.000", "2002-05-30T8:59:59.999", true);
-        tryRun("a.after(b.msecdateStart)", "2002-05-30T9:00:00.000", "2002-05-30T8:59:59.999", true);
-        tryRun("a.after(b)", "2002-05-30T9:00:00.000", "2002-05-30T8:59:59.999", true);
-        tryRun("a.after(b)", "2002-05-30T8:59:59.999", "2002-05-30T9:00:00.000", false);
+        tryRun("a.msecdateStart.after(b)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
+        tryRun("a.after(b.msecdateStart)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
+        tryRun("a.after(b)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
+        tryRun("a.after(b)", "2002-05-30T08:59:59.999", "2002-05-30T09:00:00.000", false);
     }
 
     private void tryRun(String condition, String tsa, String tsb, boolean isInvoked) {

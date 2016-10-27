@@ -49,18 +49,18 @@ public class TestTimerScheduleObserverTimeZoneEST extends TestCase
 
     public void testCurrentTimeWTime() {
         EPServiceProviderIsolated iso = epService.getEPServiceIsolated("E1");
-        sendCurrentTime(iso, "2012-10-01T8:59:00.000GMT-04:00");
+        sendCurrentTime(iso, "2012-10-01T08:59:00.000GMT-04:00");
 
         String epl = "select * from pattern[timer:schedule(date: current_timestamp.withTime(9, 0, 0, 0))]";
         iso.getEPAdministrator().createEPL(epl, null, null).addListener(listener);
 
-        sendCurrentTime(iso, "2012-10-01T8:59:59.999GMT-4:00");
+        sendCurrentTime(iso, "2012-10-01T08:59:59.999GMT-4:00");
         assertFalse(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-10-01T9:00:00.000GMT-4:00");
+        sendCurrentTime(iso, "2012-10-01T09:00:00.000GMT-4:00");
         assertTrue(listener.getIsInvokedAndReset());
 
-        sendCurrentTime(iso, "2012-10-03T9:00:00.000GMT-4:00");
+        sendCurrentTime(iso, "2012-10-03T09:00:00.000GMT-4:00");
         assertFalse(listener.getIsInvokedAndReset());
 
         epService.getEPAdministrator().destroyAllStatements();

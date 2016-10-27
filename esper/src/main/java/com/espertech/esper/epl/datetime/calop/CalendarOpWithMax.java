@@ -14,6 +14,9 @@ package com.espertech.esper.epl.datetime.calop;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ValueRange;
 import java.util.Calendar;
 
 public class CalendarOpWithMax implements CalendarOp {
@@ -26,5 +29,15 @@ public class CalendarOpWithMax implements CalendarOp {
 
     public void evaluate(Calendar cal, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         cal.set(fieldName.getCalendarField(), cal.getActualMaximum(fieldName.getCalendarField()));
+    }
+
+    public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        ValueRange range = ldt.range(fieldName.getChronoField());
+        return ldt.with(fieldName.getChronoField(), range.getMaximum());
+    }
+
+    public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        ValueRange range = zdt.range(fieldName.getChronoField());
+        return zdt.with(fieldName.getChronoField(), range.getMaximum());
     }
 }
