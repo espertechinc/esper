@@ -245,6 +245,7 @@ public final class FilterSpecCompiler
                 viewFactoryChain = statementContext.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
                 subselecteventTypeName = namedSpec.getWindowName();
                 EPLValidationUtil.validateContextName(false, processor.getNamedWindowName(), processor.getContextName(), statementContext.getContextName(), true);
+                subselect.setRawEventType(processor.getNamedWindowType());
             }
         }
         catch (ViewProcessingException ex) {

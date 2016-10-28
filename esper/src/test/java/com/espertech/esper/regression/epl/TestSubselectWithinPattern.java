@@ -54,6 +54,16 @@ public class TestSubselectWithinPattern extends TestCase {
                 "Failed to validate filter expression 'id in (subselect_1)': Implicit conversion not allowed: Cannot coerce types java.lang.Integer and java.lang.String [select * from S0(id in ((select p00 from MyWindow)))]");
     }
 
+    public void testSubqueryAgainstNamedWindowInUDFInPattern() {
+
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("supportSingleRowFunction", TestSubselectWithinPattern.class.getName(), "supportSingleRowFunction");
+        epService.getEPAdministrator().createEPL("create window MyWindow.std:unique(p00).win:keepall() as S0");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from pattern[S1(supportSingleRowFunction((select * from MyWindow)))]");
+        stmt.addListener(listener);
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(1));
+        listener.assertInvokedAndReset();
+    }
+
     public void testFilterPatternNamedWindowNoAlias()
     {
         // subselect in pattern
@@ -216,5 +226,9 @@ public class TestSubselectWithinPattern extends TestCase {
         catch (EPStatementException ex) {
             assertEquals(message, ex.getMessage());
         }
+    }
+
+    public static boolean supportSingleRowFunction(Object ... v) {
+        return true;
     }
 }
