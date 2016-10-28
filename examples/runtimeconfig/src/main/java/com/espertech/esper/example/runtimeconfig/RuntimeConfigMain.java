@@ -69,7 +69,7 @@ public class RuntimeConfigMain
 
         provider.getEPAdministrator().getConfiguration().addVariable("myintvar", int.class, 5);
 
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select propertyOne, propertyTwo, myintvar from MyEvent.std:lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select propertyOne, propertyTwo, myintvar from MyEvent#lastevent()");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
@@ -129,7 +129,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addEventType("MyMedianSampleEvent", typeDefinition);
 
         // keep the last few events from the variant stream
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select mymedian(doubles) as med from MyMedianSampleEvent.std:lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select mymedian(doubles) as med from MyMedianSampleEvent#lastevent()");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
@@ -161,7 +161,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addEventType("MyByteEvent", typeDefinition);
 
         // keep the last few events from the variant stream
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select RuntimeConfigMain.check2BitSet(byteValue) as check2BitSet from MyByteEvent.std:lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select RuntimeConfigMain.check2BitSet(byteValue) as check2BitSet from MyByteEvent#lastevent()");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
@@ -192,7 +192,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addVariantStream("MyVariantStream", variantStream);
 
         // keep the last few events from the variant stream
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select * from MyVariantStream.win:time(1 min)");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select * from MyVariantStream#time(1 min)");
 
         // insert MyEvent events into the variant stream
         provider.getEPAdministrator().createEPL("insert into MyVariantStream select * from MyEvent");
@@ -254,7 +254,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addRevisionEventType("MyRevisionType", config);
 
         // Create a statement to keep the last event per item
-        EPStatement stmt = provider.getEPAdministrator().createEPL("create window ItemWindow.std:unique(itemId) select * from MyRevisionType");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("create window ItemWindow#unique(itemId) select * from MyRevisionType");
         provider.getEPAdministrator().createEPL("insert into ItemWindow select * from MyBaseEvent");
         provider.getEPAdministrator().createEPL("insert into ItemWindow select * from MyUpdateEvent");
 

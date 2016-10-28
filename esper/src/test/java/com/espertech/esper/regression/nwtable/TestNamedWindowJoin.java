@@ -64,7 +64,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean_S0.class);
         epService.getEPAdministrator().getConfiguration().addEventType("S1", SupportBean_S1.class);
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on S1 as s1 delete from MyWindow where s1.p10 = theString");
 
@@ -107,7 +107,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
 
         // compile a non-unidirectional query, join and subquery
         epService.getEPAdministrator().createEPL("select window(win.*) from MyWindow as win");
-        epService.getEPAdministrator().createEPL("select window(win.*) as c0 from S0.std:lastevent() as s0, MyWindow as win");
+        epService.getEPAdministrator().createEPL("select window(win.*) as c0 from S0#lastevent() as s0, MyWindow as win");
         epService.getEPAdministrator().createEPL("select (select window(win.*) from MyWindow as win) from S0");
     }
 
@@ -235,11 +235,11 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema Product (product string, size int)");
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtOne.getEventType().getUnderlyingType());
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema Portfolio (portfolio string, product string)");
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window ProductWin.win:keepall() as Product");
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window ProductWin#keepall() as Product");
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtTwo.getEventType().getUnderlyingType());
 
         epService.getEPAdministrator().createEPL("insert into ProductWin select * from Product");
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window PortfolioWin.win:keepall() as Portfolio");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window PortfolioWin#keepall() as Portfolio");
         epService.getEPAdministrator().createEPL("insert into PortfolioWin select * from Portfolio");
 
         sendProduct(eventRepresentationEnum, "productA", 1);
@@ -294,13 +294,13 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         // Test for ESPER-187 Join of two or more named windows on late start may not return correct aggregation state on iterate
 
         // create window for Leave events
-        String stmtTextCreate = "create window WindowLeave.win:time(6000) as select timeLeave, id, location from " + SupportQueueLeave.class.getName();
+        String stmtTextCreate = "create window WindowLeave#time(6000) as select timeLeave, id, location from " + SupportQueueLeave.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         String stmtTextInsert = "insert into WindowLeave select timeLeave, id, location from " + SupportQueueLeave.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextInsert);
 
         // create second window for enter events
-        stmtTextCreate = "create window WindowEnter.win:time(6000) as select location, sku, timeEnter, id from " + SupportQueueEnter.class.getName();
+        stmtTextCreate = "create window WindowEnter#time(6000) as select location, sku, timeEnter, id from " + SupportQueueEnter.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtTextInsert = "insert into WindowEnter select location, sku, timeEnter, id from " + SupportQueueEnter.class.getName();
         epService.getEPAdministrator().createEPL(stmtTextInsert);
@@ -395,7 +395,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     public void testFullOuterJoinNamedAggregationLateStart()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.std:groupwin(theString, intPrimitive).win:length(3) as select theString, intPrimitive, boolPrimitive from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#groupwin(theString, intPrimitive)#length(3) as select theString, intPrimitive, boolPrimitive from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create insert into
@@ -425,7 +425,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
 
         // create select stmt
         String stmtTextSelect = "select theString, intPrimitive, count(boolPrimitive) as cntBool, symbol " +
-                                "from MyWindow full outer join " + SupportMarketDataBean.class.getName() + ".win:keepall() " +
+                                "from MyWindow full outer join " + SupportMarketDataBean.class.getName() + "#keepall() " +
                                 "on theString = symbol " +
                                 "group by theString, intPrimitive, symbol order by theString, intPrimitive, symbol";
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(stmtTextSelect);
@@ -467,7 +467,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     public void testJoinNamedAndStream()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -482,7 +482,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         // create consumer
         String[] fields = new String[] {"symbol", "a", "b"};
         String stmtTextSelectOne = "select irstream symbol, a, b " +
-                                   " from " + SupportMarketDataBean.class.getName() + ".win:length(10) as s0," +
+                                   " from " + SupportMarketDataBean.class.getName() + "#length(10) as s0," +
                                              "MyWindow as s1 where s1.a = symbol";
         EPStatement stmtSelectOne = epService.getEPAdministrator().createEPL(stmtTextSelectOne);
         stmtSelectOne.addListener(listenerStmtOne);
@@ -530,12 +530,12 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         String[] fields = new String[] {"a1", "b1", "a2", "b2"};
 
         // create window
-        String stmtTextCreateOne = "create window MyWindowOne.win:keepall() as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
+        String stmtTextCreateOne = "create window MyWindowOne#keepall() as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listenerWindow);
 
         // create window
-        String stmtTextCreateTwo = "create window MyWindowTwo.win:keepall() as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
+        String stmtTextCreateTwo = "create window MyWindowTwo#keepall() as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listenerWindowTwo);
 
@@ -599,7 +599,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         String[] fields = new String[] {"a0", "b0", "a1", "b1"};
 
         // create window
-        String stmtTextCreateOne = "create window MyWindow.win:keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreateOne = "create window MyWindow#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listenerWindow);
 
@@ -636,12 +636,12 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         String[] fields = new String[] {"a1", "b1", "a2", "b2"};
 
         // create window
-        String stmtTextCreateOne = "create window MyWindowOne.win:keepall() as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
+        String stmtTextCreateOne = "create window MyWindowOne#keepall() as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listenerWindow);
 
         // create window
-        String stmtTextCreateTwo = "create window MyWindowTwo.win:keepall() as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
+        String stmtTextCreateTwo = "create window MyWindowTwo#keepall() as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listenerWindowTwo);
 
@@ -704,10 +704,10 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL("select w.* from MyWindow w unidirectional, SupportBean_A.std:lastevent() s where s.id = w.theString");
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL("select w.* from MyWindow w unidirectional, SupportBean_A#lastevent() s where s.id = w.theString");
         stmtOne.addListener(listenerStmtOne);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));

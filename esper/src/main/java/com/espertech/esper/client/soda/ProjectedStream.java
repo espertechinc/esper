@@ -93,6 +93,18 @@ public abstract class ProjectedStream extends Stream
     }
 
     /**
+     * Adds a parameterized view to the stream.
+     * @param name is the view name, for example "length" for a length window
+     * @param parameters is a list of view parameters
+     * @return stream
+     */
+    public ProjectedStream addView(String name, Expression ...parameters)
+    {
+        views.add(View.create(null, name, parameters));
+        return this;
+    }
+
+    /**
      * Add a view to the stream.
      * @param view to add
      * @return stream
@@ -222,13 +234,25 @@ public abstract class ProjectedStream extends Stream
     {
         if ((views != null) && (views.size() != 0))
         {
-            writer.write('.');
-            String delimiter = "";
-            for (View view : views)
-            {
-                writer.write(delimiter);
-                view.toEPL(writer);
-                delimiter = ".";
+            if (views.iterator().next().getNamespace() == null) {
+                writer.write('#');
+                String delimiter = "";
+                for (View view : views)
+                {
+                    writer.write(delimiter);
+                    view.toEPLWithHash(writer);
+                    delimiter = "#";
+                }
+            }
+            else {
+                writer.write('.');
+                String delimiter = "";
+                for (View view : views)
+                {
+                    writer.write(delimiter);
+                    view.toEPL(writer);
+                    delimiter = ".";
+                }
             }
         }
     }

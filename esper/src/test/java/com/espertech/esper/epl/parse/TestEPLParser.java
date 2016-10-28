@@ -83,49 +83,49 @@ public class TestEPLParser extends TestCase
         assertIsInvalid("select a] from com.xxx().std:win(3)");
         assertIsInvalid("select * from com.xxx().std:win(3) where b('aaa)=5");
 
-        assertIsInvalid("select sum() from b.win:length(1)");
-        assertIsInvalid("select sum(1+) from b.win:length(1)");
-        assertIsInvalid("select sum(distinct) from b.win:length(1)");
-        assertIsInvalid("select sum(distinct distinct a) from b.win:length(1)");
-        assertIsInvalid("select avg() from b.win:length(1)");
-        assertIsInvalid("select count() from b.win:length(1)");
-        assertIsInvalid("select count(* *) from b.win:length(1)");
-        assertIsInvalid("select count(*2) from b.win:length(1)");
-        assertIsInvalid("select median() from b.win:length(1)");
-        assertIsInvalid("select stddev() from b.win:length(1)");
-        assertIsInvalid("select stddev(distinct) from b.win:length(1)");
-        assertIsInvalid("select avedev() from b.win:length(1)");
-        assertIsInvalid("select avedev(distinct) from b.win:length(1)");
+        assertIsInvalid("select sum() from b#length(1)");
+        assertIsInvalid("select sum(1+) from b#length(1)");
+        assertIsInvalid("select sum(distinct) from b#length(1)");
+        assertIsInvalid("select sum(distinct distinct a) from b#length(1)");
+        assertIsInvalid("select avg() from b#length(1)");
+        assertIsInvalid("select count() from b#length(1)");
+        assertIsInvalid("select count(* *) from b#length(1)");
+        assertIsInvalid("select count(*2) from b#length(1)");
+        assertIsInvalid("select median() from b#length(1)");
+        assertIsInvalid("select stddev() from b#length(1)");
+        assertIsInvalid("select stddev(distinct) from b#length(1)");
+        assertIsInvalid("select avedev() from b#length(1)");
+        assertIsInvalid("select avedev(distinct) from b#length(1)");
 
         // group-by
-        assertIsInvalid("select 1 from b.win:length(1) group by");
-        assertIsInvalid("select 1 from b.win:length(1) group by group");
-        assertIsInvalid("select 1 from b.win:length(1) group a");
-        assertIsInvalid("select 1 from b.win:length(1) group by a group by b");
-        assertIsInvalid("select 1 from b.win:length(1) by a ");
-        assertIsInvalid("select 1 from b.win:length(1) group by a a");
-        assertIsInvalid("select 1 from b.win:length(1) group by a as dummy");
+        assertIsInvalid("select 1 from b#length(1) group by");
+        assertIsInvalid("select 1 from b#length(1) group by group");
+        assertIsInvalid("select 1 from b#length(1) group a");
+        assertIsInvalid("select 1 from b#length(1) group by a group by b");
+        assertIsInvalid("select 1 from b#length(1) by a ");
+        assertIsInvalid("select 1 from b#length(1) group by a a");
+        assertIsInvalid("select 1 from b#length(1) group by a as dummy");
 
         // having
-        assertIsInvalid("select 1 from b.win:length(1) group by a having a>5,b<4");
+        assertIsInvalid("select 1 from b#length(1) group by a having a>5,b<4");
 
         // insert into
-        assertIsInvalid("insert into select 1 from b.win:length(1)");
-        assertIsInvalid("insert into 38484 select 1 from b.win:length(1)");
-        assertIsInvalid("insert into A B select 1 from b.win:length(1)");
-        assertIsInvalid("insert into A (a,) select 1 from b.win:length(1)");
-        assertIsInvalid("insert into A (,) select 1 from b.win:length(1)");
-        assertIsInvalid("insert into A(,a) select 1 from b.win:length(1)");
-        assertIsInvalid("insert xxx into A(,a) select 1 from b.win:length(1)");
+        assertIsInvalid("insert into select 1 from b#length(1)");
+        assertIsInvalid("insert into 38484 select 1 from b#length(1)");
+        assertIsInvalid("insert into A B select 1 from b#length(1)");
+        assertIsInvalid("insert into A (a,) select 1 from b#length(1)");
+        assertIsInvalid("insert into A (,) select 1 from b#length(1)");
+        assertIsInvalid("insert into A(,a) select 1 from b#length(1)");
+        assertIsInvalid("insert xxx into A(,a) select 1 from b#length(1)");
 
         assertIsInvalid("select coalesce(processTimeEvent.price) from x");
 
         // time periods
-        assertIsInvalid("select * from x.win:time(sec 99)");
-        assertIsInvalid("select * from x.win:time(99 min min)");
-        assertIsInvalid("select * from x.win:time(88 sec day)");
-        assertIsInvalid("select * from x.win:time(1 sec 88 days)");
-        assertIsInvalid("select * from x.win:time(1 day 2 hours 1 day)");
+        assertIsInvalid("select * from x#time(sec 99)");
+        assertIsInvalid("select * from x#time(99 min min)");
+        assertIsInvalid("select * from x#time(88 sec day)");
+        assertIsInvalid("select * from x#time(1 sec 88 days)");
+        assertIsInvalid("select * from x#time(1 day 2 hours 1 day)");
 
         // in
         assertIsInvalid("select * from x where a in()");
@@ -167,9 +167,9 @@ public class TestEPLParser extends TestCase
         assertIsInvalid("select (select a from ) from x");
         assertIsInvalid("select (select from X) from x");
         assertIsInvalid("select * from x where (select q from pattern [A->B])");
-        assertIsInvalid("select c from A where q*9 in in (select g*5 from C.win:length(100)) and r=6");
-        assertIsInvalid("select c from A in (select g*5 from C.win:length(100)) and r=6");
-        assertIsInvalid("select c from A where a in (select g*5 from C.win:length(100)) 9");
+        assertIsInvalid("select c from A where q*9 in in (select g*5 from C#length(100)) and r=6");
+        assertIsInvalid("select c from A in (select g*5 from C#length(100)) and r=6");
+        assertIsInvalid("select c from A where a in (select g*5 from C#length(100)) 9");
 
         // Substitution parameters
         assertIsInvalid("select ? ? from A");
@@ -194,7 +194,7 @@ public class TestEPLParser extends TestCase
         assertIsInvalid("create window AAA as , *, b from MyType");
         assertIsInvalid("create window as select a from MyType");
         assertIsInvalid("create window AAA as select from MyType");
-        assertIsInvalid("create window AAA.win:length(10)");
+        assertIsInvalid("create window AAA#length(10)");
         assertIsInvalid("create window AAA");
         assertIsInvalid("create window AAA as select a*5 from MyType");
 
@@ -207,7 +207,7 @@ public class TestEPLParser extends TestCase
 
         // on-select statement
         assertIsInvalid("on MyEvent select from MyNamedWindow");
-        assertIsInvalid("on MyEvent select * from MyNamedWindow.win:time(30)");
+        assertIsInvalid("on MyEvent select * from MyNamedWindow#time(30)");
         assertIsInvalid("on MyEvent select * from MyNamedWindow where");
         assertIsInvalid("on MyEvent insert into select * from MyNamedWindow");
         assertIsInvalid("on MyEvent select a,c,b where a=y select 1,2,2,2 where 2=4");
@@ -283,18 +283,18 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + "().win:lenght('s')");
         assertIsValid(preFill + "().win:lenght('s',5)");
         assertIsValid(preFill + "().win:lenght({'s','t'},5)");
-        assertIsValid(preFill + "().win:some_window('count','l','a').std:lastevent('s','tyr')");
+        assertIsValid(preFill + "().win:some_window('count','l','a').win:lastevent('s','tyr')");
         assertIsValid(preFill + "().win:some_view({'count'},'l','a')");
         assertIsValid(preFill + "().win:some_view({})");
         assertIsValid(preFill + "(string != 'test').win:lenght(100)");
         assertIsValid(preFill + "(string in (1:2) or katc=3 or lax like '%e%')");
         assertIsValid(preFill + "(string in (1:2) and dodo=3, lax like '%e%' and oppol / yyy = 5, yunc(3))");
         assertIsValid(preFill + "()[myprop]");
-        assertIsValid(preFill + "[myprop].win:keepall()");
-        assertIsValid(preFill + "[myprop as orderId][mythirdprop].win:keepall()");
-        assertIsValid(preFill + "[select *, abc, a.b from myprop as orderId where a=s][mythirdprop].win:keepall()");
-        assertIsValid(preFill + "[xyz][select *, abc, a.b from myprop].win:keepall()");
-        assertIsValid(preFill + "[xyz][myprop where a=x].win:keepall()");
+        assertIsValid(preFill + "[myprop]#keepall()");
+        assertIsValid(preFill + "[myprop as orderId][mythirdprop]#keepall()");
+        assertIsValid(preFill + "[select *, abc, a.b from myprop as orderId where a=s][mythirdprop]#keepall()");
+        assertIsValid(preFill + "[xyz][select *, abc, a.b from myprop]#keepall()");
+        assertIsValid(preFill + "[xyz][myprop where a=x]#keepall()");
         assertIsValid("select * from A where (select * from B[myprop])");
 
         assertIsValid("select max(intPrimitive, intBoxed) from " + className + "().std:win(20)");
@@ -352,52 +352,52 @@ public class TestEPLParser extends TestCase
                       "left outer join " +
                       "B" +
                       " on a = b and c=d");
-        assertIsValid("select a and b from b.win:length(1)");
-        assertIsValid("select a or b from b.win:length(1)");
-        assertIsValid("select a = b from b.win:length(1)");
-        assertIsValid("select a != b from b.win:length(1)");
-        assertIsValid("select a.* from b.win:length(1) as a");
-        assertIsValid("select a.* as myfield from b.win:length(1) as abc");
-        assertIsValid("select a.*, b.*, c.* from b.win:length(1) as a");
-        assertIsValid("select a.* as x1, b.* as x2, x.* as x3 from b.win:length(1) as a, t as x");
+        assertIsValid("select a and b from b#length(1)");
+        assertIsValid("select a or b from b#length(1)");
+        assertIsValid("select a = b from b#length(1)");
+        assertIsValid("select a != b from b#length(1)");
+        assertIsValid("select a.* from b#length(1) as a");
+        assertIsValid("select a.* as myfield from b#length(1) as abc");
+        assertIsValid("select a.*, b.*, c.* from b#length(1) as a");
+        assertIsValid("select a.* as x1, b.* as x2, x.* as x3 from b#length(1) as a, t as x");
 
-        assertIsValid("select sum(a), avg(b) from b.win:length(1)");
-        assertIsValid("select sum(all a), avg(all b), avg(all b/c) from b.win:length(1)");
-        assertIsValid("select sum(distinct a), avg(distinct b) from b.win:length(1)");
-        assertIsValid("select sum(sum(a)) from b.win:length(1)");
-        assertIsValid("select sum(3*a), sum(a - b - c) from b.win:length(1)");
-        assertIsValid("select count(*), count(a), count(all b), count(distinct 2*a), count(5*a/2) from b.win:length(1)");
-        assertIsValid("select max(volume), min(volume), min(all volume/44), min(distinct 2*a), max(distinct 5*a/2) from b.win:length(1)");
-        assertIsValid("select median(volume), median(all volume*2/3), median(distinct 2*a) from b.win:length(1)");
-        assertIsValid("select stddev(volume), stddev(all volume), stddev(distinct 2*a) from b.win:length(1)");
-        assertIsValid("select avedev(volume), avedev(all volume), avedev(distinct 2*a) from b.win:length(1)");
+        assertIsValid("select sum(a), avg(b) from b#length(1)");
+        assertIsValid("select sum(all a), avg(all b), avg(all b/c) from b#length(1)");
+        assertIsValid("select sum(distinct a), avg(distinct b) from b#length(1)");
+        assertIsValid("select sum(sum(a)) from b#length(1)");
+        assertIsValid("select sum(3*a), sum(a - b - c) from b#length(1)");
+        assertIsValid("select count(*), count(a), count(all b), count(distinct 2*a), count(5*a/2) from b#length(1)");
+        assertIsValid("select max(volume), min(volume), min(all volume/44), min(distinct 2*a), max(distinct 5*a/2) from b#length(1)");
+        assertIsValid("select median(volume), median(all volume*2/3), median(distinct 2*a) from b#length(1)");
+        assertIsValid("select stddev(volume), stddev(all volume), stddev(distinct 2*a) from b#length(1)");
+        assertIsValid("select avedev(volume), avedev(all volume), avedev(distinct 2*a) from b#length(1)");
 
         // group-by
-        assertIsValid("select sum(a), x, y from b.win:length(1) group by a");
-        assertIsValid("select 1 from b.win:length(1) where a=b and b=d group by a,b,3*x,max(4, 3),'a', \"a\", true, 5*(1+a+y/2)");
-        assertIsValid("select 1 from b.win:length(1) where a"); // since a could be a boolean
-        assertIsValid("select sum(distinct a), x, y from b.win:length(1) group by a");
+        assertIsValid("select sum(a), x, y from b#length(1) group by a");
+        assertIsValid("select 1 from b#length(1) where a=b and b=d group by a,b,3*x,max(4, 3),'a', \"a\", true, 5*(1+a+y/2)");
+        assertIsValid("select 1 from b#length(1) where a"); // since a could be a boolean
+        assertIsValid("select sum(distinct a), x, y from b#length(1) group by a");
 
         // having
-        assertIsValid("select sum(a), x, y from b.win:length(1) group by a having x > y");
-        assertIsValid("select 1 from b.win:length(1) where a=b and b=d group by a having (max(3*b - 2, 5) > 1) or 'a'=b");
-        assertIsValid("select 1 from b.win:length(1) group by a having a");   // a could be boolean
-        assertIsValid("select 1 from b.win:length(1) having a>5");
-        assertIsValid("SELECT 1 FROM b.win:length(1) WHERE a=b AND b=d GROUP BY a HAVING (max(3*b - 2, 5) > 1) OR 'a'=b");
+        assertIsValid("select sum(a), x, y from b#length(1) group by a having x > y");
+        assertIsValid("select 1 from b#length(1) where a=b and b=d group by a having (max(3*b - 2, 5) > 1) or 'a'=b");
+        assertIsValid("select 1 from b#length(1) group by a having a");   // a could be boolean
+        assertIsValid("select 1 from b#length(1) having a>5");
+        assertIsValid("SELECT 1 FROM b#length(1) WHERE a=b AND b=d GROUP BY a HAVING (max(3*b - 2, 5) > 1) OR 'a'=b");
 
         // insert into
-        assertIsValid("insert into MyEvent select 1 from b.win:length(1)");
-        assertIsValid("insert into MyEvent (a) select 1 from b.win:length(1)");
-        assertIsValid("insert into MyEvent (a, b) select 1 from b.win:length(1)");
-        assertIsValid("insert into MyEvent (a, b, c) select 1 from b.win:length(1)");
-        assertIsValid("insert istream into MyEvent select 1 from b.win:length(1)");
-        assertIsValid("insert rstream into MyEvent select 1 from b.win:length(1)");
+        assertIsValid("insert into MyEvent select 1 from b#length(1)");
+        assertIsValid("insert into MyEvent (a) select 1 from b#length(1)");
+        assertIsValid("insert into MyEvent (a, b) select 1 from b#length(1)");
+        assertIsValid("insert into MyEvent (a, b, c) select 1 from b#length(1)");
+        assertIsValid("insert istream into MyEvent select 1 from b#length(1)");
+        assertIsValid("insert rstream into MyEvent select 1 from b#length(1)");
 
         // pattern inside
         assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "]");
         assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "] as xyz");
-        assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "].win:length(100) as xyz");
-        assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "].win:length(100).std:someview() as xyz");
+        assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "]#length(100) as xyz");
+        assertIsValid("select * from pattern [a=" + SupportBean.class.getName() + "]#length(100)#someview() as xyz");
         assertIsValid("select * from xxx");
         assertIsValid("select rstream * from xxx");
         assertIsValid("select istream * from xxx");
@@ -410,33 +410,33 @@ public class TestEPLParser extends TestCase
         assertIsValid("select coalesce(processTimeEvent.price, processTimeEvent.price, processTimeEvent.price, processTimeEvent.price) from x");
 
         // time intervals
-        assertIsValid("select * from x.win:time(1 seconds)");
-        assertIsValid("select * from x.win:time(1.5 second)");
-        assertIsValid("select * from x.win:time(120230L sec)");
-        assertIsValid("select * from x.win:time(1.5d milliseconds)");
-        assertIsValid("select * from x.win:time(1E30 millisecond)");
-        assertIsValid("select * from x.win:time(1.0 msec)");
-        assertIsValid("select * from x.win:time(0001 minutes)");
-        assertIsValid("select * from x.win:time(.1 minute)");
-        assertIsValid("select * from x.win:time(1.1111001 min)");
-        assertIsValid("select * from x.win:time(5 hours)");
-        assertIsValid("select * from x.win:time(5 hour)");
-        assertIsValid("select * from x.win:time(5 days)");
-        assertIsValid("select * from x.win:time(5 day)");
-        assertIsValid("select * from x.win:time(3 years 1 month 2 weeks 5 days 2 hours 88 minutes 1 seconds 9.8 milliseconds)");
-        assertIsValid("select * from x.win:time(5 days 2 hours 88 minutes 1 seconds 9.8 milliseconds)");
-        assertIsValid("select * from x.win:time(5 day 2 hour 88 minute 1 second 9.8 millisecond)");
-        assertIsValid("select * from x.win:time(5 days 2 hours 88 minutes 1 seconds)");
-        assertIsValid("select * from x.win:time(5 days 2 hours 88 minutes)");
-        assertIsValid("select * from x.win:time(5 days 2 hours)");
-        assertIsValid("select * from x.win:time(2 hours 88 minutes 1 seconds 9.8 milliseconds)");
-        assertIsValid("select * from x.win:time(2 hours 88 minutes 1 seconds)");
-        assertIsValid("select * from x.win:time(2 hours 88 minutes)");
-        assertIsValid("select * from x.win:time(88 minutes 1 seconds 9.8 milliseconds)");
-        assertIsValid("select * from x.win:time(88 minutes 1 seconds)");
-        assertIsValid("select * from x.win:time(1 seconds 9.8 milliseconds)");
-        assertIsValid("select * from x.win:time(1 seconds 9.8 milliseconds).win:goodie(1 sec)");
-        assertIsValid("select * from x.win:time(1 seconds 9.8 milliseconds).win:goodie(1 sec).win:otto(1.1 days 1.1 msec)");
+        assertIsValid("select * from x#time(1 seconds)");
+        assertIsValid("select * from x#time(1.5 second)");
+        assertIsValid("select * from x#time(120230L sec)");
+        assertIsValid("select * from x#time(1.5d milliseconds)");
+        assertIsValid("select * from x#time(1E30 millisecond)");
+        assertIsValid("select * from x#time(1.0 msec)");
+        assertIsValid("select * from x#time(0001 minutes)");
+        assertIsValid("select * from x#time(.1 minute)");
+        assertIsValid("select * from x#time(1.1111001 min)");
+        assertIsValid("select * from x#time(5 hours)");
+        assertIsValid("select * from x#time(5 hour)");
+        assertIsValid("select * from x#time(5 days)");
+        assertIsValid("select * from x#time(5 day)");
+        assertIsValid("select * from x#time(3 years 1 month 2 weeks 5 days 2 hours 88 minutes 1 seconds 9.8 milliseconds)");
+        assertIsValid("select * from x#time(5 days 2 hours 88 minutes 1 seconds 9.8 milliseconds)");
+        assertIsValid("select * from x#time(5 day 2 hour 88 minute 1 second 9.8 millisecond)");
+        assertIsValid("select * from x#time(5 days 2 hours 88 minutes 1 seconds)");
+        assertIsValid("select * from x#time(5 days 2 hours 88 minutes)");
+        assertIsValid("select * from x#time(5 days 2 hours)");
+        assertIsValid("select * from x#time(2 hours 88 minutes 1 seconds 9.8 milliseconds)");
+        assertIsValid("select * from x#time(2 hours 88 minutes 1 seconds)");
+        assertIsValid("select * from x#time(2 hours 88 minutes)");
+        assertIsValid("select * from x#time(88 minutes 1 seconds 9.8 milliseconds)");
+        assertIsValid("select * from x#time(88 minutes 1 seconds)");
+        assertIsValid("select * from x#time(1 seconds 9.8 milliseconds)");
+        assertIsValid("select * from x#time(1 seconds 9.8 milliseconds)#goodie(1 sec)");
+        assertIsValid("select * from x#time(1 seconds 9.8 milliseconds)#win:goodie(1 sec)#win:otto(1.1 days 1.1 msec)");
 
         // in
         assertIsValid("select * from x where a in('a')");
@@ -506,9 +506,9 @@ public class TestEPLParser extends TestCase
         assertIsValid("select (select a, b,c from B) from x");
         assertIsValid("select (select a||b||c from B) from x");
         assertIsValid("select (select 3*222 from B) from x");
-        assertIsValid("select (select 3*222 from B.win:length(100)) from x");
-        assertIsValid("select (select x from B.win:length(100) where a=b) from x");
-        assertIsValid("select (select x from B.win:length(100) where a=b), (select y from C.w:g().e:o(11)) from x");
+        assertIsValid("select (select 3*222 from B#length(100)) from x");
+        assertIsValid("select (select x from B#length(100) where a=b) from x");
+        assertIsValid("select (select x from B#length(100) where a=b), (select y from C.w:g().e:o(11)) from x");
         assertIsValid("select 3 + (select a from B) from x");
         assertIsValid("select (select x from B) / 100, 9 * (select y from C.w:g().e:o(11))/2 from x");
         assertIsValid("select * from x where id = (select a from B)");
@@ -524,7 +524,7 @@ public class TestEPLParser extends TestCase
         assertIsValid("select c in (select * from C) from A");
         assertIsValid("select c from A where b in (select * from C)");
         assertIsValid("select c from A where b not in (select b from C)");
-        assertIsValid("select c from A where q*9 not in (select g*5 from C.win:length(100)) and r=6");
+        assertIsValid("select c from A where q*9 not in (select g*5 from C#length(100)) and r=6");
 
         // dynamic properties
         assertIsValid("select b.c.d? from E");
@@ -549,7 +549,7 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + " where string=? and ?=val");
         assertIsValid(preFill + " having avg(volume) > ?");
         assertIsValid(preFill + " having avg(?) > ?");
-        assertIsValid("select sum(?) from b.win:length(1)");
+        assertIsValid("select sum(?) from b#length(1)");
         assertIsValid("select ?||'a' from B(a=?) where c=? group by ? having d>? output every 10 events order by a, ?");
         assertIsValid("select a from B output snapshot every 10 events order by a, ?");
 
@@ -575,7 +575,7 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + "(isnumeric(\"aa\"))");
 
         // timestamp
-        assertIsValid("select timestamp() from B.win:length(1)");
+        assertIsValid("select timestamp() from B#length(1)");
 
         // named window
         assertIsValid("create window AAA as MyType");
@@ -583,11 +583,11 @@ public class TestEPLParser extends TestCase
         assertIsValid("create window AAA as select * from MyType");
         assertIsValid("create window AAA as select a, *, b from MyType");
         assertIsValid("create window AAA as select a from MyType");
-        assertIsValid("create window AAA.win:length(10) select a from MyType");
+        assertIsValid("create window AAA#length(10) select a from MyType");
         assertIsValid("create window AAA select a from MyType");
-        assertIsValid("create window AAA.win:length(10) as select a from MyType");
-        assertIsValid("create window AAA.win:length(10) as select a,b from MyType");
-        assertIsValid("create window AAA.win:length(10).win:time(1 sec) as select a,b from MyType");
+        assertIsValid("create window AAA#length(10) as select a from MyType");
+        assertIsValid("create window AAA#length(10) as select a,b from MyType");
+        assertIsValid("create window AAA#length(10)#time(1 sec) as select a,b from MyType");
         assertIsValid("create window AAA as select 0 as val, 2 as noway, '' as stringval, true as boolval from MyType");
         assertIsValid("create window AAA as (a b, c d, e f)");
         assertIsValid("create window AAA (a b, c d, e f)");

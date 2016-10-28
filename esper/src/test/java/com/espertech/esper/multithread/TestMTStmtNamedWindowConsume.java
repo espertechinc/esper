@@ -49,7 +49,7 @@ public class TestMTStmtNamedWindowConsume extends TestCase
     public void testNamedWindow() throws Exception
     {
         EPStatement stmtWindow = engine.getEPAdministrator().createEPL(
-                "create window MyWindow.win:keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
+                "create window MyWindow#keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
         listenerWindow = new SupportMTUpdateListener();
         stmtWindow.addListener(listenerWindow);
 

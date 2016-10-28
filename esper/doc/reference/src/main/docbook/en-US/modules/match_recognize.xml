@@ -1625,7 +1625,7 @@ match_recognize (
 		<para>
 			The next example looks for four sensor events from the same device immediately following each other and indicating a rising temperature, but only events that arrived in the last 10 seconds are considered:
 		</para>
-		<programlisting><![CDATA[select * from TemperatureSensorEvent.win:time(10 sec)
+		<programlisting><![CDATA[select * from TemperatureSensorEvent#time(10 sec)
 match_recognize (
 partition by device
 measures A.id as a_id
@@ -1942,7 +1942,7 @@ insert into MyVariantStream select * from S0]]></programlisting>
 insert into MyVariantStream select * from S1]]></programlisting>
 
 		<programlisting><![CDATA[// Simple pattern to match S0 S1 pairs
-select * from MyVariantType.win:time(1 min)
+select * from MyVariantType#time(1 min)
 match_recognize (
   measures A.id? as a, B.id? as b
   pattern (A B)

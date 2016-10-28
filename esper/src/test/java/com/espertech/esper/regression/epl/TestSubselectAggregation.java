@@ -94,7 +94,7 @@ public class TestSubselectAggregation extends TestCase
     public void testCorrelatedAggregationSelectEquals()
     {
         String stmtText = "select p00, " +
-                "(select sum(intPrimitive) from SupportBean.win:keepall() where theString = s0.p00) as sump00 " +
+                "(select sum(intPrimitive) from SupportBean#keepall() where theString = s0.p00) as sump00 " +
                 "from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -123,10 +123,10 @@ public class TestSubselectAggregation extends TestCase
         // test distinct
         fields = "theString,c0,c1,c2,c3".split(",");
         String viewExpr = "select theString, " +
-                "(select count(sb.intPrimitive) from SupportBean().win:keepall() as sb where bean.theString = sb.theString) as c0, " +
-                "(select count(distinct sb.intPrimitive) from SupportBean().win:keepall() as sb where bean.theString = sb.theString) as c1, " +
-                "(select count(sb.intPrimitive, true) from SupportBean().win:keepall() as sb where bean.theString = sb.theString) as c2, " +
-                "(select count(distinct sb.intPrimitive, true) from SupportBean().win:keepall() as sb where bean.theString = sb.theString) as c3 " +
+                "(select count(sb.intPrimitive) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c0, " +
+                "(select count(distinct sb.intPrimitive) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c1, " +
+                "(select count(sb.intPrimitive, true) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c2, " +
+                "(select count(distinct sb.intPrimitive, true) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c3 " +
                 "from SupportBean as bean";
         stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);
@@ -147,14 +147,14 @@ public class TestSubselectAggregation extends TestCase
     public void testCorrelatedAggregationWhereGreater()
     {
         String stmtText = "select p00 from S0 as s0 where id > " +
-                "(select sum(intPrimitive) from SupportBean.win:keepall() where theString = s0.p00)";
+                "(select sum(intPrimitive) from SupportBean#keepall() where theString = s0.p00)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
         runAssertionCorrAggWhereGreater();
 
         stmtText = "select p00 from S0 as s0 where id > " +
-                "(select sum(intPrimitive) from SupportBean.win:keepall() where theString||'X' = s0.p00||'X')";
+                "(select sum(intPrimitive) from SupportBean#keepall() where theString||'X' = s0.p00||'X')";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -186,7 +186,7 @@ public class TestSubselectAggregation extends TestCase
     public void testPriceMap()
     {
         String stmtText = "select * from MarketData " +
-                "where price > (select max(price) from MarketData(symbol='GOOG').std:lastevent()) ";
+                "where price > (select max(price) from MarketData(symbol='GOOG')#lastevent()) ";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -202,7 +202,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testCorrelatedPropertiesSelected()
     {
-        String stmtText = "select (select s0.id + max(s1.id) from S1.win:length(3) as s1) as value from S0 as s0";
+        String stmtText = "select (select s0.id + max(s1.id) from S1#length(3) as s1) as value from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -220,7 +220,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testExists()
     {
-        String stmtText = "select id from S0 where exists (select max(id) from S1.win:length(3))";
+        String stmtText = "select id from S0 where exists (select max(id) from S1#length(3))";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -234,7 +234,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testIn()
     {
-        String stmtText = "select id from S0 where id in (select max(id) from S1.win:length(2))";
+        String stmtText = "select id from S0 where id in (select max(id) from S1#length(2))";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -259,7 +259,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testMaxUnfiltered()
     {
-        String stmtText = "select (select max(id) from S1.win:length(3)) as value from S0";
+        String stmtText = "select (select max(id) from S1#length(3)) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         
@@ -289,7 +289,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testAvgMaxStopStart()
     {
-        String stmtText = "select (select avg(id) + max(id) from S1.win:length(3)) as value from S0";
+        String stmtText = "select (select avg(id) + max(id) from S1#length(3)) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -317,7 +317,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testSumFilteredEvent()
     {
-        String stmtText = "select (select sum(id) from S1(id < 0).win:length(3)) as value from S0";
+        String stmtText = "select (select sum(id) from S1(id < 0)#length(3)) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -326,7 +326,7 @@ public class TestSubselectAggregation extends TestCase
 
     public void testSumFilteredWhere()
     {
-        String stmtText = "select (select sum(id) from S1.win:length(3) where id < 0) as value from S0";
+        String stmtText = "select (select sum(id) from S1#length(3) where id < 0) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -337,14 +337,14 @@ public class TestSubselectAggregation extends TestCase
     {
         tryInvalid("", "Unexpected end-of-input []");
 
-        String stmtText = "select (select sum(s0.id) from S1.win:length(3) as s1) as value from S0 as s0";
-        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect aggregation functions cannot aggregate across correlated properties [select (select sum(s0.id) from S1.win:length(3) as s1) as value from S0 as s0]");
+        String stmtText = "select (select sum(s0.id) from S1#length(3) as s1) as value from S0 as s0";
+        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect aggregation functions cannot aggregate across correlated properties [select (select sum(s0.id) from S1#length(3) as s1) as value from S0 as s0]");
 
-        stmtText = "select (select s1.id + sum(s1.id) from S1.win:length(3) as s1) as value from S0 as s0";
-        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect properties must all be within aggregation functions [select (select s1.id + sum(s1.id) from S1.win:length(3) as s1) as value from S0 as s0]");
+        stmtText = "select (select s1.id + sum(s1.id) from S1#length(3) as s1) as value from S0 as s0";
+        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect properties must all be within aggregation functions [select (select s1.id + sum(s1.id) from S1#length(3) as s1) as value from S0 as s0]");
 
-        stmtText = "select (select sum(s0.id + s1.id) from S1.win:length(3) as s1) as value from S0 as s0";
-        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect aggregation functions cannot aggregate across correlated properties [select (select sum(s0.id + s1.id) from S1.win:length(3) as s1) as value from S0 as s0]");
+        stmtText = "select (select sum(s0.id + s1.id) from S1#length(3) as s1) as value from S0 as s0";
+        tryInvalid(stmtText, "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect aggregation functions cannot aggregate across correlated properties [select (select sum(s0.id + s1.id) from S1#length(3) as s1) as value from S0 as s0]");
     }
 
     private void tryInvalid(String stmtText, String message)

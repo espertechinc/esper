@@ -41,7 +41,7 @@ public class TestViewSize extends TestCase
 
     public void testSize()
     {
-        String statementText = "select irstream size from " + SupportMarketDataBean.class.getName() + ".std:size()";
+        String statementText = "select irstream size from " + SupportMarketDataBean.class.getName() + "#size()";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(statementText);
         selectTestView.addListener(listener);
 
@@ -52,7 +52,7 @@ public class TestViewSize extends TestCase
         assertSize(2, 1);
 
         selectTestView.destroy();
-        statementText = "select size, symbol, feed from " + SupportMarketDataBean.class.getName() + ".std:size(symbol, feed)";
+        statementText = "select size, symbol, feed from " + SupportMarketDataBean.class.getName() + "#size(symbol, feed)";
         selectTestView = epService.getEPAdministrator().createEPL(statementText);
         selectTestView.addListener(listener);
         String[] fields = "size,symbol,feed".split(",");

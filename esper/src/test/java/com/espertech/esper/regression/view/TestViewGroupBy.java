@@ -66,7 +66,7 @@ public class TestViewGroupBy extends TestCase
     public void testObjectArrayEvent() {
         String[] fields = "p1,sp2".split(",");
         epService.getEPAdministrator().getConfiguration().addEventType("MyOAEvent", new String[] {"p1","p2"}, new Object[] {String.class, int.class});
-        epService.getEPAdministrator().createEPL("select p1,sum(p2) as sp2 from MyOAEvent.std:groupwin(p1).win:length(2)").addListener(listener);
+        epService.getEPAdministrator().createEPL("select p1,sum(p2) as sp2 from MyOAEvent#groupwin(p1)#length(2)").addListener(listener);
         
         epService.getEPRuntime().sendEvent(new Object[] {"A", 10}, "MyOAEvent");
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"A", 10});
@@ -88,7 +88,7 @@ public class TestViewGroupBy extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         String query =
                 " @Hint('reclaim_group_aged=1,reclaim_group_freq=1') select Product.product as product, Product.productsize as productsize from Product unidirectional" +
-                " left outer join Product.win:time(3 seconds).std:groupwin(product,productsize).std:size() PrevProduct on Product.product=PrevProduct.product and Product.productsize=PrevProduct.productsize" +
+                " left outer join Product#time(3 seconds)#groupwin(product,productsize)#size() PrevProduct on Product.product=PrevProduct.product and Product.productsize=PrevProduct.productsize" +
                 " having PrevProduct.size<2";
         epService.getEPAdministrator().createEPL(query);
 
@@ -115,7 +115,7 @@ public class TestViewGroupBy extends TestCase
 
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().createEPL("@Hint('reclaim_group_aged=30,reclaim_group_freq=5') " +
-                "select longPrimitive, count(*) from SupportBean.std:groupwin(theString).win:time(3000000)");
+                "select longPrimitive, count(*) from SupportBean#groupwin(theString)#time(3000000)");
 
         for (int i = 0; i < 10; i++)
         {
@@ -147,7 +147,7 @@ public class TestViewGroupBy extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         String epl = "@Hint('reclaim_group_aged=5,reclaim_group_freq=1') " +
-                "select * from SupportBean.std:groupwin(theString).win:keepall()";
+                "select * from SupportBean#groupwin(theString)#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
 
         int maxSlots = 10;
@@ -166,7 +166,7 @@ public class TestViewGroupBy extends TestCase
 
     public void testInvalidGroupByNoChild()
     {
-        String stmtText = "select avg(price), symbol from " + SupportMarketDataBean.class.getName() + ".win:length(100).std:groupwin(symbol)";
+        String stmtText = "select avg(price), symbol from " + SupportMarketDataBean.class.getName() + "#length(100)#groupwin(symbol)";
 
         try
         {
@@ -174,7 +174,7 @@ public class TestViewGroupBy extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Invalid use of the 'std:groupwin' view, the view requires one or more child views to group, or consider using the group-by clause [select avg(price), symbol from com.espertech.esper.support.bean.SupportMarketDataBean.win:length(100).std:groupwin(symbol)]", ex.getMessage());
+            assertEquals("Error starting statement: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause [select avg(price), symbol from com.espertech.esper.support.bean.SupportMarketDataBean#length(100)#groupwin(symbol)]", ex.getMessage());
         }
     }
 
@@ -183,16 +183,16 @@ public class TestViewGroupBy extends TestCase
         EPAdministrator epAdmin = epService.getEPAdministrator();
         String filter = "select * from " + SupportMarketDataBean.class.getName();
 
-        EPStatement priceLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(price) order by symbol asc");
+        EPStatement priceLast3Stats = epAdmin.createEPL(filter + "#groupwin(symbol)#length(3)#uni(price) order by symbol asc");
         priceLast3Stats.addListener(priceLast3StatsListener);
 
-        EPStatement volumeLast3Stats = epAdmin.createEPL(filter + ".std:groupwin(symbol).win:length(3).stat:uni(volume) order by symbol asc");
+        EPStatement volumeLast3Stats = epAdmin.createEPL(filter + "#groupwin(symbol)#length(3)#uni(volume) order by symbol asc");
         volumeLast3Stats.addListener(volumeLast3StatsListener);
 
-        EPStatement priceAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(price) order by symbol asc");
+        EPStatement priceAllStats = epAdmin.createEPL(filter + "#groupwin(symbol)#uni(price) order by symbol asc");
         priceAllStats.addListener(priceAllStatsListener);
 
-        EPStatement volumeAllStats = epAdmin.createEPL(filter + ".std:groupwin(symbol).stat:uni(volume) order by symbol asc");
+        EPStatement volumeAllStats = epAdmin.createEPL(filter + "#groupwin(symbol)#uni(volume) order by symbol asc");
         volumeAllStats.addListener(volumeAllStatsListener);
 
         Vector<Map<String, Object>> expectedList = new Vector<Map<String, Object>>();
@@ -260,7 +260,7 @@ public class TestViewGroupBy extends TestCase
 
     public void testLengthWindowGrouped()
     {
-        String stmtText = "select symbol, price from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:length(2)";
+        String stmtText = "select symbol, price from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#length(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -270,7 +270,7 @@ public class TestViewGroupBy extends TestCase
 
     public void testExpressionGrouped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBeanTimestamp.std:groupwin(timestamp.getDayOfWeek()).win:length(2)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBeanTimestamp#groupwin(timestamp.getDayOfWeek())#length(2)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBeanTimestamp("E1", DateTime.parseDefaultMSec("2002-01-01T09:0:00.000")));
@@ -284,7 +284,7 @@ public class TestViewGroupBy extends TestCase
         // further math tests can be found in the view unit test
         EPAdministrator admin = epService.getEPAdministrator();
         admin.getConfiguration().addEventType("Market", SupportMarketDataBean.class);
-        EPStatement statement = admin.createEPL("select * from Market.std:groupwin(symbol).win:length(1000000).stat:correl(price, volume, feed)");
+        EPStatement statement = admin.createEPL("select * from Market#groupwin(symbol)#length(1000000)#correl(price, volume, feed)");
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
 
@@ -310,7 +310,7 @@ public class TestViewGroupBy extends TestCase
         // further math tests can be found in the view unit test
         EPAdministrator admin = epService.getEPAdministrator();
         admin.getConfiguration().addEventType("Market", SupportMarketDataBean.class);
-        EPStatement statement = admin.createEPL("select * from Market.std:groupwin(symbol).win:length(1000000).stat:linest(price, volume, feed)");
+        EPStatement statement = admin.createEPL("select * from Market#groupwin(symbol)#length(1000000)#linest(price, volume, feed)");
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
 

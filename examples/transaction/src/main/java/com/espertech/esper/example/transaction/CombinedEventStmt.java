@@ -24,9 +24,9 @@ public class CombinedEventStmt
                              "C.timestamp - A.timestamp," +
                              "C.timestamp - B.timestamp," +
                              "B.timestamp - A.timestamp " +
-                        "from TxnEventA.win:time(30 min) A," +
-                             "TxnEventB.win:time(30 min) B," +
-                             "TxnEventC.win:time(30 min) C " +
+                        "from TxnEventA#time(30 min) A," +
+                             "TxnEventB#time(30 min) B," +
+                             "TxnEventC#time(30 min) C " +
                         "where A.transactionId = B.transactionId and B.transactionId = C.transactionId";
 
         statement = admin.createEPL(stmt);

@@ -59,7 +59,7 @@ public class TestTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd extends Test
         epService.getEPAdministrator().createEPL(eplCreateIndex);
 
         // populate
-        String eplInto = "into table vartotal select count(*) as thecnt from LocalGroupEvent.win:length(100) group by topgroup, subgroup";
+        String eplInto = "into table vartotal select count(*) as thecnt from LocalGroupEvent#length(100) group by topgroup, subgroup";
         epService.getEPAdministrator().createEPL(eplInto);
 
         // delete empty groups

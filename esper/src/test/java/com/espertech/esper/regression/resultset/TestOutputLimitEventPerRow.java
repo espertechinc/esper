@@ -109,14 +109,14 @@ public class TestOutputLimitEventPerRow extends TestCase
         String stmtText = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow group by theString having sum(intPrimitive) > 20 output first every 2 events";
         tryOutputFirstHaving(stmtText);
 
-        String stmtTextJoin = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow mv, SupportBean_A.win:keepall() a where a.id = mv.theString " +
+        String stmtTextJoin = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow mv, SupportBean_A#keepall() a where a.id = mv.theString " +
                 "group by theString having sum(intPrimitive) > 20 output first every 2 events";
         tryOutputFirstHaving(stmtTextJoin);
 
         String stmtTextOrder = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow group by theString having sum(intPrimitive) > 20 output first every 2 events order by theString asc";
         tryOutputFirstHaving(stmtTextOrder);
 
-        String stmtTextOrderJoin = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow mv, SupportBean_A.win:keepall() a where a.id = mv.theString " +
+        String stmtTextOrderJoin = "select theString, longPrimitive, sum(intPrimitive) as value from MyWindow mv, SupportBean_A#keepall() a where a.id = mv.theString " +
                 "group by theString having sum(intPrimitive) > 20 output first every 2 events order by theString asc";
         tryOutputFirstHaving(stmtTextOrderJoin);
     }
@@ -124,7 +124,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     private void tryOutputFirstHaving(String statementText) {
         String[] fields = "theString,longPrimitive,value".split(",");
         String[] fieldsLimited = "theString,value".split(",");
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on MarketData md delete from MyWindow mw where mw.intPrimitive = md.price");
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
@@ -190,7 +190,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test1NoneNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                          "from MarketData.win:time(5.5 sec)" +
+                          "from MarketData#time(5.5 sec)" +
                           "group by symbol";
         runAssertion12(stmtText, "none");
     }
@@ -198,8 +198,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test2NoneNoHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                           "group by symbol";
         runAssertion12(stmtText, "none");
     }
@@ -207,7 +207,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test3NoneHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             " having sum(price) > 50";
         runAssertion34(stmtText, "none");
@@ -216,8 +216,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test4NoneHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "having sum(price) > 50";
         runAssertion34(stmtText, "none");
@@ -226,7 +226,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test5DefaultNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
@@ -235,8 +235,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test6DefaultNoHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
@@ -245,7 +245,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test7DefaultHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) \n"  +
+                            "from MarketData#time(5.5 sec) \n"  +
                             "group by symbol " +
                             "having sum(price) > 50" +
                             "output every 1 seconds";
@@ -255,8 +255,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test8DefaultHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "having sum(price) > 50" +
                             "output every 1 seconds";
@@ -266,7 +266,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test9AllNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             "output all every 1 seconds " +
                             "order by symbol";
@@ -276,8 +276,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test10AllNoHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "output all every 1 seconds " +
                             "order by symbol";
@@ -287,7 +287,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test11AllHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output all every 1 seconds";
@@ -297,7 +297,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test11AllHavingNoJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
-                "from MarketData.win:time(5.5 sec) " +
+                "from MarketData#time(5.5 sec) " +
                 "group by symbol " +
                 "having sum(price) > 50 " +
                 "output all every 1 seconds";
@@ -307,8 +307,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test12AllHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output all every 1 seconds";
@@ -318,8 +318,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test12AllHavingJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
-                "from MarketData.win:time(5.5 sec), " +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec), " +
+                "SupportBean#keepall() where theString=symbol " +
                 "group by symbol " +
                 "having sum(price) > 50 " +
                 "output all every 1 seconds";
@@ -329,7 +329,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test13LastNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec)" +
+                            "from MarketData#time(5.5 sec)" +
                             "group by symbol " +
                             "output last every 1 seconds " +
                             "order by symbol";
@@ -339,8 +339,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test14LastNoHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "output last every 1 seconds " +
                             "order by symbol";
@@ -350,7 +350,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test15LastHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec)" +
+                            "from MarketData#time(5.5 sec)" +
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output last every 1 seconds";
@@ -360,7 +360,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test15LastHavingNoJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
-                "from MarketData.win:time(5.5 sec)" +
+                "from MarketData#time(5.5 sec)" +
                 "group by symbol " +
                 "having sum(price) > 50 " +
                 "output last every 1 seconds";
@@ -370,8 +370,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test16LastHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "having sum(price) > 50 " +
                             "output last every 1 seconds";
@@ -381,8 +381,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test16LastHavingJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, sum(price) " +
-                "from MarketData.win:time(5.5 sec), " +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec), " +
+                "SupportBean#keepall() where theString=symbol " +
                 "group by symbol " +
                 "having sum(price) > 50 " +
                 "output last every 1 seconds";
@@ -392,7 +392,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test17FirstNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             "output first every 1 seconds";
         runAssertion17(stmtText, "first");
@@ -401,8 +401,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test17FirstNoHavingJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "group by symbol " +
                             "output first every 1 seconds";
         runAssertion17(stmtText, "first");
@@ -411,7 +411,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     public void test18SnapshotNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, sum(price) " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "group by symbol " +
                             "output snapshot every 1 seconds";
         runAssertion18(stmtText, "snapshot");
@@ -627,7 +627,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         sendTimer(0);
 
         String viewExpr = "select irstream symbol, volume, sum(price) as sumprice" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:time(10 sec) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#time(10 sec) " +
                           "group by symbol " +
                           "having sum(price) >= 10 " +
                           "output every 3 events";
@@ -642,8 +642,8 @@ public class TestOutputLimitEventPerRow extends TestCase
         sendTimer(0);
 
         String viewExpr = "select irstream symbol, volume, sum(price) as sumprice" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:time(10 sec) as s0," +
-                          SupportBean.class.getName() + ".win:keepall() as s1 " +
+                          " from " + SupportMarketDataBean.class.getName() + "#time(10 sec) as s0," +
+                          SupportBean.class.getName() + "#keepall() as s1 " +
                           "where s0.symbol = s1.theString " +
                           "group by symbol " +
                           "having sum(price) >= 10 " +
@@ -661,8 +661,8 @@ public class TestOutputLimitEventPerRow extends TestCase
         sendTimer(0);
 
         String viewExpr = "select irstream symbol, volume, max(price) as maxVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".ext:sort(1, volume) as s0," +
-                          SupportBean.class.getName() + ".win:keepall() as s1 where s1.theString = s0.symbol " +
+                          " from " + SupportMarketDataBean.class.getName() + "#sort(1, volume) as s0," +
+                          SupportBean.class.getName() + "#keepall() as s1 where s1.theString = s0.symbol " +
                           "group by symbol output every 1 seconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);
@@ -686,7 +686,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     {
         sendTimer(0);
         String selectStmt = "select symbol, volume, sum(price) as sumprice from " + SupportMarketDataBean.class.getName() +
-                ".win:time(10 seconds) group by symbol output snapshot every 1 seconds";
+                "#time(10 seconds) group by symbol output snapshot every 1 seconds";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -735,8 +735,8 @@ public class TestOutputLimitEventPerRow extends TestCase
     {
         sendTimer(0);
         String selectStmt = "select symbol, volume, sum(price) as sumprice from " + SupportMarketDataBean.class.getName() +
-                ".win:time(10 seconds) as m, " + SupportBean.class.getName() +
-                ".win:keepall() as s where s.theString = m.symbol group by symbol output snapshot every 1 seconds order by symbol, volume asc";
+                "#time(10 seconds) as m, " + SupportBean.class.getName() +
+                "#keepall() as s where s.theString = m.symbol group by symbol output snapshot every 1 seconds order by symbol, volume asc";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -794,7 +794,7 @@ public class TestOutputLimitEventPerRow extends TestCase
 
         String viewExpr = "select irstream symbol, " +
                                   "volume, max(price) as maxVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:time(1 sec) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#time(1 sec) " +
                           "group by symbol output every 1 seconds";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -826,7 +826,7 @@ public class TestOutputLimitEventPerRow extends TestCase
         // Every event generates a new row, this time we sum the price by symbol and output volume
 	    String viewExpr = hint +
                           "select symbol, volume, sum(price) as mySum " +
-	                      "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+	                      "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
 	                      "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
 	                      "group by symbol " +
 	                      "output last every 2 events";
@@ -872,7 +872,7 @@ public class TestOutputLimitEventPerRow extends TestCase
 	public void testNoOutputClauseView()
 	{
 	    String viewExpr = "select symbol, volume, sum(price) as mySum " +
-	                      "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+	                      "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
 	                      "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
 	                      "group by symbol ";
 
@@ -886,7 +886,7 @@ public class TestOutputLimitEventPerRow extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select symbol, volume, sum(price) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol " +
                           "output every 2 events";
@@ -901,8 +901,8 @@ public class TestOutputLimitEventPerRow extends TestCase
 	{
 	    // Every event generates a new row, this time we sum the price by symbol and output volume
 	    String viewExpr = "select symbol, volume, sum(price) as mySum " +
-	                      "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-	                                SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+	                      "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+	                                SupportMarketDataBean.class.getName() + "#length(5) as two " +
 	                      "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
 	                      "  and one.theString = two.symbol " +
 	                      "group by symbol " +
@@ -928,7 +928,7 @@ public class TestOutputLimitEventPerRow extends TestCase
 
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = hint + "select symbol, volume, sum(price) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol " +
                           "output all every 2 events";
@@ -954,8 +954,8 @@ public class TestOutputLimitEventPerRow extends TestCase
 
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = hint + "select symbol, volume, sum(price) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(5) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "  and one.theString = two.symbol " +
                           "group by symbol " +
@@ -985,8 +985,8 @@ public class TestOutputLimitEventPerRow extends TestCase
         // Every event generates a new row, this time we sum the price by symbol and output volume
 	    String viewExpr = hint +
                           "select symbol, volume, sum(price) as mySum " +
-	                      "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-	                                SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+	                      "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+	                                SupportMarketDataBean.class.getName() + "#length(5) as two " +
 	                      "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
 	                      "  and one.theString = two.symbol " +
 	                      "group by symbol " +

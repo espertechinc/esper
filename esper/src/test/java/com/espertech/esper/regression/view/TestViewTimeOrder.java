@@ -45,7 +45,7 @@ public class TestViewTimeOrder extends TestCase
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBeanTimestamp.ext:time_order(timestamp, 1 month)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBeanTimestamp#time_order(timestamp, 1 month)");
         stmt.addListener(listener);
 
         sendEvent("E1", DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"));
@@ -61,7 +61,7 @@ public class TestViewTimeOrder extends TestCase
         sendTimer(1000);
         epService.getEPAdministrator().createEPL(
                 "insert rstream into OrderedStream select rstream * from " + SupportBeanTimestamp.class.getName() +
-                ".ext:time_order(timestamp, 10 sec)");
+                "#time_order(timestamp, 10 sec)");
 
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(
                 "select * from OrderedStream");
@@ -158,7 +158,7 @@ public class TestViewTimeOrder extends TestCase
         sendTimer(1000);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportBeanTimestamp.class.getName() +
-                ".ext:time_order(timestamp, 10 sec)");
+                "#time_order(timestamp, 10 sec)");
         stmt.addListener(listener);
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), new String[]{"id"}, null);
 
@@ -320,7 +320,7 @@ public class TestViewTimeOrder extends TestCase
         sendTimer(20000);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportBeanTimestamp.class.getName() +
-                ".std:groupwin(groupId).ext:time_order(timestamp, 10 sec)");
+                "#groupwin(groupId)#time_order(timestamp, 10 sec)");
         stmt.addListener(listener);
 
         // 1st event is old
@@ -381,14 +381,14 @@ public class TestViewTimeOrder extends TestCase
 
     public void testInvalid()
     {
-        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 0 for Time-Order view: Failed to validate view parameter expression 'bump': Property named 'bump' is not valid in any stream [select * from com.espertech.esper.support.bean.SupportBeanTimestamp.ext:time_order(bump, 10 sec)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + ".ext:time_order(bump, 10 sec)"));
+        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 0 for Time-Order view: Failed to validate view parameter expression 'bump': Property named 'bump' is not valid in any stream [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(bump, 10 sec)]",
+                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(bump, 10 sec)"));
 
-        assertEquals("Error starting statement: Error attaching view to event stream: Time-Order view requires the expression supplying timestamp values, and a numeric or time period parameter for interval size [select * from com.espertech.esper.support.bean.SupportBeanTimestamp.ext:time_order(10 sec)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + ".ext:time_order(10 sec)"));
+        assertEquals("Error starting statement: Error attaching view to event stream: Time-Order view requires the expression supplying timestamp values, and a numeric or time period parameter for interval size [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(10 sec)]",
+                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(10 sec)"));
 
-        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 1 for Time-Order view: Failed to validate view parameter expression 'abc': Property named 'abc' is not valid in any stream (did you mean 'id'?) [select * from com.espertech.esper.support.bean.SupportBeanTimestamp.ext:time_order(timestamp, abc)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + ".ext:time_order(timestamp, abc)"));
+        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 1 for Time-Order view: Failed to validate view parameter expression 'abc': Property named 'abc' is not valid in any stream (did you mean 'id'?) [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(timestamp, abc)]",
+                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(timestamp, abc)"));
     }
 
     private String tryInvalid(String stmtText)
@@ -418,7 +418,7 @@ public class TestViewTimeOrder extends TestCase
                 " prevcount(id) as prevCountId, " +
                 " prevwindow(id) as prevWindowId " +
                 " from " + SupportBeanTimestamp.class.getName() +
-                ".ext:time_order(timestamp, 10 sec)");
+                "#time_order(timestamp, 10 sec)");
         String[] fields = new String[] {"id", "prevIdZero", "prevIdOne", "priorIdOne", "prevTailIdZero", "prevTailIdOne", "prevCountId"};
         stmt.addListener(listener);
 

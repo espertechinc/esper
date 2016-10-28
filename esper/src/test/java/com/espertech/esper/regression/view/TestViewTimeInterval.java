@@ -43,7 +43,7 @@ public class TestViewTimeInterval extends TestCase
     public void testTimeWindowPreparedStmt()
     {
         sendTimer(0);
-        String text = "select rstream theString from SupportBean.win:time(?)";
+        String text = "select rstream theString from SupportBean#time(?)";
         EPPreparedStatement prepared = epService.getEPAdministrator().prepareEPL(text);
 
         prepared.setObject(1, 4);
@@ -62,7 +62,7 @@ public class TestViewTimeInterval extends TestCase
     public void testTimeWindowVariableStmt()
     {
         sendTimer(0);
-        String text = "select rstream theString from SupportBean.win:time(TIME_WIN)";
+        String text = "select rstream theString from SupportBean#time(TIME_WIN)";
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
         epService.getEPAdministrator().getConfiguration().addVariable("TIME_WIN", int.class, 4);
@@ -82,12 +82,12 @@ public class TestViewTimeInterval extends TestCase
     {
         sendTimer(0);
 
-        String text = "select rstream theString from SupportBean.win:time(4 sec)";
+        String text = "select rstream theString from SupportBean#time(4 sec)";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(text);
         SupportUpdateListener listenerOne = new SupportUpdateListener();
         stmtOne.addListener(listenerOne);
 
-        text = "select rstream theString from SupportBean.win:time(3000 milliseconds)";
+        text = "select rstream theString from SupportBean#time(3000 milliseconds)";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(text);
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
         stmtTwo.addListener(listenerTwo);
@@ -100,14 +100,14 @@ public class TestViewTimeInterval extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("TIME_WIN", double.class, 4000);
         sendTimer(0);
         
-        String text = "select rstream theString from SupportBean.win:time(TIME_WIN milliseconds)";
+        String text = "select rstream theString from SupportBean#time(TIME_WIN milliseconds)";
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(text);
         SupportUpdateListener listenerOne = new SupportUpdateListener();
         stmtOne.addListener(listenerOne);
 
-        text = "select rstream theString from SupportBean.win:time(TIME_WIN minutes)";
+        text = "select rstream theString from SupportBean#time(TIME_WIN minutes)";
         epService.getEPRuntime().setVariableValue("TIME_WIN", 0.05);
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(text);
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
@@ -132,7 +132,7 @@ public class TestViewTimeInterval extends TestCase
         // Set up a time window with a unique view attached
         EPStatement view = epService.getEPAdministrator().createEPL(
                 "select * from " + SupportBean.class.getName() +
-                ".win:time_batch(10 minutes)");
+                "#time_batch(10 minutes)");
         testListener = new SupportUpdateListener();
         view.addListener(testListener);
 
@@ -150,7 +150,7 @@ public class TestViewTimeInterval extends TestCase
         // Set up a time window with a unique view attached
         EPStatement view = epService.getEPAdministrator().createEPL(
                 "select * from " + SupportBean.class.getName() +
-                ".win:time_batch(10 minutes, 10L)");
+                "#time_batch(10 minutes, 10L)");
         testListener = new SupportUpdateListener();
         view.addListener(testListener);
 
@@ -166,7 +166,7 @@ public class TestViewTimeInterval extends TestCase
     public void testExternallyTimedMonthScoped() {
         testListener = new SupportUpdateListener();
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean.win:ext_timed(longPrimitive, 1 month)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean#ext_timed(longPrimitive, 1 month)");
         stmt.addListener(testListener);
 
         sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
@@ -180,7 +180,7 @@ public class TestViewTimeInterval extends TestCase
     public void testExternallyTimedBatchMonthScoped() {
         testListener = new SupportUpdateListener();
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:ext_timed_batch(longPrimitive, 1 month)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#ext_timed_batch(longPrimitive, 1 month)");
         stmt.addListener(testListener);
 
         sendExtTimeEvent(DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
@@ -196,7 +196,7 @@ public class TestViewTimeInterval extends TestCase
         // Set up a time window with a unique view attached
         EPStatement view = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportBean.class.getName() +
-                ".win:ext_timed(longPrimitive, 10 minutes)");
+                "#ext_timed(longPrimitive, 10 minutes)");
         testListener = new SupportUpdateListener();
         view.addListener(testListener);
 
@@ -216,7 +216,7 @@ public class TestViewTimeInterval extends TestCase
         // Set up a time window with a unique view attached
         EPStatement view = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportBean.class.getName() +
-                ".win:time(" + intervalSpec + ")");
+                "#time(" + intervalSpec + ")");
         testListener = new SupportUpdateListener();
         view.addListener(testListener);
 

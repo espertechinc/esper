@@ -208,7 +208,7 @@ public class TestMapEvent extends TestCase
                     "beanA.nested.nestedValue as nested," +
                     "beanA.indexed[1] as indexed," +
                     "beanA.nested.nestedNested.nestedNestedValue as nestednested " +
-                    "from myMapEvent.win:length(5)";
+                    "from myMapEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -222,7 +222,7 @@ public class TestMapEvent extends TestCase
 
     public void testQueryFields()
     {
-        String statementText = "select myInt + 2 as intVal, 'x' || myString || 'x' as stringVal from myMapEvent.win:length(5)";
+        String statementText = "select myInt + 2 as intVal, 'x' || myString || 'x' as stringVal from myMapEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -265,14 +265,14 @@ public class TestMapEvent extends TestCase
 
     public void testInvalidStatement()
     {
-        tryInvalid("select XXX from myMapEvent.win:length(5)");
-        tryInvalid("select myString * 2 from myMapEvent.win:length(5)");
-        tryInvalid("select String.trim(myInt) from myMapEvent.win:length(5)");
+        tryInvalid("select XXX from myMapEvent#length(5)");
+        tryInvalid("select myString * 2 from myMapEvent#length(5)");
+        tryInvalid("select String.trim(myInt) from myMapEvent#length(5)");
     }
 
     public void testSendMapNative()
     {
-        String statementText = "select * from myMapEvent.win:length(5)";
+        String statementText = "select * from myMapEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);

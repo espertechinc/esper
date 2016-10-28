@@ -280,7 +280,7 @@ select * from pattern[every-distinct(id) a=MySwitchEvent(status='off')
 // Sample statement
 @Name('Count-Switched-On')
 @Description('Count per switch id of the number of Off-to-On switches in the last 1 hour')
-select id, count(*) from MyOffOnStream.win:time(1 hour) group by id;]]></programlisting>
+select id, count(*) from MyOffOnStream#time(1 hour) group by id;]]></programlisting>
 
         <para>
 			The example above declares a module name of <literal>org.myorganization.switchmonitor</literal>. As defined by the <literal>uses</literal> keyword, it ensures that the <literal>org.myorganization.common</literal> module is already deployed.

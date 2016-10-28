@@ -47,7 +47,7 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
                 "last(*) @eventbean as c0, " +
                 "window(*) @eventbean as c1, " +
                 "prevwindow(s0) @eventbean as c2 " +
-                "from MyEvent.win:length(2) as s0";
+                "from MyEvent#length(2) as s0";
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
 
         for (String prop : "c0,c1,c2".split(",")){
@@ -94,7 +94,7 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(col1 string, col2 string)");
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         String eplInsert = "insert into DStream select " +
-                "(select * from MyEvent.win:keepall()) @eventbean as c0 " +
+                "(select * from MyEvent#keepall()) @eventbean as c0 " +
                 "from SupportBean";
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
 

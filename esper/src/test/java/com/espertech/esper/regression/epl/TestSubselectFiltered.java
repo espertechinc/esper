@@ -57,18 +57,18 @@ public class TestSubselectFiltered extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("ST2", SupportBean_ST2.class);
 
         String epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where theString = st2.key2 and intPrimitive between s0.p01Long and s1.p11Long) " +
-                "from ST2.std:lastevent() st2, ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where theString = st2.key2 and intPrimitive between s0.p01Long and s1.p11Long) " +
+                "from ST2#lastevent() st2, ST0#lastevent() s0, ST1#lastevent() s1";
         runAssertion3StreamKeyRangeCoercion(epl, true);
 
         epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where theString = st2.key2 and s1.p11Long >= intPrimitive and s0.p01Long <= intPrimitive) " +
-                "from ST2.std:lastevent() st2, ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where theString = st2.key2 and s1.p11Long >= intPrimitive and s0.p01Long <= intPrimitive) " +
+                "from ST2#lastevent() st2, ST0#lastevent() s0, ST1#lastevent() s1";
         runAssertion3StreamKeyRangeCoercion(epl, false);
 
         epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where theString = st2.key2 and s1.p11Long > intPrimitive) " +
-                "from ST2.std:lastevent() st2, ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where theString = st2.key2 and s1.p11Long > intPrimitive) " +
+                "from ST2#lastevent() st2, ST0#lastevent() s0, ST1#lastevent() s1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         
@@ -81,8 +81,8 @@ public class TestSubselectFiltered extends TestCase
 
         stmt.destroy();
         epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where theString = st2.key2 and s1.p11Long < intPrimitive) " +
-                "from ST2.std:lastevent() st2, ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where theString = st2.key2 and s1.p11Long < intPrimitive) " +
+                "from ST2#lastevent() st2, ST0#lastevent() s0, ST1#lastevent() s1";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         
@@ -150,19 +150,19 @@ public class TestSubselectFiltered extends TestCase
 
         // between and 'in' automatically revert the range (20 to 10 is the same as 10 to 20)
         String epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where intPrimitive between s0.p01Long and s1.p11Long) " +
-                "from ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where intPrimitive between s0.p01Long and s1.p11Long) " +
+                "from ST0#lastevent() s0, ST1#lastevent() s1";
         runAssertion2StreamRangeCoercion(epl, true);
 
         epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where intPrimitive between s1.p11Long and s0.p01Long) " +
-                "from ST1.std:lastevent() s1, ST0.std:lastevent() s0";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where intPrimitive between s1.p11Long and s0.p01Long) " +
+                "from ST1#lastevent() s1, ST0#lastevent() s0";
         runAssertion2StreamRangeCoercion(epl, true);
 
         // >= and <= should not automatically revert the range
         epl = "select (" +
-                "select sum(intPrimitive) as sumi from SupportBean.win:keepall() where intPrimitive >= s0.p01Long and intPrimitive <= s1.p11Long) " +
-                "from ST0.std:lastevent() s0, ST1.std:lastevent() s1";
+                "select sum(intPrimitive) as sumi from SupportBean#keepall() where intPrimitive >= s0.p01Long and intPrimitive <= s1.p11Long) " +
+                "from ST0#lastevent() s0, ST1#lastevent() s1";
         runAssertion2StreamRangeCoercion(epl, false);
     }
 
@@ -219,7 +219,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSameEventCompile() throws Exception
     {
-        String stmtText = "select (select * from S1.win:length(1000)) as events1 from S1";
+        String stmtText = "select (select * from S1#length(1000)) as events1 from S1";
         EPStatementObjectModel subquery = epService.getEPAdministrator().compileEPL(stmtText);
         subquery = (EPStatementObjectModel) SerializableObjectCopier.copy(subquery);
 
@@ -239,14 +239,14 @@ public class TestSubselectFiltered extends TestCase
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.createWildcard());
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("win", "length", Expressions.constant(1000)))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("length", Expressions.constant(1000)))));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setFromClause(FromClause.create(FilterStream.create("S1")));
         model.setSelectClause(SelectClause.create().add(Expressions.subquery(subquery), "events1"));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select (select * from S1.win:length(1000)) as events1 from S1";
+        String stmtText = "select (select * from S1#length(1000)) as events1 from S1";
         assertEquals(stmtText, model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -263,7 +263,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSameEvent()
     {
-        String stmtText = "select (select * from S1.win:length(1000)) as events1 from S1";
+        String stmtText = "select (select * from S1#length(1000)) as events1 from S1";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -279,7 +279,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWildcard()
     {
-        String stmtText = "select (select * from S1.win:length(1000)) as events1 from S0";
+        String stmtText = "select (select * from S1#length(1000)) as events1 from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -296,7 +296,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWildcardNoName()
     {
-        String stmtText = "select (select * from S1.win:length(1000)) from S0";
+        String stmtText = "select (select * from S1#length(1000)) from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -314,7 +314,7 @@ public class TestSubselectFiltered extends TestCase
     public void testWhereConstant()
     {
         // single-column constant
-        String stmtText = "select (select id from S1.win:length(1000) where p10='X') as ids1 from S0";
+        String stmtText = "select (select id from S1#length(1000) where p10='X') as ids1 from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -338,7 +338,7 @@ public class TestSubselectFiltered extends TestCase
         stmt.destroy();
 
         // two-column constant
-        stmtText = "select (select id from S1.win:length(1000) where p10='X' and p11='Y') as ids1 from S0";
+        stmtText = "select (select id from S1#length(1000) where p10='X' and p11='Y') as ids1 from S0";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -348,7 +348,7 @@ public class TestSubselectFiltered extends TestCase
         stmt.destroy();
 
         // single range
-        stmtText = "select (select theString from SupportBean.std:lastevent() where intPrimitive between 10 and 20) as ids1 from S0";
+        stmtText = "select (select theString from SupportBean#lastevent() where intPrimitive between 10 and 20) as ids1 from S0";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -359,7 +359,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testWherePrevious()
     {
-        String stmtText = "select (select prev(1, id) from S1.win:length(1000) where id=s0.id) as value from S0 as s0";
+        String stmtText = "select (select prev(1, id) from S1#length(1000) where id=s0.id) as value from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         runWherePrevious();
@@ -369,7 +369,7 @@ public class TestSubselectFiltered extends TestCase
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.create().add(Expressions.previous(1, "id")));
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("win", "length", Expressions.constant(1000)))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("length", Expressions.constant(1000)))));
         subquery.setWhereClause(Expressions.eqProperty("id","s0.id"));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
@@ -377,7 +377,7 @@ public class TestSubselectFiltered extends TestCase
         model.setSelectClause(SelectClause.create().add(Expressions.subquery(subquery), "value"));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select (select prev(1,id) from S1.win:length(1000) where id=s0.id) as value from S0 as s0";
+        String stmtText = "select (select prev(1,id) from S1#length(1000) where id=s0.id) as value from S0 as s0";
         assertEquals(stmtText, model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -387,7 +387,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testWherePreviousCompile()
     {
-        String stmtText = "select (select prev(1,id) from S1.win:length(1000) where id=s0.id) as value from S0 as s0";
+        String stmtText = "select (select prev(1,id) from S1#length(1000) where id=s0.id) as value from S0 as s0";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         assertEquals(stmtText, model.toEPL());
 
@@ -413,7 +413,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWithWhereJoined()
     {
-        String stmtText = "select (select id from S1.win:length(1000) where p10=s0.p00) as ids1 from S0 as s0";
+        String stmtText = "select (select id from S1#length(1000) where p10=s0.p00) as ids1 from S0 as s0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -440,7 +440,7 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWhereJoined2Streams()
     {
-        String stmtText = "select (select id from S0.win:length(1000) where p00=s1.p10 and p00=s2.p20) as ids0 from S1.win:keepall() as s1, S2.win:keepall() as s2 where s1.id = s2.id";
+        String stmtText = "select (select id from S0#length(1000) where p00=s1.p10 and p00=s2.p20) as ids0 from S1#keepall() as s1, S2#keepall() as s2 where s1.id = s2.id";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -457,8 +457,8 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWhereJoined3Streams()
     {
-        String stmtText = "select (select id from S0.win:length(1000) where p00=s1.p10 and p00=s3.p30) as ids0 " +
-                            "from S1.win:keepall() as s1, S2.win:keepall() as s2, S3.win:keepall() as s3 where s1.id = s2.id and s2.id = s3.id";
+        String stmtText = "select (select id from S0#length(1000) where p00=s1.p10 and p00=s3.p30) as ids0 " +
+                            "from S1#keepall() as s1, S2#keepall() as s2, S3#keepall() as s3 where s1.id = s2.id and s2.id = s3.id";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -493,8 +493,8 @@ public class TestSubselectFiltered extends TestCase
 
     public void testSelectWhereJoined3SceneTwo()
     {
-        String stmtText = "select (select id from S0.win:length(1000) where p00=s1.p10 and p00=s3.p30 and p00=s2.p20) as ids0 " +
-                            "from S1.win:keepall() as s1, S2.win:keepall() as s2, S3.win:keepall() as s3 where s1.id = s2.id and s2.id = s3.id";
+        String stmtText = "select (select id from S0#length(1000) where p00=s1.p10 and p00=s3.p30 and p00=s2.p20) as ids0 " +
+                            "from S1#keepall() as s1, S2#keepall() as s2, S3#keepall() as s3 where s1.id = s2.id and s2.id = s3.id";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -530,38 +530,38 @@ public class TestSubselectFiltered extends TestCase
     public void testSelectWhereJoined4Coercion()
     {
         String stmtText = "select " +
-          "(select intPrimitive from MyEvent(theString='S').win:length(1000) " +
+          "(select intPrimitive from MyEvent(theString='S')#length(1000) " +
           "  where intBoxed=s1.longBoxed and " +
                    "intBoxed=s2.doubleBoxed and " +
                    "doubleBoxed=s3.intBoxed" +
           ") as ids0 from " +
-          "MyEvent(theString='A').win:keepall() as s1, " +
-          "MyEvent(theString='B').win:keepall() as s2, " +
-          "MyEvent(theString='C').win:keepall() as s3 " +
+          "MyEvent(theString='A')#keepall() as s1, " +
+          "MyEvent(theString='B')#keepall() as s2, " +
+          "MyEvent(theString='C')#keepall() as s3 " +
           "where s1.intPrimitive = s2.intPrimitive and s2.intPrimitive = s3.intPrimitive";
         trySelectWhereJoined4Coercion(stmtText);
 
         stmtText = "select " +
-          "(select intPrimitive from MyEvent(theString='S').win:length(1000) " +
+          "(select intPrimitive from MyEvent(theString='S')#length(1000) " +
           "  where doubleBoxed=s3.intBoxed and " +
                    "intBoxed=s2.doubleBoxed and " +
                    "intBoxed=s1.longBoxed" +
           ") as ids0 from " +
-          "MyEvent(theString='A').win:keepall() as s1, " +
-          "MyEvent(theString='B').win:keepall() as s2, " +
-          "MyEvent(theString='C').win:keepall() as s3 " +
+          "MyEvent(theString='A')#keepall() as s1, " +
+          "MyEvent(theString='B')#keepall() as s2, " +
+          "MyEvent(theString='C')#keepall() as s3 " +
           "where s1.intPrimitive = s2.intPrimitive and s2.intPrimitive = s3.intPrimitive";
         trySelectWhereJoined4Coercion(stmtText);
 
         stmtText = "select " +
-          "(select intPrimitive from MyEvent(theString='S').win:length(1000) " +
+          "(select intPrimitive from MyEvent(theString='S')#length(1000) " +
           "  where doubleBoxed=s3.intBoxed and " +
                    "intBoxed=s1.longBoxed and " +
                    "intBoxed=s2.doubleBoxed" +
           ") as ids0 from " +
-          "MyEvent(theString='A').win:keepall() as s1, " +
-          "MyEvent(theString='B').win:keepall() as s2, " +
-          "MyEvent(theString='C').win:keepall() as s3 " +
+          "MyEvent(theString='A')#keepall() as s1, " +
+          "MyEvent(theString='B')#keepall() as s2, " +
+          "MyEvent(theString='C')#keepall() as s3 " +
           "where s1.intPrimitive = s2.intPrimitive and s2.intPrimitive = s3.intPrimitive";
         trySelectWhereJoined4Coercion(stmtText);
     }
@@ -569,26 +569,26 @@ public class TestSubselectFiltered extends TestCase
     public void testSelectWhereJoined4BackCoercion()
     {
         String stmtText = "select " +
-          "(select intPrimitive from MyEvent(theString='S').win:length(1000) " +
+          "(select intPrimitive from MyEvent(theString='S')#length(1000) " +
           "  where longBoxed=s1.intBoxed and " +
                    "longBoxed=s2.doubleBoxed and " +
                    "intBoxed=s3.longBoxed" +
           ") as ids0 from " +
-          "MyEvent(theString='A').win:keepall() as s1, " +
-          "MyEvent(theString='B').win:keepall() as s2, " +
-          "MyEvent(theString='C').win:keepall() as s3 " +
+          "MyEvent(theString='A')#keepall() as s1, " +
+          "MyEvent(theString='B')#keepall() as s2, " +
+          "MyEvent(theString='C')#keepall() as s3 " +
           "where s1.intPrimitive = s2.intPrimitive and s2.intPrimitive = s3.intPrimitive";
         trySelectWhereJoined4CoercionBack(stmtText);
 
         stmtText = "select " +
-          "(select intPrimitive from MyEvent(theString='S').win:length(1000) " +
+          "(select intPrimitive from MyEvent(theString='S')#length(1000) " +
           "  where longBoxed=s2.doubleBoxed and " +
                    "intBoxed=s3.longBoxed and " +
                    "longBoxed=s1.intBoxed " +
           ") as ids0 from " +
-          "MyEvent(theString='A').win:keepall() as s1, " +
-          "MyEvent(theString='B').win:keepall() as s2, " +
-          "MyEvent(theString='C').win:keepall() as s3 " +
+          "MyEvent(theString='A')#keepall() as s1, " +
+          "MyEvent(theString='B')#keepall() as s2, " +
+          "MyEvent(theString='C')#keepall() as s3 " +
           "where s1.intPrimitive = s2.intPrimitive and s2.intPrimitive = s3.intPrimitive";
         trySelectWhereJoined4CoercionBack(stmtText);
     }
@@ -670,7 +670,7 @@ public class TestSubselectFiltered extends TestCase
     public void testSelectWithWhere2Subqery()
     {
         String stmtText = "select id from S0 as s0 where " +
-                        " id = (select id from S1.win:length(1000) where s0.id = id) or id = (select id from S2.win:length(1000) where s0.id = id)";
+                        " id = (select id from S1#length(1000) where s0.id = id) or id = (select id from S2#length(1000) where s0.id = id)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -697,29 +697,29 @@ public class TestSubselectFiltered extends TestCase
     public void testJoinFilteredOne()
     {
         String stmtText = "select s0.id as s0id, s1.id as s1id, " +
-                          "(select p20 from S2.win:length(1000) where id=s0.id) as s2p20, " +
-                          "(select prior(1, p20) from S2.win:length(1000) where id=s0.id) as s2p20Prior, " +
-                          "(select prev(1, p20) from S2.win:length(10) where id=s0.id) as s2p20Prev " +
-                          "from S0.win:keepall() as s0, S1.win:keepall() as s1 " +
-                          "where s0.id = s1.id and p00||p10 = (select p20 from S2.win:length(1000) where id=s0.id)";
+                          "(select p20 from S2#length(1000) where id=s0.id) as s2p20, " +
+                          "(select prior(1, p20) from S2#length(1000) where id=s0.id) as s2p20Prior, " +
+                          "(select prev(1, p20) from S2#length(10) where id=s0.id) as s2p20Prev " +
+                          "from S0#keepall() as s0, S1#keepall() as s1 " +
+                          "where s0.id = s1.id and p00||p10 = (select p20 from S2#length(1000) where id=s0.id)";
         tryJoinFiltered(stmtText);
     }
 
     public void testJoinFilteredTwo()
     {
         String stmtText = "select s0.id as s0id, s1.id as s1id, " +
-                          "(select p20 from S2.win:length(1000) where id=s0.id) as s2p20, " +
-                          "(select prior(1, p20) from S2.win:length(1000) where id=s0.id) as s2p20Prior, " +
-                          "(select prev(1, p20) from S2.win:length(10) where id=s0.id) as s2p20Prev " +
-                          "from S0.win:keepall() as s0, S1.win:keepall() as s1 " +
-                          "where s0.id = s1.id and (select s0.p00||s1.p10 = p20 from S2.win:length(1000) where id=s0.id)";
+                          "(select p20 from S2#length(1000) where id=s0.id) as s2p20, " +
+                          "(select prior(1, p20) from S2#length(1000) where id=s0.id) as s2p20Prior, " +
+                          "(select prev(1, p20) from S2#length(10) where id=s0.id) as s2p20Prev " +
+                          "from S0#keepall() as s0, S1#keepall() as s1 " +
+                          "where s0.id = s1.id and (select s0.p00||s1.p10 = p20 from S2#length(1000) where id=s0.id)";
         tryJoinFiltered(stmtText);
     }
 
     public void testSubselectPrior()
     {
         String stmtTextOne = "insert into Pair " +
-                "select * from Sensor(device='A').std:lastevent() as a, Sensor(device='B').std:lastevent() as b " +
+                "select * from Sensor(device='A')#lastevent() as a, Sensor(device='B')#lastevent() as b " +
                 "where a.type = b.type";
         epService.getEPAdministrator().createEPL(stmtTextOne);
 
@@ -727,8 +727,8 @@ public class TestSubselectFiltered extends TestCase
 
         String stmtTextTwo = "insert into PairDuplicatesRemoved " +
                 "select * from Pair " +
-                "where a.id != coalesce((select a.id from PairDuplicatesRemoved.std:lastevent()), -1)" +
-                "  and b.id != coalesce((select b.id from PairDuplicatesRemoved.std:lastevent()), -1)";
+                "where a.id != coalesce((select a.id from PairDuplicatesRemoved#lastevent()), -1)" +
+                "  and b.id != coalesce((select b.id from PairDuplicatesRemoved#lastevent()), -1)";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtTextTwo);
         stmtTwo.addListener(listener);
 
@@ -762,8 +762,8 @@ public class TestSubselectFiltered extends TestCase
     {
         String stmtTextOne =
                      "select " +
-                     " (select * from Sensor.ext:sort(1, measurement desc)) as high, " +
-                     " (select * from Sensor.ext:sort(1, measurement asc)) as low " +
+                     " (select * from Sensor#sort(1, measurement desc)) as high, " +
+                     " (select * from Sensor#sort(1, measurement asc)) as low " +
                      " from Sensor";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmt.addListener(listener);

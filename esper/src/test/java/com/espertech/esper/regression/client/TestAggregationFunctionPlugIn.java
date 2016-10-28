@@ -51,29 +51,29 @@ public class TestAggregationFunctionPlugIn extends TestCase
 
     public void testGrouped() throws Exception
     {
-        String textOne = "select irstream CONCATSTRING(theString) as val from " + SupportBean.class.getName() + ".win:length(10) group by intPrimitive";
+        String textOne = "select irstream CONCATSTRING(theString) as val from " + SupportBean.class.getName() + "#length(10) group by intPrimitive";
         tryGrouped(textOne, null);
 
-        String textTwo = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + ".win:length(10) group by intPrimitive";
+        String textTwo = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + "#win:length(10) group by intPrimitive";
         tryGrouped(textTwo, null);
 
-        String textThree = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + ".win:length(10) group by intPrimitive";
+        String textThree = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + "#length(10) group by intPrimitive";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(textThree);
         SerializableObjectCopier.copy(model);
         assertEquals(textThree, model.toEPL());
         tryGrouped(null, model);
 
-        String textFour = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + ".win:length(10) group by intPrimitive";
+        String textFour = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + "#length(10) group by intPrimitive";
         EPStatementObjectModel modelTwo = new EPStatementObjectModel();
         modelTwo.setSelectClause(SelectClause.create().streamSelector(StreamSelector.RSTREAM_ISTREAM_BOTH)
                 .add(Expressions.plugInAggregation("concatstring", Expressions.property("theString")), "val"));
-        modelTwo.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("win", "length", Expressions.constant(10))));
+        modelTwo.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView(null, "length", Expressions.constant(10))));
         modelTwo.setGroupByClause(GroupByClause.create("intPrimitive"));
         assertEquals(textFour, modelTwo.toEPL());
         SerializableObjectCopier.copy(modelTwo);
         tryGrouped(null, modelTwo);
 
-        String textFive = "select irstream concatstringTwo(theString) as val from " + SupportBean.class.getName() + ".win:length(10) group by intPrimitive";
+        String textFive = "select irstream concatstringTwo(theString) as val from " + SupportBean.class.getName() + "#length(10) group by intPrimitive";
         tryGrouped(textFive, null);
     }
 
@@ -114,7 +114,7 @@ public class TestAggregationFunctionPlugIn extends TestCase
 
     public void testWindow()
     {
-        String text = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + ".win:length(2)";
+        String text = "select irstream concatstring(theString) as val from " + SupportBean.class.getName() + "#length(2)";
         EPStatement statement = epService.getEPAdministrator().createEPL(text);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -150,7 +150,7 @@ public class TestAggregationFunctionPlugIn extends TestCase
         EPAssertionUtil.assertProps(listenerTwo.assertOneGetNewAndReset(), "val".split(","), new Object[] {"SupportBean(d, -1) SupportBean(e, 2)"});
 
         try {
-            epService.getEPAdministrator().createEPL("select concatstring(*) as val from SupportBean.std:lastevent(), SupportBean unidirectional");
+            epService.getEPAdministrator().createEPL("select concatstring(*) as val from SupportBean#lastevent(), SupportBean unidirectional");
         }
         catch (EPStatementException ex) {
             SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'concatstring(*)': The 'concatstring' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead");

@@ -88,8 +88,8 @@ public class TestEnumInvalid extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'contained.where()': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), but receives no parameters [select contained.where() from SupportBean_ST0_Container]");
 
         // invalid no parameter
-        epl = "select window(intPrimitive).takeLast() from SupportBean.win:length(2)";
-        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'window(intPrimitive).takeLast()': Parameters mismatch for enumeration method 'takeLast', the method requires an (non-lambda) expression providing count [select window(intPrimitive).takeLast() from SupportBean.win:length(2)]");
+        epl = "select window(intPrimitive).takeLast() from SupportBean#length(2)";
+        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'window(intPrimitive).takeLast()': Parameters mismatch for enumeration method 'takeLast', the method requires an (non-lambda) expression providing count [select window(intPrimitive).takeLast() from SupportBean#length(2)]");
 
         // invalid wrong parameter
         epl = "select contained.where(x=>true,y=>true) from SupportBean_ST0_Container";
@@ -104,12 +104,12 @@ public class TestEnumInvalid extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'contained.where(1,2)': Parameters mismatch for enumeration method 'where', the method has multiple footprints accepting a lambda expression providing predicate, or a 2-parameter lambda expression providing (predicate, index), but receives an (non-lambda) expression and an (non-lambda) expression [select contained.where(1,2) from SupportBean_ST0_Container]");
 
         // subselect multiple columns
-        epl = "select (select theString, intPrimitive from SupportBean.std:lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0";
-        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString, intPrimitive from SupportBean.std:lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0]");
+        epl = "select (select theString, intPrimitive from SupportBean#lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0";
+        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString, intPrimitive from SupportBean#lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0]");
 
         // subselect individual column
-        epl = "select (select theString from SupportBean.std:lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0";
-        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString from SupportBean.std:lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0]");
+        epl = "select (select theString from SupportBean#lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0";
+        SupportMessageAssertUtil.tryInvalid(epService,epl, "Error starting statement: Failed to validate select-clause expression 'theString.where()': Error validating enumeration method 'where' parameter 0: Failed to validate declared expression body expression 'x.boolPrimitive': Failed to resolve property 'x.boolPrimitive' to a stream or nested property in a stream [select (select theString from SupportBean#lastevent()).where(x=>x.boolPrimitive) from SupportBean_ST0]");
 
         // aggregation
         epl = "select avg(intPrimitive).where(x=>x.boolPrimitive) from SupportBean_ST0";

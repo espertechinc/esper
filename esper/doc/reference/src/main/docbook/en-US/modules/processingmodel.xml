@@ -113,7 +113,7 @@ results via method invocation. The subscriber class need not implement an interf
 			A length window instructs the engine to only keep the last N events for a stream. The next statement applies a length window onto the Withdrawal event stream. The statement serves to illustrate the concept of data window and events entering and leaving a data window:
         </para>
         
-        <programlisting><![CDATA[select * from Withdrawal.win:length(5)]]></programlisting>
+        <programlisting><![CDATA[select * from Withdrawal#length(5)]]></programlisting>
 
         <para>
 			The size of this statement's length window is five events. The engine enters all arriving Withdrawal events into the length window. When the length window is full, the oldest Withdrawal event is pushed out the window. The engine indicates to listeners all events entering the window as new events, and all events leaving the window as old events. 
@@ -156,7 +156,7 @@ results via method invocation. The subscriber class need not implement an interf
 			Filters to event streams allow filtering events out of a given stream before events enter a data window (if there are data windows defined in your query). The statement below shows a filter that selects Withdrawal events with an amount value of 200 or more.
         </para>
         
-        <programlisting><![CDATA[select * from Withdrawal(amount>=200).win:length(5)]]></programlisting>
+        <programlisting><![CDATA[select * from Withdrawal(amount>=200)#length(5)]]></programlisting>
 
         <para>
 			With the filter, any Withdrawal events that have an amount of less then 200 do not enter the length window and are therefore not passed to update listeners. Filters are discussed in more detail in <xref linkend="epl-from-clause-filter"/> and <xref linkend="pattern-filter"/>.
@@ -179,7 +179,7 @@ results via method invocation. The subscriber class need not implement an interf
 			The next statement applies a where-clause to Withdrawal events. Where-clauses are discussed in more detail in <xref linkend="epl-where-clause"/>.
         </para>
 
-        <programlisting><![CDATA[select * from Withdrawal.win:length(5) where amount >= 200]]></programlisting>
+        <programlisting><![CDATA[select * from Withdrawal#length(5) where amount >= 200]]></programlisting>
 
         <para>
 			The where-clause applies to both new events and old events. As the diagram below shows, arriving events enter the window however only events that pass the where-clause are handed to update listeners. Also,
@@ -216,7 +216,7 @@ results via method invocation. The subscriber class need not implement an interf
 			</para>
 
 			<programlisting><![CDATA[select account, avg(amount) 
-from Withdrawal.win:time(4 sec) 
+from Withdrawal#time(4 sec) 
 group by account
 having amount > 1000]]></programlisting>
 	
@@ -224,7 +224,7 @@ having amount > 1000]]></programlisting>
 				The next diagram serves to illustrate the functioning of a time window. For the diagram, we assume a query that simply selects the event itself and does not group or filter events.
 			</para>
 
-			<programlisting><![CDATA[select * from Withdrawal.win:time(4 sec)]]></programlisting>
+			<programlisting><![CDATA[select * from Withdrawal#time(4 sec)]]></programlisting>
 
 			<para>
 				The diagram starts at a given time <literal>t</literal> and displays the contents of the time window at <literal>t + 4</literal> and <literal>t + 5 seconds</literal> and so on.
@@ -280,7 +280,7 @@ having amount > 1000]]></programlisting>
 				The next diagram serves to illustrate the functioning of a time batch view. For the diagram, we assume a simple query as below:
 			</para>
 
-			<programlisting><![CDATA[select * from Withdrawal.win:time_batch(4 sec)]]></programlisting>
+			<programlisting><![CDATA[select * from Withdrawal#time_batch(4 sec)]]></programlisting>
 
 			<para>
 				The diagram starts at a given time <literal>t</literal> and displays the contents of the time window at <literal>t + 4</literal> and <literal>t + 5 seconds</literal> and so on.
@@ -346,7 +346,7 @@ having amount > 1000]]></programlisting>
 		<para>
 			Let's look at how a time batch window may be used:
 		</para>
-		<programlisting><![CDATA[select account, amount from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+		<programlisting><![CDATA[select account, amount from Withdrawal#time_batch(1 sec)]]></programlisting>
 
 		<para>
 			The above statement collects events arriving during a one-second interval, at the end of which the engine posts the collected events as new events (insert stream) to each listener. The engine posts the events collected during the prior batch as old events (remove stream). The engine starts posting events to listeners one second after it receives the first event and thereon.
@@ -355,7 +355,7 @@ having amount > 1000]]></programlisting>
 		<para>
 			For statements containing aggregation functions and/or a <literal>group by</literal> clause, the engine posts consolidated aggregation results for an event batch. For example, consider the following statement:
 		</para>
-		<programlisting><![CDATA[select sum(amount) as mysum from Withdrawal.win:time_batch(1 sec)]]></programlisting>				
+		<programlisting><![CDATA[select sum(amount) as mysum from Withdrawal#time_batch(1 sec)]]></programlisting>				
 
 		<para>
 			Note that output rate limiting also generates batches of events following the output model as discussed here.
@@ -421,7 +421,7 @@ having amount > 1000]]></programlisting>
 				<para>
 					An example statement for the un-aggregated and un-grouped case is as follows:
 				</para>
-				<programlisting><![CDATA[select * from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+				<programlisting><![CDATA[select * from Withdrawal#time_batch(1 sec)]]></programlisting>
 				<para>
 					At the end of a time interval, the engine posts to listeners one row for each event arriving during the time interval.
 				</para>
@@ -438,7 +438,7 @@ having amount > 1000]]></programlisting>
 					If your statement only selects aggregation values and does not group, your statement may look as the example below:
 				</para>
 				<programlisting><![CDATA[select sum(amount) 
-from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+from Withdrawal#time_batch(1 sec)]]></programlisting>
 				<para>
 					At the end of a time interval, the engine posts to listeners a single row indicating the aggregation result. The aggregation result aggregates all events collected during the time interval.
 				</para>
@@ -458,7 +458,7 @@ from Withdrawal.win:time_batch(1 sec)]]></programlisting>
 					If your statement selects non-aggregated properties and aggregation values, and does not group, your statement may be similar to this statement:
 				</para>
 				<programlisting><![CDATA[select account, sum(amount) 
-from Withdrawal.win:time_batch(1 sec)]]></programlisting>
+from Withdrawal#time_batch(1 sec)]]></programlisting>
 				<para>
 					At the end of a time interval, the engine posts to listeners one row per event. The aggregation result aggregates all events collected during the time interval.
 				</para>
@@ -474,7 +474,7 @@ from Withdrawal.win:time_batch(1 sec)]]></programlisting>
 					If your statement selects aggregation values and all non-aggregated properties in the <literal>select</literal> clause are listed in the <literal>group by</literal> clause, then your statement may look similar to this example:
 				</para>
 				<programlisting><![CDATA[select account, sum(amount) 
-from Withdrawal.win:time_batch(1 sec) 
+from Withdrawal#time_batch(1 sec) 
 group by account]]></programlisting>
 				<para>
 					At the end of a time interval, the engine posts to listeners one row per unique account number. The aggregation result aggregates per unique account.
@@ -495,7 +495,7 @@ group by account]]></programlisting>
 					If your statement selects non-aggregated properties and aggregation values, and groups only some properties using the <literal>group by</literal> clause,  your statement may look as below:
 				</para>
 				<programlisting><![CDATA[select account, accountName, sum(amount) 
-from Withdrawal.win:time_batch(1 sec) 
+from Withdrawal#time_batch(1 sec) 
 group by account]]></programlisting>
 				<para>
 					At the end of a time interval, the engine posts to listeners one row per event. The aggregation result aggregates per unique account.

@@ -313,7 +313,7 @@ public class TestBigNumberSupport extends TestCase
     public void testJoin()
     {
         String[] fieldList = "bigint,bigdec".split(",");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select bigint,bigdec from SupportBeanNumeric.win:keepall(), SupportBean.win:keepall() " +
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select bigint,bigdec from SupportBeanNumeric#keepall(), SupportBean#keepall() " +
                 "where intPrimitive = bigint and doublePrimitive = bigdec");
         stmt.addListener(listener);
 

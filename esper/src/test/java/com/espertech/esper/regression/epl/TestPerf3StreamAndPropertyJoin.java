@@ -41,9 +41,9 @@ public class TestPerf3StreamAndPropertyJoin extends TestCase
     {
         // Statement where all streams are reachable from each other via properties
         String stmt = "select * from " +
-                SupportBean_A.class.getName() + "().win:length(1000000) s1," +
-                SupportBean_B.class.getName() + "().win:length(1000000) s2," +
-                SupportBean_C.class.getName() + "().win:length(1000000) s3" +
+                SupportBean_A.class.getName() + "()#length(1000000) s1," +
+                SupportBean_B.class.getName() + "()#length(1000000) s2," +
+                SupportBean_C.class.getName() + "()#length(1000000) s3" +
             " where s1.id=s2.id and s2.id=s3.id and s1.id=s3.id";
         tryJoinPerf3Streams(stmt);
     }
@@ -52,9 +52,9 @@ public class TestPerf3StreamAndPropertyJoin extends TestCase
     {
         // Statement where the s1 stream is not reachable by joining s2 to s3 and s3 to s1
         String stmt = "select * from " +
-                SupportBean_A.class.getName() + ".win:length(1000000) s1," +
-                SupportBean_B.class.getName() + ".win:length(1000000) s2," +
-                SupportBean_C.class.getName() + ".win:length(1000000) s3" +
+                SupportBean_A.class.getName() + "#length(1000000) s1," +
+                SupportBean_B.class.getName() + "#length(1000000) s2," +
+                SupportBean_C.class.getName() + "#length(1000000) s3" +
             " where s1.id=s2.id and s2.id=s3.id";   // ==> therefore s1.id = s3.id
         tryJoinPerf3Streams(stmt);
     }
@@ -65,9 +65,9 @@ public class TestPerf3StreamAndPropertyJoin extends TestCase
 
         // Statement where the s1 stream is not reachable by joining s2 to s3 and s3 to s1
         String stmt = "select * from " +
-                SupportBean_A.class.getName() + "().win:length(1000000) s1," +
-                SupportBean_B.class.getName() + "().win:length(1000000) s2," +
-                SupportBean_C.class.getName() + "().win:length(1000000) s3" +
+                SupportBean_A.class.getName() + "()#length(1000000) s1," +
+                SupportBean_B.class.getName() + "()#length(1000000) s2," +
+                SupportBean_C.class.getName() + "()#length(1000000) s3" +
             " where s1.id=s2.id";   // ==> stream s3 no properties supplied, full s3 scan
         
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);

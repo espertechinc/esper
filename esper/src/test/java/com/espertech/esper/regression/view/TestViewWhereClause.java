@@ -42,7 +42,7 @@ public class TestViewWhereClause extends TestCase
 
     public void testWhere()
     {
-        String viewExpr = "select * from " + SupportMarketDataBean.class.getName() + ".win:length(3) where symbol='CSCO'";
+        String viewExpr = "select * from " + SupportMarketDataBean.class.getName() + "#length(3) where symbol='CSCO'";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -62,18 +62,18 @@ public class TestViewWhereClause extends TestCase
         // invalid return type for filter during compilation time
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         try {
-            epService.getEPAdministrator().createEPL("Select theString From SupportBean.win:time(30 seconds) where intPrimitive group by theString");
+            epService.getEPAdministrator().createEPL("Select theString From SupportBean#time(30 seconds) where intPrimitive group by theString");
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error validating expression: The where-clause filter expression must return a boolean value [Select theString From SupportBean.win:time(30 seconds) where intPrimitive group by theString]", ex.getMessage());
+            assertEquals("Error validating expression: The where-clause filter expression must return a boolean value [Select theString From SupportBean#time(30 seconds) where intPrimitive group by theString]", ex.getMessage());
         }
 
         // invalid return type for filter at runtime
         Map<String, Object> dict = new HashMap<String, Object>();
         dict.put("criteria", Boolean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("MapEvent", dict);
-        stmt = epService.getEPAdministrator().createEPL("Select * From MapEvent.win:time(30 seconds) where criteria");
+        stmt = epService.getEPAdministrator().createEPL("Select * From MapEvent#time(30 seconds) where criteria");
 
         try {
             epService.getEPRuntime().sendEvent(Collections.singletonMap("criteria", 15), "MapEvent");
@@ -92,7 +92,7 @@ public class TestViewWhereClause extends TestCase
                 " intPrimitive + longPrimitive as p1," +
                 " intPrimitive * doublePrimitive as p2," +
                 " floatPrimitive / doublePrimitive as p3" +
-                " from " + SupportBean.class.getName() + ".win:length(3) where " +
+                " from " + SupportBean.class.getName() + "#length(3) where " +
                 "intPrimitive=longPrimitive and intPrimitive=doublePrimitive and floatPrimitive=doublePrimitive";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);

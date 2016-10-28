@@ -44,8 +44,8 @@ public class TestMTStmtJoin extends TestCase
     public void testJoin() throws Exception
     {
         EPStatement stmt = engine.getEPAdministrator().createEPL("select istream * \n" +
-                "  from " + EVENT_NAME + "(theString='s0').win:length(1000000) as s0,\n" +
-                "       " + EVENT_NAME + "(theString='s1').win:length(1000000) as s1\n" +
+                "  from " + EVENT_NAME + "(theString='s0')#length(1000000) as s0,\n" +
+                "       " + EVENT_NAME + "(theString='s1')#length(1000000) as s1\n" +
                 "where s0.longPrimitive = s1.longPrimitive\n"
                 );
         trySendAndReceive(4, stmt, 1000);

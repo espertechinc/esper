@@ -162,7 +162,7 @@ public class TestTableInvalid extends TestCase {
 
         try {
             String epl = "into table " + name + " select " + provided + " as value from SupportBean" +
-                    (unbound ? ".win:time(1000)" : "");
+                    (unbound ? "#time(1000)" : "");
             epService.getEPAdministrator().createEPL(epl);
             fail();
         }
@@ -215,7 +215,7 @@ public class TestTableInvalid extends TestCase {
         epService.getEPAdministrator().createEPL("context MyContext create table aggvarctx (total count(*))");
         epService.getEPAdministrator().createEPL("create context MyOtherContext initiated by SupportBean_S0 terminated by SupportBean_S1");
         epService.getEPAdministrator().createEPL("create variable int myvariable");
-        epService.getEPAdministrator().createEPL("create window MyNamedWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyNamedWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("create schema SomeSchema(p0 string)");
 
         // invalid declaration
@@ -282,7 +282,7 @@ public class TestTableInvalid extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService, "into table aggvar_ungrouped select count(*) as total, aggvar_ungrouped from SupportBean",
                 "Error starting statement: Invalid use of table 'aggvar_ungrouped', aggregate-into requires write-only, the expression 'aggvar_ungrouped' is not allowed [into table aggvar_ungrouped select count(*) as total, aggvar_ungrouped from SupportBean]");
         // unidirectional join not supported
-        SupportMessageAssertUtil.tryInvalid(epService, "into table aggvar_ungrouped select count(*) as total from SupportBean unidirectional, SupportBean_S0.win:keepall()",
+        SupportMessageAssertUtil.tryInvalid(epService, "into table aggvar_ungrouped select count(*) as total from SupportBean unidirectional, SupportBean_S0#keepall()",
                 "Error starting statement: Into-table does not allow unidirectional joins [");
         // requires aggregation
         SupportMessageAssertUtil.tryInvalid(epService, "into table aggvar_ungrouped select * from SupportBean",
@@ -314,16 +314,16 @@ public class TestTableInvalid extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService, "select aggvar_grouped_int[0].a.b from SupportBean",
                 "Invalid table expression 'aggvar_grouped_int[0].a.b [select aggvar_grouped_int[0].a.b from SupportBean]");
         // invalid use in non-contextual evaluation
-        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportBean.win:time(aggvar_ungrouped.total sec)",
-                "Error starting statement: Error in view 'win:time', Invalid parameter expression 0 for Time view: Failed to validate view parameter expression 'aggvar_ungrouped.total seconds': Invalid use of table access expression, expression 'aggvar_ungrouped' is not allowed here [select * from SupportBean.win:time(aggvar_ungrouped.total sec)]");
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportBean#time(aggvar_ungrouped.total sec)",
+                "Error starting statement: Error in view 'time', Invalid parameter expression 0 for Time view: Failed to validate view parameter expression 'aggvar_ungrouped.total seconds': Invalid use of table access expression, expression 'aggvar_ungrouped' is not allowed here [select * from SupportBean#time(aggvar_ungrouped.total sec)]");
         // indexed property expression but not an aggregtion-type variable
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(abc int[])");
         SupportMessageAssertUtil.tryInvalid(epService, "select abc[5*5] from MyEvent",
                 "Error starting statement: Failed to validate select-clause expression 'abc[5*5]': A table 'abc' could not be found [select abc[5*5] from MyEvent]");
         // view use
-        SupportMessageAssertUtil.tryInvalid(epService, "select * from aggvar_grouped_string.win:time(30)",
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from aggvar_grouped_string#time(30)",
                 "Views are not supported with tables");
-        SupportMessageAssertUtil.tryInvalid(epService, "select (select * from aggvar_ungrouped.win:keepall()) from SupportBean",
+        SupportMessageAssertUtil.tryInvalid(epService, "select (select * from aggvar_ungrouped#keepall()) from SupportBean",
                 "Views are not supported with tables [");
         // contained use
         SupportMessageAssertUtil.tryInvalid(epService, "select * from aggvar_grouped_string[books]",

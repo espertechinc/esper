@@ -40,7 +40,7 @@ public class TestEventRowRegexHelper extends TestCase
         for (int i = 0; i < patternTests.length; i++)
         {
             String pattern = patternTests[i][0];
-            String expression = "select * from MyEvent.win:keepall() match_recognize (" +
+            String expression = "select * from MyEvent#keepall() match_recognize (" +
                     "  partition by string measures A.string as a_string pattern ( " + pattern + ") define A as (A.value = 1) )";
 
             EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
@@ -84,7 +84,7 @@ public class TestEventRowRegexHelper extends TestCase
         {
             String pattern = patternTests[i][0];
             String expected = patternTests[i][1];
-            String expression = "select * from MyEvent.win:keepall() match_recognize (" +
+            String expression = "select * from MyEvent#keepall() match_recognize (" +
                     "  partition by string measures A.string as a_string pattern ( " + pattern + ") define A as (A.value = 1) )";
 
             EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);

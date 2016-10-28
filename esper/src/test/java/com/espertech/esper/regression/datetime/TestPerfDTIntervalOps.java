@@ -44,7 +44,7 @@ public class TestPerfDTIntervalOps extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName(), config);
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), config);
 
-        epService.getEPAdministrator().createEPL("create window AWindow.win:keepall() as A");
+        epService.getEPAdministrator().createEPL("create window AWindow#keepall() as A");
         epService.getEPAdministrator().createEPL("insert into AWindow select * from A");
 
         // preload

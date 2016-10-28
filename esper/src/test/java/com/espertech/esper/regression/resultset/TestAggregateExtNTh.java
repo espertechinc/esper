@@ -46,7 +46,7 @@ public class TestAggregateExtNTh extends TestCase {
                 "theString, " +
                 "nth(intPrimitive,0) as int1, " +  // current
                 "nth(intPrimitive,1) as int2 " +   // one before
-                "from SupportBean.win:keepall() group by theString output last every 3 events order by theString";
+                "from SupportBean#keepall() group by theString output last every 3 events order by theString";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 

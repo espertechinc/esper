@@ -8,16 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.client.ConfigurationPlugInPatternObject;
-import com.espertech.esper.client.ConfigurationPlugInView;
-import com.espertech.esper.client.ConfigurationPlugInVirtualDataWindow;
 import com.espertech.esper.collection.Pair;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public interface PluggableObjectRegistry
 {

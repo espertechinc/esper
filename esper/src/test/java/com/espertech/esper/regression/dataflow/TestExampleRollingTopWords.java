@@ -53,10 +53,10 @@ public class TestExampleRollingTopWords extends TestCase {
                 "create objectarray schema WordEvent (word string),\n" +
                 "Emitter -> wordstream<WordEvent> {name:'a'} // Produces word stream\n" +
                 "Select(wordstream) -> wordcount { // Sliding time window count per word\n" +
-                "  select: (select word, count(*) as wordcount from wordstream.win:time(30) group by word)\n" +
+                "  select: (select word, count(*) as wordcount from wordstream#time(30) group by word)\n" +
                 "}\n" +
                 "Select(wordcount) -> wordranks { // Rank of words\n" +
-                "  select: (select window(*) as rankedWords from wordcount.ext:sort(3, wordcount desc) output snapshot every 2 seconds)\n" +
+                "  select: (select window(*) as rankedWords from wordcount#sort(3, wordcount desc) output snapshot every 2 seconds)\n" +
                 "}\n" +
                 "DefaultSupportCaptureOp(wordranks) {}";
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
@@ -94,10 +94,10 @@ public class TestExampleRollingTopWords extends TestCase {
                 "create objectarray schema WordEvent (word string);\n" +
                 "MyWordTestSource -> wordstream<WordEvent> {} // Produces word stream\n" +
                 "Select(wordstream) -> wordcount { // Sliding time window count per word\n" +
-                "  select: select word, count(*) as wordcount from wordstream.win:time(30) group by word;\n" +
+                "  select: select word, count(*) as wordcount from wordstream#time(30) group by word;\n" +
                 "}\n" +
                 "Select(wordcount) -> wordranks { // Rank of words\n" +
-                "  select: select prevwindow(wc) from wordcount.ext:rank(word, 3, wordcount desc) as wc output snapshot every 2 seconds limit 1;\n" +
+                "  select: select prevwindow(wc) from wordcount#rank(word, 3, wordcount desc) as wc output snapshot every 2 seconds limit 1;\n" +
                 "}\n" +
                 "LogSink(wordranks) {format:'json';}";
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));

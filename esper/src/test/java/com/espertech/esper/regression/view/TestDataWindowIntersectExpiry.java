@@ -37,7 +37,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
     {
         init(false);
 
-        String epl = "select irstream theString, intPrimitive from SupportBean.win:firstlength(3).std:unique(theString)";
+        String epl = "select irstream theString, intPrimitive from SupportBean#firstlength(3)#unique(theString)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -46,7 +46,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         stmt.destroy();
         listener.reset();
         
-        epl = "select irstream theString, intPrimitive from SupportBean.std:unique(theString).win:firstlength(3)";
+        epl = "select irstream theString, intPrimitive from SupportBean#unique(theString)#firstlength(3)";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -57,14 +57,14 @@ public class TestDataWindowIntersectExpiry extends TestCase
     {
         init(false);
 
-        String epl = "select irstream theString, intPrimitive from SupportBean.std:firstunique(theString).win:firstlength(3)";
+        String epl = "select irstream theString, intPrimitive from SupportBean#firstunique(theString)#firstlength(3)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
         runAssertionFirstUniqueAndLength(stmt);
 
         stmt.destroy();
-        epl = "select irstream theString, intPrimitive from SupportBean.win:firstlength(3).std:firstunique(theString)";
+        epl = "select irstream theString, intPrimitive from SupportBean#firstlength(3)#firstunique(theString)";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -75,7 +75,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
     {
         init(false);
 
-        EPStatement nwstmt = epService.getEPAdministrator().createEPL("create window MyWindow.std:firstunique(theString).win:firstlength(3) as SupportBean");
+        EPStatement nwstmt = epService.getEPAdministrator().createEPL("create window MyWindow#firstunique(theString)#firstlength(3) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_S0 delete from MyWindow where theString = p00");
 
@@ -123,57 +123,57 @@ public class TestDataWindowIntersectExpiry extends TestCase
         EPStatement stmt;
 
         // test window
-        stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.win:length_batch(3).std:unique(intPrimitive) order by theString asc");
+        stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#length_batch(3)#unique(intPrimitive) order by theString asc");
         stmt.addListener(listener);
         runAssertionUniqueAndBatch(stmt);
         stmt.destroy();
 
-        stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.std:unique(intPrimitive).win:length_batch(3) order by theString asc");
+        stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#unique(intPrimitive)#length_batch(3) order by theString asc");
         stmt.addListener(listener);
         runAssertionUniqueAndBatch(stmt);
         stmt.destroy();
 
         // test aggregation with window
-        stmt = epService.getEPAdministrator().createEPL("select count(*) as c0, sum(intPrimitive) as c1 from SupportBean.std:unique(theString).win:length_batch(3)");
+        stmt = epService.getEPAdministrator().createEPL("select count(*) as c0, sum(intPrimitive) as c1 from SupportBean#unique(theString)#length_batch(3)");
         stmt.addListener(listener);
         runAssertionUniqueBatchAggreation();
         stmt.destroy();
 
-        stmt = epService.getEPAdministrator().createEPL("select count(*) as c0, sum(intPrimitive) as c1 from SupportBean.win:length_batch(3).std:unique(theString)");
+        stmt = epService.getEPAdministrator().createEPL("select count(*) as c0, sum(intPrimitive) as c1 from SupportBean#length_batch(3)#unique(theString)");
         stmt.addListener(listener);
         runAssertionUniqueBatchAggreation();
         stmt.destroy();
 
         // test first-unique
-        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.std:firstunique(theString).win:length_batch(3)");
+        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#firstunique(theString)#length_batch(3)");
         stmt.addListener(listener);
         runAssertionLengthBatchAndFirstUnique();
         stmt.destroy();
 
-        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:length_batch(3).std:firstunique(theString)");
+        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#length_batch(3)#firstunique(theString)");
         stmt.addListener(listener);
         runAssertionLengthBatchAndFirstUnique();
         stmt.destroy();
 
         // test time-based expiry
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.std:unique(theString).win:time_batch(1)");
+        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#unique(theString)#time_batch(1)");
         stmt.addListener(listener);
         runAssertionTimeBatchAndUnique(0);
         stmt.destroy();
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(100000));
-        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1).std:unique(theString)");
+        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1)#unique(theString)");
         stmt.addListener(listener);
         runAssertionTimeBatchAndUnique(100000);
         stmt.destroy();
 
         try {
-            stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1).win:length_batch(10)");
+            stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1)#length_batch(10)");
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error starting statement: Cannot combined multiple batch data windows into an intersection [select * from SupportBean.win:time_batch(1).win:length_batch(10)]", ex.getMessage());
+            assertEquals("Error starting statement: Cannot combined multiple batch data windows into an intersection [select * from SupportBean#time_batch(1)#length_batch(10)]", ex.getMessage());
         }
     }
 
@@ -182,7 +182,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"total"};
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.std:unique(intPrimitive).std:unique(intBoxed).stat:uni(doublePrimitive)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#unique(intPrimitive)#unique(intBoxed)#uni(doublePrimitive)");
         stmt.addListener(listener);
 
         sendEvent("E1", 1, 10, 100d);
@@ -203,7 +203,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"theString"};
 
-        String text = "select irstream theString from SupportBean.std:groupwin(intPrimitive).win:length(2).std:unique(intBoxed) retain-intersection";
+        String text = "select irstream theString from SupportBean#groupwin(intPrimitive)#length(2)#unique(intBoxed) retain-intersection";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -250,14 +250,14 @@ public class TestDataWindowIntersectExpiry extends TestCase
         listener.reset();
 
         // another combination
-        epService.getEPAdministrator().createEPL("select * from SupportBean.std:groupwin(theString).win:time(.0083 sec).std:firstevent()");
+        epService.getEPAdministrator().createEPL("select * from SupportBean#groupwin(theString)#time(.0083 sec)#firstevent()");
     }
 
     public void testIntersectSubselect()
     {
         init(false);
 
-        String text = "select * from SupportBean_S0 where p00 in (select theString from SupportBean.win:length(2).std:unique(intPrimitive) retain-intersection)";
+        String text = "select * from SupportBean_S0 where p00 in (select theString from SupportBean#length(2)#unique(intPrimitive) retain-intersection)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -288,7 +288,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"theString"};
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.std:unique(intPrimitive).std:unique(intBoxed).std:unique(doublePrimitive) retain-intersection");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#unique(intPrimitive)#unique(intBoxed)#unique(doublePrimitive) retain-intersection");
         stmt.addListener(listener);
 
         sendEvent("E1", 1, 10, 100d);
@@ -328,7 +328,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"theString"};
 
-        String text = "select irstream a.p00||b.p10 as theString from pattern [every a=SupportBean_S0 -> b=SupportBean_S1].std:unique(a.id).std:unique(b.id) retain-intersection";
+        String text = "select irstream a.p00||b.p10 as theString from pattern [every a=SupportBean_S0 -> b=SupportBean_S1]#unique(a.id)#unique(b.id) retain-intersection";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -354,7 +354,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"theString"};
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.std:unique(intPrimitive).std:unique(intBoxed) retain-intersection");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#unique(intPrimitive)#unique(intBoxed) retain-intersection");
         stmt.addListener(listener);
 
         sendEvent("E1", 1, 10);
@@ -419,7 +419,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
         String[] fields = new String[] {"theString"};
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.ext:sort(2, intPrimitive).ext:sort(2, intBoxed) retain-intersection");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#sort(2, intPrimitive)#sort(2, intBoxed) retain-intersection");
         stmt.addListener(listener);
 
         sendEvent("E1", 1, 10);
@@ -461,7 +461,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
 
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.std:unique(intPrimitive).win:time(10 sec) retain-intersection");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#unique(intPrimitive)#time(10 sec) retain-intersection");
         stmt.addListener(listener);
 
         runAssertionTimeWinUnique(stmt);
@@ -472,7 +472,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
 
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.win:time(10 sec).std:unique(intPrimitive) retain-intersection");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#time(10 sec)#unique(intPrimitive) retain-intersection");
         stmt.addListener(listener);
 
         runAssertionTimeWinUnique(stmt);
@@ -483,7 +483,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
 
         sendTimer(0);
-        String stmtText = "select irstream theString from SupportBean.win:time(10 seconds).std:unique(intPrimitive) retain-intersection";
+        String stmtText = "select irstream theString from SupportBean#time(10 seconds)#unique(intPrimitive) retain-intersection";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         assertEquals(stmtText, model.toEPL());
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -497,7 +497,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
 
         sendTimer(0);
-        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindow.win:time(10 sec).std:unique(intPrimitive) retain-intersection as select * from SupportBean");
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindow#time(10 sec)#unique(intPrimitive) retain-intersection as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_S0 delete from MyWindow where intBoxed = id");
         stmtWindow.addListener(listener);
@@ -510,7 +510,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         init(false);
 
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindow.win:time(10 sec).std:unique(intPrimitive) retain-intersection as select * from SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindow#time(10 sec)#unique(intPrimitive) retain-intersection as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_S0 delete from MyWindow where intBoxed = id");
         stmt.addListener(listener);

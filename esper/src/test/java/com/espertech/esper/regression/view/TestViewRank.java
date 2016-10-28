@@ -26,8 +26,8 @@ import junit.framework.TestCase;
 //
 // Related to the ranked data window is the following:
 // ext:sort(10, p00)                            Maintain the top 10 events sorted by p00-value
-// std:groupwin(p00).ext:sort(10, p01 desc)     For each p00-value maintain the top 10 events sorted by p01 desc
-// SupportBean.std:unique(string).ext:sort(3, intPrimitive)  Intersection NOT applicable because E1-3, E2-2, E3-1 then E2-4 causes E2-2 to go out of window
+// std:groupwin(p00)#sort(10, p01 desc)     For each p00-value maintain the top 10 events sorted by p01 desc
+// SupportBean#unique(string)#sort(3, intPrimitive)  Intersection NOT applicable because E1-3, E2-2, E3-1 then E2-4 causes E2-2 to go out of window
 // ... order by p00 desc limit 8 offset 2       This can rank, however it may retain too data (such as count per word); also cannot use window(*) on rank data
 // - it is a data window because it retains events, works with 'prev' (its sorted), works with 'window(*)', is iterable
 // - is is not an aggregation (regular or data window) because aggregations don't decide how many events to retain
@@ -53,7 +53,7 @@ public class TestViewRank extends TestCase {
 
     public void testPrevAndGroupWin() {
         EPStatement stmt = epService.getEPAdministrator().createEPL("select prevwindow(ev) as win, prev(0, ev) as prev0, prev(1, ev) as prev1, prev(2, ev) as prev2, prev(3, ev) as prev3, prev(4, ev) as prev4 " +
-                "from SupportBean.ext:rank(theString, 3, intPrimitive) as ev");
+                "from SupportBean#rank(theString, 3, intPrimitive) as ev");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 100, 0L));
@@ -72,7 +72,7 @@ public class TestViewRank extends TestCase {
         assertWindowAggAndPrev(new Object[][] {{"E2", 97, 1L}, {"E1", 98, 1L}, {"E3", 98, 0L}});
         stmt.destroy();
 
-        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.std:groupwin(theString).ext:rank(intPrimitive, 2, doublePrimitive) as ev");
+        stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#groupwin(theString)#rank(intPrimitive, 2, doublePrimitive) as ev");
         stmt.addListener(listener);
 
         String[] fields = "theString,intPrimitive,longPrimitive,doublePrimitive".split(",");
@@ -112,7 +112,7 @@ public class TestViewRank extends TestCase {
 
     public void testMultiexpression() {
         String[] fields = "theString,intPrimitive,longPrimitive,doublePrimitive".split(",");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.ext:rank(theString, intPrimitive, 3, longPrimitive, doublePrimitive)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#rank(theString, intPrimitive, 3, longPrimitive, doublePrimitive)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 100, 1L, 10d));
@@ -146,7 +146,7 @@ public class TestViewRank extends TestCase {
 
     public void testRemoveStream() {
         String[] fields = "theString,intPrimitive,longPrimitive".split(",");
-        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("create window MyWindow.ext:rank(theString, 3, intPrimitive asc) as SupportBean");
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("create window MyWindow#rank(theString, 3, intPrimitive asc) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmtListen = epService.getEPAdministrator().createEPL("select irstream * from MyWindow");
         stmtListen.addListener(listener);
@@ -196,7 +196,7 @@ public class TestViewRank extends TestCase {
     public void testRanked()
     {
         String[] fields = "theString,intPrimitive,longPrimitive".split(",");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.ext:rank(theString, 4, intPrimitive desc)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#rank(theString, 4, intPrimitive desc)");
         stmt.addListener(listener);
 
         // sorting-related testing
@@ -287,23 +287,23 @@ public class TestViewRank extends TestCase {
     }
 
     public void testInvalid() {
-        tryInvalid("select * from SupportBean.ext:rank(1, intPrimitive desc)",
-                   "Error starting statement: Error attaching view to event stream: Rank view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys [select * from SupportBean.ext:rank(1, intPrimitive desc)]");
+        tryInvalid("select * from SupportBean#rank(1, intPrimitive desc)",
+                   "Error starting statement: Error attaching view to event stream: Rank view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys [select * from SupportBean#rank(1, intPrimitive desc)]");
 
-        tryInvalid("select * from SupportBean.ext:rank(1, intPrimitive, theString desc)",
-                   "Error starting statement: Error attaching view to event stream: Failed to find unique value expressions that are expected to occur before the numeric size parameter [select * from SupportBean.ext:rank(1, intPrimitive, theString desc)]");
+        tryInvalid("select * from SupportBean#rank(1, intPrimitive, theString desc)",
+                   "Error starting statement: Error attaching view to event stream: Failed to find unique value expressions that are expected to occur before the numeric size parameter [select * from SupportBean#rank(1, intPrimitive, theString desc)]");
 
-        tryInvalid("select * from SupportBean.ext:rank(theString, intPrimitive, 1)",
-                   "Error starting statement: Error attaching view to event stream: Failed to find sort key expressions after the numeric size parameter [select * from SupportBean.ext:rank(theString, intPrimitive, 1)]");
+        tryInvalid("select * from SupportBean#rank(theString, intPrimitive, 1)",
+                   "Error starting statement: Error attaching view to event stream: Failed to find sort key expressions after the numeric size parameter [select * from SupportBean#rank(theString, intPrimitive, 1)]");
 
-        tryInvalid("select * from SupportBean.ext:rank(theString, intPrimitive, theString desc)",
-                   "Error starting statement: Error attaching view to event stream: Failed to find constant value for the numeric size parameter [select * from SupportBean.ext:rank(theString, intPrimitive, theString desc)]");
+        tryInvalid("select * from SupportBean#rank(theString, intPrimitive, theString desc)",
+                   "Error starting statement: Error attaching view to event stream: Failed to find constant value for the numeric size parameter [select * from SupportBean#rank(theString, intPrimitive, theString desc)]");
 
-        tryInvalid("select * from SupportBean.ext:rank(theString, 1, 1, intPrimitive, theString desc)",
-                   "Error starting statement: Error attaching view to event stream: Invalid view parameter expression 2 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean.ext:rank(theString, 1, 1, intPrimitive, theString desc)]");
+        tryInvalid("select * from SupportBean#rank(theString, 1, 1, intPrimitive, theString desc)",
+                   "Error starting statement: Error attaching view to event stream: Invalid view parameter expression 2 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, 1, 1, intPrimitive, theString desc)]");
 
-        tryInvalid("select * from SupportBean.ext:rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)",
-                   "Error starting statement: Error attaching view to event stream: Invalid view parameter expression 4 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean.ext:rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)]");
+        tryInvalid("select * from SupportBean#rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)",
+                   "Error starting statement: Error attaching view to event stream: Invalid view parameter expression 4 for Rank view, the expression returns a constant result value, are you sure? [select * from SupportBean#rank(theString, intPrimitive, 1, intPrimitive, 1, theString desc)]");
     }
 
     private void tryInvalid(String epl, String message) {

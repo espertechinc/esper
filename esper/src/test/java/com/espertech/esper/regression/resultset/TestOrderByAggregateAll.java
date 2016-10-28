@@ -45,8 +45,8 @@ public class TestOrderByAggregateAll extends TestCase
 	{
         String[] fields = new String[] {"symbol", "sumPrice"};
         String statementString = "select symbol, sum(price) as sumPrice from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "order by symbol";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementString);
@@ -81,7 +81,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAliases()
     {
         String statementString = "select symbol as mySymbol, sum(price) as mySum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) " +
+                                SupportMarketDataBean.class.getName() + "#length(10) " +
                                 "output every 6 events " +
                                 "order by mySymbol";
 
@@ -104,8 +104,8 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllJoinOrderFunction()
     {
     	String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "output every 6 events "  +
                                 "order by volume*sum(price), symbol";
@@ -134,7 +134,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllOrderFunction()
     {
         String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) " +
+                                SupportMarketDataBean.class.getName() + "#length(10) " +
                                 "output every 6 events "  +
                                 "order by volume*sum(price), symbol";
 
@@ -157,7 +157,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllSum()
 	{
 		String statementString = "select symbol, sum(price) from " +
-		                    SupportMarketDataBean.class.getName() + ".win:length(10) " +
+		                    SupportMarketDataBean.class.getName() + "#length(10) " +
                             "output every 6 events " +
                             "order by symbol";
 
@@ -180,7 +180,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllMaxSum()
     {
         String statementString = "select symbol, max(sum(price)) from " +
-                            SupportMarketDataBean.class.getName() + ".win:length(10) " +
+                            SupportMarketDataBean.class.getName() + "#length(10) " +
                             "output every 6 events " +
                             "order by symbol";
 
@@ -203,7 +203,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllSumHaving()
     {
         String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) " +
+                                SupportMarketDataBean.class.getName() + "#length(10) " +
                                 "having sum(price) > 0 " +
                                 "output every 6 events " +
                                 "order by symbol";
@@ -227,7 +227,7 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggOrderWithSum()
     {
         String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) " +
+                                SupportMarketDataBean.class.getName() + "#length(10) " +
                                 "output every 6 events "  +
                                 "order by symbol, sum(price)";
 
@@ -250,8 +250,8 @@ public class TestOrderByAggregateAll extends TestCase
 	public void testAggregateAllJoin()
     {
     	String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "output every 6 events " +
                                 "order by symbol, sum(price)";
@@ -279,8 +279,8 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggregateAllJoinMax()
     {
     	String statementString = "select symbol, max(sum(price)) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "output every 6 events " +
                                 "order by symbol";
@@ -308,8 +308,8 @@ public class TestOrderByAggregateAll extends TestCase
     public void testAggHaving()
     {
         String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "having sum(price) > 0 " +
                                 "output every 6 events " +

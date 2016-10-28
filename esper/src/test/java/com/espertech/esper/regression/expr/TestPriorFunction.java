@@ -47,7 +47,7 @@ public class TestPriorFunction extends TestCase
     public void testPriorTimewindowStats() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        String epl = "SELECT prior(1, average) as value FROM SupportBean().win:time(5 minutes).stat:uni(intPrimitive)";
+        String epl = "SELECT prior(1, average) as value FROM SupportBean()#time(5 minutes)#uni(intPrimitive)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -82,7 +82,7 @@ public class TestPriorFunction extends TestCase
 
     private void runAssertionPriorStreamAndVariable(String priorIndex) {
         epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean_S0.class);
-        String text = "select prior(" + priorIndex + ", s0) as result from S0.win:length(2) as s0";
+        String text = "select prior(" + priorIndex + ", s0) as result from S0#length(2) as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -102,7 +102,7 @@ public class TestPriorFunction extends TestCase
         String viewExpr = "select irstream symbol as currSymbol, " +
                           " prior(2, symbol) as priorSymbol, " +
                           " prior(2, price) as priorPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:time(1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#time(1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -185,7 +185,7 @@ public class TestPriorFunction extends TestCase
         String viewExpr = "select irstream symbol as currSymbol, " +
                           " prior(2, symbol) as priorSymbol, " +
                           " prior(3, price) as priorPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:ext_timed(volume, 1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#ext_timed(volume, 1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -243,7 +243,7 @@ public class TestPriorFunction extends TestCase
         String viewExpr = "select irstream symbol as currSymbol, " +
                           " prior(3, symbol) as priorSymbol, " +
                           " prior(2, price) as priorPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:time_batch(1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#time_batch(1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -343,7 +343,7 @@ public class TestPriorFunction extends TestCase
 
         String viewExpr = "select symbol as currSymbol, " +
                           " prior(3, symbol) as prior0Symbol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".ext:sort(3, symbol)";
+                          "from " + SupportMarketDataBean.class.getName() + "#sort(3, symbol)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -409,7 +409,7 @@ public class TestPriorFunction extends TestCase
                           " prior(1, price) as prior1Price, " +
                           " prior(2, price) as prior2Price, " +
                           " prior(3, price) as prior3Price " +
-                          "from " + SupportMarketDataBean.class.getName() + ".ext:sort(3, symbol)";
+                          "from " + SupportMarketDataBean.class.getName() + "#sort(3, symbol)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -443,7 +443,7 @@ public class TestPriorFunction extends TestCase
                             "prior(1, price) as prior1Price, " +
                             "prior(2, price) as prior2Price, " +
                             "prior(3, price) as prior3Price " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(3) ";
+                            "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -491,7 +491,7 @@ public class TestPriorFunction extends TestCase
     public void testPriorLengthWindowWhere()
     {
         String viewExpr =   "select prior(2, symbol) as currSymbol " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(1) " +
+                            "from " + SupportMarketDataBean.class.getName() + "#length(1) " +
                             "where prior(2, price) > 100";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -516,7 +516,7 @@ public class TestPriorFunction extends TestCase
                           " prior(1, price) as prior1Price, " +
                           " prior(2, price) as prior2Price, " +
                           " prior(3, price) as prior3Price " +
-                          "from " + SupportMarketDataBean.class.getName() + ".ext:sort(3, symbol)";
+                          "from " + SupportMarketDataBean.class.getName() + "#sort(3, symbol)";
         tryPriorSortWindow(viewExpr);
 
         viewExpr = "select irstream symbol as currSymbol, " +
@@ -528,7 +528,7 @@ public class TestPriorFunction extends TestCase
                           " prior(1, price) as prior1Price, " +
                           " prior(0, price) as prior0Price, " +
                           " prior(3, price) as prior3Price " +
-                          "from " + SupportMarketDataBean.class.getName() + ".ext:sort(3, symbol)";
+                          "from " + SupportMarketDataBean.class.getName() + "#sort(3, symbol)";
         tryPriorSortWindow(viewExpr);
     }
 
@@ -537,8 +537,8 @@ public class TestPriorFunction extends TestCase
         String viewExpr = "select theString as currSymbol, " +
                           "prior(2, symbol) as priorSymbol, " +
                           "prior(1, price) as priorPrice " +
-                          "from " + SupportBean.class.getName() + ".win:keepall(), " +
-                          SupportMarketDataBean.class.getName() + ".win:time_batch(1 min)";
+                          "from " + SupportBean.class.getName() + "#keepall(), " +
+                          SupportMarketDataBean.class.getName() + "#time_batch(1 min)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);

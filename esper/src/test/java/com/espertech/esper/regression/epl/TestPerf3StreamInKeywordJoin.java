@@ -50,9 +50,9 @@ public class TestPerf3StreamInKeywordJoin extends TestCase
     public void testInKeywordSingleIndexLookup()
     {
         String epl = "select s0.id as val from " +
-                "S0.win:keepall() s0, " +
-                "S1.win:keepall() s1, " +
-                "S2.win:keepall() s2 " +
+                "S0#keepall() s0, " +
+                "S1#keepall() s1, " +
+                "S2#keepall() s2 " +
                 "where p00 in (p10, p20)";
         String[] fields = "val".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

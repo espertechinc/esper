@@ -32,8 +32,8 @@ public class TestMTStmtNamedWindowJoinUniqueView extends TestCase {
         service.initialize();
 
         String epl =
-                "create window A.std:unique(key) as MyEventA;\n" +
-                "create window B.std:unique(key) as MyEventB;\n" +
+                "create window A#unique(key) as MyEventA;\n" +
+                "create window B#unique(key) as MyEventB;\n" +
                 "insert into A select * from MyEventA;\n" +
                 "insert into B select * from MyEventB;\n" +
                 "\n" +

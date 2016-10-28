@@ -50,23 +50,23 @@ public class TestRowLimit extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S1.class);
 
         // batch-window assertions
-        String eplWithBatchSingleKey = "select theString from SupportBean.win:length_batch(10) order by theString limit 1";
+        String eplWithBatchSingleKey = "select theString from SupportBean#length_batch(10) order by theString limit 1";
         runAssertionLimitOneSingleKeySortBatch(eplWithBatchSingleKey);
 
-        String eplWithBatchMultiKey = "select theString, intPrimitive from SupportBean.win:length_batch(5) order by theString asc, intPrimitive desc limit 1";
+        String eplWithBatchMultiKey = "select theString, intPrimitive from SupportBean#length_batch(5) order by theString asc, intPrimitive desc limit 1";
         runAssertionLimitOneMultiKeySortBatch(eplWithBatchMultiKey);
 
         // context output-when-terminated assertions
         epService.getEPAdministrator().createEPL("create context StartS0EndS1 as start SupportBean_S0 end SupportBean_S1");
 
         String eplContextSingleKey = "context StartS0EndS1 " +
-                "select theString from SupportBean.win:keepall() " +
+                "select theString from SupportBean#keepall() " +
                 "output snapshot when terminated " +
                 "order by theString limit 1";
         runAssertionLimitOneSingleKeySortBatch(eplContextSingleKey);
 
         String eplContextMultiKey = "context StartS0EndS1 " +
-                "select theString, intPrimitive from SupportBean.win:keepall() " +
+                "select theString, intPrimitive from SupportBean#keepall() " +
                 "output snapshot when terminated " +
                 "order by theString asc, intPrimitive desc limit 1";
         runAssertionLimitOneMultiKeySortBatch(eplContextMultiKey);
@@ -96,7 +96,7 @@ public class TestRowLimit extends TestCase {
 
     public void testBatchNoOffsetNoOrder()
 	{
-        String statementString = "select irstream * from SupportBean.win:length_batch(3) limit 1";
+        String statementString = "select irstream * from SupportBean#length_batch(3) limit 1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         runAssertion(stmt);
@@ -108,14 +108,14 @@ public class TestRowLimit extends TestCase {
         epService.getEPAdministrator().createEPL("create variable int myoffset = 1");
         epService.getEPAdministrator().createEPL("on SupportBeanNumeric set myrows = intOne, myoffset = intTwo");
 
-        String statementString = "select * from SupportBean.win:length(5) output every 5 events limit myoffset, myrows";
+        String statementString = "select * from SupportBean#length(5) output every 5 events limit myoffset, myrows";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
         runAssertionVariable(stmt);
         stmt.destroy();
         listener.reset();
         epService.getEPRuntime().sendEvent(new SupportBeanNumeric(2, 1));
         
-        statementString = "select * from SupportBean.win:length(5) output every 5 events limit myrows offset myoffset";
+        statementString = "select * from SupportBean#length(5) output every 5 events limit myrows offset myoffset";
         stmt = epService.getEPAdministrator().createEPL(statementString);
         runAssertionVariable(stmt);
         stmt.destroy();
@@ -130,7 +130,7 @@ public class TestRowLimit extends TestCase {
 
     public void testOrderBy()
 	{
-        String statementString = "select * from SupportBean.win:length(5) output every 5 events order by intPrimitive limit 2 offset 2";
+        String statementString = "select * from SupportBean#length(5) output every 5 events order by intPrimitive limit 2 offset 2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         String[] fields = "theString".split(",");
@@ -240,10 +240,10 @@ public class TestRowLimit extends TestCase {
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard());
         model.getSelectClause().setStreamSelector(StreamSelector.RSTREAM_ISTREAM_BOTH);
-        model.setFromClause(FromClause.create(FilterStream.create("SupportBean").addView("win", "length_batch", Expressions.constant(3))));
+        model.setFromClause(FromClause.create(FilterStream.create("SupportBean").addView("length_batch", Expressions.constant(3))));
         model.setRowLimitClause(RowLimitClause.create(1));
         
-        String statementString = "select irstream * from SupportBean.win:length_batch(3) limit 1";
+        String statementString = "select irstream * from SupportBean#length_batch(3) limit 1";
         assertEquals(statementString, model.toEPL());
         EPStatement stmt = epService.getEPAdministrator().create(model);
         runAssertion(stmt);
@@ -258,7 +258,7 @@ public class TestRowLimit extends TestCase {
 
     public void testFullyGroupedOrdered()
 	{
-        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean.win:length(5) group by theString order by sum(intPrimitive) limit 2";
+        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean#length(5) group by theString order by sum(intPrimitive) limit 2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         String[] fields = "theString,mysum".split(",");
@@ -284,7 +284,7 @@ public class TestRowLimit extends TestCase {
     public void testEventPerRowUnGrouped()
 	{
         sendTimer(1000);
-        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean.win:length(5) output every 10 seconds order by theString desc limit 2";
+        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean#length(5) output every 10 seconds order by theString desc limit 2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         String[] fields = "theString,mysum".split(",");
@@ -303,7 +303,7 @@ public class TestRowLimit extends TestCase {
     public void testGroupedSnapshot()
 	{
         sendTimer(1000);
-        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean.win:length(5) group by theString output snapshot every 10 seconds order by sum(intPrimitive) desc limit 2";
+        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean#length(5) group by theString output snapshot every 10 seconds order by sum(intPrimitive) desc limit 2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         String[] fields = "theString,mysum".split(",");
@@ -322,7 +322,7 @@ public class TestRowLimit extends TestCase {
     public void testGroupedSnapshotNegativeRowcount()
 	{
         sendTimer(1000);
-        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean.win:length(5) group by theString output snapshot every 10 seconds order by sum(intPrimitive) desc limit -1 offset 1";
+        String statementString = "select theString, sum(intPrimitive) as mysum from SupportBean#length(5) group by theString output snapshot every 10 seconds order by sum(intPrimitive) desc limit -1 offset 1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementString);
 
         String[] fields = "theString,mysum".split(",");

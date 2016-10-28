@@ -55,7 +55,7 @@ public class TestCaseExpr extends TestCase
         String caseExpr = "select case " +
               " when symbol='GE' then volume " +
               " when symbol='DELL' then sum(price) " +
-              "end as p1 from " +   SupportMarketDataBean.class.getName() + ".win:length(10)";
+              "end as p1 from " +   SupportMarketDataBean.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -91,7 +91,7 @@ public class TestCaseExpr extends TestCase
         String caseExpr = "select case" +
               " when symbol=\"GE\" then volume" +
               " when symbol=\"DELL\" then sum(price) " +
-              "end as p1 from " +   SupportMarketDataBean.class.getName() + ".win:length(10)";
+              "end as p1 from " +   SupportMarketDataBean.class.getName() + "#length(10)";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(caseExpr);
 
         assertEquals(caseExpr, model.toEPL());
@@ -128,7 +128,7 @@ public class TestCaseExpr extends TestCase
         String caseExpr = "select case " +
               " when symbol='DELL' then 3 * volume " +
               " else volume " +
-              "end as p1 from " + SupportMarketDataBean.class.getName() + ".win:length(3)";
+              "end as p1 from " + SupportMarketDataBean.class.getName() + "#length(3)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -143,13 +143,13 @@ public class TestCaseExpr extends TestCase
         model.setSelectClause(SelectClause.create().add(Expressions.caseWhenThen()
                 .setElse(Expressions.property("volume"))
                 .add(Expressions.eq("symbol", "DELL"), Expressions.multiply(Expressions.property("volume"), Expressions.constant(3))), "p1"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(10))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(10))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         String caseExpr = "select case " +
               "when symbol=\"DELL\" then volume*3 " +
               "else volume " +
-              "end as p1 from " + SupportMarketDataBean.class.getName() + ".win:length(10)";
+              "end as p1 from " + SupportMarketDataBean.class.getName() + "#length(10)";
         assertEquals(caseExpr, model.toEPL());
 
         EPStatement selectTestCase = epService.getEPAdministrator().create(model);
@@ -164,7 +164,7 @@ public class TestCaseExpr extends TestCase
         String caseExpr = "select case " +
               "when symbol=\"DELL\" then volume*3 " +
               "else volume " +
-              "end as p1 from " + SupportMarketDataBean.class.getName() + ".win:length(10)";
+              "end as p1 from " + SupportMarketDataBean.class.getName() + "#length(10)";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(caseExpr);
         assertEquals(caseExpr, model.toEPL());
 
@@ -219,7 +219,7 @@ public class TestCaseExpr extends TestCase
                 " when doublePrimitive then intPrimitive * doublePrimitive" +
                 " when floatPrimitive then floatPrimitive / doublePrimitive " +
                 " else (intPrimitive + longPrimitive + floatPrimitive + doublePrimitive) end as p1 " +
-                " from " + SupportBean.class.getName() + ".win:length(10)";
+                " from " + SupportBean.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -269,7 +269,7 @@ public class TestCaseExpr extends TestCase
                 " when 16 then Double.toString(doubleBoxed) " +
                 " when 17 then theString " +
                 " else 'x' end as p1 " +
-                " from " + SupportBean.class.getName() + ".win:length(1)";
+                " from " + SupportBean.class.getName() + "#length(1)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -353,7 +353,7 @@ public class TestCaseExpr extends TestCase
        String caseExpr = "select case theString " +
                  " when null then true " +
                  " when '' then false end as p1" +
-                 " from " + SupportBean.class.getName() + ".win:length(100)";
+                 " from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -377,7 +377,7 @@ public class TestCaseExpr extends TestCase
        String caseExpr = "select case " +
                  " when theString is null then true " +
                  " when theString = '' then false end as p1" +
-                 " from " + SupportBean.class.getName() + ".win:length(100)";
+                 " from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -403,7 +403,7 @@ public class TestCaseExpr extends TestCase
                  "when 2 then 1.0d " +
                  "when 3 then null " +
                  "else 2 " +
-                 "end as p1 from " + SupportBean.class.getName() + ".win:length(100)";
+                 "end as p1 from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create().add(Expressions.caseSwitch("intPrimitive")
@@ -411,7 +411,7 @@ public class TestCaseExpr extends TestCase
                 .add(Expressions.constant(1), Expressions.constant(null))
                 .add(Expressions.constant(2), Expressions.constant(1.0))
                 .add(Expressions.constant(3), Expressions.constant(null)), "p1"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("win", "length", Expressions.constant(100))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("length", Expressions.constant(100))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         assertEquals(caseExpr, model.toEPL());
@@ -429,7 +429,7 @@ public class TestCaseExpr extends TestCase
                  "when 2 then 1.0d " +
                  "when 3 then null " +
                  "else 2 " +
-                 "end as p1 from " + SupportBean.class.getName() + ".win:length(100)";
+                 "end as p1 from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(caseExpr);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -449,7 +449,7 @@ public class TestCaseExpr extends TestCase
                  " when 2 then 1.0" +
                  " when 3 then null " +
                  " else 2 " +
-                 " end as p1 from " + SupportBean.class.getName() + ".win:length(100)";
+                 " end as p1 from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -476,7 +476,7 @@ public class TestCaseExpr extends TestCase
                  " when null then 1 " +
                  " when true then 2l" +
                  " when false then 3 " +
-                 " end as p1 from " + SupportBean.class.getName() + ".win:length(100)";
+                 " end as p1 from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -495,7 +495,7 @@ public class TestCaseExpr extends TestCase
        String caseExpr = "select case intPrimitive " +
                  " when 1.0 then null " +
                  " when 4/2.0 then 'x'" +
-                 " end as p1 from " + SupportBean.class.getName() + ".win:length(100)";
+                 " end as p1 from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -515,7 +515,7 @@ public class TestCaseExpr extends TestCase
                  " intPrimitive when 1 then 2 " +
                  " when 2 then 3 " +
                  " else 10 end) as p1 " +
-                 " from " + SupportBean.class.getName() + ".win:length(1)";
+                 " from " + SupportBean.class.getName() + "#length(1)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -539,7 +539,7 @@ public class TestCaseExpr extends TestCase
        String caseExpr = "select case intPrimitive when 1 then sum(longPrimitive) " +
                  " when 2 then sum(floatPrimitive) " +
                  " else sum(intPrimitive) end as p1 " +
-                 " from " + SupportBean.class.getName() + ".win:length(10)";
+                 " from " + SupportBean.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -576,7 +576,7 @@ public class TestCaseExpr extends TestCase
                  " when com.espertech.esper.support.bean.SupportEnum.getValueForEnum(0) then 1 " +
                  " when com.espertech.esper.support.bean.SupportEnum.getValueForEnum(1) then 2 " +
                  " end as p1 " +
-                 " from " + SupportBeanWithEnum.class.getName() + ".win:length(10)";
+                 " from " + SupportBeanWithEnum.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -602,7 +602,7 @@ public class TestCaseExpr extends TestCase
                  " when 4 then com.espertech.esper.support.bean.SupportEnum.getValueForEnum(1) " +
                  " else com.espertech.esper.support.bean.SupportEnum.getValueForEnum(2) " +
                  " end as p1 " +
-                 " from " + SupportBean.class.getName() + ".win:length(10)";
+                 " from " + SupportBean.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);
@@ -625,7 +625,7 @@ public class TestCaseExpr extends TestCase
     {
         String caseSubExpr = "case intPrimitive when 1 then 0 end";
         String caseExpr = "select " + caseSubExpr +
-                 " from " + SupportBean.class.getName() + ".win:length(10)";
+                 " from " + SupportBean.class.getName() + "#length(10)";
 
         EPStatement selectTestCase = epService.getEPAdministrator().createEPL(caseExpr);
         selectTestCase.addListener(testListener);

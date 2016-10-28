@@ -57,10 +57,10 @@ public class Test3StreamOuterJoinVarA extends TestCase
 
     public void testMapLeftJoinUnsortedProps()
     {
-        String stmtText = "select t1.col1, t1.col2, t2.col1, t2.col2, t3.col1, t3.col2 from type1.win:keepall() as t1" +
-                " left outer join type2.win:keepall() as t2" +
+        String stmtText = "select t1.col1, t1.col2, t2.col1, t2.col2, t3.col1, t3.col2 from type1#keepall() as t1" +
+                " left outer join type2#keepall() as t2" +
                 " on t1.col2 = t2.col2 and t1.col1 = t2.col1" +
-                " left outer join type3.win:keepall() as t3" +
+                " left outer join type3#keepall() as t3" +
                 " on t1.col1 = t3.col1";
 
         Map<String, Object> mapType = new HashMap<String, Object>();
@@ -107,9 +107,9 @@ public class Test3StreamOuterJoinVarA extends TestCase
         String fields[] = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11, s2.id, s2.p20, s2.p21".split(",");
 
         String joinStatement = "select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            " left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 and s0.p01 = s2.p21";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            " left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 and s0.p01 = s2.p21";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -147,15 +147,15 @@ public class Test3StreamOuterJoinVarA extends TestCase
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard());
         FromClause fromClause = FromClause.create(
-                FilterStream.create(EVENT_S0, "s0").addView("win", "keepall"),
-                FilterStream.create(EVENT_S1, "s1").addView("win", "keepall"),
-                FilterStream.create(EVENT_S2, "s2").addView("win", "keepall"));
+                FilterStream.create(EVENT_S0, "s0").addView("keepall"),
+                FilterStream.create(EVENT_S1, "s1").addView("keepall"),
+                FilterStream.create(EVENT_S2, "s2").addView("keepall"));
         fromClause.add(OuterJoinQualifier.create("s0.p00", OuterJoinType.LEFT, "s1.p10"));
         fromClause.add(OuterJoinQualifier.create("s0.p00", OuterJoinType.LEFT, "s2.p20"));
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean_S0.win:keepall() as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1.win:keepall() as s1 on s0.p00 = s1.p10 left outer join com.espertech.esper.support.bean.SupportBean_S2.win:keepall() as s2 on s0.p00 = s2.p20", model.toEPL());
+        assertEquals("select * from com.espertech.esper.support.bean.SupportBean_S0#keepall() as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall() as s1 on s0.p00 = s1.p10 left outer join com.espertech.esper.support.bean.SupportBean_S2#keepall() as s2 on s0.p00 = s2.p20", model.toEPL());
         EPStatement joinView = epService.getEPAdministrator().create(model);
         joinView.addListener(updateListener);
 
@@ -165,9 +165,9 @@ public class Test3StreamOuterJoinVarA extends TestCase
     public void testLeftOuterJoin_root_s0_Compiled() throws Exception
     {
         String joinStatement = "select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            "left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 " +
-            "left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            "left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 " +
+            "left outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(joinStatement);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -187,9 +187,9 @@ public class Test3StreamOuterJoinVarA extends TestCase
          *           s1 <-      -> s2
          */
         String joinStatement = "select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            " left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 ";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            " left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -205,9 +205,9 @@ public class Test3StreamOuterJoinVarA extends TestCase
          *           s1 <-      -> s2
          */
         String joinStatement = "select * from " +
-                                  EVENT_S2 + ".win:length(1000) as s2 " +
-            " right outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s2.p20 " +
-            " left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 ";
+                                  EVENT_S2 + "#length(1000) as s2 " +
+            " right outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s2.p20 " +
+            " left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -223,9 +223,9 @@ public class Test3StreamOuterJoinVarA extends TestCase
          *           s1 <-      -> s2
          */
         String joinStatement = "select * from " +
-                                  EVENT_S1 + ".win:length(1000) as s1 " +
-            " right outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 ";
+                                  EVENT_S1 + "#length(1000) as s1 " +
+            " right outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -560,29 +560,29 @@ public class Test3StreamOuterJoinVarA extends TestCase
         try
         {
             String joinStatement = "select * from " +
-                                      EVENT_S0 + ".win:length(1000) as s0 " +
-                " left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
-                " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21";
+                                      EVENT_S0 + "#length(1000) as s0 " +
+                " left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
+                " left outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21";
             epService.getEPAdministrator().createEPL(joinStatement);
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0.win:length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1.win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2.win:length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21]", ex.getMessage());
+            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0#length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2#length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21]", ex.getMessage());
         }
 
         try
         {
             String joinStatement = "select * from " +
-                                      EVENT_S0 + ".win:length(1000) as s0 " +
-                " left outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
-                " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11";
+                                      EVENT_S0 + "#length(1000) as s0 " +
+                " left outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
+                " left outer join " + EVENT_S2 + "#length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11";
             epService.getEPAdministrator().createEPL(joinStatement);
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0.win:length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1.win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2.win:length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11]", ex.getMessage());
+            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0#length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2#length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11]", ex.getMessage());
         }
     }
 

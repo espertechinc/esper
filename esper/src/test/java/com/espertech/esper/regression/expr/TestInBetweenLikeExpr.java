@@ -405,7 +405,7 @@ public class TestInBetweenLikeExpr extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select intPrimitive in (2:4) as ro, intPrimitive in [2:4] as rc, intPrimitive in [2:4) as rho, intPrimitive in (2:4] as rhc, " +
                 "intPrimitive not in (2:4) as nro, intPrimitive not in [2:4] as nrc, intPrimitive not in [2:4) as nrho, intPrimitive not in (2:4] as nrhc " +
-                "from SupportBean.std:lastevent()");
+                "from SupportBean#lastevent()");
         stmt.addListener(listener);
         
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -426,7 +426,7 @@ public class TestInBetweenLikeExpr extends TestCase
         // test range reversed
         stmt.destroy();
         stmt = epService.getEPAdministrator().createEPL(
-                "select intPrimitive between 4 and 2 as r1, intPrimitive in [4:2] as r2 from SupportBean.std:lastevent()");
+                "select intPrimitive between 4 and 2 as r1, intPrimitive in [4:2] as r2 from SupportBean#lastevent()");
         stmt.addListener(listener);
         
         fields = "r1,r2".split(",");
@@ -436,7 +436,7 @@ public class TestInBetweenLikeExpr extends TestCase
         // test string type
         stmt.destroy();
         fields = "ro".split(",");
-        stmt = epService.getEPAdministrator().createEPL("select theString in ('a':'d') as ro from SupportBean.std:lastevent()");
+        stmt = epService.getEPAdministrator().createEPL("select theString in ('a':'d') as ro from SupportBean#lastevent()");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("a", 5));

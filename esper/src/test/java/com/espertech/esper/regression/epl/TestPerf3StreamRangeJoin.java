@@ -51,9 +51,9 @@ public class TestPerf3StreamRangeJoin extends TestCase
      * This join algorithm profits from merge join cartesian indicated via @hint.
      */
     public void testPerf3StreamKeyAndRange() {
-        epService.getEPAdministrator().createEPL("create window ST0.win:keepall() as SupportBean_ST0");
+        epService.getEPAdministrator().createEPL("create window ST0#keepall() as SupportBean_ST0");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into ST0 select * from SupportBean_ST0");
-        epService.getEPAdministrator().createEPL("create window ST1.win:keepall() as SupportBean_ST1");
+        epService.getEPAdministrator().createEPL("create window ST1#keepall() as SupportBean_ST1");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into ST1 select * from SupportBean_ST1");
 
         // Preload
@@ -65,14 +65,14 @@ public class TestPerf3StreamRangeJoin extends TestCase
         }
         log.info("Done preloading");
 
-        String epl = "@Hint('PREFER_MERGE_JOIN') select * from SupportBeanRange.std:lastevent() a " +
+        String epl = "@Hint('PREFER_MERGE_JOIN') select * from SupportBeanRange#lastevent() a " +
                 "inner join ST0 st0 on st0.key0 = a.key " +
                 "inner join ST1 st1 on st1.key1 = a.key " +
                 "where " +
                 "st0.p00 between rangeStart and rangeEnd and st1.p10 between rangeStart and rangeEnd";
         runAssertion(epl);
 
-        epl = "@Hint('PREFER_MERGE_JOIN') select * from SupportBeanRange.std:lastevent() a, ST0 st0, ST1 st1 " +
+        epl = "@Hint('PREFER_MERGE_JOIN') select * from SupportBeanRange#lastevent() a, ST0 st0, ST1 st1 " +
                 "where st0.key0 = a.key and st1.key1 = a.key and " +
                 "st0.p00 between rangeStart and rangeEnd and st1.p10 between rangeStart and rangeEnd";
         runAssertion(epl);
@@ -82,9 +82,9 @@ public class TestPerf3StreamRangeJoin extends TestCase
      * This join algorithm uses merge join cartesian (not nested iteration).
      */
     public void testPerf3StreamRangeOnly() {
-        epService.getEPAdministrator().createEPL("create window ST0.win:keepall() as SupportBean_ST0");
+        epService.getEPAdministrator().createEPL("create window ST0#keepall() as SupportBean_ST0");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into ST0 select * from SupportBean_ST0");
-        epService.getEPAdministrator().createEPL("create window ST1.win:keepall() as SupportBean_ST1");
+        epService.getEPAdministrator().createEPL("create window ST1#keepall() as SupportBean_ST1");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into ST1 select * from SupportBean_ST1");
 
         // Preload
@@ -97,9 +97,9 @@ public class TestPerf3StreamRangeJoin extends TestCase
         log.info("Done preloading");
 
         // start query
-        //String epl = "select * from SupportBeanRange.std:lastevent() a, ST0 st0, ST1 st1 " +
+        //String epl = "select * from SupportBeanRange#lastevent() a, ST0 st0, ST1 st1 " +
         //        "where st0.key0 = a.key and st1.key1 = a.key";
-        String epl = "select * from SupportBeanRange.std:lastevent() a, ST0 st0, ST1 st1 " +
+        String epl = "select * from SupportBeanRange#lastevent() a, ST0 st0, ST1 st1 " +
                 "where st0.p00 between rangeStart and rangeEnd and st1.p10 between rangeStart and rangeEnd";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -124,9 +124,9 @@ public class TestPerf3StreamRangeJoin extends TestCase
      * This join algorithm profits from nested iteration execution.
      */
     public void testPerf3StreamUnidirectionalKeyAndRange() {
-        epService.getEPAdministrator().createEPL("create window SBR.win:keepall() as SupportBeanRange");
+        epService.getEPAdministrator().createEPL("create window SBR#keepall() as SupportBeanRange");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into SBR select * from SupportBeanRange");
-        epService.getEPAdministrator().createEPL("create window ST1.win:keepall() as SupportBean_ST1");
+        epService.getEPAdministrator().createEPL("create window ST1#keepall() as SupportBean_ST1");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into ST1 select * from SupportBean_ST1");
 
         // Preload

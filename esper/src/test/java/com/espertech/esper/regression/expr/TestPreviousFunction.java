@@ -53,7 +53,7 @@ public class TestPreviousFunction extends TestCase
                 "prevwindow(sb), " +
                 "prevcount(intPrimitive), " +
                 "prevcount(sb) " +
-                "from SupportBean.win:time(1 minutes) as sb";
+                "from SupportBean#time(1 minutes) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -94,7 +94,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(0, s0) as tailresult," +
                 "prevwindow(s0) as windowresult," +
                 "prevcount(s0) as countresult " +
-                "from S0.win:length(2) as s0";
+                "from S0#length(2) as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -121,7 +121,7 @@ public class TestPreviousFunction extends TestCase
     public void testPrevCountStarWithStaticMethod()
     {
         String text = "select irstream count(*) as total, " +
-                      "prev(" + TestPreviousFunction.class.getName() + ".intToLong(count(*)) - 1, price) as firstPrice from " + SupportMarketDataBean.class.getName() + ".win:time(60)";
+                      "prev(" + TestPreviousFunction.class.getName() + ".intToLong(count(*)) - 1, price) as firstPrice from " + SupportMarketDataBean.class.getName() + "#time(60)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -131,7 +131,7 @@ public class TestPreviousFunction extends TestCase
     public void testPrevCountStar()
     {
         String text = "select irstream count(*) as total, " +
-                      "prev(count(*) - 1, price) as firstPrice from " + SupportMarketDataBean.class.getName() + ".win:time(60)";
+                      "prev(count(*) - 1, price) as firstPrice from " + SupportMarketDataBean.class.getName() + "#time(60)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);
 
@@ -206,7 +206,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(price) as tailPrice, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from MDBean.std:groupwin(symbol, feed).win:length(2)";
+                "from MDBean#groupwin(symbol, feed)#length(2)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -235,7 +235,7 @@ public class TestPreviousFunction extends TestCase
 
         // test length window overflow
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        epService.getEPAdministrator().createEPL("select prev(5,intPrimitive) as val0 from SupportBean.std:groupwin(theString).win:length(5)").addListener(listener);
+        epService.getEPAdministrator().createEPL("select prev(5,intPrimitive) as val0 from SupportBean#groupwin(theString)#length(5)").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("A", 11));
         assertEquals(null, listener.assertOneGetNewAndReset().get("val0"));
@@ -288,7 +288,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(1, price) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).ext:sort(10, price asc) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#sort(10, price asc) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -337,7 +337,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(1, price) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:time_batch(1 sec) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#time_batch(1 sec) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -406,7 +406,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(price, 1) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:length_batch(3) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#length_batch(3) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -479,7 +479,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(1, price) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:time(20 sec) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#time(20 sec) ";
         assertPerGroup(viewExpr);
     }
 
@@ -493,7 +493,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(1, price) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:ext_timed(volume, 20 sec) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#ext_timed(volume, 20 sec) ";
         assertPerGroup(viewExpr);
     }
 
@@ -507,7 +507,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(price, 1) as prevTail1Price, " +
                 "prevcount(price) as countPrice, " +
                 "prevwindow(price) as windowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:length(10) ";
+                "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#length(10) ";
         assertPerGroup(viewExpr);
     }
 
@@ -522,7 +522,7 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:time(1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#time(1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -594,7 +594,7 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:ext_timed(volume, 1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#ext_timed(volume, 1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -645,7 +645,7 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:time_batch(1 min) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#time_batch(1 min) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -703,8 +703,8 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportBean.class.getName() + ".win:keepall(), " +
-                          SupportMarketDataBean.class.getName() + ".win:time_batch(1 min)";
+                          "from " + SupportBean.class.getName() + "#keepall(), " +
+                          SupportMarketDataBean.class.getName() + "#time_batch(1 min)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -755,7 +755,7 @@ public class TestPreviousFunction extends TestCase
                             "prevtail(1, price) as prevTail1Price, " +
                             "prevcount(price) as prevCountPrice, " +
                             "prevwindow(price) as prevWindowPrice " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(3) ";
+                            "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -792,7 +792,7 @@ public class TestPreviousFunction extends TestCase
                             "prevtail(1, price) as prevTail1Price, " +
                             "prevcount(price) as prevCountPrice, " +
                             "prevwindow(price) as prevWindowPrice " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length_batch(3) ";
+                            "from " + SupportMarketDataBean.class.getName() + "#length_batch(3) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -833,7 +833,7 @@ public class TestPreviousFunction extends TestCase
     public void testPreviousLengthWindowWhere()
     {
         String viewExpr =   "select prev(2, symbol) as currSymbol " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(100) " +
+                            "from " + SupportMarketDataBean.class.getName() + "#length(100) " +
                             "where prev(2, price) > 100";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -850,7 +850,7 @@ public class TestPreviousFunction extends TestCase
     public void testPreviousLengthWindowDynamic()
     {
         String viewExpr =   "select prev(intPrimitive, theString) as sPrev " +
-                            "from " + SupportBean.class.getName() + ".win:length(100)";
+                            "from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -891,7 +891,7 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".ext:sort(100, symbol asc)";
+                          "from " + SupportMarketDataBean.class.getName() + "#sort(100, symbol asc)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -937,7 +937,7 @@ public class TestPreviousFunction extends TestCase
                 "prevtail(1, price) as prevTail1Price, " +
                 "prevcount(price) as prevCountPrice, " +
                 "prevwindow(price) as prevWindowPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".win:ext_timed_batch(volume, 10, 0L) ";
+                "from " + SupportMarketDataBean.class.getName() + "#ext_timed_batch(volume, 10, 0L) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -974,14 +974,14 @@ public class TestPreviousFunction extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
         tryInvalid("select prev(0, average) " +
-                "from " + SupportMarketDataBean.class.getName() + ".win:length(100).stat:uni(price)",
-                "Error starting statement: Previous function requires a single data window view onto the stream [select prev(0, average) from com.espertech.esper.support.bean.SupportMarketDataBean.win:length(100).stat:uni(price)]");
+                "from " + SupportMarketDataBean.class.getName() + "#length(100)#uni(price)",
+                "Error starting statement: Previous function requires a single data window view onto the stream [select prev(0, average) from com.espertech.esper.support.bean.SupportMarketDataBean#length(100)#uni(price)]");
 
-        tryInvalid("select count(*) from SupportBean.win:keepall() where prev(0, intPrimitive) = 5",
-                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean.win:keepall() where prev(0, intPrimitive) = 5]");
+        tryInvalid("select count(*) from SupportBean#keepall() where prev(0, intPrimitive) = 5",
+                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall() where prev(0, intPrimitive) = 5]");
 
-        tryInvalid("select count(*) from SupportBean.win:keepall() having prev(0, intPrimitive) = 5",
-                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean.win:keepall() having prev(0, intPrimitive) = 5]");
+        tryInvalid("select count(*) from SupportBean#keepall() having prev(0, intPrimitive) = 5",
+                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall() having prev(0, intPrimitive) = 5]");
     }
 
     private void tryInvalid(String statement, String expectedError)

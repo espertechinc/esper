@@ -40,7 +40,7 @@ public class TestNamedWindowIndex extends TestCase
 
     public void testUniqueIndexUniqueView() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindowOne.std:unique(theString) as SupportBean");
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindowOne#unique(theString) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindowOne select * from SupportBean");
         epService.getEPAdministrator().createEPL("create unique index I1 on MyWindowOne(theString)");
 

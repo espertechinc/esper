@@ -26,7 +26,7 @@ public class ErrorRateMonitor
 
         EPStatement pattern = admin.createPattern("every timer:at(*, *, *, *, *, */10)");
         final EPStatement view = admin.createEPL("select count(*) as size from " + OperationMeasurement.class.getName() +
-                "(success=false).win:time(10 min)");
+                "(success=false)#time(10 min)");
 
         pattern.addListener(new UpdateListener()
         {

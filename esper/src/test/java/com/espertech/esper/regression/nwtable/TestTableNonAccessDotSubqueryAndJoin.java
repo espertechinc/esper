@@ -60,7 +60,7 @@ public class TestTableNonAccessDotSubqueryAndJoin extends TestCase {
         SupportModelHelper.createByCompileOrParse(epService, soda, eplCreate);
 
         String eplIntoTable = "into table MyTable select sum(intPrimitive) as col1, sorted() as col2, " +
-                "window(*) as col4 from SupportBean.win:length(3)";
+                "window(*) as col4 from SupportBean#length(3)";
         EPStatement stmtIntoTable = SupportModelHelper.createByCompileOrParse(epService, soda, eplIntoTable);
         SupportBean[] sentSB = new SupportBean[2];
         sentSB[0] = makeSendSupportBean("E1", 20);

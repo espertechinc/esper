@@ -44,7 +44,7 @@ public class TestNamedWindowContainedEvent extends TestCase
     public void testInvalid() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
-        epService.getEPAdministrator().createEPL("create window OrderWindow.win:time(30) as OrderBean");
+        epService.getEPAdministrator().createEPL("create window OrderWindow#time(30) as OrderBean");
 
         try {
             String epl = "select * from SupportBean unidirectional, OrderWindow[books]";

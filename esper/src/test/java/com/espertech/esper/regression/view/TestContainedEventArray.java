@@ -51,7 +51,7 @@ public class TestContainedEventArray extends TestCase
                 "select * from MyEvent[ids@type(IdContainer)];");
 
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
-                "create window MyWindow.win:keepall() (id int);" +
+                "create window MyWindow#keepall() (id int);" +
                 "on MyEvent[ids@type(IdContainer)] as my_ids \n" +
                 "delete from MyWindow my_window \n" +
                 "where my_ids.id = my_window.id;");
@@ -62,7 +62,7 @@ public class TestContainedEventArray extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanArrayCollMap.class);
 
         String epl = "create objectarray schema DeleteId(id int);" +
-                     "create window MyWindow.win:keepall() as SupportBean;" +
+                     "create window MyWindow#keepall() as SupportBean;" +
                      "insert into MyWindow select * from SupportBean;" +
                      "on SupportBeanArrayCollMap[intArr@type(DeleteId)] delete from MyWindow where intPrimitive = id";
         DeploymentResult deployed = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);

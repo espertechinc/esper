@@ -37,7 +37,7 @@ from Withdrawal]]></programlisting>
 		  A multi-line program listing:
 		</para>
 		<programlisting><![CDATA[select account, avg(amount) 
-from Withdrawal.win:time(4 sec) 
+from Withdrawal#time(4 sec) 
 group by account
 having amount > 1000]]></programlisting>
 

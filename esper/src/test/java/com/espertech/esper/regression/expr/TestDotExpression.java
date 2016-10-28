@@ -129,14 +129,14 @@ public class TestDotExpression extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(Node.class);
         epService.getEPAdministrator().getConfiguration().addEventType(NodeData.class);
 
-        epService.getEPAdministrator().createEPL("create window NodeWindow.std:unique(id) as Node");
+        epService.getEPAdministrator().createEPL("create window NodeWindow#unique(id) as Node");
         epService.getEPAdministrator().createEPL("insert into NodeWindow select * from Node");
 
-        epService.getEPAdministrator().createEPL("create window NodeDataWindow.std:unique(nodeId) as NodeData");
+        epService.getEPAdministrator().createEPL("create window NodeDataWindow#unique(nodeId) as NodeData");
         epService.getEPAdministrator().createEPL("insert into NodeDataWindow select * from NodeData");
 
         epService.getEPAdministrator().createEPL("create schema NodeWithData(node Node, data NodeData)");
-        epService.getEPAdministrator().createEPL("create window NodeWithDataWindow.std:unique(node.id) as NodeWithData");
+        epService.getEPAdministrator().createEPL("create window NodeWithDataWindow#unique(node.id) as NodeWithData");
         epService.getEPAdministrator().createEPL("insert into NodeWithDataWindow " +
                 "select node, data from NodeWindow node join NodeDataWindow as data on node.id = data.nodeId");
 

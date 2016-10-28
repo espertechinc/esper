@@ -72,7 +72,7 @@ public class TestContextHashSegmented extends TestCase {
                         "consistent_hash_crc32(userId) from UserKeywordTotalStream " +
                         "granularity 1000000;\n" +
                 "\n" +
-                "context HashByUserCtx create window ScoreCycleWindow.std:unique(productId, keyword) as ScoreCycle;\n" +
+                "context HashByUserCtx create window ScoreCycleWindow#unique(productId, keyword) as ScoreCycle;\n" +
                 "\n" +
                 "context HashByUserCtx insert into ScoreCycleWindow select * from ScoreCycle;\n" +
                 "\n" +
@@ -105,7 +105,7 @@ public class TestContextHashSegmented extends TestCase {
     public void testContextPartitionSelection() {
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("create context MyCtx as coalesce consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean.win:keepall() group by theString");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall() group by theString");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), stmt.safeIterator(), fields, new Object[][]{{5, "E1", 1}});
@@ -171,7 +171,7 @@ public class TestContextHashSegmented extends TestCase {
         tryInvalid(epl, "Error starting statement: Segmented context 'ACtx' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
 
         // invalid attempt to partition a named window's streams
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epl = "create context SegmentedByWhat partition by theString from MyWindow";
         tryInvalid(epl, "Error starting statement: Partition criteria may not include named windows [create context SegmentedByWhat partition by theString from MyWindow]");
     }
@@ -199,7 +199,7 @@ public class TestContextHashSegmented extends TestCase {
                 "preallocate";
         epService.getEPAdministrator().createEPL(eplCtx);
 
-        String eplStmt = "context " + ctx + " " + "select context.name as c0, intPrimitive as c1 from SupportBean.std:lastevent()";
+        String eplStmt = "context " + ctx + " " + "select context.name as c0, intPrimitive as c1 from SupportBean#lastevent()";
         EPStatementSPI statement = (EPStatementSPI) epService.getEPAdministrator().createEPL(eplStmt);
         statement.addListener(listener);
 
@@ -236,8 +236,8 @@ public class TestContextHashSegmented extends TestCase {
         String[] fields = "c1,c2,c3,c4,c5".split(",");
         String eplStmt = "context Ctx1 select intPrimitive as c1, " +
                 "sum(longPrimitive) as c2, prev(1, longPrimitive) as c3, prior(1, longPrimitive) as c4," +
-                "(select p00 from SupportBean_S0.win:length(2)) as c5 " +
-                "from SupportBean.win:length(3)";
+                "(select p00 from SupportBean_S0#length(2)) as c5 " +
+                "from SupportBean#length(3)";
         EPStatementSPI statement = (EPStatementSPI) epService.getEPAdministrator().createEPL(eplStmt);
         statement.addListener(listener);
 
@@ -267,7 +267,7 @@ public class TestContextHashSegmented extends TestCase {
         SupportHashCodeFuncGranularCRC32 codeFunc = new SupportHashCodeFuncGranularCRC32(4);
 
         String eplStmt = "context " + ctx + " " +
-                "select context.name as c0, intPrimitive as c1, id as c2 from SupportBean.win:keepall() as t1, SupportBean_S0.win:keepall() as t2 where t1.theString = t2.p00";
+                "select context.name as c0, intPrimitive as c1, id as c2 from SupportBean#keepall() as t1, SupportBean_S0#keepall() as t2 where t1.theString = t2.p00";
         EPStatementSPI statement = (EPStatementSPI) epService.getEPAdministrator().createEPL(eplStmt);
         statement.addListener(listener);
 
@@ -312,7 +312,7 @@ public class TestContextHashSegmented extends TestCase {
         epService.getEPAdministrator().createEPL(eplCtx);
 
         String eplStmt = "context " + ctx + " " +
-                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean.win:keepall() group by theString";
+                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall() group by theString";
         EPStatementSPI statement = (EPStatementSPI) epService.getEPAdministrator().createEPL(eplStmt);
         statement.addListener(listener);
         assertEquals(4, filterSPI.getFilterCountApprox());
@@ -338,7 +338,7 @@ public class TestContextHashSegmented extends TestCase {
                 "preallocate");
 
         statement = (EPStatementSPI) epService.getEPAdministrator().createEPL("context " + ctx + " " +
-                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean.win:keepall() group by theString");
+                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall() group by theString");
         statement.addListener(listener);
         assertEquals(6, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 6, 0, 0, 0);
@@ -352,7 +352,7 @@ public class TestContextHashSegmented extends TestCase {
                 "granularity 16 ");
 
         statement = (EPStatementSPI) epService.getEPAdministrator().createEPL("context " + ctx + " " +
-                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean.win:keepall() group by theString");
+                "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall() group by theString");
         statement.addListener(listener);
         assertEquals(1, filterSPI.getFilterCountApprox());
         AgentInstanceAssertionUtil.assertInstanceCounts(statement.getStatementContext(), 0, 0, 0, 0);

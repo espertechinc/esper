@@ -60,7 +60,7 @@ public class TestExpressionDefAliasFor extends TestCase {
 
         epService.getEPAdministrator().createEPL("create schema EnterRoomEvent()");
         epService.getEPAdministrator().createEPL("expression countPeople alias for {count(*)} \n" +
-                "select countPeople from EnterRoomEvent.win:time(10 seconds) having countPeople > 10");
+                "select countPeople from EnterRoomEvent#time(10 seconds) having countPeople > 10");
     }
 
     public void testNestedAlias() {

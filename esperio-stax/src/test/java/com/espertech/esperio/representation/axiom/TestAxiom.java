@@ -68,7 +68,7 @@ public class TestAxiom extends TestCase
                        "xpathElement1, xpathCountE21, xpathAttrString, xpathAttrNum, xpathAttrBool, " +
                        "invalidelement," +
                        "element3.myattribute as invalidattr " +
-                      "from TestXMLNoSchemaType.win:length(100)";
+                      "from TestXMLNoSchemaType#length(100)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);
         joinView.addListener(updateListener);

@@ -57,7 +57,7 @@ public class TestInfraSubqFilteredCorrel extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean_S0.class);
 
         String createEpl = namedWindow ?
-                "create window MyInfra.win:keepall() as select * from SupportBean" :
+                "create window MyInfra#keepall() as select * from SupportBean" :
                 "create table MyInfra (theString string primary key, intPrimitive int primary key)";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;

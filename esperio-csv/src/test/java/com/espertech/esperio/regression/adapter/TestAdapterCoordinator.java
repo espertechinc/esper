@@ -55,7 +55,7 @@ public class TestAdapterCoordinator extends TestCase
 		epService = EPServiceProviderManager.getProvider("Adapter", configuration);
 		epService.initialize();
 		EPAdministrator administrator = epService.getEPAdministrator();
-		String statementText = "select * from mapEvent.win:length(5)";
+		String statementText = "select * from mapEvent#length(5)";
 		EPStatement statement = administrator.createEPL(statementText);
 		listener = new SupportUpdateListener();
 		statement.addListener(listener);

@@ -28,19 +28,19 @@ on ChangeRule(ruleId = "1") set NUM_PTS_FIRST_WHO_ANSWERED = points;
 *  Named windows to retain information on questions, players and answers.
 */
 @Name('Score window')
-create window PlayerScoreWindow.std:unique(playerId) as (playerId string, score int);
+create window PlayerScoreWindow#unique(playerId) as (playerId string, score int);
 
 @Name('Player-answer window')
-create window PlayerAnswerWindow.win:time(5 minutes) as (playerId string, questionId string, questionTime long, answer string, clientAnswerTime long, hasReceivedFA boolean);
+create window PlayerAnswerWindow#time(5 minutes) as (playerId string, questionId string, questionTime long, answer string, clientAnswerTime long, hasReceivedFA boolean);
 
 @Name('Question-fastest-correct-answer window')
-create window PlayerFastestAnswerWindow.std:unique(questionId) as (questionId string, playerId string);
+create window PlayerFastestAnswerWindow#unique(questionId) as (questionId string, playerId string);
 
 @Name('Question window')
-create window QuestionWindow.win:time(1 hour) as TriviaQuestion;
+create window QuestionWindow#time(1 hour) as TriviaQuestion;
 
 @Name('Player answer history window')
-create window PlayerAnswerHistoryWindow.win:keepall() as (playerId string, questionId string, correct boolean, bonusEligible boolean, questionTime long);
+create window PlayerAnswerHistoryWindow#keepall() as (playerId string, questionId string, correct boolean, bonusEligible boolean, questionTime long);
 
 /**
 * Reacting to Question.

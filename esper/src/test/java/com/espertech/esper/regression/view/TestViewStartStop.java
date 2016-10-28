@@ -40,7 +40,7 @@ public class TestViewStartStop extends TestCase
 
     public void testSameWindowReuse()
     {
-        String viewExpr = "select * from " + SupportBean.class.getName() + ".win:length(3)";
+        String viewExpr = "select * from " + SupportBean.class.getName() + "#length(3)";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(viewExpr);
         stmtOne.addListener(testListener);
 

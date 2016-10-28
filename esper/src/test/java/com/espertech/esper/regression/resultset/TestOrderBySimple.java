@@ -95,7 +95,7 @@ public class TestOrderBySimple extends TestCase {
         EPAssertionUtil.assertPropsPerRow(receivedThree, "a.theString".split(","), new Object[][]{{"A2"}, {"A1"}});
 
         // try grouped time window
-        String stmtTextTwo = "select rstream theString from SupportBean.std:groupwin(theString).win:time(10) order by theString desc";
+        String stmtTextTwo = "select rstream theString from SupportBean#groupwin(theString)#time(10) order by theString desc";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtTextTwo);
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
         stmtTwo.addListener(listenerTwo);
@@ -147,7 +147,7 @@ public class TestOrderBySimple extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class.getName());
 
         // test order by
-        String stmtText = "select theString from SupportBean.win:keepall() order by theString asc";
+        String stmtText = "select theString from SupportBean#keepall() order by theString asc";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtText);
         epService.getEPRuntime().sendEvent(new SupportBean(frenchForSin, 1));
         epService.getEPRuntime().sendEvent(new SupportBean(frenchForFruit, 1));
@@ -155,7 +155,7 @@ public class TestOrderBySimple extends TestCase {
 
         // test sort view
         SupportUpdateListener listener = new SupportUpdateListener();
-        stmtText = "select irstream theString from SupportBean.ext:sort(2, theString asc)";
+        stmtText = "select irstream theString from SupportBean#sort(2, theString asc)";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtText);
         stmtTwo.addListener(listener);
 
@@ -170,8 +170,8 @@ public class TestOrderBySimple extends TestCase {
     public void testIterator()
 	{
     	String statementString = "select symbol, theString, price from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "order by price";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementString);
@@ -202,8 +202,8 @@ public class TestOrderBySimple extends TestCase {
     public void testAcrossJoin()
 	{
     	String statementString = "select symbol, theString from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by price";
@@ -216,8 +216,8 @@ public class TestOrderBySimple extends TestCase {
         clearValues();
 
     	statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by theString, price";
@@ -232,13 +232,13 @@ public class TestOrderBySimple extends TestCase {
     public void testDescending_OM() throws Exception
 	{
         String stmtText = "select symbol from " +
-                SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                SupportMarketDataBean.class.getName() + "#length(5) " +
                 "output every 6 events "  +
                 "order by price desc";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("symbol"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(5))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(5))));
         model.setOutputLimitClause(OutputLimitClause.create(6));
         model.setOrderByClause(OrderByClause.create().add("price", true));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -262,7 +262,7 @@ public class TestOrderBySimple extends TestCase {
     public void testDescending()
 	{
 		String statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price desc";
 		createAndSend(statementString);
@@ -271,7 +271,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price desc, symbol asc";
 		createAndSend(statementString);
@@ -281,7 +281,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price asc";
 		createAndSend(statementString);
@@ -290,7 +290,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, volume from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol desc";
 		createAndSend(statementString);
@@ -301,7 +301,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, price from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol desc, price desc";
 		createAndSend(statementString);
@@ -313,7 +313,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, price from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol, price";
 		createAndSend(statementString);
@@ -326,7 +326,7 @@ public class TestOrderBySimple extends TestCase {
     public void testExpressions()
 	{
 		String statementString = "select symbol from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by (price * 6) + 5";
 	 	createAndSend(statementString);
@@ -338,7 +338,7 @@ public class TestOrderBySimple extends TestCase {
 	 	epService.initialize();
 
 		statementString = "select symbol, price from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by (price * 6) + 5, price";
 	 	createAndSend(statementString);
@@ -350,7 +350,7 @@ public class TestOrderBySimple extends TestCase {
 	 	epService.initialize();
 
 		statementString = "select symbol, 1+volume*23 from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by (price * 6) + 5, price, volume";
 	 	createAndSend(statementString);
@@ -362,7 +362,7 @@ public class TestOrderBySimple extends TestCase {
 	 	epService.initialize();
 
 		statementString = "select symbol from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by volume*price, symbol";
 	 	createAndSend(statementString);
@@ -375,7 +375,7 @@ public class TestOrderBySimple extends TestCase {
     public void testAliasesSimple()
     {
         String statementString = "select symbol as mySymbol from " +
-        SupportMarketDataBean.class.getName() + ".win:length(5) " +
+        SupportMarketDataBean.class.getName() + "#length(5) " +
         "output every 6 events "  +
         "order by mySymbol";
         createAndSend(statementString);
@@ -385,7 +385,7 @@ public class TestOrderBySimple extends TestCase {
         clearValues();
 
         statementString = "select symbol as mySymbol, price as myPrice from " +
-        SupportMarketDataBean.class.getName() + ".win:length(5) " +
+        SupportMarketDataBean.class.getName() + "#length(5) " +
         "output every 6 events "  +
         "order by myPrice";
         createAndSend(statementString);
@@ -396,7 +396,7 @@ public class TestOrderBySimple extends TestCase {
         clearValues();
 
         statementString = "select symbol, price as myPrice from " +
-         SupportMarketDataBean.class.getName() + ".win:length(10) " +
+         SupportMarketDataBean.class.getName() + "#length(10) " +
          "output every 6 events "  +
          "order by (myPrice * 6) + 5, price";
          createAndSend(statementString);
@@ -406,7 +406,7 @@ public class TestOrderBySimple extends TestCase {
          clearValues();
 
         statementString = "select symbol, 1+volume*23 as myVol from " +
-         SupportMarketDataBean.class.getName() + ".win:length(10) " +
+         SupportMarketDataBean.class.getName() + "#length(10) " +
          "output every 6 events "  +
          "order by (price * 6) + 5, price, myVol";
          createAndSend(statementString);
@@ -419,8 +419,8 @@ public class TestOrderBySimple extends TestCase {
     public void testExpressionsJoin()
     {
     	String statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by (price * 6) + 5";
@@ -434,8 +434,8 @@ public class TestOrderBySimple extends TestCase {
      	epService.initialize();
 
     	statementString = "select symbol, price from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by (price * 6) + 5, price";
@@ -449,8 +449,8 @@ public class TestOrderBySimple extends TestCase {
      	epService.initialize();
 
     	statementString = "select symbol, 1+volume*23 from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by (price * 6) + 5, price, volume";
@@ -464,8 +464,8 @@ public class TestOrderBySimple extends TestCase {
      	epService.initialize();
 
     	statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by volume*price, symbol";
@@ -480,7 +480,7 @@ public class TestOrderBySimple extends TestCase {
     public void testInvalid()
 	{
 		String statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by sum(price)";
 		try
@@ -494,7 +494,7 @@ public class TestOrderBySimple extends TestCase {
 		}
 
 		statementString = "select sum(price) from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by sum(price + 6)";
 		try
@@ -508,7 +508,7 @@ public class TestOrderBySimple extends TestCase {
 		}
 
 		statementString = "select sum(price + 6) from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by sum(price)";
 		try
@@ -525,8 +525,8 @@ public class TestOrderBySimple extends TestCase {
     public void testInvalidJoin()
     {
     	String statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by sum(price)";
@@ -541,8 +541,8 @@ public class TestOrderBySimple extends TestCase {
     	}
 
     	statementString = "select sum(price) from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by sum(price + 6)";
@@ -557,8 +557,8 @@ public class TestOrderBySimple extends TestCase {
     	}
 
     	statementString = "select sum(price + 6) from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by sum(price)";
@@ -576,7 +576,7 @@ public class TestOrderBySimple extends TestCase {
     public void testMultipleKeys()
 	{
 		String statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(10) " +
+		SupportMarketDataBean.class.getName() + "#length(10) " +
 		"output every 6 events "  +
 		"order by symbol, price";
 		createAndSend(statementString);
@@ -586,7 +586,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by price, symbol, volume";
 	 	createAndSend(statementString);
@@ -596,7 +596,7 @@ public class TestOrderBySimple extends TestCase {
 	 	clearValues();
 
 		statementString = "select symbol, volume*2 from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by price, volume";
 	 	createAndSend(statementString);
@@ -609,7 +609,7 @@ public class TestOrderBySimple extends TestCase {
 	public void testAliases()
 	{
 		String statementString = "select symbol as mySymbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by mySymbol";
 		createAndSend(statementString);
@@ -619,7 +619,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol as mySymbol, price as myPrice from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by myPrice";
 		createAndSend(statementString);
@@ -630,7 +630,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, price as myPrice from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by (myPrice * 6) + 5, price";
 	 	createAndSend(statementString);
@@ -640,7 +640,7 @@ public class TestOrderBySimple extends TestCase {
 	 	clearValues();
 
 		statementString = "select symbol, 1+volume*23 as myVol from " +
-	 	SupportMarketDataBean.class.getName() + ".win:length(10) " +
+	 	SupportMarketDataBean.class.getName() + "#length(10) " +
 	 	"output every 6 events "  +
 	 	"order by (price * 6) + 5, price, myVol";
 	 	createAndSend(statementString);
@@ -650,7 +650,7 @@ public class TestOrderBySimple extends TestCase {
 	 	clearValues();
 
 		statementString = "select symbol as mySymbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"order by price, mySymbol";
 		createAndSend(statementString);
 		symbols.add("CAT");
@@ -665,8 +665,8 @@ public class TestOrderBySimple extends TestCase {
     public void testMultipleKeysJoin()
     {
     	String statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by symbol, price";
@@ -678,8 +678,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by price, symbol, volume";
@@ -691,8 +691,8 @@ public class TestOrderBySimple extends TestCase {
      	clearValues();
 
     	statementString = "select symbol, volume*2 from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
      	"output every 6 events "  +
      	"order by price, volume";
@@ -707,7 +707,7 @@ public class TestOrderBySimple extends TestCase {
     public void testSimple()
 	{
 		String statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price";
 		createAndSend(statementString);
@@ -717,7 +717,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, price from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price";
 		createAndSend(statementString);
@@ -728,7 +728,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, volume from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price";
 		createAndSend(statementString);
@@ -739,7 +739,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, volume*2 from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price";
 		createAndSend(statementString);
@@ -750,7 +750,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select symbol, volume from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol";
 		createAndSend(statementString);
@@ -761,7 +761,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select price from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol";
 		createAndSend(statementString);
@@ -774,8 +774,8 @@ public class TestOrderBySimple extends TestCase {
     public void testSimpleJoin()
     {
     	String statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by price";
@@ -787,8 +787,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select symbol, price from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by price";
@@ -801,8 +801,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select symbol, volume from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by price";
@@ -815,8 +815,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select symbol, volume*2 from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by price";
@@ -829,8 +829,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select symbol, volume from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by symbol";
@@ -843,8 +843,8 @@ public class TestOrderBySimple extends TestCase {
     	clearValues();
 
     	statementString = "select price from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by symbol, price";
@@ -859,7 +859,7 @@ public class TestOrderBySimple extends TestCase {
     public void testWildcard()
 	{
 		String statementString = "select * from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by price";
 		createAndSend(statementString);
@@ -871,7 +871,7 @@ public class TestOrderBySimple extends TestCase {
 		clearValues();
 
 		statementString = "select * from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"output every 6 events "  +
 		"order by symbol";
 		createAndSend(statementString);
@@ -887,8 +887,8 @@ public class TestOrderBySimple extends TestCase {
     public void testWildcardJoin()
     {
     	String statementString = "select * from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events " +
     	"order by price";
@@ -901,8 +901,8 @@ public class TestOrderBySimple extends TestCase {
     	epService.initialize();
 
     	statementString = "select * from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"output every 6 events "  +
     	"order by symbol, price";
@@ -916,7 +916,7 @@ public class TestOrderBySimple extends TestCase {
     public void testNoOutputClauseView()
     {
 		String statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:length(5) " +
+		SupportMarketDataBean.class.getName() + "#length(5) " +
 		"order by price";
 		createAndSend(statementString);
 		symbols.add("CAT");
@@ -933,7 +933,7 @@ public class TestOrderBySimple extends TestCase {
 		sendTimeEvent(0);
 
 		statementString = "select symbol from " +
-		SupportMarketDataBean.class.getName() + ".win:time_batch(1 sec) " +
+		SupportMarketDataBean.class.getName() + "#time_batch(1 sec) " +
 		"order by price";
 		createAndSend(statementString);
 		orderValuesByPrice();
@@ -946,8 +946,8 @@ public class TestOrderBySimple extends TestCase {
     public void testNoOutputClauseJoin()
     {
     	String statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"order by price";
     	createAndSend(statementString);
@@ -966,8 +966,8 @@ public class TestOrderBySimple extends TestCase {
 		sendTimeEvent(0);
 
     	statementString = "select symbol from " +
-    	SupportMarketDataBean.class.getName() + ".win:time_batch(1) as one, " +
-    	SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	SupportMarketDataBean.class.getName() + "#time_batch(1) as one, " +
+    	SupportBeanString.class.getName() + "#length(100) as two " +
     	"where one.symbol = two.theString " +
     	"order by price, symbol";
     	createAndSend(statementString);

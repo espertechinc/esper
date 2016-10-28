@@ -82,7 +82,7 @@ public class TestForGroupDelivery extends TestCase
     {
         SupportSubscriberMRD subscriber = new SupportSubscriberMRD();
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString,intPrimitive from SupportBean.win:time_batch(1) for discrete_delivery");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString,intPrimitive from SupportBean#time_batch(1) for discrete_delivery");
         stmt.setSubscriber(subscriber);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -96,7 +96,7 @@ public class TestForGroupDelivery extends TestCase
 
         stmt.destroy();
         subscriber.reset();
-        stmt = epService.getEPAdministrator().createEPL("select irstream theString,intPrimitive from SupportBean.win:time_batch(1) for grouped_delivery(intPrimitive)");
+        stmt = epService.getEPAdministrator().createEPL("select irstream theString,intPrimitive from SupportBean#time_batch(1) for grouped_delivery(intPrimitive)");
         stmt.setSubscriber(subscriber);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -116,7 +116,7 @@ public class TestForGroupDelivery extends TestCase
     public void testDiscreteDelivery()
     {
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1) for discrete_delivery");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1) for discrete_delivery");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -143,7 +143,7 @@ public class TestForGroupDelivery extends TestCase
     public void testGroupDelivery()
     {
         sendTimer(0);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1) for grouped_delivery (intPrimitive)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1) for grouped_delivery (intPrimitive)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -158,7 +158,7 @@ public class TestForGroupDelivery extends TestCase
 
         // test sorted
         stmt.destroy();
-        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1) order by intPrimitive desc for grouped_delivery (intPrimitive)");
+        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1) order by intPrimitive desc for grouped_delivery (intPrimitive)");
         stmt.addListener(listener);
         listener.reset();
 
@@ -174,7 +174,7 @@ public class TestForGroupDelivery extends TestCase
 
         // test multiple criteria
         stmt.destroy();
-        String stmtText = "select theString, doubleBoxed, enumValue from SupportBean.win:time_batch(1) order by theString, doubleBoxed, enumValue for grouped_delivery(doubleBoxed, enumValue)";
+        String stmtText = "select theString, doubleBoxed, enumValue from SupportBean#time_batch(1) order by theString, doubleBoxed, enumValue for grouped_delivery(doubleBoxed, enumValue)";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         listener.reset();

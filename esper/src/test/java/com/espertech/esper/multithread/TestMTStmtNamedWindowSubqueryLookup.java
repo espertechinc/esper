@@ -54,7 +54,7 @@ public class TestMTStmtNamedWindowSubqueryLookup extends TestCase
         // setup statements
         engine.getEPAdministrator().createEPL("create schema MyUpdateEvent as (key string, intupd int)");
         engine.getEPAdministrator().createEPL("create schema MySchema as (theString string, intval int)");
-        EPStatement namedWindow = engine.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as MySchema");
+        EPStatement namedWindow = engine.getEPAdministrator().createEPL("create window MyWindow#keepall() as MySchema");
         engine.getEPAdministrator().createEPL("on MyUpdateEvent mue merge MyWindow mw " +
                 "where mw.theString = mue.key " +
                 "when not matched then insert select key as theString, intupd as intval " +

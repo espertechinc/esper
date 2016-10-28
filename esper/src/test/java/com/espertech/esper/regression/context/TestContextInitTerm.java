@@ -217,7 +217,7 @@ public class TestContextInitTerm extends TestCase {
         String[] fields = "c0,c1,c2,c3".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("create context MyCtx as initiated by SupportBean_S0 s0 terminated by SupportBean_S1(id=s0.id)");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean.win:keepall() group by theString");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall() group by theString");
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
@@ -298,7 +298,7 @@ public class TestContextInitTerm extends TestCase {
         String[] fields = "c1,c2".split(",");
         SupportUpdateListener listener = new SupportUpdateListener();
         EPStatement statement = epService.getEPAdministrator().createEPL("context EveryNowAndThen select context.s0.p00 as c1, sum(intPrimitive) as c2 " +
-                "from SupportBean.win:keepall() output snapshot when terminated");
+                "from SupportBean#keepall() output snapshot when terminated");
         statement.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -328,7 +328,7 @@ public class TestContextInitTerm extends TestCase {
 
     public void testScheduleFilterResources() {
         // test no-context statement
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.win:time(30)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#time(30)");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertEquals(1, spi.getSchedulingService().getScheduleHandleCount());
@@ -345,7 +345,7 @@ public class TestContextInitTerm extends TestCase {
                 "terminated after 1 minutes";
         epService.getEPAdministrator().createEPL(eplCtx);
 
-        epService.getEPAdministrator().createEPL("context EverySupportBean select * from SupportBean_S0.win:time(2 min) sb0");
+        epService.getEPAdministrator().createEPL("context EverySupportBean select * from SupportBean_S0#time(2 min) sb0");
         assertEquals(0, spi.getSchedulingService().getScheduleHandleCount());
         assertEquals(1, filterServiceSPI.getFilterCountApprox());
 
@@ -964,7 +964,7 @@ public class TestContextInitTerm extends TestCase {
 
         String epl =
                 "\n @Name('ctx') create context RuleActivityTime as start (0, 9, *, *, *) end (0, 17, *, *, *);" +
-                        "\n @Name('window') context RuleActivityTime create window EventsWindow.std:firstunique(productID) as Event;" +
+                        "\n @Name('window') context RuleActivityTime create window EventsWindow#firstunique(productID) as Event;" +
                         "\n @Name('variable') create variable boolean IsOutputTriggered_2 = false;" +
                         "\n @Name('A') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +
                         "\n @Name('B') context RuleActivityTime insert into EventsWindow select * from Event(not exists (select * from EventsWindow));" +

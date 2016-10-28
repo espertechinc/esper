@@ -71,6 +71,17 @@ public class CreateWindowClause implements Serializable
     }
 
     /**
+     * Adds an un-parameterized view to the named window.
+     * @param name is the view name, for example "length" for a length window
+     * @return named window creation clause
+     */
+    public CreateWindowClause addView(String name)
+    {
+        views.add(View.create(null, name));
+        return this;
+    }
+
+    /**
      * Adds a parameterized view to the named window.
      * @param namespace is the view namespace, for example "win" for most data windows
      * @param name is the view name, for example "length" for a length window
@@ -85,6 +96,18 @@ public class CreateWindowClause implements Serializable
 
     /**
      * Adds a parameterized view to the named window.
+     * @param name is the view name, for example "length" for a length window
+     * @param parameters is a list of view parameters
+     * @return named window creation clause
+     */
+    public CreateWindowClause addView(String name, List<Expression> parameters)
+    {
+        views.add(View.create(name, parameters));
+        return this;
+    }
+
+    /**
+     * Adds a parameterized view to the named window.
      * @param namespace is the view namespace, for example "win" for most data windows
      * @param name is the view name, for example "length" for a length window
      * @param parameters is a list of view parameters
@@ -93,6 +116,18 @@ public class CreateWindowClause implements Serializable
     public CreateWindowClause addView(String namespace, String name, Expression... parameters)
     {
         views.add(View.create(namespace, name, parameters));
+        return this;
+    }
+
+    /**
+     * Adds a parameterized view to the named window.
+     * @param name is the view name, for example "length" for a length window
+     * @param parameters is a list of view parameters
+     * @return named window creation clause
+     */
+    public CreateWindowClause addView(String name, Expression... parameters)
+    {
+        views.add(View.create(null, name, parameters));
         return this;
     }
 

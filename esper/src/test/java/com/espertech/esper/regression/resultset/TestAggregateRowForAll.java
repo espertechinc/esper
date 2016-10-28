@@ -51,7 +51,7 @@ public class TestAggregateRowForAll extends TestCase
     public void testSumOneView()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBean.class.getName() + ".win:time(10 sec)";
+                          "from " + SupportBean.class.getName() + "#time(10 sec)";
 
         sendTimerEvent(0);
         selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -63,8 +63,8 @@ public class TestAggregateRowForAll extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:keepall() as one, " +
-                                    SupportBean.class.getName() + ".win:time(10 sec) as two " +
+                          "from " + SupportBeanString.class.getName() + "#keepall() as one, " +
+                                    SupportBean.class.getName() + "#time(10 sec) as two " +
                           "where one.theString = two.theString";
 
         sendTimerEvent(0);
@@ -117,7 +117,7 @@ public class TestAggregateRowForAll extends TestCase
     public void testAvgPerSym() throws Throwable
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(
-                "select irstream avg(price) as avgp, sym from " + SupportPriceEvent.class.getName() + ".std:groupwin(sym).win:length(2)"
+                "select irstream avg(price) as avgp, sym from " + SupportPriceEvent.class.getName() + "#groupwin(sym)#length(2)"
         );
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -153,7 +153,7 @@ public class TestAggregateRowForAll extends TestCase
 
     public void testSelectStarStdGroupBy() {
         String stmtText = "select istream * from "+ SupportMarketDataBean.class.getName()
-                +".std:groupwin(symbol).win:length(2)";
+                +"#groupwin(symbol)#length(2)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 
@@ -165,7 +165,7 @@ public class TestAggregateRowForAll extends TestCase
 
     public void testSelectExprStdGroupBy() {
         String stmtText = "select istream price from "+ SupportMarketDataBean.class.getName()
-                +".std:groupwin(symbol).win:length(2)";
+                +"#groupwin(symbol)#length(2)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 
@@ -176,7 +176,7 @@ public class TestAggregateRowForAll extends TestCase
 
     public void testSelectAvgExprStdGroupBy() {
         String stmtText = "select istream avg(price) as aprice from "+ SupportMarketDataBean.class.getName()
-                +".std:groupwin(symbol).win:length(2)";
+                +"#groupwin(symbol)#length(2)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 
@@ -190,7 +190,7 @@ public class TestAggregateRowForAll extends TestCase
 
     public void testSelectAvgStdGroupByUni() {
         String stmtText = "select istream average as aprice from "+ SupportMarketDataBean.class.getName()
-                +".std:groupwin(symbol).win:length(2).stat:uni(price)";
+                +"#groupwin(symbol)#length(2)#uni(price)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 
@@ -215,7 +215,7 @@ public class TestAggregateRowForAll extends TestCase
 
     public void testSelectAvgExprGroupBy() {
         String stmtText = "select istream avg(price) as aprice, symbol from "+ SupportMarketDataBean.class.getName()
-                +".win:length(2) group by symbol";
+                +"#length(2) group by symbol";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 

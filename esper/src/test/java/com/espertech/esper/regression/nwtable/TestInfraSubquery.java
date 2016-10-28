@@ -78,7 +78,7 @@ public class TestInfraSubquery extends TestCase
     {
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b long)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -120,19 +120,19 @@ public class TestInfraSubquery extends TestCase
     public void runAssertionInvalidSubquery(boolean namedWindow)
     {
         String eplCreate = namedWindow ?
-            "create window MyInfra.win:keepall() as " + SupportBean.class.getName() :
+            "create window MyInfra#keepall() as " + SupportBean.class.getName() :
             "create table MyInfra(theString string)";
         epService.getEPAdministrator().createEPL(eplCreate);
 
         try
         {
-            epService.getEPAdministrator().createEPL("select (select theString from MyInfra.std:lastevent()) from MyInfra");
+            epService.getEPAdministrator().createEPL("select (select theString from MyInfra#lastevent()) from MyInfra");
             fail();
         }
         catch (EPException ex)
         {
             if (namedWindow) {
-                assertEquals("Error starting statement: Failed to plan subquery number 1 querying MyInfra: Consuming statements to a named window cannot declare a data window view onto the named window [select (select theString from MyInfra.std:lastevent()) from MyInfra]", ex.getMessage());
+                assertEquals("Error starting statement: Failed to plan subquery number 1 querying MyInfra: Consuming statements to a named window cannot declare a data window view onto the named window [select (select theString from MyInfra#lastevent()) from MyInfra]", ex.getMessage());
             }
             else {
                 SupportMessageAssertUtil.assertMessage(ex, "Views are not supported with tables");
@@ -149,7 +149,7 @@ public class TestInfraSubquery extends TestCase
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as key, intBoxed as value from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as key, intBoxed as value from " + SupportBean.class.getName() :
                 "create table MyInfra(key string primary key, value int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -197,7 +197,7 @@ public class TestInfraSubquery extends TestCase
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as key, intBoxed as value from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as key, intBoxed as value from " + SupportBean.class.getName() :
                 "create table MyInfra (key string primary key, value int)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);

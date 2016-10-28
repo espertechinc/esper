@@ -38,7 +38,7 @@ public class TestStaticFunctions extends TestCase
 	    epService = EPServiceProviderManager.getDefaultProvider(SupportConfigFactory.getConfiguration());
 	    epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
-        stream = " from " + SupportMarketDataBean.class.getName() +".win:length(5) ";
+        stream = " from " + SupportMarketDataBean.class.getName() +"#length(5) ";
         listener = new SupportUpdateListener();
 	}
 
@@ -218,7 +218,7 @@ public class TestStaticFunctions extends TestCase
     {
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create().add(Expressions.staticMethod("Integer", "toBinaryString", 7), "value"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(5))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(5))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         statementText = "select Integer.toBinaryString(7) as value" + stream;
 

@@ -177,7 +177,7 @@ EPStatement myTrigger = admin.createEPL("select * from pattern [" +
 			</para>
 			<programlisting><![CDATA[select a.custId, sum(a.price + b.price)
 from pattern [every a=ServiceOrder -> 
-    b=ProductOrder(custId = a.custId) where timer:within(1 min)].win:time(2 hour) 
+    b=ProductOrder(custId = a.custId) where timer:within(1 min)]#time(2 hour) 
 where a.name in ('Repair', b.name)
 group by a.custId
 having sum(a.price + b.price) > 100]]></programlisting>
@@ -244,7 +244,7 @@ else {
 			<para>
 				This pattern specifies a length window of 10 elements that retains the last 10 matches of A and B events, for use via iterator or for use in a join or subquery:
 			</para>
-			<programlisting><![CDATA[select * from pattern [every (A or B).win:length(10)]]></programlisting>
+			<programlisting><![CDATA[select * from pattern [every (A or B)#length(10)]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="pattern-errorreporting" >
@@ -700,7 +700,7 @@ RfidEvent(zone=1 and category=10)]]></programlisting>
 			 <para>
 			   For example, assume a named window that holds the last order event per order id:
 			 </para>
-			 <programlisting><![CDATA[create window LastOrderWindow.std:unique(orderId) as OrderEvent]]></programlisting>
+			 <programlisting><![CDATA[create window LastOrderWindow#unique(orderId) as OrderEvent]]></programlisting>
   
 			 <para>
 			   Assume that all order events are inserted into the named window using insert-into:

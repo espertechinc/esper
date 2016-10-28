@@ -49,7 +49,7 @@ public class TestViewLengthWindowStats extends TestCase
 
     public void testIterator()
     {
-        String viewExpr = "select symbol, price from " + SupportMarketDataBean.class.getName() + ".win:length(2)";
+        String viewExpr = "select symbol, price from " + SupportMarketDataBean.class.getName() + "#length(2)";
         EPStatement statement = epService.getEPAdministrator().createEPL(viewExpr);
         statement.addListener(testListener);
 
@@ -83,7 +83,7 @@ public class TestViewLengthWindowStats extends TestCase
     public void testWindowStats()
     {
         String viewExpr = "select irstream * from " + SupportMarketDataBean.class.getName() +
-                "(symbol='" + SYMBOL + "').win:length(3).stat:uni(price, symbol, feed)";
+                "(symbol='" + SYMBOL + "')#length(3)#uni(price, symbol, feed)";
         EPStatement statement = epService.getEPAdministrator().createEPL(viewExpr);
         statement.addListener(testListener);
         testListener.reset();
@@ -122,7 +122,7 @@ public class TestViewLengthWindowStats extends TestCase
 
         // Test copying all properties
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        String viewExprWildcard = "select * from SupportBean.win:length(3).stat:uni(intPrimitive, *)";
+        String viewExprWildcard = "select * from SupportBean#length(3)#uni(intPrimitive, *)";
         statement = epService.getEPAdministrator().createEPL(viewExprWildcard);
         statement.addListener(testListener);
         

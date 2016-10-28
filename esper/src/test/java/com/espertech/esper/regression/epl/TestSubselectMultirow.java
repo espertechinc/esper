@@ -44,10 +44,10 @@ public class TestSubselectMultirow extends TestCase
     public void testMultirowSingleColumn()
     {
         // test named window as well as stream
-        epService.getEPAdministrator().createEPL("create window SupportWindow.win:length(3) as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SupportWindow#length(3) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into SupportWindow select * from SupportBean");
 
-        String stmtText = "select p00, (select window(intPrimitive) from SupportBean.win:keepall() sb) as val from S0 as s0";
+        String stmtText = "select p00, (select window(intPrimitive) from SupportBean#keepall() sb) as val from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         String[] fields = "p00,val".split(",");
@@ -88,7 +88,7 @@ public class TestSubselectMultirow extends TestCase
     public void testMultirowUnderlyingCorrelated()
     {
         String stmtText = "select p00, " +
-                "(select window(sb.*) from SupportBean.win:keepall() sb where theString = s0.p00) as val " +
+                "(select window(sb.*) from SupportBean#keepall() sb where theString = s0.p00) as val " +
                 "from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);

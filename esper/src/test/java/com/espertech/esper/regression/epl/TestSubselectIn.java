@@ -45,7 +45,7 @@ public class TestSubselectIn extends TestCase
 
     public void testInSelect()
     {
-        String stmtText = "select id in (select id from S1.win:length(1000)) as value from S0";
+        String stmtText = "select id in (select id from S1#length(1000)) as value from S0";
 
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -58,14 +58,14 @@ public class TestSubselectIn extends TestCase
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.create("id"));
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("win", "length", Expressions.constant(1000)))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("length", Expressions.constant(1000)))));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setFromClause(FromClause.create(FilterStream.create("S0")));
         model.setSelectClause(SelectClause.create().add(Expressions.subqueryIn("id", subquery), "value"));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select id in (select id from S1.win:length(1000)) as value from S0";
+        String stmtText = "select id in (select id from S1#length(1000)) as value from S0";
         assertEquals(stmtText, model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -76,7 +76,7 @@ public class TestSubselectIn extends TestCase
 
     public void testInSelectCompile() throws Exception
     {
-        String stmtText = "select id in (select id from S1.win:length(1000)) as value from S0";
+        String stmtText = "select id in (select id from S1#length(1000)) as value from S0";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(stmtText, model.toEPL());
@@ -109,7 +109,7 @@ public class TestSubselectIn extends TestCase
 
     public void testInSelectWhere()
     {
-        String stmtText = "select id in (select id from S1.win:length(1000) where id > 0) as value from S0";
+        String stmtText = "select id in (select id from S1#length(1000) where id > 0) as value from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -134,7 +134,7 @@ public class TestSubselectIn extends TestCase
 
     public void testInSelectWhereExpressions()
     {
-        String stmtText = "select 3*id in (select 2*id from S1.win:length(1000)) as value from S0";
+        String stmtText = "select 3*id in (select 2*id from S1#length(1000)) as value from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -157,7 +157,7 @@ public class TestSubselectIn extends TestCase
     public void testInWildcard()
     {
         epService.getEPAdministrator().getConfiguration().addEventType("ArrayBean", SupportBeanArrayCollMap.class);
-        String stmtText = "select s0.anyObject in (select * from S1.win:length(1000)) as value from ArrayBean s0";
+        String stmtText = "select s0.anyObject in (select * from S1#length(1000)) as value from ArrayBean s0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -177,7 +177,7 @@ public class TestSubselectIn extends TestCase
 
     public void testInNullable()
     {
-        String stmtText = "select id from S0 as s0 where p00 in (select p10 from S1.win:length(1000))";
+        String stmtText = "select id from S0 as s0 where p00 in (select p10 from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -204,7 +204,7 @@ public class TestSubselectIn extends TestCase
     {
         String stmtText = "select longBoxed from " + SupportBean.class.getName() + "(theString='A') as s0 " +
                           "where longBoxed in " +
-                          "(select intBoxed from " + SupportBean.class.getName() + "(theString='B').win:length(1000))";
+                          "(select intBoxed from " + SupportBean.class.getName() + "(theString='B')#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -237,7 +237,7 @@ public class TestSubselectIn extends TestCase
     {
         String stmtText = "select intBoxed from " + SupportBean.class.getName() + "(theString='A') as s0 " +
                           "where intBoxed in " +
-                          "(select longBoxed from " + SupportBean.class.getName() + "(theString='B').win:length(1000))";
+                          "(select longBoxed from " + SupportBean.class.getName() + "(theString='B')#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -263,7 +263,7 @@ public class TestSubselectIn extends TestCase
     {
         String stmtText = "select intBoxed from " + SupportBean.class.getName() + "(theString='A') as s0 " +
                           "where intBoxed not in " +
-                          "(select longBoxed from " + SupportBean.class.getName() + "(theString='B').win:length(1000))";
+                          "(select longBoxed from " + SupportBean.class.getName() + "(theString='B')#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -287,7 +287,7 @@ public class TestSubselectIn extends TestCase
 
     public void testNotInSelect()
     {
-        String stmtText = "select not id in (select id from S1.win:length(1000)) as value from S0";
+        String stmtText = "select not id in (select id from S1#length(1000)) as value from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -314,7 +314,7 @@ public class TestSubselectIn extends TestCase
     {
         String stmtText = "select longBoxed from " + SupportBean.class.getName() + "(theString='A') as s0 " +
                           "where longBoxed not in " +
-                          "(select intBoxed from " + SupportBean.class.getName() + "(theString='B').win:length(1000))";
+                          "(select intBoxed from " + SupportBean.class.getName() + "(theString='B')#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -355,13 +355,13 @@ public class TestSubselectIn extends TestCase
         try
         {
             String stmtText = "select " +
-                          "intArr in (select intPrimitive from SupportBean.win:keepall()) as r1 from ArrayBean";
+                          "intArr in (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean";
             epService.getEPAdministrator().createEPL(stmtText);
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr in (select intPrimitive from SupportBean.win:keepall()) as r1 from ArrayBean]", ex.getMessage());
+            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr in (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean]", ex.getMessage());
         }
     }
 

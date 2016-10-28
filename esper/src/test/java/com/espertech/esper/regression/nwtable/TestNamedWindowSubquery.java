@@ -43,7 +43,7 @@ public class TestNamedWindowSubquery extends TestCase
 
     public void testSubqueryTwoConsumerWindow() throws Exception {
         String epl =
-            "\n create window MyWindowTwo.win:length(1) as (mycount long);" +
+            "\n create window MyWindowTwo#length(1) as (mycount long);" +
             "\n @Name('insert-count') insert into MyWindowTwo select 1L as mycount from SupportBean;" +
             "\n create variable long myvar = 0;" +
             "\n @Name('assign') on MyWindowTwo set myvar = (select mycount from MyWindowTwo);";
@@ -57,7 +57,7 @@ public class TestNamedWindowSubquery extends TestCase
     }
 
     public void testSubqueryLateConsumerAggregation() {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));

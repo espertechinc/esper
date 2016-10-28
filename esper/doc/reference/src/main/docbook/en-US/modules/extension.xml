@@ -610,8 +610,8 @@ public static String doSearch(Collection<EventBean> events) {...}]]></programlis
 			<programlisting><![CDATA[select * from MyEvent(doCompute(me) = 100) as me]]></programlisting>
 			<programlisting><![CDATA[select * from MyEvent where doCompute(*) = 100]]></programlisting>
 			<programlisting><![CDATA[select * from pattern[a=MyEvent -> MyEvent(doCheck(a, 'sometext'))]]]></programlisting>
-			<programlisting><![CDATA[select * from MyEvent.win:time(1 min) having doCompute(last(*))]]]></programlisting>
-			<programlisting><![CDATA[select * from MyEvent.win:time(1 min) having doSearch(window(*))]]]></programlisting>
+			<programlisting><![CDATA[select * from MyEvent#time(1 min) having doCompute(last(*))]]]></programlisting>
+			<programlisting><![CDATA[select * from MyEvent#time(1 min) having doSearch(window(*))]]]></programlisting>
 			
 			<para>
 			  Declare the method parameter as <literal>Collection&lt;EventBean&gt;</literal> if the method expects 
@@ -971,7 +971,7 @@ public EventType getEventType() {
 			<para>
 				The next statement shows EPL for using a view instance per grouping criteria:
 			</para>		
-			<programlisting><![CDATA[select * from StockTick.std:groupwin(symbol).custom:trendspotter(price)]]></programlisting>
+			<programlisting><![CDATA[select * from StockTick#groupwin(symbol).custom:trendspotter(price)]]></programlisting>
 
 			<para>
 				Your view must implement the <literal>com.espertech.esper.view.CloneableView</literal> interface to indicate your view may create new views. This code snippet shows a sample implementation of the <literal>cloneView</literal> method required by the interface:
@@ -1286,7 +1286,7 @@ public EventType getEventType() {
 				<para>
 					The new aggregation function is now ready to use in a statement:
 				</para>		
-				<programlisting><![CDATA[select concat(symbol) from StockTick.win:length(3)]]></programlisting>
+				<programlisting><![CDATA[select concat(symbol) from StockTick#length(3)]]></programlisting>
 	
 			</sect3>
 
@@ -1383,14 +1383,14 @@ public EventType getEventType() {
 			  share the same graph state to detect a cycle among the last 1000 events:
 			</para>
 			<programlisting><![CDATA[@Name('CycleDetector') select cycleoutput() as cyclevertices
-from TransactionEvent.win:length(1000)
+from TransactionEvent#length(1000)
 having cycledetected(fromAcct, toAcct)]]></programlisting>
 
 			<para>
 			  If instead the goal is to run graph cycle detection every 1 second (and not upon arrival of a new event), this sample EPL statement uses a pattern to trigger cycle detection:
 			</para>
 			<programlisting><![CDATA[@Name('CycleDetector')
-select (select cycleoutput(fromAcct, toAcct) from TransactionEvent.win:length(1000)) as cyclevertices
+select (select cycleoutput(fromAcct, toAcct) from TransactionEvent#length(1000)) as cyclevertices
 from pattern [every timer:interval(1)]]]></programlisting>
 
 			<para>

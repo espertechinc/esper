@@ -60,7 +60,7 @@ public class TestViewUniqueSorted extends TestCase
 
     public void testExpressionParameter()
     {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean.std:unique(Math.abs(intPrimitive))");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#unique(Math.abs(intPrimitive))");
         sendEvent("E1", 10);
         sendEvent("E2", -10);
         sendEvent("E3", -5);
@@ -73,7 +73,7 @@ public class TestViewUniqueSorted extends TestCase
         // Get the top 3 volumes for each symbol
         EPStatement top3Prices = epService.getEPAdministrator().createEPL(
                 "select * from " + SupportMarketDataBean.class.getName() +
-                ".std:unique(symbol).ext:sort(3, price desc)");
+                "#unique(symbol)#sort(3, price desc)");
         top3Prices.addListener(testListener);
 
         testListener.reset();
@@ -122,7 +122,7 @@ public class TestViewUniqueSorted extends TestCase
         String stmtString =
               "SELECT irstream * " +
               "FROM\n " +
-              SupportSensorEvent.class.getName() + ".std:groupwin(type).win:time(1 hour).std:unique(device).ext:sort(1, measurement desc) as high ";
+              SupportSensorEvent.class.getName() + "#groupwin(type)#time(1 hour)#unique(device)#sort(1, measurement desc) as high ";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtString);
         stmt.addListener(testListener);
@@ -149,14 +149,14 @@ public class TestViewUniqueSorted extends TestCase
     public void testReuseUnique()
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.std:unique(intBoxed)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#unique(intBoxed)");
         stmt.addListener(testListener);
 
         SupportBean beanOne = new SupportBean("E1", 1);
         epService.getEPRuntime().sendEvent(beanOne);
         testListener.reset();
 
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.std:unique(intBoxed)");
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#unique(intBoxed)");
         SupportUpdateListener testListenerTwo = new SupportUpdateListener();
         stmtTwo.addListener(testListenerTwo);
         stmt.start(); // no effect

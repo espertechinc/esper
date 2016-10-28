@@ -51,7 +51,7 @@ public class NamedWindowQueryMain
 
         // define a named window to hold the last 1000000 (1M) events
         //
-        String stmtText = "create window SensorWindow.win:keepall() as select * from SensorEvent";
+        String stmtText = "create window SensorWindow#keepall() as select * from SensorEvent";
         log.info("Creating named window : " + stmtText);
         epService.getEPAdministrator().createEPL(stmtText);
 

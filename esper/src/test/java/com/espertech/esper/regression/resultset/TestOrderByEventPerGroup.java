@@ -47,7 +47,7 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testNoHavingNoJoin()
 	{
 		String statementString = "select irstream symbol, sum(price) as mysum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output every 6 events " +
                                 "order by sum(price), symbol";
@@ -59,7 +59,7 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testHavingNoJoin()
     {
 		String statementString = "select irstream symbol, sum(price) as mysum from " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                    SupportMarketDataBean.class.getName() + "#length(20) " +
                                     "group by symbol " +
                                     "having sum(price) > 0 " +
                                     "output every 6 events " +
@@ -71,8 +71,8 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testNoHavingJoin()
     {
     	String statementString = "select irstream symbol, sum(price) as mysum from " +
-                            SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-                            SupportBeanString.class.getName() + ".win:length(100) as two " +
+                            SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+                            SupportBeanString.class.getName() + "#length(100) as two " +
                             "where one.symbol = two.theString " +
                             "group by symbol " +
                             "output every 6 events " +
@@ -91,8 +91,8 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testHavingJoin()
     {
         String statementString = "select irstream symbol, sum(price) as mysum from " +
-            SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-            SupportBeanString.class.getName() + ".win:length(100) as two " +
+            SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+            SupportBeanString.class.getName() + "#length(100) as two " +
             "where one.symbol = two.theString " +
             "group by symbol " +
             "having sum(price) > 0 " +
@@ -112,8 +112,8 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testHavingJoinAlias()
     {
         String statementString = "select irstream symbol, sum(price) as mysum from " +
-            SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-            SupportBeanString.class.getName() + ".win:length(100) as two " +
+            SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+            SupportBeanString.class.getName() + "#length(100) as two " +
             "where one.symbol = two.theString " +
             "group by symbol " +
             "having sum(price) > 0 " +
@@ -133,7 +133,7 @@ public class TestOrderByEventPerGroup extends TestCase {
 	public void testLast()
 	{
 		String statementString = "select irstream symbol, sum(price) as mysum from " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                    SupportMarketDataBean.class.getName() + "#length(20) " +
                                     "group by symbol " +
                                     "output last every 6 events " +
                                     "order by sum(price), symbol";
@@ -144,8 +144,8 @@ public class TestOrderByEventPerGroup extends TestCase {
     public void testLastJoin()
     {        
         String statementString = "select irstream symbol, sum(price) as mysum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "group by symbol " +
                                 "output last every 6 events " +
@@ -166,8 +166,8 @@ public class TestOrderByEventPerGroup extends TestCase {
 	{
         String[] fields = new String[] {"symbol", "sumPrice"};
         String statementString = "select symbol, sum(price) as sumPrice from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "group by symbol " +
                     "order by symbol";

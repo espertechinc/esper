@@ -41,7 +41,7 @@ public class TestCSVAdapterUseCasesBean extends TestCSVAdapterUseCases {
         epService = EPServiceProviderManager.getProvider("testExistingTypeNoOptions", configuration);
         epService.initialize();
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from ReadWrite.win:length(100)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from ReadWrite#length(100)");
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
 

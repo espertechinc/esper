@@ -59,7 +59,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testNotIn()
     {
         SupportQueryPlanIndexHook.reset();
-        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1.win:keepall() as s1 " +
+        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1#keepall() as s1 " +
                 "where p00 not in (p10, p11)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -72,7 +72,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     {
         // assert join
         SupportQueryPlanIndexHook.reset();
-        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1.win:keepall() as s1 " +
+        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1#keepall() as s1 " +
                 "where p00 in (p10, p11) and p01 in (p12, p13)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -84,7 +84,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
         epService.getEPAdministrator().destroyAllStatements();
 
         // assert named window
-        epService.getEPAdministrator().createEPL("create window S1Window.win:keepall() as S1");
+        epService.getEPAdministrator().createEPL("create window S1Window#keepall() as S1");
         epService.getEPAdministrator().createEPL("insert into S1Window select * from S1");
 
         String eplNamedWindow = INDEX_CALLBACK_HOOK + "on S0 as s0 select * from S1Window as s1 " +
@@ -119,7 +119,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testMultiIdxSubquery() {
 
         String epl = INDEX_CALLBACK_HOOK + "select s0.id as c0," +
-                "(select * from S1.win:keepall() as s1 " +
+                "(select * from S1#keepall() as s1 " +
                 "  where s0.p00 in (s1.p10, s1.p11) and s0.p01 in (s1.p12, s1.p13))" +
                 ".selectFrom(a=>S1.id) as c1 " +
                 "from S0 as s0";
@@ -185,7 +185,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
 
         // test coercion absence - types the same
         String eplCoercion = INDEX_CALLBACK_HOOK + "select *," +
-                "(select * from S0.win:keepall() as s0 where sb.longPrimitive in (id)) from SupportBean as sb";
+                "(select * from S0#keepall() as s0 where sb.longPrimitive in (id)) from SupportBean as sb";
         epService.getEPAdministrator().createEPL(eplCoercion);
         QueryPlanIndexDescSubquery subqueryCoercion = SupportQueryPlanIndexHook.assertSubqueryAndReset();
         assertEquals(SubordFullTableScanLookupStrategyFactory.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
@@ -194,7 +194,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testSingleIdxMultipleInAndMultirow() {
         // assert join
         SupportQueryPlanIndexHook.reset();
-        String epl = INDEX_CALLBACK_HOOK + "select * from S0.win:keepall() as s0, S1 as s1 unidirectional " +
+        String epl = INDEX_CALLBACK_HOOK + "select * from S0#keepall() as s0, S1 as s1 unidirectional " +
                 "where p00 in (p10, p11) and p01 in (p12, p13)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -206,7 +206,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
         epService.getEPAdministrator().destroyAllStatements();
 
         // assert named window
-        epService.getEPAdministrator().createEPL("create window S0Window.win:keepall() as S0");
+        epService.getEPAdministrator().createEPL("create window S0Window#keepall() as S0");
         epService.getEPAdministrator().createEPL("insert into S0Window select * from S0");
 
         String eplNamedWindow = INDEX_CALLBACK_HOOK + "on S1 as s1 select * from S0Window as s0 " +
@@ -239,7 +239,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testSingleIdxSubquery() {
         SupportQueryPlanIndexHook.reset();
         String epl = INDEX_CALLBACK_HOOK + "select s1.id as c0," +
-                "(select * from S0.win:keepall() as s0 " +
+                "(select * from S0#keepall() as s0 " +
                 "  where s0.p00 in (s1.p10, s1.p11) and s0.p01 in (s1.p12, s1.p13))" +
                 ".selectFrom(a=>S0.id) as c1 " +
                 " from S1 as s1";
@@ -305,7 +305,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
 
         // test coercion absence - types the same
         String eplCoercion = INDEX_CALLBACK_HOOK + "select *," +
-                "(select * from SupportBean.win:keepall() as sb where sb.longPrimitive in (s0.id)) from S0 as s0";
+                "(select * from SupportBean#keepall() as sb where sb.longPrimitive in (s0.id)) from S0 as s0";
         epService.getEPAdministrator().createEPL(eplCoercion);
         QueryPlanIndexDescSubquery subqueryCoercion = SupportQueryPlanIndexHook.assertSubqueryAndReset();
         assertEquals(SubordFullTableScanLookupStrategyFactory.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
@@ -425,7 +425,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testSingleIdxConstants()
     {
         SupportQueryPlanIndexHook.reset();
-        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1.win:keepall() as s1 " +
+        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1#keepall() as s1 " +
                 "where p10 in ('a', 'b')";
         String[] fields = "s0.id,s1.id".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -448,7 +448,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
     public void testMultiIdxConstants()
     {
         SupportQueryPlanIndexHook.reset();
-        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1.win:keepall() as s1 " +
+        String epl = INDEX_CALLBACK_HOOK + "select * from S0 as s0 unidirectional, S1#keepall() as s1 " +
                 "where 'a' in (p10, p11)";
         String[] fields = "s0.id,s1.id".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -470,7 +470,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
 
     public void testQueryPlan3Stream()
     {
-        String epl = "select * from S0 as s0 unidirectional, S1.win:keepall(), S2.win:keepall() ";
+        String epl = "select * from S0 as s0 unidirectional, S1#keepall(), S2#keepall() ";
 
         // 3-stream join with in-multiindex directional
         InKeywordTableLookupPlanMultiIdx planInMidx = new InKeywordTableLookupPlanMultiIdx(0, 1, getIndexKeys("i1a", "i1b"), SupportExprNodeFactory.makeIdentExprNode("p00"));
@@ -511,7 +511,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
 
     public void testQueryPlan2Stream()
     {
-        String epl = "select * from S0 as s0 unidirectional, S1.win:keepall() ";
+        String epl = "select * from S0 as s0 unidirectional, S1#keepall() ";
         QueryPlan fullTableScan = SupportQueryPlanBuilder.start(2)
                 .setIndexFullTableScan(1, "a")
                 .setLookupPlanInner(0, new FullTableScanLookupPlan(0, 1, getIndexKey("a"))).get();
@@ -534,7 +534,7 @@ public class TestInKeywordQueryPlan extends TestCase implements IndexBackingTabl
 
         QueryPlan planInMultiOuter = SupportQueryPlanBuilder.start(planInMultiInner)
                 .setLookupPlanOuter(0, new InKeywordTableLookupPlanMultiIdx(0, 1, getIndexKeys("a", "b"), SupportExprNodeFactory.makeIdentExprNode("p00"))).get();
-        String eplOuterJoin = "select * from S0 as s0 unidirectional full outer join S1.win:keepall() ";
+        String eplOuterJoin = "select * from S0 as s0 unidirectional full outer join S1#keepall() ";
         runAssertion(eplOuterJoin + "where p00 in (p11, p12)", planInMultiOuter);
 
         QueryPlan planInMultiWConst = SupportQueryPlanBuilder.start(2)

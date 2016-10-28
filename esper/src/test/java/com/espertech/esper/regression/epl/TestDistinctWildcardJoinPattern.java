@@ -55,7 +55,7 @@ public class TestDistinctWildcardJoinPattern extends TestCase
                 "->" +
                 "every-distinct(wooA.theString) wooA=SupportBean(intPrimitive=2)" +
                 " where timer:within(1 hour)" +
-                "].win:time(1 hour) as fooWooPair " +
+                "]#time(1 hour) as fooWooPair " +
                 "on fooB.longPrimitive = fooWooPair.fooA.longPrimitive" +
                 " order by fooWooPair.wooA.theString asc";
 

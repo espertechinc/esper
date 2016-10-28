@@ -36,7 +36,7 @@ public class TestRowPatternRecognitionEmptyPartition extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "value".split(",");
-        String text = "select * from MyEvent.win:length(10) " +
+        String text = "select * from MyEvent#length(10) " +
                 "match_recognize (" +
                 "  partition by value" +
                 "  measures E1.value as value" +

@@ -56,7 +56,7 @@ public class TestInfraOnUpdate extends TestCase
     private void runAssertionUpdateOrderOfFields(boolean namedWindow) throws Exception {
 
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as SupportBean" :
+                "create window MyInfra#keepall() as SupportBean" :
                 "create table MyInfra(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive, intBoxed, doublePrimitive from SupportBean");
@@ -86,7 +86,7 @@ public class TestInfraOnUpdate extends TestCase
         // ESPER-507
 
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as SupportBean" :
+                "create window MyInfra#keepall() as SupportBean" :
                 "create table MyInfra(theString string primary key, intPrimitive int)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");

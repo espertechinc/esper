@@ -87,7 +87,7 @@
 			The <literal>select</literal> clause in an EPL query specifies the event properties or events to retrieve. The <literal>from</literal> clause in an EPL query specifies the event stream definitions and stream names to use. The <literal>where</literal> clause in an EPL query specifies search conditions that specify which event or event combination to search for. For example, the following statement returns the average price for IBM stock ticks in the last 30 seconds.
 		</para>
 
-			<programlisting><![CDATA[select avg(price) from StockTick.win:time(30 sec) where symbol='IBM']]></programlisting>
+			<programlisting><![CDATA[select avg(price) from StockTick#time(30 sec) where symbol='IBM']]></programlisting>
 
 		<para>
 			EPL queries follow the below syntax. EPL queries can be simple queries or more complex queries. A simple select contains only a <literal>select</literal> clause and a single stream definition. Complex EPL queries can be build that feature a more elaborate select list utilizing expressions, may join multiple streams, may contain a <literal>where</literal> clause with search conditions and so on.
@@ -493,7 +493,7 @@ epService.getEPAdministrator().createEPL("select * from OrderEvent(
 			<para>
 				For example, the Color enum type as an inner class to <literal>MyEvent</literal> in package <literal>org.myorg</literal> can be referenced as shown:
 			</para>
-			<programlisting><![CDATA[select * from MyEvent(enumProp=org.myorg.MyEvent$Color.GREEN).std:firstevent()]]></programlisting>
+			<programlisting><![CDATA[select * from MyEvent(enumProp=org.myorg.MyEvent$Color.GREEN)#firstevent()]]></programlisting>
 	
 			<para>
 				Instance methods may also be invoked on event instances by specifying a stream name, as shown below:
@@ -566,7 +566,7 @@ from MyEvent as myevent]]></programlisting>
 				<programlisting><![CDATA[@ProcessMonitor(processName='CreditApproval',
   isLongRunning=true, subProcessIds = {1, 2, 3} )
   
-select count(*) from ProcessEvent(processId in (1, 2, 3).win:time(30)]]></programlisting>
+select count(*) from ProcessEvent(processId in (1, 2, 3)#time(30)]]></programlisting>
 
 				<para>
 					Above example assumes the <literal>ProcessMonitor</literal> annotation class is imported via configuration XML or API. 					
@@ -827,7 +827,7 @@ select * from SecurityFilter(ip="127.0.0.1")]]></programlisting>
 					Example:
 				</para>	
 				<programlisting><![CDATA[@Hint('disable_reclaim_group') 
-select ipaddress, count(*) from SecurityFilter.win:time(60 sec) group by ipaddress]]></programlisting>
+select ipaddress, count(*) from SecurityFilter#time(60 sec) group by ipaddress]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="epl-syntax-annotation-hook">
@@ -921,7 +921,7 @@ select twoPI from SampleEvent]]></programlisting>
 				The next example specifies an alias <literal>countPeople</literal> and uses the alias in the <literal>select</literal>-clause and the <literal>having</literal>-clause:
 			</para>
 			<programlisting><![CDATA[expression countPeople alias for { count(*) }
-select countPeople from EnterRoomEvent.win:time(10 seconds) having countPeople > 10]]></programlisting>
+select countPeople from EnterRoomEvent#time(10 seconds) having countPeople > 10]]></programlisting>
 
 			<para>
 				When using the expression alias in an expression, empty parentheses can optionally be specified. In the above example, <literal>countPeople()</literal> can be used instead and equivalently.
@@ -1030,7 +1030,7 @@ select midPrice(*) from MarketDataEvent]]></programlisting>
 			</para>
 			<programlisting><![CDATA[expression weightedSentiment { (x, y) => x.price * y.sentiment } 
 select weightedSentiment(md, news) 
-from MarketDataEvent.std:lastevent() as md, NewsEvent.std:lastevent() news]]></programlisting>
+from MarketDataEvent#lastevent() as md, NewsEvent#lastevent() news]]></programlisting>
 
 			<para>
 				Any expression can be used in the expression body including aggregations, variables, subqueries or further declared or alias expressions. Sub-queries, when used without <literal>in</literal> or <literal>exists</literal>, must be placed within parenthesis.
@@ -1040,7 +1040,7 @@ from MarketDataEvent.std:lastevent() as md, NewsEvent.std:lastevent() news]]></p
 			    An example subquery within an expression declaration is shown next:
 			</para>
 			<programlisting><![CDATA[expression newsSubq { md -> 
-    (select sentiment from NewsEvent.std:unique(symbol) where symbol = md.symbol) 
+    (select sentiment from NewsEvent#unique(symbol) where symbol = md.symbol) 
 } 
 select newsSubq(mdstream)
 from MarketDataEvent mdstream]]></programlisting>
@@ -1169,7 +1169,7 @@ from MarketDataEvent mdstream]]></programlisting>
 			<para>
 				The following statement selects StockTick events for the last 30 seconds of IBM stock ticks.
 			</para>
-			<programlisting><![CDATA[select * from StockTick(symbol='IBM').win:time(30 sec)]]></programlisting>
+			<programlisting><![CDATA[select * from StockTick(symbol='IBM')#time(30 sec)]]></programlisting>
 
 			<para>
 			  You may well be asking: Why does the statement specify a time window here? First, the statement is meant to demonstrate the use of <literal>*</literal> wildcard. 
@@ -1205,14 +1205,14 @@ from MarketDataEvent mdstream]]></programlisting>
 			<para>
 				The following statement simply selects the symbol and price properties of stock ticks, and the total volume for stock tick events in a 60-second time window. 
 			</para>
-			<programlisting><![CDATA[select symbol, price, sum(volume) from StockTick(symbol='IBM').win:time(60 sec)
+			<programlisting><![CDATA[select symbol, price, sum(volume) from StockTick(symbol='IBM')#time(60 sec)
 ]]></programlisting>
 
 			<para>
 				The following statement declares a further view onto the event stream of stock ticks: the univariate statistics view (<literal>stat:uni</literal>). The statement selects the properties that this view derives from the stream, for the last 100 events of IBM stock ticks in the length window.
 			</para>
 			<programlisting><![CDATA[select datapoints, total, average, variance, stddev, stddevpa
-from StockTick(symbol='IBM').win:length(100).stat:uni(volume)]]></programlisting>
+from StockTick(symbol='IBM')#length(100)#uni(volume)]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-expressions" >
@@ -1225,7 +1225,7 @@ from StockTick(symbol='IBM').win:length(100).stat:uni(volume)]]></programlisting
 			<para>
 				The following statement selects the volume multiplied by price for a time batch of the last 30 seconds of stock tick events. 
 			</para>
-			<programlisting><![CDATA[select volume * price from StockTick.win:time_batch(30 sec)]]></programlisting>
+			<programlisting><![CDATA[select volume * price from StockTick#time_batch(30 sec)]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="epl-select-renaming" >
@@ -1264,13 +1264,13 @@ from StockTick(symbol='IBM').win:length(100).stat:uni(volume)]]></programlisting
 			<para>
 				This example is a join between the two streams StockTick and News, respectively named as 'tick' and 'news'. The example selects from the StockTick event the symbol value using the 'tick' stream name as a prefix:
 			</para>
-			<programlisting><![CDATA[select tick.symbol from StockTick.win:time(10) as tick, News.win:time(10) as news
+			<programlisting><![CDATA[select tick.symbol from StockTick#time(10) as tick, News#time(10) as news
 where news.symbol = tick.symbol]]></programlisting>
 
 			<para>
 				Use the wildcard (*) selector in a join to generate a property for each stream, with the property value being the event itself. The output events of the statement below have two properties: the 'tick' property holds the StockTick event and the 'news' property holds the News event:
 			</para>
-			<programlisting><![CDATA[select * from StockTick.win:time(10) as tick, News.win:time(10) as news]]></programlisting>
+			<programlisting><![CDATA[select * from StockTick#time(10) as tick, News#time(10) as news]]></programlisting>
 
 			<para>
 				The following syntax can also be used to specify what stream's properties to select:
@@ -1280,14 +1280,14 @@ where news.symbol = tick.symbol]]></programlisting>
 			<para>
 				The selection of <literal>tick.*</literal> selects the StockTick stream events only:
 			</para>
-			<programlisting><![CDATA[select tick.* from StockTick.win:time(10) as tick, News.win:time(10) as news
+			<programlisting><![CDATA[select tick.* from StockTick#time(10) as tick, News#time(10) as news
 where tick.symbol = news.symbol]]></programlisting>
 
 			<para>
 				The next example uses the <literal>as</literal> keyword to name each stream's joined events. This instructs the engine to create a property for each named event:
 			</para>
 			<programlisting><![CDATA[select tick.* as stocktick, news.* as news 
-from StockTick.win:time(10) as tick, News.win:time(10) as news
+from StockTick#time(10) as tick, News#time(10) as news
 where stock.symbol = news.symbol]]></programlisting>
 
 			<para>
@@ -1302,7 +1302,7 @@ where stock.symbol = news.symbol]]></programlisting>
 				This example passes events to a user-defined function named <literal>compute</literal> and also shows <literal>insert-into</literal> to populate an event stream of combined events:
 			</para>
 			<programlisting><![CDATA[insert into TickNewStream select tick, news, MyLib.compute(news, tick) as result
-from StockTick.win:time(10) as tick, News.win:time(10) as news
+from StockTick#time(10) as tick, News#time(10) as news
 where tick.symbol = news.symbol]]></programlisting>
 			<programlisting><![CDATA[// second statement that uses the TickNewStream stream
 select tick.price, news.text, result from TickNewStream]]></programlisting>
@@ -1383,7 +1383,7 @@ select tick.symbol, tick.price, news.text from StockTickAndNews]]></programlisti
 			<para>
 				The following statement selects only the events that are leaving the 30 second time window.
 			</para>
-			<programlisting><![CDATA[select rstream * from StockTick.win:time(30 sec)]]></programlisting>
+			<programlisting><![CDATA[select rstream * from StockTick#time(30 sec)]]></programlisting>
 
 			<para>
 				The <literal>istream</literal> and <literal>rstream</literal> keywords in the <literal>select</literal> clause are matched by same-name keywords available in the <literal>insert into</literal> clause. While the keywords in the <literal>select</literal> clause control the event stream posted to listeners to the statement, the same keywords in the <literal>insert into</literal> clause specify the event stream that the engine makes available to other statements.
@@ -1450,7 +1450,7 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 			<para>
 				This example statement outputs all distinct events either when 100 events arrive or when 10 seconds passed, whichever occurs first:
 			</para>
-			<programlisting>select distinct * from TemperatureSensorEvent.win:time_length_batch(10, 100)</programlisting>
+			<programlisting>select distinct * from TemperatureSensorEvent#time_length_batch(10, 100)</programlisting>
 			
 			<para>
 				When selecting nested, indexed, mapped or dynamic properties in a <literal>select</literal> clause with <literal>distinct</literal>, it is relevant to know that the comparison uses hash code and the Java <literal>equals</literal> semantics.
@@ -1504,7 +1504,7 @@ select default.MyEvent.myProperty from MyEvent</programlisting>
 			</para>
 			<programlisting>insert into OutStream 
 select prevwindow(s0) @eventbean as win 
-from MyEvent.win:length(2) as s0</programlisting>
+from MyEvent#length(2) as s0</programlisting>
 			
 			<para>
 				The next EPL consumes the stream and selects the last event:
@@ -1559,7 +1559,7 @@ from MyEvent.win:length(2) as s0</programlisting>
 				The <emphasis>stream_def</emphasis> syntax for a filter-based event stream is as below:
 			</para>
 	
-			<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [<emphasis>contained_selection</emphasis>] [.<emphasis>view_spec</emphasis>] [.<emphasis>view_spec</emphasis>] [...]</synopsis>
+			<synopsis><emphasis>event_stream_name</emphasis> [(<emphasis>filter_criteria</emphasis>)] [<emphasis>contained_selection</emphasis>] [#<emphasis>view_spec</emphasis>] [#<emphasis>view_spec</emphasis>] [...]</synopsis>
 	
 			<para>
 			  The <emphasis>event_stream_name</emphasis> is either the name of an event type or name of an event stream populated by an <literal>insert into</literal> statement 
@@ -1578,11 +1578,17 @@ from MyEvent.win:length(2) as s0</programlisting>
 			
 			<para>
 			  The <emphasis>view_spec</emphasis> are optional view specifications, which are combinable definitions for retaining events and for deriving information from events.
-			  Views cannot be specified for tables.
+			  Views cannot be specified for tables. Instead of the <literal>#</literal> hash character the <literal>.</literal> dot character can also be used, however the dot character requires the view namespace.
 			</para>
 
 			<para>
 				The following EPL statement shows event type, filter criteria and views combined in one statement. It selects all event properties for the last 100 events of IBM stock ticks for volume. In the example, the event type is the fully qualified Java class name <literal>org.esper.example.StockTick</literal>. The expression filters for events where the property <literal>symbol</literal> has a value of "IBM". The optional view specifications for deriving data from the StockTick events are a length window and a view for computing statistics on volume. The name for the event stream is "volumeStats".
+			</para>
+			<programlisting><![CDATA[select * from 
+  org.esper.example.StockTick(symbol='IBM')#length(100)#uni(volume) as volumeStats]]></programlisting>
+
+			<para>
+				The above is equivalent to:
 			</para>
 			<programlisting><![CDATA[select * from 
   org.esper.example.StockTick(symbol='IBM').win:length(100).stat:uni(volume) as volumeStats]]></programlisting>
@@ -1809,7 +1815,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 			</para>			
             <programlisting><![CDATA[select tick.price as tickPrice, trade.price as tradePrice, 
        sum(tick.price) + sum(trade.price) as total
-  from pattern [every tick=StockTickEvent or every trade=TradeEvent].win:time(30 sec)]]></programlisting>
+  from pattern [every tick=StockTickEvent or every trade=TradeEvent]#time(30 sec)]]></programlisting>
 
 			<para>
 				Note that in the statement above <literal>tickPrice</literal> and <literal>tradePrice</literal> can each be null values depending on the event processed. Therefore, an aggregation function such as <literal>sum(tick.price + trade.price))</literal> would always return null values as either of the two price properties are always a null value for any event matching the pattern. Use the <literal>coalesce</literal> function to handle null values, for example: <literal>sum(coalesce(tick.price, 0) + coalesce(trade.price, 0))</literal>.
@@ -1830,7 +1836,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 				The example statement below outputs a count per expressway for car location events (contains information about the location of a car on a highway) of the last 60 seconds:
 			</para>
 				
-         <programlisting><![CDATA[select expressway, count(*) from CarLocEvent.win:time(60) 
+         <programlisting><![CDATA[select expressway, count(*) from CarLocEvent#time(60) 
 group by expressway]]></programlisting>
 
 			<para>
@@ -1838,7 +1844,7 @@ group by expressway]]></programlisting>
 			</para>
 				
          <programlisting><![CDATA[select cardId, expressway, direction, segment, count(*) 
-from CarLocEvent.std:groupwin(carId).win:length(4) 
+from CarLocEvent#groupwin(carId)#length(4) 
 group by carId, expressway, direction, segment]]></programlisting>
 
 			<para>
@@ -1887,7 +1893,7 @@ group by carId, expressway, direction, segment]]></programlisting>
 		   <para>
 			   The next example statement totals the price of OrderEvent events in a union of the last 30 seconds and unique by product name:
 		   </para>
-            <programlisting><![CDATA[select sum(price) from OrderEvent.win:time(30 sec).std:unique(productName) retain-union]]></programlisting>		   
+            <programlisting><![CDATA[select sum(price) from OrderEvent#time(30 sec)#unique(productName) retain-union]]></programlisting>		   
 		   <para>
 			   In the above statement, all OrderEvent events that are either less then 30 seconds old or that are the last event for the product name are considered.
 		   </para>		   
@@ -1895,7 +1901,7 @@ group by carId, expressway, direction, segment]]></programlisting>
 		   <para>
 			   Here is an example statement totals the price of OrderEvent events in an intersection of the last 30 seconds and unique by product name:
 		   </para>
-            <programlisting><![CDATA[select sum(price) from OrderEvent.win:time(30 sec).std:unique(productName) retain-intersection]]></programlisting>		   
+            <programlisting><![CDATA[select sum(price) from OrderEvent#time(30 sec)#unique(productName) retain-intersection]]></programlisting>		   
 		   <para>
 			   In the above statement, only those OrderEvent events that are both less then 30 seconds old and are the last event for the product name are considered. The number of events that the engine retains is the number of unique events per product name in the last 30 seconds (and not the number of events in the last 30 seconds).
 		   </para>		   
@@ -1925,27 +1931,27 @@ group by carId, expressway, direction, segment]]></programlisting>
 					</thead>
 					<tbody>
 						<row>
-							<entry><literal>win:time(30).std:firstunique(keys)</literal></entry>
+							<entry><literal>win:time(30)#firstunique(keys)</literal></entry>
 							<entry>Retains 30 seconds of events unique per <literal>keys</literal> value (first event per value).</entry>
 						</row>
 						<row>
-							<entry><literal>win:firstlength(3).std:firstunique(keys)</literal></entry>
+							<entry><literal>win:firstlength(3)#firstunique(keys)</literal></entry>
 							<entry>Retains the first 3 events that are also unique per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:time_batch(N seconds).std:unique(keys)</literal></entry>
+							<entry><literal>win:time_batch(N seconds)#unique(keys)</literal></entry>
 							<entry>Posts a batch every N seconds that contains the last of each unique event per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:time_batch(N seconds).std:firstunique(keys)</literal></entry>
+							<entry><literal>win:time_batch(N seconds)#firstunique(keys)</literal></entry>
 							<entry>Posts a batch every N seconds that contains the first of each unique event per <literal>keys</literal> value.</entry>
 						</row>
 						<row>
-							<entry><literal>win:length_batch(N).std:unique(keys)</literal></entry>
+							<entry><literal>win:length_batch(N)#unique(keys)</literal></entry>
 							<entry>Posts a batch of unique events (last event per value) when N unique events per <literal>keys</literal> value are encountered.</entry>
 						</row>
 						<row>
-							<entry><literal>win:length_batch(N).std:firstunique(keys)</literal></entry>
+							<entry><literal>win:length_batch(N)#firstunique(keys)</literal></entry>
 							<entry>Posts a batch of unique events (first event per value) when N unique events per <literal>keys</literal> value are encountered.</entry>
 						</row>
 					</tbody>
@@ -2034,7 +2040,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 			Some examples are listed below.
 		</para>		
 		<programlisting>...where settlement.orderId = order.orderId</programlisting>
-		<programlisting>...where exists (select orderId from Settlement.win:time(1 min) where settlement.orderId = order.orderId)</programlisting>
+		<programlisting>...where exists (select orderId from Settlement#time(1 min) where settlement.orderId = order.orderId)</programlisting>
 		
 		<para>
 			The following two EPL statements are equivalent since both queries filter events by the <literal>amount</literal> property value and both queries do not specify a data window. 
@@ -2064,7 +2070,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 				<para>
 					For example, to find out the total price for all stock tick events in the last 30 seconds, type:
 				</para>
-			    <programlisting>select sum(price) from StockTickEvent.win:time(30 sec)</programlisting>
+			    <programlisting>select sum(price) from StockTickEvent#time(30 sec)</programlisting>
 
 				<para>
 					Aggregation functions do not require the use of data windows. The examples herein specify data windows for the purpose of example.
@@ -2100,7 +2106,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 				<para>
 					For example, to find out the average price for all stock tick events in the last 30 seconds if the price was doubled:
 				</para>
-			    <programlisting>select avg(price * 2) from StockTickEvent.win:time(30 seconds)</programlisting>
+			    <programlisting>select avg(price * 2) from StockTickEvent#time(30 seconds)</programlisting>
 
 				<para>
 					You can use the optional keyword <literal>distinct</literal> with all aggregate functions to eliminate duplicate values before the aggregate function is applied. The optional 
@@ -2111,14 +2117,14 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 					You can use aggregation functions in a <literal>select</literal> clause and in a <literal>having</literal> clause. You cannot use aggregate functions in a <literal>where</literal> clause, but you can use the <literal>where</literal> clause to restrict the events to which the aggregate is applied. The next query computes the average and sum of the price of stock tick events for the symbol IBM only, for the last 10 stock tick events regardless of their symbol.
 				</para>
 			    <programlisting>select 'IBM stats' as title, avg(price) as avgPrice, sum(price) as sumPrice
-from StockTickEvent.win:length(10)
+from StockTickEvent#length(10)
 where symbol='IBM'</programlisting>				
 								
 				<para>
 					In the above example the length window of 10 elements is not affected by the <literal>where</literal> clause, i.e. all events enter and leave the length window regardless of their symbol. If we only care about the last 10 IBM events, we need to add filter criteria as below.
 				</para>
 			    <programlisting>select 'IBM stats' as title, avg(price) as avgPrice, sum(price) as sumPrice
-from StockTickEvent(symbol='IBM').win:length(10)
+from StockTickEvent(symbol='IBM')#length(10)
 where symbol='IBM'</programlisting>				
 
 				<para>
@@ -2151,7 +2157,7 @@ where symbol='IBM'</programlisting>
 				<para>
 					For example, the below statement returns the total price per symbol for all stock tick events in the last 30 seconds:
 				</para>
-				<programlisting>select symbol, sum(price) from StockTickEvent.win:time(30 sec) group by symbol</programlisting>
+				<programlisting>select symbol, sum(price) from StockTickEvent#time(30 sec) group by symbol</programlisting>
 	
 				<para>
 					The syntax of the <literal>group by</literal> clause is:
@@ -2181,7 +2187,7 @@ where symbol='IBM'</programlisting>
 					functions are applied. This statement posts the median volume for all stock tick events in the last 30 seconds per symbol and tick data feed. Esper posts one event for each group to statement listeners:
 				</para>
 				<programlisting>select symbol, tickDataFeed, median(volume) 
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 group by symbol, tickDataFeed</programlisting>
 				
 				<para>
@@ -2207,13 +2213,13 @@ group by symbol, tickDataFeed</programlisting>
 					This is an example that calculates the mean deviation per <literal>symbol</literal> and <literal>tickDataFeed</literal> and posts one event per group with <literal>symbol</literal> and mean deviation of price in the generated events. Since tickDataFeed is not in the posted results, this can potentially be confusing.
 				</para>
 				<programlisting>select symbol, avedev(price) 
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 group by symbol, tickDataFeed</programlisting>
 
 				<para>
 					Expressions are also allowed in the <literal>group by</literal> list:
 				</para>
-				<programlisting>select symbol * price, count(*) from StockTickEvent.win:time(30 sec) group by symbol * price</programlisting>
+				<programlisting>select symbol * price, count(*) from StockTickEvent#time(30 sec) group by symbol * price</programlisting>
 				
 				<para>
 					If the <literal>group by</literal> expression resulted in a null value, the null value becomes its own group. All null values are aggregated into the same group. If you are using the <literal>count(expression)</literal> aggregate function which does not count null values, the count returns zero if only null values are encountered.								
@@ -2222,7 +2228,7 @@ group by symbol, tickDataFeed</programlisting>
 				<para>
 					You can use a <literal>where</literal> clause in a statement with <literal>group by</literal>. Events that do not satisfy the conditions in the <literal>where</literal> clause are eliminated before any grouping is done. For example, the statement below posts the number of stock ticks in the last 30 seconds with a volume larger then 100, posting one event per group (symbol).
 				</para>
-				<programlisting>select symbol, count(*) from StockTickEvent.win:time(30 sec) where volume &gt; 100 group by symbol</programlisting>
+				<programlisting>select symbol, count(*) from StockTickEvent#time(30 sec) where volume &gt; 100 group by symbol</programlisting>
 
 				<sect3 xml:id="epl-groupby-hints" >
 					 <title>Hints Pertaining to Group-By</title>
@@ -2581,13 +2587,13 @@ from Orders</programlisting>
 			  The next example is fully-aggregated and grouped and it computes, for the last one minute of orders, the ratio of orders per account compared to all orders:
 			</para>
 			<programlisting>select count(*)/count(*, group_by:()) as ratio
-from Orders.win:time(1 min) group by account</programlisting>
+from Orders#time(1 min) group by account</programlisting>
 
 			<para>
 			  The next example is an aggregated (and not fully-aggregated) and grouped query that in addition outputs a count per order category:
 			</para>
 			<programlisting>select count(*) as cnt, count(*, group_by:()) as cntOverall,  count(*, group_by:(category))  as cntPerCategory
-from Orders.win:time(1 min) group by account</programlisting>
+from Orders#time(1 min) group by account</programlisting>
 
 			<para>
 				Please note the following restrictions:
@@ -2625,7 +2631,7 @@ from Orders.win:time(1 min) group by account</programlisting>
 					This statement is an example of a <literal>having</literal> clause with an aggregate function. It posts the total price per symbol for the last 30 seconds of stock tick events for only those symbols in which the total price exceeds 1000. The <literal>having</literal> clause eliminates all symbols where the total price is equal or less then 1000.
 				</para>
 				<programlisting>select symbol, sum(price) 
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 group by symbol 
 having sum(price) &gt; 1000</programlisting>
 
@@ -2634,7 +2640,7 @@ having sum(price) &gt; 1000</programlisting>
 					This is shown in the statement below which selects only groups with a total price greater then 1000 and an average volume less then 500.
 				</para>
 				<programlisting>select symbol, sum(price), avg(volume)
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 group by symbol 
 having sum(price) &gt; 1000 and avg(volume) &lt; 500</programlisting>			
 
@@ -2647,7 +2653,7 @@ having sum(price) &gt; 1000 and avg(volume) &lt; 500</programlisting>
 					The <literal>having</literal> clause can also be used without <literal>group by</literal> clause as the below example shows. The example below posts events where the price is less then the current running average price of all stock tick events in the last 30 seconds.
 				</para>
 				<programlisting>select symbol, price, avg(price) 
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 having price &lt; avg(price)</programlisting>
 
 		</sect2>
@@ -2688,7 +2694,7 @@ having price &lt; avg(price)</programlisting>
 				</para>
 				
 				<programlisting>select tickDataFeed, stddev(price)
-from StockTickEvent(symbol='IBM').win:length(10) 
+from StockTickEvent(symbol='IBM')#length(10) 
 where volume > 1000
 group by tickDataFeed 
 having stddev(price) &gt; 0.8</programlisting>
@@ -2781,15 +2787,15 @@ having stddev(price) &gt; 0.8</programlisting>
 
 			<programlisting>select symbol, avg(price) from StockTickEvent group by symbol
 // ... is equivalent to ...
-select symbol, average from StockTickEvent.std:groupwin(symbol).stat:uni(price)</programlisting>
+select symbol, average from StockTickEvent#groupwin(symbol)#uni(price)</programlisting>
 
 			<para>
 				The next example shows two queries that are NOT equivalent as the length window is ungrouped in the first query, and grouped in the second query:
 			</para>
 
-			<programlisting>select symbol, sum(price) from StockTickEvent.win:length(10) group by symbol
+			<programlisting>select symbol, sum(price) from StockTickEvent#length(10) group by symbol
 // ... NOT equivalent to ...
-select symbol, sum(price) from StockTickEvent.std:groupwin(symbol).win:length(10)</programlisting>
+select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</programlisting>
 
 			<para>
 				The key difference between the two statements is that in the first statement the length window is ungrouped and applies to all events regardless of group. While in the second query each group gets its own instance of a length window. For example, in the second query events arriving for symbol "ABC" get a length window of 10 events, and events arriving for symbol "DEF" get their own length window of 10 events. 
@@ -2854,7 +2860,7 @@ select symbol, sum(price) from StockTickEvent.std:groupwin(symbol).win:length(10
 				<para>
 					For example, the following statement outputs, every 60 seconds, the total price for all orders in the 30-minute time window:		
 				</para>
-			    <programlisting>select sum(price) from OrderEvent.win:time(30 min) output snapshot every 60 seconds</programlisting>
+			    <programlisting>select sum(price) from OrderEvent#time(30 min) output snapshot every 60 seconds</programlisting>
 
 				<para>
 					The <literal>all</literal> keyword is the default and specifies that all events in a batch should be output, each incoming row in the batch producing an output row.
@@ -3062,12 +3068,12 @@ select symbol, sum(price) from StockTickEvent.std:groupwin(symbol).win:length(10
 					<para>
 						For example, the following statement outputs every minute the total price for all orders in the 30-minute time window but only after 30 minutes have passed:		
 					</para>
-					<programlisting>select sum(price) from OrderEvent.win:time(30 min) output after 30 min snapshot every 1 min</programlisting>
+					<programlisting>select sum(price) from OrderEvent#time(30 min) output after 30 min snapshot every 1 min</programlisting>
 
 					<para>
 						An example in which <literal>after</literal> occur alone is below, in a statement that outputs total price for all orders in the last minute but only after 1 minute passed, each time an event arrives or leaves the data window:
 					</para>
-					<programlisting>select sum(price) from OrderEvent.win:time(1 min) output after 1 min</programlisting>
+					<programlisting>select sum(price) from OrderEvent#time(1 min) output after 1 min</programlisting>
 
 					<para>
 						To demonstrate <literal>after</literal> when used with an event count, this statement find pairs of orders with the same id but suppresses output for the first 5 pairs:
@@ -3163,13 +3169,13 @@ select symbol, sum(price) from StockTickEvent.std:groupwin(symbol).win:length(10
 				<para>
 				  The below statement outputs total price per symbol considering events in the last 3 minutes. When events leave the 3-minute data window output also occurs as new aggregation values are computed. The <literal>last</literal> keyword instructs the engine to output only those groups that had changes. Output occurs after an interval of 10 seconds passed and at the end of each subsequent interval:
 				</para>
-				<programlisting>select symbol, sum(price) from StockTickEvent.win:time(3 min)
+				<programlisting>select symbol, sum(price) from StockTickEvent#time(3 min)
 group by symbol output last every 10 seconds</programlisting>
 
 				<para>
 				  This statement also outputs total price per symbol considering events in the last 3 minutes. The <literal>first</literal> keyword instructs the engine to output as soon as there is a new value for a group. After output for a given group the engine suppresses output for the same group for 10 seconds and does not suppress output for other groups. Output occurs again for that group after the interval when the group has new value(s):
 				</para>
-				<programlisting>select symbol, sum(price) from StockTickEvent.win:time(3 min)
+				<programlisting>select symbol, sum(price) from StockTickEvent#time(3 min)
 group by symbol output first every 10 seconds</programlisting>
 
 		</sect2>
@@ -3481,7 +3487,7 @@ group by symbol output first every 10 seconds</programlisting>
 		<para>
 			For example, the following statement outputs batches of 5 or more stock tick events that are sorted first by price ascending and then by volume ascending:
 		</para>
-		<programlisting>select symbol from StockTickEvent.win:time(60 sec) 
+		<programlisting>select symbol from StockTickEvent#time(60 sec) 
 output every 5 events 
 order by price, volume</programlisting>
 
@@ -3661,7 +3667,7 @@ limit 2, 8</programlisting>
 		</para>
 		<programlisting>insert into CombinedEvent
 select A.customerId as custId, A.timestamp - B.timestamp as latency
-  from EventA.win:time(30 min) A, EventB.win:time(30 min) B
+  from EventA#time(30 min) A, EventB#time(30 min) B
  where A.txnId = B.txnId</programlisting>
 
 		<para>
@@ -3669,7 +3675,7 @@ select A.customerId as custId, A.timestamp - B.timestamp as latency
 		</para>
 
 		<programlisting>select custId, sum(latency)
-  from CombinedEvent.win:time(30 min)
+  from CombinedEvent#time(30 min)
  group by custId</programlisting>
 
 		<para>
@@ -3688,7 +3694,7 @@ select A.customerId, A.timestamp - B.timestamp
 
 		<programlisting>insert rstream into CombinedEvent
 select A.customerId as custId, A.timestamp - B.timestamp as latency
-  from EventA.win:time(30 min) A, EventB.win:time(30 min) B
+  from EventA#time(30 min) A, EventB#time(30 min) B
  where A.txnId = B.txnId</programlisting>
 
 		<para>
@@ -3792,7 +3798,7 @@ from pattern [every linkDown=LinkDownEvent -> linkUp=LinkUpEvent(ip=linkDown.ip)
 			<para>
 				Here is a sample statement that consumes the variant stream and outputs a total price per customer id for the last 30 seconds of <literal>ServiceOrder</literal> and <literal>ProductOrder</literal> events:
 			</para>
-			<programlisting>select customerId, sum(price) from OrderStream.win:time(30 sec) group by customerId</programlisting>			
+			<programlisting>select customerId, sum(price) from OrderStream#time(30 sec) group by customerId</programlisting>			
 
 			<para>
 				If your application predefines the variant stream to hold specific type of events, as the sample above did, then all event properties that are common to all specified types are visible on the variant stream, including nested, indexed and mapped properties. For access to properties that are only available on one of the types, the dynamic property syntax must be used. In the example above, the <literal>customerId</literal> and <literal>price</literal> were properties common to both <literal>ServiceOrder</literal> and <literal>ProductOrder</literal> events.
@@ -3802,7 +3808,7 @@ from pattern [every linkDown=LinkDownEvent -> linkUp=LinkUpEvent(ip=linkDown.ip)
 				For example, here is a consuming statement that selects a <literal>service duraction</literal> property that only <literal>ServiceOrder</literal> events have, and that must therefore be casted to double and null values removed in order to aggregate:
 			</para>
 			<programlisting>select customerId, sum(coalesce(cast(serviceDuraction?, double), 0)) 
-from OrderStream.win:time(30 sec) group by customerId</programlisting>			
+from OrderStream#time(30 sec) group by customerId</programlisting>			
 
 			<para>
 				If your application predefines a variant stream to hold any type of events (the <literal>any</literal> type variance), then all event properties of the variant stream are effectively dynamic properties. 
@@ -3844,7 +3850,7 @@ from OrderStream.win:time(30 sec) group by customerId</programlisting>
 				Your <literal>select</literal> clause may use the stream name to populate a stream of events in which each event has properties that are itself an event. A sample statement is:				
 			</para>
 			<programlisting>insert into CompositeStream select order, service, order.price+service.price as totalPrice 
-from PurchaseOrder.std:lastevent() as order, ServiceEvent:std:lastevent() as service</programlisting>			
+from PurchaseOrder#lastevent() as order, ServiceEvent:std:lastevent() as service</programlisting>			
 
 			<para>
 				When using the stream name (or tag in patterns) in the select-clause, the engine produces composite events: One or more of the properties of the composite event are events themselves.
@@ -3925,7 +3931,7 @@ from TriggerEvent</programlisting>
 				The sample subquery below populates only the very first event, discarding remaining subquery result events, since the <literal>items</literal> property above is declared as holding a single <literal>Item</literal>-typed event only (versus <literal>Item[]</literal> to hold multiple <literal>Item</literal>-typed events).
 			</para>
 			<programlisting>insert into PurchaseOrder select 
-(select 'i1' as name, 10 as price from HistoryEvent.win:length(2)) as items 
+(select 'i1' as name, 10 as price from HistoryEvent#length(2)) as items 
 from TriggerEvent</programlisting>		
 			
 			<para>
@@ -3971,14 +3977,14 @@ from TriggerEvent</programlisting>
 			Esper supports both simple subqueries as well as correlated subqueries. In a simple subquery, the inner query is not correlated to the outer query. Here is an example simple subquery within a <literal>select</literal> clause:
 	    </para>
 			
-		<programlisting><![CDATA[select assetId, (select zone from ZoneClosed.std:lastevent()) as lastClosed from RFIDEvent]]></programlisting>
+		<programlisting><![CDATA[select assetId, (select zone from ZoneClosed#lastevent()) as lastClosed from RFIDEvent]]></programlisting>
 
 		<para>
 			If the inner query is dependent on the outer query, we will have a correlated subquery. An example of a correlated subquery is shown below. Notice the <literal>where</literal> clause in the inner query, where the condition involves a stream from the outer query:
 	    </para>
 
 		<programlisting><![CDATA[select * from RfidEvent as RFID where 'Dock 1' = 
-  (select name from Zones.std:unique(zoneId) where zoneId = RFID.zoneId)]]></programlisting>
+  (select name from Zones#unique(zoneId) where zoneId = RFID.zoneId)]]></programlisting>
 		
 		<para>
 			The example above shows a subquery in the <literal>where</literal> clause. The statement selects RFID events in which the zone name matches a string constant based on zone id. The statement uses the view <literal>std:unique</literal> to guarantee that only the last event per zone id is held from processing by the subquery.
@@ -3988,7 +3994,7 @@ from TriggerEvent</programlisting>
 			The next example is a correlated subquery within a <literal>select</literal> clause. In this statement the <literal>select</literal> clause retrieves the zone name by means of a subquery against the Zones set of events correlated by zone id:
 		</para>
 
-		<programlisting><![CDATA[select zoneId, (select name from Zones.std:unique(zoneId) 
+		<programlisting><![CDATA[select zoneId, (select name from Zones#unique(zoneId) 
   where zoneId = RFID.zoneId) as name from RFIDEvent]]></programlisting>
 
 		<para>
@@ -3999,7 +4005,7 @@ from TriggerEvent</programlisting>
 			The <literal>select</literal> clause of a subquery also allows wildcard selects, which return as an event property the underlying event object of the event type as defined in the <literal>from</literal> clause. An example:
 		</para>
 
-		<programlisting><![CDATA[select (select * from MarketData.std:lastevent()) as md 
+		<programlisting><![CDATA[select (select * from MarketData#lastevent()) as md 
   from pattern [every timer:interval(10 sec)]]]></programlisting>
 
 		<para>
@@ -4010,7 +4016,7 @@ from TriggerEvent</programlisting>
 			Aggregation functions may be used in the <literal>select</literal> clause of the subselect as this example outlines:
 		</para>
 		<programlisting><![CDATA[select * from MarketData
-where price > (select max(price) from MarketData(symbol='GOOG').std:lastevent())]]></programlisting>
+where price > (select max(price) from MarketData(symbol='GOOG')#lastevent())]]></programlisting>
 
 		<para>
 			As the sub-select expression is evaluated first (by default), the query above actually never fires for the GOOG symbol, only for other symbols that have a price higher then the current maximum for GOOG. As a sidenote, the <literal>insert into</literal> clause can also be handy to compute aggregation results for use in multiple subqueries.
@@ -4025,7 +4031,7 @@ where price > (select max(price) from MarketData(symbol='GOOG').std:lastevent())
 		</para>
 		<programlisting><![CDATA[select * from OrderEvent oe
 where qty > 
-  (select sum(qty) from OrderEvent.win:time(1 hour) pd 
+  (select sum(qty) from OrderEvent#time(1 hour) pd 
   where pd.client = oe.client)]]></programlisting>
 
 		<para>
@@ -4036,14 +4042,14 @@ where qty >
 			The following example filters <literal>BarData</literal> events that have a close price less then the last moving average (field <literal>movAgv</literal>) as provided by stream <literal>SMA20Stream</literal> (an uncorrelated subquery):
 		</para>
 		<programlisting><![CDATA[select * from BarData(ticker='MSFT', closePrice < 
-    (select movAgv from SMA20Stream(ticker='MSFT').std:lastevent()))]]></programlisting>
+    (select movAgv from SMA20Stream(ticker='MSFT')#lastevent()))]]></programlisting>
 
 		<para>
 			A few generic examples follow to demonstrate the point. The examples use short event and property names so they are easy to read. Assume <literal>A</literal> and <literal>B</literal> are streams and <literal>DNamedWindow</literal> is a named window, and <literal>ETable</literal> is a table and properties <literal>a_id, b_id, d_id, e_id, a_val, b_val, d_val, e_val</literal> respectively:
 		</para>
 		<programlisting><![CDATA[// Sample correlated subquery as part of stream filter criteria
 select * from A(a_val in 
-  (select b_val from B.std:unique(b_val) as b where a.a_id = b.b_id)) as a]]></programlisting>
+  (select b_val from B#unique(b_val) as b where a.a_id = b.b_id)) as a]]></programlisting>
 		<programlisting><![CDATA[// Sample correlated subquery against a named window
 select * from A(a_val in 
   (select d_val from DNamedWindow as d where a.a_id = d.d_id)) as a]]></programlisting>
@@ -4121,7 +4127,7 @@ select * from A(a_val in
 			</para>
 
 			<programlisting><![CDATA[select assetId from RFIDEvent as RFID 
-  where exists (select * from Asset.std:unique(assetId) where assetId = RFID.assetId)]]></programlisting>
+  where exists (select * from Asset#unique(assetId) where assetId = RFID.assetId)]]></programlisting>
 
 			<para>
 				This select statement will return all RFID events where there is at least one event in Assets unique by asset id with the same asset id.
@@ -4149,7 +4155,7 @@ select * from A(a_val in
 			</para>
 
 			<programlisting><![CDATA[select assetId from RFIDEvent
-  where zone in (select zone from ZoneUpdate(status = 'closed').win:time(10 min))]]></programlisting>
+  where zone in (select zone from ZoneUpdate(status = 'closed')#time(10 min))]]></programlisting>
 
 			<para>
 				The above statement demonstrated the <literal>in</literal> subquery to select RFID events for which the zone status is in a closed state. 
@@ -4195,7 +4201,7 @@ select * from A(a_val in
 
 			<programlisting><![CDATA[select * from ProductOrder as ord
   where quantity < any
-    (select minimumQuantity from MinimumQuantity.win:keepall())]]></programlisting>
+    (select minimumQuantity from MinimumQuantity#keepall())]]></programlisting>
 
 			<para>
 				The above query compares ProductOrder event's quantity value with all rows from the MinimumQuantity stream of events and returns only those ProductOrder events that have a quantity that is less then any of the minimum quantity values of the MinimumQuantity events.
@@ -4240,7 +4246,7 @@ select * from A(a_val in
 
 			<programlisting><![CDATA[select * from ProductOrder as ord
   where quantity < all
-    (select minimumQuantity from MinimumQuantity.win:keepall())]]></programlisting>
+    (select minimumQuantity from MinimumQuantity#keepall())]]></programlisting>
 
 			<para>
 				The above query compares ProductOrder event's quantity value with all rows from the MinimumQuantity stream of events and returns only those ProductOrder events that have a quantity that is less then all of the minimum quantity values of the MinimumQuantity events.
@@ -4290,7 +4296,7 @@ select * from A(a_val in
 			</para>
 
 			<programlisting><![CDATA[select *,
-  (select bid, offer from MarketData.std:unique(symbol) as md 
+  (select bid, offer from MarketData#unique(symbol) as md 
    where md.symbol = oe.symbol) as bidoffer
 from OrderEvent oe]]></programlisting>
 
@@ -4311,7 +4317,7 @@ from OrderEvent as oe]]></programlisting>
 				The next EPL statement computes a prorated quantity considering the maximum and minimum quantity for the last 1 minute of order events:
 			</para>
 			<programlisting><![CDATA[expression subq {
-  (select max(quantity) as maxq, min(quantity) as minq from OrderEvent.win:time(1 min))
+  (select max(quantity) as maxq, min(quantity) as minq from OrderEvent#time(1 min))
 }
 select (quantity - minq) / (subq().maxq  - subq().minq) as prorated
 from OrderEvent]]></programlisting>
@@ -4336,7 +4342,7 @@ from OrderEvent]]></programlisting>
 				The next example is an uncorrelated subquery that selects all current <literal>ZoneEvent</literal> events considering the last <literal>ZoneEvent</literal> per zone for each arriving <literal>RFIDEvent</literal>.
 			</para>
 			<programlisting><![CDATA[select assetId,
- (select window(z.*) as winzones from ZoneEvent.std:unique(zone) as z) as zones
+ (select window(z.*) as winzones from ZoneEvent#unique(zone) as z) as zones
  from RFIDEvent]]></programlisting>
 
 			<para>
@@ -4402,7 +4408,7 @@ from OrderEvent]]></programlisting>
 				This sample EPL statement creates a named window with subquery index sharing enabled:
 			</para>
 			<programlisting><![CDATA[@Hint('enable_window_subquery_indexshare')
-create window OrdersNamedWindow.win:keepall() as OrderMapEventType]]></programlisting>
+create window OrdersNamedWindow#keepall() as OrderMapEventType]]></programlisting>
 
 			<para>
 				When subquery index sharing is enabled, performance may increase as named window stream consumption is no longer needed for correlated subqueries. You may also expect reduced memory use especially if a large number of EPL statements perform similar subqueries against a named window. Subquery index sharing may require additional short-lived object creation and may slightly increase lock held time for named windows. 
@@ -4452,7 +4458,7 @@ select
 			<para>
 				Consider the sample statement shown next:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent.std:lastevent(), NewsEvent.std:lastevent()]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent(), NewsEvent#lastevent()]]></programlisting>
 
 			<para>
 				The above statement outputs the last TickEvent and the last NewsEvent in one output event when either a TickEvent or a NewsEvent arrives. If no TickEvent was received before a NewsEvent arrives, no output occurs. Similarly when no NewsEvent was received before a TickEvent arrives, no output occurs.
@@ -4465,7 +4471,7 @@ select
 			<para>
 				The next example statement retains the last TickEvent and last NewsEvent per symbol, and joins the two streams based on their symbol value:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent.std:unique(symbol) as t, NewsEvent.std:unique(symbol) as n
+			<programlisting><![CDATA[select * from TickEvent#unique(symbol) as t, NewsEvent#unique(symbol) as n
 where t.symbol = n.symbol]]></programlisting>
 
 			<para>
@@ -4479,8 +4485,8 @@ where t.symbol = n.symbol]]></programlisting>
 			<para>
 				This example statement is an outer-join and also returns the last TickEvent and last NewsEvent per symbol: 
 			</para>
-			<programlisting><![CDATA[select * from TickEvent.std:unique(symbol) as t
-full outer join NewsEvent.std:unique(symbol) as n on t.symbol = n.symbol]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#unique(symbol) as t
+full outer join NewsEvent#unique(symbol) as n on t.symbol = n.symbol]]></programlisting>
 
 			<para>
 				In the sample statement above, when a TickEvent arrives for a symbol that has no matching NewsEvent, or when a NewsEvent arrives for a symbol that has no matching TickEvent, the statement still produces an output event with a null column value for the missing event.
@@ -4501,7 +4507,7 @@ full outer join NewsEvent.std:unique(symbol) as n on t.symbol = n.symbol]]></pro
 			<para>
 				Here is the sample statement above with <literal>unidirectional</literal> keyword, so that output occurs only when a TickEvent arrives and not when a NewsEvent arrives:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent as t unidirectional, NewsEvent.std:unique(symbol) as n 
+			<programlisting><![CDATA[select * from TickEvent as t unidirectional, NewsEvent#unique(symbol) as n 
 where t.symbol = n.symbol]]></programlisting>
 			
 			<para>
@@ -4516,7 +4522,7 @@ where t.symbol = n.symbol]]></programlisting>
 				This sample statement includes a pattern that fires every 5 seconds and thus triggers the join to evaluate and produce output, computing an aggregated total quantity per symbol every 5 seconds:
 			</para>
 			<programlisting><![CDATA[select symbol, sum(qty) from pattern[every timer:interval(5 sec)] unidirectional, 
-  TickEvent.std:unique(symbol) t, NewsEvent.std:unique(symbol) as n 
+  TickEvent#unique(symbol) t, NewsEvent#unique(symbol) as n 
 where t.symbol = n.symbol group by symbol]]></programlisting>
 
 			<para>
@@ -4544,15 +4550,15 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			</para>
 <programlisting><![CDATA[select fraud.accountNumber as accntNum, fraud.warning as warn, withdraw.amount as amount,
        max(fraud.timestamp, withdraw.timestamp) as timestamp, 'withdrawlFraud' as desc
-  from com.espertech.esper.example.atm.FraudWarningEvent.win:time(30 min) as fraud,
-       com.espertech.esper.example.atm.WithdrawalEvent.win:time(30 sec) as withdraw
+  from com.espertech.esper.example.atm.FraudWarningEvent#time(30 min) as fraud,
+       com.espertech.esper.example.atm.WithdrawalEvent#time(30 sec) as withdraw
  where fraud.accountNumber = withdraw.accountNumber]]></programlisting>
 
 			<para>
 				Joins can also include one or more pattern statements as the next example shows:
 			</para>
-<programlisting><![CDATA[select * from FraudWarningEvent.win:time(30 min) as fraud,
-    pattern [every w=WithdrawalEvent -> PINChangeEvent(acct=w.acct)].std:lastevent() as withdraw
+<programlisting><![CDATA[select * from FraudWarningEvent#time(30 min) as fraud,
+    pattern [every w=WithdrawalEvent -> PINChangeEvent(acct=w.acct)]#lastevent() as withdraw
  where fraud.accountNumber = withdraw.w.accountNumber]]></programlisting>
 	
 			<para>
@@ -4566,7 +4572,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			<para>
 				The next example joins all FraudWarningEvent events that arrived since the statement was started, with the last 20 seconds of PINChangeEvent events:
 			</para>
-<programlisting><![CDATA[select * from FraudWarningEvent.win:keepall() as fraud, PINChangeEvent.win:time(20 sec) as pin
+<programlisting><![CDATA[select * from FraudWarningEvent#keepall() as fraud, PINChangeEvent#time(20 sec) as pin
  where fraud.accountNumber = pin.accountNumber]]></programlisting>
 
 			<para>
@@ -4600,18 +4606,18 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 				If the outer join is a left outer join, there will be an output event for each event of the stream on the left-hand side of the clause. For example, in the left outer join shown below we will get output for each event in the stream RfidEvent, even if the event does not match any event in the event stream OrderList.
 			</para>
 
-<programlisting><![CDATA[select * from RfidEvent.win:time(30 sec) as rfid
+<programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
        left outer join
-       OrderList.win:length(10000) as orderlist
+       OrderList#length(10000) as orderlist
      on rfid.itemId = orderList.itemId]]></programlisting>
 		
 			<para>
 				Similarly, if the join is a Right Outer Join, then there will be an output event for each event of the stream on the right-hand side of the clause. For example, in the right outer join shown below we will get output for each event in the stream OrderList, even if the event does not match any event in the event stream RfidEvent.
 			</para>
 
-<programlisting><![CDATA[select * from RfidEvent.win:time(30 sec) as rfid
+<programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
        right outer join
-       OrderList.win:length(10000) as orderlist
+       OrderList#length(10000) as orderlist
        on rfid.itemId = orderList.itemId]]></programlisting>
 
 			<para>
@@ -4622,18 +4628,18 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 				The next type of outer join is a full outer join. In a full outer join, each point in time that an event arrives to one of the event streams, one or more output events are produced. In the example below, when either an RfidEvent or an OrderList event arrive, one or more output event is produced. The next example shows a full outer join that joins on multiple properties:
 			</para>
 
-<programlisting><![CDATA[select * from RfidEvent.win:time(30 sec) as rfid
+<programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
        full outer join
-       OrderList.win:length(10000) as orderlist
+       OrderList#length(10000) as orderlist
        on rfid.itemId = orderList.itemId and rfid.assetId = orderList.assetId]]></programlisting>
 
 			<para>
 				The last type of join is an inner join. In an inner join, the engine produces an output event for each event of the stream on the left-hand side that matches at least one event on the right hand side considering the join properties. For example, in the inner join shown below we will get output for each event in the RfidEvent stream that matches one or more events in the OrderList data window:
 			</para>
 
-<programlisting><![CDATA[select * from RfidEvent.win:time(30 sec) as rfid
+<programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
        inner join
-       OrderList.win:length(10000) as orderlist
+       OrderList#length(10000) as orderlist
        on rfid.itemId = orderList.itemId and rfid.assetId = orderList.assetId]]></programlisting>
 
 			<para>
@@ -4644,10 +4650,10 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 				This example outer joins multiple streams. Here the RfidEvent stream is outer joined to both ProductName and LocationDescription via left outer join:
 			</para>
 
-<programlisting><![CDATA[select * from RfidEvent.win:time(30 sec) as rfid
-      left outer join ProductName.win:keepall() as refprod
+<programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
+      left outer join ProductName#keepall() as refprod
         on rfid.productId = refprod.prodId
-      left outer join LocationDescription.win:keepall() as refdesc
+      left outer join LocationDescription#keepall() as refdesc
         on rfid.location = refdesc.locId]]></programlisting>
         
 			<para>
@@ -4665,7 +4671,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 <programlisting><![CDATA[select count(*) from
   pattern[every timer:interval(1)] unidirectional 
   left outer join
-  RfidEvent.win:time(60 sec)]]></programlisting>			
+  RfidEvent#time(60 sec)]]></programlisting>			
 			
 		</sect2>
 
@@ -4692,7 +4698,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			<para>
 				For example, consider a use case that requires us to join stock tick events (TickEvent) and news events (NewsEvent). The <literal>unidirectional</literal> keyword allows to generate results only when TickEvent events arrive, and not when NewsEvent arrive or leave the 10-second time window:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent unidirectional, NewsEvent.win:time(10 sec) 
+			<programlisting><![CDATA[select * from TickEvent unidirectional, NewsEvent#time(10 sec) 
 where tick.symbol = news.symbol]]></programlisting>
 
 			<para>
@@ -4702,7 +4708,7 @@ where tick.symbol = news.symbol]]></programlisting>
 			<para>
 				The count function in the next query returns, for each TickEvent, the number of matching NewEvent events:
 			</para>
-			<programlisting><![CDATA[select count(*) from TickEvent unidirectional, NewsEvent.win:time(10 sec) 
+			<programlisting><![CDATA[select count(*) from TickEvent unidirectional, NewsEvent#time(10 sec) 
 where tick.symbol = news.symbol]]></programlisting>
 	
 			<para>
@@ -4737,14 +4743,14 @@ where tick.symbol = news.symbol]]></programlisting>
 			<para>
 				An outer join that specifies only <literal>inner</literal> keywords for all streams is equivalent to an default (inner) join. The following two statements are equivalent:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent.std:lastevent(), 
-    NewsEvent.std:lastevent() where tick.symbol = news.symbol]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent(), 
+    NewsEvent#lastevent() where tick.symbol = news.symbol]]></programlisting>
 
 			<para>
 				Equivalent to:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent.std:lastevent() 
-	inner join NewsEvent.std:lastevent() on tick.symbol = news.symbol]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent() 
+	inner join NewsEvent#lastevent() on tick.symbol = news.symbol]]></programlisting>
 			
 			<para>
 				For all types of joins, the query planner determines a query graph: The term is used here for all the information regarding what properties or expressions are used to join the streams. The query graph thus includes the where-clause expressions as well as outer-join on-clauses if this statement is an outer join. The query planner also computes a dependency graph which includes information about all historical data streams (relational and non-relational as below) and their input needs. 
@@ -4762,7 +4768,7 @@ where tick.symbol = news.symbol]]></programlisting>
 				For example, consider the below statement. Depending on the number of matching rows in OrderBookOne and OrderBookTwo (named windows in this example, and assumed to be defined elsewhere) the performance of the join may be better using the merge join plan.
 			</para>
 			<programlisting><![CDATA[@Hint('prefer_merge_join') 
-select * from TickEvent.std:lastevent() t, 
+select * from TickEvent#lastevent() t, 
 	OrderBookOne ob1, OrderBookOne ob2
 where ob1.symbol = t.symbol and ob2.symbol = t.symbol 
 and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]></programlisting>
@@ -4883,7 +4889,7 @@ and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]>
 			</para>
 
 			<programlisting><![CDATA[select customerId, customerName from
-  CustomerCallEvent.win:time(30 sec) as cce,
+  CustomerCallEvent#time(30 sec) as cce,
   sql:MyCustomerDB ["select cust_id as customerId, cust_name as customerName from Customer 
                   where cust_id = ${cce.custId}"] as cq]]></programlisting>
 
@@ -6256,7 +6262,7 @@ on PageHitEvent(ip='0.0.0.0') pagehit set varPageHitZero.userId = pagehit.userId
 				This example shows a sequence of EPL, that can be created in the order shown, and that demonstrates expression validation at time of referral:
 			</para>
 			<programlisting><![CDATA[create expression minPrice {(select min(price) from OrderWindow)}]]></programlisting>				
-			<programlisting><![CDATA[create window OrderWindow.win:time(30) as OrderEvent]]></programlisting>				
+			<programlisting><![CDATA[create window OrderWindow#time(30) as OrderEvent]]></programlisting>				
 			<programlisting><![CDATA[insert into OrderWindow select * from OrderEvent]]></programlisting>				
 			<programlisting><![CDATA[// Validates and incorporates the declared global expression
 select minPrice() as minprice from MarketData]]></programlisting>				
@@ -6406,7 +6412,7 @@ select minPrice() as minprice from MarketData]]></programlisting>
 		<para>
 			The above query the returns each book only for media orders with a given order id. This query illustrates a contained-event selection and a view: 
 		</para>
-		<programlisting><![CDATA[select count(*) from MediaOrder[books.book].std:unique(bookId)]]></programlisting>
+		<programlisting><![CDATA[select count(*) from MediaOrder[books.book]#unique(bookId)]]></programlisting>
 		
 		<para>
 			The sample above counts each book unique by book id.
@@ -6815,7 +6821,7 @@ select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></progr
 			<para>
 				This example declares a named window and uses on-delete:
 			</para>
-			<programlisting><![CDATA[create window MyWindow.win:keepall() (id int)]]></programlisting>
+			<programlisting><![CDATA[create window MyWindow#keepall() (id int)]]></programlisting>
 			<programlisting><![CDATA[on MyEvent[ids@type(IdContainer)] as my_ids 
 delete from MyWindow my_window 
 where my_ids.id = my_window.id]]></programlisting>
@@ -6907,7 +6913,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		<para>
 			Consider the next example (shown here with statement names in @Name EPL annotation, multiple EPL statements):
 		</para>		
-		<programlisting><![CDATA[@Name("CreateWindow") create window MyWindow.win:time(30 sec) as AlertEvent
+		<programlisting><![CDATA[@Name("CreateWindow") create window MyWindow#time(30 sec) as AlertEvent
 
 @Name("UpdateStream") update istream MyWindow set severity = 'Low' where reason = '%out of paper%'
 
@@ -6933,7 +6939,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		</para>		
 		<programlisting><![CDATA[update istream AlertEvent as ae
   set phone = 
-    (select phone from PhoneEvent.std:unique(empid) where empid = ae.reporter)]]></programlisting>
+    (select phone from PhoneEvent#unique(empid) where empid = ae.reporter)]]></programlisting>
 		
 		<para>
 			When updating indexed properties use the syntax <emphasis>propertyName</emphasis><literal>[</literal><emphasis>index</emphasis><literal>] = </literal><emphasis>value</emphasis> with the index value being an integer number. 
@@ -7028,7 +7034,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		<para>
 			Consider the following example without <literal>for</literal>-clause. The time batch data view collects RFIDEvent events for 10 seconds and posts an array of result events:
 		</para>
-		<programlisting><![CDATA[select * from RFIDEvent.win:time_batch(10 sec)]]></programlisting>
+		<programlisting><![CDATA[select * from RFIDEvent#time_batch(10 sec)]]></programlisting>
 		
 		<para>
 			Let's consider an example event sequence as follows:
@@ -7063,7 +7069,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		<para>
 			The next example specifies the <literal>for</literal>-clause and grouped delivery by zone:
 		</para>
-		<programlisting><![CDATA[select * from RFIDEvent.win:time_batch(10 sec) for grouped_delivery (zone)]]></programlisting>
+		<programlisting><![CDATA[select * from RFIDEvent#time_batch(10 sec) for grouped_delivery (zone)]]></programlisting>
 
 		<para>
 			With grouped delivery and after the 10-second time period passes, the above statement delivers result events in two invocations to listeners and the subscriber: The first invocation delivers an array of two events that contains zone A events with id 1 and 3. The second invocation delivers an array of 1 event that contains a zone B event with id 2.
@@ -7072,7 +7078,7 @@ from pattern [a=Withdrawal -> b=Withdrawal(id = a.id)]]]></programlisting>
 		<para>
 			The next example specifies the <literal>for</literal>-clause and discrete delivery:
 		</para>
-		<programlisting><![CDATA[select * from RFIDEvent.win:time_batch(10 sec) for discrete_delivery]]></programlisting>
+		<programlisting><![CDATA[select * from RFIDEvent#time_batch(10 sec) for discrete_delivery]]></programlisting>
 
 		<para>
 			With discrete delivery and after the 10-second time period passes, the above statement delivers result events in three invocations to listeners and the subscriber: The first invocation delivers an array of 1 event that contains the event with id 1, the second invocation delivers an array of 1 event that contains the event with id 2 and the third invocation delivers an array of 1 event that contains the event with id 3.

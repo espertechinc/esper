@@ -125,7 +125,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     public void testOnSelect() {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL("on SupportBean_S0 as s0 select mw.theString as c0, sum(mw.intPrimitive) as c1, count(*) as c2 from MyWindow mw group by rollup(mw.theString)");
         stmt.addListener(listener);
@@ -264,7 +264,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     public void testBoundGroupingSet2LevelNoTopNoDetail() {
         String[] fields = "c0,c1,c2".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
-                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean.win:length(4) " +
+                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean#length(4) " +
                 "group by grouping sets(theString, intPrimitive)");
         stmt.addListener(listener);
         assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
@@ -298,7 +298,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     public void testBoundGroupingSet2LevelTopAndDetail() {
         String[] fields = "c0,c1,c2".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
-                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean.win:length(4) " +
+                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean#length(4) " +
                 "group by grouping sets((), (theString, intPrimitive))");
         stmt.addListener(listener);
         assertEquals(Integer.class, stmt.getEventType().getPropertyType("c1"));
@@ -425,7 +425,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
                 "grouping(intPrimitive) as c6," +
                 "grouping(longPrimitive) as c7," +
                 "grouping_id(theString, intPrimitive, longPrimitive) as c8 " +
-                "from SupportBean.win:length(4) " +
+                "from SupportBean#length(4) " +
             "group by " + groupBy).addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 10, 100));
@@ -508,7 +508,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
 
     private void runAssertionNamedWindowCube2Dim(String groupBy) {
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(intBoxed = 0)");
         epService.getEPAdministrator().createEPL("on SupportBean(intBoxed = 3) delete from MyWindow");
 
@@ -556,7 +556,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     private void runAssertionNamedWindowDeleteAndRStream2Dim(String groupBy) {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(intBoxed = 0)");
         epService.getEPAdministrator().createEPL("on SupportBean(intBoxed = 1) as sb " +
                 "delete from MyWindow mw where sb.theString = mw.theString and sb.intPrimitive = mw.intPrimitive");
@@ -692,7 +692,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean.win:length(3) " + (join ? ", SupportBean_S0.std:lastevent()" : "") +
+                "from SupportBean#length(3) " + (join ? ", SupportBean_S0#lastevent()" : "") +
                 "group by rollup(theString, intPrimitive)").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
@@ -812,7 +812,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     {
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
-                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean.win:length_batch(4) " +
+                "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 from SupportBean#length_batch(4) " +
                 "group by rollup(theString, intPrimitive)").addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100));
@@ -891,7 +891,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         String[] fields = "c0,c1,c2,c3,c4".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, longPrimitive as c2, count(*) as c3, sum(doublePrimitive) as c4 " +
-                "from SupportBean.win:keepall() " + (isJoin ? ", SupportBean_S0.std:lastevent() " : "") +
+                "from SupportBean#keepall() " + (isJoin ? ", SupportBean_S0#lastevent() " : "") +
                 "group by " + groupByClause).addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
@@ -925,7 +925,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     public void testMixedAccessAggregation() {
         String[] fields = "c0,c1,c2".split(",");
         String epl = "select sum(intPrimitive) as c0, theString as c1, window(*) as c2 " +
-                "from SupportBean.win:length(2) sb group by rollup(theString) order by theString";
+                "from SupportBean#length(2) sb group by rollup(theString) order by theString";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 

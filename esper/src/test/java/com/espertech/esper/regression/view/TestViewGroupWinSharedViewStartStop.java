@@ -40,10 +40,10 @@ public class TestViewGroupWinSharedViewStartStop extends TestCase {
 
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(SubscriberName string, ValueInt float)");
         final String query = "select SubscriberName, avg(ValueInt) "
-                + "from MyEvent.std:groupwin(SubscriberName).win:length(4)"
+                + "from MyEvent#groupwin(SubscriberName)#length(4)"
                 + "group by SubscriberName output snapshot every 1 events";
         final String query2 = "select SubscriberName, avedev(ValueInt) "
-                + "from MyEvent.std:groupwin(SubscriberName).win:length(3) "
+                + "from MyEvent#groupwin(SubscriberName)#length(3) "
                 + "group by SubscriberName output snapshot every 1 events";
 
         final String[] groups = {

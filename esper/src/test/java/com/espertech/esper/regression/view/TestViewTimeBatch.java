@@ -44,7 +44,7 @@ public class TestViewTimeBatch extends TestCase
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(1 month)").addListener(listener);
+        epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(1 month)").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
@@ -69,7 +69,7 @@ public class TestViewTimeBatch extends TestCase
     {
         sendTimer(1000);
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:time_batch(1, \"START_EAGER,FORCE_UPDATE\")");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#time_batch(1, \"START_EAGER,FORCE_UPDATE\")");
         stmt.addListener(listener);
 
         sendTimer(1999);

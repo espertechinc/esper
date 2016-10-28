@@ -35,7 +35,7 @@ public class TestTimeperiodExpr extends TestCase
 
     public void testTimeInterval_OM() throws Exception
     {
-        String stmtText = "select * from " + SupportBean.class.getName() + ".win:time(2 years 3 months 4 weeks 5 days 6 hours 7 minutes 8 seconds 9 milliseconds)";
+        String stmtText = "select * from " + SupportBean.class.getName() + "#time(2 years 3 months 4 weeks 5 days 6 hours 7 minutes 8 seconds 9 milliseconds)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         assertEquals(stmtText, model.toEPL());

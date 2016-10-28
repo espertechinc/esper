@@ -37,8 +37,8 @@ public class TestPerf2StreamSimpleJoin extends TestCase
         updateListener = new SupportUpdateListener();
 
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + ".win:length(1000000)," +
-                SupportBean.class.getName() + ".win:length(1000000)" +
+                SupportMarketDataBean.class.getName() + "#length(1000000)," +
+                SupportBean.class.getName() + "#length(1000000)" +
             " where symbol=theString";
 
         joinView = epService.getEPAdministrator().createEPL(joinStatement);

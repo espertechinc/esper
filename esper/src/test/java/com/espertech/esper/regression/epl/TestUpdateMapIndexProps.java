@@ -82,7 +82,7 @@ public class TestUpdateMapIndexProps extends TestCase
 
         // test named-window update
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyNWMapType(simple String, myarray java.lang.Object[], mymap java.util.Map)");
-        EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as MyNWMapType");
+        EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as MyNWMapType");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " insert into MyWindow select * from MyNWMapType");
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {

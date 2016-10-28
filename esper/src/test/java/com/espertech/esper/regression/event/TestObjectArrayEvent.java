@@ -186,7 +186,7 @@ public class TestObjectArrayEvent extends TestCase
                     "beanA.nested.nestedValue as nested," +
                     "beanA.indexed[1] as indexed," +
                     "beanA.nested.nestedNested.nestedNestedValue as nestednested " +
-                    "from MyObjectArrayEvent.win:length(5)";
+                    "from MyObjectArrayEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -200,7 +200,7 @@ public class TestObjectArrayEvent extends TestCase
 
     public void testQueryFields()
     {
-        String statementText = "select myInt + 2 as intVal, 'x' || myString || 'x' as stringVal from MyObjectArrayEvent.win:length(5)";
+        String statementText = "select myInt + 2 as intVal, 'x' || myString || 'x' as stringVal from MyObjectArrayEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -231,9 +231,9 @@ public class TestObjectArrayEvent extends TestCase
             assertEquals("Number of property names and property types do not match, found 1 property names and 2 property types", ex.getMessage());
         }
 
-        tryInvalid("select XXX from MyObjectArrayEvent.win:length(5)");
-        tryInvalid("select myString * 2 from MyObjectArrayEvent.win:length(5)");
-        tryInvalid("select String.trim(myInt) from MyObjectArrayEvent.win:length(5)");
+        tryInvalid("select XXX from MyObjectArrayEvent#length(5)");
+        tryInvalid("select myString * 2 from MyObjectArrayEvent#length(5)");
+        tryInvalid("select String.trim(myInt) from MyObjectArrayEvent#length(5)");
 
         ConfigurationEventTypeObjectArray invalidOAConfig = new ConfigurationEventTypeObjectArray();
         invalidOAConfig.setSuperTypes(new HashSet<String>(Arrays.asList("A", "B")));
@@ -270,7 +270,7 @@ public class TestObjectArrayEvent extends TestCase
 
     public void testSendMapNative()
     {
-        String statementText = "select * from MyObjectArrayEvent.win:length(5)";
+        String statementText = "select * from MyObjectArrayEvent#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);

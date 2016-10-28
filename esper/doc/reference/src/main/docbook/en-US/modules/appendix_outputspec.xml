@@ -43,7 +43,7 @@
 			could look as follows:
 		</para>
 
-		<programlisting><![CDATA[select symbol, volume, price from MarketData.win:time(5.5 sec)]]></programlisting>
+		<programlisting><![CDATA[select symbol, volume, price from MarketData#time(5.5 sec)]]></programlisting>
 
 		<para>
 			We have picked a time window to demonstrate the output for events entering and leaving a data window with an expiration policy. The time window provides a simple expiration policy based on time: if an event resides in the time window more then 5.5 seconds, the engine expires the event from the time window.
@@ -117,7 +117,7 @@
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData.win:time(5.5 sec)]]></programlisting>
+			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData#time(5.5 sec)]]></programlisting>
 			
 			<para>
 				The output is as follows:
@@ -189,7 +189,7 @@
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData#time(5.5 sec) 
 output every 1 seconds]]></programlisting>
 			
 			<para>
@@ -258,7 +258,7 @@ output every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData#time(5.5 sec) 
 output last every 1 seconds]]></programlisting>
 			
 			<para>
@@ -322,7 +322,7 @@ output last every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData#time(5.5 sec)
 output first every 1 seconds]]></programlisting>
 			
 			<para>
@@ -384,7 +384,7 @@ output first every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, volume, price from MarketData#time(5.5 sec)
 output snapshot every 1 seconds]]></programlisting>
 			
 			<para>
@@ -483,7 +483,7 @@ output snapshot every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream sum(price) from MarketData.win:time(5.5 sec)]]></programlisting>
+			<programlisting><![CDATA[select irstream sum(price) from MarketData#time(5.5 sec)]]></programlisting>
 			
 			<para>
 				The output is as follows:
@@ -554,7 +554,7 @@ output snapshot every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream sum(price) from MarketData#time(5.5 sec)
 output every 1 seconds]]></programlisting>
 			
 			<para>
@@ -623,7 +623,7 @@ output every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream sum(price) from MarketData#time(5.5 sec) 
 output last every 1 seconds]]></programlisting>
 			
 			<para>
@@ -682,7 +682,7 @@ output last every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream sum(price) from MarketData#time(5.5 sec)
 output first every 1 seconds]]></programlisting>
 			
 			<para>
@@ -740,7 +740,7 @@ output first every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream sum(price) from MarketData#time(5.5 sec)
 output snapshot every 1 seconds]]></programlisting>
 			
 			<para>
@@ -807,7 +807,7 @@ output snapshot every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)]]></programlisting>
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)]]></programlisting>
 			
 			<para>
 				The output is as follows:
@@ -871,7 +871,7 @@ output snapshot every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)
 output every 1 seconds]]></programlisting>
 			
 			<para>
@@ -936,7 +936,7 @@ output every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec) 
 output last every 1 seconds]]></programlisting>
 			
 			<para>
@@ -995,7 +995,7 @@ output last every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)
 output first every 1 seconds]]></programlisting>
 			
 			<para>
@@ -1053,7 +1053,7 @@ output first every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)
 output snapshot every 1 seconds]]></programlisting>
 			
 			<para>
@@ -1152,7 +1152,7 @@ output snapshot every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec) 
 group by symbol
 order by symbol]]></programlisting>
 			
@@ -1223,7 +1223,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output every 1 seconds]]></programlisting>
 			
@@ -1290,7 +1290,7 @@ output every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output all every 1 seconds 
 order by symbol]]></programlisting>
@@ -1364,7 +1364,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)
 group by symbol 
 output last every 1 seconds 
 order by symbol]]></programlisting>
@@ -1431,7 +1431,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec)
 group by symbol
 output first every 1 seconds
 			]]></programlisting>
@@ -1497,7 +1497,7 @@ output first every 1 seconds
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output snapshot every 1 seconds 
 order by symbol]]></programlisting>
@@ -1578,7 +1578,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec) group by symbol]]></programlisting>
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec) group by symbol]]></programlisting>
 			
 			<para>
 				The output is as follows:
@@ -1647,7 +1647,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output every 1 seconds]]></programlisting>
 			
@@ -1713,7 +1713,7 @@ output every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output all every 1 seconds 
 order by symbol]]></programlisting>
@@ -1788,7 +1788,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec)
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec)
 group by symbol 
 output last every 1 seconds 
 order by symbol]]></programlisting>
@@ -1854,7 +1854,7 @@ order by symbol]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output first every 1 seconds]]></programlisting>
 			
@@ -1919,7 +1919,7 @@ output first every 1 seconds]]></programlisting>
 			<para>
 				The statement for this sample reads:
 			</para>       
-			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData.win:time(5.5 sec) 
+			<programlisting><![CDATA[select irstream symbol, volume, sum(price) from MarketData#time(5.5 sec) 
 group by symbol 
 output snapshot every 1 seconds]]></programlisting>
 			
@@ -2020,7 +2020,7 @@ output snapshot every 1 seconds]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec)
+from MarketData#time(5.5 sec)
 group by rollup(symbol)]]></programlisting>
 			
 			<para>
@@ -2098,7 +2098,7 @@ group by rollup(symbol)]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec) 
+from MarketData#time(5.5 sec) 
 group by rollup(symbol)
 output every 1 seconds]]></programlisting>
 			
@@ -2178,7 +2178,7 @@ output every 1 seconds]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec) 
+from MarketData#time(5.5 sec) 
 group by rollup(symbol)
 output all every 1 seconds]]></programlisting>
 			
@@ -2259,7 +2259,7 @@ output all every 1 seconds]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec)
+from MarketData#time(5.5 sec)
 group by rollup(symbol)
 output last every 1 seconds]]></programlisting>
 			
@@ -2332,7 +2332,7 @@ output last every 1 seconds]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec) 
+from MarketData#time(5.5 sec) 
 group by rollup(symbol) 
 output first every 1 seconds]]></programlisting>
 			
@@ -2403,7 +2403,7 @@ output first every 1 seconds]]></programlisting>
 				The statement for this sample reads:
 			</para>       
 			<programlisting><![CDATA[select irstream symbol, volume, sum(price)
-from MarketData.win:time(5.5 sec) 
+from MarketData#time(5.5 sec) 
 group by rollup(symbol)
 output snapshot every 1 seconds]]></programlisting>
 			

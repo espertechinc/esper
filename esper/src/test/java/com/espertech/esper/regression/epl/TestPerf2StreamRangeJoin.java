@@ -49,9 +49,9 @@ public class TestPerf2StreamRangeJoin extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
-        epService.getEPAdministrator().createEPL("create window SBR.win:keepall() as SupportBeanRange");
+        epService.getEPAdministrator().createEPL("create window SBR#keepall() as SupportBeanRange");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into SBR select * from SupportBeanRange");
-        epService.getEPAdministrator().createEPL("create window SB.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SB#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into SB select * from SupportBean");
 
         // Preload
@@ -93,9 +93,9 @@ public class TestPerf2StreamRangeJoin extends TestCase
     }
 
     public void testPerfRelationalOp() {
-        epService.getEPAdministrator().createEPL("create window SBR.win:keepall() as SupportBeanRange");
+        epService.getEPAdministrator().createEPL("create window SBR#keepall() as SupportBeanRange");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into SBR select * from SupportBeanRange");
-        epService.getEPAdministrator().createEPL("create window SB.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SB#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into SB select * from SupportBean");
 
         // Preload
@@ -132,9 +132,9 @@ public class TestPerf2StreamRangeJoin extends TestCase
     }
 
     public void testPerfKeyAndRange() {
-        epService.getEPAdministrator().createEPL("create window SBR.win:keepall() as SupportBeanRange");
+        epService.getEPAdministrator().createEPL("create window SBR#keepall() as SupportBeanRange");
         epService.getEPAdministrator().createEPL("@Name('I1') insert into SBR select * from SupportBeanRange");
-        epService.getEPAdministrator().createEPL("create window SB.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SB#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into SB select * from SupportBean");
 
         // Preload
@@ -184,7 +184,7 @@ public class TestPerf2StreamRangeJoin extends TestCase
 
     public void testPerfKeyAndRangeInverted() {
 
-        epService.getEPAdministrator().createEPL("create window SB.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SB#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('I2') insert into SB select * from SupportBean");
 
         // Preload
@@ -195,7 +195,7 @@ public class TestPerf2StreamRangeJoin extends TestCase
         log.info("Done preloading");
 
         // start query
-        String epl = "select * from SupportBeanRange.std:lastevent() sbr, SB sb where sbr.key = sb.theString and sb.intPrimitive not in [sbr.rangeStart:sbr.rangeEnd]";
+        String epl = "select * from SupportBeanRange#lastevent() sbr, SB sb where sbr.key = sb.theString and sb.intPrimitive not in [sbr.rangeStart:sbr.rangeEnd]";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -217,7 +217,7 @@ public class TestPerf2StreamRangeJoin extends TestCase
 
     public void testPerfUnidirectionalRelOp() {
 
-        epService.getEPAdministrator().createEPL("create window SB.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SB#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('I') insert into SB select * from SupportBean");
 
         // Preload
@@ -233,9 +233,9 @@ public class TestPerf2StreamRangeJoin extends TestCase
                      "where a.intPrimitive between r.rangeStart and r.rangeEnd";
         String rangeEplTwo = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange r unidirectional " +
                      "where a.intPrimitive between r.rangeStart and r.rangeEnd";
-        String rangeEplThree = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SupportBeanRange.std:lastevent() r, SB a " +
+        String rangeEplThree = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SupportBeanRange#lastevent() r, SB a " +
                      "where a.intPrimitive between r.rangeStart and r.rangeEnd";
-        String rangeEplFour = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange.std:lastevent() r " +
+        String rangeEplFour = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange#lastevent() r " +
                      "where a.intPrimitive between r.rangeStart and r.rangeEnd";
         String rangeEplFive = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SupportBeanRange r unidirectional, SB a\n" +
                      "where a.intPrimitive >= r.rangeStart and a.intPrimitive <= r.rangeEnd";
@@ -277,9 +277,9 @@ public class TestPerf2StreamRangeJoin extends TestCase
                      "where a.intPrimitive > r.rangeStart and a.intPrimitive <= 99200";
         String gtEplTwo = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange r unidirectional " +
                      "where a.intPrimitive > r.rangeStart and a.intPrimitive <= 99200";
-        String gtEplThree = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SupportBeanRange.std:lastevent() r, SB a " +
+        String gtEplThree = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SupportBeanRange#lastevent() r, SB a " +
                      "where a.intPrimitive > r.rangeStart and a.intPrimitive <= 99200";
-        String gtEplFour = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange.std:lastevent() r " +
+        String gtEplFour = "select min(a.intPrimitive) as mini, max(a.intPrimitive) as maxi from SB a, SupportBeanRange#lastevent() r " +
                      "where a.intPrimitive > r.rangeStart and a.intPrimitive <= 99200";
         AssertionCallback gtCallback = new AssertionCallback() {
             public Object getEvent(int iteration) {

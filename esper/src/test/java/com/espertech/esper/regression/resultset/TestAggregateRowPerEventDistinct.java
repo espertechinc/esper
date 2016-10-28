@@ -49,7 +49,7 @@ public class TestAggregateRowPerEventDistinct extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select irstream symbol, sum(distinct volume) as volSum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);

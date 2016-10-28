@@ -62,7 +62,7 @@ public class TestMTContext extends TestCase
                 "consistent_hash_crc32(userId) from UserKeywordTotalStream \n" +
                 "granularity 10000000;\n" +
                 "\n" +
-                "context HashByUserCtx create window ScoreCycleWindow.std:unique(userId, keyword, productId) as ScoreCycle;\n" +
+                "context HashByUserCtx create window ScoreCycleWindow#unique(userId, keyword, productId) as ScoreCycle;\n" +
                 "\n" +
                 "context HashByUserCtx insert into ScoreCycleWindow select * from ScoreCycle;\n" +
                 "\n" +

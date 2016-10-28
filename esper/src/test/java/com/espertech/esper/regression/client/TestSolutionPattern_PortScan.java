@@ -101,9 +101,9 @@ public class TestSolutionPattern_PortScan extends TestCase {
                 "into table ScanCountTable\n" +
                 "insert into CountStream\n" +
                 "select src, dst, count(*) as cnt, window(*) as win\n" +
-                "from PortScanEvent.std:unique(src, dst, port).win:time(30 sec) group by src,dst;\n" +
+                "from PortScanEvent#unique(src, dst, port)#time(30 sec) group by src,dst;\n" +
                 "\n" +
-                "create window SituationsWindow.win:keepall() (src string, dst string, detectionTime long);\n" +
+                "create window SituationsWindow#keepall() (src string, dst string, detectionTime long);\n" +
                 "\n" +
                 "on CountStream(cnt >= 20) as cs\n" +
                 "merge SituationsWindow sw\n" +

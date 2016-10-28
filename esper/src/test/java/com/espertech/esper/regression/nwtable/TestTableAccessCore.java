@@ -56,7 +56,7 @@ public class TestTableAccessCore extends TestCase {
         String eplDeclare = "create table varagg (key int primary key, myevents window(*) @type('SupportBean'))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplInto = "into table varagg select window(*) as myevents from SupportBean.win:length(3) group by intPrimitive";
+        String eplInto = "into table varagg select window(*) as myevents from SupportBean#length(3) group by intPrimitive";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
 
         String eplSelect = "select varagg[1] as c0, varagg[1].myevents as c1, varagg[1].myevents.last(*) as c2 from SupportBean_S0";
@@ -129,7 +129,7 @@ public class TestTableAccessCore extends TestCase {
         SupportModelHelper.createByCompileOrParse(epService, soda, "create table windowAndTotal (" +
                 "keyi int primary key, keys string primary key, thewindow window(*) @type('MyEvent'), thetotal sum(int))");
         SupportModelHelper.createByCompileOrParse(epService, soda, "into table windowAndTotal " +
-                "select window(*) as thewindow, sum(c2) as thetotal from MyEvent.win:length(2) group by c0, c1");
+                "select window(*) as thewindow, sum(c2) as thetotal from MyEvent#length(2) group by c0, c1");
 
         EPStatement stmtSelect = SupportModelHelper.createByCompileOrParse(epService, soda, "select windowAndTotal[id,p00] as val0 from SupportBean_S0");
         stmtSelect.addListener(listener);
@@ -173,7 +173,7 @@ public class TestTableAccessCore extends TestCase {
         epService.getEPAdministrator().createEPL("create table windowAndTotal (" +
                 "thewindow window(*) @type(MyEvent), thetotal sum(int))");
         epService.getEPAdministrator().createEPL("into table windowAndTotal " +
-                "select window(*) as thewindow, sum(c0) as thetotal from MyEvent.win:length(2)");
+                "select window(*) as thewindow, sum(c0) as thetotal from MyEvent#length(2)");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select windowAndTotal as val0 from SupportBean_S0");
         stmt.addListener(listener);
@@ -216,7 +216,7 @@ public class TestTableAccessCore extends TestCase {
 
     private void runAssertionSubqueryWithExpressionHasTableAccess() {
         epService.getEPAdministrator().createEPL("create table MyTableTwo(theString string primary key, intPrimitive int)");
-        epService.getEPAdministrator().createEPL("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1.std:lastevent())}");
+        epService.getEPAdministrator().createEPL("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1#lastevent())}");
         epService.getEPAdministrator().createEPL("insert into MyTableTwo select theString, intPrimitive from SupportBean");
         epService.getEPAdministrator().createEPL("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0");
 
@@ -410,13 +410,13 @@ public class TestTableAccessCore extends TestCase {
 
         SupportUpdateListener listenerOne = new SupportUpdateListener();
         String[] fieldsOne = "s0sum,s0cnt,s0win".split(",");
-        String eplBindOne = "into table varagg select sum(id) as s0sum, count(*) as s0cnt, window(*) as s0win from SupportBean_S0.win:length(2) " +
+        String eplBindOne = "into table varagg select sum(id) as s0sum, count(*) as s0cnt, window(*) as s0win from SupportBean_S0#length(2) " +
                 (grouped ? "group by p00" : "");
         epService.getEPAdministrator().createEPL(eplBindOne).addListener(listenerOne);
 
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
         String[] fieldsTwo = "s1sum,s1cnt,s1win".split(",");
-        String eplBindTwo = "into table varagg select sum(id) as s1sum, count(*) as s1cnt, window(*) as s1win from SupportBean_S1.win:length(2) " +
+        String eplBindTwo = "into table varagg select sum(id) as s1sum, count(*) as s1cnt, window(*) as s1win from SupportBean_S1#length(2) " +
                 (grouped ? "group by p10" : "");
         epService.getEPAdministrator().createEPL(eplBindTwo).addListener(listenerTwo);
 
@@ -490,7 +490,7 @@ public class TestTableAccessCore extends TestCase {
                 "sum(intPrimitive) as sumint, " +
                 "window(*) as mywindow," +
                 "sorted() as mysort " +
-                "from SupportBean.win:length(2) " +
+                "from SupportBean#length(2) " +
                 (ungrouped ? "" : "group by theString ");
         epService.getEPAdministrator().createEPL(eplSelect).addListener(listenerIntoTable);
 
@@ -533,7 +533,7 @@ public class TestTableAccessCore extends TestCase {
     }
 
     public void testNamedWindowAndFireAndForget() throws Exception {
-        String epl = "create window MyWindow.win:length(2) as SupportBean;\n" +
+        String epl = "create window MyWindow#length(2) as SupportBean;\n" +
                      "insert into MyWindow select * from SupportBean;\n" +
                      "create table varagg (total sum(int));\n" +
                      "into table varagg select sum(intPrimitive) as total from MyWindow;\n";
@@ -556,7 +556,7 @@ public class TestTableAccessCore extends TestCase {
 
     public void testSubquery() {
         epService.getEPAdministrator().createEPL("create table subquery_var_agg (key string primary key, total count(*))");
-        epService.getEPAdministrator().createEPL("select (select subquery_var_agg[p00].total from SupportBean_S0.std:lastevent()) as c0 " +
+        epService.getEPAdministrator().createEPL("select (select subquery_var_agg[p00].total from SupportBean_S0#lastevent()) as c0 " +
                 "from SupportBean_S1").addListener(listener);
         epService.getEPAdministrator().createEPL("into table subquery_var_agg select count(*) as total from SupportBean group by theString");
 
@@ -602,7 +602,7 @@ public class TestTableAccessCore extends TestCase {
                 "count(distinct intPrimitive) as c1, " +
                 "window(*) as c2, " +
                 "sum(longPrimitive) as c3 " +
-                "from SupportBean.win:length(3) group by theString";
+                "from SupportBean#length(3) group by theString";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBind);
 
         String eplSelect = "select " +

@@ -127,7 +127,7 @@ public class TestTableAccessDotMethod extends TestCase {
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
         String eplInto = "into table varagg " +
-                "select lastever(longPrimitive) as a1, window(*) as a2 from SupportBean.win:time(10 seconds)" +
+                "select lastever(longPrimitive) as a1, window(*) as a2 from SupportBean#time(10 seconds)" +
                 (grouped ? " group by theString" : "");
         EPStatement stmtInto = SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
         Object[][] expectedAggType = new Object[][]{{"a1", long.class}, {"a2", SupportBean[].class}};
@@ -170,7 +170,7 @@ public class TestTableAccessDotMethod extends TestCase {
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
         String eplInto = "into table varagg " +
-                "select window(*) as windowSupportBean from SupportBean.win:length(2)" +
+                "select window(*) as windowSupportBean from SupportBean#length(2)" +
                 (grouped ? " group by theString" : "");
         SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
 

@@ -44,7 +44,7 @@ public class TestDeployRedefinition extends TestCase
 
         String text = "module test.test1;\n" +
                 "create schema MyTypeOne(col1 string, col2 int);" +
-                "create window MyWindowOne.win:keepall() as select * from MyTypeOne;" +
+                "create window MyWindowOne#keepall() as select * from MyTypeOne;" +
                 "insert into MyWindowOne select * from MyTypeOne;";
 
         DeploymentResult resultOne = deploySvc.parseDeploy(text, "uri1", "arch1", null);
@@ -54,7 +54,7 @@ public class TestDeployRedefinition extends TestCase
         deploySvc.undeployRemove(resultTwo.getDeploymentId());
         text = "module test.test1;\n" +
                 "create schema MyTypeOne(col1 string, col2 int, col3 long);" +
-                "create window MyWindowOne.win:keepall() as select * from MyTypeOne;" +
+                "create window MyWindowOne#keepall() as select * from MyTypeOne;" +
                 "insert into MyWindowOne select * from MyTypeOne;";
 
         DeploymentResult resultThree = deploySvc.parseDeploy(text, "uri1", "arch1", null);
@@ -67,7 +67,7 @@ public class TestDeployRedefinition extends TestCase
         // test on-merge
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         String moduleString =
-            "@Name('S0') create window MyWindow.std:unique(intPrimitive) as SupportBean;\n" +
+            "@Name('S0') create window MyWindow#unique(intPrimitive) as SupportBean;\n" +
             "@Name('S1') on MyWindow insert into SecondStream select *;\n" +
             "@Name('S2') on SecondStream merge MyWindow when matched then insert into ThirdStream select * then delete\n";
         Module module = epService.getEPAdministrator().getDeploymentAdmin().parse(moduleString);
@@ -116,11 +116,11 @@ public class TestDeployRedefinition extends TestCase
     }
 
     public void testNamedWindow() throws Exception {
-        DeploymentResult result = deploySvc.parseDeploy("create window MyWindow.win:time(30) as (col1 int, col2 string)",
+        DeploymentResult result = deploySvc.parseDeploy("create window MyWindow#time(30) as (col1 int, col2 string)",
                 null, null, null);
         deploySvc.undeployRemove(result.getDeploymentId());
         
-        result = deploySvc.parseDeploy("create window MyWindow.win:time(30) as (col1 short, col2 long)");
+        result = deploySvc.parseDeploy("create window MyWindow#time(30) as (col1 short, col2 long)");
         deploySvc.undeployRemove(result.getDeploymentId());
     }
 

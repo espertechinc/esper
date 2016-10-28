@@ -64,8 +64,8 @@ public class TestJoinNoWhereClause extends TestCase
     {
         String[] fields = new String[] {"stream_0.volume", "stream_1.longBoxed"};
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + ".win:length(3)," +
-                SupportBean.class.getName() + "().win:length(3)";
+                SupportMarketDataBean.class.getName() + "#length(3)," +
+                SupportBean.class.getName() + "()#length(3)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);

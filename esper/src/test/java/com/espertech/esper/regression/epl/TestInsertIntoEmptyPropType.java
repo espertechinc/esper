@@ -67,7 +67,7 @@ public class TestInsertIntoEmptyPropType extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S1.class);
 
         epService.getEPAdministrator().createEPL("create schema EmptyPropSchema()");
-        EPStatement stmtCreateWindow = epService.getEPAdministrator().createEPL("create window EmptyPropWin.win:keepall() as EmptyPropSchema");
+        EPStatement stmtCreateWindow = epService.getEPAdministrator().createEPL("create window EmptyPropWin#keepall() as EmptyPropSchema");
         epService.getEPAdministrator().createEPL("insert into EmptyPropWin() select null from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean());

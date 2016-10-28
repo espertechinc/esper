@@ -77,7 +77,7 @@ public class TestDatabaseJoinPerfNoCache extends TestCase
     public void testSelectRStream()
     {
         String stmtText = "select rstream myvarchar from " +
-                SupportBean_S0.class.getName() + ".win:length(1000) as s0," +
+                SupportBean_S0.class.getName() + "#length(1000) as s0," +
                 " sql:MyDB ['select myvarchar from mytesttable where ${id} = mytesttable.mybigint'] as s1";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);
@@ -108,7 +108,7 @@ public class TestDatabaseJoinPerfNoCache extends TestCase
         epServiceRetained.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
         String stmtText = "select istream myvarchar from " +
-                SupportBean_S0.class.getName() + ".win:time(1 sec) as s0," +
+                SupportBean_S0.class.getName() + "#time(1 sec) as s0," +
                 " sql:MyDB ['select myvarchar from mytesttable where ${id} = mytesttable.mybigint'] as s1";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);
@@ -136,7 +136,7 @@ public class TestDatabaseJoinPerfNoCache extends TestCase
     public void testWhereClauseNoIndexNoCache()
     {
         String stmtText = "select id, mycol3, mycol2 from " +
-                SupportBean_S0.class.getName() + ".win:keepall() as s0," +
+                SupportBean_S0.class.getName() + "#keepall() as s0," +
                 " sql:MyDB ['select mycol3, mycol2 from mytesttable_large'] as s1 where s0.id = s1.mycol3";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);

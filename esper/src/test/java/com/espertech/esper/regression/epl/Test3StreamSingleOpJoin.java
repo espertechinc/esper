@@ -66,9 +66,9 @@ public class Test3StreamSingleOpJoin extends TestCase
     public void testJoinUniquePerId()
     {
         String joinStatement = "select * from " +
-            eventA + ".win:length(3) as streamA," +
-            eventB + ".win:length(3) as streamB," +
-            eventC + ".win:length(3) as streamC" +
+            eventA + "#length(3) as streamA," +
+            eventB + "#length(3) as streamB," +
+            eventC + "#length(3) as streamC" +
             " where (streamA.id = streamB.id) " +
             "   and (streamB.id = streamC.id)" +
             "   and (streamA.id = streamC.id)";
@@ -84,9 +84,9 @@ public class Test3StreamSingleOpJoin extends TestCase
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard());
         FromClause fromClause = FromClause.create(
-                FilterStream.create(eventA, "streamA").addView(View.create("win", "length", Expressions.constant(3))),
-                FilterStream.create(eventB, "streamB").addView(View.create("win", "length", Expressions.constant(3))),
-                FilterStream.create(eventC, "streamC").addView(View.create("win", "length", Expressions.constant(3))));
+                FilterStream.create(eventA, "streamA").addView(View.create("length", Expressions.constant(3))),
+                FilterStream.create(eventB, "streamB").addView(View.create("length", Expressions.constant(3))),
+                FilterStream.create(eventC, "streamC").addView(View.create("length", Expressions.constant(3))));
         model.setFromClause(fromClause);
         model.setWhereClause(Expressions.and(
                 Expressions.eqProperty("streamA.id", "streamB.id"),
@@ -95,9 +95,9 @@ public class Test3StreamSingleOpJoin extends TestCase
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         String joinStatement = "select * from " +
-            eventA + ".win:length(3) as streamA, " +
-            eventB + ".win:length(3) as streamB, " +
-            eventC + ".win:length(3) as streamC " +
+            eventA + "#length(3) as streamA, " +
+            eventB + "#length(3) as streamB, " +
+            eventC + "#length(3) as streamC " +
             "where streamA.id=streamB.id " +
             "and streamB.id=streamC.id " +
             "and streamA.id=streamC.id";
@@ -112,9 +112,9 @@ public class Test3StreamSingleOpJoin extends TestCase
     public void testJoinUniquePerIdCompile() throws Exception
     {
         String joinStatement = "select * from " +
-            eventA + ".win:length(3) as streamA, " +
-            eventB + ".win:length(3) as streamB, " +
-            eventC + ".win:length(3) as streamC " +
+            eventA + "#length(3) as streamA, " +
+            eventB + "#length(3) as streamB, " +
+            eventC + "#length(3) as streamC " +
             "where streamA.id=streamB.id " +
             "and streamB.id=streamC.id " +
             "and streamA.id=streamC.id";

@@ -54,7 +54,7 @@ public class TestInsertIntoTransposePattern extends TestCase
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window OneWindow.win:time(1 day) as select theString as alertId, this from SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window OneWindow#time(1 day) as select theString as alertId, this from SupportBean");
         epService.getEPAdministrator().createEPL("insert into OneWindow select '1' as alertId, stream0.quote.this as this " +
                 " from pattern [every quote=SupportBean(theString='A')] as stream0");
         epService.getEPAdministrator().createEPL("insert into OneWindow select '2' as alertId, stream0.quote as this " +
@@ -66,7 +66,7 @@ public class TestInsertIntoTransposePattern extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBean("B", 20));
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}, {"2", 20}});
 
-        stmt = epService.getEPAdministrator().createEPL("create window TwoWindow.win:time(1 day) as select theString as alertId, * from SupportBean");
+        stmt = epService.getEPAdministrator().createEPL("create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into TwoWindow select '3' as alertId, quote.* " +
                 " from pattern [every quote=SupportBean(theString='C')] as stream0");
 

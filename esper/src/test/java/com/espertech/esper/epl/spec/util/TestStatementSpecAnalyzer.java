@@ -35,8 +35,8 @@ public class TestStatementSpecAnalyzer extends TestCase {
         engine.getEPAdministrator().createEPL("create schema A1 as (col1 string)");
 
         assertEquals(1, getFilters("select * from A1").size());
-        assertEquals(2, getFilters("select * from A1.std:lastevent(), A1.std:lastevent()").size());
-        assertEquals(2, getFilters("select (select col1 from A1.std:lastevent()), col1 from A1.std:lastevent()").size());
+        assertEquals(2, getFilters("select * from A1#lastevent(), A1#lastevent()").size());
+        assertEquals(2, getFilters("select (select col1 from A1#lastevent()), col1 from A1#lastevent()").size());
         assertEquals(2, getFilters("select * from pattern [A1 -> A1(col1='a')]").size());
     }
 

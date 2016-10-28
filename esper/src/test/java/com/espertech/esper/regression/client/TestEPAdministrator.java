@@ -284,7 +284,7 @@ public class TestEPAdministrator extends TestCase
         assertEquals(5, regex.getChildren().size());
 
         // test fail cases
-        String expected = "Incorrect syntax near 'in' (a reserved keyword) at line 1 column 49 [goofy in in]";
+        String expected = "Incorrect syntax near 'in' (a reserved keyword) at line 1 column 45 [goofy in in]";
         String compiled = "goofy in in";
         try {
             spi.compileExpression(compiled);

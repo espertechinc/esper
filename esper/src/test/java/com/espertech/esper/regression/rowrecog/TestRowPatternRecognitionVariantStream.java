@@ -35,7 +35,7 @@ public class TestRowPatternRecognitionVariantStream extends TestCase {
         epService.getEPAdministrator().createEPL("create variant schema MyVariantType as S0, S1");
 
         String[] fields = "a,b".split(",");
-        String text = "select * from MyVariantType.win:keepall() " +
+        String text = "select * from MyVariantType#keepall() " +
                 "match_recognize (" +
                 "  measures A.id? as a, B.id? as b" +
                 "  pattern (A B) " +
@@ -69,7 +69,7 @@ public class TestRowPatternRecognitionVariantStream extends TestCase {
                 "// Populate variant stream\n" +
                 "insert into MyVariantStream select * from ST1\n;" +
                 "// Simple pattern to match ST0 ST1 pairs\n" +
-                "select * from MyVariantType.win:time(1 min)\n" +
+                "select * from MyVariantType#time(1 min)\n" +
                 "match_recognize (\n" +
                 "measures A.id? as a, B.id? as b\n" +
                 "pattern (A B)\n" +

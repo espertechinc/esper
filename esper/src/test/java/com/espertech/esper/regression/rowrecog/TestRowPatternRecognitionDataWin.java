@@ -78,7 +78,7 @@ public class TestRowPatternRecognitionDataWin extends TestCase
 
         sendTimer(0, epService);
         String[] fields = "a_string,b_string,c_string".split(",");
-        String text = "select * from MyEvent.win:time(5 sec) " +
+        String text = "select * from MyEvent#time(5 sec) " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string, C.theString as c_string" +
                 "  all matches pattern ( A B C ) " +
@@ -138,7 +138,7 @@ public class TestRowPatternRecognitionDataWin extends TestCase
 
         sendTimer(0, epService);
         String[] fields = "a_string,b_string,c_string".split(",");
-        String text = "select * from MyEvent.win:time_batch(5 sec) " +
+        String text = "select * from MyEvent#time_batch(5 sec) " +
                 "match_recognize (" +
                 "  partition by cat " +
                 "  measures A.theString as a_string, B.theString as b_string, C.theString as c_string" +

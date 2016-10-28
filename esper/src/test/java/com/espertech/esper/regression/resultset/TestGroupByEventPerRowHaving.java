@@ -59,8 +59,8 @@ public class TestGroupByEventPerRowHaving extends TestCase
 
     private void runAssertionGroupByHaving(boolean join) {
         String epl = !join ?
-                "select * from SupportBean.win:length_batch(3) group by theString having count(*) > 1" :
-                "select theString, intPrimitive from SupportBean_S0.std:lastevent(), SupportBean.win:length_batch(3) group by theString having count(*) > 1";
+                "select * from SupportBean#length_batch(3) group by theString having count(*) > 1" :
+                "select theString, intPrimitive from SupportBean_S0#lastevent(), SupportBean#length_batch(3) group by theString having count(*) > 1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(testListener);
 
@@ -80,7 +80,7 @@ public class TestGroupByEventPerRowHaving extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select irstream symbol, volume, sum(price) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol " +
                           "having sum(price) >= 50";
@@ -95,8 +95,8 @@ public class TestGroupByEventPerRowHaving extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select irstream symbol, volume, sum(price) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "  and one.theString = two.symbol " +
                           "group by symbol " +

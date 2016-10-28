@@ -59,7 +59,7 @@ public class TestTableAccessAggregationState extends TestCase {
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
         String eplInto = "into table varagg " +
-                "select window(*) as windowSupportBean from SupportBean.win:length(2)" +
+                "select window(*) as windowSupportBean from SupportBean#length(2)" +
                 (grouped ? " group by theString" : "");
         SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
 
@@ -105,7 +105,7 @@ public class TestTableAccessAggregationState extends TestCase {
                 "mywin window(*) @type(SupportBean))");
 
         EPStatement stmtAgg = epService.getEPAdministrator().createEPL("into table varagg " +
-                "select window(sb.*) as mywin from SupportBean.win:time(10 sec) as sb");
+                "select window(sb.*) as mywin from SupportBean#time(10 sec) as sb");
         stmtAgg.addListener(listener);
         assertEquals(SupportBean[].class, stmtAgg.getEventType().getPropertyType("mywin"));
 

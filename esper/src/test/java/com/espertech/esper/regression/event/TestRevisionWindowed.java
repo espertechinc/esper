@@ -85,7 +85,7 @@ public class TestRevisionWindowed extends TestCase
         config.addNameDeltaEventType("ISupportDeltaFive");
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("MyInterface", config);
 
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window MyInterfaceWindow.win:keepall() as select * from MyInterface");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window MyInterfaceWindow#keepall() as select * from MyInterface");
         epService.getEPAdministrator().createEPL("insert into MyInterfaceWindow select * from ISupportRevisionFull");
         epService.getEPAdministrator().createEPL("insert into MyInterfaceWindow select * from ISupportDeltaFive");
 
@@ -117,7 +117,7 @@ public class TestRevisionWindowed extends TestCase
             return;
         }
         String[] fields = "k0,p1,p5,m0".split(",");
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevMap.win:length(3) as select * from RevisableMap");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevMap#length(3) as select * from RevisableMap");
         epService.getEPAdministrator().createEPL("insert into RevMap select * from MyMap");
         epService.getEPAdministrator().createEPL("insert into RevMap select * from D1");
         epService.getEPAdministrator().createEPL("insert into RevMap select * from D5");
@@ -159,7 +159,7 @@ public class TestRevisionWindowed extends TestCase
             return;
         }
         sendTimer(0);
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.win:time(10 sec) as select * from RevisableQuote");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote#time(10 sec) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D5");
@@ -211,7 +211,7 @@ public class TestRevisionWindowed extends TestCase
         if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
             return;
         }
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.std:unique(p1) as select * from RevisableQuote");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote#unique(p1) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D5");
@@ -245,7 +245,7 @@ public class TestRevisionWindowed extends TestCase
         if (SupportConfigFactory.skipTest(TestRevisionWindowed.class)) {
             return;
         }
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote.std:groupwin(p1).win:length(2) as select * from RevisableQuote");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote#groupwin(p1)#length(2) as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D5");

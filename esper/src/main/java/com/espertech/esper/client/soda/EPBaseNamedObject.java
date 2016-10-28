@@ -106,15 +106,8 @@ public abstract class EPBaseNamedObject implements Serializable
         writer.write(namespace);
         writer.write(':');
         writer.write(name);
-
-        String delimiter = "";
         writer.write('(');
-        for (Expression param : parameters)
-        {
-            writer.write(delimiter);
-            param.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-            delimiter = ",";
-        }
+        ExpressionBase.toPrecedenceFreeEPL(getParameters(), writer);
         writer.write(')');
     }
 }

@@ -123,9 +123,9 @@ public class TestStreamExpr extends TestCase
     public void testInstanceMethodOuterJoin()
     {
         String textOne = "select symbol, s1.getTheString() as theString from " +
-                            SupportMarketDataBean.class.getName() + ".win:keepall() as s0 " +
+                            SupportMarketDataBean.class.getName() + "#keepall() as s0 " +
                             "left outer join " +
-                            SupportBean.class.getName() + ".win:keepall() as s1 on s0.symbol=s1.theString";
+                            SupportBean.class.getName() + "#keepall() as s1 on s0.symbol=s1.theString";
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
         SupportUpdateListener listenerOne = new SupportUpdateListener();
@@ -139,9 +139,9 @@ public class TestStreamExpr extends TestCase
     public void testInstanceMethodStatic()
     {
         String textOne = "select symbol, s1.getSimpleProperty() as simpleprop, s1.makeDefaultBean() as def from " +
-                            SupportMarketDataBean.class.getName() + ".win:keepall() as s0 " +
+                            SupportMarketDataBean.class.getName() + "#keepall() as s0 " +
                             "left outer join " +
-                            SupportBeanComplexProps.class.getName() + ".win:keepall() as s1 on s0.symbol=s1.simpleProperty";
+                            SupportBeanComplexProps.class.getName() + "#keepall() as s1 on s0.symbol=s1.simpleProperty";
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
         SupportUpdateListener listenerOne = new SupportUpdateListener();
@@ -215,8 +215,8 @@ public class TestStreamExpr extends TestCase
     {
         // try with alias
         String textOne = "select s0 as s0stream, s1 as s1stream from " +
-                            SupportMarketDataBean.class.getName() + ".win:keepall() as s0, " +
-                            SupportBean.class.getName() + ".win:keepall() as s1";
+                            SupportMarketDataBean.class.getName() + "#keepall() as s0, " +
+                            SupportBean.class.getName() + "#keepall() as s1";
 
         // Attach listener to feed
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
@@ -241,8 +241,8 @@ public class TestStreamExpr extends TestCase
 
         // try no alias
         textOne = "select s0, s1 from " +
-                            SupportMarketDataBean.class.getName() + ".win:keepall() as s0, " +
-                            SupportBean.class.getName() + ".win:keepall() as s1";
+                            SupportMarketDataBean.class.getName() + "#keepall() as s0, " +
+                            SupportBean.class.getName() + "#keepall() as s1";
 
         // Attach listener to feed
         stmtOne = epService.getEPAdministrator().createEPL(textOne);
@@ -281,8 +281,8 @@ public class TestStreamExpr extends TestCase
 
     public void testStreamSelectConversionFunctionObject()
     {
-        String textOne = "insert into EventStream select * from " + SupportBean.class.getName() + ".win:length(100)";
-        String textTwo = "insert into EventStream select " + SupportStaticMethodLib.class.getName() + ".convertEvent(s0) from " + SupportMarketDataBean.class.getName() + ".win:length(100) as s0";
+        String textOne = "insert into EventStream select * from " + SupportBean.class.getName() + "#length(100)";
+        String textTwo = "insert into EventStream select " + SupportStaticMethodLib.class.getName() + ".convertEvent(s0) from " + SupportMarketDataBean.class.getName() + "#length(100) as s0";
 
         // Attach listener to feed
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);

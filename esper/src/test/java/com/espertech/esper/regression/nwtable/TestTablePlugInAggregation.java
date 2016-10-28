@@ -69,7 +69,7 @@ public class TestTablePlugInAggregation extends TestCase {
 
         epService.getEPAdministrator().createEPL("create table varagg (csv csvWords())");
         epService.getEPAdministrator().createEPL("select varagg.csv as c0 from SupportBean_S0").addListener(listener);
-        epService.getEPAdministrator().createEPL("into table varagg select csvWords(theString) as csv from SupportBean.win:length(3)");
+        epService.getEPAdministrator().createEPL("into table varagg select csvWords(theString) as csv from SupportBean#length(3)");
 
         sendWordAssert("the", "the");
         sendWordAssert("fox", "the,fox");
@@ -87,7 +87,7 @@ public class TestTablePlugInAggregation extends TestCase {
         epService.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction(config);
 
         epService.getEPAdministrator().createEPL("create table varagg (wordCount referenceCountedMap(string))");
-        epService.getEPAdministrator().createEPL("into table varagg select referenceCountedMap(theString) as wordCount from SupportBean.win:length(3)");
+        epService.getEPAdministrator().createEPL("into table varagg select referenceCountedMap(theString) as wordCount from SupportBean#length(3)");
         epService.getEPAdministrator().createEPL("select varagg.wordCount.referenceCountLookup(p00) as c0 from SupportBean_S0").addListener(listener);
 
         String words = "the,house,is,green";

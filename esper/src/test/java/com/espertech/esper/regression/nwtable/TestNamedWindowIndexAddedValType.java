@@ -37,7 +37,7 @@ public class TestNamedWindowIndexAddedValType extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         // widen to long
-        String stmtTextCreate = "create window MyWindowOne.win:keepall() as select * from RevType";
+        String stmtTextCreate = "create window MyWindowOne#keepall() as select * from RevType";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         epService.getEPAdministrator().createEPL("insert into MyWindowOne select * from SupportBean_S0");
         epService.getEPAdministrator().createEPL("insert into MyWindowOne select * from SupportBean_S1");

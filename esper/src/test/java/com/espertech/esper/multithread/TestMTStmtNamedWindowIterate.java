@@ -36,7 +36,7 @@ public class TestMTStmtNamedWindowIterate extends TestCase
         engine.initialize();
 
         engine.getEPAdministrator().createEPL(
-                "create window MyWindow.std:groupwin(theString).win:keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
+                "create window MyWindow#groupwin(theString)#keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
 
         engine.getEPAdministrator().createEPL(
                 "insert into MyWindow(theString, longPrimitive) " +

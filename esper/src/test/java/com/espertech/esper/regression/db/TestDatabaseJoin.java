@@ -65,7 +65,7 @@ public class TestDatabaseJoin extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanTwo", SupportBeanTwo.class);
 
-        String stmtText = "select * from SupportBean.std:lastevent() sb, SupportBeanTwo.std:lastevent() sbt, " +
+        String stmtText = "select * from SupportBean#lastevent() sb, SupportBeanTwo#lastevent() sbt, " +
                 "sql:MyDB ['select myint from mytesttable'] as s1 " +
                 "  where sb.theString = sbt.stringTwo and s1.myint = sbt.intPrimitiveTwo";
 
@@ -90,7 +90,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String stmtText = "select " + ALL_FIELDS + " from " +
                 " sql:MyDB ['select " + ALL_FIELDS + " from mytesttable \n\r where ${intPrimitive} = mytesttable.mybigint'] as s0," +
-                SupportBean.class.getName() + ".win:time_batch(10 sec) as s1";
+                SupportBean.class.getName() + "#time_batch(10 sec) as s1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         runtestTimeBatch(stmt);
     }
@@ -99,7 +99,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String[] fields = "intPrimitive,myint,myvarchar".split(",");
         String stmtText = "select intPrimitive, myint, myvarchar from " +
-                SupportBean.class.getName() + ".win:keepall() as s0, " +
+                SupportBean.class.getName() + "#keepall() as s0, " +
                 " sql:MyDB ['select myint from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s1," +
                 " sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s2 ";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -126,7 +126,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String[] fields = "a,b,c,d".split(",");
         String stmtText = "select theString as a, intPrimitive as b, s1.myvarchar as c, s2.myvarchar as d from " +
-                SupportBean.class.getName() + ".win:keepall() as s0 " +
+                SupportBean.class.getName() + "#keepall() as s0 " +
                 " inner join " +
                 " sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.mybigint'] as s1 " +
                 " on s1.myvarchar=s0.theString " +
@@ -161,7 +161,7 @@ public class TestDatabaseJoin extends TestCase
 
         String stmtText = "select myint from " +
                 " sql:MyDB ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0, " +
-                "A.win:keepall() as s1";
+                "A#keepall() as s1";
         
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();
@@ -175,7 +175,7 @@ public class TestDatabaseJoin extends TestCase
         stmt.destroy();
 
         stmtText = "select myint from " +
-                "A.win:keepall() as s1, " +
+                "A#keepall() as s1, " +
                 "sql:MyDB ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0";
 
         stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -198,12 +198,12 @@ public class TestDatabaseJoin extends TestCase
         model.setSelectClause(SelectClause.create(fields));
         FromClause fromClause = FromClause.create(
                 SQLStream.create("MyDB", sql, "s0"),
-                FilterStream.create(SupportBean.class.getName(), "s1").addView(View.create("win", "time_batch", Expressions.constant(10))
+                FilterStream.create(SupportBean.class.getName(), "s1").addView(View.create("time_batch", Expressions.constant(10))
                 ));
         model.setFromClause(fromClause);
         SerializableObjectCopier.copy(model);
 
-        assertEquals("select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from sql:MyDB[\"select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from mytesttable where ${intPrimitive} = mytesttable.mybigint\"] as s0, com.espertech.esper.support.bean.SupportBean.win:time_batch(10) as s1",
+        assertEquals("select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from sql:MyDB[\"select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from mytesttable where ${intPrimitive} = mytesttable.mybigint\"] as s0, com.espertech.esper.support.bean.SupportBean#time_batch(10) as s1",
                 model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -216,7 +216,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String stmtText = "select " + ALL_FIELDS + " from " +
                 " sql:MyDB ['select " + ALL_FIELDS + " from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s0," +
-                SupportBean.class.getName() + ".win:time_batch(10 sec) as s1";
+                SupportBean.class.getName() + "#time_batch(10 sec) as s1";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         SerializableObjectCopier.copy(model);
@@ -359,7 +359,7 @@ public class TestDatabaseJoin extends TestCase
 
     public void testInvalidSubviews()
     {
-        String sql = "sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint'].win:time(30 sec)";
+        String sql = "sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec)";
         String stmtText = "select myvarchar as s0Name from " +
                 sql + " as s0, " + SupportBean.class.getName() + " as s1";
 
@@ -370,7 +370,7 @@ public class TestDatabaseJoin extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Historical data joins do not allow views onto the data, view 'win:time' is not valid in this context [select myvarchar as s0Name from sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint'].win:time(30 sec) as s0, com.espertech.esper.support.bean.SupportBean as s1]", ex.getMessage());
+            assertEquals("Error starting statement: Historical data joins do not allow views onto the data, view 'time' is not valid in this context [select myvarchar as s0Name from sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec) as s0, com.espertech.esper.support.bean.SupportBean as s1]", ex.getMessage());
         }
     }
 

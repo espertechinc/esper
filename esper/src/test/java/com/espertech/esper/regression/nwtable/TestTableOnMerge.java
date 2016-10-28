@@ -55,7 +55,7 @@ public class TestTableOnMerge extends TestCase {
     public void testMergeWhereWithMethodRead() {
         epService.getEPAdministrator().createEPL("create table varagg (keyOne string primary key, cnt count(*))");
         epService.getEPAdministrator().createEPL("into table varagg select count(*) as cnt " +
-                "from SupportBean.std:lastevent() group by theString");
+                "from SupportBean#lastevent() group by theString");
 
         epService.getEPAdministrator().createEPL("select varagg[p00].keyOne as c0 from SupportBean_S0").addListener(listener);
         epService.getEPAdministrator().createEPL("on SupportBean_S1 merge varagg where cnt = 0 when matched then delete");
@@ -78,7 +78,7 @@ public class TestTableOnMerge extends TestCase {
         epService.getEPAdministrator().createEPL("create table varagg (" +
                 "eventset window(*) @type(SupportBean), total sum(int))");
         epService.getEPAdministrator().createEPL("into table varagg select window(*) as eventset, " +
-                "sum(intPrimitive) as total from SupportBean.win:length(2)");
+                "sum(intPrimitive) as total from SupportBean#length(2)");
         epService.getEPAdministrator().createEPL("on SupportBean_S0 merge varagg " +
                 "when matched then insert into ResultStream select eventset, total, eventset.takeLast(1) as c0");
         epService.getEPAdministrator().createEPL("select * from ResultStream").addListener(listener);

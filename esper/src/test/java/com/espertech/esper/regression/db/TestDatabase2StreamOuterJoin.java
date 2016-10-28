@@ -171,7 +171,7 @@ public class TestDatabase2StreamOuterJoin extends TestCase
     {
         String[] fields = "MyInt,MyVarChar".split(",");
         String stmtText = "select s0.intPrimitive as MyInt, MyVarChar from " +
-                SupportBean.class.getName() + ".win:keepall() as s0 " +
+                SupportBean.class.getName() + "#keepall() as s0 " +
                 " right outer join " +
                 " sql:MyDB ['select myvarchar MyVarChar from mytesttable'] as s1 " +
                 "on theString = MyVarChar";

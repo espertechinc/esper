@@ -70,7 +70,7 @@ public class TestIterator extends TestCase
     {
 		String cepStatementString =	"select * from pattern " +
 									"[every ( addressInfo = " + SupportBean.class.getName() + "(theString='address') " +
-									"-> txnWD = " + SupportBean.class.getName() + "(theString='txn') ) ].std:lastevent() " +
+									"-> txnWD = " + SupportBean.class.getName() + "(theString='txn') ) ]#lastevent() " +
 									"where addressInfo.intBoxed = txnWD.intBoxed";
 		EPStatement epStatement = epService.getEPAdministrator().createEPL(cepStatementString);
 
@@ -92,7 +92,7 @@ public class TestIterator extends TestCase
 
     public void testOrderByWildcard()
     {
-        String stmtText = "select * from " + SupportMarketDataBean.class.getName() + ".win:length(5) order by symbol, volume";
+        String stmtText = "select * from " + SupportMarketDataBean.class.getName() + "#length(5) order by symbol, volume";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
 
@@ -118,7 +118,7 @@ public class TestIterator extends TestCase
     public void testOrderByProps()
     {
         String[] fields = new String[] {"symbol", "volume"};
-        String stmtText = "select symbol, volume from " + SupportMarketDataBean.class.getName() + ".win:length(3) order by symbol, volume";
+        String stmtText = "select symbol, volume from " + SupportMarketDataBean.class.getName() + "#length(3) order by symbol, volume";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
 
@@ -138,7 +138,7 @@ public class TestIterator extends TestCase
     public void testFilter()
     {
         String[] fields = new String[] {"symbol", "vol"};
-        String stmtText = "select symbol, volume * 10 as vol from " + SupportMarketDataBean.class.getName() + ".win:length(5)" +
+        String stmtText = "select symbol, volume * 10 as vol from " + SupportMarketDataBean.class.getName() + "#length(5)" +
                       " where volume < 0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
@@ -177,7 +177,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol " +
                           "order by symbol";
 
@@ -207,7 +207,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -242,7 +242,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol having sum(volume) > 10";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -278,7 +278,7 @@ public class TestIterator extends TestCase
         String[] fields = new String[] {"symbol", "msg"};
         String stmtText = "insert into Cutoff " +
                           "select symbol, (String.valueOf(count(*)) || 'x1000.0') as msg " +
-                          "from " + SupportMarketDataBean.class.getName() + ".std:groupwin(symbol).win:length(1) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#groupwin(symbol)#length(1) " +
                           "where price - volume >= 1000.0 group by symbol having count(*) = 1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
@@ -297,7 +297,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol " +
                           "order by symbol";
 
@@ -332,7 +332,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -366,7 +366,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "price", "sumVol"};
         String stmtText = "select symbol, price, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol having sum(volume) > 20";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -400,7 +400,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
@@ -422,7 +422,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           " order by symbol asc";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -445,7 +445,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"symbol", "sumVol"};
         String stmtText = "select symbol, sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) having sum(volume) > 100";
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) having sum(volume) > 100";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());
@@ -467,7 +467,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"sumVol"};
         String stmtText = "select sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) ";
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) ";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), fields, new Object[][]{{null}});
@@ -489,7 +489,7 @@ public class TestIterator extends TestCase
     {
         String[] fields = new String[] {"sumVol"};
         String stmtText = "select sum(volume) as sumVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) having sum(volume) > 100";
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) having sum(volume) > 100";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         assertFalse(stmt.iterator().hasNext());

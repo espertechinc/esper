@@ -88,7 +88,7 @@ public class TestSchema extends TestCase
         stmtSchemaInsert.destroy();
 
         // test named window
-        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as (bean SupportBean, beanarray SupportBean_S0[])");
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as (bean SupportBean, beanarray SupportBean_S0[])");
         stmtWindow.addListener(listener);
         assertEquals(new EventPropertyDescriptor("bean", SupportBean.class, null, false, false, false, false, true), stmtWindow.getEventType().getPropertyDescriptor("bean"));
         assertEquals(new EventPropertyDescriptor("beanarray", SupportBean_S0[].class, SupportBean_S0.class, false, false, true, false, true), stmtWindow.getEventType().getPropertyDescriptor("beanarray"));

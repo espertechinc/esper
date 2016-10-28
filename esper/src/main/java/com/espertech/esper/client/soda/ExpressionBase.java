@@ -92,7 +92,7 @@ public abstract class ExpressionBase implements Expression
      * @param children expressions to render
      * @param writer writer to render to
      */
-    protected static void toPrecedenceFreeEPL(List<Expression> children, StringWriter writer)
+    public static void toPrecedenceFreeEPL(List<Expression> children, StringWriter writer)
     {
         String delimiter = "";
         for (Expression expr : children)

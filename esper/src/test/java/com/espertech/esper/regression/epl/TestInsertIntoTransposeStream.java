@@ -226,7 +226,7 @@ public class TestInsertIntoTransposeStream extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("AEvent", metadata);
         epService.getEPAdministrator().getConfiguration().addEventType("BEvent", metadata);
 
-        String stmtTextOne = "insert into MyStream select a, b from AEvent.win:keepall() as a, BEvent.win:keepall() as b";
+        String stmtTextOne = "insert into MyStream select a, b from AEvent#keepall() as a, BEvent#keepall() as b";
         epService.getEPAdministrator().createEPL(stmtTextOne);
 
         String stmtTextTwo = "select a.id, b.id from MyStream";
@@ -246,7 +246,7 @@ public class TestInsertIntoTransposeStream extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("AEvent", SupportBean_A.class);
         epService.getEPAdministrator().getConfiguration().addEventType("BEvent", SupportBean_B.class);
 
-        String stmtTextOne = "insert into MyStream select a.* as a, b.* as b from AEvent.win:keepall() as a, BEvent.win:keepall() as b";
+        String stmtTextOne = "insert into MyStream select a.* as a, b.* as b from AEvent#keepall() as a, BEvent#keepall() as b";
         epService.getEPAdministrator().createEPL(stmtTextOne);
 
         String stmtTextTwo = "select a.id, b.id from MyStream";
@@ -301,12 +301,12 @@ public class TestInsertIntoTransposeStream extends TestCase
         try {
             epService.getEPAdministrator().createEPL("@Resilient insert into EnrichedE2 " +
                     "select e2.* as event, e1.otherId as playerId " +
-                    "from E1.win:length(20) as e1, E2.win:length(1) as e2 " +
+                    "from E1#length(20) as e1, E2#length(1) as e2 " +
                     "where e1.id = e2.id ");
         }
         catch (Exception ex)
         {
-            assertEquals("Error starting statement: The 'e2.* as event' syntax is not allowed when inserting into an existing bean event type, use the 'e2 as event' syntax instead [@Resilient insert into EnrichedE2 select e2.* as event, e1.otherId as playerId from E1.win:length(20) as e1, E2.win:length(1) as e2 where e1.id = e2.id ]", ex.getMessage());
+            assertEquals("Error starting statement: The 'e2.* as event' syntax is not allowed when inserting into an existing bean event type, use the 'e2 as event' syntax instead [@Resilient insert into EnrichedE2 select e2.* as event, e1.otherId as playerId from E1#length(20) as e1, E2#length(1) as e2 where e1.id = e2.id ]", ex.getMessage());
         }
     }
 

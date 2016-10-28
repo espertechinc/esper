@@ -54,7 +54,7 @@ public class TestAggregateRowPerEvent extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
         String epl = "select window(s0.*) as rows, sb " +
-                "from SupportBean.win:keepall() as sb, SupportBean_S0.win:keepall() as s0 " +
+                "from SupportBean#keepall() as sb, SupportBean_S0#keepall() as s0 " +
                 "where sb.theString = s0.p00";
         epService.getEPAdministrator().createEPL(epl).addListener(testListener);
 
@@ -81,7 +81,7 @@ public class TestAggregateRowPerEvent extends TestCase
     public void testAggregatedSelectUnaggregatedHaving() {
         // ESPER-571
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        String epl = "select max(intPrimitive) as val from SupportBean.win:time(1) having max(intPrimitive) > intBoxed";
+        String epl = "select max(intPrimitive) as val from SupportBean#time(1) having max(intPrimitive) > intBoxed";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(testListener);
 
@@ -104,7 +104,7 @@ public class TestAggregateRowPerEvent extends TestCase
     public void testSumOneView()
     {
         String viewExpr = "select irstream longPrimitive, sum(longBoxed) as mySum " +
-                          "from " + SupportBean.class.getName() + ".win:length(3)";
+                          "from " + SupportBean.class.getName() + "#length(3)";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -114,8 +114,8 @@ public class TestAggregateRowPerEvent extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream longPrimitive, sum(longBoxed) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(3) as one, " +
-                                    SupportBean.class.getName() + ".win:length(3) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(3) as one, " +
+                                    SupportBean.class.getName() + "#length(3) as two " +
                           "where one.theString = two.theString";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -129,7 +129,7 @@ public class TestAggregateRowPerEvent extends TestCase
     public void testSumAvgWithWhere()
     {
         String viewExpr = "select 'IBM stats' as title, volume, avg(volume) as myAvg, sum(volume) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3)" +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3)" +
                           "where symbol='IBM'";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);

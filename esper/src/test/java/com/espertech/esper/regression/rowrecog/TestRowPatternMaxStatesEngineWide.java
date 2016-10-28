@@ -206,7 +206,7 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eplOne);
         stmtOne.addListener(listenerOne);
 
-        String eplTwo = "@name('S2') select * from SupportBean(theString = 'B').win:length(2) " +
+        String eplTwo = "@name('S2') select * from SupportBean(theString = 'B')#length(2) " +
                 "match_recognize (" +
                 "  partition by intPrimitive " +
                 "  measures P2.intPrimitive as c0" +
@@ -316,7 +316,7 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         initService(3L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String namedWindow = "create window MyWindow.win:keepall() as SupportBean";
+        String namedWindow = "create window MyWindow#keepall() as SupportBean";
         epService.getEPAdministrator().createEPL(namedWindow);
         String insert = "insert into MyWindow select * from SupportBean";
         epService.getEPAdministrator().createEPL(insert);
@@ -375,7 +375,7 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         initService(3L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String namedWindow = "create window MyWindow.win:keepall() as SupportBean";
+        String namedWindow = "create window MyWindow#keepall() as SupportBean";
         epService.getEPAdministrator().createEPL(namedWindow);
         String insert = "insert into MyWindow select * from SupportBean";
         epService.getEPAdministrator().createEPL(insert);

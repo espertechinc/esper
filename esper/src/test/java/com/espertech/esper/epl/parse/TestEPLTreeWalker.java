@@ -42,8 +42,8 @@ public class TestEPLTreeWalker extends TestCase
 {
     private static String CLASSNAME = SupportBean.class.getName();
     private static String EXPRESSION = "select * from " +
-                    CLASSNAME + "(string='a').win:length(10).std:lastevent() as win1," +
-                    CLASSNAME + "(string='b').win:length(10).std:lastevent() as win2 ";
+                    CLASSNAME + "(string='a')#length(10)#lastevent() as win1," +
+                    CLASSNAME + "(string='b')#length(10)#lastevent() as win2 ";
 
     public void testWalkGraph() throws Exception {
         String expression = "create dataflow MyGraph MyOp((s0, s1) as ST1, s2) -> out1, out2 {}";
@@ -420,7 +420,7 @@ public class TestEPLTreeWalker extends TestCase
 
     public void testWalkCreateWindow() throws Exception
     {
-        String expression = "create window MyWindow.std:groupwin(symbol).win:length(20) as select *, aprop, bprop as someval from com.MyClass insert where a=b";
+        String expression = "create window MyWindow#groupwin(symbol)#length(20) as select *, aprop, bprop as someval from com.MyClass insert where a=b";
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         StatementSpecRaw raw = walker.getStatementSpec();
 
@@ -447,7 +447,7 @@ public class TestEPLTreeWalker extends TestCase
         // 2 views
         assertEquals(2, raw.getCreateWindowDesc().getViewSpecs().size());
         assertEquals("groupwin", raw.getCreateWindowDesc().getViewSpecs().get(0).getObjectName());
-        assertEquals("std", raw.getCreateWindowDesc().getViewSpecs().get(0).getObjectNamespace());
+        assertEquals(null, raw.getCreateWindowDesc().getViewSpecs().get(0).getObjectNamespace());
         assertEquals("length", raw.getCreateWindowDesc().getViewSpecs().get(1).getObjectName());
     }
 
@@ -458,7 +458,7 @@ public class TestEPLTreeWalker extends TestCase
 
         for (int i = 0; i < patternTests.length; i++)
         {
-            String expression = "select * from MyEvent.win:keepall() match_recognize (" +
+            String expression = "select * from MyEvent#keepall() match_recognize (" +
                     "  partition by string measures A.string as a_string pattern ( " + patternTests[i] + ") define A as (A.value = 1) )";
 
             EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
@@ -588,9 +588,9 @@ public class TestEPLTreeWalker extends TestCase
     public void testWalkWhereWithAnd() throws Exception
     {
         String expression = "select * from " +
-                        CLASSNAME + "(string='a').win:length(10).std:lastevent() as win1," +
-                        CLASSNAME + "(string='b').win:length(9).std:lastevent() as win2, " +
-                        CLASSNAME + "(string='c').win:length(3).std:lastevent() as win3 " +
+                        CLASSNAME + "(string='a')#length(10)#lastevent() as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2, " +
+                        CLASSNAME + "(string='c')#length(3)#lastevent() as win3 " +
                         "where win1.f1=win2.f2 and win3.f3=f4 limit 5 offset 10";
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
@@ -682,8 +682,8 @@ public class TestEPLTreeWalker extends TestCase
     public void testWalkInsertInto() throws Exception
     {
         String expression = "insert into MyAlias select * from " +
-                        CLASSNAME + "().win:length(10).std:lastevent() as win1," +
-                        CLASSNAME + "(string='b').win:length(9).std:lastevent() as win2";
+                        CLASSNAME + "()#length(10)#lastevent() as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2";
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
 
@@ -693,8 +693,8 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals(0, desc.getColumnNames().size());
 
         expression = "insert rstream into MyAlias(a, b, c) select * from " +
-                        CLASSNAME + "().win:length(10).std:lastevent() as win1," +
-                        CLASSNAME + "(string='b').win:length(9).std:lastevent() as win2";
+                        CLASSNAME + "()#length(10)#lastevent() as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2";
 
         walker = SupportParserHelper.parseAndWalkEPL(expression);
 
@@ -706,7 +706,7 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals("b", desc.getColumnNames().get(1));
         assertEquals("c", desc.getColumnNames().get(2));
 
-        expression = "insert irstream into Test2 select * from " + CLASSNAME + "().win:length(10)";
+        expression = "insert irstream into Test2 select * from " + CLASSNAME + "()#length(10)";
         walker = SupportParserHelper.parseAndWalkEPL(expression);
         desc = walker.getStatementSpec().getInsertIntoDesc();
         assertEquals(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH, desc.getStreamSelector());
@@ -1000,7 +1000,7 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals("s2", patternStreamSpec.getOptionalStreamName());
 
         // Test patterns with views
-        walker = SupportParserHelper.parseAndWalkEPL("select * from pattern [" + patternOne + "].win:time(1), pattern [" + patternTwo + "].win:length(1).std:lastevent() as s1");
+        walker = SupportParserHelper.parseAndWalkEPL("select * from pattern [" + patternOne + "]#time(1), pattern [" + patternTwo + "]#length(1)#lastevent() as s1");
         assertEquals(2, walker.getStatementSpec().getStreamSpecs().size());
         patternStreamSpec = (PatternStreamSpecRaw) walker.getStatementSpec().getStreamSpecs().get(0);
         assertEquals(1, patternStreamSpec.getViewSpecs().length);
@@ -1025,7 +1025,7 @@ public class TestEPLTreeWalker extends TestCase
         text = "select case intPrimitive  when 1 then count(intPrimitive) end from " +    SupportBean.class.getName() + "().win:lenght(10) as win";
         SupportParserHelper.parseAndWalkEPL(text);
         text = "select case intPrimitive when longPrimitive then (intPrimitive + longPrimitive) end" +
-        " from " + SupportBean.class.getName() + ".win:length(3)";
+        " from " + SupportBean.class.getName() + "#length(3)";
         SupportParserHelper.parseAndWalkEPL(text);
     }
 
@@ -1356,7 +1356,7 @@ public class TestEPLTreeWalker extends TestCase
 
     private double tryInterval(String interval) throws Exception
     {
-        String text = "select * from " + SupportBean.class.getName() + ".win:time(" + interval + ")";
+        String text = "select * from " + SupportBean.class.getName() + "#win:time(" + interval + ")";
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(text);
         ViewSpec viewSpec = walker.getStatementSpec().getStreamSpecs().get(0).getViewSpecs()[0];

@@ -41,7 +41,7 @@ public class TestPerfDTBetween extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName());
         epService.getEPAdministrator().getConfiguration().addEventType("SupportDateTime", SupportDateTime.class.getName());
 
-        epService.getEPAdministrator().createEPL("create window AWindow.win:keepall() as A");
+        epService.getEPAdministrator().createEPL("create window AWindow#keepall() as A");
         epService.getEPAdministrator().createEPL("insert into AWindow select * from A");
 
         // preload

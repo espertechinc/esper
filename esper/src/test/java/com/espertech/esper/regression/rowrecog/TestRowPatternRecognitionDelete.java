@@ -58,7 +58,7 @@ public class TestRowPatternRecognitionDelete extends TestCase {
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        epService.getEPAdministrator().createEPL("create window MyNamedWindow.win:keepall() as MyEvent");
+        epService.getEPAdministrator().createEPL("create window MyNamedWindow#keepall() as MyEvent");
         epService.getEPAdministrator().createEPL("insert into MyNamedWindow select * from MyEvent");
         epService.getEPAdministrator().createEPL("on MyDeleteEvent as d delete from MyNamedWindow w where d.intPrimitive = w.value");
 
@@ -132,7 +132,7 @@ public class TestRowPatternRecognitionDelete extends TestCase {
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportRecogBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportRecogBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportRecogBean");
         epService.getEPAdministrator().createEPL("on SupportBean as s delete from MyWindow as w where s.theString = w.theString");
 
@@ -209,7 +209,7 @@ public class TestRowPatternRecognitionDelete extends TestCase {
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportRecogBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportRecogBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportRecogBean");
         epService.getEPAdministrator().createEPL("on SupportBean as s delete from MyWindow as w where s.theString = w.theString");
 

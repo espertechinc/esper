@@ -36,7 +36,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
 
         sendTimer(0, epService);
         String[] fields = "a_string,b_string".split(",");
-        String text = "select * from MyEvent.win:time(5) " +
+        String text = "select * from MyEvent#time(5) " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string" +
                 "  all matches pattern (A B) " +
@@ -114,7 +114,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
 
         sendTimer(0, epService);
         String[] fields = "cat,a_string,b_string".split(",");
-        String text = "select * from MyEvent.win:time(5) " +
+        String text = "select * from MyEvent#time(5) " +
                 "match_recognize (" +
                 "  partition by cat" +
                 "  measures A.cat as cat, A.theString as a_string, B.theString as b_string" +
@@ -192,7 +192,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
 
         sendTimer(0, epService);
         String[] fields = "a_string".split(",");
-        String text = "select * from MyEvent.win:time(5 sec) " +
+        String text = "select * from MyEvent#time(5 sec) " +
                 "match_recognize (" +
                 "  partition by cat " +
                 "  measures A.cat as cat, A.theString as a_string" +
@@ -274,7 +274,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,a_cat,a_value,b_value".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 "  partition by theString, cat" +
                 "  measures A.theString as a_string, A.cat as a_cat, A.value as a_value, B.value as b_value " +
@@ -340,7 +340,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 "  measures A.theString as a_string" +
                 "  all matches pattern (A) " +
@@ -388,7 +388,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
 
         stmt.stop();
 
-        text = "select * from MyEvent.win:keepall() " +
+        text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 "  measures A.theString as a_string" +
                 "  all matches pattern (A) " +

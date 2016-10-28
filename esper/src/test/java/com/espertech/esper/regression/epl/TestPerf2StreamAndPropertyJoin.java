@@ -49,8 +49,8 @@ public class TestPerf2StreamAndPropertyJoin extends TestCase
         MyStaticEval.setWaitTimeMSec(0);
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
-        String joinStatement = "select * from SupportBean.win:time(1) as sb, " +
-                " SupportBean_S0.win:keepall() as s0 " +
+        String joinStatement = "select * from SupportBean#time(1) as sb, " +
+                " SupportBean_S0#keepall() as s0 " +
                 " where myStaticEvaluator(sb.theString, s0.p00)";
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -72,8 +72,8 @@ public class TestPerf2StreamAndPropertyJoin extends TestCase
         String methodName = ".testPerformanceJoinNoResults";
 
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + ".win:length(1000000)," +
-                SupportBean.class.getName() + ".win:length(1000000)" +
+                SupportMarketDataBean.class.getName() + "#length(1000000)," +
+                SupportBean.class.getName() + "#length(1000000)" +
             " where symbol=theString and volume=longBoxed";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
@@ -101,8 +101,8 @@ public class TestPerf2StreamAndPropertyJoin extends TestCase
         String methodName = ".testPerformanceJoinNoResults";
 
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + "().win:length(1000000)," +
-                SupportBean.class.getName() + ".win:length(1000000)" +
+                SupportMarketDataBean.class.getName() + "()#length(1000000)," +
+                SupportBean.class.getName() + "#length(1000000)" +
             " where symbol=theString and volume=longBoxed and doublePrimitive=price";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);

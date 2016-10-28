@@ -54,7 +54,7 @@ public class TestCSVAdapter extends TestCase
 		epService.initialize();
 		EPAdministrator administrator = epService.getEPAdministrator();
 
-		String statementText = "select * from mapEvent.win:length(5)";
+		String statementText = "select * from mapEvent#length(5)";
 		EPStatement statement = administrator.createEPL(statementText);
 
 		listener = new SupportUpdateListener();
@@ -125,7 +125,7 @@ public class TestCSVAdapter extends TestCase
 		adapterSpec.setUsingEngineThread(true);
 		adapter = new CSVInputAdapter(epService, adapterSpec);
 
-		String statementText = "select * from intsTitleRowEvent.win:length(5)";
+		String statementText = "select * from intsTitleRowEvent#length(5)";
 		EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
 		statement.addListener(listener);
 
@@ -174,7 +174,7 @@ public class TestCSVAdapter extends TestCase
 		adapterSpec.setUsingEngineThread(true);
 		adapter = new CSVInputAdapter(epService, adapterSpec);
 
-		String statementText = "select * from allStringEvent.win:length(5)";
+		String statementText = "select * from allStringEvent#length(5)";
 		EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
 		statement.addListener(listener);
 
@@ -199,7 +199,7 @@ public class TestCSVAdapter extends TestCase
 		adapterSpec.setUsingEngineThread(true);
 		adapter = new CSVInputAdapter(epService, adapterSpec);
 
-		String statementText = "select * from propertyTypeEvent.win:length(5)";
+		String statementText = "select * from propertyTypeEvent#length(5)";
 		EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
 		statement.addListener(listener);
 
@@ -774,7 +774,7 @@ public class TestCSVAdapter extends TestCase
                 "MarketData"
         );
         try {
-            epService.getEPAdministrator().createEPL("select sum(price) from MarketData.win:length(2)");
+            epService.getEPAdministrator().createEPL("select sum(price) from MarketData#length(2)");
             fail("should fail due to type conversion");
         } catch (EPStatementException e) {
             assertTrue(e.getMessage().contains("Implicit conversion"));
@@ -785,6 +785,6 @@ public class TestCSVAdapter extends TestCase
                 new AdapterInputSource(new StringReader("sym,long price\nGOOG,22\nGOOG,33")),
                 "MarketData2"
         );
-        epService.getEPAdministrator().createEPL("select sum(price) from MarketData2.win:length(2)");
+        epService.getEPAdministrator().createEPL("select sum(price) from MarketData2#length(2)");
     }
 }

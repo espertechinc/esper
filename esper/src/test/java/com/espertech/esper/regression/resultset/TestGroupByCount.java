@@ -60,7 +60,7 @@ public class TestGroupByCount extends TestCase
                 .add(Expressions.countStar(), "countAll")
                 .add(Expressions.countDistinct("volume"), "countDistVol")
                 .add(Expressions.count("volume"), "countVol") );
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(3))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(3))));
         model.setWhereClause(Expressions.or()
                 .add(Expressions.eq("symbol", "DELL"))
                 .add(Expressions.eq("symbol", "IBM"))
@@ -72,7 +72,7 @@ public class TestGroupByCount extends TestCase
                                   "count(*) as countAll, " +
                                   "count(distinct volume) as countDistVol, " +
                                   "count(volume) as countVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol=\"DELL\" or symbol=\"IBM\" or symbol=\"GE\" " +
                           "group by symbol";
         assertEquals(viewExpr, model.toEPL());
@@ -86,7 +86,7 @@ public class TestGroupByCount extends TestCase
     public void testGroupByCountNestedAggregationAvg() throws Exception
     {
         // test for ESPER-328
-        String viewExpr = "select symbol, count(*) as cnt, avg(count(*)) as val from " + SupportMarketDataBean.class.getName() + ".win:length(3)" +
+        String viewExpr = "select symbol, count(*) as cnt, avg(count(*)) as val from " + SupportMarketDataBean.class.getName() + "#length(3)" +
                           "group by symbol order by symbol asc";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(testListener);
@@ -116,7 +116,7 @@ public class TestGroupByCount extends TestCase
                                   "count(*) as countAll, " +
                                   "count(distinct volume) as countDistVol, " +
                                   "count(volume) as countVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol=\"DELL\" or symbol=\"IBM\" or symbol=\"GE\" " +
                           "group by symbol";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(viewExpr);
@@ -135,7 +135,7 @@ public class TestGroupByCount extends TestCase
                                   "count(*) as countAll," +
                                   "count(distinct volume) as countDistVol," +
                                   "count(all volume) as countVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol";
 
@@ -151,8 +151,8 @@ public class TestGroupByCount extends TestCase
                                   "count(*) as countAll," +
                                   "count(distinct volume) as countDistVol," +
                                   "count(volume) as countVol " +
-                          " from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          " from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "  and one.theString = two.symbol " +
                           "group by symbol";

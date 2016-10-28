@@ -60,7 +60,7 @@ public class TestRevisionMerge extends TestCase
         revEvent.setKeyPropertyNames(new String[] {"p1"});
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("MyExistsRevision", revEvent);
 
-        epService.getEPAdministrator().createEPL("create window MyWin.win:time(10 sec) as select * from MyExistsRevision");
+        epService.getEPAdministrator().createEPL("create window MyWin#time(10 sec) as select * from MyExistsRevision");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from FullType");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from DeltaType");
 
@@ -133,7 +133,7 @@ public class TestRevisionMerge extends TestCase
         revEvent.setKeyPropertyNames(new String[] {"p1"});
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("MyExistsRevision", revEvent);
 
-        epService.getEPAdministrator().createEPL("create window MyWin.win:time(10 sec) as select * from MyExistsRevision");
+        epService.getEPAdministrator().createEPL("create window MyWin#time(10 sec) as select * from MyExistsRevision");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from FullType");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from DeltaType");
 
@@ -206,7 +206,7 @@ public class TestRevisionMerge extends TestCase
         revEvent.setKeyPropertyNames(new String[] {"p1"});
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("MyExistsRevision", revEvent);
 
-        epService.getEPAdministrator().createEPL("create window MyWin.win:time(10 sec) as select * from MyExistsRevision");
+        epService.getEPAdministrator().createEPL("create window MyWin#time(10 sec) as select * from MyExistsRevision");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from FullType");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from DeltaType");
 
@@ -274,7 +274,7 @@ public class TestRevisionMerge extends TestCase
         revEvent.setKeyPropertyNames(new String[] {"simpleProperty"});
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("NestedRevision", revEvent);
 
-        epService.getEPAdministrator().createEPL("create window MyWin.win:time(10 sec) as select * from NestedRevision");
+        epService.getEPAdministrator().createEPL("create window MyWin#time(10 sec) as select * from NestedRevision");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from Nested");
 
         String[] fields = "key,f1".split(",");

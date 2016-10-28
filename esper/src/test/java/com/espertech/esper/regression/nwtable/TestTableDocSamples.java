@@ -121,11 +121,11 @@ public class TestTableDocSamples extends TestCase {
                 ")");
         epService.getEPAdministrator().createEPL("into table IntrusionCountTable\n" +
                 "select count(*) as countIntrusion10Sec\n" +
-                "from IntrusionEvent.win:time(10)\n" +
+                "from IntrusionEvent#time(10)\n" +
                 "group by fromAddress, toAddress");
         epService.getEPAdministrator().createEPL("into table IntrusionCountTable\n" +
                 "select count(*) as countIntrusion60Sec\n" +
-                "from IntrusionEvent.win:time(60)\n" +
+                "from IntrusionEvent#time(60)\n" +
                 "group by fromAddress, toAddress");
 
         epService.getEPAdministrator().createEPL("create table TotalIntrusionCountTable (totalIntrusions count(*))");

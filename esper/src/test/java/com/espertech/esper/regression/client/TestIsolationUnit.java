@@ -305,7 +305,7 @@ public class TestIsolationUnit extends TestCase
         SupportUpdateListener[] listeners = new SupportUpdateListener[count];
         for (int i = 0; i < count; i++)
         {
-            String epl = "@Name('S" + i + "') select theString, sum(intPrimitive) as sumi from SupportBean(theString='" + i + "').win:time(10)";
+            String epl = "@Name('S" + i + "') select theString, sum(intPrimitive) as sumi from SupportBean(theString='" + i + "')#time(10)";
             listeners[i] = new SupportUpdateListener();
             epService.getEPAdministrator().createEPL(epl).addListener(listeners[i]);
         }
@@ -370,7 +370,7 @@ public class TestIsolationUnit extends TestCase
         }
 
         String[] fields = new String[] {"theString"};
-        String epl = "select theString from SupportBean.win:time(60)";
+        String epl = "select theString from SupportBean#time(60)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -416,7 +416,7 @@ public class TestIsolationUnit extends TestCase
         }
 
         String[] fields = new String[] {"theString"};
-        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow.win:keepall() as SupportBean");
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow#keepall() as SupportBean");
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
         EPStatement stmtDelete = epService.getEPAdministrator().createEPL("@Name('delete') on SupportBean_A delete from MyWindow where theString = id");
         EPStatement stmtConsume = epService.getEPAdministrator().createEPL("@Name('consume') select irstream * from MyWindow");
@@ -469,7 +469,7 @@ public class TestIsolationUnit extends TestCase
 
         sendTimerUnisolated(100000);
         String[] fields = new String[] {"theString"};
-        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow.win:time(10) as SupportBean");
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow#time(10) as SupportBean");
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
 
         EPServiceProviderIsolated unit = epService.getEPServiceIsolated("i1");
@@ -611,7 +611,7 @@ public class TestIsolationUnit extends TestCase
 
         sendTimerUnisolated(1000);
         String[] fields = new String[] {"theString"};
-        String epl = "select irstream theString from SupportBean.win:time(10)";
+        String epl = "select irstream theString from SupportBean#time(10)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -706,7 +706,7 @@ public class TestIsolationUnit extends TestCase
             return;
         }
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 

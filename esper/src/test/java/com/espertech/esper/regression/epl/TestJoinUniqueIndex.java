@@ -95,11 +95,11 @@ public class TestJoinUniqueIndex extends TestCase implements IndexBackingTableIn
             eplUnique += "SSB1 as ssb1 unidirectional ";
         }
         else {
-            eplUnique += "SSB1.std:lastevent() as ssb1 ";
+            eplUnique += "SSB1#lastevent() as ssb1 ";
         }
-        eplUnique += ", SSB2.std:unique(" + uniqueFields + ") as ssb2 ";
+        eplUnique += ", SSB2#unique(" + uniqueFields + ") as ssb2 ";
         if (caseEnum == CaseEnum.UNIDIRECTIONAL_3STREAM || caseEnum == CaseEnum.MULTIDIRECTIONAL_3STREAM) {
-            eplUnique += ", SupportBean.std:lastevent() ";
+            eplUnique += ", SupportBean#lastevent() ";
         }
         eplUnique += whereClause;
 

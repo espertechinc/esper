@@ -165,7 +165,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression js:abc() [throw new Error(\"Some error\");] select * from SupportBean.win:keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression js:abc() [throw new Error(\"Some error\");] select * from SupportBean#keepall() where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
@@ -176,7 +176,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression js:abc[dummy;] select * from SupportBean.win:keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression js:abc[dummy;] select * from SupportBean#keepall() where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
@@ -231,7 +231,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression mvel:abc() [Integer a = null; a + 1;] select * from SupportBean.win:keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression mvel:abc() [Integer a = null; a + 1;] select * from SupportBean#keepall() where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
@@ -699,7 +699,7 @@ public class TestScriptExpression extends TestCase {
 
     private void tryAggregation() {
         epService.getEPAdministrator().createEPL("create expression change(open, close) [ (open - close) / close ]");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select change(first(intPrimitive), last(intPrimitive)) as ch from SupportBean.win:time(1 day)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select change(first(intPrimitive), last(intPrimitive)) as ch from SupportBean#time(1 day)");
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 10));

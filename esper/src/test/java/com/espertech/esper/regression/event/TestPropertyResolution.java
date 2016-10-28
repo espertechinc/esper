@@ -105,7 +105,7 @@ public class TestPropertyResolution extends TestCase
         // test resolution as nested property
         epService.getEPAdministrator().createEPL("create schema MyEvent as (customer string, `from` string)");
         epService.getEPAdministrator().createEPL("insert into DerivedStream select customer,`from` from MyEvent");
-        epService.getEPAdministrator().createEPL("create window TheWindow.std:firstunique(customer,`from`) as DerivedStream");
+        epService.getEPAdministrator().createEPL("create window TheWindow#firstunique(customer,`from`) as DerivedStream");
         epService.getEPAdministrator().createEPL("on pattern [a=TheWindow -> timer:interval(12 hours)] as s0 delete from TheWindow as s1 where s0.a.`from`=s1.`from`");
 
         // test escape in column name

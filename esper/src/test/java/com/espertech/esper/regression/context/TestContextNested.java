@@ -84,7 +84,7 @@ public class TestContextNested extends TestCase {
 
         String[] fields = "c0,c1,c2,c3".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('StmtOne') context NestedContext " +
-                "select context.ACtx.s0.p00 as c0, context.BCtx.label as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean.win:length(5) group by theString");
+                "select context.ACtx.s0.p00 as c0, context.BCtx.label as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#length(5) group by theString");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -130,7 +130,7 @@ public class TestContextNested extends TestCase {
 
         String[] fieldsSelect = "c0,c1,c2,c3".split(",");
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL("@Name('StmtOne') context NestedContext " +
-                "select context.ACtx.label as c0, context.BCtx.label as c1, context.CCtx.label as c2, count(*) as c3 from SupportBean.win:length(5) having count(*) > 0");
+                "select context.ACtx.label as c0, context.BCtx.label as c1, context.CCtx.label as c2, count(*) as c3 from SupportBean#length(5) having count(*) > 0");
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", -1, 10L, true));
         epService.getEPRuntime().sendEvent(makeEvent("E2", 2, -10L, false));
@@ -193,7 +193,7 @@ public class TestContextNested extends TestCase {
         SupportUpdateListener listener = new SupportUpdateListener();
         String[] fields = "c0,c1,c2".split(",");
         EPStatementSPI stmtUser = (EPStatementSPI) epService.getEPAdministrator().createEPL("context NestedContext select " +
-                "context.EightToNine.startTime as c0, context.SegByString.key1 as c1, intPrimitive as c2 from SupportBean.win:keepall()");
+                "context.EightToNine.startTime as c0, context.SegByString.key1 as c1, intPrimitive as c2 from SupportBean#keepall()");
         stmtUser.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -339,8 +339,8 @@ public class TestContextNested extends TestCase {
                 + " context CtxSession partition by id from TestEvent, "
                 + " context CtxStartEnd start TestEvent as te end EndEvent(id=te.id)");
         EPStatement stmt = epService.getEPAdministrator().createEPL(
-                "context TheContext select firstEvent from TestEvent.std:firstevent() as firstEvent"
-                        + " inner join TestEvent.std:lastevent() as lastEvent");
+                "context TheContext select firstEvent from TestEvent#firstevent() as firstEvent"
+                        + " inner join TestEvent#lastevent() as lastEvent");
         SupportSubscriber supportSubscriber = new SupportSubscriber();
         stmt.setSubscriber(supportSubscriber);
 

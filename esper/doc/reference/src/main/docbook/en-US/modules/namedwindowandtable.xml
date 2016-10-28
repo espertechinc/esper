@@ -125,7 +125,7 @@ create table AppoximateCountPerWord (feed string, approx countMinSketch())]]></p
 				</para>
 				
 				<programlisting><![CDATA[// Declare a named window to hold 10 seconds of stock tick events
-create window TenSecOfTicksWindow.win:time(10 sec) as StockTickEvent]]></programlisting>
+create window TenSecOfTicksWindow#time(10 sec) as StockTickEvent]]></programlisting>
 
 				<para>
 					An iterator for a named window returns rows in the order as provided by the data window(s) declared for the named window.
@@ -251,18 +251,18 @@ select * from AppoximateCountPerWord]]></programlisting>
 				<para>
 					The next statement creates a named window <literal>OrdersNamedWindow</literal> for which the expiry policy is simply to keep all events. Assume that the event type 'OrderMapEventType' has been configured. The named window is to hold events of type 'OrderMapEventType':
 				</para>
-				<programlisting><![CDATA[create window OrdersNamedWindow.win:keepall() as OrderMapEventType]]></programlisting>
+				<programlisting><![CDATA[create window OrdersNamedWindow#keepall() as OrderMapEventType]]></programlisting>
 		
 				<para>
 					The below sample statement demonstrates the <literal>select</literal> syntax. It defines a named window in which each row has the three properties 'symbol', 'volume' and 'price'. This named window actively removes events from the window that are older than 30 seconds.
 				</para>
-				<programlisting><![CDATA[create window OrdersTimeWindow.win:time(30 sec) as 
+				<programlisting><![CDATA[create window OrdersTimeWindow#time(30 sec) as 
 		select symbol, volume, price from OrderEvent]]></programlisting>
 		
 				<para>
 					In an alternate form, the <literal>as</literal> keyword can be used to rename columns, and constants may occur in the select-clause as well:
 				</para>
-				<programlisting><![CDATA[create window OrdersTimeWindow.win:time(30 sec) as 
+				<programlisting><![CDATA[create window OrdersTimeWindow#time(30 sec) as 
   select symbol as sym, volume as vol, price, 1 as alertId from OrderEvent]]></programlisting>
 	
 			</sect3>
@@ -289,7 +289,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 				<para>
 					The next statement creates a named window:
 				</para>
-				<programlisting><![CDATA[create window SecurityEvent.win:time(30 sec) 
+				<programlisting><![CDATA[create window SecurityEvent#time(30 sec) 
 (ipAddress string, userId String, numAttempts int, properties String[])]]></programlisting>	
 
 				<para>
@@ -300,7 +300,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 					The next two statements declare an event type and create a named window with a column of the defined event type:
 				</para>
 				<programlisting><![CDATA[create schema SecurityData (name String, roles String[])]]></programlisting>	
-				<programlisting><![CDATA[create window SecurityEvent.win:time(30 sec) 
+				<programlisting><![CDATA[create window SecurityEvent#time(30 sec) 
     (ipAddress string, userId String, secData SecurityData, historySecData SecurityData[])]]></programlisting>
     
 				<para>
@@ -310,7 +310,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 				 <para>
 					The following EPL statement instructs the engine to represent FooWindow rows as object arrays:
 				 </para>
-				 <programlisting><![CDATA[@EventRepresentation(array=true) create window FooWindow.win:time(5 sec) as (string prop1)]]></programlisting>
+				 <programlisting><![CDATA[@EventRepresentation(array=true) create window FooWindow#time(5 sec) as (string prop1)]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="named_create_drop" revision="1">
@@ -339,12 +339,12 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 				<para>
 					For example, and assuming the named window <literal>OrdersNamedWindow</literal> already exists, this statement creates a new named window <literal>ScratchOrders</literal> and populates all orders in <literal>OrdersNamedWindow</literal> into the new named window:
 				</para>
-				<programlisting>create window ScratchOrders.win:keepall() as OrdersNamedWindow insert</programlisting>
+				<programlisting>create window ScratchOrders#keepall() as OrdersNamedWindow insert</programlisting>
 		
 				<para>
 					The <literal>where</literal> keyword is also available to perform filtering, for example:
 				</para>
-				<programlisting>create window ScratchBuyOrders.win:time(10) as OrdersNamedWindow insert where side = 'buy'</programlisting>	
+				<programlisting>create window ScratchBuyOrders#time(10) as OrdersNamedWindow insert where side = 'buy'</programlisting>	
 			</sect3> 
 		</sect2>
 	
@@ -366,7 +366,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 			<para>
 				In this example we first create a named window using some of the columns of an OrderEvent event type:
 			</para>
-			<programlisting><![CDATA[create window OrdersWindow.win:keepall() as select symbol, volume, price from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[create window OrdersWindow#keepall() as select symbol, volume, price from OrderEvent]]></programlisting>
 			
 			<para>
 				The insert into the named window selects individual columns to be inserted:
@@ -384,20 +384,20 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 			<para>
 				The following EPL statements create a named window for an event type backed by a Java class and insert into the window any 'OrderEvent' where the symbol value is IBM:
 			</para>
-			<programlisting><![CDATA[create window OrdersWindow.win:time(30) as com.mycompany.OrderEvent]]></programlisting>
+			<programlisting><![CDATA[create window OrdersWindow#time(30) as com.mycompany.OrderEvent]]></programlisting>
 			<programlisting><![CDATA[insert into OrdersWindow select * from com.mycompany.OrderEvent(symbol='IBM')]]></programlisting>
 	
 			<para>
 				The last example adds one column named 'derivedPrice' to the 'OrderEvent' type by specifying a wildcard, and uses a user-defined function to populate the column:
 			</para>
-			<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select *, price as derivedPrice from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[create window OrdersWindow#time(30) as select *, price as derivedPrice from OrderEvent]]></programlisting>
 			<programlisting><![CDATA[insert into OrdersWindow select *, MyFunc.func(price, percent) as derivedPrice from OrderEvent]]></programlisting>
 	
 			<para>
 				Event representations based on Java base classes or interfaces, and subclasses or implementing classes, are compatible as these statements show:
 			</para>
 			<programlisting><![CDATA[// create a named window for the base class
-create window OrdersWindow.std:unique(name) as select * from ProductBaseEvent]]></programlisting>
+create window OrdersWindow#unique(name) as select * from ProductBaseEvent]]></programlisting>
 
 			<programlisting><![CDATA[// The ServiceProductEvent class subclasses the ProductBaseEvent class
 insert into OrdersWindow select * from ServiceProductEvent]]></programlisting>
@@ -420,7 +420,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 				<para>
 					Here we create a named window that decorates OrderEvent events by adding an additional property named <literal>priceTotal</literal> to each OrderEvent. A matching <literal>insert into</literal> statement is also part of the sample:
 				</para>
-				<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select *, price as priceTotal from OrderEvent]]></programlisting>
+				<programlisting><![CDATA[create window OrdersWindow#time(30) as select *, price as priceTotal from OrderEvent]]></programlisting>
 				<programlisting><![CDATA[insert into OrdersWindow select *, price * unit as priceTotal from ServiceOrderEvent]]></programlisting>
 	
 				<para>
@@ -491,7 +491,7 @@ where win.id = spe.id when not matched then insert select *]]></programlisting>
 				Data window views cannot be used onto named windows since named windows post insert and remove streams for the events entering and leaving the named window, thus the expiry policy and batch behavior are well defined by the data window declared for the named window. For example, the following is not allowed and fails at time of statement creation:
 			</para>
 			<programlisting><![CDATA[// not a valid statement
-	select * from OrdersNamedWindow.win:time(30 sec)]]></programlisting>
+	select * from OrdersNamedWindow#time(30 sec)]]></programlisting>
 		</sect2>		
 	</sect1>
 
@@ -707,7 +707,7 @@ create table <emphasis>table_name</emphasis> [as] (<emphasis>column_name</emphas
 			</para>
 			<programlisting><![CDATA[into table IntrusionCountTable
 select count(*) as countIntrusion10Sec
-from IntrusionEvent.win:time(10)
+from IntrusionEvent#time(10)
 group by fromAddress, toAddress]]></programlisting>
 
 			<para>
@@ -720,7 +720,7 @@ group by fromAddress, toAddress]]></programlisting>
 			</para>
 			<programlisting><![CDATA[into table IntrusionCountTable
 select count(*) as countIntrusion60Sec
-from IntrusionEvent.win:time(60)
+from IntrusionEvent#time(60)
 group by fromAddress, toAddress]]></programlisting>		
 
 			<para> 
@@ -1027,7 +1027,7 @@ select totalIntrusions from IntrusionEvent]]></programlisting>
 			    The following are examples of invalid statements:
 			</para>
 			<programlisting><![CDATA[// invalid statement examples
-select * from IntrusionCountTable.win:time(30 sec)   // views not allowed
+select * from IntrusionCountTable#time(30 sec)   // views not allowed
 select * from IntrusionCountTable unidirectional, MyEvent   // tables cannot be marked as unidirectional]]></programlisting>
 
 			<para>
@@ -1714,7 +1714,7 @@ when matched and active = true then update set active = false]]></programlisting
 		<para>
 			We create a named window that holds a row for each unique product:
 		</para>
-		<programlisting><![CDATA[create window ProductWindow.std:unique(productId) as ProductTotalRec]]></programlisting>
+		<programlisting><![CDATA[create window ProductWindow#unique(productId) as ProductTotalRec]]></programlisting>
 
 		<para>
 			The events for this example are order events that hold an order id, product id, price, quantity and deleted-flag declared by the next schema:
@@ -1749,7 +1749,7 @@ when matched and active = true then update set active = false]]></programlisting
 			The second example demonstrates the use of a select-clause with wildcard, a search condition and the <literal>delete</literal> keyword. It creates a named window that holds order events and employs on-merge to insert order events for which no corresponding order id was found, update quantity to the quantity provided by the last arriving event and delete order events that are marked as deleted:
 		</para>
 		
-		<programlisting><![CDATA[create window OrderWindow.win:keepall() as OrderEvent]]></programlisting>
+		<programlisting><![CDATA[create window OrderWindow#keepall() as OrderEvent]]></programlisting>
 		<programlisting><![CDATA[on OrderEvent oe
   merge OrderWindow pw
   where pw.orderId = oe.orderId
@@ -1938,7 +1938,7 @@ when matched and active = true then update set active = false]]></programlisting
 			We list a few example EPL statements next that create a named window and create a single index:
 		</para>
 		<programlisting><![CDATA[// create a named window
-create window UserProfileWindow.win:time(1 hour) select * from UserProfile]]></programlisting>
+create window UserProfileWindow#time(1 hour) select * from UserProfile]]></programlisting>
 		<programlisting><![CDATA[// create a non-unique index (duplicates allowed) for the user id property only
 create index UserProfileIndex on UserProfileWindow(userId)]]></programlisting>
 
@@ -1975,7 +1975,7 @@ create unique index UserProfileIndex on UserProfileWindow(userId, profileId)]]><
 		</para>
 
 		<programlisting><![CDATA[// create a named window
-create window TickEventWindow.win:time(1 hour) as (symbol string, buyPrice double)]]></programlisting>
+create window TickEventWindow#time(1 hour) as (symbol string, buyPrice double)]]></programlisting>
 		<programlisting><![CDATA[// create a non-unique index 
 create index idx1 on TickEventWindow(symbol hash, buyPrice btree)]]></programlisting>
 
@@ -2207,7 +2207,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 		<para>				
 			Assume that an event type <literal>UserProfileRevisions</literal> has been configured to hold profile events, i.e. creation and update events related by user id. This statement creates a named window to hold the last 1 hour of current profiles per user id:
 		</para>
-		<programlisting><![CDATA[create window UserProfileWindow.win:time(1 hour) select * from UserProfileRevisions]]></programlisting>
+		<programlisting><![CDATA[create window UserProfileWindow#time(1 hour) select * from UserProfileRevisions]]></programlisting>
 		<programlisting><![CDATA[insert into UserProfileWindow select * from UserProfileCreation]]></programlisting>
 		<programlisting><![CDATA[insert into UserProfileWindow select * from UserProfileUpdate]]></programlisting>
 
@@ -2234,7 +2234,7 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 
 		<tip>				
 			It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>std:unique</literal>) or unique data window in intersection with other data windows
-			instead (i.e. <literal>std:unique(field).win:time(1 hour)</literal>).
+			instead (i.e. <literal>std:unique(field)#time(1 hour)</literal>).
 		</tip>
 
 		<para>				
@@ -2277,12 +2277,12 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 		</para>
 		<programlisting><![CDATA[create schema InnerData (value string)]]></programlisting>
 		<programlisting><![CDATA[create table ContainerTable (innerdata InnerData)]]></programlisting>
-		<programlisting><![CDATA[create window ContainerWindow.win:time(30) as (innerdataArray InnerData[]) // array of events]]></programlisting>
+		<programlisting><![CDATA[create window ContainerWindow#time(30) as (innerdataArray InnerData[]) // array of events]]></programlisting>
 
 		<para>
 			The second sample creates a named window that specifies two columns: A column that holds an OrderEvent, and a column by name <literal>priceTotal</literal>. A matching <literal>insert into</literal> statement is also part of the sample:
 		</para>
-		<programlisting><![CDATA[create window OrdersWindow.win:time(30) as select this, price as priceTotal from OrderEvent]]></programlisting>
+		<programlisting><![CDATA[create window OrdersWindow#time(30) as select this, price as priceTotal from OrderEvent]]></programlisting>
 		<programlisting><![CDATA[insert into OrdersWindow select order, price * unit as priceTotal  
 from ServiceOrderEvent as order]]></programlisting>
 

@@ -291,7 +291,7 @@ public class EPAdministratorImpl implements EPAdministratorSPI
 
     public ExprNode compileExpression(String expression) throws EPException
     {
-        String toCompile = "select * from java.lang.Object.win:time(" + expression + ")";
+        String toCompile = "select * from java.lang.Object#time(" + expression + ")";
         StatementSpecRaw raw = EPAdministratorHelper.compileEPL(toCompile, expression, false, null, services, SelectClauseStreamSelectorEnum.ISTREAM_ONLY);
         return raw.getStreamSpecs().get(0).getViewSpecs()[0].getObjectParameters().get(0);
     }

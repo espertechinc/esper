@@ -55,7 +55,7 @@ public class TestNamedWindowOnMerge extends TestCase {
 
     public void testUpdateNonPropertySet() {
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("increaseIntCopyDouble", this.getClass().getName(), "increaseIntCopyDouble");
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL("on SupportBean_S0 as sb " +
                 "merge MyWindow as mywin when matched then " +
@@ -77,8 +77,8 @@ public class TestNamedWindowOnMerge extends TestCase {
     public void testMergeTriggeredByAnotherWindow() {
 
         // test dispatch between named windows
-        epService.getEPAdministrator().createEPL("@Name('A') create window A.std:unique(id) as (id int)");
-        epService.getEPAdministrator().createEPL("@Name('B') create window B.std:unique(id) as (id int)");
+        epService.getEPAdministrator().createEPL("@Name('A') create window A#unique(id) as (id int)");
+        epService.getEPAdministrator().createEPL("@Name('B') create window B#unique(id) as (id int)");
         epService.getEPAdministrator().createEPL("@Name('C') on A merge B when not matched then insert select 1 as id when matched then insert select 1 as id");
 
         epService.getEPAdministrator().createEPL("@Name('D') select * from B").addListener(nwListener);
@@ -90,9 +90,9 @@ public class TestNamedWindowOnMerge extends TestCase {
 
         // test insert-stream only, no remove stream
         String[] fields = "c0,c1".split(",");
-        epService.getEPAdministrator().createEPL("create window W1.std:lastevent() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window W1#lastevent() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into W1 select * from SupportBean");
-        epService.getEPAdministrator().createEPL("create window W2.std:lastevent() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window W2#lastevent() as SupportBean");
         epService.getEPAdministrator().createEPL("on W1 as a merge W2 as b when not matched then insert into OutStream " +
                 "select a.theString as c0, istream() as c1");
         epService.getEPAdministrator().createEPL("select * from OutStream").addListener(mergeListener);
@@ -117,7 +117,7 @@ public class TestNamedWindowOnMerge extends TestCase {
 
         String appModuleOne = eventRepresentationEnum.getAnnotationText() + " create schema ProductTotalRec as (productId string, totalPrice double);" +
                 "" +
-                eventRepresentationEnum.getAnnotationText() + " @Name('nwProd') create window ProductWindow.std:unique(productId) as ProductTotalRec;" +
+                eventRepresentationEnum.getAnnotationText() + " @Name('nwProd') create window ProductWindow#unique(productId) as ProductTotalRec;" +
                 "" +
                 "on OrderEvent oe\n" +
                 "merge ProductWindow pw\n" +
@@ -128,7 +128,7 @@ public class TestNamedWindowOnMerge extends TestCase {
                 "then insert select productId, price as totalPrice;";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(appModuleOne, null, null, null);
 
-        String appModuleTwo = eventRepresentationEnum.getAnnotationText() + " @Name('nwOrd') create window OrderWindow.win:keepall() as OrderEvent;" +
+        String appModuleTwo = eventRepresentationEnum.getAnnotationText() + " @Name('nwOrd') create window OrderWindow#keepall() as OrderEvent;" +
                 "" +
                 "on OrderEvent oe\n" +
                 "  merge OrderWindow pw\n" +
@@ -150,7 +150,7 @@ public class TestNamedWindowOnMerge extends TestCase {
 
         String module = "create schema StreetCarCountSchema (streetid string, carcount int);" +
                 "    create schema StreetChangeEvent (streetid string, action string);" +
-                "    create window StreetCarCountWindow.std:unique(streetid) as StreetCarCountSchema;" +
+                "    create window StreetCarCountWindow#unique(streetid) as StreetCarCountSchema;" +
                 "    on StreetChangeEvent ce merge StreetCarCountWindow w where ce.streetid = w.streetid\n" +
                 "    when not matched and ce.action = 'ENTER' then insert select streetid, 1 as carcount\n" +
                 "    when matched and ce.action = 'ENTER' then update set StreetCarCountWindow.carcount = carcount + 1\n" +
@@ -188,7 +188,7 @@ public class TestNamedWindowOnMerge extends TestCase {
         EPAssertionUtil.assertEqualsAnyOrder(new String[]{"ces"}, configOps.getEventTypeNameUsedBy("EventSchema").toArray());
         EPAssertionUtil.assertEqualsAnyOrder(new String[]{"cnws"}, configOps.getEventTypeNameUsedBy("WindowSchema").toArray());
 
-        epService.getEPAdministrator().createEPL("@Name('cnw') create window MyWindow.win:keepall() as WindowSchema");
+        epService.getEPAdministrator().createEPL("@Name('cnw') create window MyWindow#keepall() as WindowSchema");
         EPAssertionUtil.assertEqualsAnyOrder("cnws,cnw".split(","), configOps.getEventTypeNameUsedBy("WindowSchema").toArray());
         EPAssertionUtil.assertEqualsAnyOrder(new String[]{"cnw"}, configOps.getEventTypeNameUsedBy("MyWindow").toArray());
 
@@ -202,7 +202,7 @@ public class TestNamedWindowOnMerge extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("OrderBean", OrderBean.class);
 
         String[] fields = "c1,c2".split(",");
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as (c1 string, c2 string)");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as (c1 string, c2 string)");
 
         String epl =  "on OrderBean[books] " +
                       "merge MyWindow mw " +
@@ -217,7 +217,7 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     public void testPropertyInsertBean() {
-        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MergeWindow.std:unique(theString) as SupportBean");
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window MergeWindow#unique(theString) as SupportBean");
 
         String epl = "on SupportBean as up merge MergeWindow as mv where mv.theString=up.theString when not matched then insert select intPrimitive";
         EPStatement stmtMerge = epService.getEPAdministrator().createEPL(epl);
@@ -244,16 +244,16 @@ public class TestNamedWindowOnMerge extends TestCase {
         String[] fields = "col1,col2".split(",");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEvent as (in1 string, in2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MySchema as (col1 string, col2 int)");
-        EPStatement namedWindowStmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindow.std:lastevent() as MySchema");
+        EPStatement namedWindowStmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindow#lastevent() as MySchema");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow");
 
         String epl =  "on MyEvent me " +
                       "merge MyWindow mw " +
-                      "when not matched and (select intPrimitive>0 from SupportBean(theString like 'A%').std:lastevent()) then " +
-                      "insert(col1, col2) select (select theString from SupportBean(theString like 'A%').std:lastevent()), (select intPrimitive from SupportBean(theString like 'A%').std:lastevent()) " +
-                      "when matched and (select intPrimitive>0 from SupportBean(theString like 'B%').std:lastevent()) then " +
-                      "update set col1=(select theString from SupportBean(theString like 'B%').std:lastevent()), col2=(select intPrimitive from SupportBean(theString like 'B%').std:lastevent()) " +
-                      "when matched and (select intPrimitive>0 from SupportBean(theString like 'C%').std:lastevent()) then " +
+                      "when not matched and (select intPrimitive>0 from SupportBean(theString like 'A%')#lastevent()) then " +
+                      "insert(col1, col2) select (select theString from SupportBean(theString like 'A%')#lastevent()), (select intPrimitive from SupportBean(theString like 'A%')#lastevent()) " +
+                      "when matched and (select intPrimitive>0 from SupportBean(theString like 'B%')#lastevent()) then " +
+                      "update set col1=(select theString from SupportBean(theString like 'B%')#lastevent()), col2=(select intPrimitive from SupportBean(theString like 'B%')#lastevent()) " +
+                      "when matched and (select intPrimitive>0 from SupportBean(theString like 'C%')#lastevent()) then " +
                       "delete";
         epService.getEPAdministrator().createEPL(epl);
 

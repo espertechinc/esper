@@ -68,7 +68,7 @@ public class TestInfraSubqCorrelCoerce extends TestCase
         epService.getEPAdministrator().createEPL("create schema WindowSchema(col0 string, col1 long, col2 string)");
 
         String createEpl = namedWindow ?
-                "create window MyInfra.win:keepall() as WindowSchema" :
+                "create window MyInfra#keepall() as WindowSchema" :
                 "create table MyInfra (col0 string primary key, col1 long, col2 string)";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;

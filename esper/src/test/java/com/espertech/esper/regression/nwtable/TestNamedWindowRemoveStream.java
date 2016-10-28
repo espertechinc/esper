@@ -38,9 +38,9 @@ public class TestNamedWindowRemoveStream extends TestCase
     {
         String[] fields = new String[] {"theString"};
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        EPStatement stmt1 = epService.getEPAdministrator().createEPL("create window W1.win:length(2) as select * from SupportBean");
-        EPStatement stmt2 = epService.getEPAdministrator().createEPL("create window W2.win:length(2) as select * from SupportBean");
-        EPStatement stmt3 = epService.getEPAdministrator().createEPL("create window W3.win:length(2) as select * from SupportBean");
+        EPStatement stmt1 = epService.getEPAdministrator().createEPL("create window W1#length(2) as select * from SupportBean");
+        EPStatement stmt2 = epService.getEPAdministrator().createEPL("create window W2#length(2) as select * from SupportBean");
+        EPStatement stmt3 = epService.getEPAdministrator().createEPL("create window W3#length(2) as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into W1 select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert rstream into W2 select rstream * from W1");
         epService.getEPAdministrator().createEPL("insert rstream into W3 select rstream * from W2");

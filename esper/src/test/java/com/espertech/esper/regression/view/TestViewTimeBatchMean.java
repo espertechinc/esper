@@ -54,7 +54,7 @@ public class TestViewTimeBatchMean extends TestCase
         // Set up a 2 second time window
         EPStatement timeBatchMean = epService.getEPAdministrator().createEPL(
                 "select * from " + SupportMarketDataBean.class.getName() +
-                "(symbol='" + SYMBOL + "').win:time_batch(2).stat:uni(volume)");
+                "(symbol='" + SYMBOL + "')#time_batch(2)#uni(volume)");
         timeBatchMean.addListener(testListener);
 
         testListener.reset();
@@ -115,7 +115,7 @@ public class TestViewTimeBatchMean extends TestCase
         checkMeanListener(1200);
 
         // try to compile with flow control, these are tested elsewhere
-        epService.getEPAdministrator().createEPL("select * from SupportBean.win:time_batch(10 sec, 'FORCE_UPDATE, START_EAGER')");
+        epService.getEPAdministrator().createEPL("select * from SupportBean#time_batch(10 sec, 'FORCE_UPDATE, START_EAGER')");
     }
 
     private void sendEvent(String symbol, long volume)

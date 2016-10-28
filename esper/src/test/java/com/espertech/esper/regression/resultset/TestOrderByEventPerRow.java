@@ -49,7 +49,7 @@ public class TestOrderByEventPerRow extends TestCase
     public void testAliasesAggregationCompile() throws Exception
     {
         String statementString = "select symbol, volume, sum(price) as mySum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output every 6 events " +
                                 "order by sum(price), symbol";
@@ -69,14 +69,14 @@ public class TestOrderByEventPerRow extends TestCase
     {
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("symbol", "volume").add(Expressions.sum("price"), "mySum"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView(View.create("win", "length", Expressions.constant(20)))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView(View.create("length", Expressions.constant(20)))));
         model.setGroupByClause(GroupByClause.create("symbol"));
         model.setOutputLimitClause(OutputLimitClause.create(6));
         model.setOrderByClause(OrderByClause.create(Expressions.sum("price")).add("symbol", false));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         String statementString = "select symbol, volume, sum(price) as mySum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output every 6 events " +
                                 "order by sum(price), symbol";
@@ -93,7 +93,7 @@ public class TestOrderByEventPerRow extends TestCase
     public void testAliases()
 	{
 		String statementString = "select symbol, volume, sum(price) as mySum from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output every 6 events " +
                                 "order by mySum, symbol";
@@ -111,7 +111,7 @@ public class TestOrderByEventPerRow extends TestCase
 		// get row-per-event behavior since there are properties
 		// in the order-by that are not in the select expression.
 		String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output every 6 events " +
                                 "order by sum(price), symbol, volume";
@@ -126,8 +126,8 @@ public class TestOrderByEventPerRow extends TestCase
     public void testGroupBySwitchJoin()
 	{
         String statementString = "select symbol, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "group by symbol " +
                                 "output every 6 events " +
@@ -149,7 +149,7 @@ public class TestOrderByEventPerRow extends TestCase
 	public void testLast()
 	{
     	String statementString = "select symbol, volume, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) " +
+                                SupportMarketDataBean.class.getName() + "#length(20) " +
                                 "group by symbol " +
                                 "output last every 6 events " +
                                 "order by sum(price)";
@@ -164,8 +164,8 @@ public class TestOrderByEventPerRow extends TestCase
     public void testLastJoin()
     {
         String statementString = "select symbol, volume, sum(price) from " +
-                                SupportMarketDataBean.class.getName() + ".win:length(20) as one, " +
-                                SupportBeanString.class.getName() + ".win:length(100) as two " +
+                                SupportMarketDataBean.class.getName() + "#length(20) as one, " +
+                                SupportBeanString.class.getName() + "#length(100) as two " +
                                 "where one.symbol = two.theString " +
                                 "group by symbol " +
                                 "output last every 6 events " +
@@ -215,8 +215,8 @@ public class TestOrderByEventPerRow extends TestCase
 	{
         String[] fields = new String[] {"symbol", "theString", "sumPrice"};
         String statementString = "select symbol, theString, sum(price) as sumPrice from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "group by symbol " +
                     "order by symbol";

@@ -57,7 +57,7 @@ public class TestInfraSubqCorrelJoin extends TestCase
 
     private void runAssertion(boolean namedWindow, boolean enableIndexShareCreate) {
         String createEpl = namedWindow ?
-                "create window MyInfra.std:unique(theString) as select * from SupportBean" :
+                "create window MyInfra#unique(theString) as select * from SupportBean" :
                 "create table MyInfra(theString string primary key, intPrimitive int primary key)";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
@@ -65,7 +65,7 @@ public class TestInfraSubqCorrelJoin extends TestCase
         epService.getEPAdministrator().createEPL(createEpl);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");
 
-        String consumeEpl = "select (select intPrimitive from MyInfra where theString = s1.p10) as val from S0Bean.std:lastevent() as s0, S1Bean.std:lastevent() as s1";
+        String consumeEpl = "select (select intPrimitive from MyInfra where theString = s1.p10) as val from S0Bean#lastevent() as s0, S1Bean#lastevent() as s1";
         EPStatement consumeStmt = epService.getEPAdministrator().createEPL(consumeEpl);
         consumeStmt.addListener(listener);
 

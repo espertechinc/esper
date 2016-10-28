@@ -26,8 +26,8 @@ public class TestInitializeEngine extends TestCase
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
-        String eplOne = "insert into A(a) select 1 from " + SupportBean.class.getName() + ".win:length(100)";
-        String eplTwo = "insert into A(a, b) select 1,2 from " + SupportBean.class.getName() + ".win:length(100)";
+        String eplOne = "insert into A(a) select 1 from " + SupportBean.class.getName() + "#length(100)";
+        String eplTwo = "insert into A(a, b) select 1,2 from " + SupportBean.class.getName() + "#length(100)";
 
         // Asserting that the engine allows to use the new event stream A with more properties then the old A
         epService.getEPAdministrator().createEPL(eplOne);

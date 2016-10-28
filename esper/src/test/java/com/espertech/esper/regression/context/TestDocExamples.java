@@ -78,10 +78,10 @@ public class TestDocExamples extends TestCase {
         epService.getEPAdministrator().destroyAllStatements();
         create("create context ByCust partition by custId from BankTxn");
         create("context ByCust\n" +
-                "select * from BankTxn as t1 unidirectional, BankTxn.win:time(30) t2\n" +
+                "select * from BankTxn as t1 unidirectional, BankTxn#time(30) t2\n" +
                 "where t1.amount = t2.amount");
         create("context ByCust\n" +
-                "select * from SecurityEvent as t1 unidirectional, BankTxn.win:time(30) t2\n" +
+                "select * from SecurityEvent as t1 unidirectional, BankTxn#time(30) t2\n" +
                 "where t1.customerName = t2.customerName");
         epService.getEPAdministrator().destroyAllStatements();
         create("create context CategoryByTemp\n" +
@@ -178,7 +178,7 @@ public class TestDocExamples extends TestCase {
                 "  group by amount < 100 as small, \n" +
                 "  group by amount between 100 and 1000 as medium, \n" +
                 "  group by amount > 1000 as large from BankTxn");
-        EPStatement stmt = create("context TxnCategoryContext select * from BankTxn.win:time(1 minute)");
+        EPStatement stmt = create("context TxnCategoryContext select * from BankTxn#time(1 minute)");
         ContextPartitionSelectorCategory categorySmall = new ContextPartitionSelectorCategory() {
             public Set<String> getLabels() {
                 return Collections.singleton("small");
@@ -190,7 +190,7 @@ public class TestDocExamples extends TestCase {
                 return new HashSet<String>(Arrays.asList("small", "medium"));
             }
         };
-        create("context TxnCategoryContext create window BankTxnWindow.win:time(1 min) as BankTxn");
+        create("context TxnCategoryContext create window BankTxnWindow#time(1 min) as BankTxn");
         epService.getEPRuntime().executeQuery("select count(*) from BankTxnWindow", new ContextPartitionSelector[] {categorySmallMed});
 
         epService.getEPAdministrator().getConfiguration().addEventType(MyTwoKeyInit.class);

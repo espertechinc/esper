@@ -487,7 +487,7 @@ configuration.addEventType("MyMapEvent", properties);]]></programlisting>
 			<para>
 				Finally, here is a sample EPL statement that uses the configured <literal>MyMapEvent</literal> map event. This statement uses the <literal>chassisTag</literal> and <literal>numParts</literal> properties of <literal>Assembly</literal> objects in each map.
 			</para>
-			<programlisting>select carType, assembly.chassisTag, count(assembly.numParts) from MyMapEvent.win:time(60 sec)</programlisting>
+			<programlisting>select carType, assembly.chassisTag, count(assembly.numParts) from MyMapEvent#time(60 sec)</programlisting>
 
 			<para>
 				A Map event type may also become a subtype of one or more supertypes that must also be Map event types. The <literal>java-util-map</literal> element provides the optional attribute <literal>supertype-names</literal> that accepts a comma-separated list of names of Map event types that are supertypes to the type:
@@ -556,7 +556,7 @@ configuration.addEventType("MyObjectArrayEvent", propertyNames, propertyTypes);]
 			<para>
 				Finally, here is a sample EPL statement that uses the configured <literal>MyObjectArrayEvent</literal> object-array event. This statement uses the <literal>chassisTag</literal> and <literal>numParts</literal> properties of <literal>Assembly</literal> objects.
 			</para>
-			<programlisting>select carType, assembly.chassisTag, count(assembly.numParts) from MyObjectArrayEvent.win:time(60 sec)</programlisting>
+			<programlisting>select carType, assembly.chassisTag, count(assembly.numParts) from MyObjectArrayEvent#time(60 sec)</programlisting>
 
 			<para>
 				An Object-array event type may also become a subtype of one supertype that must also be an Object-array event type. The <literal>objectarray</literal> element provides the optional attribute <literal>supertype-names</literal> that accepts a single name of an Object-array event type that is the supertype to the type:
@@ -639,7 +639,7 @@ configuration.addEventType("MyXMLNodeEvent", desc);]]></programlisting>
 				 Here is an example EPL statement using the configured event type named <literal>AutoIdRFIDEvent</literal>.
 			</para>
 
-			<programlisting><![CDATA[select ID, countTags from AutoIdRFIDEvent.win:time(30 sec)]]></programlisting>
+			<programlisting><![CDATA[select ID, countTags from AutoIdRFIDEvent#time(30 sec)]]></programlisting>
 
 			<sect3 xml:id="config-xml-dom-schema" revision="1">
 				<title>Schema Resource</title>
@@ -1779,7 +1779,7 @@ config.getEngineDefaults().getViewResources().setIterableUnbound(true);]]></prog
 				<para>
 				   Here is a sample statement that specifies multiple expiry policies:
 				</para>
-				<programlisting><![CDATA[select * from MyEvent.std:unique(price).std:unique(quantity)]]></programlisting>
+				<programlisting><![CDATA[select * from MyEvent#unique(price)#unique(quantity)]]></programlisting>
 
 				<para>
 				   By default Esper applies intersection as described in <xref linkend="epl-from-clause-view-multidatawindow"/>. 
@@ -2376,7 +2376,7 @@ config.getEngineDefaults().getExpression().setDivisionByZeroReturnsNull(true);]]
 					 Here is a sample statement that utilitzes a sub-select against the same-events:
 				</para>
 	
-				<programlisting><![CDATA[select * from MyEvent where prop not in (select prop from MyEvent.std:unique(otherProp))]]></programlisting>
+				<programlisting><![CDATA[select * from MyEvent where prop not in (select prop from MyEvent#unique(otherProp))]]></programlisting>
 
 				<para>
 					 By default the subselect data window updates first before the <literal>where</literal> clause is evaluated, thereby above statement never returns results.

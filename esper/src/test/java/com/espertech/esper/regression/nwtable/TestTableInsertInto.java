@@ -59,7 +59,7 @@ public class TestTableInsertInto extends TestCase {
 
     public void testNamedWindowMergeInsertIntoTable() {
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL("create table MyTable(pkey string)");
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean as sb merge MyWindow when not matched " +
                 "then insert into MyTable select sb.theString as pkey");
 
@@ -104,7 +104,7 @@ public class TestTableInsertInto extends TestCase {
     }
 
     public void testInsertIntoFromNamedWindow() {
-        epService.getEPAdministrator().createEPL("create window MyWindow.std:unique(theString) as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#unique(theString) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL("create table MyTable(pkey0 string primary key, pkey1 int primary key)");
         epService.getEPAdministrator().createEPL("on SupportBean_S1 insert into MyTable select theString as pkey0, intPrimitive as pkey1 from MyWindow");

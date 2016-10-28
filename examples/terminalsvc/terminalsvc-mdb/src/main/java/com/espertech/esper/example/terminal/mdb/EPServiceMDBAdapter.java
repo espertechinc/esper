@@ -52,7 +52,7 @@ public class EPServiceMDBAdapter
 
         stmt = "insert into CountPerType " +
                 "select type, count(*) as countPerType " +
-                "from BaseTerminalEvent.win:time(10 min) " +
+                "from BaseTerminalEvent#time(10 min) " +
                 "group by type " +
                 "output all every 1 minutes";
         statement = epService.getEPAdministrator().createEPL(stmt);

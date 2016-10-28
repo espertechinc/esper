@@ -851,7 +851,7 @@ from LocationReport]]></programlisting>
 				The following example uses a subquery to retrieve all zones for each location report item where the location falls within the rectangle of the zone. Please see a description of example events and functions above.
 			</para>
 			<programlisting><![CDATA[select assetId,
-  (select * from Zone.std:unique(name)).where(z => inrect(z.rectangle, location)) as zones
+  (select * from Zone#unique(name)).where(z => inrect(z.rectangle, location)) as zones
 from Item]]></programlisting>
 
 			<para>
@@ -862,7 +862,7 @@ from Item]]></programlisting>
 				This sample EPL declares the same query as above in an expression declaration:
 			</para>
 			<programlisting><![CDATA[expression myquery {itm =>
-  (select * from Zone.std:unique(name)).where(z => inrect(z.rectangle, itm.location))
+  (select * from Zone#unique(name)).where(z => inrect(z.rectangle, itm.location))
 }
 select assetId, myquery(item) as subq, 
     myquery(item).where(z => z.zone = 'Z01') as assetItem
@@ -879,13 +879,13 @@ from Item as item]]></programlisting>
 			<para>
 				The next example selects all names of zones and orders the names returning an order collection of string names every 30 seconds:
 			</para>
-			<programlisting><![CDATA[select (select name from Zone.std:unique(name)).orderBy() as orderedZones
+			<programlisting><![CDATA[select (select name from Zone#unique(name)).orderBy() as orderedZones
 from pattern[every timer:interval(30)]]]></programlisting>
 
 			<para>
 			  The next example utilizes a subquery that counts zone events per name and finds those that have a count greater then 1:
 			</para>			
-			<programlisting><![CDATA[select (select name, count(*) as cnt from Zone.win:keepall() group by name)
+			<programlisting><![CDATA[select (select name, count(*) as cnt from Zone#keepall() group by name)
   .where(v => cnt > 1) from LocationReport]]]></programlisting>
 
 			<para>
@@ -899,7 +899,7 @@ from pattern[every timer:interval(30)]]]></programlisting>
 			<programlisting><![CDATA[create schema SettlementEvent (symbol string);]]></programlisting>
 			<programlisting><![CDATA[create schema PriceEvent (symbol string, price double);]]></programlisting>
 			<programlisting><![CDATA[create schema OrderEvent (orderId string, pricedata PriceEvent);]]></programlisting>
-			<programlisting><![CDATA[select (select pricedata from OrderEvent.std:unique(orderId))
+			<programlisting><![CDATA[select (select pricedata from OrderEvent#unique(orderId))
   .anyOf(v => v.symbol = 'GE') as has_ge from SettlementEvent(symbol = 'GE')]]></programlisting>
 
 			<para>
@@ -931,7 +931,7 @@ from pattern[every timer:interval(30)]]]></programlisting>
 			<para>
 				The following example first declares a named window to hold the last zone event per zone name:
 			</para>
-			<programlisting><![CDATA[create window ZoneWindow.std:unique(name) as Zone]]></programlisting>
+			<programlisting><![CDATA[create window ZoneWindow#unique(name) as Zone]]></programlisting>
 
 			<para>
 				Then we create a statement to insert zone events that arrive to the named window:
@@ -1038,19 +1038,19 @@ from LocationReport]]></programlisting>
 				Sample query:
 			</para>
 			<programlisting><![CDATA[select window(*).where(p => distance(0, 0, p.location.x, p.location.y) < 20) as centeritems
-from Item(type='P').win:time(10) group by assetId]]></programlisting>
+from Item(type='P')#time(10) group by assetId]]></programlisting>
 			
 			<para>
 				The next sample query instead selects the asset id property of all events and returns an ordered collection:
 			</para>
 			<programlisting><![CDATA[select window(assetId).orderBy() as orderedAssetIds
-from Item.win:time(10) group by assetId]]></programlisting>
+from Item#time(10) group by assetId]]></programlisting>
 
 			<para>
 				The following example outputs the 5 highest prices per symbol among the last 10 seconds of stock ticks:
 			</para>
 			<programlisting><![CDATA[select sorted(price desc).take(5) as highest5PricesPerSymbol
-from StockTick.win:time(10) group by symbol]]></programlisting>
+from StockTick#time(10) group by symbol]]></programlisting>
 
 		</sect2>
 
@@ -1075,13 +1075,13 @@ from StockTick.win:time(10) group by symbol]]></programlisting>
 			</para>
 			<programlisting><![CDATA[select prevwindow(items)
     .where(p => distance(0, 0, p.location.x, p.location.y) < 20) as centeritems
-from Item(type='P').win:time(10) as items]]></programlisting>
+from Item(type='P')#time(10) as items]]></programlisting>
 
 			<para>
 				This sample query demonstrates the use of the <literal>prevwindow</literal> function to return a collection of scalar values (collection of asset id) as input to <literal>orderby</literal>:
 			</para>
 			<programlisting><![CDATA[select prevwindow(assetId).orderBy() as orderedAssetIds
-from Item.win:time(10) as items]]></programlisting>
+from Item#time(10) as items]]></programlisting>
 		</sect2>
                 
 		<sect2 xml:id="enumeration-ds-udf">
@@ -1332,7 +1332,7 @@ select lostLuggage(lr) as val1, nearestOwner(lr) as val2 from LocationReport lr]
 			<programlisting>// Initialization value is zero.
 // Aggregate by adding up the price.
 select window(*).aggregate(0, (result, order) => result + order.price) as totalPrice
-from OrderEvent.win:time(10)</programlisting>
+from OrderEvent#time(10)</programlisting>
 
 			<para>
 				In the query above, the initialization value is zero, <literal>result</literal> is used for the last aggregated value and <literal>order</literal> denotes the element that the expression adds the value of the price property.
@@ -1527,7 +1527,7 @@ from LocationReport</programlisting>
 				The following statement compares the items of the last location report against all items in the previous 10 location reports, and reports for each combination only those items in the current item report that are not also in the location report compared to:
 			</para>
 			<programlisting>select za.items.except(zb.items) as itemsCompared 
-from LocationReport as za unidirectional, LocationReport.win:length(10) as zb</programlisting>
+from LocationReport as za unidirectional, LocationReport#length(10) as zb</programlisting>
 			
 			<para>
 				If the input is null the method returns null. For scalar values and objects equals-semantics apply.
@@ -1621,7 +1621,7 @@ from LocationReport</programlisting>
 				The following statement compares the items of the last location report against all items in the previous 10 location reports, and reports for each combination all items in the current item report that also occur in the other location report:
 			</para>
 			<programlisting>select za.items.intersect(zb.items) as itemsCompared 
-from LocationReport as za unidirectional, LocationReport.win:length(10) as zb</programlisting>
+from LocationReport as za unidirectional, LocationReport#length(10) as zb</programlisting>
 			
 			<para>
 				If the input is null the method returns null. For scalar values and objects equals-semantics apply.

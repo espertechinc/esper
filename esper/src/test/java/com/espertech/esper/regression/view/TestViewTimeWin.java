@@ -49,7 +49,7 @@ public class TestViewTimeWin extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String sumTimeExpr = "select symbol, volume, sum(price) as mySum " +
-                             "from " + SupportMarketDataBean.class.getName() + ".win:time(30)";
+                             "from " + SupportMarketDataBean.class.getName() + "#time(30)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(sumTimeExpr);
         selectTestView.addListener(testListener);
@@ -62,7 +62,7 @@ public class TestViewTimeWin extends TestCase
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String sumTimeUniExpr = "select symbol, volume, sum(price) as mySum " +
                              "from " + SupportMarketDataBean.class.getName() +
-                             ".win:time(30) group by symbol";
+                             "#time(30) group by symbol";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(sumTimeUniExpr);
         selectTestView.addListener(testListener);
@@ -75,7 +75,7 @@ public class TestViewTimeWin extends TestCase
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String sumTimeUniExpr = "select symbol, volume, sum(price) as mySum " +
                              "from " + SupportMarketDataBean.class.getName() +
-                             "(symbol = 'IBM').win:time(30)";
+                             "(symbol = 'IBM')#time(30)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(sumTimeUniExpr);
         selectTestView.addListener(testListener);

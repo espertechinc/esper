@@ -58,7 +58,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         epService.getEPAdministrator().createEPL(eplContext);
 
         String[] fieldsGrouped = "theString,intPrimitive,col1".split(",");
-        String eplGroupedAccess = "@Name('S2') context SegmentedByString select theString,intPrimitive,window(longPrimitive) as col1 from SupportBean.win:keepall() sb group by intPrimitive";
+        String eplGroupedAccess = "@Name('S2') context SegmentedByString select theString,intPrimitive,window(longPrimitive) as col1 from SupportBean#keepall() sb group by intPrimitive";
         epService.getEPAdministrator().createEPL(eplGroupedAccess);
         epService.getEPAdministrator().getStatement("S2").addListener(listener);
 
@@ -80,7 +80,7 @@ public class TestContextPartitionedAggregate extends TestCase {
 
         String[] fields = new String[] {"theString", "intPrimitive", "val0"};
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
-                "select theString, intPrimitive, (select count(*) from SupportBean_S0.win:keepall() as s0 where sb.intPrimitive = s0.id) as val0 " +
+                "select theString, intPrimitive, (select count(*) from SupportBean_S0#keepall() as s0 where sb.intPrimitive = s0.id) as val0 " +
                 "from SupportBean as sb");
         stmtOne.addListener(listener);
 
@@ -144,7 +144,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
         String[] fieldsOne = "intPrimitive,count(*)".split(",");
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString select intPrimitive, count(*) from SupportBean.win:length_batch(2) group by intPrimitive order by intPrimitive asc");
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString select intPrimitive, count(*) from SupportBean#length_batch(2) group by intPrimitive order by intPrimitive asc");
         stmtOne.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
@@ -174,7 +174,7 @@ public class TestContextPartitionedAggregate extends TestCase {
 
         // add "string" : add context property
         String[] fieldsTwo = "theString,intPrimitive,count(*)".split(",");
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("@Name('B') context SegmentedByString select theString, intPrimitive, count(*) from SupportBean.win:length_batch(2) group by intPrimitive order by theString, intPrimitive asc");
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("@Name('B') context SegmentedByString select theString, intPrimitive, count(*) from SupportBean#length_batch(2) group by intPrimitive order by theString, intPrimitive asc");
         stmtTwo.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
@@ -207,7 +207,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         String[] fieldsOne = "intPrimitive,col1,col2,col3".split(",");
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
                 "select intPrimitive, count(*) as col1, toArray(window(*).selectFrom(v=>v.longPrimitive)) as col2, first().longPrimitive as col3 " +
-                "from SupportBean.win:keepall() as sb " +
+                "from SupportBean#keepall() as sb " +
                 "group by intPrimitive order by intPrimitive asc");
         stmtOne.addListener(listener);
 
@@ -257,7 +257,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         String[] fieldsTwo = "col1,col2".split(",");
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
                 "select sum(intPrimitive) as col1, toArray(window(*).selectFrom(v=>v.intPrimitive)) as col2 " +
-                "from SupportBean.win:keepall()");
+                "from SupportBean#keepall()");
         stmtTwo.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 8));
@@ -278,7 +278,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         String[] fieldsThree = "col1".split(",");
         EPStatement stmtThree = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
                 "select toArray(window(*).selectFrom(v=>v.intPrimitive)) as col1 " +
-                "from SupportBean.win:keepall()");
+                "from SupportBean#keepall()");
         stmtThree.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 8));
@@ -318,7 +318,7 @@ public class TestContextPartitionedAggregate extends TestCase {
         String[] fieldsOne = "intPrimitive,col1".split(",");
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("@Name('A') context SegmentedByString " +
                 "select intPrimitive, count(*) as col1 " +
-                "from SupportBean unidirectional, SupportBean_S0.win:keepall() " +
+                "from SupportBean unidirectional, SupportBean_S0#keepall() " +
                 "group by intPrimitive order by intPrimitive asc");
         stmtOne.addListener(listener);
 

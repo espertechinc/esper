@@ -95,7 +95,7 @@ public class TestAudit extends TestCase {
         stmtInput.destroy();
 
         auditLog.info("*** Named Window And Insert-Into: ");
-        EPStatement stmtNW = epService.getEPAdministrator().createEPL("@Name('create') @Audit create window WinOne.win:keepall() as SupportBean");
+        EPStatement stmtNW = epService.getEPAdministrator().createEPL("@Name('create') @Audit create window WinOne#keepall() as SupportBean");
         EPStatement stmtInsertNW = epService.getEPAdministrator().createEPL("@Name('insert') @Audit insert into WinOne select * from SupportBean");
         EPStatement stmtConsumeNW = epService.getEPAdministrator().createEPL("@Name('select') @Audit select * from WinOne");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -110,7 +110,7 @@ public class TestAudit extends TestCase {
 
         auditLog.info("*** Schedule: ");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        EPStatement stmtSchedule = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('schedule') select irstream * from SupportBean.win:time(1 sec)");
+        EPStatement stmtSchedule = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('schedule') select irstream * from SupportBean#time(1 sec)");
         stmtSchedule.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         listener.reset();
@@ -155,19 +155,19 @@ public class TestAudit extends TestCase {
 
         // view
         auditLog.info("*** View: ");
-        EPStatement stmtView = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('view') select intPrimitive from SupportBean.std:lastevent()");
+        EPStatement stmtView = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('view') select intPrimitive from SupportBean#lastevent()");
         stmtView.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 50));
         assertEquals(50, listener.assertOneGetNewAndReset().get("intPrimitive"));
         stmtView.destroy();
 
-        EPStatement stmtGroupedView = epService.getEPAdministrator().createEPL("@Audit Select * From SupportBean.std:groupwin(theString).win:length(2)");
+        EPStatement stmtGroupedView = epService.getEPAdministrator().createEPL("@Audit Select * From SupportBean#groupwin(theString)#length(2)");
         stmtGroupedView.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 50));
         listener.reset();
         stmtGroupedView.destroy();
 
-        EPStatement stmtGroupedWIntersectionView = epService.getEPAdministrator().createEPL("@Audit Select * From SupportBean.std:groupwin(theString).win:length(2).std:unique(intPrimitive)");
+        EPStatement stmtGroupedWIntersectionView = epService.getEPAdministrator().createEPL("@Audit Select * From SupportBean#groupwin(theString)#length(2)#unique(intPrimitive)");
         stmtGroupedWIntersectionView.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 50));
         listener.reset();
@@ -199,7 +199,7 @@ public class TestAudit extends TestCase {
         stmtProp.destroy();
         
         // with aggregation
-        epService.getEPAdministrator().createEPL("@Audit @Name ('create') create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("@Audit @Name ('create') create window MyWindow#keepall() as SupportBean");
         String eplWithAgg = "@Audit @Name('S0') on SupportBean as sel select count(*) from MyWindow as win having count(*)=3 order by win.intPrimitive";
         EPStatement stmtWithAgg = epService.getEPAdministrator().createEPL(eplWithAgg);
         stmtWithAgg.destroy();

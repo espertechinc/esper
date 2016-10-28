@@ -41,9 +41,9 @@ public class TestPerf3StreamCoercion extends TestCase
     public void testPerfCoercion3waySceneOne()
     {
         String stmtText = "select s1.intBoxed as value from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1," +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2," +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3" +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1," +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2," +
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3" +
             " where s1.intBoxed=s2.longBoxed and s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -73,9 +73,9 @@ public class TestPerf3StreamCoercion extends TestCase
     public void testPerfCoercion3waySceneTwo()
     {
         String stmtText = "select s1.intBoxed as value from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1," +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2," +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3" +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1," +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2," +
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3" +
             " where s1.intBoxed=s2.longBoxed and s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -105,9 +105,9 @@ public class TestPerf3StreamCoercion extends TestCase
     public void testPerfCoercion3waySceneThree()
     {
         String stmtText = "select s1.intBoxed as value from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1," +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2," +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3" +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1," +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2," +
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3" +
             " where s1.intBoxed=s2.longBoxed and s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);

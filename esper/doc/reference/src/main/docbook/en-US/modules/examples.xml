@@ -268,7 +268,7 @@
 		</para>
 
 <programlisting><![CDATA[select ID as sensorId, sum(countTags) as numTagsPerSensor
-from AutoIdRFIDExample.win:time(60 seconds)
+from AutoIdRFIDExample#time(60 seconds)
 where Observation[0].Command = 'READ_PALLET_TAGS_ONLY'
 group by ID]]></programlisting>
 
@@ -400,7 +400,7 @@ double askPrice;
 
 <programlisting><![CDATA[insert into TicksPerSecond
 select feed, count(*) as cnt 
-  from MarketDataEvent.win:time_batch(1 second) 
+  from MarketDataEvent#time_batch(1 second) 
  group by feed]]></programlisting>
 		</sect2>
 
@@ -419,7 +419,7 @@ select feed, count(*) as cnt
 			</para>
 
 <programlisting><![CDATA[select feed, avg(cnt) as avgCnt, cnt as feedCnt 
-  from TicksPerSecond.win:time(10 seconds)
+  from TicksPerSecond#time(10 seconds)
  group by feed 
 having cnt < avg(cnt) * 0.75]]></programlisting>
 		</sect2>
@@ -747,7 +747,7 @@ output first every 5 minutes]]></programlisting>
 
 <programlisting><![CDATA[insert into CountPerType
 select type, count(*) as countPerType 
-from BaseTerminalEvent.win:time(10 minutes) 
+from BaseTerminalEvent#time(10 minutes) 
 group by type
 output all every 1 minutes]]></programlisting>
 		</sect2>
@@ -847,7 +847,7 @@ output all every 1 minutes]]></programlisting>
 
 <programlisting><![CDATA[insert into CountZone_G1
 select 1 as groupId, zone, count(*) as cnt
-from LocationReport(assetId in 1, 2, 3).std:unique(assetId)
+from LocationReport(assetId in 1, 2, 3)#unique(assetId)
 group by zone
 
 select Part.zone from pattern [

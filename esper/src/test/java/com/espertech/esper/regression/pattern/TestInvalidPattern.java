@@ -47,7 +47,7 @@ public class TestInvalidPattern extends TestCase
         epService.getEPAdministrator().createEPL("select * from pattern[(not a=SupportBean) -> SupportBean(theString=a.theString)]");
 
         // test invalid subselect
-        epService.getEPAdministrator().createEPL("create window WaitWindow.win:keepall() as (waitTime int)");
+        epService.getEPAdministrator().createEPL("create window WaitWindow#keepall() as (waitTime int)");
         epService.getEPAdministrator().createEPL("insert into WaitWindow select intPrimitive as waitTime from SupportBean");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 100));
 

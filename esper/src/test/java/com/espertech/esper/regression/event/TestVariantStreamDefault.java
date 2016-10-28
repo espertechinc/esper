@@ -54,7 +54,7 @@ public class TestVariantStreamDefault extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariantStream("AllEvents", variant);
 
         epService.getEPAdministrator().createEPL("insert into AllEvents select * from SupportBean");
-        epService.getEPAdministrator().createEPL("create window MainEventWindow.win:length(10000) as AllEvents");
+        epService.getEPAdministrator().createEPL("create window MainEventWindow#length(10000) as AllEvents");
         epService.getEPAdministrator().createEPL("insert into MainEventWindow select " + this.getClass().getSimpleName() + ".preProcessEvent(event) from AllEvents as event");
 
 		EPStatement statement = epService.getEPAdministrator().createEPL("select * from MainEventWindow where theString = 'E'");
@@ -227,7 +227,7 @@ public class TestVariantStreamDefault extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariantStream("MyVariantStream", variant);
 
         // test named window
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyVariantWindow.std:unique(theString) as select * from MyVariantStream");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyVariantWindow#unique(theString) as select * from MyVariantStream");
         stmt.addListener(listenerOne);
         epService.getEPAdministrator().createEPL("insert into MyVariantWindow select * from MyVariantStream");
         epService.getEPAdministrator().createEPL("insert into MyVariantStream select * from SupportBeanVariantStream");
@@ -278,7 +278,7 @@ public class TestVariantStreamDefault extends TestCase
 
         // test subquery
         stmt.destroy();
-        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean_A as a where exists(select * from MyVariantStream.std:lastevent() as b where b.theString=a.id)");
+        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean_A as a where exists(select * from MyVariantStream#lastevent() as b where b.theString=a.id)");
         stmt.addListener(listenerOne);
         events = new Object[] {new SupportBean("E1", -1), new SupportBeanVariantStream("E2"), new SupportBean_A("E2")};
 

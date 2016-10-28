@@ -21,7 +21,7 @@ public class LRMovingZoneStmt
     {
         String textOne = "insert into CountZone " +
                          "select zone, count(*) as cnt " +
-                         "from LocationReport.std:unique(assetId) " +
+                         "from LocationReport#unique(assetId) " +
                          "where assetId in ('A1', 'A2', 'A3') " +
                          "group by zone";
 

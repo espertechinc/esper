@@ -46,7 +46,7 @@ public class TestViewExpressionBatch extends TestCase
 
         // try with include-trigger-event
         String[] fields = new String[] {"theString"};
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, false)");
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, false)");
         stmtOne.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -71,7 +71,7 @@ public class TestViewExpressionBatch extends TestCase
         stmtOne.destroy();
 
         // try with include-trigger-event
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, true)");
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, true)");
         stmtTwo.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -95,7 +95,7 @@ public class TestViewExpressionBatch extends TestCase
     public void testLengthBatch()
     {
         String[] fields = new String[] {"theString"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(current_count >= 3, true)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(current_count >= 3, true)");
         stmt.addListener(listener);
         
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -129,7 +129,7 @@ public class TestViewExpressionBatch extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
         String[] fields = new String[] {"theString"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(newest_timestamp - oldest_timestamp > 2000)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(newest_timestamp - oldest_timestamp > 2000)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
@@ -162,7 +162,7 @@ public class TestViewExpressionBatch extends TestCase
         epService.getEPAdministrator().createEPL("create variable boolean POST = false");
 
         String[] fields = new String[] {"theString"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(POST)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(POST)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
@@ -201,7 +201,7 @@ public class TestViewExpressionBatch extends TestCase
         epService.getEPAdministrator().createEPL("create variable long SIZE = 1000");
 
         String[] fields = new String[] {"theString"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean.win:expr_batch(newest_timestamp - oldest_timestamp > SIZE)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from SupportBean#expr_batch(newest_timestamp - oldest_timestamp > SIZE)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
@@ -242,7 +242,7 @@ public class TestViewExpressionBatch extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();} // not instrumented
 
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("udf", TestViewExpressionWindow.LocalUDF.class.getName(), "evaluateExpiryUDF");
-        epService.getEPAdministrator().createEPL("select * from SupportBean.win:expr_batch(udf(theString, view_reference, expired_count))");
+        epService.getEPAdministrator().createEPL("select * from SupportBean#expr_batch(udf(theString, view_reference, expired_count))");
 
         TestViewExpressionWindow.LocalUDF.setResult(true);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -260,11 +260,11 @@ public class TestViewExpressionBatch extends TestCase
     }
 
     public void testInvalid() {
-        tryInvalid("select * from SupportBean.win:expr_batch(1)",
-                   "Error starting statement: Error attaching view to event stream: Invalid return value for expiry expression, expected a boolean return value but received Integer [select * from SupportBean.win:expr_batch(1)]");
+        tryInvalid("select * from SupportBean#expr_batch(1)",
+                   "Error starting statement: Error attaching view to event stream: Invalid return value for expiry expression, expected a boolean return value but received Integer [select * from SupportBean#expr_batch(1)]");
 
-        tryInvalid("select * from SupportBean.win:expr_batch((select * from SupportBean.std:lastevent()))",
-                   "Error starting statement: Error attaching view to event stream: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean.win:expr_batch((select * from SupportBean.std:lastevent()))]");
+        tryInvalid("select * from SupportBean#expr_batch((select * from SupportBean#lastevent()))",
+                   "Error starting statement: Error attaching view to event stream: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean#expr_batch((select * from SupportBean#lastevent()))]");
     }
 
     public void tryInvalid(String epl, String message) {
@@ -281,7 +281,7 @@ public class TestViewExpressionBatch extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
         
         String[] fields = new String[] {"theString"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window NW.win:expr_batch(current_count > 3) as SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window NW#expr_batch(current_count > 3) as SupportBean");
         stmt.addListener(listener);
 
         epService.getEPAdministrator().createEPL("insert into NW select * from SupportBean");
@@ -304,7 +304,7 @@ public class TestViewExpressionBatch extends TestCase
 
     public void testPrev() {
         String[] fields = new String[] {"val0"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select prev(1, theString) as val0 from SupportBean.win:expr_batch(current_count > 2)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select prev(1, theString) as val0 from SupportBean#expr_batch(current_count > 2)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -317,7 +317,7 @@ public class TestViewExpressionBatch extends TestCase
 
     public void testEventPropBatch() {
         String[] fields = new String[] {"val0"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString as val0 from SupportBean.win:expr_batch(intPrimitive > 0)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream theString as val0 from SupportBean#expr_batch(intPrimitive > 0)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -337,7 +337,7 @@ public class TestViewExpressionBatch extends TestCase
         String[] fields = new String[] {"theString"};
 
         // Test un-grouped
-        EPStatement stmtUngrouped = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.win:expr_batch(sum(intPrimitive) > 100)");
+        EPStatement stmtUngrouped = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#expr_batch(sum(intPrimitive) > 100)");
         stmtUngrouped.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -359,7 +359,7 @@ public class TestViewExpressionBatch extends TestCase
         stmtUngrouped.destroy();
 
         // Test grouped
-        EPStatement stmtGrouped = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean.std:groupwin(intPrimitive).win:expr_batch(sum(longPrimitive) > 100)");
+        EPStatement stmtGrouped = epService.getEPAdministrator().createEPL("select irstream theString from SupportBean#groupwin(intPrimitive)#expr_batch(sum(longPrimitive) > 100)");
         stmtGrouped.addListener(listener);
 
         sendEvent("E1", 1, 10);
@@ -391,7 +391,7 @@ public class TestViewExpressionBatch extends TestCase
 
         // Test on-delete
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window NW.win:expr_batch(sum(intPrimitive) >= 10) as SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window NW#expr_batch(sum(intPrimitive) >= 10) as SupportBean");
         stmt.addListener(listener);
         epService.getEPAdministrator().createEPL("insert into NW select * from SupportBean");
 

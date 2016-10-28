@@ -47,8 +47,8 @@ public class TestOrderByRowForAll extends TestCase
 	{
         String[] fields = new String[] {"sumPrice"};
         String statementString = "select sum(price) as sumPrice from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "order by price";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementString);

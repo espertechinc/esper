@@ -57,11 +57,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 ";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -79,11 +79,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S1 + ".win:length(1000) as s1 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 ";
+                                  EVENT_S1 + "#length(1000) as s1 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -101,11 +101,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S1 + ".win:length(1000) as s1 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 ";
+                                  EVENT_S1 + "#length(1000) as s1 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -123,11 +123,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S2 + ".win:length(1000) as s2 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 ";
+                                  EVENT_S2 + "#length(1000) as s2 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -145,11 +145,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S2 + ".win:length(1000) as s2 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 ";
+                                  EVENT_S2 + "#length(1000) as s2 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -167,11 +167,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S3 + ".win:length(1000) as s3 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 ";
+                                  EVENT_S3 + "#length(1000) as s3 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -189,11 +189,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S3 + ".win:length(1000) as s3 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S4 + ".win:length(1000) as s4 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 ";
+                                  EVENT_S3 + "#length(1000) as s3 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S4 + "#length(1000) as s4 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -211,11 +211,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S4 + ".win:length(1000) as s4 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 ";
+                                  EVENT_S4 + "#length(1000) as s4 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -233,11 +233,11 @@ public class Test5StreamOuterJoinCart extends TestCase
          *                  -> s4
          */
         String joinStatement = "select * from " +
-                                  EVENT_S4 + ".win:length(1000) as s4 " +
-            " right outer join " + EVENT_S1 + ".win:length(1000) as s1 on s1.p10 = s4.p40 " +
-            " left outer join " + EVENT_S0 + ".win:length(1000) as s0 on s0.p00 = s1.p10 " +
-            " left outer join " + EVENT_S2 + ".win:length(1000) as s2 on s1.p10 = s2.p20 " +
-            " left outer join " + EVENT_S3 + ".win:length(1000) as s3 on s1.p10 = s3.p30 ";
+                                  EVENT_S4 + "#length(1000) as s4 " +
+            " right outer join " + EVENT_S1 + "#length(1000) as s1 on s1.p10 = s4.p40 " +
+            " left outer join " + EVENT_S0 + "#length(1000) as s0 on s0.p00 = s1.p10 " +
+            " left outer join " + EVENT_S2 + "#length(1000) as s2 on s1.p10 = s2.p20 " +
+            " left outer join " + EVENT_S3 + "#length(1000) as s3 on s1.p10 = s3.p30 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);

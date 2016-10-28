@@ -48,7 +48,7 @@ public class TestGroupByEventPerGroup extends TestCase
 
     public void testCriteriaByDotMethod() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        String epl = "select sb.getTheString() as c0, sum(intPrimitive) as c1 from SupportBean.win:length_batch(2) as sb group by sb.getTheString()";
+        String epl = "select sb.getTheString() as c0, sum(intPrimitive) as c1 from SupportBean#length_batch(2) as sb group by sb.getTheString()";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -148,7 +148,7 @@ public class TestGroupByEventPerGroup extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_B", SupportBean_B.class);
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A a delete from MyWindow w where w.theString = a.id");
         epService.getEPAdministrator().createEPL("on SupportBean_B delete from MyWindow");
@@ -336,7 +336,7 @@ public class TestGroupByEventPerGroup extends TestCase
         // test for ESPER-185
         String fields[] = "mycount".split(",");
         String viewExpr = "select irstream count(price) as mycount " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by price";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -366,7 +366,7 @@ public class TestGroupByEventPerGroup extends TestCase
         // test for ESPER-185
         String fields[] = "mycount".split(",");
         String viewExpr = "select irstream count(price) as mycount " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol, price";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -402,7 +402,7 @@ public class TestGroupByEventPerGroup extends TestCase
         // test for ESPER-185
         String fields[] = "symbol,price,mycount".split(",");
         String viewExpr = "select irstream symbol,price,count(price) as mycount " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol, price order by symbol asc";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -464,7 +464,7 @@ public class TestGroupByEventPerGroup extends TestCase
         String viewExpr = "select irstream symbol," +
                                  "sum(price) as mySum," +
                                  "avg(price) as myAvg " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol";
 
@@ -479,8 +479,8 @@ public class TestGroupByEventPerGroup extends TestCase
         String viewExpr = "select irstream symbol," +
                                  "sum(price) as mySum," +
                                  "avg(price) as myAvg " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "       and one.theString = two.symbol " +
                           "group by symbol";
@@ -498,12 +498,12 @@ public class TestGroupByEventPerGroup extends TestCase
     public void testUniqueInBatch()
     {
         String stmtOne = "insert into MyStream select symbol, price from " +
-                SupportMarketDataBean.class.getName() + ".win:time_batch(1 sec)";
+                SupportMarketDataBean.class.getName() + "#time_batch(1 sec)";
         epService.getEPAdministrator().createEPL(stmtOne);
         sendTimer(0);
 
         String viewExpr = "select symbol " +
-                          "from MyStream.win:time_batch(1 sec).std:unique(symbol) " +
+                          "from MyStream#time_batch(1 sec)#unique(symbol) " +
                           "group by symbol";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);

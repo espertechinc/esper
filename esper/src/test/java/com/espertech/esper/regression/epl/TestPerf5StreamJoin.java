@@ -41,11 +41,11 @@ public class TestPerf5StreamJoin extends TestCase
     public void testPerfAllProps()
     {
         String statement = "select * from " +
-            SupportBean_S0.class.getName() + ".win:length(100000) as s0," +
-            SupportBean_S1.class.getName() + ".win:length(100000) as s1," +
-            SupportBean_S2.class.getName() + ".win:length(100000) as s2," +
-            SupportBean_S3.class.getName() + ".win:length(100000) as s3," +
-            SupportBean_S4.class.getName() + ".win:length(100000) as s4" +
+            SupportBean_S0.class.getName() + "#length(100000) as s0," +
+            SupportBean_S1.class.getName() + "#length(100000) as s1," +
+            SupportBean_S2.class.getName() + "#length(100000) as s2," +
+            SupportBean_S3.class.getName() + "#length(100000) as s3," +
+            SupportBean_S4.class.getName() + "#length(100000) as s4" +
             " where s0.p00 = s1.p10 " +
                "and s1.p10 = s2.p20 " +
                "and s2.p20 = s3.p30 " +

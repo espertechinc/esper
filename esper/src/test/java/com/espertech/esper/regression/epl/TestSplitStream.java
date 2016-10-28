@@ -88,7 +88,7 @@ public class TestSplitStream extends TestCase
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTwo(col2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTrigger(trigger int)");
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window WinTwo.win:keepall() as TypeTwo");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window WinTwo#keepall() as TypeTwo");
 
         String stmtOrigText = "on TypeTrigger " +
                     "insert into OtherStream select 1 " +
@@ -181,8 +181,8 @@ public class TestSplitStream extends TestCase
     public void testSubquery()
     {
         String stmtOrigText = "on SupportBean " +
-                              "insert into AStream select (select p00 from S0.std:lastevent()) as string where intPrimitive=(select id from S0.std:lastevent()) " +
-                              "insert into BStream select (select p01 from S0.std:lastevent()) as string where intPrimitive<>(select id from S0.std:lastevent()) or (select id from S0.std:lastevent()) is null";
+                              "insert into AStream select (select p00 from S0#lastevent()) as string where intPrimitive=(select id from S0#lastevent()) " +
+                              "insert into BStream select (select p01 from S0#lastevent()) as string where intPrimitive<>(select id from S0#lastevent()) or (select id from S0#lastevent()) is null";
         EPStatement stmtOrig = epService.getEPAdministrator().createEPL(stmtOrigText);
         stmtOrig.addListener(listener);
 

@@ -70,7 +70,7 @@ public class TestDatabaseJoinInsertInto extends TestCase
         sb.append("sum(case when elapsed < 600000 then 1 else 0 end) as insla, ");
         sb.append("sum(case when elapsed between 600000 and 900000 then 1 else 0 end) as bordersla, ");
         sb.append("sum(case when elapsed > 900000 then 1 else 0 end) as outsla ");
-        sb.append("from ReservationEvents.win:time_batch(10 sec) ");
+        sb.append("from ReservationEvents#time_batch(10 sec) ");
         sb.append("group by cid, type, series order by series asc");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(sb.toString());

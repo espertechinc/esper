@@ -375,7 +375,7 @@ public class TestVariables extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("var1", String.class, "a");
         epService.getEPAdministrator().getConfiguration().addVariable("var2", String.class, "b");
 
-        String stmtTextSet = "on " + SupportBean_S0.class.getName() + " as s0str set var1 = (select p10 from S1.std:lastevent()), var2 = (select p11||s0str.p01 from S1.std:lastevent())";
+        String stmtTextSet = "on " + SupportBean_S0.class.getName() + " as s0str set var1 = (select p10 from S1#lastevent()), var2 = (select p11||s0str.p01 from S1#lastevent())";
         EPStatement stmtSet = epService.getEPAdministrator().createEPL(stmtTextSet);
         stmtSet.addListener(listenerSet);
         String[] fieldsVar = new String[] {"var1", "var2"};
@@ -828,7 +828,7 @@ public class TestVariables extends TestCase
         String[] fieldsVar = new String[] {"var1", "var2", "var3"};
         EPAssertionUtil.assertPropsPerRow(stmtSet.iterator(), fieldsVar, new Object[][]{{null, null, null}});
 
-        String stmtText = "select irstream var1, var2, var3, id from " + SupportBean_A.class.getName() + ".win:length(2)";
+        String stmtText = "select irstream var1, var2, var3, id from " + SupportBean_A.class.getName() + "#length(2)";
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(stmtText);
         stmtSelect.addListener(listener);
         String[] fieldsSelect = new String[] {"var1", "var2", "var3", "id"};

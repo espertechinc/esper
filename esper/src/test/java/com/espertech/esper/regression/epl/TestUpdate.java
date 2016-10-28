@@ -115,8 +115,8 @@ public class TestUpdate extends TestCase
                    "Error starting statement: Property 'abc' is not available for write access [update istream MyXmlEvent set abc=1]");
         tryInvalid("update istream SupportBeanErrorTestingOne set value='1'",
                    "Error starting statement: The update-clause requires the underlying event representation to support copy (via Serializable by default) [update istream SupportBeanErrorTestingOne set value='1']");
-        tryInvalid("update istream SupportBean set longPrimitive=(select p0 from MyMapType.std:lastevent() where theString=p3)",
-                   "Error starting statement: Failed to plan subquery number 1 querying MyMapType: Failed to validate filter expression 'theString=p3': Property named 'theString' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [update istream SupportBean set longPrimitive=(select p0 from MyMapType.std:lastevent() where theString=p3)]");
+        tryInvalid("update istream SupportBean set longPrimitive=(select p0 from MyMapType#lastevent() where theString=p3)",
+                   "Error starting statement: Failed to plan subquery number 1 querying MyMapType: Failed to validate filter expression 'theString=p3': Property named 'theString' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [update istream SupportBean set longPrimitive=(select p0 from MyMapType#lastevent() where theString=p3)]");
         tryInvalid("update istream XYZ.GYH set a=1",
                    "Failed to resolve event type: Event type or class named 'XYZ.GYH' was not found [update istream XYZ.GYH set a=1]");
         tryInvalid("update istream SupportBean set 1",
@@ -387,7 +387,7 @@ public class TestUpdate extends TestCase
         SupportUpdateListener listenerInsertOnSelect = new SupportUpdateListener();
         SupportUpdateListener listenerWindowSelect = new SupportUpdateListener();
 
-        epService.getEPAdministrator().createEPL("create window AWindow.win:keepall() select * from MyMapType").addListener(listenerWindow);
+        epService.getEPAdministrator().createEPL("create window AWindow#keepall() select * from MyMapType").addListener(listenerWindow);
         epService.getEPAdministrator().createEPL("insert into AWindow select * from MyMapType").addListener(listenerInsert);
         epService.getEPAdministrator().createEPL("select * from AWindow").addListener(listenerWindowSelect);
         epService.getEPAdministrator().createEPL("update istream AWindow set p1='newvalue'");
@@ -592,7 +592,7 @@ public class TestUpdate extends TestCase
 
         String[] fields = "theString,intPrimitive".split(",");
         epService.getEPAdministrator().createEPL("insert into ABCStream select * from SupportBean");
-        EPStatement stmtUpd = epService.getEPAdministrator().createEPL("update istream ABCStream set theString = (select s0 from MyMapTypeSelect.std:lastevent()) where intPrimitive in (select w0 from MyMapTypeWhere.win:keepall())");
+        EPStatement stmtUpd = epService.getEPAdministrator().createEPL("update istream ABCStream set theString = (select s0 from MyMapTypeSelect#lastevent()) where intPrimitive in (select w0 from MyMapTypeWhere#keepall())");
         epService.getEPAdministrator().createEPL("select * from ABCStream").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
@@ -615,7 +615,7 @@ public class TestUpdate extends TestCase
 
         // test correlated subquery
         stmtUpd.destroy();
-        stmtUpd = epService.getEPAdministrator().createEPL("update istream ABCStream set intPrimitive = (select s1 from MyMapTypeSelect.win:keepall() where s0 = ABCStream.theString)");
+        stmtUpd = epService.getEPAdministrator().createEPL("update istream ABCStream set intPrimitive = (select s1 from MyMapTypeSelect#keepall() where s0 = ABCStream.theString)");
 
         // note that this will log an error (int primitive set to null), which is good, and leave the value unchanged
         epService.getEPRuntime().sendEvent(new SupportBean("E6", 8));
@@ -627,7 +627,7 @@ public class TestUpdate extends TestCase
 
         // test correlated with as-clause
         stmtUpd.destroy();
-        epService.getEPAdministrator().createEPL("update istream ABCStream as mystream set intPrimitive = (select s1 from MyMapTypeSelect.win:keepall() where s0 = mystream.theString)");
+        epService.getEPAdministrator().createEPL("update istream ABCStream as mystream set intPrimitive = (select s1 from MyMapTypeSelect#keepall() where s0 = mystream.theString)");
 
         // note that this will log an error (int primitive set to null), which is good, and leave the value unchanged
         epService.getEPRuntime().sendEvent(new SupportBean("E8", 111));

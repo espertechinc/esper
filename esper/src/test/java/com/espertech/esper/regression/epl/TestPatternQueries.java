@@ -162,7 +162,7 @@ public class TestPatternQueries extends TestCase
     {
         String stmtText = "select irstream a.id as idA, b.id as idB, " +
                 "a.p00 as p00A, b.p00 as p00B from pattern [every a=" + SupportBean_S0.class.getName() +
-                " -> every b=" + SupportBean_S0.class.getName() + "(p00=a.p00)].win:time(1)";
+                " -> every b=" + SupportBean_S0.class.getName() + "(p00=a.p00)]#time(1)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
 
         statement.addListener(updateListener);

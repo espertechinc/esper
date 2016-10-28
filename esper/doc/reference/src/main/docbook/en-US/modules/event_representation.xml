@@ -538,8 +538,7 @@ every NewEmployeeEvent(subordinate[0].address('home').streetName='Water Street')
 				</para>
 
 				<programlisting><![CDATA[select firstName, address('work'), subordinate[0].name, subordinate[1].name
-from NewEmployeeEvent
-where address('work').streetName = 'Park Ave']]></programlisting>
+from NewEmployeeEvent(address('work').streetName = 'Park Ave')]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="event-properties-names">
@@ -765,7 +764,7 @@ epService.getEPAdministrator().getConfiguration().
 			<para>
 				The <literal>CarLocUpdateEvent</literal> can now be used in a statement:
 			</para>
-			<programlisting>select carId from CarLocUpdateEvent.win:time(1 min) where direction = 1</programlisting> 
+			<programlisting>select carId from CarLocUpdateEvent(direction = 1)#time(1 min)</programlisting> 
 			
 			<programlisting><![CDATA[// Create a CarLocUpdateEvent event and send it into the engine for processing
 Map<String, Object> event = new HashMap<String, Object>();
@@ -787,7 +786,7 @@ epRuntime.sendEvent(event, "TxnEvent");]]></programlisting>
 				An example statement could look as follows.
 			</para>
 			<programlisting>select account.id, account.rate * txn.amount 
-from TxnEvent.win:time(60 sec) 
+from TxnEvent#time(60 sec) 
 group by account.id</programlisting> 		
 		</sect2>
 
@@ -1046,7 +1045,7 @@ epService.getEPAdministrator().getConfiguration().
 			<para>
 				The <literal>CarLocUpdateEvent</literal> can now be used in a statement:
 			</para>
-			<programlisting>select carId from CarLocUpdateEvent.win:time(1 min) where direction = 1</programlisting> 
+			<programlisting>select carId from CarLocUpdateEvent(direction = 1)#time(1 min)</programlisting> 
 			
 			<programlisting><![CDATA[// Send an event
 Object[] event = {carId, direction};
@@ -1062,7 +1061,7 @@ epRuntime.sendEvent(event, "CarLocUpdateEvent");]]></programlisting>
 				An example statement could look as follows:
 			</para>
 			<programlisting>select account.id, account.rate * txn.amount 
-from TxnEvent.win:time(60 sec) 
+from TxnEvent#time(60 sec) 
 group by account.id</programlisting> 		
 		</sect2>
 

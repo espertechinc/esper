@@ -43,7 +43,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         String epl = "create objectarray schema Event();\n" +
                 "create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
                 "create objectarray schema Incident(name string, event Event);\n" +
-                "@Name('window') create window IncidentWindow.win:keepall() as Incident;\n" +
+                "@Name('window') create window IncidentWindow#keepall() as Incident;\n" +
                 "\n" +
                 "on ChildEvent e\n" +
                 "    merge IncidentWindow w\n" +
@@ -103,7 +103,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
             epService.getEPAdministrator().createEPL("create objectarray schema C as (addprop int) inherits A");
         }
 
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:time(5 days) as C");
+        epService.getEPAdministrator().createEPL("create window MyWindow#time(5 days) as C");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from MyWindow");
         stmt.addListener(listener);

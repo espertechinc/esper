@@ -200,8 +200,8 @@ public class TestContainedEventSplitExpr extends TestCase
         }
 
         // invalid subquery
-        tryInvalid("select * from SentenceEvent[splitSentence((select * from SupportBean.win:keepall()))@type(WordEvent)]",
-                   "Invalid contained-event expression 'splitSentence(subselect_0)': Aggregation, sub-select, previous or prior functions are not supported in this context [select * from SentenceEvent[splitSentence((select * from SupportBean.win:keepall()))@type(WordEvent)]]");
+        tryInvalid("select * from SentenceEvent[splitSentence((select * from SupportBean#keepall()))@type(WordEvent)]",
+                   "Invalid contained-event expression 'splitSentence(subselect_0)': Aggregation, sub-select, previous or prior functions are not supported in this context [select * from SentenceEvent[splitSentence((select * from SupportBean#keepall()))@type(WordEvent)]]");
 
         epService.initialize();
     }

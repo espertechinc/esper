@@ -874,7 +874,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * provided by views can only be combined if any of the retain-keywords is also specified for the stream.
          * <p>
          * If set to true then multiple expiry policies are allowed and the following statement compiles without exception:
-         * "select * from MyEvent.win:time(10).win:time(10)".
+         * "select * from MyEvent#time(10)#time(10)".
          * @return allowMultipleExpiryPolicies indicator whether to allow combining expiry policies provided by views
          */
         public boolean isAllowMultipleExpiryPolicies()
@@ -887,7 +887,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * provided by views and only allow if any of the retain-keywords are also specified for the stream.
          * <p>
          * If set to true then multiple expiry policies are allowed and the following statement compiles without exception:
-         * "select * from MyEvent.win:time(10).win:time(10)".
+         * "select * from MyEvent#time(10)#time(10)".
          * @param allowMultipleExpiryPolicies indicator whether to allow combining expiry policies provided by views
          */
         public void setAllowMultipleExpiryPolicies(boolean allowMultipleExpiryPolicies)

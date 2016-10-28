@@ -44,7 +44,7 @@ public class TestAggregateWithRollupGroupingFuncs extends TestCase
 
     public void testFAFCarEventAndGroupingFunc() {
         epService.getEPAdministrator().getConfiguration().addEventType(CarEvent.class);
-        epService.getEPAdministrator().createEPL("create window CarWindow.win:keepall() as CarEvent");
+        epService.getEPAdministrator().createEPL("create window CarWindow#keepall() as CarEvent");
         epService.getEPAdministrator().createEPL("insert into CarWindow select * from CarEvent");
 
         epService.getEPRuntime().sendEvent(new CarEvent("skoda", "france", 10000));
@@ -128,7 +128,7 @@ public class TestAggregateWithRollupGroupingFuncs extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(CarInfoEvent.class);
         String epl = "select myfunc(" +
                 "  name, place, sum(count), grouping(name), grouping(place), grouping_id(name, place)," +
-                "  (select refId from CarInfoEvent.std:lastevent()), " +
+                "  (select refId from CarInfoEvent#lastevent()), " +
                 "  myExpr(ce)" +
                 "  )" +
                 "from CarEvent ce group by grouping sets((name, place),name, place,())";
@@ -146,7 +146,7 @@ public class TestAggregateWithRollupGroupingFuncs extends TestCase
 
         // test "prev" and "prior"
         String[] fields = "c0,c1,c2,c3".split(",");
-        String eplTwo = "select prev(1, name) as c0, prior(1, name) as c1, name as c2, sum(count) as c3 from CarEvent.win:keepall() ce group by rollup(name)";
+        String eplTwo = "select prev(1, name) as c0, prior(1, name) as c1, name as c2, sum(count) as c3 from CarEvent#keepall() ce group by rollup(name)";
         epService.getEPAdministrator().createEPL(eplTwo).addListener(listener);
 
         epService.getEPRuntime().sendEvent(new CarEvent("skoda", "france", 10));

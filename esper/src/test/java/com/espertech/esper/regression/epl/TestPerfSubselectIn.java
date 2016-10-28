@@ -44,14 +44,14 @@ public class TestPerfSubselectIn extends TestCase
 
     public void testPerformanceInKeywordAsPartOfSubquery()
     {
-        String eplSingleIndex = "select (select p00 from S0.win:keepall() as s0 where s0.p01 in (s1.p10, s1.p11)) as c0 from S1 as s1";
+        String eplSingleIndex = "select (select p00 from S0#keepall() as s0 where s0.p01 in (s1.p10, s1.p11)) as c0 from S1 as s1";
         EPStatement stmtSingleIdx = epService.getEPAdministrator().createEPL(eplSingleIndex);
         stmtSingleIdx.addListener(listener);
 
         runAssertionPerformanceInKeywordAsPartOfSubquery();
         stmtSingleIdx.destroy();
 
-        String eplMultiIdx = "select (select p00 from S0.win:keepall() as s0 where s1.p11 in (s0.p00, s0.p01)) as c0 from S1 as s1";
+        String eplMultiIdx = "select (select p00 from S0#keepall() as s0 where s1.p11 in (s0.p00, s0.p01)) as c0 from S1 as s1";
         EPStatement stmtMultiIdx = epService.getEPAdministrator().createEPL(eplMultiIdx);
         stmtMultiIdx.addListener(listener);
 
@@ -78,7 +78,7 @@ public class TestPerfSubselectIn extends TestCase
     public void testPerformanceWhereClauseCoercion()
     {
         String stmtText = "select intPrimitive from MyEvent(theString='A') as s0 where intPrimitive in (" +
-                            "select longBoxed from MyEvent(theString='B').win:length(10000) where s0.intPrimitive = longBoxed)";
+                            "select longBoxed from MyEvent(theString='B')#length(10000) where s0.intPrimitive = longBoxed)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -111,7 +111,7 @@ public class TestPerfSubselectIn extends TestCase
     public void testPerformanceWhereClause()
     {
         String stmtText = "select id from S0 as s0 where p00 in (" +
-                            "select p10 from S1.win:length(10000) where s0.p00 = p10)";
+                            "select p10 from S1#length(10000) where s0.p00 = p10)";
         tryPerformanceOneCriteria(stmtText);
     }
 

@@ -58,12 +58,12 @@ public class TestExampleVwapFilterSelectJoin extends TestCase {
                 "filter: type=\"quote\"\r\n" +
                 "}\r\n" +
                 "Select(TradeStream) -> VwapTrades {\r\n" +
-                "select: (select ticker, sum(price*volume)/sum(volume) as vwap, min(price) as minprice from TradeStream.std:groupwin(ticker).win:length(4) group by ticker)\r\n" +
+                "select: (select ticker, sum(price*volume)/sum(volume) as vwap, min(price) as minprice from TradeStream#groupwin(ticker)#length(4) group by ticker)\r\n" +
                 "}\r\n" +
                 "Select(VwapTrades as T, QuoteStream as Q) -> BargainIndex {\r\n" +
                 "select: " +
                 "(select case when vwap>askprice then asksize*(Math.exp(vwap-askprice)) else 0.0d end as index " +
-                "from T.std:unique(ticker) as t, Q.std:lastevent() as q " +
+                "from T#unique(ticker) as t, Q#lastevent() as q " +
                 "where t.ticker=q.ticker)\r\n" +
                 "}\r\n" +
                 "DefaultSupportCaptureOp(BargainIndex) {}\r\n";

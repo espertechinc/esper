@@ -72,7 +72,7 @@ public class TestNamedWindowTypes extends TestCase
         EPStatement stmtSchema = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema SchemaOne(col1 int, col2 int)");
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtSchema.getEventType().getUnderlyingType());
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window SchemaWindow.std:lastevent() as (s1 SchemaOne)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window SchemaWindow#lastevent() as (s1 SchemaOne)");
         assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
 
         stmt.addListener(listenerWindow);
@@ -115,7 +115,7 @@ public class TestNamedWindowTypes extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("OuterType", outerType);
 
         // create window
-        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " create window MyWindow.win:keepall() as select one, two from OuterType";
+        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall() as select one, two from OuterType";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreate.getEventType().getUnderlyingType());
         stmtCreate.addListener(listenerWindow);
@@ -146,7 +146,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testNoWildcardWithAs()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select theString as a, longPrimitive as b, longBoxed as c from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, longPrimitive as b, longBoxed as c from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
         EPAssertionUtil.assertEqualsAnyOrder(stmtCreate.getEventType().getPropertyNames(), new String[]{"a", "b", "c"});
@@ -207,7 +207,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testNoWildcardNoAs()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select theString, longPrimitive, longBoxed from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select theString, longPrimitive, longBoxed from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -243,7 +243,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testConstantsAs()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select '' as theString, 0L as longPrimitive, 0L as longBoxed from MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as select '' as theString, 0L as longPrimitive, 0L as longBoxed from MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -275,9 +275,9 @@ public class TestNamedWindowTypes extends TestCase
         runAssertionCreateSchemaModelAfter(EventRepresentationEnum.DEFAULT);
 
         // test model-after for POJO with inheritance
-        epService.getEPAdministrator().createEPL("create window ParentWindow.win:keepall() as select * from " + NWTypesParentClass.class.getName());
+        epService.getEPAdministrator().createEPL("create window ParentWindow#keepall() as select * from " + NWTypesParentClass.class.getName());
         epService.getEPAdministrator().createEPL("insert into ParentWindow select * from " + NWTypesParentClass.class.getName());
-        epService.getEPAdministrator().createEPL("create window ChildWindow.win:keepall() as select * from " + NWTypesChildClass.class.getName());
+        epService.getEPAdministrator().createEPL("create window ChildWindow#keepall() as select * from " + NWTypesChildClass.class.getName());
         epService.getEPAdministrator().createEPL("insert into ChildWindow select * from " + NWTypesChildClass.class.getName());
 
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -292,7 +292,7 @@ public class TestNamedWindowTypes extends TestCase
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventTypeOne (hsi int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventTypeTwo (event EventTypeOne)");
-        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window NamedWindow.std:unique(event.hsi) as EventTypeTwo");
+        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window NamedWindow#unique(event.hsi) as EventTypeTwo");
         epService.getEPAdministrator().createEPL("on EventTypeOne as ev insert into NamedWindow select ev as event");
 
         Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
@@ -313,10 +313,10 @@ public class TestNamedWindowTypes extends TestCase
     public void testCreateTableArray()
     {
         epService.getEPAdministrator().createEPL("create schema SecurityData (name String, roles String[])");
-        epService.getEPAdministrator().createEPL("create window SecurityEvent.win:time(30 sec) (ipAddress string, userId String, secData SecurityData, historySecData SecurityData[])");
+        epService.getEPAdministrator().createEPL("create window SecurityEvent#time(30 sec) (ipAddress string, userId String, secData SecurityData, historySecData SecurityData[])");
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() (myvalue string[])";
+        String stmtTextCreate = "create window MyWindow#keepall() (myvalue string[])";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -332,7 +332,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testCreateTableSyntax()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() (stringValOne varchar, stringValTwo string, intVal int, longVal long)";
+        String stmtTextCreate = "create window MyWindow#keepall() (stringValOne varchar, stringValTwo string, intVal int, longVal long)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -363,11 +363,11 @@ public class TestNamedWindowTypes extends TestCase
         EPAssertionUtil.assertProps(listenerStmtOne.assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 1, 10L});
 
         // create window with two views
-        stmtTextCreate = "create window MyWindowTwo.std:unique(stringValOne).win:keepall() (stringValOne varchar, stringValTwo string, intVal int, longVal long)";
+        stmtTextCreate = "create window MyWindowTwo#unique(stringValOne)#keepall() (stringValOne varchar, stringValTwo string, intVal int, longVal long)";
         stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         //create window with statement object model
-        String text = "create window MyWindowThree.win:keepall() as (a string, b integer, c integer)";
+        String text = "create window MyWindowThree#keepall() as (a string, b integer, c integer)";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(text);
         assertEquals(text, model.toEPL());
         stmtCreate = epService.getEPAdministrator().create(model);
@@ -376,7 +376,7 @@ public class TestNamedWindowTypes extends TestCase
         assertEquals(Integer.class, stmtCreate.getEventType().getPropertyType("c"));
         assertEquals(text, model.toEPL());
 
-        text = "create window MyWindowFour.std:unique(a).std:unique(b) retain-union as (a string, b integer, c integer)";
+        text = "create window MyWindowFour#unique(a)#unique(b) retain-union as (a string, b integer, c integer)";
         model = epService.getEPAdministrator().compileEPL(text);
         stmtCreate = epService.getEPAdministrator().create(model);
         assertEquals(text, model.toEPL());
@@ -385,7 +385,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testWildcardNoFieldsNoAs()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() select * from " + SupportBean_A.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() select * from " + SupportBean_A.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -407,7 +407,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testModelAfterMap()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() select * from MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() select * from MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         assertTrue(stmtCreate.getEventType() instanceof MapEventType);
 
@@ -425,7 +425,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testWildcardInheritance()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select * from " + SupportBeanBase.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select * from " + SupportBeanBase.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -455,7 +455,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testNoSpecificationBean()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as " + SupportBean_A.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as " + SupportBean_A.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -477,7 +477,7 @@ public class TestNamedWindowTypes extends TestCase
     public void testWildcardWithFields()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select *, id as myid from " + SupportBean_A.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select *, id as myid from " + SupportBean_A.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 

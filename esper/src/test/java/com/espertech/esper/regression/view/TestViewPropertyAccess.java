@@ -43,7 +43,7 @@ public class TestViewPropertyAccess extends TestCase
         String viewExpr = "select mapped('keyOne') as a," +
                                  "indexed[1] as b, nested.nestedNested.nestedNestedValue as c, mapProperty, " +
                                  "arrayProperty[0] " +
-                "  from " + SupportBeanComplexProps.class.getName() + ".win:length(3) " +
+                "  from " + SupportBeanComplexProps.class.getName() + "#length(3) " +
                 " where mapped('keyOne') = 'valueOne' and " +
                       " indexed[1] = 2 and " +
                       " nested.nestedNested.nestedNestedValue = 'nestedNestedValue'";

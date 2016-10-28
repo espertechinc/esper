@@ -49,7 +49,7 @@ public class TestIStreamRStreamKeywords extends TestCase
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String stmtText = "select * from " + SupportBean.class.getName() + ".win:length(3)";
+        String stmtText = "select * from " + SupportBean.class.getName() + "#length(3)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(testListener);
 
@@ -72,7 +72,7 @@ public class TestIStreamRStreamKeywords extends TestCase
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String stmtText = "select * from " + SupportBean.class.getName() + ".win:length(3)";
+        String stmtText = "select * from " + SupportBean.class.getName() + "#length(3)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(testListener);
 
@@ -93,10 +93,10 @@ public class TestIStreamRStreamKeywords extends TestCase
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String stmtText = "select rstream * from " + SupportBean.class.getName() + ".win:length(3)";
+        String stmtText = "select rstream * from " + SupportBean.class.getName() + "#length(3)";
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard(StreamSelector.RSTREAM_ONLY));
-        FromClause fromClause = FromClause.create(FilterStream.create(SupportBean.class.getName()).addView(View.create("win", "length", Expressions.constant(3))));
+        FromClause fromClause = FromClause.create(FilterStream.create(SupportBean.class.getName()).addView(View.create("length", Expressions.constant(3))));
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
@@ -122,7 +122,7 @@ public class TestIStreamRStreamKeywords extends TestCase
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String stmtText = "select rstream * from " + SupportBean.class.getName() + ".win:length(3)";
+        String stmtText = "select rstream * from " + SupportBean.class.getName() + "#length(3)";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
@@ -149,7 +149,7 @@ public class TestIStreamRStreamKeywords extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
-                "select rstream * from " + SupportBean.class.getName() + ".win:length(3)");
+                "select rstream * from " + SupportBean.class.getName() + "#length(3)");
         statement.addListener(testListener);
 
         Object theEvent = sendEvent("a");
@@ -172,7 +172,7 @@ public class TestIStreamRStreamKeywords extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
                 "insert into NextStream " +
-                "select rstream s0.theString as theString from " + SupportBean.class.getName() + ".win:length(3) as s0");
+                "select rstream s0.theString as theString from " + SupportBean.class.getName() + "#length(3) as s0");
         statement.addListener(testListener);
 
         statement = epService.getEPAdministrator().createEPL("select * from NextStream");
@@ -203,7 +203,7 @@ public class TestIStreamRStreamKeywords extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
                 "insert rstream into NextStream " +
-                "select rstream s0.theString as theString from " + SupportBean.class.getName() + ".win:length(3) as s0");
+                "select rstream s0.theString as theString from " + SupportBean.class.getName() + "#length(3) as s0");
         statement.addListener(testListener);
 
         statement = epService.getEPAdministrator().createEPL("select * from NextStream");
@@ -233,8 +233,8 @@ public class TestIStreamRStreamKeywords extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
                 "select rstream s1.intPrimitive as aID, s2.intPrimitive as bID " +
-                "from " + SupportBean.class.getName() + "(theString='a').win:length(2) as s1, "
-                        + SupportBean.class.getName() + "(theString='b').win:keepall() as s2" +
+                "from " + SupportBean.class.getName() + "(theString='a')#length(2) as s1, "
+                        + SupportBean.class.getName() + "(theString='b')#keepall() as s2" +
                 " where s1.intPrimitive = s2.intPrimitive");
         statement.addListener(testListener);
 
@@ -259,7 +259,7 @@ public class TestIStreamRStreamKeywords extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
-                "select istream * from " + SupportBean.class.getName() + ".win:length(1)");
+                "select istream * from " + SupportBean.class.getName() + "#length(1)");
         statement.addListener(testListener);
 
         Object theEvent = sendEvent("a");
@@ -279,7 +279,7 @@ public class TestIStreamRStreamKeywords extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
                 "insert rstream into NextStream " +
-                "select istream a.theString as theString from " + SupportBean.class.getName() + ".win:length(1) as a");
+                "select istream a.theString as theString from " + SupportBean.class.getName() + "#length(1) as a");
         statement.addListener(testListener);
 
         statement = epService.getEPAdministrator().createEPL("select * from NextStream");
@@ -304,8 +304,8 @@ public class TestIStreamRStreamKeywords extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().createEPL(
                 "select istream s1.intPrimitive as aID, s2.intPrimitive as bID " +
-                "from " + SupportBean.class.getName() + "(theString='a').win:length(2) as s1, "
-                        + SupportBean.class.getName() + "(theString='b').win:keepall() as s2" +
+                "from " + SupportBean.class.getName() + "(theString='a')#length(2) as s1, "
+                        + SupportBean.class.getName() + "(theString='b')#keepall() as s2" +
                 " where s1.intPrimitive = s2.intPrimitive");
         statement.addListener(testListener);
 

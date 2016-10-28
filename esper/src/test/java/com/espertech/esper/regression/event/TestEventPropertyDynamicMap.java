@@ -59,7 +59,7 @@ public class TestEventPropertyDynamicMap extends TestCase
                                "mapped('keyOne')? as t6, " +
                                "innermap.indexedTwo[0]? as t7, " +
                                "innermap.mappedTwo('keyTwo')? as t8 " +
-                    "from MyLevel2.win:length(5)";
+                    "from MyLevel2#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         statement.addListener(listener);
 
@@ -113,7 +113,7 @@ public class TestEventPropertyDynamicMap extends TestCase
                                "exists(mapped('keyOne')?) as t6, " +
                                "exists(innermap.indexedTwo[0]?) as t7, " +
                                "exists(innermap.mappedTwo('keyTwo')?) as t8 " +
-                    "from MyLevel2.win:length(5)";
+                    "from MyLevel2#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         statement.addListener(listener);
 
@@ -157,7 +157,7 @@ public class TestEventPropertyDynamicMap extends TestCase
         properties.put("innermap", Map.class.getName());
         epService.getEPAdministrator().getConfiguration().addEventType("MyLevel2", properties);
 
-        String statementText = "select innermap.int as t0 from MyLevel2.win:length(5)";
+        String statementText = "select innermap.int as t0 from MyLevel2#length(5)";
         try
         {
             epService.getEPAdministrator().createEPL(statementText);
@@ -168,7 +168,7 @@ public class TestEventPropertyDynamicMap extends TestCase
             // expected
         }
 
-        statementText = "select innermap.int.inner2? as t0 from MyLevel2.win:length(5)";
+        statementText = "select innermap.int.inner2? as t0 from MyLevel2#length(5)";
         try
         {
             epService.getEPAdministrator().createEPL(statementText);
@@ -179,7 +179,7 @@ public class TestEventPropertyDynamicMap extends TestCase
             // expected
         }
 
-        statementText = "select innermap.int.inner2? as t0 from MyLevel2.win:length(5)";
+        statementText = "select innermap.int.inner2? as t0 from MyLevel2#length(5)";
         try
         {
             epService.getEPAdministrator().createEPL(statementText);

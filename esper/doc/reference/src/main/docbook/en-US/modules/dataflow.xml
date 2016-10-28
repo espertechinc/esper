@@ -1054,13 +1054,13 @@ epService.getEPAdministrator().createEPL(epl);]]></programlisting>
   // joining the last event per stream forming pairs
   Select(instream, secondstream) -> outstream {
     select: (select a.tagId, b.tagId 
-        from instream.std:lastevent() as a, secondstream.std:lastevent() as b)
+        from instream#lastevent() as a, secondstream#lastevent() as b)
   }
   
   // A join with multiple input streams and using aliases.
   Select(instream as S1, secondstream as S2) -> outstream {
     select: (select a.tagId, b.tagId 
-        from S1.std:lastevent() as a, S2.std:lastevent() as b)
+        from S1#lastevent() as a, S2#lastevent() as b)
   }]]></programlisting>
 			
 		</sect2>
@@ -1359,12 +1359,12 @@ emitter.submit(new Object[] {"this is some text"});]]></programlisting>
   
   Select(wordstream) -> wordcount { // Sliding time window count per word
     select: (select word, count(*) as wordcount 
-          from wordstream.win:time(30) group by word)
+          from wordstream#time(30) group by word)
   }
 
   Select(wordcount) -> wordranks { // Rank of words
     select: (select window(*) as rankedWords 
-          from wordcount.ext:sort(3, wordcount desc) 
+          from wordcount#sort(3, wordcount desc) 
           output snapshot every 2 seconds)
   }
   
@@ -1389,13 +1389,13 @@ emitter.submit(new Object[] {"this is some text"});]]></programlisting>
   Select(TradeStream) -> VwapTrades {
     select: (select ticker, sum(price * volume) / sum(volume) as vwap, 
           min(price) as minprice
-          from TradeStream.std:groupwin(ticker).win:length(4) group by ticker)
+          from TradeStream#groupwin(ticker)#length(4) group by ticker)
   }
   
   Select(VwapTrades as T, QuoteStream as Q) -> BargainIndex {
     select: 
       (select case when vwap > askprice then asksize * (Math.exp(vwap - askprice)) else 0.0d end as index
-      from T.std:unique(ticker) as t, Q.std:lastevent() as q
+      from T#unique(ticker) as t, Q#lastevent() as q
       where t.ticker = q.ticker)
   }
   

@@ -46,7 +46,7 @@ public class TestJoinCoercion extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         String fields[] = "sbs,sbi,sbri".split(",");
-        String epl = "select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean.win:length(10) sb, SupportBeanRange.win:length(10) sbr " +
+        String epl = "select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean#length(10) sb, SupportBeanRange#length(10) sbr " +
                 "where intPrimitive between rangeStartLong and rangeEndLong";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -69,7 +69,7 @@ public class TestJoinCoercion extends TestCase
         assertFalse(listener.isInvoked());
 
         stmt.destroy();
-        epl = "select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean.win:length(10) sb, SupportBeanRange.win:length(10) sbr " +
+        epl = "select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean#length(10) sb, SupportBeanRange#length(10) sbr " +
                 "where sbr.key = sb.theString and intPrimitive between rangeStartLong and rangeEndLong";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -95,8 +95,8 @@ public class TestJoinCoercion extends TestCase
     public void testJoinCoercion()
     {
         String joinStatement = "select volume from " +
-                SupportMarketDataBean.class.getName() + ".win:length(3) as s0," +
-                SupportBean.class.getName() + "().win:length(3) as s1 " +
+                SupportMarketDataBean.class.getName() + "#length(3) as s0," +
+                SupportBean.class.getName() + "()#length(3) as s1 " +
                 " where s0.volume = s1.intPrimitive";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);

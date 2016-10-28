@@ -42,8 +42,8 @@ public class TestPerf2StreamSimpleJoinCoercion extends TestCase
     public void testPerformanceCoercionForward()
     {
         String stmt = "select A.longBoxed as value from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) as A," +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) as B" +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) as A," +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) as B" +
             " where A.longBoxed=B.intPrimitive";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(stmt);
@@ -72,8 +72,8 @@ public class TestPerf2StreamSimpleJoinCoercion extends TestCase
     public void testPerformanceCoercionBack()
     {
         String stmt = "select A.intPrimitive as value from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) as A," +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) as B" +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) as A," +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) as B" +
             " where A.intPrimitive=B.longBoxed";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(stmt);

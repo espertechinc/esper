@@ -52,13 +52,13 @@ public class TestMTStmtInsertInto extends TestCase
         engine.getEPAdministrator().createEPL(
                 "insert into XStream " +
                 " select theString as key, count(*) as mycount\n" +
-                " from " + SupportBean.class.getName() + ".win:time(5 min)" +
+                " from " + SupportBean.class.getName() + "#time(5 min)" +
                 " group by theString"
                 );
         engine.getEPAdministrator().createEPL(
                 "insert into XStream " +
                 " select symbol as key, count(*) as mycount\n" +
-                " from " + SupportMarketDataBean.class.getName() + ".win:time(5 min)" +
+                " from " + SupportMarketDataBean.class.getName() + "#time(5 min)" +
                 " group by symbol"
                 );
         

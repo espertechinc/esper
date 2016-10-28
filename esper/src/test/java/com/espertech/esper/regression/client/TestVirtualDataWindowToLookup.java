@@ -67,7 +67,7 @@ public class TestVirtualDataWindowToLookup extends TestCase {
         VirtualDataWindowLookupContextSPI spiContext = (VirtualDataWindowLookupContextSPI) window.getLastRequestedIndex();
 
         // CM side
-        epService.getEPAdministrator().createEPL("create window MyWin.std:unique(theString) as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWin#unique(theString) as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWin select * from SupportBean");
     }
 

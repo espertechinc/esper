@@ -144,7 +144,7 @@ EPStatement 10secRecurTrigger = admin.createPattern(
   "every timer:at(*, *, *, *, *, */10)");
 
 EPStatement countStmt = admin.createEPL(
-  "select count(*) from MarketDataBean.win:time(60 sec)");
+  "select count(*) from MarketDataBean#time(60 sec)");
 ]]></programlisting>
 
 			<para>
@@ -444,7 +444,7 @@ countStmt.start();]]></programlisting>
 					<para>
 						An example statement:
 					</para>
-					<programlisting><![CDATA[select orderId, count(*) from OrderEvent.win:time(20 sec) group by orderId]]></programlisting>
+					<programlisting><![CDATA[select orderId, count(*) from OrderEvent#time(20 sec) group by orderId]]></programlisting>
 		
 					<para>
 						Then your subscriber <literal>update</literal> and <literal>updateRStream</literal> methods should be:
@@ -536,7 +536,7 @@ public void updateEnd() {...}]]></programlisting>
 					<para>
 						For example, your statement may be:
 					</para>
-					<programlisting><![CDATA[select * from OrderEvent.win:time(30 sec)]]></programlisting>
+					<programlisting><![CDATA[select * from OrderEvent#time(30 sec)]]></programlisting>
 
 					<para>
 						Your subscriber class exposes the method:
@@ -1995,7 +1995,7 @@ isolatedService.getEPAdministrator().addStatement(stmt);]]></programlisting>
 			<para>
 				First, let's create a statement and send events:
 			</para>
-			<programlisting><![CDATA[EPStatement stmt = epServiceManager.getEPAdministrator().createEPL("select * from TemperatureEvent.win:time(30)");
+			<programlisting><![CDATA[EPStatement stmt = epServiceManager.getEPAdministrator().createEPL("select * from TemperatureEvent#time(30)");
 epServiceManager.getEPRuntime().send(new TemperatureEvent(...));
 // send some more events over time]]></programlisting>
 	
@@ -2081,7 +2081,7 @@ isolatedService.getEPRuntime().send(historyEvent);
 			<para>
 				For example, assume the below three statements named A, B and C:
 			</para>
-			<programlisting><![CDATA[@Name('A') create window MyNamedWindow.win:time(60) as select * from MyEvent
+			<programlisting><![CDATA[@Name('A') create window MyNamedWindow#time(60) as select * from MyEvent
 @Name('B') insert into MyNamedWindow select * from MyEvent
 @Name('C') select * from MyNamedWindow]]></programlisting>
 			
@@ -2389,7 +2389,7 @@ model.setFromClause(FromClause.create(PatternStream.create(pattern)));]]></progr
 
 			<programlisting><![CDATA[insert into ReadyStreamAvg(line, avgAge) 
 select line, avg(age) as avgAge 
-from com.chipmaker.ReadyEvent(line in (1, 8, 10)).win:time(10) as RE
+from com.chipmaker.ReadyEvent(line in (1, 8, 10))#time(10) as RE
 where RE.waverId != null
 group by line 
 having avg(age) < 0
@@ -2449,7 +2449,7 @@ EPStatement stmtSet = epService.getEPAdministrator().create(model);]]></programl
 			<para>
 				This sample statement creates a named window:
 			</para>
-			<programlisting><![CDATA[create window OrdersTimeWindow.win:time(30 sec) as select symbol as sym, volume as vol, price from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[create window OrdersTimeWindow#time(30 sec) as select symbol as sym, volume as vol, price from OrderEvent]]></programlisting>
 
 			<para>
 				The is the code that builds the create-window statement as above:
@@ -2969,7 +2969,7 @@ create context TxnCategoryContext
   group by amount between 100 and 1000 as medium, 
   group by amount > 1000 as large from BankTxn]]></programlisting>
 		<programlisting><![CDATA[// retain 1 minute of events of each category separately
-context TxnCategoryContext select * from BankTxn.win:time(1 minute)]]></programlisting>
+context TxnCategoryContext select * from BankTxn#time(1 minute)]]></programlisting>
 
 		<para>
 		  In order for your application to iterate one or more specific categories it is necessary to identify which category, i.e. which context partition, to iterate. Similarly for on-demand queries, to execute on-demand queries against one or more specific categories, it is necessary to identify which context partition to execute the on-demand query against.
@@ -2997,7 +2997,7 @@ Iterator<EventBean> it = stmt.iterator(categorySmall);]]></programlisting>
 			On-demand queries execute against named windows and tables, therefore below EPL statement creates a named window which the engine manages separately for small, medium and large transactions according to the context declared earlier:
 		</para>
 		<programlisting><![CDATA[// Named window per category
-context TxnCategoryContext create window BankTxnWindow.win:time(1 min) as BankTxn]]></programlisting>
+context TxnCategoryContext create window BankTxnWindow#time(1 min) as BankTxn]]></programlisting>
 
 		<para>			
 			The following code demonstrates how to fire an on-demand query against the small and the medium category:
@@ -3243,7 +3243,7 @@ epService.getEPRuntime().executeQuery(
 			  The next code block is a short but complete programming example that asserts that the properties received from output events match expected value.
 			</para>
 			
-			<programlisting><![CDATA[String epl = "select personName, count(*) as cnt from PersonEvent.win:length(3) group by personName";
+			<programlisting><![CDATA[String epl = "select personName, count(*) as cnt from PersonEvent#length(3) group by personName";
 EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
 
 SupportUpdateListener listener = new SupportUpdateListener();

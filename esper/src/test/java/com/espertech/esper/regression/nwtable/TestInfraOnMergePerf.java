@@ -52,7 +52,7 @@ public class TestInfraOnMergePerf extends TestCase {
     private void runAssertionPerformance(boolean namedWindow, EventRepresentationEnum outputType) {
 
         String eplCreate = namedWindow ?
-            outputType.getAnnotationText() + " create window MyWindow.win:keepall() as (c1 string, c2 int)" :
+            outputType.getAnnotationText() + " create window MyWindow#keepall() as (c1 string, c2 int)" :
             "create table MyWindow(c1 string primary key, c2 int)";
         EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL(eplCreate);
         assertEquals(outputType.getOutputClass(), stmtNamedWindow.getEventType().getUnderlyingType());

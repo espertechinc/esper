@@ -78,7 +78,7 @@ public class TestAggregateExtRate extends TestCase {
         epService.initialize();
 
         String[] fields = "myrate,myqtyrate".split(",");
-        String viewExpr = "select RATE(longPrimitive) as myrate, RATE(longPrimitive, intPrimitive) as myqtyrate from SupportBean.win:length(3)";
+        String viewExpr = "select RATE(longPrimitive) as myrate, RATE(longPrimitive, intPrimitive) as myqtyrate from SupportBean#length(3)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);
 
@@ -99,10 +99,10 @@ public class TestAggregateExtRate extends TestCase {
 
         tryInvalid("select rate(longPrimitive) as myrate from SupportBean",
                 "Error starting statement: Failed to validate select-clause expression 'rate(longPrimitive)': The rate aggregation function in the timestamp-property notation requires data windows [select rate(longPrimitive) as myrate from SupportBean]");
-        tryInvalid("select rate(current_timestamp) as myrate from SupportBean.win:time(20)",
-                "Error starting statement: Failed to validate select-clause expression 'rate(current_timestamp())': The rate aggregation function does not allow the current engine timestamp as a parameter [select rate(current_timestamp) as myrate from SupportBean.win:time(20)]");
-        tryInvalid("select rate(theString) as myrate from SupportBean.win:time(20)",
-                "Error starting statement: Failed to validate select-clause expression 'rate(theString)': The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation [select rate(theString) as myrate from SupportBean.win:time(20)]");
+        tryInvalid("select rate(current_timestamp) as myrate from SupportBean#time(20)",
+                "Error starting statement: Failed to validate select-clause expression 'rate(current_timestamp())': The rate aggregation function does not allow the current engine timestamp as a parameter [select rate(current_timestamp) as myrate from SupportBean#time(20)]");
+        tryInvalid("select rate(theString) as myrate from SupportBean#time(20)",
+                "Error starting statement: Failed to validate select-clause expression 'rate(theString)': The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation [select rate(theString) as myrate from SupportBean#time(20)]");
     }
 
     private void runAssertion() {
@@ -165,7 +165,7 @@ public class TestAggregateExtRate extends TestCase {
         RateSendRunnable runnable = new RateSendRunnable(epService.getEPRuntime());
         ScheduledThreadPoolExecutor timer = new ScheduledThreadPoolExecutor(1);
 
-        //String viewExpr = "select RATE(longPrimitive) as myrate from SupportBean.win:time(10) output every 1 sec";
+        //String viewExpr = "select RATE(longPrimitive) as myrate from SupportBean#time(10) output every 1 sec";
         String viewExpr = "select RATE(10) as myrate from SupportBean output snapshot every 1 sec";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(new UpdateListener() {

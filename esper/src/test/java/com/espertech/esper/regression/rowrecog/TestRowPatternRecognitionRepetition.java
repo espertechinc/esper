@@ -556,7 +556,7 @@ public class TestRowPatternRecognitionRepetition extends TestCase {
     }
 
     protected static void runEquivalent(EPServiceProvider epService, String before, String after) throws Exception {
-        String epl = "select * from SupportBean.win:keepall() " +
+        String epl = "select * from SupportBean#keepall() " +
                 "match_recognize (" +
                 " measures A as a" +
                 " pattern (" + before + ")" +

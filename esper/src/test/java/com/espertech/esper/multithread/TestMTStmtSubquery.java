@@ -54,7 +54,7 @@ public class TestMTStmtSubquery extends TestCase
     private void trySend(int numThreads, int numRepeats) throws Exception
     {
         EPStatement stmt = engine.getEPAdministrator().createEPL(
-                "select (select id from S0.win:length(1000000) where id = s1.id) as value from S1 as s1");
+                "select (select id from S0#length(1000000) where id = s1.id) as value from S1 as s1");
 
         listener = new SupportMTUpdateListener();
         stmt.addListener(listener);

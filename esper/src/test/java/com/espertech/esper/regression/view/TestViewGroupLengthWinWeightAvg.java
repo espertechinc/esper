@@ -34,8 +34,8 @@ public class TestViewGroupLengthWinWeightAvg extends TestCase
         if (useGroup)
         {
             // 0.69 sec for 100k
-            String stmtString = "select * from Sensor.std:groupwin(type).win:length(10000000).stat:weighted_avg(measurement, confidence)";
-            //String stmtString = "SELECT * FROM Sensor.std:groupwin(type).win:length(1000).stat:weighted_avg('measurement','confidence')";
+            String stmtString = "select * from Sensor#groupwin(type)#length(10000000)#weighted_avg(measurement, confidence)";
+            //String stmtString = "SELECT * FROM Sensor#groupwin(type)#length(1000)#weighted_avg('measurement','confidence')";
             EPStatement stmt = epService.getEPAdministrator().createEPL(stmtString);
             stmt.addListener(listener);
         }
@@ -44,7 +44,7 @@ public class TestViewGroupLengthWinWeightAvg extends TestCase
             // 0.53 sec for 100k
             for (int i = 0; i < 10; i++)
             {
-                String stmtString = "SELECT * FROM Sensor(type='A" + i + "').win:length(1000000).stat:weighted_avg(measurement,confidence)";
+                String stmtString = "SELECT * FROM Sensor(type='A" + i + "')#length(1000000)#weighted_avg(measurement,confidence)";
                 EPStatement stmt = epService.getEPAdministrator().createEPL(stmtString);
                 stmt.addListener(listener);
             }

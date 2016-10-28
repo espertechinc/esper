@@ -9,8 +9,12 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.view.ViewProcessingException;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PluggableObjectRegistryImpl implements PluggableObjectRegistry
 {
@@ -22,17 +26,48 @@ public class PluggableObjectRegistryImpl implements PluggableObjectRegistry
 
     public Pair<Class, PluggableObjectEntry> lookup(String nameSpace, String name) {
 
-        for (int i = 0; i < collections.length; i++) {
-            Map<String, Pair<Class, PluggableObjectEntry>> names = collections[i].getPluggables().get(nameSpace);
-            if (names == null) {
-                continue;
+        // Handle namespace-provided
+        if (nameSpace != null) {
+            for (int i = 0; i < collections.length; i++) {
+                Map<String, Pair<Class, PluggableObjectEntry>> names = collections[i].getPluggables().get(nameSpace);
+                if (names == null) {
+                    continue;
+                }
+                Pair<Class, PluggableObjectEntry> entry = names.get(name);
+                if (entry == null) {
+                    continue;
+                }
+                return entry;
             }
-            Pair<Class, PluggableObjectEntry> entry = names.get(name);
-            if (entry == null) {
-                continue;
-            }
-            return entry;
+            return null;
         }
-        return null;
+
+        // Handle namespace-not-provided
+        Set<String> entriesDuplicate = null;
+        Map.Entry<String, Pair<Class, PluggableObjectEntry>> found = null;
+        for (int i = 0; i < collections.length; i++) {
+            for (Map.Entry<String, Map<String, Pair<Class, PluggableObjectEntry>>> collEntry : collections[i].getPluggables().entrySet()) {
+                for (Map.Entry<String, Pair<Class, PluggableObjectEntry>> viewEntry : collEntry.getValue().entrySet()) {
+                    if (viewEntry.getKey().equals(name)) {
+                        if (found != null) {
+                            if (entriesDuplicate == null) {
+                                entriesDuplicate = new HashSet<>();
+                            }
+                            entriesDuplicate.add(viewEntry.getKey());
+                        }
+                        else {
+                            found = viewEntry;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (entriesDuplicate != null) {
+            entriesDuplicate.add(found.getKey());
+            throw new ViewProcessingException("Duplicate entries for view '" + name + "' found in namespaces " + Arrays.toString(entriesDuplicate.toArray()));
+        }
+
+        return found == null ? null : found.getValue();
     }
 }

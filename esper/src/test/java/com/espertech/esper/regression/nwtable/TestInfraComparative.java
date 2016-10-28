@@ -47,7 +47,7 @@ public class TestInfraComparative extends TestCase {
 
     public void testComparativeGroupByTopLevelSingleAgg() throws Exception {
         String eplNamedWindow =
-                "create window TotalsWindow.std:unique(theString) as (theString string, total int);" +
+                "create window TotalsWindow#unique(theString) as (theString string, total int);" +
                 "insert into TotalsWindow select theString, sum(intPrimitive) as total from SupportBean group by theString;" +
                 "@Name('Listen') select p00 as c0, " +
                 "    (select total from TotalsWindow tw where tw.theString = s0.p00) as c1 from SupportBean_S0 as s0;";

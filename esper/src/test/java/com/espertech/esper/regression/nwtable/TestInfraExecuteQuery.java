@@ -215,8 +215,8 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
             epl = "select * from pattern [every MyInfra]";
             tryInvalid(epl, "Error executing statement: On-demand queries require tables or named windows and do not allow event streams or patterns [select * from pattern [every MyInfra]]");
 
-            epl = "select * from MyInfra.stat:uni(intPrimitive)";
-            tryInvalid(epl, "Error executing statement: Views are not a supported feature of on-demand queries [select * from MyInfra.stat:uni(intPrimitive)]");
+            epl = "select * from MyInfra#uni(intPrimitive)";
+            tryInvalid(epl, "Error executing statement: Views are not a supported feature of on-demand queries [select * from MyInfra#uni(intPrimitive)]");
         }
 
         destroyInfra();
@@ -255,9 +255,9 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         String epl;
         if (isNamedWindow) {
             epl = eplEvents +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinProduct.win:keepall() as select * from Product;" +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinCategory.win:keepall() as select * from Category;" +
-                    eventRepresentationEnum.getAnnotationText() + " create window WinProductOwnerDetails.win:keepall() as select * from ProductOwnerDetails;" +
+                    eventRepresentationEnum.getAnnotationText() + " create window WinProduct#keepall() as select * from Product;" +
+                    eventRepresentationEnum.getAnnotationText() + " create window WinCategory#keepall() as select * from Category;" +
+                    eventRepresentationEnum.getAnnotationText() + " create window WinProductOwnerDetails#keepall() as select * from ProductOwnerDetails;" +
                     "insert into WinProduct select * from Product;" +
                     "insert into WinCategory select * from Category;" +
                     "insert into WinProductOwnerDetails select * from ProductOwnerDetails;";
@@ -332,10 +332,10 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
     private void runAssertionJoinWhere(boolean isNamedWindow) throws Exception
     {
         String eplCreateOne = isNamedWindow ?
-                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra1.win:keepall() (key String, keyJoin String)") :
+                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra1#keepall() (key String, keyJoin String)") :
                 "create table Infra1 (key String primary key, keyJoin String)";
         String eplCreateTwo = isNamedWindow ?
-                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra2.win:keepall() (keyJoin String, value double)") :
+                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra2#keepall() (keyJoin String, value double)") :
                 "create table Infra2 (keyJoin String primary key, value double primary key)";
         epService.getEPAdministrator().createEPL(eplCreateOne);
         epService.getEPAdministrator().createEPL(eplCreateTwo);
@@ -423,7 +423,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         setupInfra(isFirstNW);
         
         String eplSecondCreate = isSecondNW ?
-                "create window MySecondInfra.win:keepall() as select * from SupportBean_A" :
+                "create window MySecondInfra#keepall() as select * from SupportBean_A" :
                 "create table MySecondInfra as (id string primary key)";
         epService.getEPAdministrator().createEPL(eplSecondCreate);
         String eplSecondFill = isSecondNW ?
@@ -610,7 +610,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         epService.getEPAdministrator().createEPL(eplCtx);
 
         String eplCreate = isNamedWindow ?
-                "context MyCtx create window CtxInfra.win:keepall() as SupportBean" :
+                "context MyCtx create window CtxInfra#keepall() as SupportBean" :
                 "context MyCtx create table CtxInfra (theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         String eplPopulate = isNamedWindow ?
@@ -650,7 +650,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         // test category-segmented context
         String eplCtxCategory = "create context MyCtxCat group by intPrimitive < 0 as negative, group by intPrimitive > 0 as positive from SupportBean";
         epService.getEPAdministrator().createEPL(eplCtxCategory);
-        epService.getEPAdministrator().createEPL("context MyCtxCat create window CtxInfraCat.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context MyCtxCat create window CtxInfraCat#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("context MyCtxCat insert into CtxInfraCat select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", -2));
@@ -939,7 +939,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
 
         // try second no-column-provided version
         String eplMyInfraThree = isNamedWindow ?
-                "create window MyInfraThree.win:keepall() as (p0 string, p1 int)" :
+                "create window MyInfraThree#keepall() as (p0 string, p1 int)" :
                 "create table MyInfraThree as (p0 string, p1 int)";
         EPStatement stmtMyInfraThree = epService.getEPAdministrator().createEPL(eplMyInfraThree);
         epService.getEPRuntime().executeQuery("insert into MyInfraThree select 'a' as p0, 1 as p1");
@@ -948,7 +948,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         // try enum-value insert
         epService.getEPAdministrator().createEPL("create schema MyMode (mode " + SupportEnum.class.getName() + ")");
         String eplInfraMode = isNamedWindow ?
-                "create window MyInfraTwo.std:unique(mode) as MyMode" :
+                "create window MyInfraTwo#unique(mode) as MyMode" :
                 "create table MyInfraTwo as (mode " + SupportEnum.class.getName() + ")";
         EPStatement stmtEnumWin = epService.getEPAdministrator().createEPL(eplInfraMode);
         epService.getEPRuntime().executeQuery("insert into MyInfraTwo select " + SupportEnum.class.getName() + "." + SupportEnum.ENUM_VALUE_2.name() + " as mode");
@@ -992,7 +992,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
 
     private void setupInfra(boolean isNamedWindow) {
         String eplCreate = isNamedWindow ?
-                "@Name('TheInfra') create window MyInfra.win:keepall() as select * from SupportBean" :
+                "@Name('TheInfra') create window MyInfra#keepall() as select * from SupportBean" :
                 "@Name('TheInfra') create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
         epService.getEPAdministrator().createEPL(eplCreate);
         String eplInsert = isNamedWindow ?

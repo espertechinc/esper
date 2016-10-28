@@ -146,7 +146,7 @@ public class TestSchemaXMLEvent extends TestCase
                         "customProp," +
                         "prop4.attr2 as attrOneProp," +
                         "nested3.nested4[2].id as attrTwoProp" +
-                " from TestXMLSchemaType.win:length(100)";
+                " from TestXMLSchemaType#length(100)";
 
         EPStatement selectStmt = epService.getEPAdministrator().createEPL(stmt);
         selectStmt.addListener(updateListener);
@@ -218,7 +218,7 @@ public class TestSchemaXMLEvent extends TestCase
                         "customProp," +
                         "prop4.attr2 as attrOneProp," +
                         "nested3.nested4[2].id as attrTwoProp" +
-                " from TestXMLSchemaType.win:length(100)";
+                " from TestXMLSchemaType#length(100)";
 
         EPStatement selectStmt = epService.getEPAdministrator().createEPL(stmt);
         selectStmt.addListener(updateListener);
@@ -347,12 +347,12 @@ public class TestSchemaXMLEvent extends TestCase
 
         try
         {
-            epService.getEPAdministrator().createEPL("select element1 from TestXMLSchemaType.win:length(100)");
+            epService.getEPAdministrator().createEPL("select element1 from TestXMLSchemaType#length(100)");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression 'element1': Property named 'element1' is not valid in any stream [select element1 from TestXMLSchemaType.win:length(100)]", ex.getMessage());
+            assertEquals("Error starting statement: Failed to validate select-clause expression 'element1': Property named 'element1' is not valid in any stream [select element1 from TestXMLSchemaType#length(100)]", ex.getMessage());
         }
     }
 

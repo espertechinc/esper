@@ -56,7 +56,7 @@ public class TestMinMaxCases extends TestCase
 
     public void runAssertionMinMaxNamedWindowWEver(boolean soda) {
         String[] fields = "lower,upper,lowerever,upperever".split(",");
-        SupportModelHelper.createByCompileOrParse(epService, soda, "create window NamedWindow5m.win:length(2) as select * from SupportBean");
+        SupportModelHelper.createByCompileOrParse(epService, soda, "create window NamedWindow5m#length(2) as select * from SupportBean");
         SupportModelHelper.createByCompileOrParse(epService, soda, "insert into NamedWindow5m select * from SupportBean");
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, "select " +
                 "min(intPrimitive) as lower, " +
@@ -84,7 +84,7 @@ public class TestMinMaxCases extends TestCase
 
         String[] fields = "maxi,mini,max0,min0".split(",");
         String epl = "select max(intPrimitive) as maxi, min(intPrimitive) as mini," +
-                     "(select max(id) from S0.std:lastevent()) as max0, (select min(id) from S0.std:lastevent()) as min0" +
+                     "(select max(id) from S0#lastevent()) as max0, (select min(id) from S0#lastevent()) as min0" +
                      " from SupportBean";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
         
@@ -119,7 +119,7 @@ public class TestMinMaxCases extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();} // not instrumented
 
         String statementText = "select price, min(price) as minPrice " +
-                "from " + SupportMarketDataBean.class.getName() + ".win:time(30)" +
+                "from " + SupportMarketDataBean.class.getName() + "#time(30)" +
                 "having price >= min(price) * (1.02)";
 
         EPStatement testView = epService.getEPAdministrator().createEPL(statementText);

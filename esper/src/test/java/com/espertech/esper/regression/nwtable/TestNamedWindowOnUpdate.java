@@ -46,7 +46,7 @@ public class TestNamedWindowOnUpdate extends TestCase
     public void testUpdateNonPropertySet() {
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("setBeanLongPrimitive999", this.getClass().getName(), "setBeanLongPrimitive999");
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL("on SupportBean_S0 as sb " +
                 "update MyWindow as mywin" +
@@ -61,7 +61,7 @@ public class TestNamedWindowOnUpdate extends TestCase
     }
 
     public void testMultipleDataWindowIntersect() {
-        String stmtTextCreate = "create window MyWindow.std:unique(theString).win:length(2) as select * from SupportBean";
+        String stmtTextCreate = "create window MyWindow#unique(theString)#length(2) as select * from SupportBean";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -87,7 +87,7 @@ public class TestNamedWindowOnUpdate extends TestCase
     }
 
     public void testMultipleDataWindowUnion() {
-        String stmtTextCreate = "create window MyWindow.std:unique(theString).win:length(2) retain-union as select * from SupportBean";
+        String stmtTextCreate = "create window MyWindow#unique(theString)#length(2) retain-union as select * from SupportBean";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -115,7 +115,7 @@ public class TestNamedWindowOnUpdate extends TestCase
     public void testSubclass()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select * from " + SupportBeanAbstractSub.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select * from " + SupportBeanAbstractSub.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 

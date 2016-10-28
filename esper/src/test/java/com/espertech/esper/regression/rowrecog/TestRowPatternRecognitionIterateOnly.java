@@ -38,7 +38,7 @@ public class TestRowPatternRecognitionIterateOnly extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a".split(",");
-        String text = "@Hint('iterate_only') select * from MyEvent.win:length(1) " +
+        String text = "@Hint('iterate_only') select * from MyEvent#length(1) " +
                 "match_recognize (" +
                 "  measures A.theString as a" +
                 "  all matches " +
@@ -76,7 +76,7 @@ public class TestRowPatternRecognitionIterateOnly extends TestCase {
         epService.initialize();
 
         String[] fields = "a".split(",");
-        String text = "@Hint('iterate_only') select * from MyEvent.std:lastevent() " +
+        String text = "@Hint('iterate_only') select * from MyEvent#lastevent() " +
                 "match_recognize (" +
                 "  measures A.theString as a" +
                 "  all matches " +
@@ -114,7 +114,7 @@ public class TestRowPatternRecognitionIterateOnly extends TestCase {
         epService.initialize();
 
         String[] fields = "a,cat".split(",");
-        String text = "@Hint('iterate_only') select * from MyEvent.std:lastevent() " +
+        String text = "@Hint('iterate_only') select * from MyEvent#lastevent() " +
                 "match_recognize (" +
                 "  partition by cat" +
                 "  measures A.theString as a, A.cat as cat" +

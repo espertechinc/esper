@@ -357,7 +357,7 @@ public class EPStatementStartMethodSelectUtil
     {
         if (streamSpec.getViewSpecs().length > 0) {
             throw new ExprValidationException(conceptName + " joins do not allow views onto the data, view '"
-                    + streamSpec.getViewSpecs()[0].getObjectNamespace() + ':' + streamSpec.getViewSpecs()[0].getObjectName() + "' is not valid in this context");
+                    + streamSpec.getViewSpecs()[0].getObjectName() + "' is not valid in this context");
         }
     }
 

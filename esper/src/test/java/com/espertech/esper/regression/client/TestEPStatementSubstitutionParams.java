@@ -100,16 +100,16 @@ public class TestEPStatementSubstitutionParams extends TestCase
         assertTrue(listenerOne.getAndClearIsInvoked());
 
         statement.destroy();
-        prepared = epService.getEPAdministrator().prepareEPL("create window MyWindow.win:time(?) as " + SupportBean.class.getName());
+        prepared = epService.getEPAdministrator().prepareEPL("create window MyWindow#time(?) as " + SupportBean.class.getName());
         prepared.setObject(1, 300);
         statement = epService.getEPAdministrator().create(prepared);
-        assertEquals("create window MyWindow.win:time(300) as select * from com.espertech.esper.support.bean.SupportBean", statement.getText());
+        assertEquals("create window MyWindow#time(300) as select * from com.espertech.esper.support.bean.SupportBean", statement.getText());
     }
 
     public void testSubselect()
     {
         String stmtText = "select (" +
-           "select symbol from " + SupportMarketDataBean.class.getName() + "(symbol=?).std:lastevent()) as mysymbol from " +
+           "select symbol from " + SupportMarketDataBean.class.getName() + "(symbol=?)#lastevent()) as mysymbol from " +
                 SupportBean.class.getName();
 
         EPPreparedStatement preparedStmt = epService.getEPAdministrator().prepareEPL(stmtText);
@@ -429,14 +429,14 @@ public class TestEPStatementSubstitutionParams extends TestCase
 
     public void testInvalidViewParameter()
     {
-        String stmt = "select * from " + SupportBean.class.getName() + ".win:length(?)";
+        String stmt = "select * from " + SupportBean.class.getName() + "#length(?)";
         try
         {
             epService.getEPAdministrator().prepareEPL(stmt);
         }
         catch (EPException ex)
         {
-            assertEquals("Incorrect syntax near '?' expecting a closing parenthesis ')' but found a questionmark '?' at line 1 column 70, please check the view specifications within the from clause [select * from com.espertech.esper.support.bean.SupportBean.win:length(?)]", ex.getMessage());
+            assertEquals("Incorrect syntax near '?' expecting a closing parenthesis ')' but found a questionmark '?' at line 1 column 70, please check the view specifications within the from clause [select * from com.espertech.esper.support.bean.SupportBean#length(?)]", ex.getMessage());
         }
     }
 

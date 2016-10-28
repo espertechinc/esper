@@ -49,8 +49,8 @@ public class TestGroupedTimeWinUniqueSortMinMax extends TestCase {
               " max(high.measurement) as highMeasurement, max(high.confidence) as confidenceOfHigh, max(high.device) as deviceOfHigh\n" +
               ",min(low.measurement) as lowMeasurement, min(low.confidence) as confidenceOfLow, min(low.device) as deviceOfLow\n" +
               "FROM\n" +
-              " Sensor.std:groupwin(type).win:time(1 hour).std:unique(device).ext:sort(1, measurement desc) as high " +
-              ",Sensor.std:groupwin(type).win:time(1 hour).std:unique(device).ext:sort(1, measurement asc) as low ";
+              " Sensor#groupwin(type)#time(1 hour)#unique(device)#sort(1, measurement desc) as high " +
+              ",Sensor#groupwin(type)#time(1 hour)#unique(device)#sort(1, measurement asc) as low ";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtString);
         log.info(stmtString);

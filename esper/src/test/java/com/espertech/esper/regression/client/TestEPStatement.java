@@ -46,7 +46,7 @@ public class TestEPStatement extends TestCase
     public void testListenerWithReplay() throws Exception
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean.win:length(2)");
+        EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean#length(2)");
         assertFalse(stmt.getStatementContext().isStatelessSelect());
 
         // test empty statement
@@ -62,7 +62,7 @@ public class TestEPStatement extends TestCase
         listener.reset();
 
         // test 1 event
-        stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean.win:length(2)");
+        stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean#length(2)");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         stmt.addListenerWithReplay(listener);
         assertEquals("E1", listener.assertOneGetNewAndReset().get("theString"));
@@ -70,7 +70,7 @@ public class TestEPStatement extends TestCase
         listener.reset();
 
         // test 2 events
-        stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean.win:length(2)");
+        stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from SupportBean#length(2)");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));
         stmt.addListenerWithReplay(listener);
@@ -130,7 +130,7 @@ public class TestEPStatement extends TestCase
 
         // test named window and having-clause
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
-                "create window SupportBeanWindow.win:keepall() as SupportBean;\n" +
+                "create window SupportBeanWindow#keepall() as SupportBean;\n" +
                 "insert into SupportBeanWindow select * from SupportBean;\n");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPStatement stmtWHaving = epService.getEPAdministrator().createEPL("select theString, intPrimitive from SupportBeanWindow having intPrimitive > 4000");

@@ -37,8 +37,8 @@ public class TestJoinNoTableName extends TestCase
         updateListener = new SupportUpdateListener();
 
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + ".win:length(3)," +
-                SupportBean.class.getName() + ".win:length(3)" +
+                SupportMarketDataBean.class.getName() + "#length(3)," +
+                SupportBean.class.getName() + "#length(3)" +
             " where symbol=theString and volume=longBoxed";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);

@@ -66,7 +66,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
 
     private void runAssertPopulateFromNamedWindow(EventRepresentationEnum type) {
         epService.getEPAdministrator().createEPL("create " + type.getOutputTypeCreateSchemaName() + " schema Node(nid string)");
-        epService.getEPAdministrator().createEPL("create window NodeWindow.std:unique(nid) as Node");
+        epService.getEPAdministrator().createEPL("create window NodeWindow#unique(nid) as Node");
         epService.getEPAdministrator().createEPL("insert into NodeWindow select * from Node");
         epService.getEPAdministrator().createEPL("create " + type.getOutputTypeCreateSchemaName() + " schema NodePlus(npid string, node Node)");
 

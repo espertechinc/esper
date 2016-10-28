@@ -25,11 +25,11 @@ public class CycleDetectMain implements Runnable
 
         String eplCycleDetectEachEvent = "@Name('CycleDetector') " +
                 "select cycleoutput() as out " +
-                "from TransactionEvent.win:length(1000) " +
+                "from TransactionEvent#length(1000) " +
                 "having cycledetected(fromAcct, toAcct)";
 
         String eplCycleDetectEvery1Sec = "@Name('CycleDetector') " +
-                "select (select cycleoutput(fromAcct, toAcct) from TransactionEvent.win:length(1000)) as out " +
+                "select (select cycleoutput(fromAcct, toAcct) from TransactionEvent#length(1000)) as out " +
                 "from pattern [every timer:interval(1)]";
 
         EPStatement stmt = engine.getEPAdministrator().createEPL(eplCycleDetectEachEvent);

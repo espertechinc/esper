@@ -54,7 +54,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         epService.getEPAdministrator().createEPL("create variable int VFREQ = 15");
         epService.getEPAdministrator().createEPL("create variable int VMIN = 8");
         epService.getEPAdministrator().createEPL("create variable int VMAX = 17");
-        String expression = "select * from MarketData.std:lastevent() output at (*/VFREQ, VMIN:VMAX, *, *, *)";
+        String expression = "select * from MarketData#lastevent() output at (*/VFREQ, VMIN:VMAX, *, *, *)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);
         stmt.addListener(listener);
         runAssertionCrontab(1, stmt);
@@ -64,7 +64,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData.std:lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);
         stmt.addListener(listener);
         runAssertionCrontab(1, stmt);
@@ -74,11 +74,11 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData.std:lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard());
-        model.setFromClause(FromClause.create(FilterStream.create("MarketData").addView("std", "lastevent")));
+        model.setFromClause(FromClause.create(FilterStream.create("MarketData").addView("lastevent")));
         Expression[] crontabParams = new Expression[] {
                 Expressions.crontabScheduleFrequency(15),
                 Expressions.crontabScheduleRange(8, 17),
@@ -99,7 +99,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
     {
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData.std:lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(expression);
         assertEquals(expression, model.toEPL());
@@ -160,13 +160,13 @@ public class TestOutputLimitCrontabWhen extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("count_insert_var", int.class, 0);
         epService.getEPAdministrator().createEPL("on SupportBean set myvar = intPrimitive");
 
-        String expression = "select symbol from MarketData.win:length(2) output when myvar=1 then set myvar=0, count_insert_var=count_insert";
+        String expression = "select symbol from MarketData#length(2) output when myvar=1 then set myvar=0, count_insert_var=count_insert";
         EPStatement stmt =  epService.getEPAdministrator().createEPL(expression);
         runAssertion(1, stmt);
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("symbol"));
-        model.setFromClause(FromClause.create(FilterStream.create("MarketData").addView("win", "length", Expressions.constant(2))));
+        model.setFromClause(FromClause.create(FilterStream.create("MarketData").addView("length", Expressions.constant(2))));
         model.setOutputLimitClause(OutputLimitClause.create(Expressions.eq("myvar", 1))
                                     .addThenAssignment(Expressions.eq(Expressions.property("myvar"), Expressions.constant(0)))
                                     .addThenAssignment(Expressions.eq(Expressions.property("count_insert_var"), Expressions.property("count_insert"))));
@@ -181,7 +181,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         stmt = epService.getEPAdministrator().create(model);
         runAssertion(3, stmt);
 
-        String outputLast = "select symbol from MarketData.win:length(2) output last when myvar=1 ";
+        String outputLast = "select symbol from MarketData#length(2) output last when myvar=1 ";
         model = epService.getEPAdministrator().compileEPL(outputLast);
         assertEquals(outputLast.trim(), model.toEPL().trim());
 
@@ -211,7 +211,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         // test when-then with condition triggered by output events
         sendTimeEvent(2, 8, 0, 0, 0);
         String eplToDeploy = "create variable boolean varOutputTriggered = false\n;" +
-                "@Audit @Name('out') select * from SupportBean.std:lastevent() output snapshot when (count_insert > 1 and varOutputTriggered = false) then set varOutputTriggered = true;";
+                "@Audit @Name('out') select * from SupportBean#lastevent() output snapshot when (count_insert > 1 and varOutputTriggered = false) then set varOutputTriggered = true;";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(eplToDeploy);
         epService.getEPAdministrator().getStatement("out").addListener(listener);
 
@@ -238,7 +238,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
         // test count_total for insert and remove
         epService.getEPAdministrator().createEPL("create variable int var_cnt_total = 3");
-        String expressionTotal = "select theString from SupportBean.win:length(2) output when count_insert_total = var_cnt_total or count_remove_total > 2";
+        String expressionTotal = "select theString from SupportBean#length(2) output when count_insert_total = var_cnt_total or count_remove_total > 2";
         EPStatement stmtTotal =  epService.getEPAdministrator().createEPL(expressionTotal);
         stmtTotal.addListener(listener);
         
@@ -305,7 +305,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("mystring", String.class, "");
         epService.getEPAdministrator().createEPL("on SupportBean set myint = intPrimitive, mystring = theString");
 
-        String expression = "select symbol from MarketData.win:length(2) output when myint = 1 and mystring like 'F%'";
+        String expression = "select symbol from MarketData#length(2) output when myint = 1 and mystring like 'F%'";
         EPStatement stmt =  epService.getEPAdministrator().createEPL(expression);
         SupportSubscriber subscriber = new SupportSubscriber();
         stmt.setSubscriber(subscriber);
@@ -338,7 +338,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
     public void testOutputWhenBuiltInCountInsert()
     {
-        String expression = "select symbol from MarketData.win:length(2) output when count_insert >= 3";
+        String expression = "select symbol from MarketData#length(2) output when count_insert >= 3";
         EPStatement stmt =  epService.getEPAdministrator().createEPL(expression);
         SupportSubscriber subscriber = new SupportSubscriber();
         stmt.setSubscriber(subscriber);
@@ -363,7 +363,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
     public void testOutputWhenBuiltInCountRemove()
     {
-        String expression = "select symbol from MarketData.win:length(2) output when count_remove >= 2";
+        String expression = "select symbol from MarketData#length(2) output when count_remove >= 2";
         EPStatement stmt =  epService.getEPAdministrator().createEPL(expression);
         SupportSubscriber subscriber = new SupportSubscriber();
         stmt.setSubscriber(subscriber);
@@ -389,7 +389,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
     public void testOutputWhenBuiltInLastTimestamp()
     {
         sendTimeEvent(1, 8, 0, 0, 0);
-        String expression = "select symbol from MarketData.win:length(2) output when current_timestamp - last_output_timestamp >= 2000";
+        String expression = "select symbol from MarketData#length(2) output when current_timestamp - last_output_timestamp >= 2000";
         EPStatement stmt =  epService.getEPAdministrator().createEPL(expression);
         SupportSubscriber subscriber = new SupportSubscriber();
         stmt.setSubscriber(subscriber);
@@ -456,8 +456,8 @@ public class TestOutputLimitCrontabWhen extends TestCase
         tryInvalid("select * from MarketData output when true then set 1",
                     "Error starting statement: Error in the output rate limiting clause: Missing variable assignment expression in assignment number 0 [select * from MarketData output when true then set 1]");
 
-        tryInvalid("select theString, count(*) from SupportBean.win:length(2) group by theString output all every 0 seconds",
-                   "Error starting statement: Invalid time period expression returns a zero or negative time interval [select theString, count(*) from SupportBean.win:length(2) group by theString output all every 0 seconds]");
+        tryInvalid("select theString, count(*) from SupportBean#length(2) group by theString output all every 0 seconds",
+                   "Error starting statement: Invalid time period expression returns a zero or negative time interval [select theString, count(*) from SupportBean#length(2) group by theString output all every 0 seconds]");
     }
 
     private void tryInvalid(String expression, String message)

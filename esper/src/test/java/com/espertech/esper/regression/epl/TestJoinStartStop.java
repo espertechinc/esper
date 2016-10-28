@@ -63,8 +63,8 @@ public class TestJoinStartStop extends TestCase
     public void testJoinUniquePerId()
     {
         String joinStatement = "select * from " +
-                SupportMarketDataBean.class.getName() + "(symbol='IBM').win:length(3) s0, " +
-                SupportMarketDataBean.class.getName() + "(symbol='CSCO').win:length(3) s1" +
+                SupportMarketDataBean.class.getName() + "(symbol='IBM')#length(3) s0, " +
+                SupportMarketDataBean.class.getName() + "(symbol='CSCO')#length(3) s1" +
             " where s0.volume=s1.volume";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement, "MyJoin");
@@ -116,13 +116,13 @@ public class TestJoinStartStop extends TestCase
         tryInvalid(invalidJoin,
                 "Error starting statement: Joins require that at least one view is specified for each stream, no view was specified for A [select * from A, B]");
 
-        invalidJoin = "select * from A.win:time(5 min), B";
+        invalidJoin = "select * from A#time(5 min), B";
         tryInvalid(invalidJoin,
-                "Error starting statement: Joins require that at least one view is specified for each stream, no view was specified for B [select * from A.win:time(5 min), B]");
+                "Error starting statement: Joins require that at least one view is specified for each stream, no view was specified for B [select * from A#time(5 min), B]");
 
-        invalidJoin = "select * from A.win:time(5 min), pattern[A->B]";
+        invalidJoin = "select * from A#time(5 min), pattern[A->B]";
         tryInvalid(invalidJoin,
-                "Error starting statement: Joins require that at least one view is specified for each stream, no view was specified for pattern event stream [select * from A.win:time(5 min), pattern[A->B]]");
+                "Error starting statement: Joins require that at least one view is specified for each stream, no view was specified for pattern event stream [select * from A#time(5 min), pattern[A->B]]");
     }
 
     private void tryInvalid(String invalidJoin, String message)

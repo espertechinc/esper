@@ -52,7 +52,7 @@ public class TestSubselectUnfiltered extends TestCase {
         String stmtTextOne = "insert into MyCount select count(*) as cnt from S0";
         epService.getEPAdministrator().createEPL(stmtTextOne);
 
-        String stmtTextTwo = "select (select cnt from MyCount.std:lastevent()) as value from S0";
+        String stmtTextTwo = "select (select cnt from MyCount#lastevent()) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtTextTwo);
         stmt.addListener(listener);
 
@@ -65,7 +65,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testStartStopStatement()
     {
-        String stmtText = "select id from S0 where (select true from S1.win:length(1000))";
+        String stmtText = "select id from S0 where (select true from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -92,7 +92,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testWhereClauseReturningTrue()
     {
-        String stmtText = "select id from S0 where (select true from S1.win:length(1000))";
+        String stmtText = "select id from S0 where (select true from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -104,7 +104,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testWhereClauseWithExpression()
     {
-        String stmtText = "select id from S0 where (select p10='X' from S1.win:length(1000))";
+        String stmtText = "select id from S0 where (select p10='X' from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -119,7 +119,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testJoinUnfiltered()
     {
-        String stmtText = "select (select id from S3.win:length(1000)) as idS3, (select id from S4.win:length(1000)) as idS4 from S0.win:keepall() as s0, S1.win:keepall() as s1 where s0.id = s1.id";
+        String stmtText = "select (select id from S3#length(1000)) as idS3, (select id from S4#length(1000)) as idS4 from S0#keepall() as s0, S1#keepall() as s1 where s0.id = s1.id";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -176,14 +176,14 @@ public class TestSubselectUnfiltered extends TestCase {
         tryInvalid("select (select id from S1) from S0",
                    "Error starting statement: Failed to plan subquery number 1 querying S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window (applies to correlated or non-fully-aggregated subqueries) [");
 
-        tryInvalid("select (select dummy from S1.std:lastevent()) as idS1 from S0",
-                   "Error starting statement: Failed to plan subquery number 1 querying S1: Failed to validate select-clause expression 'dummy': Property named 'dummy' is not valid in any stream [select (select dummy from S1.std:lastevent()) as idS1 from S0]");
+        tryInvalid("select (select dummy from S1#lastevent()) as idS1 from S0",
+                   "Error starting statement: Failed to plan subquery number 1 querying S1: Failed to validate select-clause expression 'dummy': Property named 'dummy' is not valid in any stream [select (select dummy from S1#lastevent()) as idS1 from S0]");
 
-        tryInvalid("select (select (select id from S1.std:lastevent()) id from S1.std:lastevent()) as idS1 from S0",
-                   "Invalid nested subquery, subquery-within-subquery is not supported [select (select (select id from S1.std:lastevent()) id from S1.std:lastevent()) as idS1 from S0]");
+        tryInvalid("select (select (select id from S1#lastevent()) id from S1#lastevent()) as idS1 from S0",
+                   "Invalid nested subquery, subquery-within-subquery is not supported [select (select (select id from S1#lastevent()) id from S1#lastevent()) as idS1 from S0]");
 
-        tryInvalid("select (select id from S1.std:lastevent() where (sum(id) = 5)) as idS1 from S0",
-                   "Error starting statement: Failed to plan subquery number 1 querying S1: Aggregation functions are not supported within subquery filters, consider using insert-into instead [select (select id from S1.std:lastevent() where (sum(id) = 5)) as idS1 from S0]");
+        tryInvalid("select (select id from S1#lastevent() where (sum(id) = 5)) as idS1 from S0",
+                   "Error starting statement: Failed to plan subquery number 1 querying S1: Aggregation functions are not supported within subquery filters, consider using insert-into instead [select (select id from S1#lastevent() where (sum(id) = 5)) as idS1 from S0]");
 
         tryInvalid("select * from S0(id=5 and (select id from S1))",
                    "Failed to validate subquery number 1 querying S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from S0(id=5 and (select id from S1))]");
@@ -194,28 +194,28 @@ public class TestSubselectUnfiltered extends TestCase {
         tryInvalid("select * from S0 order by (select id from S1) asc",
                    "Error starting statement: Subselects not allowed within order-by clause [select * from S0 order by (select id from S1) asc]");
 
-        tryInvalid("select (select id from S1.std:lastevent() where 'a') from S0",
-                   "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect filter expression must return a boolean value [select (select id from S1.std:lastevent() where 'a') from S0]");
+        tryInvalid("select (select id from S1#lastevent() where 'a') from S0",
+                   "Error starting statement: Failed to plan subquery number 1 querying S1: Subselect filter expression must return a boolean value [select (select id from S1#lastevent() where 'a') from S0]");
 
-        tryInvalid("select (select id from S1.std:lastevent() where id = p00) from S0",
-                   "Error starting statement: Failed to plan subquery number 1 querying S1: Failed to validate filter expression 'id=p00': Property named 'p00' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [select (select id from S1.std:lastevent() where id = p00) from S0]");
+        tryInvalid("select (select id from S1#lastevent() where id = p00) from S0",
+                   "Error starting statement: Failed to plan subquery number 1 querying S1: Failed to validate filter expression 'id=p00': Property named 'p00' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [select (select id from S1#lastevent() where id = p00) from S0]");
 
-        tryInvalid("select id in (select * from S1.win:length(1000)) as value from S0",
-                   "Error starting statement: Failed to validate select-clause expression subquery number 1 querying S1: Implicit conversion from datatype 'SupportBean_S1' to 'Integer' is not allowed [select id in (select * from S1.win:length(1000)) as value from S0]");
+        tryInvalid("select id in (select * from S1#length(1000)) as value from S0",
+                   "Error starting statement: Failed to validate select-clause expression subquery number 1 querying S1: Implicit conversion from datatype 'SupportBean_S1' to 'Integer' is not allowed [select id in (select * from S1#length(1000)) as value from S0]");
     }
 
     public void testUnfilteredStreamPrior_OM() throws Exception
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.create().add(Expressions.prior(0, "id")));
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView("win", "length", Expressions.constant(1000))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView("length", Expressions.constant(1000))));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create().add(Expressions.subquery(subquery), "idS1"));
         model.setFromClause(FromClause.create(FilterStream.create("S0")));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select (select prior(0,id) from S1.win:length(1000)) as idS1 from S0";
+        String stmtText = "select (select prior(0,id) from S1#length(1000)) as idS1 from S0";
         assertEquals(stmtText, model.toEPL());
         EPStatement stmt = epService.getEPAdministrator().create(model);
         runUnfilteredStreamPrior(stmt);
@@ -223,7 +223,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testUnfilteredStreamPrior_Compile() throws Exception
     {
-        String stmtText = "select (select prior(0,id) from S1.win:length(1000)) as idS1 from S0";
+        String stmtText = "select (select prior(0,id) from S1#length(1000)) as idS1 from S0";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(stmtText, model.toEPL());
@@ -258,7 +258,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testCustomFunction()
     {
-        String stmtText = "select (select " + SupportStaticMethodLib.class.getName() + ".minusOne(id) from S1.win:length(1000)) as idS1 from S0";
+        String stmtText = "select (select " + SupportStaticMethodLib.class.getName() + ".minusOne(id) from S1#length(1000)) as idS1 from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -282,7 +282,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testComputedResult()
     {
-        String stmtText = "select 100*(select id from S1.win:length(1000)) as idS1 from S0";
+        String stmtText = "select 100*(select id from S1#length(1000)) as idS1 from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -306,7 +306,7 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testFilterInside()
     {
-        String stmtText = "select (select id from S1(p10='A').win:length(1000)) as idS1 from S0";
+        String stmtText = "select (select id from S1(p10='A')#length(1000)) as idS1 from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -322,37 +322,37 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testUnfilteredUnlimitedStream()
     {
-        String stmtText = "select (select id from S1.win:length(1000)) as idS1 from S0";
+        String stmtText = "select (select id from S1#length(1000)) as idS1 from S0";
         runAssertMultiRowUnfiltered(stmtText, "idS1");
     }
 
     public void testUnfilteredLengthWindow()
     {
-        String stmtText = "select (select id from S1.win:length(2)) as idS1 from S0";
+        String stmtText = "select (select id from S1#length(2)) as idS1 from S0";
         runAssertMultiRowUnfiltered(stmtText, "idS1");
     }
 
     public void testUnfilteredAsAfterSubselect()
     {
-        String stmtText = "select (select id from S1.std:lastevent()) as idS1 from S0";
+        String stmtText = "select (select id from S1#lastevent()) as idS1 from S0";
         runAssertSingleRowUnfiltered(stmtText, "idS1");
     }
 
     public void testUnfilteredWithAsWithinSubselect()
     {
-        String stmtText = "select (select id as myId from S1.std:lastevent()) from S0";
+        String stmtText = "select (select id as myId from S1#lastevent()) from S0";
         runAssertSingleRowUnfiltered(stmtText, "myId");
     }
 
     public void testUnfilteredNoAs()
     {
-        String stmtText = "select (select id from S1.std:lastevent()) from S0";
+        String stmtText = "select (select id from S1#lastevent()) from S0";
         runAssertSingleRowUnfiltered(stmtText, "id");
     }
 
     public void testUnfilteredExpression()
     {
-        String stmtText = "select (select p10 || p11 from S1.std:lastevent()) as value from S0";
+        String stmtText = "select (select p10 || p11 from S1#lastevent()) as value from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -374,8 +374,8 @@ public class TestSubselectUnfiltered extends TestCase {
 
     public void testMultiColumnSelect()
     {
-        String stmtText = "select (select id+1 as myId from S1.std:lastevent()) as idS1_0, " +
-                "(select id+2 as myId from S1.std:lastevent()) as idS1_1 from S0";
+        String stmtText = "select (select id+1 as myId from S1#lastevent()) as idS1_0, " +
+                "(select id+2 as myId from S1#lastevent()) as idS1_1 from S0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);

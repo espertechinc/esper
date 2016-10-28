@@ -50,7 +50,7 @@ public class TestGroupByEventPerRow extends TestCase
 
     public void testCriteriaByDotMethod() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-        String epl = "select sb.getLongPrimitive() as c0, sum(intPrimitive) as c1 from SupportBean.win:length_batch(2) as sb group by sb.getTheString()";
+        String epl = "select sb.getLongPrimitive() as c0, sum(intPrimitive) as c1 from SupportBean#length_batch(2) as sb group by sb.getTheString()";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
 
         makeSendSupportBean("E1", 10, 100L);
@@ -91,7 +91,7 @@ public class TestGroupByEventPerRow extends TestCase
 
         // test no output limit
         String fields[] = "theString, intPrimitive, minval".split(",");
-        String epl = "select *, min(intPrimitive) as minval from SupportBean.win:length(2) group by theString";
+        String epl = "select *, min(intPrimitive) as minval from SupportBean#length(2) group by theString";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(epl);
         selectTestView.addListener(listener);
 
@@ -110,7 +110,7 @@ public class TestGroupByEventPerRow extends TestCase
         // test for ESPER-185
         String fields[] = "volume,symbol,price,mycount".split(",");
         String viewExpr = "select irstream volume,symbol,price,count(price) as mycount " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "group by symbol, price";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -159,7 +159,7 @@ public class TestGroupByEventPerRow extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select irstream symbol, volume, sum(price) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol";
 
@@ -173,8 +173,8 @@ public class TestGroupByEventPerRow extends TestCase
     {
         // Every event generates a new row, this time we sum the price by symbol and output volume
         String viewExpr = "select irstream symbol, volume, sum(price) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "  and one.theString = two.symbol " +
                           "group by symbol";
@@ -192,7 +192,7 @@ public class TestGroupByEventPerRow extends TestCase
     {
         SupportUpdateListener listenerOne = new SupportUpdateListener();
         String eventType = SupportMarketDataBean.class.getName();
-        String stmt = " select symbol as symbol, avg(price) as average, sum(volume) as sumation from " + eventType + ".win:length(3000)";
+        String stmt = " select symbol as symbol, avg(price) as average, sum(volume) as sumation from " + eventType + "#length(3000)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmt);
         statement.addListener(listenerOne);
 
@@ -204,7 +204,7 @@ public class TestGroupByEventPerRow extends TestCase
 
         // create insert into statements
         stmt =  "insert into StockAverages select symbol as symbol, avg(price) as average, sum(volume) as sumation " +
-                    "from " + eventType + ".win:length(3000)";
+                    "from " + eventType + "#length(3000)";
         statement = epService.getEPAdministrator().createEPL(stmt);
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
         statement.addListener(listenerTwo);

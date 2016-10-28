@@ -55,7 +55,7 @@ public class TestGroupByMedianAndDeviation extends TestCase
                                  "median(distinct price) as myDistMedian," +
                                  "stddev(all price) as myStdev," +
                                  "avedev(all price) as myAvedev " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol";
 
@@ -66,7 +66,7 @@ public class TestGroupByMedianAndDeviation extends TestCase
 
         // Test NaN sensitivity
         selectTestView.destroy();
-        selectTestView = epService.getEPAdministrator().createEPL("select stddev(price) as val from " + SupportMarketDataBean.class.getName() + ".win:length(3)");
+        selectTestView = epService.getEPAdministrator().createEPL("select stddev(price) as val from " + SupportMarketDataBean.class.getName() + "#length(3)");
         selectTestView.addListener(testListener);
 
         sendEvent("A", Double.NaN);
@@ -91,8 +91,8 @@ public class TestGroupByMedianAndDeviation extends TestCase
                 .streamSelector(StreamSelector.RSTREAM_ISTREAM_BOTH)
         );
         FromClause fromClause = FromClause.create(
-                FilterStream.create(SupportBeanString.class.getName(), "one").addView(View.create("win", "length", Expressions.constant(100))),
-                FilterStream.create(SupportMarketDataBean.class.getName(), "two").addView(View.create("win", "length", Expressions.constant(5))));
+                FilterStream.create(SupportBeanString.class.getName(), "one").addView(View.create("length", Expressions.constant(100))),
+                FilterStream.create(SupportMarketDataBean.class.getName(), "two").addView(View.create("length", Expressions.constant(5))));
         model.setFromClause(fromClause);
         model.setWhereClause(Expressions.and().add(
                     Expressions.or()
@@ -109,8 +109,8 @@ public class TestGroupByMedianAndDeviation extends TestCase
                                  "median(distinct price) as myDistMedian, " +
                                  "stddev(price) as myStdev, " +
                                  "avedev(price) as myAvedev " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(5) as two " +
                           "where (symbol=\"DELL\" or symbol=\"IBM\" or symbol=\"GE\") " +
                           "and one.theString=two.symbol " +
                           "group by symbol";
@@ -133,8 +133,8 @@ public class TestGroupByMedianAndDeviation extends TestCase
                                  "median(distinct price) as myDistMedian," +
                                  "stddev(price) as myStdev," +
                                  "avedev(price) as myAvedev " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(5) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "       and one.theString = two.symbol " +
                           "group by symbol";

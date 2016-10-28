@@ -243,7 +243,7 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
 
     private void runAssertionMultipleIndexHints(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "@Hint('enable_window_subquery_indexshare') create window MyInfra.win:keepall() as select * from SSB1" :
+                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall() as select * from SSB1" :
                 "create table MyInfra(s1 String primary key, i1 int  primary key, d1 double primary key, l1 long primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("create unique index I1 on MyInfra (s1)");
@@ -319,7 +319,7 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
 
     private void runAssertion(boolean namedWindow, boolean enableIndexShareCreate, boolean disableIndexShareConsumer, boolean createExplicitIndex, boolean setNoindex) {
         String createEpl = namedWindow ?
-                "create window MyInfra.std:unique(theString) as (theString string, intPrimitive int)" :
+                "create window MyInfra#unique(theString) as (theString string, intPrimitive int)" :
                 "create table MyInfra(theString string primary key, intPrimitive int)";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;

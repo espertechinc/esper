@@ -90,7 +90,7 @@ public class TestPatternInsertInto extends TestCase
         epService.getEPAdministrator().createEPL(stmtText);
 
         String stmtTwoText =
-                "select es0.id as es0id, es1.id as es1id from MyStream.win:length(10)";
+                "select es0.id as es0id, es1.id as es1id from MyStream#length(10)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtTwoText);
 
         updateListener = new SupportUpdateListener();

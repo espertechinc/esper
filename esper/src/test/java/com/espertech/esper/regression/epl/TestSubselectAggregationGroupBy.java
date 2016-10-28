@@ -53,7 +53,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
     public void testNamedWindowSubqueryIndexShared() {
         // test uncorrelated
         epService.getEPAdministrator().createEPL("@Hint('enable_window_subquery_indexshare')" +
-                "create window SBWindow.win:keepall() as SupportBean");
+                "create window SBWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into SBWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -86,9 +86,9 @@ public class TestSubselectAggregationGroupBy extends TestCase
         String[] fields = "c0,c1".split(",");
         String epl = "expression getGroups {" +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                "  from SupportBean.win:keepall() group by theString)" +
+                "  from SupportBean#keepall() group by theString)" +
                 "}" +
-                "select getGroups() as e1, getGroups().take(10) as e2 from S0.std:lastevent()";
+                "select getGroups() as e1, getGroups().take(10) as e2 from S0#lastevent()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -113,7 +113,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
 
         String eplEnumCorrelated = "select " +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                " from SupportBean.win:keepall() " +
+                " from SupportBean#keepall() " +
                 " where intPrimitive = s0.id " +
                 " group by theString).take(100) as subq " +
                 "from S0 as s0";
@@ -146,7 +146,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
         // test unfiltered
         String eplEnumUnfiltered = "select " +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                " from SupportBean.win:keepall() " +
+                " from SupportBean#keepall() " +
                 " group by theString).take(100) as subq " +
                 "from S0 as s0";
         EPStatement stmtEnumUnfiltered = epService.getEPAdministrator().createEPL(eplEnumUnfiltered);
@@ -171,7 +171,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
         // test filtered
         String eplEnumFiltered = "select " +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                " from SupportBean.win:keepall() " +
+                " from SupportBean#keepall() " +
                 " where intPrimitive > 100 " +
                 " group by theString).take(100) as subq " +
                 "from S0 as s0";
@@ -205,7 +205,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
         String[] fields = "c0,c1".split(",");
         String eplNoDelete = "select " +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                "from SupportBean.win:keepall() " +
+                "from SupportBean#keepall() " +
                 "group by theString) as subq " +
                 "from S0 as s0";
         EPStatement stmtNoDelete = epService.getEPAdministrator().createEPL(eplNoDelete);
@@ -223,7 +223,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
         stmtNoDelete.destroy();
 
         // test named window with delete/remove
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on S1 delete from MyWindow where id = intPrimitive");
         EPStatement stmtDelete = epService.getEPAdministrator().createEPL("@Hint('disable_reclaim_group') select (select theString as c0, sum(intPrimitive) as c1 " +
@@ -266,7 +266,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
         String eplMultiGroup = "select " +
                 "(select theString as c0, intPrimitive as c1, theString||'x' as c2, " +
                 "    intPrimitive * 1000 as c3, sum(longPrimitive) as c4 " +
-                " from SupportBean.win:keepall() " +
+                " from SupportBean#keepall() " +
                 " group by theString, intPrimitive) as subq " +
                 "from S0 as s0";
         EPStatement stmtMultiGroup = epService.getEPAdministrator().createEPL(eplMultiGroup);
@@ -292,7 +292,7 @@ public class TestSubselectAggregationGroupBy extends TestCase
 
         String stmtText = "context MyCtx select " +
                 "(select theString as c0, sum(intPrimitive) as c1 " +
-                " from SupportBean.win:keepall() " +
+                " from SupportBean#keepall() " +
                 " group by theString) as subq " +
                 "from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -318,22 +318,22 @@ public class TestSubselectAggregationGroupBy extends TestCase
         String epl;
 
         // not fully aggregated
-        epl = "select (select theString, sum(longPrimitive) from SupportBean.win:keepall() group by intPrimitive) from S0";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires non-aggregated properties in the select-clause to also appear in the group-by clause [select (select theString, sum(longPrimitive) from SupportBean.win:keepall() group by intPrimitive) from S0]");
+        epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall() group by intPrimitive) from S0";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires non-aggregated properties in the select-clause to also appear in the group-by clause [select (select theString, sum(longPrimitive) from SupportBean#keepall() group by intPrimitive) from S0]");
 
         // correlated group-by not allowed
-        epl = "select (select theString, sum(longPrimitive) from SupportBean.win:keepall() group by theString, s0.id) from S0 as s0";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (property 'id' is not) [select (select theString, sum(longPrimitive) from SupportBean.win:keepall() group by theString, s0.id) from S0 as s0]");
-        epl = "select (select theString, sum(longPrimitive) from SupportBean.win:keepall() group by theString, s0.getP00()) from S0 as s0";
+        epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall() group by theString, s0.id) from S0 as s0";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (property 'id' is not) [select (select theString, sum(longPrimitive) from SupportBean#keepall() group by theString, s0.id) from S0 as s0]");
+        epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall() group by theString, s0.getP00()) from S0 as s0";
         tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (expression 's0.getP00()' against stream 1 is not)");
 
         // aggregations not allowed in group-by
-        epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean.win:keepall() group by sum(intPrimitive)) from S0 as s0";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have an aggregation function [select (select intPrimitive, sum(longPrimitive) from SupportBean.win:keepall() group by sum(intPrimitive)) from S0 as s0]");
+        epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall() group by sum(intPrimitive)) from S0 as s0";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have an aggregation function [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall() group by sum(intPrimitive)) from S0 as s0]");
 
         // "prev" not allowed in group-by
-        epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean.win:keepall() group by prev(1, intPrimitive)) from S0 as s0";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have a function that requires view resources (prior, prev) [select (select intPrimitive, sum(longPrimitive) from SupportBean.win:keepall() group by prev(1, intPrimitive)) from S0 as s0]");
+        epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall() group by prev(1, intPrimitive)) from S0 as s0";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have a function that requires view resources (prior, prev) [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall() group by prev(1, intPrimitive)) from S0 as s0]");
     }
 
     private void runAssertionNoDelete(String fieldName, String[] fields) {

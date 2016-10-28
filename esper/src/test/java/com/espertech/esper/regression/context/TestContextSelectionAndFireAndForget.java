@@ -54,9 +54,9 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
 
         epService.getEPAdministrator().createEPL("create context SegmentedSB as partition by theString from SupportBean");
         epService.getEPAdministrator().createEPL("create context SegmentedS0 as partition by p00 from SupportBean_S0");
-        epService.getEPAdministrator().createEPL("context SegmentedSB create window WinSB.win:keepall() as SupportBean");
-        epService.getEPAdministrator().createEPL("context SegmentedS0 create window WinS0.win:keepall() as SupportBean_S0");
-        epService.getEPAdministrator().createEPL("create window WinS1.win:keepall() as SupportBean_S1");
+        epService.getEPAdministrator().createEPL("context SegmentedSB create window WinSB#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context SegmentedS0 create window WinS0#keepall() as SupportBean_S0");
+        epService.getEPAdministrator().createEPL("create window WinS1#keepall() as SupportBean_S1");
 
         // when a context is declared, it must be the same context that applies to all named windows
         tryInvalidRuntimeQuery("context SegmentedSB select * from WinSB, WinS0",
@@ -70,10 +70,10 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
 
         // test join
         epService.getEPAdministrator().createEPL("create context PartitionedByString partition by theString from SupportBean");
-        epService.getEPAdministrator().createEPL("context PartitionedByString create window MyWindowOne.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context PartitionedByString create window MyWindowOne#keepall() as SupportBean");
 
         epService.getEPAdministrator().createEPL("create context PartitionedByP00 partition by p00 from SupportBean_S0");
-        epService.getEPAdministrator().createEPL("context PartitionedByP00 create window MyWindowTwo.win:keepall() as SupportBean_S0");
+        epService.getEPAdministrator().createEPL("context PartitionedByP00 create window MyWindowTwo#keepall() as SupportBean_S0");
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
         epService.getEPRuntime().sendEvent(new SupportBean("G2", 11));
@@ -95,7 +95,7 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
     public void testContextNamedWindowQuery() {
 
         epService.getEPAdministrator().createEPL("create context PartitionedByString partition by theString from SupportBean");
-        epService.getEPAdministrator().createEPL("context PartitionedByString create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context PartitionedByString create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -136,7 +136,7 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
         epService.getEPAdministrator().createEPL("create context NestedContext " +
                 "context ACtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id), " +
                 "context BCtx group by intPrimitive < 0 as grp1, group by intPrimitive = 0 as grp2, group by intPrimitive > 0 as grp3 from SupportBean");
-        epService.getEPAdministrator().createEPL("context NestedContext create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context NestedContext create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
@@ -162,7 +162,7 @@ public class TestContextSelectionAndFireAndForget extends TestCase {
     public void testIterateStatement() {
         epService.getEPAdministrator().createEPL("create context PartitionedByString partition by theString from SupportBean");
         String[] fields = "c0,c1".split(",");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('StmtOne') context PartitionedByString select context.key1 as c0, sum(intPrimitive) as c1 from SupportBean.win:length(5)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('StmtOne') context PartitionedByString select context.key1 as c0, sum(intPrimitive) as c1 from SupportBean#length(5)");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));

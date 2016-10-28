@@ -39,9 +39,9 @@ public class TestMTStmtNamedWindowUniqueTwoWJoinConsumer extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType(EventTwo.class);
 
         String epl =
-                "create window EventOneWindow.std:unique(key) as EventOne;\n" +
+                "create window EventOneWindow#unique(key) as EventOne;\n" +
                 "insert into EventOneWindow select * from EventOne;\n" +
-                "create window EventTwoWindow.std:unique(key) as EventTwo;\n" +
+                "create window EventTwoWindow#unique(key) as EventTwo;\n" +
                 "insert into EventTwoWindow select * from EventTwo;\n" +
                 "@name('out') select * from EventOneWindow as e1, EventTwoWindow as e2 where e1.key = e2.key";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);

@@ -54,7 +54,7 @@ public class TestOutputLimitFirstHaving extends TestCase {
         statement.destroy();
 
         // test joined
-        query = "select doublePrimitive from SupportBean.std:lastevent(),SupportBean_ST0.std:lastevent() st0 having doublePrimitive > 1 output first every 2 events";
+        query = "select doublePrimitive from SupportBean#lastevent(),SupportBean_ST0#lastevent() st0 having doublePrimitive > 1 output first every 2 events";
         statement = epService.getEPAdministrator().createEPL(query);
         epService.getEPRuntime().sendEvent(new SupportBean_ST0("ID", 1));
         statement.addListener(listener);
@@ -65,7 +65,7 @@ public class TestOutputLimitFirstHaving extends TestCase {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
         String[] fields = "val0".split(",");
-        String query = "select sum(doublePrimitive) as val0 from SupportBean.win:length(5) having sum(doublePrimitive) > 100 output first every 2 seconds";
+        String query = "select sum(doublePrimitive) as val0 from SupportBean#length(5) having sum(doublePrimitive) > 100 output first every 2 seconds";
         EPStatement statement = epService.getEPAdministrator().createEPL(query);
         statement.addListener(listener);
 

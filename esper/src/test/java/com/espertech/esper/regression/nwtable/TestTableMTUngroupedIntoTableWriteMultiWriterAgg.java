@@ -95,7 +95,7 @@ public class TestTableMTUngroupedIntoTableWriteMultiWriterAgg extends TestCase
             log.info("Started event send for write");
 
             try {
-                String eplInto = "into table varagg select window(*) as theEvents from SupportBean(theString='E" + threadNum + "').win:length(3)";
+                String eplInto = "into table varagg select window(*) as theEvents from SupportBean(theString='E" + threadNum + "')#length(3)";
                 epService.getEPAdministrator().createEPL(eplInto);
 
                 for (int i = 0; i < numEvents; i++) {

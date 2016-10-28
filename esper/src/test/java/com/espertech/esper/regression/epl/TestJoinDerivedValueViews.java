@@ -48,8 +48,8 @@ public class TestJoinDerivedValueViews extends TestCase
                 "Math.signum(stream1.slope) as s1,\n" +
                 "Math.signum(stream2.slope) as s2\n" +
                 "from\n" +
-                "SupportBean.win:length_batch(3).stat:linest(intPrimitive, longPrimitive) as stream1,\n" +
-                "SupportBean.win:length_batch(2).stat:linest(intPrimitive, longPrimitive) as stream2").addListener(listener);
+                "SupportBean#length_batch(3)#linest(intPrimitive, longPrimitive) as stream1,\n" +
+                "SupportBean#length_batch(2)#linest(intPrimitive, longPrimitive) as stream2").addListener(listener);
         epService.getEPRuntime().sendEvent(makeEvent("E3", 1, 100));
         epService.getEPRuntime().sendEvent(makeEvent("E4", 1, 100));
         assertFalse(listener.isInvoked());

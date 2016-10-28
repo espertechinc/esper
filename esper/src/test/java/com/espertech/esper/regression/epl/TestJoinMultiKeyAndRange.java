@@ -53,11 +53,11 @@ public class TestJoinMultiKeyAndRange extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanComplexProps", SupportBeanComplexProps.class);
 
-        String eplOne = "select sb.* from SupportBean.win:keepall() sb, SupportBeanRange.std:lastevent() where intBoxed between rangeStart and rangeEnd";
+        String eplOne = "select sb.* from SupportBean#keepall() sb, SupportBeanRange#lastevent() where intBoxed between rangeStart and rangeEnd";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eplOne);
         stmtOne.addListener(listener);
 
-        String eplTwo = "select sb.* from SupportBean.win:keepall() sb, SupportBeanRange.std:lastevent() where theString = key and intBoxed in [rangeStart: rangeEnd]";
+        String eplTwo = "select sb.* from SupportBean#keepall() sb, SupportBeanRange#lastevent() where theString = key and intBoxed in [rangeStart: rangeEnd]";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(eplTwo);
         SupportUpdateListener listenerTwo = new SupportUpdateListener();
         stmtTwo.addListener(listenerTwo);
@@ -83,7 +83,7 @@ public class TestJoinMultiKeyAndRange extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{eventOne, eventTwo}, EPAssertionUtil.getUnderlying(events));
 
         // test string compare
-        String eplThree = "select sb.* from SupportBeanRange.win:keepall() sb, SupportBean.std:lastevent() where theString in [rangeStartStr:rangeEndStr]";
+        String eplThree = "select sb.* from SupportBeanRange#keepall() sb, SupportBean#lastevent() where theString in [rangeStartStr:rangeEndStr]";
         epService.getEPAdministrator().createEPL(eplThree);
 
         sendSupportBean("P", 1, 1);
@@ -97,8 +97,8 @@ public class TestJoinMultiKeyAndRange extends TestCase
         String eventClass = SupportBean.class.getName();
 
         String joinStatement = "select * from " +
-            eventClass + "(theString='A').win:length(3) as streamA," +
-            eventClass + "(theString='B').win:length(3) as streamB" +
+            eventClass + "(theString='A')#length(3) as streamA," +
+            eventClass + "(theString='B')#length(3) as streamB" +
             " where streamA.intPrimitive = streamB.intPrimitive " +
                "and streamA.intBoxed = streamB.intBoxed";
 

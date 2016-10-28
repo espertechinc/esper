@@ -393,7 +393,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 				  The following statement matches, within the same customer id, the current event with the last 30 minutes of events to determine those events that match amounts:
 				</para>
 				<programlisting><![CDATA[context ByCust 
-  select * from BankTxn as t1 unidirectional, BankTxn.win:time(30) t2 
+  select * from BankTxn as t1 unidirectional, BankTxn#time(30) t2 
   where t1.amount = t2.amount]]></programlisting>
 
 				<para>
@@ -404,7 +404,7 @@ create context SegmentedByCustomer partition by custId from BankTxn, loginTime f
 				  Consider the next statement that matches a security event with the last 30 minutes of transaction events for each customer:
 				</para>
 				<programlisting><![CDATA[context ByCust
-  select * from SecurityEvent as t1 unidirectional, BankTxn.win:time(30) t2 
+  select * from SecurityEvent as t1 unidirectional, BankTxn#time(30) t2 
   where t1.customerName = t2.customerName]]></programlisting>  
   
 				  <para>
@@ -1301,7 +1301,7 @@ select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankT
 						<entry><para>Partitions at the level of data window, only applies to appended data window(s).</para><para>Syntax: <literal>std:groupby(...)</literal></para></entry>
 						<entry><programlisting><![CDATA[// Length window of 2 events per customer
 select * from
-  BankTxn.std:groupwin(custId).win:length(2)]]></programlisting></entry>
+  BankTxn#groupwin(custId)#length(2)]]></programlisting></entry>
 					</row>
 					<row>
 						<entry>Grouped Aggregation</entry>
@@ -1430,7 +1430,7 @@ select * from SensorEvent output when terminated then set myvar=3]]></programlis
 		<para>
 		  You may create a named window that only exists between 9 am and 5 pm:
 		</para>
-		<programlisting><![CDATA[context NineToFive create window SpeedingEvents1Hour.win:time(30 min) as TrafficEvent]]></programlisting>
+		<programlisting><![CDATA[context NineToFive create window SpeedingEvents1Hour#time(30 min) as TrafficEvent]]></programlisting>
 
 		<para>
 		  You can insert into the named window:
@@ -1462,7 +1462,7 @@ on TruncateEvent delete from SpeedingEvents1Hour]]></programlisting>
 		<programlisting><![CDATA[create schema ScoreCycle (userId string, keyword string, productId string, score long)]]></programlisting>
 		<programlisting><![CDATA[create context HashByUserCtx as 
   coalesce by consistent_hash_crc32(userId) from ScoreCycle granularity 64]]></programlisting>
-		<programlisting><![CDATA[context HashByUserCtx create window ScoreCycleWindow.std:unique(productId, keyword) as ScoreCycle]]></programlisting>
+		<programlisting><![CDATA[context HashByUserCtx create window ScoreCycleWindow#unique(productId, keyword) as ScoreCycle]]></programlisting>
 
 	</sect1>
 

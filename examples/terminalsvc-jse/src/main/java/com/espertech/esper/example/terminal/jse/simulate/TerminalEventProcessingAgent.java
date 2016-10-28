@@ -55,7 +55,7 @@ public class TerminalEventProcessingAgent {
 
         stmt = "insert into CountPerType " +
                 "select type, count(*) as countPerType " +
-                "from BaseTerminalEvent.win:time(10 min) " +
+                "from BaseTerminalEvent#time(10 min) " +
                 "group by type " +
                 "output all every 10 seconds";
         statement = esperEngine.getEPAdministrator().createEPL(stmt);
@@ -68,7 +68,7 @@ public class TerminalEventProcessingAgent {
         stmt = "insert into VirtualLatency select (b.timestamp - a.timestamp) as latency from pattern [" +
                 " every a=Checkin -> b=BaseTerminalEvent(terminal.id=a.terminal.id, type in ('Completed', 'Cancelled', 'OutOfOrder'))]";
         statement = esperEngine.getEPAdministrator().createEPL(stmt);
-        stmt = "select * from VirtualLatency.win:length_batch(1000).stat:uni(latency)";
+        stmt = "select * from VirtualLatency#length_batch(1000)#uni(latency)";
         statement = esperEngine.getEPAdministrator().createEPL(stmt);
         statement.addListener(new BaseTerminalListener(complexEventListener) {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {

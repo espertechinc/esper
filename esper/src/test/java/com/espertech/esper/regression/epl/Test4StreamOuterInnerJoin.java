@@ -53,60 +53,60 @@ public class Test4StreamOuterInnerJoin extends TestCase
 
     public void testFullMiddleJoinVariantTwo()
     {
-        String joinStatement =  "select * from S3.win:keepall() s3 " +
-                                " inner join S2.win:keepall() s2 on s3.p30 = s2.p20 " +
-                                " full outer join S1.win:keepall() s1 on s2.p20 = s1.p10 " +
-                                " inner join S0.win:keepall() s0 on s1.p10 = s0.p00";
+        String joinStatement =  "select * from S3#keepall() s3 " +
+                                " inner join S2#keepall() s2 on s3.p30 = s2.p20 " +
+                                " full outer join S1#keepall() s1 on s2.p20 = s1.p10 " +
+                                " inner join S0#keepall() s0 on s1.p10 = s0.p00";
 
         runAssertionMiddle(joinStatement);
     }
 
     public void testFullMiddleJoinVariantOne()
     {
-        String joinStatement =  "select * from S0.win:keepall() s0 " +
-                                " inner join S1.win:keepall() s1 on s0.p00 = s1.p10 " +
-                                " full outer join S2.win:keepall() s2 on s1.p10 = s2.p20 " +
-                                " inner join S3.win:keepall() s3 on s2.p20 = s3.p30";
+        String joinStatement =  "select * from S0#keepall() s0 " +
+                                " inner join S1#keepall() s1 on s0.p00 = s1.p10 " +
+                                " full outer join S2#keepall() s2 on s1.p10 = s2.p20 " +
+                                " inner join S3#keepall() s3 on s2.p20 = s3.p30";
 
         runAssertionMiddle(joinStatement);
     }
 
     public void testFullSidedJoinVariantTwo()
     {
-        String joinStatement =  "select * from S3.win:keepall() s3 " +
-                                " full outer join S2.win:keepall() s2 on s3.p30 = s2.p20 " +
-                                " full outer join S1.win:keepall() s1 on s2.p20 = s1.p10 " +
-                                " inner join S0.win:keepall() s0 on s1.p10 = s0.p00";
+        String joinStatement =  "select * from S3#keepall() s3 " +
+                                " full outer join S2#keepall() s2 on s3.p30 = s2.p20 " +
+                                " full outer join S1#keepall() s1 on s2.p20 = s1.p10 " +
+                                " inner join S0#keepall() s0 on s1.p10 = s0.p00";
 
         runAssertionSided(joinStatement);
     }
 
     public void testFullSidedJoinVariantOne()
     {
-        String joinStatement =  "select * from S0.win:keepall() s0 " +
-                                " inner join S1.win:keepall() s1 on s0.p00 = s1.p10 " +
-                                " full outer join S2.win:keepall() s2 on s1.p10 = s2.p20 " +
-                                " full outer join S3.win:keepall() s3 on s2.p20 = s3.p30";
+        String joinStatement =  "select * from S0#keepall() s0 " +
+                                " inner join S1#keepall() s1 on s0.p00 = s1.p10 " +
+                                " full outer join S2#keepall() s2 on s1.p10 = s2.p20 " +
+                                " full outer join S3#keepall() s3 on s2.p20 = s3.p30";
 
         runAssertionSided(joinStatement);
     }
 
     public void testStarJoinVariantTwo()
     {
-        String joinStatement =  "select * from S0.win:keepall() s0 " +
-                                " left outer join S1.win:keepall() s1 on s0.p00 = s1.p10 " +
-                                " full outer join S2.win:keepall() s2 on s0.p00 = s2.p20 " +
-                                " inner join S3.win:keepall() s3 on s0.p00 = s3.p30";
+        String joinStatement =  "select * from S0#keepall() s0 " +
+                                " left outer join S1#keepall() s1 on s0.p00 = s1.p10 " +
+                                " full outer join S2#keepall() s2 on s0.p00 = s2.p20 " +
+                                " inner join S3#keepall() s3 on s0.p00 = s3.p30";
 
         runAssertionStar(joinStatement);
     }
 
     public void testStarJoinVariantOne()
     {
-        String joinStatement =  "select * from S3.win:keepall() s3 " +
-                                " inner join S0.win:keepall() s0 on s0.p00 = s3.p30 " +
-                                " full outer join S2.win:keepall() s2 on s0.p00 = s2.p20 " +
-                                " left outer join S1.win:keepall() s1 on s1.p10 = s0.p00";
+        String joinStatement =  "select * from S3#keepall() s3 " +
+                                " inner join S0#keepall() s0 on s0.p00 = s3.p30 " +
+                                " full outer join S2#keepall() s2 on s0.p00 = s2.p20 " +
+                                " left outer join S1#keepall() s1 on s1.p10 = s0.p00";
 
         runAssertionStar(joinStatement);
     }

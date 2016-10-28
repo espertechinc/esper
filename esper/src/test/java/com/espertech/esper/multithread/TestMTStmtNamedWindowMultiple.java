@@ -48,7 +48,7 @@ public class TestMTStmtNamedWindowMultiple extends TestCase
     {
         for (int i = 0; i < numUsers; i++)
         {
-            engine.getEPAdministrator().createEPL("@Name('create_" + i + "') create window MyWindow_" + i + ".std:unique(orderId) as select * from OrderEvent");
+            engine.getEPAdministrator().createEPL("@Name('create_" + i + "') create window MyWindow_" + i + "#unique(orderId) as select * from OrderEvent");
             engine.getEPAdministrator().createEPL("@Name('insert_" + i + "') insert into MyWindow_" + i + " select * from OrderEvent(userId = 'user" + i + "')");
             engine.getEPAdministrator().createEPL("on OrderCancelEvent as d delete from MyWindow_" + i + " w where w.orderId = d.orderId");
             engine.getEPAdministrator().createEPL("@Name('select_" + i + "') on OrderEvent as s select sum(w.price) from MyWindow_" + i + " w where w.side = s.side group by w.side");

@@ -68,7 +68,7 @@ public class TestFromClauseMethod extends TestCase
         String stmtText;
 
         // ESPER 556
-        stmtText = "select max(col1) as maxcol1 from SupportBean.std:unique(theString), method:" + className + ".fetchResult100() ";
+        stmtText = "select max(col1) as maxcol1 from SupportBean#unique(theString), method:" + className + ".fetchResult100() ";
 
         String[] fields = "maxcol1".split(",");
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(stmtText);
@@ -90,7 +90,7 @@ public class TestFromClauseMethod extends TestCase
         String stmtText;
 
         // fetchBetween must execute first, fetchIdDelimited is dependent on the result of fetchBetween
-        stmtText = "select intPrimitive,intBoxed,col1,col2 from SupportBean.win:keepall() " +
+        stmtText = "select intPrimitive,intBoxed,col1,col2 from SupportBean#keepall() " +
                    "left outer join " +
                    "method:" + className + ".fetchResult100() " +
                    "on intPrimitive = col1 and intBoxed = col2";
@@ -307,7 +307,7 @@ public class TestFromClauseMethod extends TestCase
 
     private void runAssertionReturnTypeMultipleRow(String method) {
         String epl = "select theString, intPrimitive, mapstring, mapint from " +
-                SupportBean.class.getName() + ".win:keepall() as s1, " +
+                SupportBean.class.getName() + "#keepall() as s1, " +
                 "method:com.espertech.esper.support.epl.SupportStaticMethodLib." + method;
         String[] fields = "theString,intPrimitive,mapstring,mapint".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -388,13 +388,13 @@ public class TestFromClauseMethod extends TestCase
     public void testArrayNoArg()
     {
         String joinStatement = "select id, theString from " +
-                SupportBean.class.getName() + ".win:length(3) as s1, " +
+                SupportBean.class.getName() + "#length(3) as s1, " +
                 "method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchArrayNoArg";
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
         tryArrayNoArg(stmt);
 
         joinStatement = "select id, theString from " +
-                SupportBean.class.getName() + ".win:length(3) as s1, " +
+                SupportBean.class.getName() + "#length(3) as s1, " +
                 "method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchArrayNoArg()";
         stmt = epService.getEPAdministrator().createEPL(joinStatement);
         tryArrayNoArg(stmt);
@@ -407,7 +407,7 @@ public class TestFromClauseMethod extends TestCase
         model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("id", "theString"));
         model.setFromClause(FromClause.create()
-            .add(FilterStream.create(SupportBean.class.getName(), "s1").addView("win", "length", Expressions.constant(3)))
+            .add(FilterStream.create(SupportBean.class.getName(), "s1").addView("length", Expressions.constant(3)))
             .add(MethodInvocationStream.create(SupportStaticMethodLib.class.getName(), "fetchArrayNoArg")));
         stmt = epService.getEPAdministrator().create(model);
         assertEquals(joinStatement, model.toEPL());
@@ -432,14 +432,14 @@ public class TestFromClauseMethod extends TestCase
     public void testArrayWithArg()
     {
         String joinStatement = "select irstream id, theString from " +
-                SupportBean.class.getName() + "().win:length(3) as s1, " +
+                SupportBean.class.getName() + "()#length(3) as s1, " +
                 " method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchArrayGen(intPrimitive)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
         tryArrayWithArg(stmt);
 
         joinStatement = "select irstream id, theString from " +
                 "method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchArrayGen(intPrimitive) as s0, " +
-                SupportBean.class.getName() + ".win:length(3)";
+                SupportBean.class.getName() + "#length(3)";
         stmt = epService.getEPAdministrator().createEPL(joinStatement);
         tryArrayWithArg(stmt);
 
@@ -453,7 +453,7 @@ public class TestFromClauseMethod extends TestCase
         model.setFromClause(FromClause.create()
             .add(MethodInvocationStream.create(SupportStaticMethodLib.class.getName(), "fetchArrayGen", "s0")
                 .addParameter(Expressions.property("intPrimitive")))
-                .add(FilterStream.create(SupportBean.class.getName()).addView("win", "length", Expressions.constant(3)))
+                .add(FilterStream.create(SupportBean.class.getName()).addView("length", Expressions.constant(3)))
             );
         stmt = epService.getEPAdministrator().create(model);
         assertEquals(joinStatement, model.toEPL());
@@ -501,7 +501,7 @@ public class TestFromClauseMethod extends TestCase
     public void testObjectNoArg()
     {
         String joinStatement = "select id, theString from " +
-                SupportBean.class.getName() + "().win:length(3) as s1, " +
+                SupportBean.class.getName() + "()#length(3) as s1, " +
                 " method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchObjectNoArg()";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
@@ -518,7 +518,7 @@ public class TestFromClauseMethod extends TestCase
     public void testObjectWithArg()
     {
         String joinStatement = "select id, theString from " +
-                SupportBean.class.getName() + "().win:length(3) as s1, " +
+                SupportBean.class.getName() + "()#length(3) as s1, " +
                 " method:com.espertech.esper.support.epl.SupportStaticMethodLib.fetchObject(theString)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
@@ -538,7 +538,7 @@ public class TestFromClauseMethod extends TestCase
     public void testInvocationTargetEx()
     {
         String joinStatement = "select s1.theString from " +
-                SupportBean.class.getName() + "().win:length(3) as s1, " +
+                SupportBean.class.getName() + "()#length(3) as s1, " +
                 " method:com.espertech.esper.support.epl.SupportStaticMethodLib.throwExceptionBeanReturn()";
 
         epService.getEPAdministrator().createEPL(joinStatement);
@@ -575,8 +575,8 @@ public class TestFromClauseMethod extends TestCase
         tryInvalid(epService, "select * from SupportBean, method:Math where 1=2",
                    "No method name specified for method-based join [select * from SupportBean, method:Math where 1=2]");
 
-        tryInvalid(epService, "select * from SupportBean, method:Dummy.dummy().win:length(100) where 1=2",
-                   "Error starting statement: Method data joins do not allow views onto the data, view 'win:length' is not valid in this context [select * from SupportBean, method:Dummy.dummy().win:length(100) where 1=2]");
+        tryInvalid(epService, "select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2",
+                   "Error starting statement: Method data joins do not allow views onto the data, view 'length' is not valid in this context [select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2]");
 
         tryInvalid(epService, "select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.dummy where 1=2",
                    "Error starting statement: Could not find public static method named 'dummy' in class 'com.espertech.esper.support.epl.SupportStaticMethodLib' [select * from SupportBean, method:com.espertech.esper.support.epl.SupportStaticMethodLib.dummy where 1=2]");

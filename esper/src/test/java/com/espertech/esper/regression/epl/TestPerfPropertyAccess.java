@@ -42,7 +42,7 @@ public class TestPerfPropertyAccess extends TestCase
         String methodName = ".testPerfPropertyAccess";
 
         String joinStatement = "select * from " +
-                SupportBeanCombinedProps.class.getName() + ".win:length(1)" +
+                SupportBeanCombinedProps.class.getName() + "#length(1)" +
             " where indexed[0].mapped('a').value = 'dummy'";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);

@@ -54,7 +54,7 @@ public class TestNamedWindowOnSelect extends TestCase implements IndexBackingTab
         String[] fields = new String[] {"theString", "intPrimitive"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select * from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select * from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create insert into

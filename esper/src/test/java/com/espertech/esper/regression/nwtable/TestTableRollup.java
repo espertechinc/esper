@@ -45,7 +45,7 @@ public class TestTableRollup extends TestCase {
         String[] fieldsOut = "theString,total".split(",");
 
         epService.getEPAdministrator().createEPL("create table MyTable(pk string primary key, total sum(int))");
-        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select theString, sum(intPrimitive) as total from SupportBean.win:length(4) group by rollup(theString)").addListener(listenerOut);
+        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select theString, sum(intPrimitive) as total from SupportBean#length(4) group by rollup(theString)").addListener(listenerOut);
         epService.getEPAdministrator().createEPL("select MyTable[p00].total as c0 from SupportBean_S0").addListener(listenerQuery);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -73,7 +73,7 @@ public class TestTableRollup extends TestCase {
         String[] fields = "k0,k1,total".split(",");
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(k0 int, k1 int, col int)");
         epService.getEPAdministrator().createEPL("create table MyTable(k0 int primary key, k1 int primary key, total sum(int))");
-        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select sum(col) as total from MyEvent.win:length(3) group by rollup(k0,k1)");
+        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select sum(col) as total from MyEvent#length(3) group by rollup(k0,k1)");
 
         epService.getEPRuntime().sendEvent(new Object[] {1, 10, 100}, "MyEvent");
         epService.getEPRuntime().sendEvent(new Object[] {2, 10, 200}, "MyEvent");
@@ -91,7 +91,7 @@ public class TestTableRollup extends TestCase {
     public void testGroupingSetThreeDim() {
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(k0 string, k1 string, k2 string, col int)");
         epService.getEPAdministrator().createEPL("create table MyTable(k0 string primary key, k1 string primary key, k2 string primary key, total sum(int))");
-        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select sum(col) as total from MyEvent.win:length(3) group by grouping sets(k0,k1,k2)");
+        epService.getEPAdministrator().createEPL("into table MyTable insert into MyStream select sum(col) as total from MyEvent#length(3) group by grouping sets(k0,k1,k2)");
 
         String[] fields = "k0,k1,k2,total".split(",");
         epService.getEPRuntime().sendEvent(new Object[] {1, 10, 100, 1000}, "MyEvent");

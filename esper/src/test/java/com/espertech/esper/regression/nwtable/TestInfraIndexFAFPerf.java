@@ -72,7 +72,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
     {
         // create window one
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as SupportBean" :
+                "create window MyInfra#keepall() as SupportBean" :
                 "create table MyInfra (theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");
@@ -126,7 +126,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
     {
         // create window one
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as SupportBean" :
+                "create window MyInfra#keepall() as SupportBean" :
                 "create table MyInfra (theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");
@@ -169,7 +169,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
     {
         // create window one
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as SupportBean" :
+                "create window MyInfra#keepall() as SupportBean" :
                 "create table MyInfra (theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");
@@ -211,7 +211,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
     {
         // create window one
         String stmtTextCreateOne = namedWindow ?
-                "create window MyInfraOne.win:keepall() as (f1 string, f2 int)" :
+                "create window MyInfraOne#keepall() as (f1 string, f2 int)" :
                 "create table MyInfraOne (f1 string primary key, f2 int primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         epService.getEPAdministrator().createEPL("insert into MyInfraOne(f1, f2) select theString, intPrimitive from SupportBean");
@@ -275,7 +275,7 @@ public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTable
 
     private void runAssertionFAFInKeywordSingleIndex(boolean namedWindow) throws Exception {
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as MyEvent" :
+                "create window MyInfra#keepall() as MyEvent" :
                 "create table MyInfra (id string primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("create index idx on MyInfra(id)");

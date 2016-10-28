@@ -43,7 +43,7 @@ public class TestAggregateExtLeaving extends TestCase {
 
     public void testLeaving()
     {
-        String epl = "select leaving() as val from SupportBean.win:length(3)";
+        String epl = "select leaving() as val from SupportBean#length(3)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 

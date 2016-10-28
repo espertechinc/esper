@@ -49,7 +49,7 @@ public class TestDataWindowMultipleExpiry extends TestCase
         // Testing the two forms of the case expression
         // Furthermore the test checks the different when clauses and actions related.
         String caseExpr = "select volume " +
-                "from " +  SupportMarketDataBean.class.getName() + ".std:unique(symbol).win:time(10)";
+                "from " +  SupportMarketDataBean.class.getName() + "#unique(symbol)#time(10)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(caseExpr);
         stmt.addListener(listener);

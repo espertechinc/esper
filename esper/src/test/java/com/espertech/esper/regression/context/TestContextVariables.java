@@ -227,14 +227,14 @@ public class TestContextVariables extends TestCase {
         // variable use outside of context
         tryInvalid("select myctxone_int from SupportBean_S0",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select myctxone_int from SupportBean_S0]");
-        tryInvalid("select * from SupportBean_S0.win:expr(myctxone_int > 5)",
-                "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0.win:expr(myctxone_int > 5)]");
-        tryInvalid("select * from SupportBean_S0.win:keepall() limit myctxone_int",
-                "Error starting statement: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0.win:keepall() limit myctxone_int]");
-        tryInvalid("select * from SupportBean_S0.win:keepall() limit 10 offset myctxone_int",
-                "Error starting statement: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0.win:keepall() limit 10 offset myctxone_int]");
-        tryInvalid("select * from SupportBean_S0.win:keepall() output every myctxone_int events",
-                "Error starting statement: Error in the output rate limiting clause: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0.win:keepall() output every myctxone_int events]");
+        tryInvalid("select * from SupportBean_S0#expr(myctxone_int > 5)",
+                "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0#expr(myctxone_int > 5)]");
+        tryInvalid("select * from SupportBean_S0#keepall() limit myctxone_int",
+                "Error starting statement: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0#keepall() limit myctxone_int]");
+        tryInvalid("select * from SupportBean_S0#keepall() limit 10 offset myctxone_int",
+                "Error starting statement: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0#keepall() limit 10 offset myctxone_int]");
+        tryInvalid("select * from SupportBean_S0#keepall() output every myctxone_int events",
+                "Error starting statement: Error in the output rate limiting clause: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [select * from SupportBean_S0#keepall() output every myctxone_int events]");
         tryInvalid("@Hint('reclaim_group_aged=myctxone_int') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Error starting statement: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context [@Hint('reclaim_group_aged=myctxone_int') select longPrimitive, count(*) from SupportBean group by longPrimitive]");
     }

@@ -1,5 +1,5 @@
 @Name('win')
-create window MyWindow.win:length(2)
+create window MyWindow#length(2)
 (
     time java.util.Date
 );

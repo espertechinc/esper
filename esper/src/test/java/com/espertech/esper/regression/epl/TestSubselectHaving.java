@@ -52,13 +52,13 @@ public class TestSubselectHaving extends TestCase
     private void runAssertionHavingSubselectWithGroupBy(boolean namedWindow)
     {
         String eplCreate = namedWindow ?
-                "create window MyInfra.std:unique(key) as MaxAmountEvent" :
+                "create window MyInfra#unique(key) as MaxAmountEvent" :
                 "create table MyInfra(key string primary key, maxAmount double)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select * from MaxAmountEvent");
 
         String stmtText = "select theString as c0, sum(intPrimitive) as c1 " +
-                "from SupportBean.std:groupwin(theString).win:length(2) as sb " +
+                "from SupportBean#groupwin(theString)#length(2) as sb " +
                 "group by theString " +
                 "having sum(intPrimitive) > (select maxAmount from MyInfra as mw where sb.theString = mw.key)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);

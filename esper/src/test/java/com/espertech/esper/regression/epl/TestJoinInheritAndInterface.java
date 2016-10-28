@@ -41,8 +41,8 @@ public class TestJoinInheritAndInterface extends TestCase
     public void testInterfaceJoin()
     {
         String viewExpr = "select a, b from " +
-                ISupportA.class.getName() + ".win:length(10), " +
-                ISupportB.class.getName() + ".win:length(10)" +
+                ISupportA.class.getName() + "#length(10), " +
+                ISupportB.class.getName() + "#length(10)" +
                 " where a = b";
 
         EPStatement testView = epService.getEPAdministrator().createEPL(viewExpr);

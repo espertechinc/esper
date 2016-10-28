@@ -1060,15 +1060,45 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitMethodJoinExpression(EsperEPL2GrammarParser.MethodJoinExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#viewExpression}.
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressions}.
 	 * @param ctx the parse tree
 	 */
-	void enterViewExpression(EsperEPL2GrammarParser.ViewExpressionContext ctx);
+	void enterViewExpressions(EsperEPL2GrammarParser.ViewExpressionsContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#viewExpression}.
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressions}.
 	 * @param ctx the parse tree
 	 */
-	void exitViewExpression(EsperEPL2GrammarParser.ViewExpressionContext ctx);
+	void exitViewExpressions(EsperEPL2GrammarParser.ViewExpressionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressionWNamespace}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewExpressionWNamespace(EsperEPL2GrammarParser.ViewExpressionWNamespaceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressionWNamespace}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewExpressionWNamespace(EsperEPL2GrammarParser.ViewExpressionWNamespaceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressionOptNamespace}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewExpressionOptNamespace(EsperEPL2GrammarParser.ViewExpressionOptNamespaceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#viewExpressionOptNamespace}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewExpressionOptNamespace(EsperEPL2GrammarParser.ViewExpressionOptNamespaceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#viewWParameters}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewWParameters(EsperEPL2GrammarParser.ViewWParametersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#viewWParameters}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewWParameters(EsperEPL2GrammarParser.ViewWParametersContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#groupByListExpr}.
 	 * @param ctx the parse tree

@@ -77,7 +77,7 @@ public class SampleVirtualDataWindowMain
 
     private void runJoinSample(EPServiceProvider epService) {
         String epl = "select sw.* " +
-                "from SampleJoinEvent.std:lastevent() sje, MySampleWindow sw " +
+                "from SampleJoinEvent#lastevent() sje, MySampleWindow sw " +
                 "where sw.key1 = sje.propOne and sw.key2 = sje.propTwo";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         SampleUpdateListener sampleListener = new SampleUpdateListener();

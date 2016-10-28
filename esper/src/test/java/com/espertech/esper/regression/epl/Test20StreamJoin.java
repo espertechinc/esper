@@ -50,7 +50,7 @@ public class Test20StreamJoin extends TestCase
         String delimiter = "";
         for (int i = 0; i < 20; i++) {
             buf.append(delimiter);
-            buf.append("S0(id=" + i + ").std:lastevent() as s_" + i);
+            buf.append("S0(id=" + i + ")#lastevent() as s_" + i);
             delimiter = ", ";
         }
         EPStatement stmt = epService.getEPAdministrator().createEPL(buf.toString());

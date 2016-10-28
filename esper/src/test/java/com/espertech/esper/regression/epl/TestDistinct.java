@@ -63,7 +63,7 @@ public class TestDistinct extends TestCase
                 "->" +
                 "every-distinct(wooA.theString) wooA=SupportBean(intPrimitive=2)" +
                 " where timer:within(1 hour)" +
-                "].win:time(1 hour) as fooWooPair " +
+                "]#time(1 hour) as fooWooPair " +
                 "on fooB.longPrimitive = fooWooPair.fooA.longPrimitive";
 
         SupportSubscriber subs = new SupportSubscriber();
@@ -92,7 +92,7 @@ public class TestDistinct extends TestCase
     public void testOnDemandAndOnSelect()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -114,7 +114,7 @@ public class TestDistinct extends TestCase
     public void testSubquery()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean where theString in (select distinct id from SupportBean_A.win:keepall())");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean where theString in (select distinct id from SupportBean_A#keepall())");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean_A("E1"));
@@ -130,7 +130,7 @@ public class TestDistinct extends TestCase
     public void testBeanEventWildcardThisProperty()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "select distinct * from SupportBean.win:keepall()";
+        String statementText = "select distinct * from SupportBean#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -147,7 +147,7 @@ public class TestDistinct extends TestCase
     public void testBeanEventWildcardSODA()
     {
         String[] fields = new String[] {"id"};
-        String statementText = "select distinct * from SupportBean_A.win:keepall()";
+        String statementText = "select distinct * from SupportBean_A#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -172,7 +172,7 @@ public class TestDistinct extends TestCase
     public void testBeanEventWildcardPlusCols()
     {
         String[] fields = new String[] {"intPrimitive", "val1", "val2"};
-        String statementText = "select distinct *, intBoxed%5 as val1, intBoxed as val2 from SupportBean_N.win:keepall()";
+        String statementText = "select distinct *, intBoxed%5 as val1, intBoxed as val2 from SupportBean_N#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -194,7 +194,7 @@ public class TestDistinct extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("MyMapType", def);
 
         String[] fields = new String[] {"k1", "v1"};
-        String statementText = "select distinct * from MyMapType.win:keepall()";
+        String statementText = "select distinct * from MyMapType#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -211,7 +211,7 @@ public class TestDistinct extends TestCase
     public void testOutputSimpleColumn()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "select distinct theString, intPrimitive from SupportBean.win:keepall()";
+        String statementText = "select distinct theString, intPrimitive from SupportBean#keepall()";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -219,7 +219,7 @@ public class TestDistinct extends TestCase
         stmt.destroy();
         
         // test join
-        statementText = "select distinct theString, intPrimitive from SupportBean.win:keepall() a, SupportBean_A.win:keepall() b where a.theString = b.id";
+        statementText = "select distinct theString, intPrimitive from SupportBean#keepall() a, SupportBean_A#keepall() b where a.theString = b.id";
         stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -239,7 +239,7 @@ public class TestDistinct extends TestCase
         stmt.destroy();
 
         // test join
-        statementText = "select distinct theString, intPrimitive from SupportBean.std:lastevent() a, SupportBean_A.win:keepall() b where a.theString = b.id output every 3 events";
+        statementText = "select distinct theString, intPrimitive from SupportBean#lastevent() a, SupportBean_A#keepall() b where a.theString = b.id output every 3 events";
         stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -251,14 +251,14 @@ public class TestDistinct extends TestCase
     public void testOutputRateSnapshotColumn()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "select distinct theString, intPrimitive from SupportBean.win:keepall() output snapshot every 3 events order by theString asc";
+        String statementText = "select distinct theString, intPrimitive from SupportBean#keepall() output snapshot every 3 events order by theString asc";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
         runAssertionSnapshotColumn(stmt, fields);
         stmt.destroy();
         
-        statementText = "select distinct theString, intPrimitive from SupportBean.win:keepall() a, SupportBean_A.win:keepall() b where a.theString = b.id output snapshot every 3 events order by theString asc";
+        statementText = "select distinct theString, intPrimitive from SupportBean#keepall() a, SupportBean_A#keepall() b where a.theString = b.id output snapshot every 3 events order by theString asc";
         stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -271,7 +271,7 @@ public class TestDistinct extends TestCase
     public void testBatchWindow()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "select distinct theString, intPrimitive from SupportBean.win:length_batch(3)";
+        String statementText = "select distinct theString, intPrimitive from SupportBean#length_batch(3)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -298,7 +298,7 @@ public class TestDistinct extends TestCase
         // test batch window with aggregation
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         String[] fieldsTwo = new String[] {"c1", "c2"};
-        String epl = "insert into ABC select distinct theString as c1, first(intPrimitive) as c2 from SupportBean.win:time_batch(1 second)";
+        String epl = "insert into ABC select distinct theString as c1, first(intPrimitive) as c2 from SupportBean#time_batch(1 second)";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(epl);
         stmtTwo.addListener(listener);
 
@@ -315,7 +315,7 @@ public class TestDistinct extends TestCase
     public void testBatchWindowJoin()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "select distinct theString, intPrimitive from SupportBean.win:length_batch(3) a, SupportBean_A.win:keepall() b where a.theString = b.id";
+        String statementText = "select distinct theString, intPrimitive from SupportBean#length_batch(3) a, SupportBean_A#keepall() b where a.theString = b.id";
         EPStatement stmt = epService.getEPAdministrator().createEPL(statementText);
         stmt.addListener(listener);
 
@@ -343,7 +343,7 @@ public class TestDistinct extends TestCase
     public void testBatchWindowInsertInto()
     {
         String[] fields = new String[] {"theString", "intPrimitive"};
-        String statementText = "insert into MyStream select distinct theString, intPrimitive from SupportBean.win:length_batch(3)";
+        String statementText = "insert into MyStream select distinct theString, intPrimitive from SupportBean#length_batch(3)";
         epService.getEPAdministrator().createEPL(statementText);
 
         statementText = "select * from MyStream";

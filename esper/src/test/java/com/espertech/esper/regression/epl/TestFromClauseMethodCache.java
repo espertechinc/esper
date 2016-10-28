@@ -44,7 +44,7 @@ public class TestFromClauseMethodCache extends TestCase
         listener = new SupportUpdateListener();
 
         String joinStatement = "select id, p00, theString from " +
-                SupportBean.class.getName() + "().win:length(100) as s1, " +
+                SupportBean.class.getName() + "()#length(100) as s1, " +
                 " method:SupportStaticMethodInvocations.fetchObjectLog(theString, intPrimitive)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
         stmt.addListener(listener);
@@ -101,7 +101,7 @@ public class TestFromClauseMethodCache extends TestCase
         listener = new SupportUpdateListener();
 
         String joinStatement = "select id, p00, theString from " +
-                SupportBean.class.getName() + "().win:length(100) as s1, " +
+                SupportBean.class.getName() + "()#length(100) as s1, " +
                 " method:SupportStaticMethodInvocations.fetchObjectLog(theString, intPrimitive)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(joinStatement);
         stmt.addListener(listener);

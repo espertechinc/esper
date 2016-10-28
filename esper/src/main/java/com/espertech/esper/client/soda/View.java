@@ -8,12 +8,14 @@
  **************************************************************************************/
 package com.espertech.esper.client.soda;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * A view provides a projection upon a stream, such as a data window, grouping or unique.
+ * For views, the namespace is an optional value and can be null for any-namespace.
  */
 public class View extends EPBaseNamedObject
 {
@@ -38,6 +40,16 @@ public class View extends EPBaseNamedObject
 
     /**
      * Creates a view.
+     * @param name is the view name, i.e. "length" for length window
+     * @return view
+     */
+    public static View create(String name)
+    {
+        return new View(null, name, new ArrayList<Expression>());
+    }
+
+    /**
+     * Creates a view.
      * @param namespace is thie view namespace, i.e. "win" for data windows
      * @param name is the view name, i.e. "length" for length window
      * @param parameters is a list of view parameters, or empty if there are no parameters for the view
@@ -46,6 +58,17 @@ public class View extends EPBaseNamedObject
     public static View create(String namespace, String name, List<Expression> parameters)
     {
         return new View(namespace, name, parameters);
+    }
+
+    /**
+     * Creates a view.
+     * @param name is the view name, i.e. "length" for length window
+     * @param parameters is a list of view parameters, or empty if there are no parameters for the view
+     * @return view
+     */
+    public static View create(String name, List<Expression> parameters)
+    {
+        return new View(null, name, parameters);
     }
 
     /**
@@ -69,6 +92,24 @@ public class View extends EPBaseNamedObject
 
     /**
      * Creates a view.
+     * @param name is the view name, i.e. "length" for length window
+     * @param parameters is a list of view parameters, or empty if there are no parameters for the view
+     * @return view
+     */
+    public static View create(String name, Expression ...parameters)
+    {
+        if (parameters != null)
+        {
+            return new View(null, name, Arrays.asList(parameters));
+        }
+        else
+        {
+            return new View(null, name, new ArrayList<Expression>());
+        }
+    }
+
+    /**
+     * Creates a view.
      * @param namespace is thie view namespace, i.e. "win" for data windows
      * @param name is the view name, i.e. "length" for length window
      * @param parameters is a list of view parameters, or empty if there are no parameters for the view
@@ -76,5 +117,12 @@ public class View extends EPBaseNamedObject
     public View(String namespace, String name, List<Expression> parameters)
     {
         super(namespace, name, parameters);
+    }
+
+    public void toEPLWithHash(StringWriter writer) {
+        writer.write(getName());
+        writer.write('(');
+        ExpressionBase.toPrecedenceFreeEPL(getParameters(), writer);
+        writer.write(')');
     }
 }

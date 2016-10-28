@@ -74,7 +74,7 @@ public class TestContainedEventExample extends TestCase
         SupportUpdateListener listenerThree = new SupportUpdateListener();
         stmtThree.addListener(listenerThree);
 
-        String stmtTextFour = "select count(*) from MediaOrder[books.book].std:unique(bookId)";
+        String stmtTextFour = "select count(*) from MediaOrder[books.book]#unique(bookId)";
         EPStatement stmtFour = epService.getEPAdministrator().createEPL(stmtTextFour);
         SupportUpdateListener listenerFour = new SupportUpdateListener();
         stmtFour.addListener(listenerFour);
@@ -279,7 +279,7 @@ public class TestContainedEventExample extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("ResponseEvent", ResponseEvent.class);
 
         String[] fields = "category,subEventType,avgTime".split(",");
-        String stmtText = "select category, subEventType, avg(responseTimeMillis) as avgTime from ResponseEvent[select category, * from subEvents].win:time(1 min) group by category, subEventType order by category, subEventType";
+        String stmtText = "select category, subEventType, avg(responseTimeMillis) as avgTime from ResponseEvent[select category, * from subEvents]#time(1 min) group by category, subEventType order by category, subEventType";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);

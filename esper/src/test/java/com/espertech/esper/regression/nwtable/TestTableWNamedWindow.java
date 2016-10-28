@@ -43,7 +43,7 @@ public class TestTableWNamedWindow extends TestCase {
 
     public void testOnSelect() {
         epService.getEPAdministrator().createEPL("@Name('var') create table varagg (key string primary key, total sum(int))");
-        epService.getEPAdministrator().createEPL("@Name('win') create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("@Name('win') create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("@Name('populate') into table varagg select sum(intPrimitive) as total from MyWindow group by theString");
         epService.getEPAdministrator().createEPL("@Name('select') on SupportBean_S0 select theString, varagg[p00].total as c0 from MyWindow where theString = p00").addListener(listener);

@@ -165,7 +165,7 @@ public class TestDatabaseJoinPerfWithCache extends TestCase implements IndexBack
     public void testSelectLargeResultSet()
     {
         String stmtText = "select id, mycol3, mycol2 from " +
-                SupportBean_S0.class.getName() + ".win:keepall() as s0," +
+                SupportBean_S0.class.getName() + "#keepall() as s0," +
                 " sql:MyDB ['select mycol3, mycol2 from mytesttable_large'] as s1 where s0.id = s1.mycol3";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);
@@ -193,7 +193,7 @@ public class TestDatabaseJoinPerfWithCache extends TestCase implements IndexBack
     {
         String stmtText = "select theString, mycol3, mycol4 from " +
                 " sql:MyDB ['select mycol3, mycol4 from mytesttable_large'] as s0, " +
-                SupportBean.class.getName() + ".win:keepall() as s1 where s1.doubleBoxed = s0.mycol3 and s1.byteBoxed = s0.mycol4";
+                SupportBean.class.getName() + "#keepall() as s1 where s1.doubleBoxed = s0.mycol3 and s1.byteBoxed = s0.mycol4";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();

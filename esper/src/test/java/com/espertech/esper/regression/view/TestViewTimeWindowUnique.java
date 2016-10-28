@@ -45,7 +45,7 @@ public class TestViewTimeWindowUnique extends TestCase
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select rstream * from SupportBean.win:time(1 month)").addListener(listener);
+        epService.getEPAdministrator().createEPL("select rstream * from SupportBean#time(1 month)").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 
@@ -70,7 +70,7 @@ public class TestViewTimeWindowUnique extends TestCase
         // Set up a time window with a unique view attached
         EPStatement windowUniqueView = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportMarketDataBean.class.getName() +
-                ".win:time(3.0).std:unique(symbol)");
+                "#time(3.0)#unique(symbol)");
         windowUniqueView.addListener(listener);
 
         sendTimer(0);
@@ -90,7 +90,7 @@ public class TestViewTimeWindowUnique extends TestCase
         // Set up a time window with a unique view attached
         EPStatement windowUniqueView = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportMarketDataBean.class.getName() +
-                ".win:time(3.0).std:unique(symbol, price)");
+                "#time(3.0)#unique(symbol, price)");
         windowUniqueView.addListener(listener);
         String[] fields = new String[] {"symbol", "price", "volume"};
 

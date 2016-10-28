@@ -36,7 +36,7 @@ public class TestMTStmtNamedWindowFAF extends TestCase
         engine.initialize();
 
         engine.getEPAdministrator().createEPL(
-                "create window MyWindow.win:keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
+                "create window MyWindow#keepall() as select theString, longPrimitive from " + SupportBean.class.getName());
 
         engine.getEPAdministrator().createEPL(
                 "insert into MyWindow(theString, longPrimitive) " +

@@ -245,11 +245,18 @@ public enum ViewEnum
      */
     public static ViewEnum forName(String namespace, String name)
     {
-        for (ViewEnum viewEnum : ViewEnum.values())
-        {
-            if ((viewEnum.namespace.equals(namespace)) && (viewEnum.name.equals(name)))
-            {
-                return viewEnum;
+        if (namespace != null) {
+            for (ViewEnum viewEnum : ViewEnum.values()) {
+                if ((viewEnum.namespace.equals(namespace)) && (viewEnum.name.equals(name))) {
+                    return viewEnum;
+                }
+            }
+        }
+        else {
+            for (ViewEnum viewEnum : ViewEnum.values()) {
+                if (viewEnum.name.equals(name)) {
+                    return viewEnum;
+                }
             }
         }
 

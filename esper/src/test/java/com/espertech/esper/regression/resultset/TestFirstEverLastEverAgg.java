@@ -57,7 +57,7 @@ public class TestFirstEverLastEverAgg extends TestCase {
 
     public void testOnDelete()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow where theString = id");
 
@@ -98,7 +98,7 @@ public class TestFirstEverLastEverAgg extends TestCase {
                 "countever(*) as counteverstar, " +
                 "countever(intBoxed) as counteverexpr, " +
                 "countever(intBoxed,boolPrimitive) as counteverexprfilter " +
-                "from SupportBean.win:length(2)";
+                "from SupportBean#length(2)";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, epl);
         stmt.addListener(listener);
 

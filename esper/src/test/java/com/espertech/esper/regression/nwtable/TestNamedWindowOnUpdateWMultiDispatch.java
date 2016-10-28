@@ -48,8 +48,8 @@ public class TestNamedWindowOnUpdateWMultiDispatch extends TestCase
 
         // ESPER-568
         epService.getEPAdministrator().createEPL("create schema S2 ( company string, value double, total double)");
-	    EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window S2Win.win:time(25 hour).std:firstunique(company) as S2");
-        epService.getEPAdministrator().createEPL("insert into S2Win select * from S2.std:firstunique(company)");
+	    EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window S2Win#time(25 hour)#firstunique(company) as S2");
+        epService.getEPAdministrator().createEPL("insert into S2Win select * from S2#firstunique(company)");
         epService.getEPAdministrator().createEPL("on S2 as a update S2Win as b set total = b.value + a.value");
         EPStatement stmt = epService.getEPAdministrator().createEPL("select count(*) as cnt from S2Win");
         stmt.addListener(listener);

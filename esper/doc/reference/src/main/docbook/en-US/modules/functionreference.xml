@@ -56,7 +56,7 @@
 		</para>
 
 		<programlisting>select symbol, Math.round(volume/1000)
-from StockTickEvent.win:time(30 sec)</programlisting>
+from StockTickEvent#time(30 sec)</programlisting>
 			
 		<para>
 			In general, arbitrary Java class names have to be fully qualified (e.g. java.lang.Math) but Esper provides a mechanism 
@@ -742,7 +742,7 @@ from CarEvent group by grouping sets((name, place),name, place,())</programlisti
 			<para>
 				The next example declares a data window. For newly arriving events the function returns boolean true, for events that expire after 10 seconds the function returns boolean false:
 			</para>
-			<programlisting>select irstream *, istream() from OrderEvent.win:time(10 sec)</programlisting>
+			<programlisting>select irstream *, istream() from OrderEvent#time(10 sec)</programlisting>
 			
 			<para>
 			   The <literal>istream</literal> function returns true for all cases where insert or remove stream does not apply, such as when used in parameter expressions to data windows
@@ -772,7 +772,7 @@ from CarEvent group by grouping sets((name, place),name, place,())</programlisti
 			</para>
 	
 			<programlisting>select symbol, min(ticks.timestamp, news.timestamp) as minT
-	from StockTickEvent.win:time(30 sec) as ticks, NewsEvent.win:time(30 sec) as news
+	from StockTickEvent#time(30 sec) as ticks, NewsEvent#time(30 sec) as news
 	where ticks.symbol = news.symbol</programlisting>
 		</sect2>
 
@@ -797,12 +797,12 @@ from CarEvent group by grouping sets((name, place),name, place,())</programlisti
 			<para>
 				This example selects the value of the <literal>price</literal> property of the 2nd-previous event from the current Trade event:
 			</para>
-			<programlisting>select prev(2, price) from Trade.win:length(10)</programlisting>
+			<programlisting>select prev(2, price) from Trade#length(10)</programlisting>
 
 			<para>
 				By using the stream alias in the <literal>previous</literal> function, the next example selects the trade event itself that is immediately previous to the current Trade event
 			</para>
-			<programlisting>select prev(1, trade) from Trade.win:length(10) as trade</programlisting>
+			<programlisting>select prev(1, trade) from Trade#length(10) as trade</programlisting>
 
 			<para>
 				Since the <literal>prev</literal> function takes the order established by the data window into account, the function works well with sorted windows.
@@ -811,12 +811,12 @@ from CarEvent group by grouping sets((name, place),name, place,())</programlisti
 				In the following example the statement selects the symbol of the 3 Trade events that had the largest, second-largest and third-largest volume.
 			</para>
 			<programlisting>select prev(0, symbol), prev(1, symbol), prev(2, symbol)
-  from Trade.ext:sort(3, volume desc)</programlisting>
+  from Trade#sort(3, volume desc)</programlisting>
 
 			<para>
 				The i-th previous event parameter can also be an expression returning an Integer-type value. The next statement joins the Trade data window with an <literal>RankSelectionEvent</literal> event that provides a <literal>rank</literal> property used to look up a certain position in the sorted Trade data window:
 			</para>
-			<programlisting>select prev(rank, symbol) from Trade.ext:sort(10, volume desc), RankSelectionEvent unidirectional</programlisting>
+			<programlisting>select prev(rank, symbol) from Trade#sort(10, volume desc), RankSelectionEvent unidirectional</programlisting>
 
 			<para>
 				Use the <literal>prev</literal> function in combination with a grouped data window to access a previous event per grouping criteria.
@@ -824,13 +824,13 @@ from CarEvent group by grouping sets((name, place),name, place,())</programlisti
 			<para>
 				The example below returns the price of the previous Trade event for the same symbol, or <literal>null</literal> if for that symbol there is no previous Trade event:
 			</para>
-			<programlisting>select prev(1, price) from Trade.std:groupwin(symbol).win:length(2)</programlisting>
+			<programlisting>select prev(1, price) from Trade#groupwin(symbol)#length(2)</programlisting>
 
 			<para>
 				The <literal>prev</literal> function returns a <literal>null</literal> value if the data window does not currently hold the i-th previous event. The example below illustrates this using a time batch window. Here the <literal>prev</literal>  
 				function returns a null value for any events in which the previous event is not in the same batch of events. Note that the <literal>prior</literal> function as discussed below can be used if a null value is not the desired result.
 			</para>
-			<programlisting>select prev(1, symbol) from Trade.win:time_batch(1 min)</programlisting>			
+			<programlisting>select prev(1, symbol) from Trade#time_batch(1 min)</programlisting>			
 
 			<para>
 				An alternative form of the <literal>prev</literal> function allows the index to not appear or appear after the property name if the index value is a constant and not an expression:
@@ -849,7 +849,7 @@ select prev(symbol, 1) from Trade</programlisting>
 				The following example returns for each event the current smallest price per symbol:
 			</para>
 			<programlisting>select symbol, prev(0, price) as topPricePerSymbol 
-from Trade.std:groupwin(symbol).ext:sort(1, price asc)</programlisting>
+from Trade#groupwin(symbol)#sort(1, price asc)</programlisting>
 			
 			<sect3 xml:id="epl-single-row-function-ref-prev-restrictions">
 				<title>Restrictions</title>
@@ -925,12 +925,12 @@ from Trade.std:groupwin(symbol).ext:sort(1, price asc)</programlisting>
 			<para>
 				This example selects the value of the <literal>price</literal> property of the first (oldest) event held in the length window:
 			</para>
-			<programlisting>select prevtail(price) from Trade.win:length(10)</programlisting>
+			<programlisting>select prevtail(price) from Trade#length(10)</programlisting>
 
 			<para>
 				By using the stream alias in the <literal>prevtail</literal> function, the next example selects the trade event itself that is the second event held in the length window:
 			</para>
-			<programlisting>select prevtail(1, trade) from Trade.win:length(10) as trade</programlisting>
+			<programlisting>select prevtail(1, trade) from Trade#length(10) as trade</programlisting>
 
 			<para>
 				Since the <literal>prevtail</literal> function takes the order established by the data window into account, the function works well with sorted windows.
@@ -940,12 +940,12 @@ from Trade.std:groupwin(symbol).ext:sort(1, price asc)</programlisting>
 				In the following example the statement selects the symbol of the 3 Trade events that had the smallest, second-smallest and third-smallest volume.
 			</para>
 			<programlisting>select prevtail(0, symbol), prevtail(1, symbol), prevtail(2, symbol)
-  from Trade.ext:sort(3, volume asc)</programlisting>
+  from Trade#sort(3, volume asc)</programlisting>
 
 			<para>
 				The i-th previous event parameter can also be an expression returning an Integer-type value. The next statement joins the Trade data window with an <literal>RankSelectionEvent</literal> event that provides a <literal>rank</literal> property used to look up a certain position in the sorted Trade data window:
 			</para>
-			<programlisting>select prevtail(rank, symbol) from Trade.ext:sort(10, volume asc), RankSelectionEvent unidirectional</programlisting>
+			<programlisting>select prevtail(rank, symbol) from Trade#sort(10, volume asc), RankSelectionEvent unidirectional</programlisting>
 
 			<para>
 				The <literal>prev</literal> function returns a <literal>null</literal> value if the data window does not currently holds positional-first or the Nth-from-first event. For batch data windows the value returned is relative to the current batch.
@@ -954,7 +954,7 @@ from Trade.std:groupwin(symbol).ext:sort(1, price asc)</programlisting>
 			<para>
 				The following example returns the first and second symbol value in the batch:
 			</para>
-			<programlisting>select prevtail(0, symbol), prevtail(1, symbol) from Trade.win:time_batch(1 min)</programlisting>			
+			<programlisting>select prevtail(0, symbol), prevtail(1, symbol) from Trade#time_batch(1 min)</programlisting>			
 
 			<para>
 				An alternative form of the <literal>prevtail</literal> function allows the index to not appear or appear after the property name if the index value is a constant and not an expression:
@@ -973,7 +973,7 @@ select prevtail(symbol, 1) from Trade</programlisting>
 				Let's look at an example. This statement outputs the oldest price per symbol retaining the last 10 prices per symbol:
 			</para>
 			<programlisting>select symbol, prevtail(0, price) as oldestPrice
-from Trade.std:groupwin(symbol).win:length(10)</programlisting>
+from Trade#groupwin(symbol)#length(10)</programlisting>
 			
 			<sect3 xml:id="epl-single-row-function-ref-prevtail-restrictions">
 				<title>Restrictions</title>
@@ -1016,12 +1016,12 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<para>
 				This example selects the value of the <literal>price</literal> property of all events held in the length window:
 			</para>
-			<programlisting>select prevwindow(price) from Trade.win:length(10)</programlisting>
+			<programlisting>select prevwindow(price) from Trade#length(10)</programlisting>
 
 			<para>
 				By using the stream alias in the <literal>prevwindow</literal> function, the next example selects all trade events held in the length window:
 			</para>
-			<programlisting>select prevwindow(trade) from Trade.win:length(10) as trade</programlisting>
+			<programlisting>select prevwindow(trade) from Trade#length(10) as trade</programlisting>
 
 			<para>
 				When used with a data window that introduces a certain sort order, the <literal>prevwindow</literal> function returns events sorted according to that sort order.
@@ -1030,7 +1030,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<para>
 			  The next statement outputs for every arriving event the current 10 underying trade event objects that have the largest volume:
 			</para>
-			<programlisting>select prevwindow(trade) from Trade.ext:sort(10, volume desc) as trade</programlisting>
+			<programlisting>select prevwindow(trade) from Trade#sort(10, volume desc) as trade</programlisting>
 
 			<para>
 				The <literal>prevwindow</literal> function returns a <literal>null</literal> value if the data window does not currently hold any events.
@@ -1043,7 +1043,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<para>
 				This example statement outputs all prices per symbol retaining the last 10 prices per symbol:
 			</para>
-			<programlisting>select symbol, prevwindow(price) from Trade.std:groupwin(symbol).win:length(10)</programlisting>
+			<programlisting>select symbol, prevwindow(price) from Trade#groupwin(symbol)#length(10)</programlisting>
 			
 			<sect3 xml:id="epl-single-row-function-ref-prevwindow-restrictions">
 				<title>Restrictions</title>
@@ -1086,12 +1086,12 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<para>
 				This example selects the number of data points for the <literal>price</literal> property held in the length window:
 			</para>
-			<programlisting>select prevcount(price) from Trade.win:length(10)</programlisting>
+			<programlisting>select prevcount(price) from Trade#length(10)</programlisting>
 
 			<para>
 				By using the stream alias in the <literal>prevcount</literal> function the next example selects the count of trade events held in the length window:
 			</para>
-			<programlisting>select prevcount(trade) from Trade.win:length(10) as trade</programlisting>
+			<programlisting>select prevcount(trade) from Trade#length(10) as trade</programlisting>
 
 			<para>
 				The combination of the <literal>prevcount</literal> function and <literal>std:groupwin</literal> view returns the count of events in the given data window group. 
@@ -1100,7 +1100,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			<para>
 				This example statement outputs the number of events retaining the last 10 events per symbol:
 			</para>
-			<programlisting>select symbol, prevcount(price) from Trade.std:groupwin(symbol).win:length(10)</programlisting>
+			<programlisting>select symbol, prevcount(price) from Trade#groupwin(symbol)#length(10)</programlisting>
 			
 			<sect3 xml:id="epl-single-row-function-ref-prevcount-restrictions">
 				<title>Restrictions</title>
@@ -1154,7 +1154,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 				employs the <literal>prior</literal> function to select the current average and the average before the current average:
 			</para>
 			<programlisting>select average, prior(1, average) 
-    from TradeAverages.win:time_batch(1 min).stat:uni(volume)</programlisting>
+    from TradeAverages#time_batch(1 min)#uni(volume)</programlisting>
 	
 		</sect2>
 
@@ -1464,7 +1464,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 			  This sample statement demonstrates specifying grouping criteria for an aggregation function using the <literal>group_by</literal> named parameter.
 			  It computes, for the last one minute of orders, the ratio of orders per account compared to all orders:
 			</para>
-			<programlisting>select count(*)/count(*, group_by:()) as ratio from Orders.win:time(1 min) group by account</programlisting>
+			<programlisting>select count(*)/count(*, group_by:()) as ratio from Orders#time(1 min) group by account</programlisting>
 		</sect2>
 	
 		<sect2 xml:id="epl-function-aggregation-event">
@@ -1662,7 +1662,7 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 				<para>
 					To explain, consider the statement below which selects the underlying event of the first sensor event held by the length window of 2 events.  
 				</para>
-				<programlisting>select first(*) from SensorEvent.win:length(2) </programlisting>
+				<programlisting>select first(*) from SensorEvent#length(2) </programlisting>
 				
 				<para>
 				   Assume event E1, event E2 and event E3 are of type SensorEvent. When event E1 arrives the statement outputs the underlying event E1. When event E2 arrives the statement again outputs the underlying event E1. When event E3 arrives the statement outputs the underlying event E2, since 
@@ -1672,13 +1672,13 @@ from Trade.std:groupwin(symbol).win:length(10)</programlisting>
 				<para>
 					The stream wildcard syntax is useful for joins and subqueries. This example demonstrates a subquery that returns the first SensorEvent when a DoorEvent arrives:
 				</para>
-				<programlisting>select (select first(se.*) from SensorEvent.win:length(2) as se) from DoorEvent </programlisting>
+				<programlisting>select (select first(se.*) from SensorEvent#length(2) as se) from DoorEvent </programlisting>
 				
 				<para>
 					The following example shows the use of an index expression. The output value for <literal>f1</literal> is the temperature property value of the first event, the value for <literal>f2</literal> is the temperature property value of the second event:
 				</para>
 				<programlisting>select first(temperature, 0) as f1, first(temperature, 1) as f2
-from SensorEvent.win:time(10 sec)</programlisting>
+from SensorEvent#time(10 sec)</programlisting>
 
 				<para>
 					You may use dot-syntax to invoke a method on the first event. You may also append a property name using dot-syntax.
@@ -1714,13 +1714,13 @@ from SensorEvent.win:time(10 sec)</programlisting>
 				<para>
 					The next statement selects the underlying event of the first and last sensor event held by the time window of 10 seconds:
 				</para>
-				<programlisting>select first(*), last(*) from SensorEvent.win:time(10 sec) </programlisting>
+				<programlisting>select first(*), last(*) from SensorEvent#time(10 sec) </programlisting>
 				
 				<para>
 					The statement shown next selects the last temperature (<literal>f1</literal>) and the prior-to-last temperature (<literal>f1</literal>) of sensor events in the last 10 seconds:
 				</para>
 				<programlisting>select last(temperature, 0) as f1, select last(temperature, 1) as f2
-from SensorEvent.win:time(10 sec)</programlisting>
+from SensorEvent#time(10 sec)</programlisting>
 			</sect3>
 
 			<sect3 xml:id="epl-function-aggregation-event-maxby">
@@ -1745,7 +1745,7 @@ from SensorEvent.win:time(10 sec)</programlisting>
 				<para>
 					The next EPL returns the sensor event that had the highest temperature and the sensor event that had the lowest temperature, per zone, among the last 10 seconds of sensor events:
 				</para>
-				<programlisting>select maxby(temperature), minby(temperature) from SensorEvent.win:time(10 sec) group by zone</programlisting>
+				<programlisting>select maxby(temperature), minby(temperature) from SensorEvent#time(10 sec) group by zone</programlisting>
 				
 				<para>
 					Your EPL may specify multiple criteria expressions. If the sort criteria expression is descending please append the <literal>desc</literal> keyword.
@@ -1789,7 +1789,7 @@ from SensorEvent.win:time(10 sec)</programlisting>
 					only the events in the last 10 seconds:
 				</para>
 				<programlisting>select maxby(temperature).temperature - maxbyever(temperature).temperature 
-from SensorEvent.win:time(10) group by zone</programlisting>
+from SensorEvent#time(10) group by zone</programlisting>
 			</sect3>
 
 			<sect3 xml:id="epl-function-aggregation-event-minby">
@@ -1890,7 +1890,7 @@ from SensorEvent</programlisting>
 				<para>
 					The next statement selects the underlying event of all events held by the time window of 10 seconds:
 				</para>
-				<programlisting>select window(*) from SensorEvent.win:time(10 sec) </programlisting>
+				<programlisting>select window(*) from SensorEvent#time(10 sec) </programlisting>
 				
 				<para>
 					If used in a regular select statement, the <literal>window</literal> aggregation function requires that your stream is bound by a data window or a named window. You may not use the <literal>window</literal> aggregation function on unbound streams with the exception of on-demand queries or subqueries.
@@ -2200,7 +2200,7 @@ from SensorEvent</programlisting>
 									This sample statement outputs the total price, the first price and the last price per symbol for the last 30 seconds of events and every 5 seconds:
 								</para>
 								<programlisting>select symbol, sum(price), lastever(price), firstever(price)
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 group by symbol
 output every 5 sec</programlisting>
 								<para>
@@ -2228,7 +2228,7 @@ output every 5 sec</programlisting>
 									This sample statement uses <literal>leaving()</literal> to output after the first data point leaves the data window, ignoring the first datapoint:
 								</para>
 								<programlisting>select symbol, sum(price) 
-from StockTickEvent.win:time(30 sec) 
+from StockTickEvent#time(30 sec) 
 having leaving()</programlisting>
 							</entry>
 						</row>
@@ -2302,7 +2302,7 @@ output snapshot every 2 sec</programlisting>
 									(and considering the last event that left). The <literal>timestamp</literal> event property must be part of the event for this to work.
 								</para>
 								<programlisting>select colour, rate(timestamp) as rate 
-from StockTickEvent.std:groupwin(symbol).win:length(4) 
+from StockTickEvent#groupwin(symbol)#length(4) 
 group by symbol</programlisting>
 							</entry>
 						</row>
@@ -2369,7 +2369,7 @@ group by symbol</programlisting>
 		 </para>
 		 
 <programlisting><![CDATA[select 3 * com.mycompany.MyClass.myFunction(price, volume) as myValue 
-from StockTick.win:time(30 sec)]]></programlisting>
+from StockTick#time(30 sec)]]></programlisting>
 
 		 <para>
 			 User-defined functions also take array parameters as this example shows. The section on <xref linkend="epl-operator-ref-array"/> outlines in more detail the types of arrays produced.

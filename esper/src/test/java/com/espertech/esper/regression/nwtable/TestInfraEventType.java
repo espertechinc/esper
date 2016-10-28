@@ -50,7 +50,7 @@ public class TestInfraEventType extends TestCase
 
     private void runAssertionType(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as (c0 int[], c1 int[primitive])" :
+                "create window MyInfra#keepall() as (c0 int[], c1 int[primitive])" :
                 "create table MyInfra (c0 int[], c1 int[primitive])";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, false, eplCreate);
 

@@ -49,7 +49,7 @@ public class TestAggregateRowForAllHaving extends TestCase
     public void testSumOneView()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBean.class.getName() + ".win:time(10 seconds) " +
+                          "from " + SupportBean.class.getName() + "#time(10 seconds) " +
                           "having sum(longBoxed) > 10";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(listener);
@@ -60,8 +60,8 @@ public class TestAggregateRowForAllHaving extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:time(10 seconds) as one, " +
-                                    SupportBean.class.getName() + ".win:time(10 seconds) as two " +
+                          "from " + SupportBeanString.class.getName() + "#time(10 seconds) as one, " +
+                                    SupportBean.class.getName() + "#time(10 seconds) as two " +
                           "where one.theString = two.theString " +
                           "having sum(longBoxed) > 10";
 
@@ -99,9 +99,9 @@ public class TestAggregateRowForAllHaving extends TestCase
     public void testAvgGroupWindow()
     {
         //String stmtText = "select istream avg(price) as aprice from "+ SupportMarketDataBean.class.getName()
-        //        +".std:groupwin(symbol).win:length(1) having avg(price) <= 0";
+        //        +"#groupwin(symbol)#length(1) having avg(price) <= 0";
         String stmtText = "select istream avg(price) as aprice from "+ SupportMarketDataBean.class.getName()
-                +".std:unique(symbol) having avg(price) <= 0";
+                +"#unique(symbol) having avg(price) <= 0";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(listener);
 

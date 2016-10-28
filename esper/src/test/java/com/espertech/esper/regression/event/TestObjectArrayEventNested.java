@@ -535,7 +535,7 @@ public class TestObjectArrayEventNested extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TypeLev0", new String[] {"p0id", "p1"}, new Object[] {int.class, "TypeLev1"});
         epService.getEPAdministrator().getConfiguration().addEventType("TypeRoot", new String[] {"rootId", "p0"}, new Object[] {int.class, "TypeLev0"});
         
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from TypeRoot.std:lastevent()");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from TypeRoot#lastevent()");
         Object[] dataLev1 = {1000};
         Object[] dataLev0 = {100, dataLev1};
         epService.getEPRuntime().sendEvent(new Object[] {10, dataLev0}, "TypeRoot");

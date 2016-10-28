@@ -86,7 +86,7 @@ public class ViewServiceHelper
             ViewEnum viewEnum = ViewEnum.forName(lastView.getObjectNamespace(), lastView.getObjectName());
             if ((viewEnum != null) && (viewEnum.getMergeView() != null))
             {
-                throw new ViewProcessingException("Invalid use of the '" + lastView.getObjectNamespace() + ":" +
+                throw new ViewProcessingException("Invalid use of the '" +
                             lastView.getObjectName() + "' view, the view requires one or more child views to group, or consider using the group-by clause");
             }
         }
@@ -339,7 +339,7 @@ public class ViewServiceHelper
             }
             catch (ViewParameterException e)
             {
-                throw new ViewProcessingException("Error in view '" + spec.getObjectNamespace() + ':' + spec.getObjectName() +
+                throw new ViewProcessingException("Error in view '" + spec.getObjectName() +
                         "', " + e.getMessage());
             }
 

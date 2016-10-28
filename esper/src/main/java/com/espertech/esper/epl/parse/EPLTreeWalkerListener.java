@@ -1041,10 +1041,20 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
         statementSpec.getStreamSpecs().add(streamSpec);
     }
 
-    public void exitViewExpression(EsperEPL2GrammarParser.ViewExpressionContext ctx) {
+    public void exitViewExpressionWNamespace(EsperEPL2GrammarParser.ViewExpressionWNamespaceContext ctx) {
         String objectNamespace = ctx.getChild(0).getText();
-        String objectName = ctx.getChild(2).getText();
-        List<ExprNode> viewParameters = ASTExprHelper.exprCollectSubNodes(ctx, 2, astExprNodeMap);
+        String objectName = ctx.viewWParameters().getChild(0).getText();
+        List<ExprNode> viewParameters = ASTExprHelper.exprCollectSubNodes(ctx.viewWParameters(), 1, astExprNodeMap);
+        viewSpecs.add(new ViewSpec(objectNamespace, objectName, viewParameters));
+    }
+
+    public void exitViewExpressionOptNamespace(EsperEPL2GrammarParser.ViewExpressionOptNamespaceContext ctx) {
+        String objectNamespace = null;
+        String objectName = ctx.viewWParameters().getChild(0).getText();
+        if (ctx.ns != null) {
+            objectNamespace = ctx.ns.getText();
+        }
+        List<ExprNode> viewParameters = ASTExprHelper.exprCollectSubNodes(ctx.viewWParameters(), 1, astExprNodeMap);
         viewSpecs.add(new ViewSpec(objectNamespace, objectName, viewParameters));
     }
 
@@ -2306,7 +2316,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     public void exitOuterJoinIdent(EsperEPL2GrammarParser.OuterJoinIdentContext ctx) {}
     public void enterCreateIndexColumnList(EsperEPL2GrammarParser.CreateIndexColumnListContext ctx) {}
     public void exitCreateIndexColumnList(EsperEPL2GrammarParser.CreateIndexColumnListContext ctx) {}
-    public void enterViewExpression(EsperEPL2GrammarParser.ViewExpressionContext ctx) {}
     public void enterColumnList(EsperEPL2GrammarParser.ColumnListContext ctx) {}
     public void exitColumnList(EsperEPL2GrammarParser.ColumnListContext ctx) {}
     public void enterPatternFilterExpression(EsperEPL2GrammarParser.PatternFilterExpressionContext ctx) {}
@@ -2525,4 +2534,10 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     public void enterExpressionNamedParameterWithTime(EsperEPL2GrammarParser.ExpressionNamedParameterWithTimeContext ctx) {}
     public void enterExpressionListWithNamedWithTime(EsperEPL2GrammarParser.ExpressionListWithNamedWithTimeContext ctx) {}
     public void exitExpressionListWithNamedWithTime(EsperEPL2GrammarParser.ExpressionListWithNamedWithTimeContext ctx) {}
+    public void enterViewExpressions(EsperEPL2GrammarParser.ViewExpressionsContext ctx) {}
+    public void exitViewExpressions(EsperEPL2GrammarParser.ViewExpressionsContext ctx) {}
+    public void enterViewWParameters(EsperEPL2GrammarParser.ViewWParametersContext ctx) {}
+    public void enterViewExpressionWNamespace(EsperEPL2GrammarParser.ViewExpressionWNamespaceContext ctx) {}
+    public void exitViewWParameters(EsperEPL2GrammarParser.ViewWParametersContext ctx) {}
+    public void enterViewExpressionOptNamespace(EsperEPL2GrammarParser.ViewExpressionOptNamespaceContext ctx) {}
 }

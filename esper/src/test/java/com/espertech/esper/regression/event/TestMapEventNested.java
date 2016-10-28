@@ -296,7 +296,7 @@ public class TestMapEventNested extends TestCase
 
         String statementText = "insert into MyStream select " +
                                 "map.mapOne as val1" +
-                                " from NestedMap.win:length(5)";
+                                " from NestedMap#length(5)";
         epService.getEPAdministrator().createEPL(statementText);
 
         statementText = "select val1 as a from MyStream";
@@ -349,7 +349,7 @@ public class TestMapEventNested extends TestCase
                                 "map.mapOne.simpleTwo as d1, map.mapOne.objectTwo as d2, map.mapOne.nodefmapTwo as d3, " +
                                 "map.mapOne.mapTwo as e1, map.mapOne.mapTwo.simpleThree as e2, map.mapOne.mapTwo.objectThree as e3, " +
                                 "map.mapOne.objectTwo.array[1].mapped('1ma').value as f1, map.mapOne.mapTwo.objectThree.id as f2" +
-                                " from NestedMap.win:length(5)";
+                                " from NestedMap#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -604,7 +604,7 @@ public class TestMapEventNested extends TestCase
                                 "exists(map.mapOne.mapTwo?) as e," +
                                 "exists(map.mapOne.mapTwo.simpleThree?) as f," +
                                 "exists(map.mapOne.mapTwo.objectThree?) as g " +
-                                " from NestedMap.win:length(5)";
+                                " from NestedMap#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);
@@ -633,7 +633,7 @@ public class TestMapEventNested extends TestCase
                     "nested.n1 as b," +
                     "nested.n2 as c," +
                     "nested.n2.n1n1 as d " +
-                    "from NestedMap.win:length(5)";
+                    "from NestedMap#length(5)";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
         statement.addListener(listener);

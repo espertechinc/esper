@@ -164,7 +164,7 @@ public class TestFilterExpressions extends TestCase
     }
 
     private void runAssertionRewriteWhereNamedWindow() {
-        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window NamedWindowA.win:length(1) as SupportBean");
+        EPStatement stmtWindow = epService.getEPAdministrator().createEPL("create window NamedWindowA#length(1) as SupportBean");
         EPStatement stmtWithMethod = epService.getEPAdministrator().createEPL("select * from NamedWindowA mywindow WHERE (mywindow.theString.trim() is 'abc')");
         stmtWindow.destroy();
         stmtWithMethod.destroy();
@@ -325,8 +325,8 @@ public class TestFilterExpressions extends TestCase
     public void testEqualsSemanticExpr()
     {
         // Test for Esper-114
-        String text = "select * from " + SupportBeanComplexProps.class.getName() + "(simpleProperty='1').win:keepall() as s0" +
-                ", " + SupportBeanComplexProps.class.getName() + "(simpleProperty='2').win:keepall() as s1" +
+        String text = "select * from " + SupportBeanComplexProps.class.getName() + "(simpleProperty='1')#keepall() as s0" +
+                ", " + SupportBeanComplexProps.class.getName() + "(simpleProperty='2')#keepall() as s1" +
                 " where s0.nested = s1.nested";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);

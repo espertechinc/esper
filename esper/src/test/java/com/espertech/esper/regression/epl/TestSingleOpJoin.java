@@ -43,8 +43,8 @@ public class TestSingleOpJoin extends TestCase
         String eventB = SupportBean_B.class.getName();
 
         String joinStatement = "select irstream * from " +
-            eventA + "().win:length(3) as streamA," +
-            eventB + "().win:length(3) as streamB" +
+            eventA + "()#length(3) as streamA," +
+            eventB + "()#length(3) as streamB" +
             " where streamA.id = streamB.id";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);

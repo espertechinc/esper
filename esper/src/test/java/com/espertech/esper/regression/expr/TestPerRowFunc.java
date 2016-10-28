@@ -91,12 +91,12 @@ public class TestPerRowFunc extends TestCase
     public void testCoalesceLong_OM() throws Exception
     {
         String viewExpr = "select coalesce(longBoxed,intBoxed,shortBoxed) as result" +
-                          " from " + SupportBean.class.getName() + ".win:length(1000)";
+                          " from " + SupportBean.class.getName() + "#length(1000)";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create().add(Expressions.coalesce(
                 "longBoxed", "intBoxed", "shortBoxed"), "result"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("win", "length", Expressions.constant(1000))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("length", Expressions.constant(1000))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(viewExpr, model.toEPL());
 
@@ -111,7 +111,7 @@ public class TestPerRowFunc extends TestCase
     public void testCoalesceLong_Compile()
     {
         String viewExpr = "select coalesce(longBoxed,intBoxed,shortBoxed) as result" +
-                          " from " + SupportBean.class.getName() + ".win:length(1000)";
+                          " from " + SupportBean.class.getName() + "#length(1000)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(viewExpr);
         assertEquals(viewExpr, model.toEPL());
@@ -170,7 +170,7 @@ public class TestPerRowFunc extends TestCase
     {
         epService.initialize();
         String viewExpr = "select " + coalesceExpr + " as result" +
-                          " from " + SupportBean.class.getName() + ".win:length(1000) ";
+                          " from " + SupportBean.class.getName() + "#length(1000) ";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
         return selectTestView;
@@ -179,7 +179,7 @@ public class TestPerRowFunc extends TestCase
     public void testCoalesceInvalid()
     {
         String viewExpr = "select coalesce(null, null) as result" +
-                          " from " + SupportBean.class.getName() + ".win:length(3) ";
+                          " from " + SupportBean.class.getName() + "#length(3) ";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         assertEquals(null, selectTestView.getEventType().getPropertyType("result"));
 
@@ -197,7 +197,7 @@ public class TestPerRowFunc extends TestCase
     private void tryCoalesceInvalid(String coalesceExpr)
     {
         String viewExpr = "select " + coalesceExpr + " as result" +
-                          " from " + SupportBean.class.getName() + ".win:length(3) ";
+                          " from " + SupportBean.class.getName() + "#length(3) ";
 
         try {
             epService.getEPAdministrator().createEPL(viewExpr);
@@ -233,7 +233,7 @@ public class TestPerRowFunc extends TestCase
                                  "max(longBoxed,intBoxed,shortBoxed) as myMaxEx, " +
                                  "min(longBoxed,intBoxed) as myMin, " +
                                  "min(longBoxed,intBoxed,shortBoxed) as myMinEx" +
-                          " from " + SupportBean.class.getName() + ".win:length(3)";
+                          " from " + SupportBean.class.getName() + "#length(3)";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create()
@@ -242,7 +242,7 @@ public class TestPerRowFunc extends TestCase
                 .add(Expressions.min("longBoxed", "intBoxed"), "myMin")
                 .add(Expressions.min(Expressions.property("longBoxed"), Expressions.property("intBoxed"), Expressions.property("shortBoxed")), "myMinEx")
                 );
-        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("win", "length", Expressions.constant(3))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView("length", Expressions.constant(3))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(viewExpr, model.toEPL());
 
@@ -259,7 +259,7 @@ public class TestPerRowFunc extends TestCase
                                  "max(longBoxed,intBoxed,shortBoxed) as myMaxEx, " +
                                  "min(longBoxed,intBoxed) as myMin, " +
                                  "min(longBoxed,intBoxed,shortBoxed) as myMinEx" +
-                          " from " + SupportBean.class.getName() + ".win:length(3)";
+                          " from " + SupportBean.class.getName() + "#length(3)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(viewExpr);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -292,7 +292,7 @@ public class TestPerRowFunc extends TestCase
     public void testOperators()
     {
         String viewExpr = "select longBoxed % intBoxed as myMod " +
-                          " from " + SupportBean.class.getName() + ".win:length(3) where not(longBoxed > intBoxed)";
+                          " from " + SupportBean.class.getName() + "#length(3) where not(longBoxed > intBoxed)";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -311,7 +311,7 @@ public class TestPerRowFunc extends TestCase
     public void testConcat()
     {
         String viewExpr = "select p00 || p01 as c1, p00 || p01 || p02 as c2, p00 || '|' || p01 as c3" +
-                          " from " + SupportBean_S0.class.getName() + ".win:length(10)";
+                          " from " + SupportBean_S0.class.getName() + "#length(10)";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -340,7 +340,7 @@ public class TestPerRowFunc extends TestCase
                                  "max(longBoxed, intBoxed, shortBoxed) as myMaxEx," +
                                  "min(longBoxed, intBoxed) as myMin," +
                                  "min(longBoxed, intBoxed, shortBoxed) as myMinEx" +
-                          " from " + SupportBean.class.getName() + ".win:length(3) ";
+                          " from " + SupportBean.class.getName() + "#length(3) ";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
         return selectTestView;

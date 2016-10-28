@@ -54,22 +54,22 @@ public class TestOutputLimitSimple extends TestCase
     public void test1NoneNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec)";
+                            "from MarketData#time(5.5 sec)";
         runAssertion12(stmtText, "none");
     }
 
     public void test2NoneNoHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol";
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol";
         runAssertion12(stmtText, "none");
     }
 
     public void test3NoneHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             " having price > 10";
         runAssertion34(stmtText, "none");
     }
@@ -77,8 +77,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test4NoneHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             " having price > 10";
         runAssertion34(stmtText, "none");
     }
@@ -86,7 +86,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test5DefaultNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
     }
@@ -94,8 +94,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test6DefaultNoHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
     }
@@ -103,7 +103,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test7DefaultHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) \n" +
+                            "from MarketData#time(5.5 sec) \n" +
                             "having price > 10" +
                             "output every 1 seconds";
         runAssertion78(stmtText, "default");
@@ -112,8 +112,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test8DefaultHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "having price > 10" +
                             "output every 1 seconds";
         runAssertion78(stmtText, "default");
@@ -122,7 +122,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test9AllNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -130,7 +130,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test9AllNoHavingNoJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec) " +
+                "from MarketData#time(5.5 sec) " +
                 "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -138,8 +138,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test10AllNoHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -147,8 +147,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test10AllNoHavingJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec), " +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec), " +
+                "SupportBean#keepall() where theString=symbol " +
                 "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -156,7 +156,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test11AllHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "having price > 10" +
                             "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -165,7 +165,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test11AllHavingNoJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec) " +
+                "from MarketData#time(5.5 sec) " +
                 "having price > 10" +
                 "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -174,8 +174,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test12AllHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "having price > 10" +
                             "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -184,8 +184,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test12AllHavingJoinHinted()
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec), " +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec), " +
+                "SupportBean#keepall() where theString=symbol " +
                 "having price > 10" +
                 "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -194,7 +194,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test13LastNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec)" +
+                            "from MarketData#time(5.5 sec)" +
                             "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -202,8 +202,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test14LastNoHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -211,7 +211,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test15LastHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec)" +
+                            "from MarketData#time(5.5 sec)" +
                             "having price > 10 " +
                             "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -220,8 +220,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test16LastHavingJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec), " +
-                            "SupportBean.win:keepall() where theString=symbol " +
+                            "from MarketData#time(5.5 sec), " +
+                            "SupportBean#keepall() where theString=symbol " +
                             "having price > 10 " +
                             "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -230,7 +230,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test17FirstNoHavingNoJoinIStream()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "output first every 1 seconds";
         runAssertion17IStream(stmtText, "first");
     }
@@ -238,8 +238,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test17FirstNoHavingJoinIStream()
     {
         String stmtText = "select symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec)," +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec)," +
+                "SupportBean#keepall() where theString=symbol " +
                 "output first every 1 seconds";
         runAssertion17IStream(stmtText, "first");
     }
@@ -247,7 +247,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test17FirstNoHavingNoJoinIRStream()
     {
         String stmtText = "select irstream symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec) " +
+                "from MarketData#time(5.5 sec) " +
                 "output first every 1 seconds";
         runAssertion17IRStream(stmtText, "first");
     }
@@ -255,8 +255,8 @@ public class TestOutputLimitSimple extends TestCase
     public void test17FirstNoHavingJoinIRStream()
     {
         String stmtText = "select irstream symbol, volume, price " +
-                "from MarketData.win:time(5.5 sec), " +
-                "SupportBean.win:keepall() where theString=symbol " +
+                "from MarketData#time(5.5 sec), " +
+                "SupportBean#keepall() where theString=symbol " +
                 "output first every 1 seconds";
         runAssertion17IRStream(stmtText, "first");
     }
@@ -264,7 +264,7 @@ public class TestOutputLimitSimple extends TestCase
     public void test18SnapshotNoHavingNoJoin()
     {
         String stmtText = "select symbol, volume, price " +
-                            "from MarketData.win:time(5.5 sec) " +
+                            "from MarketData#time(5.5 sec) " +
                             "output snapshot every 1 seconds";
         runAssertion18(stmtText, "first");
     }
@@ -276,7 +276,7 @@ public class TestOutputLimitSimple extends TestCase
 
         String[] fields = "c0,c1".split(",");
         String epl =
-                "create window MyWindow.win:keepall() as SupportBean_S0;\n" +
+                "create window MyWindow#keepall() as SupportBean_S0;\n" +
                 "insert into MyWindow select * from SupportBean_S0;\n" +
                 "@name('join') select myWindow.id as c0, s1.id as c1\n" +
                 "from SupportBean_S1 as s1 unidirectional, MyWindow as myWindow\n" +
@@ -310,7 +310,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(2000));
 
-        String stmtText = "select symbol from MarketData.win:keepall() output snapshot every 1 day 2 hours 3 minutes 4 seconds 5 milliseconds";
+        String stmtText = "select symbol from MarketData#keepall() output snapshot every 1 day 2 hours 3 minutes 4 seconds 5 milliseconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         sendMDEvent("E1", 0);
@@ -333,7 +333,7 @@ public class TestOutputLimitSimple extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("S", int.class, 4);
         epService.getEPAdministrator().getConfiguration().addVariable("MS", int.class, 5);
 
-        String stmtText = "select symbol from MarketData.win:keepall() output snapshot every D days H hours M minutes S seconds MS milliseconds";
+        String stmtText = "select symbol from MarketData#keepall() output snapshot every D days H hours M minutes S seconds MS milliseconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         sendMDEvent("E1", 0);
@@ -538,7 +538,7 @@ public class TestOutputLimitSimple extends TestCase
     public void testAggAllHaving()
     {
         String stmtText = "select symbol, volume " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(10) as two " +
+                            "from " + SupportMarketDataBean.class.getName() + "#length(10) as two " +
                             "having volume > 0 " +
                             "output every 5 events";
 
@@ -561,8 +561,8 @@ public class TestOutputLimitSimple extends TestCase
     public void testAggAllHavingJoin()
     {
         String stmtText = "select symbol, volume " +
-                            "from " + SupportMarketDataBean.class.getName() + ".win:length(10) as one," +
-                            SupportBean.class.getName() + ".win:length(10) as two " +
+                            "from " + SupportMarketDataBean.class.getName() + "#length(10) as one," +
+                            SupportBean.class.getName() + "#length(10) as two " +
                             "where one.symbol=two.theString " +
                             "having volume > 0 " +
                             "output every 5 events";
@@ -591,8 +591,8 @@ public class TestOutputLimitSimple extends TestCase
 	{
         String[] fields = new String[] {"symbol", "price"};
         String statementString = "select symbol, theString, price from " +
-    	            SupportMarketDataBean.class.getName() + ".win:length(10) as one, " +
-    	            SupportBeanString.class.getName() + ".win:length(100) as two " +
+    	            SupportMarketDataBean.class.getName() + "#length(10) as one, " +
+    	            SupportBeanString.class.getName() + "#length(100) as two " +
                     "where one.symbol = two.theString " +
                     "output every 3 events";
         EPStatement statement = epService.getEPAdministrator().createEPL(statementString);
@@ -619,8 +619,8 @@ public class TestOutputLimitSimple extends TestCase
 		String eventName2 = SupportBean_A.class.getName();
 		String joinStatement =
 			"select * from " +
-				eventName1 + ".win:length(5) as event1," +
-				eventName2 + ".win:length(5) as event2" +
+				eventName1 + "#length(5) as event1," +
+				eventName2 + "#length(5) as event2" +
 			" where event1.theString = event2.id";
 		String outputStmt1 = joinStatement + " output every 1 events";
 	   	String outputStmt3 = joinStatement + " output every 3 events";
@@ -669,7 +669,7 @@ public class TestOutputLimitSimple extends TestCase
 
     public void testLimitTime(){
     	String eventName = SupportBean.class.getName();
-    	String selectStatement = "select * from " + eventName + ".win:length(5)";
+    	String selectStatement = "select * from " + eventName + "#length(5)";
 
     	// test integer seconds
     	String statementString1 = selectStatement +
@@ -689,14 +689,14 @@ public class TestOutputLimitSimple extends TestCase
     	// test fractional minutes
     	String statementString4 =
     		"select * from " +
-    			eventName + ".win:length(5)" +
+    			eventName + "#length(5)" +
     		" output every .05 minutes";
     	timeCallback(statementString4, 3000);
     }
 
     public void testTimeBatchOutputEvents()
     {
-        String stmtText = "select * from " + SupportBean.class.getName() + ".win:time_batch(10 seconds) output every 10 seconds";
+        String stmtText = "select * from " + SupportBean.class.getName() + "#time_batch(10 seconds) output every 10 seconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -750,19 +750,19 @@ public class TestOutputLimitSimple extends TestCase
 	{
         String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
 	    String viewExpr = hint + "select longBoxed " +
-                          "from " + SupportBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportBean.class.getName() + "#length(3) " +
                           "output all every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
 
 	    viewExpr =  hint + "select longBoxed " +
-	                "from " + SupportBean.class.getName() + ".win:length(3) " +
+	                "from " + SupportBean.class.getName() + "#length(3) " +
 	                "output every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
 
 	    viewExpr =  hint + "select * " +
-	                "from " + SupportBean.class.getName() + ".win:length(3) " +
+	                "from " + SupportBean.class.getName() + "#length(3) " +
 	                "output every 2 events";
 
 	    runAssertAll(createStmtAndListenerNoJoin(viewExpr));
@@ -771,13 +771,13 @@ public class TestOutputLimitSimple extends TestCase
 	public void testSimpleNoJoinLast()
     {
         String viewExpr = "select longBoxed " +
-        "from " + SupportBean.class.getName() + ".win:length(3) " +
+        "from " + SupportBean.class.getName() + "#length(3) " +
         "output last every 2 events";
 
         runAssertLast(createStmtAndListenerNoJoin(viewExpr));
 
         viewExpr = "select * " +
-        "from " + SupportBean.class.getName() + ".win:length(3) " +
+        "from " + SupportBean.class.getName() + "#length(3) " +
         "output last every 2 events";
 
         runAssertLast(createStmtAndListenerNoJoin(viewExpr));
@@ -793,8 +793,8 @@ public class TestOutputLimitSimple extends TestCase
     {
         String hint = hinted ? "@Hint('enable_outputlimit_opt')" : "";
         String viewExpr = hint + "select longBoxed  " +
-                "from " + SupportBeanString.class.getName() + ".win:length(3) as one, " +
-                SupportBean.class.getName() + ".win:length(3) as two " +
+                "from " + SupportBeanString.class.getName() + "#length(3) as one, " +
+                SupportBean.class.getName() + "#length(3) as two " +
                 "output all every 2 events";
 
         runAssertAll(createStmtAndListenerJoin(viewExpr));
@@ -846,8 +846,8 @@ public class TestOutputLimitSimple extends TestCase
 	public void testSimpleJoinLast()
 	{
 	    String viewExpr = "select longBoxed " +
-	    "from " + SupportBeanString.class.getName() + ".win:length(3) as one, " +
-	    SupportBean.class.getName() + ".win:length(3) as two " +
+	    "from " + SupportBeanString.class.getName() + "#length(3) as one, " +
+	    SupportBean.class.getName() + "#length(3) as two " +
 	    "output last every 2 events";
 
 		runAssertLast(createStmtAndListenerJoin(viewExpr));
@@ -860,7 +860,7 @@ public class TestOutputLimitSimple extends TestCase
         SupportUpdateListener updateListener3 = new SupportUpdateListener();
 
         String eventName = SupportBean.class.getName();
-        String selectStmt = "select * from " + eventName + ".win:length(5)";
+        String selectStmt = "select * from " + eventName + "#length(5)";
         String statement1 = selectStmt +
             " output every 1 events";
         String statement2 = selectStmt +
@@ -922,7 +922,7 @@ public class TestOutputLimitSimple extends TestCase
         SupportUpdateListener listener = new SupportUpdateListener();
 
         sendTimer(0);
-        String selectStmt = "select * from " + SupportBean.class.getName() + ".win:time(10) output snapshot every 3 events";
+        String selectStmt = "select * from " + SupportBean.class.getName() + "#time(10) output snapshot every 3 events";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -1011,8 +1011,8 @@ public class TestOutputLimitSimple extends TestCase
         SupportUpdateListener listener = new SupportUpdateListener();
 
         sendTimer(0);
-        String selectStmt = "select theString from " + SupportBean.class.getName() + ".win:time(10) as s," +
-                SupportMarketDataBean.class.getName() + ".win:keepall() as m where s.theString = m.symbol output snapshot every 3 events order by symbol asc";
+        String selectStmt = "select theString from " + SupportBean.class.getName() + "#time(10) as s," +
+                SupportMarketDataBean.class.getName() + "#keepall() as m where s.theString = m.symbol output snapshot every 3 events order by symbol asc";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -1077,7 +1077,7 @@ public class TestOutputLimitSimple extends TestCase
     public void testSnapshotMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select * from SupportBean.std:lastevent() output snapshot every 1 month").addListener(listener);
+        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent() output snapshot every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
@@ -1090,7 +1090,7 @@ public class TestOutputLimitSimple extends TestCase
     public void testFirstMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select * from SupportBean.std:lastevent() output first every 1 month").addListener(listener);
+        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent() output first every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());

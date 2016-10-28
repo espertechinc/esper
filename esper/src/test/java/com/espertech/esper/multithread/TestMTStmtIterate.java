@@ -39,7 +39,7 @@ public class TestMTStmtIterate extends TestCase
         engine = EPServiceProviderManager.getProvider("TestMTStmtIterate", config);
 
         EPStatement stmt[] = new EPStatement[] {engine.getEPAdministrator().createEPL(
-                " select theString from " + SupportBean.class.getName() + ".win:time(5 min)")};
+                " select theString from " + SupportBean.class.getName() + "#time(5 min)")};
 
         trySend(2, 10, stmt);
     }
@@ -54,7 +54,7 @@ public class TestMTStmtIterate extends TestCase
         for (int i = 0; i < stmt.length; i++)
         {
             String name = "Stmt_" + i;
-            String stmtText = "@Name('" + name + "') select theString from " + SupportBean.class.getName() + ".win:time(5 min)";
+            String stmtText = "@Name('" + name + "') select theString from " + SupportBean.class.getName() + "#time(5 min)";
             stmt[i] = engine.getEPAdministrator().createEPL(stmtText);
         }
 
@@ -71,7 +71,7 @@ public class TestMTStmtIterate extends TestCase
         for (int i = 0; i < stmt.length; i++)
         {
             String name = "Stmt_" + i;
-            String stmtText = "@Name('" + name + "') select theString from " + SupportBean.class.getName() + ".win:time(5 min)";
+            String stmtText = "@Name('" + name + "') select theString from " + SupportBean.class.getName() + "#time(5 min)";
             stmt[i] = engine.getEPAdministrator().createEPL(stmtText);
         }
 

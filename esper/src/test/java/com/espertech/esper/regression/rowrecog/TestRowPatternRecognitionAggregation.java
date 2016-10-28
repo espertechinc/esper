@@ -49,7 +49,7 @@ public class TestRowPatternRecognitionAggregation extends TestCase {
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, " +
                 "       C.theString as c_string, " +
@@ -110,7 +110,7 @@ public class TestRowPatternRecognitionAggregation extends TestCase {
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 "  partition by cat" +
                 "  measures A.cat as cat, A.theString as a_string, " +

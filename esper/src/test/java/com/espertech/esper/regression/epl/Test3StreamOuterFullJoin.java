@@ -60,9 +60,9 @@ public class Test3StreamOuterFullJoin extends TestCase
         String fields[] = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11, s2.id, s2.p20, s2.p21".split(",");
 
         String joinStatement = eventRepresentationEnum.getAnnotationText() + " select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            " full outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
-            " full outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 and s0.p01 = s2.p21";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            " full outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
+            " full outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 and s0.p01 = s2.p21";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);
@@ -129,9 +129,9 @@ public class Test3StreamOuterFullJoin extends TestCase
          *           s1 <->      <-> s2
          */
         String joinStatement = "select * from " +
-                                  EVENT_S0 + ".win:length(1000) as s0 " +
-            " full outer join " + EVENT_S1 + ".win:length(1000) as s1 on s0.p00 = s1.p10 " +
-            " full outer join " + EVENT_S2 + ".win:length(1000) as s2 on s0.p00 = s2.p20 ";
+                                  EVENT_S0 + "#length(1000) as s0 " +
+            " full outer join " + EVENT_S1 + "#length(1000) as s1 on s0.p00 = s1.p10 " +
+            " full outer join " + EVENT_S2 + "#length(1000) as s2 on s0.p00 = s2.p20 ";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);

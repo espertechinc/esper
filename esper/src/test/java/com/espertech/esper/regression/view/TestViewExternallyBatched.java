@@ -46,7 +46,7 @@ public class TestViewExternallyBatched extends TestCase {
 
     public void testExtBatchedNoReference() {
         String[] fields = "id".split(",");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from MyEvent.win:ext_timed_batch(mytimestamp, 1 minute)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select irstream * from MyEvent#ext_timed_batch(mytimestamp, 1 minute)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(MyEvent.makeTime("E1", "8:00:00.000"));
@@ -89,10 +89,10 @@ public class TestViewExternallyBatched extends TestCase {
 
     public void testExtBatchedWithRefTime() {
 
-        String epl = "select irstream * from MyEvent.win:ext_timed_batch(mytimestamp, 1 minute, 5000)";
+        String epl = "select irstream * from MyEvent#ext_timed_batch(mytimestamp, 1 minute, 5000)";
         runAssertionWithRefTime(epl);
 
-        epl = "select irstream * from MyEvent.win:ext_timed_batch(mytimestamp, 1 minute, 65000)";
+        epl = "select irstream * from MyEvent#ext_timed_batch(mytimestamp, 1 minute, 65000)";
         runAssertionWithRefTime(epl);
     }
 

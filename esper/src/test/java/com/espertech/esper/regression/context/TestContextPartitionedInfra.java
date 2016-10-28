@@ -76,7 +76,7 @@ public class TestContextPartitionedInfra extends TestCase {
                 "partition by theString from SupportBean, p00 from SupportBean_S0");
 
         String eplCreate = namedWindow ?
-                "@Name('named window') context SegmentedByString create window MyInfra.win:keepall() as SupportBean" :
+                "@Name('named window') context SegmentedByString create window MyInfra#keepall() as SupportBean" :
                 "@Name('table') context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("@Name('insert') context SegmentedByString insert into MyInfra select theString, intPrimitive from SupportBean");
@@ -107,7 +107,7 @@ public class TestContextPartitionedInfra extends TestCase {
                         "" +
                         "@name('create-infra') context SegmentedByCustomer\n" +
                         (namedWindow ?
-                            "create window MyInfra.win:keepall() as SupportBean;" :
+                            "create window MyInfra#keepall() as SupportBean;" :
                             "create table MyInfra(theString string primary key, intPrimitive int);") +
                         "" +
                         (namedWindow ?
@@ -137,7 +137,7 @@ public class TestContextPartitionedInfra extends TestCase {
 
         String[] fieldsNW = new String[] {"theString", "intPrimitive"};
         String eplCreate = namedWindow ?
-                "@Name('named window') context SegmentedByString create window MyInfra.win:keepall() as SupportBean" :
+                "@Name('named window') context SegmentedByString create window MyInfra#keepall() as SupportBean" :
                 "@Name('named window') context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         String eplInsert = namedWindow ?
@@ -230,7 +230,7 @@ public class TestContextPartitionedInfra extends TestCase {
     private void runAssertionAggregatedSubquery(boolean namedWindow) {
         epService.getEPAdministrator().createEPL("create context SegmentedByString partition by theString from SupportBean, p00 from SupportBean_S0");
         String eplCreate = namedWindow ?
-                "context SegmentedByString create window MyInfra.win:keepall() as SupportBean" :
+                "context SegmentedByString create window MyInfra#keepall() as SupportBean" :
                 "context SegmentedByString create table MyInfra (theString string primary key, intPrimitive int)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("@Name('insert') context SegmentedByString insert into MyInfra select theString, intPrimitive from SupportBean");
@@ -258,7 +258,7 @@ public class TestContextPartitionedInfra extends TestCase {
     public void testSegmentedNWConsumeAll() {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
-        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow.std:lastevent() as SupportBean");
+        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow#lastevent() as SupportBean");
         stmtNamedWindow.addListener(listenerNamedWindow);
         epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
 
@@ -285,7 +285,7 @@ public class TestContextPartitionedInfra extends TestCase {
     public void testSegmentedNWConsumeSameContext() {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString partition by theString from SupportBean");
 
-        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow.win:keepall() as SupportBean");
+        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow#keepall() as SupportBean");
         stmtNamedWindow.addListener(listenerNamedWindow);
         epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
 
@@ -328,7 +328,7 @@ public class TestContextPartitionedInfra extends TestCase {
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0, p10 from SupportBean_S1");
 
-        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow.win:keepall() as SupportBean");
+        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("@Name('named window') context SegmentedByString create window MyWindow#keepall() as SupportBean");
         stmtNamedWindow.addListener(listenerNamedWindow);
         epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
 
@@ -337,7 +337,7 @@ public class TestContextPartitionedInfra extends TestCase {
                 "on SupportBean_S0 " +
                 "merge MyWindow " +
                 "when matched then " +
-                "  update set intPrimitive = (select id from SupportBean_S1.std:lastevent())");
+                "  update set intPrimitive = (select id from SupportBean_S1#lastevent())");
         stmtSelect.addListener(listenerSelect);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 1));

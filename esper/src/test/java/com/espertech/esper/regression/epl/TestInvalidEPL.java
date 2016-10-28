@@ -84,13 +84,13 @@ public class TestInvalidEPL extends TestCase
         }
 
         String streamDef = "select * from " +
-                SupportBean.class.getName() + ".win:length(3) as sa," +
-                SupportBean.class.getName() + ".win:length(3) as sb" +
+                SupportBean.class.getName() + "#length(3) as sa," +
+                SupportBean.class.getName() + "#length(3) as sb" +
                             " where ";
 
         String streamDefTwo = "select * from " +
-                SupportBean.class.getName() + ".win:length(3)," +
-                SupportMarketDataBean.class.getName() + ".win:length(3)" +
+                SupportBean.class.getName() + "#length(3)," +
+                SupportMarketDataBean.class.getName() + "#length(3)" +
                             " where ";
 
         tryInvalid(streamDef + "sa.intPrimitive = sb.theString");
@@ -149,9 +149,9 @@ public class TestInvalidEPL extends TestCase
 
         // Try invalid outer join criteria
         String outerJoinDef = "select * from " +
-                SupportBean.class.getName() + ".win:length(3) as sa " +
+                SupportBean.class.getName() + "#length(3) as sa " +
                 "left outer join " +
-                SupportBean.class.getName() + ".win:length(3) as sb ";
+                SupportBean.class.getName() + "#length(3) as sb ";
         tryValid(outerJoinDef + "on sa.intPrimitive = sb.intBoxed");
         tryInvalid(outerJoinDef + "on sa.intPrimitive = sb.XX");
         tryInvalid(outerJoinDef + "on sa.XX = sb.XX");

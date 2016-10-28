@@ -67,27 +67,27 @@ public class Test2StreamOuterJoin extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         String stmtOne = "select sb.theString as sbstr, sb.intPrimitive as sbint, sbr.key as sbrk, sbr.rangeStart as sbrs, sbr.rangeEnd as sbre " +
-                      "from SupportBean.win:keepall() sb " +
+                      "from SupportBean#keepall() sb " +
                       "full outer join " +
-                      "SupportBeanRange.win:keepall() sbr " +
+                      "SupportBeanRange#keepall() sbr " +
                       "on theString = key " +
                       "where intPrimitive between rangeStart and rangeEnd " +
                       "order by rangeStart asc, intPrimitive asc";
         runAssertion(stmtOne);
 
         String stmtTwo = "select sb.theString as sbstr, sb.intPrimitive as sbint, sbr.key as sbrk, sbr.rangeStart as sbrs, sbr.rangeEnd as sbre " +
-                      "from SupportBeanRange.win:keepall() sbr " +
+                      "from SupportBeanRange#keepall() sbr " +
                       "full outer join " +
-                      "SupportBean.win:keepall() sb " +
+                      "SupportBean#keepall() sb " +
                       "on theString = key " +
                       "where intPrimitive between rangeStart and rangeEnd " +
                       "order by rangeStart asc, intPrimitive asc";
         runAssertion(stmtTwo);
 
         String stmtThree = "select sb.theString as sbstr, sb.intPrimitive as sbint, sbr.key as sbrk, sbr.rangeStart as sbrs, sbr.rangeEnd as sbre " +
-                      "from SupportBeanRange.win:keepall() sbr " +
+                      "from SupportBeanRange#keepall() sbr " +
                       "full outer join " +
-                      "SupportBean.win:keepall() sb " +
+                      "SupportBean#keepall() sb " +
                       "on theString = key " +
                       "where intPrimitive >= rangeStart and intPrimitive <= rangeEnd " +
                       "order by rangeStart asc, intPrimitive asc";
@@ -140,9 +140,9 @@ public class Test2StreamOuterJoin extends TestCase
     public void testFullOuterIteratorGroupBy()
     {
         String stmt = "select theString, intPrimitive, symbol, volume " +
-                      "from " + SupportMarketDataBean.class.getName() + ".win:keepall() " +
+                      "from " + SupportMarketDataBean.class.getName() + "#keepall() " +
                       "full outer join " +
-                      SupportBean.class.getName() + ".std:groupwin(theString, intPrimitive).win:length(2) " +
+                      SupportBean.class.getName() + "#groupwin(theString, intPrimitive)#length(2) " +
                       "on theString = symbol " +
                       "group by theString, intPrimitive, symbol " +
                       "order by theString, intPrimitive, symbol, volume";
@@ -293,13 +293,13 @@ public class Test2StreamOuterJoin extends TestCase
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11".split(",")));
         FromClause fromClause = FromClause.create(
-                FilterStream.create(SupportBean_S0.class.getName(), "s0").addView("win", "keepall"),
-                FilterStream.create(SupportBean_S1.class.getName(), "s1").addView("win", "keepall"));
+                FilterStream.create(SupportBean_S0.class.getName(), "s0").addView("keepall"),
+                FilterStream.create(SupportBean_S1.class.getName(), "s1").addView("keepall"));
         fromClause.add(OuterJoinQualifier.create("s0.p00", OuterJoinType.LEFT, "s1.p10").add("s1.p11", "s0.p01"));
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from com.espertech.esper.support.bean.SupportBean_S0.win:keepall() as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1.win:keepall() as s1 on s0.p00 = s1.p10 and s1.p11 = s0.p01";
+        String stmtText = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from com.espertech.esper.support.bean.SupportBean_S0#keepall() as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall() as s1 on s0.p00 = s1.p10 and s1.p11 = s0.p01";
         assertEquals(stmtText, model.toEPL());
         EPStatement outerJoinView = epService.getEPAdministrator().create(model);
         outerJoinView.addListener(listener);
@@ -313,9 +313,9 @@ public class Test2StreamOuterJoin extends TestCase
     public void testMultiColumnLeft()
     {
         String joinStatement = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from " +
-            SupportBean_S0.class.getName() + ".win:length(3) as s0 " +
+            SupportBean_S0.class.getName() + "#length(3) as s0 " +
             "left outer join " +
-            SupportBean_S1.class.getName() + ".win:length(5) as s1" +
+            SupportBean_S1.class.getName() + "#length(5) as s1" +
             " on s0.p00 = s1.p10 and s0.p01 = s1.p11";
 
         EPStatement outerJoinView = epService.getEPAdministrator().createEPL(joinStatement);
@@ -344,9 +344,9 @@ public class Test2StreamOuterJoin extends TestCase
     {
         String fields[] = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11".split(",");
         String joinStatement = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from " +
-            SupportBean_S0.class.getName() + ".win:length(3) as s0 " +
+            SupportBean_S0.class.getName() + "#length(3) as s0 " +
             "right outer join " +
-            SupportBean_S1.class.getName() + ".win:length(5) as s1" +
+            SupportBean_S1.class.getName() + "#length(5) as s1" +
             " on s0.p00 = s1.p10 and s1.p11 = s0.p01";
 
         EPStatement outerJoinView = epService.getEPAdministrator().createEPL(joinStatement);
@@ -369,9 +369,9 @@ public class Test2StreamOuterJoin extends TestCase
     {
         String fields[] = "s0.theString, s1.theString".split(",");
         String joinStatement = "select s0.theString, s1.theString from " +
-            SupportBean.class.getName() + "(theString like 'S0%').win:keepall() as s0 " +
+            SupportBean.class.getName() + "(theString like 'S0%')#keepall() as s0 " +
             "right outer join " +
-            SupportBean.class.getName() + "(theString like 'S1%').win:keepall() as s1" +
+            SupportBean.class.getName() + "(theString like 'S1%')#keepall() as s1" +
             " on s0.intPrimitive = s1.doublePrimitive and s1.intPrimitive = s0.doublePrimitive";
 
         EPStatement outerJoinView = epService.getEPAdministrator().createEPL(joinStatement);
@@ -598,9 +598,9 @@ public class Test2StreamOuterJoin extends TestCase
     private EPStatement setupStatement(String outerJoinType)
     {
         String joinStatement = "select irstream s0.id, s0.p00, s1.id, s1.p10 from " +
-            SupportBean_S0.class.getName() + ".win:length(3) as s0 " +
+            SupportBean_S0.class.getName() + "#length(3) as s0 " +
             outerJoinType + " outer join " +
-            SupportBean_S1.class.getName() + ".win:length(5) as s1" +
+            SupportBean_S1.class.getName() + "#length(5) as s1" +
             " on s0.p00 = s1.p10";
 
         EPStatement outerJoinView = epService.getEPAdministrator().createEPL(joinStatement);

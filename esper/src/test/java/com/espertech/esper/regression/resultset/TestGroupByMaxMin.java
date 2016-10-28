@@ -54,7 +54,7 @@ public class TestGroupByMaxMin extends TestCase
                                   "max(all volume) as maxVol," +
                                   "min(distinct volume) as minDistVol," +
                                   "max(distinct volume) as maxDistVol" +
-                          " from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          " from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol";
 
@@ -74,7 +74,7 @@ public class TestGroupByMaxMin extends TestCase
             .add(Expressions.minDistinct("volume"), "minDistVol")
             .add(Expressions.maxDistinct("volume"), "maxDistVol")
             );
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(3))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(3))));
         model.setWhereClause(Expressions.or()
                 .add(Expressions.eq("symbol", "DELL"))
                 .add(Expressions.eq("symbol", "IBM"))
@@ -87,7 +87,7 @@ public class TestGroupByMaxMin extends TestCase
                                   "max(volume) as maxVol, " +
                                   "min(distinct volume) as minDistVol, " +
                                   "max(distinct volume) as maxDistVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol=\"DELL\" or symbol=\"IBM\" or symbol=\"GE\" " +
                           "group by symbol";
         assertEquals(viewExpr, model.toEPL());
@@ -105,7 +105,7 @@ public class TestGroupByMaxMin extends TestCase
                                   "max(volume) as maxVol, " +
                                   "min(distinct volume) as minDistVol, " +
                                   "max(distinct volume) as maxDistVol " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol=\"DELL\" or symbol=\"IBM\" or symbol=\"GE\" " +
                           "group by symbol";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(viewExpr);
@@ -124,8 +124,8 @@ public class TestGroupByMaxMin extends TestCase
                                   "max(volume) as maxVol," +
                                   "min(distinct volume) as minDistVol," +
                                   "max(distinct volume) as maxDistVol" +
-                          " from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          " from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                           "  and one.theString = two.symbol " +
                           "group by symbol";
@@ -141,7 +141,7 @@ public class TestGroupByMaxMin extends TestCase
 
     public void testMinNoGroupHaving()
     {
-        String stmtText = "select symbol from " + SupportMarketDataBean.class.getName() + ".win:time(5 sec) " +
+        String stmtText = "select symbol from " + SupportMarketDataBean.class.getName() + "#time(5 sec) " +
                           "having volume > min(volume) * 1.3";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(stmtText);
@@ -164,7 +164,7 @@ public class TestGroupByMaxMin extends TestCase
 
     public void testMinNoGroupSelectHaving()
     {
-        String stmtText = "select symbol, min(volume) as mymin from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+        String stmtText = "select symbol, min(volume) as mymin from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "having volume > min(volume) * 1.3";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(stmtText);

@@ -76,7 +76,7 @@ public class TestNamedWindowViews extends TestCase
     public void testIntersection() throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
-                "create window MyWindow.win:length(2).std:unique(intPrimitive) as SupportBean;\n" +
+                "create window MyWindow#length(2)#unique(intPrimitive) as SupportBean;\n" +
                         "insert into MyWindow select * from SupportBean;\n" +
                         "@name('out') select irstream * from MyWindow");
 
@@ -99,7 +99,7 @@ public class TestNamedWindowViews extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
         // Test create from class
-        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindow.win:keepall() as SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall() as SupportBean");
         stmt.addListener(listenerWindow);
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
@@ -120,7 +120,7 @@ public class TestNamedWindowViews extends TestCase
         epService.getEPAdministrator().destroyAllStatements();
         listenerWindow.reset();
 
-        EPStatement stmtW = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo.win:keepall() as (bean " + SupportBean_S0.class.getName() + ")");
+        EPStatement stmtW = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall() as (bean " + SupportBean_S0.class.getName() + ")");
         stmtW.addListener(listenerWindow);
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtW.getEventType().getUnderlyingType());
         epService.getEPAdministrator().createEPL("insert into MyWindowTwo select bean.* as bean from " + SupportBean_S0.class.getName() + " as bean");
@@ -138,7 +138,7 @@ public class TestNamedWindowViews extends TestCase
 
         // Test create from schema
         epService.getEPAdministrator().createEPL("create schema ABC as " + SupportBean.class.getName());
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as ABC");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as ABC");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from " + SupportBean.class.getName());
 
         epService.getEPRuntime().sendEvent(new SupportBean());
@@ -162,7 +162,7 @@ public class TestNamedWindowViews extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportOverrideOneA", SupportOverrideOneA.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportOverrideOne", SupportOverrideOne.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportOverrideBase", SupportOverrideBase.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportOverrideBase");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportOverrideBase");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportOverrideOneA");
         epService.getEPRuntime().sendEvent(new SupportOverrideOneA("1a", "1", "base"));
         assertEquals("1a", stmt.iterator().next().get("val"));
@@ -176,8 +176,8 @@ public class TestNamedWindowViews extends TestCase
         epService.getEPAdministrator().createEPL("create schema TypeTrigger(trigger int)");
         epService.getEPAdministrator().createEPL("create schema SupportBean as " + SupportBean.class.getName());
 
-        epService.getEPAdministrator().createEPL("create window WinOne.win:keepall() as TypeOne");
-        epService.getEPAdministrator().createEPL("create window WinTwo.win:keepall() as TypeTwo");
+        epService.getEPAdministrator().createEPL("create window WinOne#keepall() as TypeOne");
+        epService.getEPAdministrator().createEPL("create window WinTwo#keepall() as TypeTwo");
 
         epService.getEPAdministrator().createEPL("insert into WinOne(col1) select intPrimitive from SupportBean");
 
@@ -202,25 +202,25 @@ public class TestNamedWindowViews extends TestCase
 
     public void testWithDeleteUseAs()
     {
-        tryCreateWindow("create window MyWindow.win:keepall() as MyMap",
+        tryCreateWindow("create window MyWindow#keepall() as MyMap",
                         "on " + SupportMarketDataBean.class.getName() + " as s0 delete from MyWindow as s1 where s0.symbol = s1.key");
     }
 
     public void testWithDeleteFirstAs()
     {
-        tryCreateWindow("create window MyWindow.win:keepall() as select key, value from MyMap",
+        tryCreateWindow("create window MyWindow#keepall() as select key, value from MyMap",
                         "on " + SupportMarketDataBean.class.getName() + " delete from MyWindow as s1 where symbol = s1.key");
     }
 
     public void testWithDeleteSecondAs()
     {
-        tryCreateWindow("create window MyWindow.win:keepall() as MyMap",
+        tryCreateWindow("create window MyWindow#keepall() as MyMap",
                         "on " + SupportMarketDataBean.class.getName() + " as s0 delete from MyWindow where s0.symbol = key");
     }
 
     public void testWithDeleteNoAs()
     {
-        tryCreateWindow("create window MyWindow.win:keepall() as select key as key, value as value from MyMap",
+        tryCreateWindow("create window MyWindow#keepall() as select key as key, value as value from MyMap",
                         "on " + SupportMarketDataBean.class.getName() + " delete from MyWindow where symbol = key");
     }
 
@@ -335,7 +335,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:time(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
         EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, null);
@@ -424,7 +424,7 @@ public class TestNamedWindowViews extends TestCase
         sendTimer(1000);
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:firsttime(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#firsttime(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
         EPAssertionUtil.assertPropsPerRow(stmtCreate.iterator(), fields, null);
@@ -488,7 +488,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:ext_timed(value, 10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#ext_timed(value, 10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -549,7 +549,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.ext:time_order(value, 10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time_order(value, 10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -614,7 +614,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:length(3) as MyMap";
+        String stmtTextCreate = "create window MyWindow#length(3) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -682,7 +682,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:firstlength(2) as MyMap";
+        String stmtTextCreate = "create window MyWindow#firstlength(2) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -734,7 +734,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:time_accum(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time_accum(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -858,7 +858,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:time_batch(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time_batch(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -931,7 +931,7 @@ public class TestNamedWindowViews extends TestCase
         sendTimer(0);
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:time_batch(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time_batch(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -966,7 +966,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:length_batch(3) as MyMap";
+        String stmtTextCreate = "create window MyWindow#length_batch(3) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1054,7 +1054,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.ext:sort(3, value asc) as MyMap";
+        String stmtTextCreate = "create window MyWindow#sort(3, value asc) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1133,7 +1133,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:time_length_batch(10 sec, 3) as MyMap";
+        String stmtTextCreate = "create window MyWindow#time_length_batch(10 sec, 3) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1212,7 +1212,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:groupwin(value).win:length(2) as MyMap";
+        String stmtTextCreate = "create window MyWindow#groupwin(value)#length(2) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1289,7 +1289,7 @@ public class TestNamedWindowViews extends TestCase
 
         // create window
         sendTimer(0);
-        String stmtTextCreate = "create window MyWindow.std:groupwin(value).win:time_batch(10 sec) as MyMap";
+        String stmtTextCreate = "create window MyWindow#groupwin(value)#time_batch(10 sec) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1328,7 +1328,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1358,7 +1358,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:lastevent() as MyMap";
+        String stmtTextCreate = "create window MyWindow#lastevent() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1423,7 +1423,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:firstevent() as MyMap";
+        String stmtTextCreate = "create window MyWindow#firstevent() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1487,7 +1487,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:unique(key) as MyMap";
+        String stmtTextCreate = "create window MyWindow#unique(key) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1552,7 +1552,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:firstunique(key) as MyMap";
+        String stmtTextCreate = "create window MyWindow#firstunique(key) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1605,7 +1605,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.std:unique(key) as select theString as key, intPrimitive as value from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#unique(key) as select theString as key, intPrimitive as value from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1670,7 +1670,7 @@ public class TestNamedWindowViews extends TestCase
     public void testSelectGroupedViewLateStart()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.std:groupwin(theString, intPrimitive).win:length(9) as select theString, intPrimitive from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create insert into
@@ -1719,7 +1719,7 @@ public class TestNamedWindowViews extends TestCase
     public void testSelectGroupedViewLateStartVariableIterate()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow.std:groupwin(theString, intPrimitive).win:length(9) as select theString, intPrimitive, longPrimitive, boolPrimitive from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive, longPrimitive, boolPrimitive from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create insert into
@@ -1789,7 +1789,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"sumvalue"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:keepall() as select theString as key, intPrimitive as value from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall() as select theString as key, intPrimitive as value from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1844,8 +1844,8 @@ public class TestNamedWindowViews extends TestCase
 
     public void testInvalid()
     {
-        assertEquals("Error starting statement: Named windows require one or more child views that are data window views [create window MyWindow.std:groupwin(value).stat:uni(value) as MyMap]",
-                     tryInvalid("create window MyWindow.std:groupwin(value).stat:uni(value) as MyMap"));
+        assertEquals("Error starting statement: Named windows require one or more child views that are data window views [create window MyWindow#groupwin(value)#uni(value) as MyMap]",
+                     tryInvalid("create window MyWindow#groupwin(value)#uni(value) as MyMap"));
 
         assertEquals("Named windows require one or more child views that are data window views [create window MyWindow as MyMap]",
                      tryInvalid("create window MyWindow as MyMap"));
@@ -1853,7 +1853,7 @@ public class TestNamedWindowViews extends TestCase
         assertEquals("Named window or table 'dummy' has not been declared [on MyMap delete from dummy]",
                      tryInvalid("on MyMap delete from dummy"));
 
-        epService.getEPAdministrator().createEPL("create window SomeWindow.win:keepall() as (a int)");
+        epService.getEPAdministrator().createEPL("create window SomeWindow#keepall() as (a int)");
         SupportMessageAssertUtil.tryInvalid(epService, "update SomeWindow set a = 'a' where a = 'b'",
                 "Provided EPL expression is an on-demand query expression (not a continuous query), please use the runtime executeQuery API instead");
         SupportMessageAssertUtil.tryInvalidExecuteQuery(epService, "update istream SomeWindow set a = 'a' where a = 'b'",
@@ -1867,39 +1867,39 @@ public class TestNamedWindowViews extends TestCase
         outerType.put("innermap", "InnerMap");
         epService.getEPAdministrator().getConfiguration().addEventType("OuterMap", outerType);
         try {
-            epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select innermap.abc from OuterMap");
+            epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select innermap.abc from OuterMap");
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Failed to validate select-clause expression 'innermap.abc': Failed to resolve property 'innermap.abc' to a stream or nested property in a stream [create window MyWindow.win:keepall() as select innermap.abc from OuterMap]", ex.getMessage());
+            assertEquals("Failed to validate select-clause expression 'innermap.abc': Failed to resolve property 'innermap.abc' to a stream or nested property in a stream [create window MyWindow#keepall() as select innermap.abc from OuterMap]", ex.getMessage());
         }
     }
 
     public void testAlreadyExists()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as MyMap");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as MyMap");
         try
         {
-            epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as MyMap");
+            epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as MyMap");
             fail();
         }
         catch (EPException ex)
         {
-            assertEquals("Error starting statement: A named window by name 'MyWindow' has already been created [create window MyWindow.win:keepall() as MyMap]", ex.getMessage());
+            assertEquals("Error starting statement: A named window by name 'MyWindow' has already been created [create window MyWindow#keepall() as MyMap]", ex.getMessage());
         }
     }
 
     public void testConsumerDataWindow()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as MyMap");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as MyMap");
         try
         {
-            epService.getEPAdministrator().createEPL("select key, value as value from MyWindow.win:time(10 sec)");
+            epService.getEPAdministrator().createEPL("select key, value as value from MyWindow#time(10 sec)");
             fail();
         }
         catch (EPException ex)
         {
-            assertEquals("Error starting statement: Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindow.win:time(10 sec)]", ex.getMessage());
+            assertEquals("Error starting statement: Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindow#time(10 sec)]", ex.getMessage());
         }
     }
 
@@ -1922,7 +1922,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fieldsPrior = new String[] {"priorKeyOne", "priorKeyTwo"};
         String[] fieldsStat = new String[] {"average"};
 
-        String stmtTextCreate = "create window MyWindow.win:keepall() as MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1936,7 +1936,7 @@ public class TestNamedWindowViews extends TestCase
         EPStatement stmtSelectOne = epService.getEPAdministrator().createEPL(stmtTextSelectOne);
         stmtSelectOne.addListener(listenerStmtOne);
 
-        String stmtTextSelectThree = "select average from MyWindow.stat:uni(value)";
+        String stmtTextSelectThree = "select average from MyWindow#uni(value)";
         EPStatement stmtSelectThree = epService.getEPAdministrator().createEPL(stmtTextSelectThree);
         stmtSelectThree.addListener(listenerStmtThree);
 
@@ -1968,7 +1968,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fieldsStat = new String[] {"average"};
         String[] fieldsCnt = new String[] {"cnt"};
 
-        String stmtTextCreate = "create window MyWindow.win:keepall() as MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -1985,7 +1985,7 @@ public class TestNamedWindowViews extends TestCase
         sendSupportBean("E2", 2L);
         EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), fieldsWin, new Object[]{"E2", 2L});
 
-        String stmtTextSelectOne = "select irstream average from MyWindow.stat:uni(value)";
+        String stmtTextSelectOne = "select irstream average from MyWindow#uni(value)";
         EPStatement stmtSelectOne = epService.getEPAdministrator().createEPL(stmtTextSelectOne);
         stmtSelectOne.addListener(listenerStmtOne);
         EPAssertionUtil.assertPropsPerRow(stmtSelectOne.iterator(), fieldsStat, new Object[][]{{1.5d}});
@@ -2019,7 +2019,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fieldsWin = new String[] {"key", "value"};
         String[] fieldsJoin = new String[] {"key", "value", "symbol"};
 
-        String stmtTextCreate = "create window MyWindow.win:keepall() as MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -2038,7 +2038,7 @@ public class TestNamedWindowViews extends TestCase
 
         // This replays into MyWindow
         String stmtTextSelectTwo = "select key, value, symbol from MyWindow as s0" +
-                                   " left outer join " + SupportMarketDataBean.class.getName() + ".win:keepall() as s1" +
+                                   " left outer join " + SupportMarketDataBean.class.getName() + "#keepall() as s1" +
                                    " on s0.value = s1.volume";
         EPStatement stmtSelectTwo = epService.getEPAdministrator().createEPL(stmtTextSelectTwo);
         stmtSelectTwo.addListener(listenerStmtTwo);
@@ -2073,7 +2073,7 @@ public class TestNamedWindowViews extends TestCase
     public void testPattern()
     {
         String[] fields = new String[] {"key", "value"};
-        String stmtTextCreate = "create window MyWindow.win:keepall() as MyMap";
+        String stmtTextCreate = "create window MyWindow#keepall() as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 
@@ -2105,7 +2105,7 @@ public class TestNamedWindowViews extends TestCase
         String[] fields = new String[] {"key", "value"};
 
         // create window
-        String stmtTextCreate = "create window MyWindow.win:ext_timed_batch(value, 10 sec, 0L) as MyMap";
+        String stmtTextCreate = "create window MyWindow#ext_timed_batch(value, 10 sec, 0L) as MyMap";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
 

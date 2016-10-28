@@ -49,7 +49,7 @@ public class TestTableIntoTable extends TestCase {
 
         epService.getEPAdministrator().createEPL("into table MyTable " +
                 "select window(sb.*) as thewin, sorted(sb.*) as thesort " +
-                "from SupportBean_S0.std:lastevent(), SupportBean.win:keepall() as sb");
+                "from SupportBean_S0#lastevent(), SupportBean#keepall() as sb");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
         SupportBean sb1 = new SupportBean("E1", 1);
@@ -85,11 +85,11 @@ public class TestTableIntoTable extends TestCase {
                 "windowb window(*) @type('SupportBean'))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0.std:lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
-        String eplBoundInto = "into table varagg select window(*) as windowb from SupportBean.win:length(2)";
+        String eplBoundInto = "into table varagg select window(*) as windowb from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundInto);
 
         String eplUnboundInto = "into table varagg select lastever(*) as lasteveru, firstever(*) as firsteveru from SupportBean";
@@ -104,14 +104,14 @@ public class TestTableIntoTable extends TestCase {
         assertResults(stmtIterate, fields, new Object[]{b4, b1, new Object[] {b3, b4}});
 
         // invalid: bound aggregation into unbound max
-        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select last(*) as lasteveru from SupportBean.win:length(2)",
+        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select last(*) as lasteveru from SupportBean#length(2)",
                 "Error starting statement: Failed to validate select-clause expression 'last(*)': For into-table use 'window(*)' or ''window(stream.*)' instead [");
         // invalid: unbound aggregation into bound max
-        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select lastever(*) as windowb from SupportBean.win:length(2)",
+        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select lastever(*) as windowb from SupportBean#length(2)",
                 "Error starting statement: Incompatible aggregation function for table 'varagg' column 'windowb', expecting 'window(*)' and received 'lastever(*)': Not a 'window' aggregation [");
 
         // valid: bound with unbound variable
-        String eplBoundIntoUnbound = "into table varagg select lastever(*) as lasteveru from SupportBean.win:length(2)";
+        String eplBoundIntoUnbound = "into table varagg select lastever(*) as lasteveru from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundIntoUnbound);
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -127,11 +127,11 @@ public class TestTableIntoTable extends TestCase {
                 "sortedb sorted(intPrimitive) @type('SupportBean'))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0.std:lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
-        String eplBoundInto = "into table varagg select sorted() as sortedb from SupportBean.win:length(2)";
+        String eplBoundInto = "into table varagg select sorted() as sortedb from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundInto);
 
         String eplUnboundInto = "into table varagg select maxbyever() as maxbyeveru, minbyever() as minbyeveru from SupportBean";
@@ -143,16 +143,16 @@ public class TestTableIntoTable extends TestCase {
         assertResults(stmtIterate, fields, new Object[]{b1, b3, new Object[] {b3, b2}});
 
         // invalid: bound aggregation into unbound max
-        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select maxby(intPrimitive) as maxbyeveru from SupportBean.win:length(2)",
+        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select maxby(intPrimitive) as maxbyeveru from SupportBean#length(2)",
                 "Error starting statement: Failed to validate select-clause expression 'maxby(intPrimitive)': When specifying into-table a sort expression cannot be provided [");
         // invalid: unbound aggregation into bound max
-        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select maxbyever() as sortedb from SupportBean.win:length(2)",
+        SupportMessageAssertUtil.tryInvalid(epService, "into table varagg select maxbyever() as sortedb from SupportBean#length(2)",
                 "Error starting statement: Incompatible aggregation function for table 'varagg' column 'sortedb', expecting 'sorted(intPrimitive)' and received 'maxbyever()': The required aggregation function name is 'sorted' and provided is 'maxbyever' [");
 
         // valid: bound with unbound variable
         String eplBoundIntoUnbound = "into table varagg select " +
                 "maxbyever() as maxbyeveru, minbyever() as minbyeveru " +
-                "from SupportBean.win:length(2)";
+                "from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundIntoUnbound);
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -166,13 +166,13 @@ public class TestTableIntoTable extends TestCase {
                 "maxb max(int), maxu maxever(int), minb min(int), minu minever(int))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0.std:lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
         String eplBoundInto = "into table varagg select " +
                 "max(intPrimitive) as maxb, min(intPrimitive) as minb " +
-                "from SupportBean.win:length(2)";
+                "from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundInto);
 
         String eplUnboundInto = "into table varagg select " +
@@ -198,7 +198,7 @@ public class TestTableIntoTable extends TestCase {
         // valid: bound with unbound variable
         String eplBoundIntoUnbound = "into table varagg select " +
                 "maxever(intPrimitive) as maxu, minever(intPrimitive) as minu " +
-                "from SupportBean.win:length(2)";
+                "from SupportBean#length(2)";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplBoundIntoUnbound);
 
         epService.getEPAdministrator().destroyAllStatements();

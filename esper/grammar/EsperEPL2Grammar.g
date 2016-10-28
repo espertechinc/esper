@@ -375,7 +375,7 @@ onSetAssignment : eventProperty EQUALS expression | expression;
 		
 onExprFrom : FROM n=IDENT (AS i=IDENT | i=IDENT)?;
 
-createWindowExpr : CREATE WINDOW i=IDENT (DOT viewExpression (DOT viewExpression)*)? (ru=RETAINUNION|ri=RETAININTERSECTION)? AS? 
+createWindowExpr : CREATE WINDOW i=IDENT viewExpressions? (ru=RETAINUNION|ri=RETAININTERSECTION)? AS? 
 		  (
 		  	createWindowExprModelAfter		  
 		  |   	LPAREN createColumnList RPAREN
@@ -556,7 +556,7 @@ selectionListElementAnno : ATCHAR i=IDENT;
 streamSelector : s=IDENT DOT STAR (AS i=IDENT)?;
 	
 streamExpression : (eventFilterExpression | patternInclusionExpression | databaseJoinExpression | methodJoinExpression )
-		(DOT viewExpression (DOT viewExpression)*)? (AS i=IDENT | i=IDENT)? (u=UNIDIRECTIONAL)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
+		viewExpressions? (AS i=IDENT | i=IDENT)? (u=UNIDIRECTIONAL)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
 		
 forExpr : FOR i=IDENT (LPAREN expressionList? RPAREN)?;
 
@@ -573,10 +573,17 @@ methodJoinExpression
 @after { paraphrases.pop(); }
     		: i=IDENT COLON classIdentifier (LPAREN expressionList? RPAREN)?;
 
-viewExpression
+viewExpressions 
 @init  { paraphrases.push("view specifications"); }
 @after { paraphrases.pop(); }
-		: ns=IDENT COLON (i=IDENT|m=MERGE) LPAREN expressionWithTimeList? RPAREN;
+		: (DOT viewExpressionWNamespace (DOT viewExpressionWNamespace)*) 
+		| (HASHCHAR viewExpressionOptNamespace (HASHCHAR viewExpressionOptNamespace)*);
+
+viewExpressionWNamespace : ns=IDENT COLON viewWParameters;
+
+viewExpressionOptNamespace : (ns=IDENT COLON)? viewWParameters;
+
+viewWParameters : (i=IDENT|m=MERGE) LPAREN expressionWithTimeList? RPAREN;
 
 groupByListExpr
 @init  { paraphrases.push("group-by clause"); }
@@ -793,7 +800,7 @@ subQueryExpr
 subSelectFilterExpr
 @init  { paraphrases.push("subquery filter specification"); }
 @after { paraphrases.pop(); }
-		: eventFilterExpression (DOT viewExpression (DOT viewExpression)*)? (AS i=IDENT | i=IDENT)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
+		: eventFilterExpression viewExpressions? (AS i=IDENT | i=IDENT)? (ru=RETAINUNION|ri=RETAININTERSECTION)?;
 		
 arrayExpression : LCURLY (expression (COMMA expression)* )? RCURLY chainedFunction?;
 
@@ -1304,6 +1311,7 @@ NUM_FLOAT	: '\u18FD';
 ESCAPECHAR	: '\\';
 ESCAPEBACKTICK	: '`';
 ATCHAR		: '@';
+HASHCHAR	: '#';
 
 // Whitespace -- ignored
 WS	:	(	' '

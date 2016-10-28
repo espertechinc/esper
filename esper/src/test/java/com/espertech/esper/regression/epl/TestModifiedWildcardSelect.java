@@ -74,7 +74,7 @@ public class TestModifiedWildcardSelect extends TestCase
 	public void testSingle() throws Exception
 	{
 		String eventName = SupportBeanSimple.class.getName();
-		String text = "select *, myString||myString as concat from " + eventName + ".win:length(5)";
+		String text = "select *, myString||myString as concat from " + eventName + "#length(5)";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -84,8 +84,8 @@ public class TestModifiedWildcardSelect extends TestCase
 	public void testSingleInsertInto() throws InterruptedException
 	{
 		String eventName = SupportBeanSimple.class.getName();
-		String text = "insert into someEvent select *, myString||myString as concat from " + eventName + ".win:length(5)";
-		String textTwo = "select * from someEvent.win:length(5)";
+		String text = "insert into someEvent select *, myString||myString as concat from " + eventName + "#length(5)";
+		String textTwo = "select * from someEvent#length(5)";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -101,9 +101,9 @@ public class TestModifiedWildcardSelect extends TestCase
 		String eventNameOne = SupportBeanSimple.class.getName();
 		String eventNameTwo = SupportMarketDataBean.class.getName();
 		String text = "insert into someJoinEvent select *, myString||myString as concat " +
-				"from " + eventNameOne + ".win:length(5) as eventOne, "
-				+ eventNameTwo + ".win:length(5) as eventTwo";
-		String textTwo = "select * from someJoinEvent.win:length(5)";
+				"from " + eventNameOne + "#length(5) as eventOne, "
+				+ eventNameTwo + "#length(5) as eventTwo";
+		String textTwo = "select * from someJoinEvent#length(5)";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -120,8 +120,8 @@ public class TestModifiedWildcardSelect extends TestCase
 		String eventNameOne = SupportBeanSimple.class.getName();
 		String eventNameTwo = SupportMarketDataBean.class.getName();
 		String text = "select *, myString||myString as concat " +
-				"from " + eventNameOne + ".win:length(5) as eventOne, "
-				+ eventNameTwo + ".win:length(5) as eventTwo";
+				"from " + eventNameOne + "#length(5) as eventOne, "
+				+ eventNameTwo + "#length(5) as eventTwo";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -132,8 +132,8 @@ public class TestModifiedWildcardSelect extends TestCase
 		epService.initialize();
 
 		text = "select *, myString||myString as concat " +
-		"from " + eventNameOne + ".win:length(5) as eventOne, " +
-				eventNameTwo + ".win:length(5) as eventTwo " +
+		"from " + eventNameOne + "#length(5) as eventOne, " +
+				eventNameTwo + "#length(5) as eventTwo " +
 				"where eventOne.myString = eventTwo.symbol";
 
 		statement = epService.getEPAdministrator().createEPL(text);
@@ -147,8 +147,8 @@ public class TestModifiedWildcardSelect extends TestCase
 		String eventNameOne = SupportBean_A.class.getName();
 		String eventNameTwo = SupportBean_B.class.getName();
 		String text = "select *, eventOne.id||eventTwo.id as concat " +
-				"from " + eventNameOne + ".win:length(5) as eventOne, " +
-						eventNameTwo + ".win:length(5) as eventTwo ";
+				"from " + eventNameOne + "#length(5) as eventOne, " +
+						eventNameTwo + "#length(5) as eventTwo ";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -159,8 +159,8 @@ public class TestModifiedWildcardSelect extends TestCase
 		epService.initialize();
 
 		text = "select *, eventOne.id||eventTwo.id as concat " +
-			"from " + eventNameOne + ".win:length(5) as eventOne, " +
-				eventNameTwo + ".win:length(5) as eventTwo " +
+			"from " + eventNameOne + "#length(5) as eventOne, " +
+				eventNameTwo + "#length(5) as eventTwo " +
 				"where eventOne.id = eventTwo.id";
 
 		statement = epService.getEPAdministrator().createEPL(text);
@@ -172,7 +172,7 @@ public class TestModifiedWildcardSelect extends TestCase
 	public void testCombinedProperties() throws InterruptedException
 	{
 		String eventName = SupportBeanCombinedProps.class.getName();
-		String text = "select *, indexed[0].mapped('0ma').value||indexed[0].mapped('0mb').value as concat from " + eventName + ".win:length(5)";
+		String text = "select *, indexed[0].mapped('0ma').value||indexed[0].mapped('0mb').value as concat from " + eventName + "#length(5)";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -189,7 +189,7 @@ public class TestModifiedWildcardSelect extends TestCase
 		epService = EPServiceProviderManager.getDefaultProvider(configuration);
 		epService.initialize();
 
-		String text = "select *, theString||theString as concat from mapEvent.win:length(5)";
+		String text = "select *, theString||theString as concat from mapEvent#length(5)";
 
 		EPStatement statement = epService.getEPAdministrator().createEPL(text);
 		statement.addListener(listener);
@@ -214,7 +214,7 @@ public class TestModifiedWildcardSelect extends TestCase
 	public void testInvalidRepeatedProperties() throws InterruptedException
 	{
 		String eventName = SupportBeanSimple.class.getName();
-		String text = "select *, myString||myString as myString from " + eventName + ".win:length(5)";
+		String text = "select *, myString||myString as myString from " + eventName + "#length(5)";
 
 		try
 		{

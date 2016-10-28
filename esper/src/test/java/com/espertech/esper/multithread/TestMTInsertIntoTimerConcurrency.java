@@ -49,7 +49,7 @@ public class TestMTInsertIntoTimerConcurrency extends TestCase
 
         epAdministrator.startAllStatements();
 
-        String epl = "insert into Stream1 select count(*) as cnt from SupportBean.win:time(7 sec)";
+        String epl = "insert into Stream1 select count(*) as cnt from SupportBean#time(7 sec)";
         createEPL(epl, noActionUpdateListener);
         epl = epl + " output every 10 seconds";
         createEPL(epl, noActionUpdateListener);

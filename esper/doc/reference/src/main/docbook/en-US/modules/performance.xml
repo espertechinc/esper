@@ -357,7 +357,7 @@ select * from Market where ticker = 'GOOG']]></programlisting>
 					In the next statement only GOOG market events enter the length window:
 				</para>
 
-				<programlisting><![CDATA[select avg(price) from MarketData(ticker = 'GOOG').win:length(100)]]></programlisting>
+				<programlisting><![CDATA[select avg(price) from MarketData(ticker = 'GOOG')#length(100)]]></programlisting>
 
 				<para>
 					The above statement computes the average price of GOOG market data events for the last 100 GOOG market data events. 
@@ -368,7 +368,7 @@ select * from Market where ticker = 'GOOG']]></programlisting>
 					The following statement is NOT equivalent as all events enter the data window (not just GOOG events):
 				</para>
 		
-				<programlisting><![CDATA[select avg(price) from Market.win:length(100) where ticker = 'GOOG']]></programlisting>
+				<programlisting><![CDATA[select avg(price) from Market#length(100) where ticker = 'GOOG']]></programlisting>
 
 				<para>
 					The statement above computes the average price of all market data events for the last 100 market data events, and outputs results only for GOOG.
@@ -457,15 +457,15 @@ select * from MarketData(symbol = 'GE') group by symbol having sum(price) > 1000
 				remove <literal>std:groupwin</literal>:
 			</para>
 <programlisting><![CDATA[// Prefer:
-create window MarketDataWindow.win:keepall() as MarketDataEventType
+create window MarketDataWindow#keepall() as MarketDataEventType
 
 // Don't use this, since keeping all events 
 // or keeping all events per symbol is the same thing:
-create window MarketDataWindow.std:groupwin(symbol).win:keepall() as MarketDataEventType
+create window MarketDataWindow#groupwin(symbol)#keepall() as MarketDataEventType
 
 // Don't use this, since keeping the last 1-minute of events 
 // or keeping 1-minute of events per symbol is the same thing:
-create window MarketDataWindow.std:groupwin(symbol).win:time(1 min) as MarketDataEventType]]></programlisting>
+create window MarketDataWindow#groupwin(symbol)#time(1 min) as MarketDataEventType]]></programlisting>
 
 			<para>
 				It is not necessary to specify a data window for each stream.
@@ -474,16 +474,16 @@ create window MarketDataWindow.std:groupwin(symbol).win:time(1 min) as MarketDat
 select * from MarketDataWindow
 
 // Don't have a data window if just listening to events, prefer the above
-select * from MarketDataWindow.std:lastevent()]]></programlisting>
+select * from MarketDataWindow#lastevent()]]></programlisting>
 
 			<para>
 				If your statement specifies unique data window but the filter criteria only allows one unique criteria, consider removing the unique data window:
 			</para>
 <programlisting><![CDATA[// Prefer:
-select * from MarketDataWindow(symbol = 'GE').std:lastevent()
+select * from MarketDataWindow(symbol = 'GE')#lastevent()
 
 // Don't have a unique-key data window if your filter specifies a single value
-select * from MarketDataWindow(symbol = 'GE').std:unique(symbol)]]></programlisting>
+select * from MarketDataWindow(symbol = 'GE')#unique(symbol)]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="perf-tips-6b">
@@ -750,7 +750,7 @@ group by venue, ccyPair, side]]></programlisting>
 			</para>
 
 <programlisting><![CDATA[// Avoid joins between streams with data windows without where-clause
-select * from StreamA.win:length(100), StreamB.win:length(50)]]></programlisting>
+select * from StreamA#length(100), StreamB#length(50)]]></programlisting>
 
 			<para>
 				Consider using a subquery, consider using separate statements with insert-into and consider providing a <literal>where</literal> clause to limit the product of rows.
@@ -762,29 +762,29 @@ select * from StreamA.win:length(100), StreamB.win:length(50)]]></programlisting
 
 <programlisting><![CDATA[// Replace the following statement as it may not perform well
 select a.symbol, avg(a.value), avg(b.value) 
-from MyEvent.win:length(100) a, MyEvent.win:length(50) b
+from MyEvent#length(100) a, MyEvent#length(50) b
 
 // Join with where-clause
 select a.symbol, avg(a.value), avg(b.value) 
-from MyEvent.win:length(100) a, MyEvent.win:length(50) b 
+from MyEvent#length(100) a, MyEvent#length(50) b 
 where a.symbol = b.symbol
 
 // Unidirectional join with where-clause
 select a.symbol, avg(b.value) 
-from MyEvent unidirectional, MyEvent.win:length(50) b 
+from MyEvent unidirectional, MyEvent#length(50) b 
 where a.symbol = b.symbol
 
 // Subquery
 select 
-  (select avg(value) from MyEvent.win:length(100)) as avgA, 
-  (select avg(value) from MyEvent.win:length(50)) as avgB,
+  (select avg(value) from MyEvent#length(100)) as avgA, 
+  (select avg(value) from MyEvent#length(50)) as avgB,
   a.symbol
 from MyEvent
 
 // Since streams cost almost nothing, use insert-into to populate and a unidirectional join 
-insert into StreamAvgA select symbol, avg(value) as avgA from MyEvent.win:length(100)
-insert into StreamAvgB select symbol, avg(value) as avgB from MyEvent.win:length(50)
-select a.symbol, avgA, avgB from StreamAvgA unidirectional, StreamAvgB.std:unique(symbol) b
+insert into StreamAvgA select symbol, avg(value) as avgA from MyEvent#length(100)
+insert into StreamAvgB select symbol, avg(value) as avgB from MyEvent#length(50)
+select a.symbol, avgA, avgB from StreamAvgA unidirectional, StreamAvgB#unique(symbol) b
 where a.symbol = b.symbol]]></programlisting>
 
 			<para>
@@ -863,7 +863,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			<para>
 			  For example, consider the following EPL statement that filters out duplicate transaction ids that occur within 20 seconds of each other:
 			</para>
-			<programlisting><![CDATA[select * from TxnEvent.std:firstunique(transactionId).win:time(20 sec)]]></programlisting>
+			<programlisting><![CDATA[select * from TxnEvent#firstunique(transactionId)#time(20 sec)]]></programlisting>
 			
 			<para>
 			  You could also address this solution using a pattern:
@@ -1157,7 +1157,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 					In the example below the <literal>firstName</literal> and <literal>lastName</literal> expressions are part of a composite key: 
 				</para>
 				 <programlisting><![CDATA[... group by firstName, lastName
-...std:unique(firstName, lastName)...
+..#unique(firstName, lastName)...
 ...order by firstName, lastName]]></programlisting>
 
 				<note>
@@ -1169,7 +1169,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 					You application could change the EPL to instead refer to a single value <literal>fullName</literal>:
 				</para>
 				<programlisting><![CDATA[... group by fullName
-...std:unique(fullName)...
+..#unique(fullName)...
 ...order by fullName]]></programlisting>
 
 				<para>
@@ -1302,7 +1302,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 				<para>
 					An inner join of all A and B events might look like this:
 				</para>
-				<programlisting><![CDATA[select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]></programlisting>
+				<programlisting><![CDATA[select * from A#keepall() as a, B#keepall() as b where aprop = bprop]]></programlisting>
 				
 				<para>
 					In the default query plan, when an A event comes in, the engine obtains the value of <literal>aprop</literal> and performs an index lookup against <literal>bprop</literal>
@@ -1358,7 +1358,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 					in effect causing the query planner to always execute the statement as a full table scan.
 				</para>
 				<programlisting><![CDATA[@hint('exclude_plan(true)')
-select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]></programlisting>
+select * from A#keepall() as a, B#keepall() as b where aprop = bprop]]></programlisting>
 
 				<para>
 					This hint instructs the engine to ignore all equals-operators for query planning:
@@ -1503,7 +1503,7 @@ select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]><
 				</para>
 				
 				<para>
-					Let's assume your test statement computes an aggregation over a 1-minute time window, for example <literal>select symbol, count(*) from StockTick.win:time(1 min) group by symbol</literal>.
+					Let's assume your test statement computes an aggregation over a 1-minute time window, for example <literal>select symbol, count(*) from StockTick#time(1 min) group by symbol</literal>.
 					If your code creates the same statement 100 times, and depending on engine configuration, the code instructs the engine to track 100 logically independent time windows 
 					and to track aggregations for each group 100 times. Obviously, this is not a good use of EPL and the design of your EPL statements and code may not be optimal.
 				</para>
@@ -1550,7 +1550,7 @@ select * from A.win:keepall() as a, B.win:keepall() as b where aprop = bprop]]><
 				<para>
 				  The next paragraph assumes that a named window has been created to hold some historical financial data per symbol and minute:
 				</para>
-				<programlisting><![CDATA[create window HistoricalWindow.win:keepall() as (symbol string, int minute, double price)]]></programlisting>
+				<programlisting><![CDATA[create window HistoricalWindow#keepall() as (symbol string, int minute, double price)]]></programlisting>
 				<programlisting><![CDATA[insert into HistoricalWindow select symbol, minute, price from HistoricalTick]]></programlisting>
 
 				<para>

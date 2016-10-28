@@ -49,7 +49,7 @@ public class TestGroupByEventPerGroupHaving extends TestCase
     public void testHavingCount()
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        String text = "select * from SupportBean(intPrimitive = 3).win:length(10) as e1 group by theString having count(*) > 2";
+        String text = "select * from SupportBean(intPrimitive = 3)#length(10) as e1 group by theString having count(*) > 2";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(text);
         selectTestView.addListener(testListener);
 
@@ -63,8 +63,8 @@ public class TestGroupByEventPerGroupHaving extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream symbol, sum(price) as mySum " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                          " " + SupportMarketDataBean.class.getName() + ".win:length(3) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                          " " + SupportMarketDataBean.class.getName() + "#length(3) as two " +
                           "where (symbol='DELL' or symbol='IBM' or symbol='GE')" +
                           "       and one.theString = two.symbol " +
                           "group by symbol " +
@@ -83,7 +83,7 @@ public class TestGroupByEventPerGroupHaving extends TestCase
     public void testSumOneView()
     {
         String viewExpr = "select irstream symbol, sum(price) as mySum " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(3) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(3) " +
                           "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                           "group by symbol " +
                           "having sum(price) >= 100";

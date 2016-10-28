@@ -44,8 +44,8 @@ public class TestSelectClauseJoin extends TestCase
         String eventB = SupportBean.class.getName();
 
         String joinStatement = "select s0.doubleBoxed, s1.intPrimitive*s1.intBoxed/2.0 as div from " +
-            eventA + "(theString='s0').win:length(3) as s0," +
-            eventB + "(theString='s1').win:length(3) as s1" +
+            eventA + "(theString='s0')#length(3) as s0," +
+            eventB + "(theString='s1')#length(3) as s1" +
             " where s0.doubleBoxed = s1.doubleBoxed";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);

@@ -43,7 +43,7 @@ public class TestPerfSubselectFiltered extends TestCase
 
     public void testPerformanceOneCriteria()
     {
-        String stmtText = "select (select p10 from S1.win:length(100000) where id = s0.id) as value from S0 as s0";
+        String stmtText = "select (select p10 from S1#length(100000) where id = s0.id) as value from S0 as s0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -69,7 +69,7 @@ public class TestPerfSubselectFiltered extends TestCase
 
     public void testPerformanceTwoCriteria()
     {
-        String stmtText = "select (select p10 from S1.win:length(100000) where s0.id = id and p10 = s0.p00) as value from S0 as s0";
+        String stmtText = "select (select p10 from S1#length(100000) where s0.id = id and p10 = s0.p00) as value from S0 as s0";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -95,15 +95,15 @@ public class TestPerfSubselectFiltered extends TestCase
 
     public void testPerformanceJoin3CriteriaSceneOne()
     {
-        String stmtText = "select (select p00 from S0.win:length(100000) where p00 = s1.p10 and p01 = s2.p20 and p02 = s3.p30) as value " +
-                "from S1.win:length(100000) as s1, S2.win:length(100000) as s2, S3.win:length(100000) as s3 where s1.id = s2.id and s2.id = s3.id";
+        String stmtText = "select (select p00 from S0#length(100000) where p00 = s1.p10 and p01 = s2.p20 and p02 = s3.p30) as value " +
+                "from S1#length(100000) as s1, S2#length(100000) as s2, S3#length(100000) as s3 where s1.id = s2.id and s2.id = s3.id";
         tryPerfJoin3Criteria(stmtText);
     }
 
     public void testPerformanceJoin3CriteriaSceneTwo()
     {
-        String stmtText = "select (select p00 from S0.win:length(100000) where p01 = s2.p20 and p00 = s1.p10 and p02 = s3.p30 and id >= 0) as value " +
-                "from S3.win:length(100000) as s3, S1.win:length(100000) as s1, S2.win:length(100000) as s2 where s2.id = s3.id and s1.id = s2.id";
+        String stmtText = "select (select p00 from S0#length(100000) where p01 = s2.p20 and p00 = s1.p10 and p02 = s3.p30 and id >= 0) as value " +
+                "from S3#length(100000) as s3, S1#length(100000) as s1, S2#length(100000) as s2 where s2.id = s3.id and s1.id = s2.id";
         tryPerfJoin3Criteria(stmtText);
     }
 

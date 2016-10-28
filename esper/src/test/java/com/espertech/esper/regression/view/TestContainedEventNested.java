@@ -48,7 +48,7 @@ public class TestContainedEventNested extends TestCase
         String[] fields = "reviewId".split(",");
         epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
 
-        epService.getEPAdministrator().createEPL("create window OrderWindow.std:lastevent() as OrderEvent");
+        epService.getEPAdministrator().createEPL("create window OrderWindow#lastevent() as OrderEvent");
         epService.getEPAdministrator().createEPL("insert into OrderWindow select * from OrderEvent");
 
         String stmtText = "select reviewId from OrderWindow[books][reviews] bookReviews order by reviewId asc";
@@ -70,7 +70,7 @@ public class TestContainedEventNested extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        epService.getEPAdministrator().createEPL("create window OrderWindow.std:lastevent() as OrderEvent");
+        epService.getEPAdministrator().createEPL("create window OrderWindow#lastevent() as OrderEvent");
         epService.getEPAdministrator().createEPL("insert into OrderWindow select * from OrderEvent");
 
         String stmtText = "select *, (select sum(price) from OrderWindow[books]) as totalPrice from SupportBean";
@@ -94,9 +94,9 @@ public class TestContainedEventNested extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        epService.getEPAdministrator().createEPL("create window SupportBeanWindow.std:lastevent() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window SupportBeanWindow#lastevent() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into SupportBeanWindow select * from SupportBean");
-        epService.getEPAdministrator().createEPL("create window OrderWindow.std:lastevent() as OrderEvent");
+        epService.getEPAdministrator().createEPL("create window OrderWindow#lastevent() as OrderEvent");
         epService.getEPAdministrator().createEPL("insert into OrderWindow select * from OrderEvent");
 
         String stmtText = "on OrderWindow[books] owb select sbw.* from SupportBeanWindow sbw where theString = title";
@@ -254,7 +254,7 @@ public class TestContainedEventNested extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select theString from SupportBean s0 where " +
-                "exists (select * from OrderEvent[books][reviews].std:unique(reviewId) where reviewId = s0.intPrimitive)");
+                "exists (select * from OrderEvent[books][reviews]#unique(reviewId) where reviewId = s0.intPrimitive)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
@@ -298,8 +298,8 @@ public class TestContainedEventNested extends TestCase
         tryInvalid("select bookId from OrderEvent[select count(*) from books]",
                    "Expression in a property-selection may not utilize an aggregation function [select bookId from OrderEvent[select count(*) from books]]");
 
-        tryInvalid("select bookId from OrderEvent[select bookId, (select abc from review.std:lastevent()) from books]",
-                   "Expression in a property-selection may not utilize a subselect [select bookId from OrderEvent[select bookId, (select abc from review.std:lastevent()) from books]]");
+        tryInvalid("select bookId from OrderEvent[select bookId, (select abc from review#lastevent()) from books]",
+                   "Expression in a property-selection may not utilize a subselect [select bookId from OrderEvent[select bookId, (select abc from review#lastevent()) from books]]");
 
         tryInvalid("select bookId from OrderEvent[select prev(1, bookId) from books]",
                    "Failed to validate contained-event expression 'prev(1,bookId)': Previous function cannot be used in this context [select bookId from OrderEvent[select prev(1, bookId) from books]]");

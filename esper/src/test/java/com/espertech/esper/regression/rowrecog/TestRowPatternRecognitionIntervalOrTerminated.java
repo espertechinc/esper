@@ -73,7 +73,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b0,b1,b2,c".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1, B[2].theString as b2, C.theString as c " +
                 " pattern (A (B* | C))" +
@@ -120,7 +120,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
 
         // the interval is not effective
         String[] fields = "a,b".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B.theString as b" +
                 " pattern (A B)" +
@@ -188,7 +188,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b,c0,c1,c2".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B.theString as b, " +
                 "C[0].theString as c0, C[1].theString as c1, C[2].theString as c2 " +
@@ -246,7 +246,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b0,b1,c0,c1".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, " +
                 "B[0].theString as b0, B[1].theString as b1, " +
@@ -288,7 +288,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b0,b1,b2".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1, B[2].theString as b2" +
                 " pattern (A B+)" +
@@ -329,7 +329,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a0,a1,a2,a3,a4".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A[0].theString as a0, A[1].theString as a1, A[2].theString as a2, A[3].theString as a3, A[4].theString as a4" +
                 " pattern (A*)" +
@@ -372,7 +372,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b0,b1,b2".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1, B[2].theString as b2" +
                 (allMatches ? " all matches" : "") +
@@ -431,7 +431,7 @@ public class TestRowPatternRecognitionIntervalOrTerminated extends TestCase {
         sendTimer(isolated, 0);
 
         String[] fields = "a,b0,b1,b2".split(",");
-        String text = "select * from MyEvent.win:keepall() " +
+        String text = "select * from MyEvent#keepall() " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1, B[2].theString as b2" +
                 " pattern (A (B)*)" +

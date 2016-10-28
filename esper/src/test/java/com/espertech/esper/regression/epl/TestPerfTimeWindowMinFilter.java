@@ -48,7 +48,7 @@ public class TestPerfTimeWindowMinFilter extends TestCase
             int id = i % 5;
 
             String text = "select symbol, min(price) " +
-                    "from MD(id='${id}').win:time(${secondsWindowSpan})\n" +
+                    "from MD(id='${id}')#time(${secondsWindowSpan})\n" +
                     "having price >= min(price) * ${percent}";
 
             text = text.replace("${id}", Integer.toString(id));

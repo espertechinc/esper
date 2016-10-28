@@ -51,50 +51,50 @@ public class TestPerf2StreamExprJoin extends TestCase
     {
         String epl;
 
-        epl = "select intPrimitive as val from SupportBean.win:keepall() sb, SupportBean_ST0.std:lastevent() s0 where sb.theString = 'E6750'";
+        epl = "select intPrimitive as val from SupportBean#keepall() sb, SupportBean_ST0#lastevent() s0 where sb.theString = 'E6750'";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6750);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.theString = 'E6749'";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.theString = 'E6749'";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6749);
 
         epService.getEPAdministrator().createEPL("create variable string myconst = 'E6751'");
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.theString = myconst";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.theString = myconst";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6751);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.theString = (id || '6752')";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.theString = (id || '6752')";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6752);
 
-        epl = "select intPrimitive as val from SupportBean.win:keepall() sb, SupportBean_ST0.std:lastevent() s0 where sb.theString = (id || '6753')";
+        epl = "select intPrimitive as val from SupportBean#keepall() sb, SupportBean_ST0#lastevent() s0 where sb.theString = (id || '6753')";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6753);
 
-        epl = "select intPrimitive as val from SupportBean.win:keepall() sb, SupportBean_ST0.std:lastevent() s0 where sb.theString = 'E6754' and sb.intPrimitive=6754";
+        epl = "select intPrimitive as val from SupportBean#keepall() sb, SupportBean_ST0#lastevent() s0 where sb.theString = 'E6754' and sb.intPrimitive=6754";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6754);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.theString = (id || '6755') and sb.intPrimitive=6755";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.theString = (id || '6755') and sb.intPrimitive=6755";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6755);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive between 6756 and 6756";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive between 6756 and 6756";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6756);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive >= 6757 and intPrimitive <= 6757";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive >= 6757 and intPrimitive <= 6757";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6757);
 
-        epl = "select intPrimitive as val from SupportBean_ST0.std:lastevent() s0, SupportBean.win:keepall() sb where sb.theString = 'E6758' and sb.intPrimitive >= 6758 and intPrimitive <= 6758";
+        epl = "select intPrimitive as val from SupportBean_ST0#lastevent() s0, SupportBean#keepall() sb where sb.theString = 'E6758' and sb.intPrimitive >= 6758 and intPrimitive <= 6758";
         runAssertion(epl, new SupportBean_ST0("E", -1), 6758);
 
-        epl = "select sum(intPrimitive) as val from SupportBeanRange.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive >= (rangeStart + 1) and intPrimitive <= (rangeEnd - 1)";
+        epl = "select sum(intPrimitive) as val from SupportBeanRange#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive >= (rangeStart + 1) and intPrimitive <= (rangeEnd - 1)";
         runAssertion(epl, new SupportBeanRange("R1", 6000, 6005), 6001+6002+6003+6004);
 
-        epl = "select sum(intPrimitive) as val from SupportBeanRange.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive >= 6001 and intPrimitive <= (rangeEnd - 1)";
+        epl = "select sum(intPrimitive) as val from SupportBeanRange#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive >= 6001 and intPrimitive <= (rangeEnd - 1)";
         runAssertion(epl, new SupportBeanRange("R1", 6000, 6005), 6001+6002+6003+6004);
 
-        epl = "select sum(intPrimitive) as val from SupportBeanRange.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive between (rangeStart + 1) and (rangeEnd - 1)";
+        epl = "select sum(intPrimitive) as val from SupportBeanRange#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive between (rangeStart + 1) and (rangeEnd - 1)";
         runAssertion(epl, new SupportBeanRange("R1", 6000, 6005), 6001+6002+6003+6004);
 
-        epl = "select sum(intPrimitive) as val from SupportBeanRange.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive between (rangeStart + 1) and 6004";
+        epl = "select sum(intPrimitive) as val from SupportBeanRange#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive between (rangeStart + 1) and 6004";
         runAssertion(epl, new SupportBeanRange("R1", 6000, 6005), 6001+6002+6003+6004);
 
-        epl = "select sum(intPrimitive) as val from SupportBeanRange.std:lastevent() s0, SupportBean.win:keepall() sb where sb.intPrimitive in (6001 : (rangeEnd - 1)]";
+        epl = "select sum(intPrimitive) as val from SupportBeanRange#lastevent() s0, SupportBean#keepall() sb where sb.intPrimitive in (6001 : (rangeEnd - 1)]";
         runAssertion(epl, new SupportBeanRange("R1", 6000, 6005), 6002+6003+6004);
     }
 

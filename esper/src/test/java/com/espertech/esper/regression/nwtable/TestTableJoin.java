@@ -272,7 +272,7 @@ public class TestTableJoin extends TestCase implements IndexBackingTableInfo {
             String epl = INDEX_CALLBACK_HOOK + (assertion.getHint() == null ? "" : assertion.getHint()) + eplQuery;
             epl += ", varagg as va";
             if (multistream) {
-                epl += ", SupportBeanSimple.std:lastevent()";
+                epl += ", SupportBeanSimple#lastevent()";
             }
             epl += " where " + assertion.getWhereClause();
 

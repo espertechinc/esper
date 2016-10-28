@@ -69,7 +69,7 @@ public class TestNoSchemaXMLEvent extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         updateListener = new SupportUpdateListener();
 
-        String stmtTextOne = "select var, xpathAttrNum.after(xpathAttrNumTwo) from TestXMLNoSchemaType.win:length(100)";
+        String stmtTextOne = "select var, xpathAttrNum.after(xpathAttrNumTwo) from TestXMLNoSchemaType#length(100)";
         epService.getEPAdministrator().createEPL(stmtTextOne);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
@@ -130,7 +130,7 @@ public class TestNoSchemaXMLEvent extends TestCase
                        "stringCastLong," +
                        "stringCastDouble," +
                        "numCastInt " +
-                       "from TestXMLNoSchemaType.win:length(100)";
+                       "from TestXMLNoSchemaType#length(100)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);
         joinView.addListener(updateListener);
@@ -165,7 +165,7 @@ public class TestNoSchemaXMLEvent extends TestCase
                        "element2.element21('e21_2') as mappedElement," +
                        "element2.element21[1] as indexedElement," +
                        "element3.myattribute as invalidattribute " +
-                       "from TestXMLNoSchemaType.win:length(100)";
+                       "from TestXMLNoSchemaType#length(100)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);
         joinView.addListener(updateListener);
@@ -200,7 +200,7 @@ public class TestNoSchemaXMLEvent extends TestCase
                        "element2.element21('e21_2') as mappedElement," +
                        "element2.element21[1] as indexedElement," +
                        "element3.myattribute as invalidattribute " +
-                       "from TestXMLNoSchemaType.win:length(100)";
+                       "from TestXMLNoSchemaType#length(100)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);
         joinView.addListener(updateListener);

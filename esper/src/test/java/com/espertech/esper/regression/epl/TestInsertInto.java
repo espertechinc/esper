@@ -178,14 +178,14 @@ public class TestInsertInto extends TestCase
         model.setInsertInto(InsertIntoClause.create("Event_1", "delta", "product"));
         model.setSelectClause(SelectClause.create().add(Expressions.minus("intPrimitive", "intBoxed"), "deltaTag")
                 .add(Expressions.multiply("intPrimitive", "intBoxed"), "productTag"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView(View.create("win", "length", Expressions.constant(100)))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getName()).addView(View.create("length", Expressions.constant(100)))));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         EPStatement stmt = runAsserts(null, model);
 
         String epl = "insert into Event_1(delta, product) " +
                       "select intPrimitive-intBoxed as deltaTag, intPrimitive*intBoxed as productTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
         assertEquals(epl, model.toEPL());
         assertEquals(epl, stmt.getText());
     }
@@ -194,7 +194,7 @@ public class TestInsertInto extends TestCase
     {
         String epl = "insert into Event_1(delta, product) " +
                       "select intPrimitive-intBoxed as deltaTag, intPrimitive*intBoxed as productTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(epl);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
@@ -208,7 +208,7 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 (delta, product) " +
                       "select intPrimitive - intBoxed as deltaTag, intPrimitive * intBoxed as productTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
 
         runAsserts(stmtText, null);
     }
@@ -224,7 +224,7 @@ public class TestInsertInto extends TestCase
     public void testVariantOneWildcard()
     {
         String stmtText = "insert into Event_1 (delta, product) " +
-        "select * from " + SupportBean.class.getName() + ".win:length(100)";
+        "select * from " + SupportBean.class.getName() + "#length(100)";
 
         try{
         	epService.getEPAdministrator().createEPL(stmtText);
@@ -257,8 +257,8 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 (delta, product) " +
                       "select intPrimitive - intBoxed as deltaTag, intPrimitive * intBoxed as productTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100) as s0," +
-                                SupportBean_A.class.getName() + ".win:length(100) as s1 " +
+                      "from " + SupportBean.class.getName() + "#length(100) as s0," +
+                                SupportBean_A.class.getName() + "#length(100) as s1 " +
                       " where s0.theString = s1.id";
 
         runAsserts(stmtText, null);
@@ -268,8 +268,8 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 (delta, product) " +
         "select * " +
-        "from " + SupportBean.class.getName() + ".win:length(100) as s0," +
-                  SupportBean_A.class.getName() + ".win:length(100) as s1 " +
+        "from " + SupportBean.class.getName() + "#length(100) as s0," +
+                  SupportBean_A.class.getName() + "#length(100) as s1 " +
         " where s0.theString = s1.id";
 
         try{
@@ -286,15 +286,15 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 " +
                       "select intPrimitive - intBoxed as delta, intPrimitive * intBoxed as product " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
 
         runAsserts(stmtText, null);
     }
 
     public void testVariantTwoWildcard() throws InterruptedException
     {
-        String stmtText = "insert into event1 select * from " + SupportBean.class.getName() + ".win:length(100)";
-        String otherText = "select * from default.event1.win:length(10)";
+        String stmtText = "insert into event1 select * from " + SupportBean.class.getName() + "#length(100)";
+        String otherText = "select * from default.event1#length(10)";
 
         // Attach listener to feed
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtText, "stmt1");
@@ -343,8 +343,8 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 " +
                       "select intPrimitive - intBoxed as delta, intPrimitive * intBoxed as product " +
-                        "from " + SupportBean.class.getName() + ".win:length(100) as s0," +
-                                  SupportBean_A.class.getName() + ".win:length(100) as s1 " +
+                        "from " + SupportBean.class.getName() + "#length(100) as s0," +
+                                  SupportBean_A.class.getName() + "#length(100) as s1 " +
                         " where s0.theString = s1.id";
 
         runAsserts(stmtText, null);
@@ -365,10 +365,10 @@ public class TestInsertInto extends TestCase
     public void testVariantTwoJoinWildcard()
     {
         String textOne = "insert into event2 select * " +
-        		          "from " + SupportBean.class.getName() + ".win:length(100) as s0, " +
-        		          SupportBean_A.class.getName() + ".win:length(5) as s1 " +
+        		          "from " + SupportBean.class.getName() + "#length(100) as s0, " +
+        		          SupportBean_A.class.getName() + "#length(5) as s1 " +
         		          "where s0.theString = s1.id";
-        String textTwo = "select * from event2.win:length(10)";
+        String textTwo = "select * from event2#length(10)";
 
         // Attach listener to feed
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
@@ -404,21 +404,21 @@ public class TestInsertInto extends TestCase
     {
         String stmtText = "insert into Event_1 (delta, product) " +
                       "select intPrimitive - intBoxed as deltaTag, intPrimitive * intBoxed as productTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
         epService.getEPAdministrator().createEPL(stmtText);
 
         try
         {
             stmtText = "insert into Event_1(delta) " +
                       "select (intPrimitive - intBoxed) as deltaTag " +
-                      "from " + SupportBean.class.getName() + ".win:length(100)";
+                      "from " + SupportBean.class.getName() + "#length(100)";
             epService.getEPAdministrator().createEPL(stmtText);
             fail();
         }
         catch (EPStatementException ex)
         {
             // expected
-            assertEquals("Error starting statement: Event type named 'Event_1' has already been declared with differing column name or type information: Type by name 'Event_1' expects 2 properties but receives 1 properties [insert into Event_1(delta) select (intPrimitive - intBoxed) as deltaTag from com.espertech.esper.support.bean.SupportBean.win:length(100)]", ex.getMessage());
+            assertEquals("Error starting statement: Event type named 'Event_1' has already been declared with differing column name or type information: Type by name 'Event_1' expects 2 properties but receives 1 properties [insert into Event_1(delta) select (intPrimitive - intBoxed) as deltaTag from com.espertech.esper.support.bean.SupportBean#length(100)]", ex.getMessage());
         }
     }
 
@@ -426,12 +426,12 @@ public class TestInsertInto extends TestCase
     {
         // NOTICE: we are inserting the RSTREAM (removed events)
         String stmtText = "insert rstream into StockTicks(mySymbol, myPrice) " +
-                          "select symbol, price from " + SupportMarketDataBean.class.getName() + ".win:time(60) " +
+                          "select symbol, price from " + SupportMarketDataBean.class.getName() + "#time(60) " +
                           "output every 5 seconds " +
                           "order by symbol asc";
         epService.getEPAdministrator().createEPL(stmtText);
 
-        stmtText = "select mySymbol, sum(myPrice) as pricesum from StockTicks.win:length(100)";
+        stmtText = "select mySymbol, sum(myPrice) as pricesum from StockTicks#length(100)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         statement.addListener(feedListener);
 
@@ -473,9 +473,9 @@ public class TestInsertInto extends TestCase
 
     public void testStaggeredWithWildcard()
     {
-    	String statementOne = "insert into streamA select * from " + SupportBeanSimple.class.getName() + ".win:length(5)";
-    	String statementTwo = "insert into streamB select *, myInt+myInt as summed, myString||myString as concat from streamA.win:length(5)";
-    	String statementThree = "insert into streamC select * from streamB.win:length(5)";
+    	String statementOne = "insert into streamA select * from " + SupportBeanSimple.class.getName() + "#length(5)";
+    	String statementTwo = "insert into streamB select *, myInt+myInt as summed, myString||myString as concat from streamA#length(5)";
+    	String statementThree = "insert into streamC select * from streamB#length(5)";
 
     	SupportUpdateListener listenerOne = new SupportUpdateListener();
     	SupportUpdateListener listenerTwo = new SupportUpdateListener();
@@ -620,13 +620,13 @@ public class TestInsertInto extends TestCase
 
         // Attach delta statement to statement and add listener
         stmtText = "select MIN(delta) as minD, max(delta) as maxD " +
-                   "from Event_1.win:time(60)";
+                   "from Event_1#time(60)";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtText);
         stmtTwo.addListener(resultListenerDelta);
 
         // Attach prodict statement to statement and add listener
         stmtText = "select min(product) as minP, max(product) as maxP " +
-                   "from Event_1.win:time(60)";
+                   "from Event_1#time(60)";
         EPStatement stmtThree = epService.getEPAdministrator().createEPL(stmtText);
         stmtThree.addListener(resultListenerProduct);
 

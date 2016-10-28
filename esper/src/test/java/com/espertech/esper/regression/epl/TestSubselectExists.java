@@ -49,7 +49,7 @@ public class TestSubselectExists extends TestCase
 
     public void testExistsInSelect()
     {
-        String stmtText = "select exists (select * from S1.win:length(1000)) as value from S0";
+        String stmtText = "select exists (select * from S1#length(1000)) as value from S0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -60,14 +60,14 @@ public class TestSubselectExists extends TestCase
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.createWildcard());
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("win", "length", Expressions.constant(1000)))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView(View.create("length", Expressions.constant(1000)))));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setFromClause(FromClause.create(FilterStream.create("S0")));
         model.setSelectClause(SelectClause.create().add(Expressions.subqueryExists(subquery), "value"));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select exists (select * from S1.win:length(1000)) as value from S0";
+        String stmtText = "select exists (select * from S1#length(1000)) as value from S0";
         assertEquals(stmtText, model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -78,7 +78,7 @@ public class TestSubselectExists extends TestCase
 
     public void testExistsInSelectCompile() throws Exception
     {
-        String stmtText = "select exists (select * from S1.win:length(1000)) as value from S0";
+        String stmtText = "select exists (select * from S1#length(1000)) as value from S0";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(stmtText, model.toEPL());
@@ -101,7 +101,7 @@ public class TestSubselectExists extends TestCase
 
     public void testExists()
     {
-        String stmtText = "select id from S0 where exists (select * from S1.win:length(1000))";
+        String stmtText = "select id from S0 where exists (select * from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -120,7 +120,7 @@ public class TestSubselectExists extends TestCase
 
     public void testExistsFiltered()
     {
-        String stmtText = "select id from S0 as s0 where exists (select * from S1.win:length(1000) as s1 where s1.id=s0.id)";
+        String stmtText = "select id from S0 as s0 where exists (select * from S1#length(1000) as s1 where s1.id=s0.id)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -146,9 +146,9 @@ public class TestSubselectExists extends TestCase
     public void testTwoExistsFiltered()
     {
         String stmtText = "select id from S0 as s0 where " +
-                "exists (select * from S1.win:length(1000) as s1 where s1.id=s0.id) " +
+                "exists (select * from S1#length(1000) as s1 where s1.id=s0.id) " +
                 "and " +
-                "exists (select * from S2.win:length(1000) as s2 where s2.id=s0.id) "
+                "exists (select * from S2#length(1000) as s2 where s2.id=s0.id) "
                 ;
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -180,7 +180,7 @@ public class TestSubselectExists extends TestCase
     {
         EPStatementObjectModel subquery = new EPStatementObjectModel();
         subquery.setSelectClause(SelectClause.createWildcard());
-        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView("win", "length", Expressions.constant(1000))));
+        subquery.setFromClause(FromClause.create(FilterStream.create("S1").addView("length", Expressions.constant(1000))));
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("id"));
@@ -188,7 +188,7 @@ public class TestSubselectExists extends TestCase
         model.setWhereClause(Expressions.not(Expressions.subqueryExists(subquery)));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select id from S0 where not exists (select * from S1.win:length(1000))";
+        String stmtText = "select id from S0 where not exists (select * from S1#length(1000))";
         assertEquals(stmtText, model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -208,7 +208,7 @@ public class TestSubselectExists extends TestCase
 
     public void testNotExists_Compile() throws Exception
     {
-        String stmtText = "select id from S0 where not exists (select * from S1.win:length(1000))";
+        String stmtText = "select id from S0 where not exists (select * from S1#length(1000))";
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(stmtText);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
         assertEquals(stmtText, model.toEPL());
@@ -230,7 +230,7 @@ public class TestSubselectExists extends TestCase
 
     public void testNotExists()
     {
-        String stmtText = "select id from S0 where not exists (select * from S1.win:length(1000))";
+        String stmtText = "select id from S0 where not exists (select * from S1#length(1000))";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);

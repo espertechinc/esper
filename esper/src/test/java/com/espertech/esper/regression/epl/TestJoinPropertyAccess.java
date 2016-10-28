@@ -46,8 +46,8 @@ public class TestJoinPropertyAccess extends TestCase
         assertEquals("0ma0", combined.getIndexed(0).getMapped("0ma").getValue());
 
         String viewExpr = "select nested.nested, s1.indexed[0], nested.indexed[1] from " +
-                SupportBeanComplexProps.class.getName() + ".win:length(3) nested, " +
-                SupportBeanCombinedProps.class.getName() + ".win:length(3) s1" +
+                SupportBeanComplexProps.class.getName() + "#length(3) nested, " +
+                SupportBeanCombinedProps.class.getName() + "#length(3) s1" +
                 " where mapped('keyOne') = indexed[2].mapped('2ma').value and" +
                 " indexed[0].mapped('0ma').value = '0ma0'";
 
@@ -67,9 +67,9 @@ public class TestJoinPropertyAccess extends TestCase
     public void testOuterJoin()
     {
         String viewExpr = "select * from " +
-                SupportBeanComplexProps.class.getName() + ".win:length(3) s0" +
+                SupportBeanComplexProps.class.getName() + "#length(3) s0" +
                 " left outer join " +
-                SupportBeanCombinedProps.class.getName() + ".win:length(3) s1" +
+                SupportBeanCombinedProps.class.getName() + "#length(3) s1" +
                 " on mapped('keyOne') = indexed[2].mapped('2ma').value";
 
         EPStatement testView = epService.getEPAdministrator().createEPL(viewExpr);

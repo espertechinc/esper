@@ -69,7 +69,7 @@ public class TestInfraStartStop extends TestCase
     {
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -123,7 +123,7 @@ public class TestInfraStartStop extends TestCase
     {
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -190,7 +190,7 @@ public class TestInfraStartStop extends TestCase
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra.win:keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         assertEquals(namedWindow ? StatementType.CREATE_WINDOW : StatementType.CREATE_TABLE, ((EPStatementSPI) stmtCreate).getStatementMetadata().getStatementType());

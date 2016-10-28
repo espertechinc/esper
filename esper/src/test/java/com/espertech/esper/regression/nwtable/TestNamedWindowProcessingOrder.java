@@ -57,7 +57,7 @@ public class TestNamedWindowProcessingOrder extends TestCase
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TestInputEvent as (dummy string)");
         epService.getEPAdministrator().createEPL("insert into TestForwardEvent select'V1' as prop1 from TestInputEvent");
 
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window NamedWin.std:unique(prop1) (prop1 string, prop2 string)");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window NamedWin#unique(prop1) (prop1 string, prop2 string)");
 
         epService.getEPAdministrator().createEPL("insert into NamedWin select 'V1' as prop1, 'O1' as prop2 from StartValueEvent");
 
@@ -91,7 +91,7 @@ public class TestNamedWindowProcessingOrder extends TestCase
     public void testOrderedDeleteAndSelect()
     {
         String stmtText;
-        stmtText = "create window MyWindow.std:lastevent() as select * from Event";
+        stmtText = "create window MyWindow#lastevent() as select * from Event";
         epService.getEPAdministrator().createEPL(stmtText);
 
         stmtText = "insert into MyWindow select * from Event";

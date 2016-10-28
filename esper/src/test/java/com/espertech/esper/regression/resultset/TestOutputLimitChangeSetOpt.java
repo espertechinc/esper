@@ -117,7 +117,7 @@ public class TestOutputLimitChangeSetOpt extends TestCase
                               String orderBy) {
         String epl = (withHint ? "@Hint('enable_outputlimit_opt') " : "") +
                      "select irstream " + selectClause + " " +
-                     "from SupportBean.win:length(2) " +
+                     "from SupportBean#length(2) " +
                      (groupBy == null ? "" : groupBy + " ") +
                      (having == null ? "" : having + " ") +
                      "output " + outputKeyword + " every 1 seconds " +

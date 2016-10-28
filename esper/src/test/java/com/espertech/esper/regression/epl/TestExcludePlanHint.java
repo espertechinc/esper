@@ -58,24 +58,24 @@ public class TestExcludePlanHint extends TestCase implements IndexBackingTableIn
                 "@hint('exclude_plan(exprs[0]=\"aprop\")')"};
         for (String hint : hints) {
             epService.getEPAdministrator().createEPL("@Audit " + hint +
-                    "select * from AEvent.win:keepall() as a, BEvent.win:keepall() as b where aprop = bprop");
+                    "select * from AEvent#keepall() as a, BEvent#keepall() as b where aprop = bprop");
         }
 
         // test subquery
         SupportQueryPlanIndexHook.reset();
-        epService.getEPAdministrator().createEPL(INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') select (select * from S0.std:unique(p00) as s0 where s1.p10 = p00) from S1 as s1");
+        epService.getEPAdministrator().createEPL(INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') select (select * from S0#unique(p00) as s0 where s1.p10 = p00) from S1 as s1");
         QueryPlanIndexDescSubquery subq = SupportQueryPlanIndexHook.getAndResetSubqueries().get(0);
         assertEquals(SubordFullTableScanLookupStrategyFactory.class.getSimpleName(), subq.getTableLookupStrategy());
 
         // test named window
-        epService.getEPAdministrator().createEPL("create window S0Window.win:keepall() as S0");
+        epService.getEPAdministrator().createEPL("create window S0Window#keepall() as S0");
         epService.getEPAdministrator().createEPL(INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') on S1 as s1 select * from S0Window as s0 where s1.p10 = s0.p00");
         QueryPlanIndexDescOnExpr onExpr = SupportQueryPlanIndexHook.getAndResetOnExpr();
         assertEquals(SubordWMatchExprLookupStrategyFactoryAllFiltered.class.getSimpleName(), onExpr.getStrategyName());
     }
 
     public void testJoin() {
-        String epl = "select * from S0.win:keepall() as s0, S1.win:keepall() as s1 ";
+        String epl = "select * from S0#keepall() as s0, S1#keepall() as s1 ";
         QueryPlan planFullTableScan = SupportQueryPlanBuilder.start(2)
                 .setIndexFullTableScan(0, "i0")
                 .setIndexFullTableScan(1, "i1")
@@ -155,10 +155,10 @@ public class TestExcludePlanHint extends TestCase implements IndexBackingTableIn
     }
 
     public void testInvalid() {
-        String epl = "select * from S0 unidirectional, S1.win:keepall()";
+        String epl = "select * from S0 unidirectional, S1#keepall()";
         // no params
         tryInvalid("@hint('exclude_plan') " + epl,
-                "Failed to process statement annotations: Hint 'EXCLUDE_PLAN' requires additional parameters in parentheses [@hint('exclude_plan') select * from S0 unidirectional, S1.win:keepall()]");
+                "Failed to process statement annotations: Hint 'EXCLUDE_PLAN' requires additional parameters in parentheses [@hint('exclude_plan') select * from S0 unidirectional, S1#keepall()]");
 
         // empty parameter allowed, to be filled in
         epService.getEPAdministrator().createEPL("@hint('exclude_plan()') " + epl);
@@ -166,11 +166,11 @@ public class TestExcludePlanHint extends TestCase implements IndexBackingTableIn
 
         // invalid return type
         tryInvalid("@hint('exclude_plan(1)') " + epl,
-                "Error starting statement: Expression provided for hint EXCLUDE_PLAN must return a boolean value [@hint('exclude_plan(1)') select * from S0 unidirectional, S1.win:keepall()]");
+                "Error starting statement: Expression provided for hint EXCLUDE_PLAN must return a boolean value [@hint('exclude_plan(1)') select * from S0 unidirectional, S1#keepall()]");
 
         // invalid expression
         tryInvalid("@hint('exclude_plan(dummy = 1)') " + epl,
-                "Error starting statement: Failed to validate hint expression 'dummy=1': Property named 'dummy' is not valid in any stream [@hint('exclude_plan(dummy = 1)') select * from S0 unidirectional, S1.win:keepall()]");
+                "Error starting statement: Failed to validate hint expression 'dummy=1': Property named 'dummy' is not valid in any stream [@hint('exclude_plan(dummy = 1)') select * from S0 unidirectional, S1#keepall()]");
     }
 
     private void tryInvalid(String epl, String expected) {

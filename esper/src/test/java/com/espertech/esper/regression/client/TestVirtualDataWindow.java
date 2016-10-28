@@ -172,7 +172,7 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
 
         // test no-criteria join
         String[] fields = "st0.id,vdw.theString,vdw.intPrimitive".split(",");
-        EPStatement stmtJoinAll = epService.getEPAdministrator().createEPL("select * from MyVDW vdw, SupportBean_ST0.std:lastevent() st0");
+        EPStatement stmtJoinAll = epService.getEPAdministrator().createEPL("select * from MyVDW vdw, SupportBean_ST0#lastevent() st0");
         stmtJoinAll.addListener(listener);
         assertIndexSpec(window.getLastRequestedIndex(), "", "");
 
@@ -182,7 +182,7 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
         stmtJoinAll.destroy();
 
         // test single-criteria join
-        EPStatement stmtJoinSingle = epService.getEPAdministrator().createEPL("select * from MyVDW vdw, SupportBean_ST0.std:lastevent() st0 where vdw.theString = st0.id");
+        EPStatement stmtJoinSingle = epService.getEPAdministrator().createEPL("select * from MyVDW vdw, SupportBean_ST0#lastevent() st0 where vdw.theString = st0.id");
         stmtJoinSingle.addListener(listener);
         assertIndexSpec(window.getLastRequestedIndex(), "theString=(String)", "");
 
@@ -195,7 +195,7 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
         stmtJoinSingle.destroy();
 
         // test multi-criteria join
-        EPStatement stmtJoinMulti = epService.getEPAdministrator().createEPL("select vdw.theString from MyVDW vdw, SupportBeanRange.std:lastevent() st0 " +
+        EPStatement stmtJoinMulti = epService.getEPAdministrator().createEPL("select vdw.theString from MyVDW vdw, SupportBeanRange#lastevent() st0 " +
                 "where vdw.theString = st0.id and longPrimitive = keyLong and intPrimitive between rangeStart and rangeEnd");
         stmtJoinMulti.addListener(listener);
         assertIndexSpec(window.getLastRequestedIndex(), "theString=(String)|longPrimitive=(Long)", "intPrimitive[,](Integer)");
@@ -504,7 +504,7 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
             eplUnique += "SSB1 as ssb1 unidirectional ";
         }
         else {
-            eplUnique += "SSB1.std:lastevent() as ssb1 ";
+            eplUnique += "SSB1#lastevent() as ssb1 ";
         }
         eplUnique += ", MyVDW as vdw ";
         eplUnique += whereClause;

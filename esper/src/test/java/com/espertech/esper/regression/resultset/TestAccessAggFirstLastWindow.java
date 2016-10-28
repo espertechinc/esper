@@ -46,7 +46,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testNoParamChainedAndProperty() {
         epService.getEPAdministrator().getConfiguration().addEventType("ChainEvent", ChainEvent.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select first().property as val0, first().myMethod() as val1, window() as val2 from ChainEvent.std:lastevent()");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select first().property as val0, first().myMethod() as val1, window() as val2 from ChainEvent#lastevent()");
         stmt.addListener(listener);
         
         epService.getEPRuntime().sendEvent(new ChainEvent("p1"));
@@ -54,7 +54,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     }
 
     public void testLastMaxMixedOnSelect() {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(theString like 'A%')");
 
         String epl = "on SupportBean(theString like 'B%') select last(mw.intPrimitive) as li, max(mw.intPrimitive) as mi from MyWindow mw";
@@ -92,7 +92,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "last(intPrimitive, 0) as l1, " +
                 "last(intPrimitive, 1) as l2, " +
                 "last(intPrimitive, 2) as l3 " +
-                "from SupportBean.win:length(3)";
+                "from SupportBean#length(3)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         String[] fields = "p0,p1,p2,n0,n1,n2,l1,l2,l3".split(",");
@@ -120,7 +120,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "last(intPrimitive, 1) as l1, " +
                 "last(intPrimitive, 2) as l2, " +
                 "last(intPrimitive, 3) as l3 " +
-                "from SupportBean.win:length(3)";
+                "from SupportBean#length(3)";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -129,7 +129,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
         // test join
         stmt.destroy();
-        epl += ", SupportBean_A.std:lastevent()";
+        epl += ", SupportBean_A#lastevent()";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_A("A1"));
@@ -141,7 +141,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         epService.getEPAdministrator().createEPL("create variable int indexvar = 2");
         epl = "select " +
                 "first(intPrimitive, indexvar) as f0 " +
-                "from SupportBean.win:keepall()";
+                "from SupportBean#keepall()";
 
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -182,17 +182,17 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         tryInvalid("select window(distinct intPrimitive) from SupportBean",
                    "Incorrect syntax near '(' ('distinct' is a reserved keyword) at line 1 column 13 near reserved keyword 'distinct' [");
 
-        tryInvalid("select window(sa.intPrimitive + sb.intPrimitive) from SupportBean.std:lastevent() sa, SupportBean.std:lastevent() sb",
-                   "Error starting statement: Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean.std:lastevent() sa, SupportBean.std:lastevent() sb]");
+        tryInvalid("select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent() sa, SupportBean#lastevent() sb",
+                   "Error starting statement: Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent() sa, SupportBean#lastevent() sb]");
 
-        tryInvalid("select last(*) from SupportBean.std:lastevent() sa, SupportBean.std:lastevent() sb",
-                   "Error starting statement: Failed to validate select-clause expression 'last(*)': The 'last' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select last(*) from SupportBean.std:lastevent() sa, SupportBean.std:lastevent() sb]");
+        tryInvalid("select last(*) from SupportBean#lastevent() sa, SupportBean#lastevent() sb",
+                   "Error starting statement: Failed to validate select-clause expression 'last(*)': The 'last' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select last(*) from SupportBean#lastevent() sa, SupportBean#lastevent() sb]");
 
-        tryInvalid("select theString, (select first(*) from SupportBean.std:lastevent() sa) from SupportBean.std:lastevent() sb",
-                   "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate select-clause expression 'first(*)': The 'first' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select theString, (select first(*) from SupportBean.std:lastevent() sa) from SupportBean.std:lastevent() sb]");
+        tryInvalid("select theString, (select first(*) from SupportBean#lastevent() sa) from SupportBean#lastevent() sb",
+                   "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate select-clause expression 'first(*)': The 'first' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select theString, (select first(*) from SupportBean#lastevent() sa) from SupportBean#lastevent() sb]");
 
-        tryInvalid("select window(x.*) from SupportBean.std:lastevent()",
-                   "Error starting statement: Failed to validate select-clause expression 'window(x.*)': Stream by name 'x' could not be found among all streams [select window(x.*) from SupportBean.std:lastevent()]");
+        tryInvalid("select window(x.*) from SupportBean#lastevent()",
+                   "Error starting statement: Failed to validate select-clause expression 'window(x.*)': Stream by name 'x' could not be found among all streams [select window(x.*) from SupportBean#lastevent()]");
 
         tryInvalid("select window(*) from SupportBean x",
                    "Error starting statement: Failed to validate select-clause expression 'window(*)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(*) from SupportBean x]");
@@ -201,15 +201,15 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         tryInvalid("select window(x.intPrimitive) from SupportBean x",
                    "Error starting statement: Failed to validate select-clause expression 'window(x.intPrimitive)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(x.intPrimitive) from SupportBean x]");
 
-        tryInvalid("select window(x.intPrimitive, 10) from SupportBean.win:keepall() x",
+        tryInvalid("select window(x.intPrimitive, 10) from SupportBean#keepall() x",
                    "Error starting statement: Failed to validate select-clause expression 'window(x.intPrimitive,10)': The 'window' aggregation function does not accept an index expression; Use 'first' or 'last' instead [");
 
-        tryInvalid("select first(x.*, 10d) from SupportBean.std:lastevent() as x",
-                   "Error starting statement: Failed to validate select-clause expression 'first(x.*,10.0)': The 'first' aggregation function requires an index expression that returns an integer value [select first(x.*, 10d) from SupportBean.std:lastevent() as x]");
+        tryInvalid("select first(x.*, 10d) from SupportBean#lastevent() as x",
+                   "Error starting statement: Failed to validate select-clause expression 'first(x.*,10.0)': The 'first' aggregation function requires an index expression that returns an integer value [select first(x.*, 10d) from SupportBean#lastevent() as x]");
     }
 
     public void testSubquery() {
-        String epl = "select id, (select window(sb.*) from SupportBean.win:length(2) as sb) as w from SupportBean_A";
+        String epl = "select id, (select window(sb.*) from SupportBean#length(2) as sb) as w from SupportBean_A";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         String[] fields = "id,w".split(",");
@@ -231,7 +231,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     }
 
     public void testMethodAndAccessTogether() {
-        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean.win:length(2) as sa";
+        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#length(2) as sa";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         String[] fields = "si,wi".split(",");
@@ -246,7 +246,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{5, intArray(2, 3)});
 
         stmt.destroy();
-        epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean.win:keepall() as sa group by theString";
+        epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall() as sa group by theString";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -264,7 +264,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     }
 
     public void testOutputRateLimiting() {
-        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean.win:keepall() as sa output every 2 events";
+        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall() as sa output every 2 events";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         String[] fields = "si,wi".split(",");
@@ -291,7 +291,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sa.doublePrimitive + sa.intPrimitive), " +
                 "first(sa.intPrimitive), " +
                 "window(sa.*), " +
-                "last(*) from SupportBean.win:length(2) as sa";
+                "last(*) from SupportBean#length(2) as sa";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -313,7 +313,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sa.intPrimitive) as f2, " +
                 "window(sa.*) as w1, " +
                 "last(*) as l1 " +
-                "from SupportBean.win:length(2) as sa";
+                "from SupportBean#length(2) as sa";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -326,7 +326,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sa.intPrimitive) as f2, " +
                 "window(sa.*) as w1, " +
                 "last(*) as l1 " +
-                "from SupportBean.win:length(2) as sa " +
+                "from SupportBean#length(2) as sa " +
                 "having SupportStaticMethodLib.alwaysTrue({first(sa.doublePrimitive + sa.intPrimitive), " +
                 "first(sa.intPrimitive), window(sa.*), last(*)})";
         stmt = epService.getEPAdministrator().createEPL(epl);
@@ -359,7 +359,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sb.id) as fbs, " +
                 "window(sb.id) as wbs, " +
                 "last(sb.id) as lbs " +
-                "from SupportBean_A.win:length(2) as sa, SupportBean_B.win:length(2) as sb " +
+                "from SupportBean_A#length(2) as sa, SupportBean_B#length(2) as sb " +
                 "order by ast, bst";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -413,9 +413,9 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sb.p10) as fb, " +
                 "window(sb.p10) as wb, " +
                 "last(sb.p10) as lb " +
-                "from S0.win:keepall() as sa " +
+                "from S0#keepall() as sa " +
                 "left outer join " +
-                "S1.win:keepall() as sb " +
+                "S1#keepall() as sb " +
                 "on sa.id = sb.id";        
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -451,7 +451,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(theString) as fs, " +
                 "window(theString) as ws, " +
                 "last(theString) as ls " +
-                "from SupportBean.win:length_batch(2) as sb";
+                "from SupportBean#length_batch(2) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -483,7 +483,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(intPrimitive) as fi, " +
                 "window(intPrimitive) as wi, " +
                 "last(intPrimitive) as li " +
-                "from SupportBean.win:length_batch(6) as sb group by theString order by theString asc";
+                "from SupportBean#length_batch(6) as sb group by theString order by theString asc";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -518,7 +518,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testLateInitialize()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -539,7 +539,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testOnDelete()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow where theString = id");
 
@@ -585,7 +585,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testOnDemandQuery()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -622,7 +622,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                     "last(sb.*) as laststarsb, " +
                     "window(*) as windowstar, " +
                     "window(sb.*) as windowstarsb " +
-                    "from SupportBean.win:length(2) as sb";
+                    "from SupportBean#length(2) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -689,7 +689,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(intPrimitive) as firstint, " +
                 "last(intPrimitive) as lastint, " +
                 "window(intPrimitive) as allint " +
-                "from SupportBean.win:length(2)";
+                "from SupportBean#length(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -707,7 +707,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         stmt.destroy();
 
         // test null-value provided
-        EPStatement stmtWNull = epService.getEPAdministrator().createEPL("select window(intBoxed).take(10) from SupportBean.win:length(2)");
+        EPStatement stmtWNull = epService.getEPAdministrator().createEPL("select window(intBoxed).take(10) from SupportBean#length(2)");
         stmtWNull.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
     }
@@ -721,7 +721,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(intPrimitive) as firstint, " +
                 "last(intPrimitive) as lastint, " +
                 "window(intPrimitive) as allint " +
-                "from SupportBean.win:length(5) " +
+                "from SupportBean#length(5) " +
                 "group by theString order by theString";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -758,7 +758,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "last(intPrimitive, 1), " +
                 "first(intPrimitive), " +
                 "first(intPrimitive, 1) " +
-                "from SupportBean.win:length(3)";
+                "from SupportBean#length(3)";
         EPStatementObjectModel modelFirstLast = epService.getEPAdministrator().compileEPL(epl);
         assertEquals(epl, modelFirstLast.toEPL());
     }

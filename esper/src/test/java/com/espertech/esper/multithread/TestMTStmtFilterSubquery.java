@@ -51,7 +51,7 @@ public class TestMTStmtFilterSubquery extends TestCase
 
     public void tryNamedWindowFilterSubquery() throws Exception
     {
-        engine.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean_S0");
+        engine.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean_S0");
         engine.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean_S0");
 
         String epl = "select * from pattern[SupportBean_S0 -> SupportBean(not exists (select * from MyWindow mw where mw.p00 = 'E'))]";
@@ -74,7 +74,7 @@ public class TestMTStmtFilterSubquery extends TestCase
 
     public void tryStreamFilterSubquery() throws Exception
     {
-        String epl = "select * from SupportBean(not exists (select * from SupportBean_S0.win:keepall() mw where mw.p00 = 'E'))";
+        String epl = "select * from SupportBean(not exists (select * from SupportBean_S0#keepall() mw where mw.p00 = 'E'))";
         engine.getEPAdministrator().createEPL(epl);
 
         Thread insertThread = new Thread(new InsertRunnable(engine, 1000));

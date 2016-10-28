@@ -37,10 +37,10 @@ public class TestPerfFAFQueryJoin extends TestCase
 
     public void testPerfFAFJoin()
     {
-        epService.getEPAdministrator().createEPL("create window W1.std:unique(s1) as SSB1");
+        epService.getEPAdministrator().createEPL("create window W1#unique(s1) as SSB1");
         epService.getEPAdministrator().createEPL("insert into W1 select * from SSB1");
 
-        epService.getEPAdministrator().createEPL("create window W2.std:unique(s2) as SSB2");
+        epService.getEPAdministrator().createEPL("create window W2#unique(s2) as SSB2");
         epService.getEPAdministrator().createEPL("insert into W2 select * from SSB2");
 
         for (int i = 0; i < 1000; i++) {

@@ -41,7 +41,7 @@ public class TestDatabaseJoinOptions extends TestCase
                 "metadatasql 'select myint from mytesttable'";
         String stmtText = "select MYINT from " +
                 " sql:MyDB ['" + sql + "] as s0," +
-                SupportBean.class.getName() + ".win:length(100) as s1";
+                SupportBean.class.getName() + "#length(100) as s1";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();
@@ -76,7 +76,7 @@ public class TestDatabaseJoinOptions extends TestCase
                 "metadatasql 'select myint from mytesttable'";
         String stmtText = "select myint from " +
                 " sql:MyDB ['" + sql + "] as s0," +
-                SupportBean.class.getName() + ".win:length(100) as s1";
+                SupportBean.class.getName() + "#length(100) as s1";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();
@@ -142,7 +142,7 @@ public class TestDatabaseJoinOptions extends TestCase
     {
         String stmtText = "select mydouble from " +
                 " sql:MyDB ['" + sql + "'] as s0," +
-                SupportBean.class.getName() + ".win:length(100) as s1";
+                SupportBean.class.getName() + "#length(100) as s1";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();

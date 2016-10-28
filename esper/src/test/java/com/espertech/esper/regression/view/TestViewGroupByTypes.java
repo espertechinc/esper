@@ -35,7 +35,7 @@ public class TestViewGroupByTypes extends TestCase
     public void testType()
     {
         String viewStmt = "select * from " + SupportBean.class.getName() +
-                ".std:groupwin(intPrimitive).win:length(4).std:groupwin(longBoxed).stat:uni(doubleBoxed)";
+                "#groupwin(intPrimitive)#length(4)#groupwin(longBoxed)#uni(doubleBoxed)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewStmt);
 
         assertEquals(int.class, stmt.getEventType().getPropertyType("intPrimitive"));

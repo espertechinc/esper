@@ -51,8 +51,8 @@ public class TestPatternJoin extends TestCase
                                  "s1.p10 as s1p10 " +
                 " from " +
                 " pattern [every (es0a=" + SupportBean_S0.class.getName() + "(p00='a') " +
-                             "or es0b=" + SupportBean_S0.class.getName() + "(p00='b'))].win:length(5) as s0," +
-                SupportBean_S1.class.getName() + ".win:length(5) as s1" +
+                             "or es0b=" + SupportBean_S0.class.getName() + "(p00='b'))]#length(5) as s0," +
+                SupportBean_S1.class.getName() + "#length(5) as s1" +
                 " where (es0a.id = s1.id) or (es0b.id = s1.id)";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
 
@@ -126,9 +126,9 @@ public class TestPatternJoin extends TestCase
                                  "es3.p30 as es3p30" +
                 " from " +
                 " pattern [every (es0=" + SupportBean_S0.class.getName() +
-                                 " and es1=" + SupportBean_S1.class.getName() + ")].win:length(3) as s0," +
+                                 " and es1=" + SupportBean_S1.class.getName() + ")]#length(3) as s0," +
                 " pattern [every (es2=" + SupportBean_S2.class.getName() +
-                                 " and es3=" + SupportBean_S3.class.getName() + ")].win:length(3) as s1" +
+                                 " and es3=" + SupportBean_S3.class.getName() + ")]#length(3) as s1" +
                 " where s0.es0.id = s1.es2.id";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
 
@@ -194,9 +194,9 @@ public class TestPatternJoin extends TestCase
         String stmtText = "select * " +
                 " from " +
                 " pattern [every (es0=" + SupportBean_S0.class.getName() +
-                                 " and es1=" + SupportBean_S1.class.getName() + ")].win:length(5) as s0," +
+                                 " and es1=" + SupportBean_S1.class.getName() + ")]#length(5) as s0," +
                 " pattern [every (es2=" + SupportBean_S2.class.getName() +
-                                 " and es3=" + SupportBean_S3.class.getName() + ")].win:length(5) as s1" +
+                                 " and es3=" + SupportBean_S3.class.getName() + ")]#length(5) as s1" +
                 " where s0.es0.id = s1.es2.id";
         EPStatement statement = epService.getEPAdministrator().createEPL(stmtText);
 

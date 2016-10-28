@@ -21,7 +21,7 @@ public class SampleStatement
 
     public static void createStatement(EPAdministrator admin)
     {
-        EPStatement statement = admin.createEPL("select istream ipAddress, avg(duration) from SampleEvent.win:time(10 sec) group by ipAddress output snapshot every 2 seconds order by ipAddress asc");
+        EPStatement statement = admin.createEPL("select istream ipAddress, avg(duration) from SampleEvent#time(10 sec) group by ipAddress output snapshot every 2 seconds order by ipAddress asc");
         statement.addListener(new UpdateListener()
         {
             public void update(EventBean[] newEvents, EventBean[] oldEvents)

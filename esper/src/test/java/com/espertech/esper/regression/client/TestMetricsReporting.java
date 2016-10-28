@@ -76,13 +76,13 @@ public class TestMetricsReporting extends TestCase
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('0') create schema StatementMetric as " + StatementMetric.class.getName());
-        epService.getEPAdministrator().createEPL("@Name('A') create window MyWindow.std:lastevent() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("@Name('A') create window MyWindow#lastevent() as select * from SupportBean");
         epService.getEPAdministrator().createEPL("@Name('B1') insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("@Name('B2') insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("@Name('C') select sum(intPrimitive) from MyWindow");
         epService.getEPAdministrator().createEPL("@Name('D') select sum(w1.intPrimitive) from MyWindow w1, MyWindow w2");
 
-        String appModuleTwo = "@Name('W') create window SupportBeanWindow.win:keepall() as SupportBean;" +
+        String appModuleTwo = "@Name('W') create window SupportBeanWindow#keepall() as SupportBean;" +
                 "" +
                 "@Name('M') on SupportBean oe\n" +
                 "  merge SupportBeanWindow pw\n" +
@@ -178,10 +178,10 @@ public class TestMetricsReporting extends TestCase
 
         sendTimer(0);
         
-        epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 1).win:keepall()", "GroupOne");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 2).win:keepall()", "GroupTwo");
+        epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 1)#keepall()", "GroupOne");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 2)#keepall()", "GroupTwo");
         stmt.setSubscriber(new SupportSubscriber());
-        epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 3).win:keepall()", "Default");   // no listener
+        epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive = 3)#keepall()", "Default");   // no listener
 
         stmt = epService.getEPAdministrator().createEPL("select * from " + StatementMetric.class.getName(), "StmtMetrics");
         stmt.addListener(listener);
@@ -257,13 +257,13 @@ public class TestMetricsReporting extends TestCase
         statements[0] = epService.getEPAdministrator().createEPL("select * from " + StatementMetric.class.getName(), "stmt_metrics");
         statements[0].addListener(listener);
 
-        statements[1] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1).win:keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtOne");
+        statements[1] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1)#keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtOne");
         statements[1].addListener(listenerTwo);
-        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=2).win:keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtTwo");
+        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=2)#keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtTwo");
         statements[2].addListener(listenerTwo);
-        statements[3] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=3).win:keepall() where MyMetricFunctions.takeWallTime(longPrimitive)", "wallStmtThree");
+        statements[3] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=3)#keepall() where MyMetricFunctions.takeWallTime(longPrimitive)", "wallStmtThree");
         statements[3].addListener(listenerTwo);
-        statements[4] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=4).win:keepall() where MyMetricFunctions.takeWallTime(longPrimitive)", "wallStmtFour");
+        statements[4] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=4)#keepall() where MyMetricFunctions.takeWallTime(longPrimitive)", "wallStmtFour");
         statements[4].addListener(listenerTwo);
 
         sendEvent("E1", 1, cpuGoalOneNano);
@@ -311,7 +311,7 @@ public class TestMetricsReporting extends TestCase
         statements[1] = epService.getEPAdministrator().createEPL("select * from " + EngineMetric.class.getName(),"enginemetric");
         statements[1].addListener(listenerEngineMetric);
 
-        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1).win:keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)");
+        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1)#keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)");
         sendEvent("E1", 1, cpuGoalOneNano);
 
         sendTimer(11000);
@@ -362,9 +362,9 @@ public class TestMetricsReporting extends TestCase
         statements[0] = epService.getEPAdministrator().createEPL("select * from " + StatementMetric.class.getName(),"MyStatement@METRIC");
         statements[0].addListener(listenerStmtMetric);
 
-        statements[1] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1).win:keepall() where 2=2", "stmtone");
+        statements[1] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1)#keepall() where 2=2", "stmtone");
         sendEvent("E1", 1, cpuGoalOneNano);
-        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive>0).std:lastevent() where 1=1", "stmttwo");
+        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive>0)#lastevent() where 1=1", "stmttwo");
         sendEvent("E2", 1, cpuGoalOneNano);
 
         sendTimer(11000);
@@ -463,7 +463,7 @@ public class TestMetricsReporting extends TestCase
         statements[1] = epService.getEPAdministrator().createEPL("select * from " + EngineMetric.class.getName(), "engine_metrics");
         statements[1].addListener(new PrintUpdateListener());
 
-        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1).win:keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtOne");
+        statements[2] = epService.getEPAdministrator().createEPL("select * from SupportBean(intPrimitive=1)#keepall() where MyMetricFunctions.takeCPUTime(longPrimitive)", "cpuStmtOne");
 
         sleep(20000);
         */

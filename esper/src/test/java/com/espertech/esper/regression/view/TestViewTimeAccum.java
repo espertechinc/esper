@@ -53,7 +53,7 @@ public class TestViewTimeAccum extends TestCase
     public void testMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean.win:time_accum(1 month)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select rstream * from SupportBean#time_accum(1 month)");
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
@@ -71,7 +71,7 @@ public class TestViewTimeAccum extends TestCase
         sendTimer(startTime);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportMarketDataBean.class.getName() +
-                ".win:time_accum(10 sec)");
+                "#time_accum(10 sec)");
         stmt.addListener(listener);
         EPRuntime engine = epService.getEPRuntime();
 
@@ -152,7 +152,7 @@ public class TestViewTimeAccum extends TestCase
         sendTimer(startTime);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select rstream * from " + SupportMarketDataBean.class.getName() +
-                ".win:time_accum(10 sec)");
+                "#time_accum(10 sec)");
         stmt.addListener(listener);
         EPRuntime engine = epService.getEPRuntime();
 
@@ -178,7 +178,7 @@ public class TestViewTimeAccum extends TestCase
         sendTimer(startTime);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream price, prev(1, price) as prevPrice, prior(1, price) as priorPrice from " + SupportMarketDataBean.class.getName() +
-                ".win:time_accum(10 sec)");
+                "#time_accum(10 sec)");
         stmt.addListener(listener);
         EPRuntime engine = epService.getEPRuntime();
 
@@ -216,7 +216,7 @@ public class TestViewTimeAccum extends TestCase
         sendTimer(startTime);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream sum(price) as sumPrice from " + SupportMarketDataBean.class.getName() +
-                ".win:time_accum(10 sec)");
+                "#time_accum(10 sec)");
         stmt.addListener(listener);
         EPRuntime engine = epService.getEPRuntime();
 
@@ -249,7 +249,7 @@ public class TestViewTimeAccum extends TestCase
         sendTimer(startTime);
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select irstream * from " + SupportMarketDataBean.class.getName() +
-                ".std:groupwin(symbol).win:time_accum(10 sec)");
+                "#groupwin(symbol)#time_accum(10 sec)");
         stmt.addListener(listener);
         EPRuntime engine = epService.getEPRuntime();
 

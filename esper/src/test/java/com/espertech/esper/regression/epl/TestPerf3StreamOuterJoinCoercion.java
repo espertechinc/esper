@@ -40,11 +40,11 @@ public class TestPerf3StreamOuterJoinCoercion extends TestCase
     public void testPerfCoercion3waySceneOne()
     {
         String stmtText = "select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1 " +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1 " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -75,11 +75,11 @@ public class TestPerf3StreamOuterJoinCoercion extends TestCase
     public void testPerfCoercion3waySceneTwo()
     {
         String stmtText = "select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1 " +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1 " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -111,11 +111,11 @@ public class TestPerf3StreamOuterJoinCoercion extends TestCase
     public void testPerfCoercion3waySceneThree() throws Exception
     {
         String stmtText = "select s1.intBoxed as v1, s2.longBoxed as v2, s3.doubleBoxed as v3 from " +
-                SupportBean.class.getName() + "(theString='A').win:length(1000000) s1 " +
+                SupportBean.class.getName() + "(theString='A')#length(1000000) s1 " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='B').win:length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
+                SupportBean.class.getName() + "(theString='B')#length(1000000) s2 on s1.intBoxed=s2.longBoxed " +
                 " left outer join " +
-                SupportBean.class.getName() + "(theString='C').win:length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
+                SupportBean.class.getName() + "(theString='C')#length(1000000) s3 on s1.intBoxed=s3.doubleBoxed";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -151,11 +151,11 @@ public class TestPerf3StreamOuterJoinCoercion extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         String stmtText = "select * from " +
-                "SupportBeanRange.win:keepall() sbr " +
+                "SupportBeanRange#keepall() sbr " +
                 " left outer join " +
-                "SupportBean_ST0.win:keepall() s0 on s0.key0=sbr.key" +
+                "SupportBean_ST0#keepall() s0 on s0.key0=sbr.key" +
                 " left outer join " +
-                "SupportBean_ST1.win:keepall() s1 on s1.key1=s0.key0" +
+                "SupportBean_ST1#keepall() s1 on s1.key1=s0.key0" +
                 " where s0.p00 between sbr.rangeStartLong and sbr.rangeEndLong";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);

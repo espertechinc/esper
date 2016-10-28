@@ -78,7 +78,7 @@ public class TestEnumDocSamples extends TestCase {
     public void testSubquery() throws Exception {
 
         String eplFragment = "select assetId," +
-                "  (select * from Zone.win:keepall()).where(z => inrect(z.rectangle, location)) as zones " +
+                "  (select * from Zone#keepall()).where(z => inrect(z.rectangle, location)) as zones " +
                 "from Item";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
@@ -95,16 +95,16 @@ public class TestEnumDocSamples extends TestCase {
         String epl = "create schema SettlementEvent (symbol string, price double);" +
                      "create schema PriceEvent (symbol string, price double);\n" +
                      "create schema OrderEvent (orderId string, pricedata PriceEvent);\n" +
-                     "select (select pricedata from OrderEvent.std:unique(orderId))\n" +
+                     "select (select pricedata from OrderEvent#unique(orderId))\n" +
                             ".anyOf(v => v.symbol = 'GE') as has_ge from SettlementEvent(symbol = 'GE')";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
 
         // subquery with aggregation
-        epService.getEPAdministrator().createEPL("select (select name, count(*) as cnt from Zone.win:keepall() group by name).where(v => cnt > 1) from LocationReport");
+        epService.getEPAdministrator().createEPL("select (select name, count(*) as cnt from Zone#keepall() group by name).where(v => cnt > 1) from LocationReport");
     }
 
     public void testNamedWindow() {
-        epService.getEPAdministrator().createEPL("create window ZoneWindow.win:keepall() as Zone");
+        epService.getEPAdministrator().createEPL("create window ZoneWindow#keepall() as Zone");
         epService.getEPAdministrator().createEPL("insert into ZoneWindow select * from Zone");
 
         String epl = "select ZoneWindow.where(z => inrect(z.rectangle, location)) as zones from Item";
@@ -134,7 +134,7 @@ public class TestEnumDocSamples extends TestCase {
 
     public void testAccessAggWindow() {
         String epl = "select window(*).where(p => distance(0, 0, p.location.x, p.location.y) < 20) as centeritems " +
-                "from Item(type='P').win:time(10) group by assetId";
+                "from Item(type='P')#time(10) group by assetId";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -150,7 +150,7 @@ public class TestEnumDocSamples extends TestCase {
 
     public void testPrevWindow() {
         String epl = "select prevwindow(items).where(p => distance(0, 0, p.location.x, p.location.y) < 20) as centeritems " +
-                "from Item(type='P').win:time(10) as items";
+                "from Item(type='P')#time(10) as items";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -230,23 +230,23 @@ public class TestEnumDocSamples extends TestCase {
         assertStmt("select items.take(5) as first5Items, items.takeLast(5) as last5Items from LocationReport");
         assertStmt("select items.toMap(k => k.assetId,v => distance(v.location.x,v.location.y,0,0)) as assetDistance from LocationReport");
         assertStmt("select items.where(i => i.assetId=\"L001\").union(items.where(i => i.type=\"P\")) as itemsUnion from LocationReport");
-        assertStmt("select (select name from Zone.std:unique(name)).orderBy() as orderedZones from pattern [every timer:interval(30)]");
+        assertStmt("select (select name from Zone#unique(name)).orderBy() as orderedZones from pattern [every timer:interval(30)]");
         assertStmt("create schema MyEvent as (seqone String[], seqtwo String[])");
         assertStmt("select seqone.sequenceEqual(seqtwo) from MyEvent");
-        assertStmt("select window(assetId).orderBy() as orderedAssetIds from Item.win:time(10) group by assetId");
-        assertStmt("select prevwindow(assetId).orderBy() as orderedAssetIds from Item.win:time(10) as items");
+        assertStmt("select window(assetId).orderBy() as orderedAssetIds from Item#time(10) group by assetId");
+        assertStmt("select prevwindow(assetId).orderBy() as orderedAssetIds from Item#time(10) as items");
         assertStmt("select getZoneNames().where(z => z!=\"Z1\") from pattern [every timer:interval(30)]");
         assertStmt("select items.selectFrom(i => new{assetId,distanceCenter=distance(i.location.x,i.location.y,0,0)}) as itemInfo from LocationReport");
         assertStmt("select items.leastFrequent(i => type) as leastFreqType from LocationReport");
 
         String epl = "expression myquery {itm => " +
-                "(select * from Zone.win:keepall()).where(z => inrect(z.rectangle,itm.location))" +
+                "(select * from Zone#keepall()).where(z => inrect(z.rectangle,itm.location))" +
                 "} " +
                 "select assetId, myquery(item) as subq, myquery(item).where(z => z.name=\"Z01\") as assetItem " +
                 "from Item as item";
         assertStmt(epl);
         
-        assertStmt("select za.items.except(zb.items) as itemsCompared from LocationReport as za unidirectional, LocationReport.win:length(10) as zb");
+        assertStmt("select za.items.except(zb.items) as itemsCompared from LocationReport as za unidirectional, LocationReport#length(10) as zb");
     }
     
     public void testScalarArray() {

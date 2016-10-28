@@ -146,9 +146,9 @@ public class TestLeftOuterJoinWhere extends TestCase
     public EPStatement setupStatement(String whereClause)
     {
         String joinStatement = "select * from " +
-            SupportBean_S0.class.getName() + ".win:length(5) as s0 " +
+            SupportBean_S0.class.getName() + "#length(5) as s0 " +
             "left outer join " +
-            SupportBean_S1.class.getName() + ".win:length(5) as s1" +
+            SupportBean_S1.class.getName() + "#length(5) as s1" +
             " on s0.p00 = s1.p10 " +
             whereClause;
 

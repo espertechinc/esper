@@ -51,7 +51,7 @@ public class TestHavingNoGroupBy extends TestCase
     public void testHavingWildcardSelect() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         String epl = "select * " +
-                "from SupportBean.win:length_batch(2) " +
+                "from SupportBean#length_batch(2) " +
                 "where intPrimitive>0 " +
                 "having count(*)=2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -74,12 +74,12 @@ public class TestHavingNoGroupBy extends TestCase
     {
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.create("symbol", "price").streamSelector(StreamSelector.RSTREAM_ISTREAM_BOTH).add(Expressions.avg("price"), "avgPrice"));
-        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("win", "length", Expressions.constant(5))));
+        model.setFromClause(FromClause.create(FilterStream.create(SupportMarketDataBean.class.getName()).addView("length", Expressions.constant(5))));
         model.setHavingClause(Expressions.lt(Expressions.property("price"), Expressions.avg("price")));
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
         String viewExpr = "select irstream symbol, price, avg(price) as avgPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "having price<avg(price)";
         assertEquals(viewExpr, model.toEPL());
 
@@ -92,7 +92,7 @@ public class TestHavingNoGroupBy extends TestCase
     public void testSumOneView()
     {
         String viewExpr = "select irstream symbol, price, avg(price) as avgPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) " +
                           "having price < avg(price)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -104,8 +104,8 @@ public class TestHavingNoGroupBy extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream symbol, price, avg(price) as avgPrice " +
-                          "from " + SupportBeanString.class.getName() + ".win:length(100) as one, " +
-                                    SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+                          "from " + SupportBeanString.class.getName() + "#length(100) as one, " +
+                                    SupportMarketDataBean.class.getName() + "#length(5) as two " +
                           "where one.theString = two.symbol " +
                           "having price < avg(price)";
 
@@ -120,7 +120,7 @@ public class TestHavingNoGroupBy extends TestCase
     public void testSumHavingNoAggregatedProp()
     {
         String viewExpr = "select irstream symbol, price, avg(price) as avgPrice " +
-                          "from " + SupportMarketDataBean.class.getName() + ".win:length(5) as two " +
+                          "from " + SupportMarketDataBean.class.getName() + "#length(5) as two " +
                           "having volume < avg(price)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -140,7 +140,7 @@ public class TestHavingNoGroupBy extends TestCase
     public void testSubstreamSelectHaving()
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        String stmtText = "insert into MyStream select quote.* from SupportBean.win:length(14) quote having avg(intPrimitive) >= 3\n";
+        String stmtText = "insert into MyStream select quote.* from SupportBean#length(14) quote having avg(intPrimitive) >= 3\n";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -157,8 +157,8 @@ public class TestHavingNoGroupBy extends TestCase
     private void runNoAggregationJoin(String filterClause)
     {
         String viewExpr = "select irstream a.price as aPrice, b.price as bPrice, Math.max(a.price, b.price) - Math.min(a.price, b.price) as spread " +
-                          "from " + SupportMarketDataBean.class.getName() + "(symbol='SYM1').win:length(1) as a, " +
-                                    SupportMarketDataBean.class.getName() + "(symbol='SYM2').win:length(1) as b " +
+                          "from " + SupportMarketDataBean.class.getName() + "(symbol='SYM1')#length(1) as a, " +
+                                    SupportMarketDataBean.class.getName() + "(symbol='SYM2')#length(1) as b " +
                           filterClause + " Math.max(a.price, b.price) - Math.min(a.price, b.price) >= 1.4";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);

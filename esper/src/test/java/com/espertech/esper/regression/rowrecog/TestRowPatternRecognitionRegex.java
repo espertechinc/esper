@@ -146,7 +146,7 @@ public class TestRowPatternRecognitionRegex extends TestCase {
     private void run(SupportTestCaseHolder testDesc)
     {
         StringBuilder buf = new StringBuilder();
-        buf.append("select * from MyEvent.win:keepall() " +
+        buf.append("select * from MyEvent#keepall() " +
                 "match_recognize (\n" +
                 "  measures ");
 

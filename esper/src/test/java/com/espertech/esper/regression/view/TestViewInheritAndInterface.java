@@ -41,7 +41,7 @@ public class TestViewInheritAndInterface extends TestCase
     public void testOverridingSubclass()
     {
         String viewExpr = "select val as value from " +
-                SupportOverrideOne.class.getName() + ".win:length(10)";
+                SupportOverrideOne.class.getName() + "#length(10)";
 
         EPStatement testView = epService.getEPAdministrator().createEPL(viewExpr);
         testListener = new SupportUpdateListener();
@@ -66,12 +66,12 @@ public class TestViewInheritAndInterface extends TestCase
     public void testImplementationClass()
     {
         String[] viewExpr = {
-            "select baseAB from " + ISupportBaseAB.class.getName() + ".win:length(10)",
-            "select baseAB, a from " + ISupportA.class.getName() + ".win:length(10)",
-            "select baseAB, b from " + ISupportB.class.getName() + ".win:length(10)",
-            "select c from " + ISupportC.class.getName() + ".win:length(10)",
-            "select baseAB, a, g from " + ISupportAImplSuperG.class.getName() + ".win:length(10)",
-            "select baseAB, a, b, g, c from " + ISupportAImplSuperGImplPlus.class.getName() + ".win:length(10)",
+            "select baseAB from " + ISupportBaseAB.class.getName() + "#length(10)",
+            "select baseAB, a from " + ISupportA.class.getName() + "#length(10)",
+            "select baseAB, b from " + ISupportB.class.getName() + "#length(10)",
+            "select c from " + ISupportC.class.getName() + "#length(10)",
+            "select baseAB, a, g from " + ISupportAImplSuperG.class.getName() + "#length(10)",
+            "select baseAB, a, b, g, c from " + ISupportAImplSuperGImplPlus.class.getName() + "#length(10)",
         };
 
         String[][] expected = {

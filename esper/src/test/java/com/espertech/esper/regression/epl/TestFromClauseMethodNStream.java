@@ -54,7 +54,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt.std:lastevent() as s0, " +
+                   "from SupportBeanInt#lastevent() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal('H1', p01) as h1 " +
                    "order by h0.val, h1.val";
@@ -94,7 +94,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt.win:keepall() as s0, " +
+                   "from SupportBeanInt#keepall() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal('H1', p01) as h1 " +
                    "where h0.index = h1.index and h0.index = p02";
@@ -103,7 +103,7 @@ public class TestFromClauseMethodNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1   from " +
                     "method:SupportJoinMethods.fetchVal('H1', p01) as h1, " +
                     "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
-                   "SupportBeanInt.win:keepall() as s0 " +
+                   "SupportBeanInt#keepall() as s0 " +
                    "where h0.index = h1.index and h0.index = p02";
         runAssertionOne(expression);
     }
@@ -137,7 +137,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt.win:keepall() as s0, " +
+                   "from SupportBeanInt#keepall() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal(h0.val, p01) as h1 " +
                    "order by h0.val, h1.val";
@@ -145,7 +145,7 @@ public class TestFromClauseMethodNStream extends TestCase
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 from " +
                    "method:SupportJoinMethods.fetchVal(h0.val, p01) as h1, " +
-                   "SupportBeanInt.win:keepall() as s0, " +
+                   "SupportBeanInt#keepall() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0 " +
                    "order by h0.val, h1.val";
         runAssertionTwo(expression);
@@ -183,7 +183,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 " +
-                   "from SupportBeanInt.std:lastevent() as s0, " +
+                   "from SupportBeanInt#lastevent() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal('H1', p01) as h1, " +
                    "method:SupportJoinMethods.fetchVal('H2', p02) as h2 " +
@@ -194,7 +194,7 @@ public class TestFromClauseMethodNStream extends TestCase
                    "method:SupportJoinMethods.fetchVal('H2', p02) as h2, " +
                    "method:SupportJoinMethods.fetchVal('H1', p01) as h1, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
-                   "SupportBeanInt.std:lastevent() as s0 " +
+                   "SupportBeanInt#lastevent() as s0 " +
                    "order by h0.val, h1.val, h2.val";
         runAssertionThree(expression);
     }
@@ -223,7 +223,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 " +
-                   "from SupportBeanInt.win:keepall() as s0, " +
+                   "from SupportBeanInt#keepall() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal('H1', p01) as h1, " +
                    "method:SupportJoinMethods.fetchVal(h0.val||'H2', p02) as h2 " +
@@ -233,7 +233,7 @@ public class TestFromClauseMethodNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 from " +
                     "method:SupportJoinMethods.fetchVal(h0.val||'H2', p02) as h2, " +
                     "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
-                    "SupportBeanInt.win:keepall() as s0, " +
+                    "SupportBeanInt#keepall() as s0, " +
                     "method:SupportJoinMethods.fetchVal('H1', p01) as h1 " +
                     " where h0.index = h1.index and h1.index = h2.index and h2.index = p03";
         runAssertionFour(expression);
@@ -262,7 +262,7 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 " +
-                   "from SupportBeanInt.win:keepall() as s0, " +
+                   "from SupportBeanInt#keepall() as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal(h0.val||'H1', p01) as h1, " +
                    "method:SupportJoinMethods.fetchVal(h1.val||'H2', p02) as h2 " +
@@ -291,8 +291,8 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as ids0, s1.id as ids1, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt(id like 'S0%').win:keepall() as s0, " +
-                   "SupportBeanInt(id like 'S1%').std:lastevent() as s1, " +
+                   "from SupportBeanInt(id like 'S0%')#keepall() as s0, " +
+                   "SupportBeanInt(id like 'S1%')#lastevent() as s1, " +
                    "method:SupportJoinMethods.fetchVal(s0.id||'H1', s0.p00) as h0, " +
                    "method:SupportJoinMethods.fetchVal(s1.id||'H2', s1.p00) as h1 " +
                    "order by s0.id asc";
@@ -327,9 +327,9 @@ public class TestFromClauseMethodNStream extends TestCase
         String expression;
 
         expression = "select s0.id as ids0, s1.id as ids1, s2.id as ids2, h0.val as valh0 " +
-                   "from SupportBeanInt(id like 'S0%').win:keepall() as s0, " +
-                   "SupportBeanInt(id like 'S1%').std:lastevent() as s1, " +
-                   "SupportBeanInt(id like 'S2%').std:lastevent() as s2, " +
+                   "from SupportBeanInt(id like 'S0%')#keepall() as s0, " +
+                   "SupportBeanInt(id like 'S1%')#lastevent() as s1, " +
+                   "SupportBeanInt(id like 'S2%')#lastevent() as s2, " +
                    "method:SupportJoinMethods.fetchVal(s1.id||s2.id||'H1', s0.p00) as h0 " +
                    "order by s0.id, s1.id, s2.id, h0.val";
 

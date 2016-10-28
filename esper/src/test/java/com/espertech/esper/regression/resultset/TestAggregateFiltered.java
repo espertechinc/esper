@@ -53,7 +53,7 @@ public class TestAggregateFiltered extends TestCase
     public void testBlackWhitePercent()
     {
         String[] fields = "cb,cnb,c,pct".split(",");
-        String epl = "select count(*,black) as cb, count(*,not black) as cnb, count(*) as c, count(*,black)/count(*) as pct from BlackWhiteEvent.win:length(3)";
+        String epl = "select count(*,black) as cb, count(*,not black) as cnb, count(*) as c, count(*,black)/count(*) as pct from BlackWhiteEvent#length(3)";
         EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         assertFalse(stmt.getStatementContext().isStatelessSelect());
@@ -80,7 +80,7 @@ public class TestAggregateFiltered extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL("select " +
                 "count(intBoxed, boolPrimitive) as c1," +
                 "count(distinct intBoxed, boolPrimitive) as c2 " +
-                "from SupportBean.win:length(3)");
+                "from SupportBean#length(3)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeBean(100, true));
@@ -118,7 +118,7 @@ public class TestAggregateFiltered extends TestCase
                 "sum(intBoxed, boolPrimitive) as csum," +
                 "fmaxever(intBoxed, boolPrimitive) as cfmaxever, " +
                 "fminever(intBoxed, boolPrimitive) as cfminever " +
-                "from SupportBean.win:length(3)");
+                "from SupportBean#length(3)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeBean(100, false));
@@ -144,7 +144,7 @@ public class TestAggregateFiltered extends TestCase
                 "sum(doublePrimitive, boolPrimitive) as c2, " +
                 "sum(longPrimitive, boolPrimitive) as c3, " +
                 "sum(shortPrimitive, boolPrimitive) as c4 " +
-                "from SupportBean.win:length(2)");
+                "from SupportBean#length(2)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeBean(2f, 3d, 4L, (short) 5, false));
@@ -194,7 +194,7 @@ public class TestAggregateFiltered extends TestCase
                 "avg(bigdec, bigint < 100) as c1," +
                 "sum(bigdec, bigint < 100) as c2, " +
                 "sum(bigint, bigint < 100) as c3 " +
-                "from SupportBeanNumeric.win:length(2)");
+                "from SupportBeanNumeric#length(2)");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBeanNumeric(new BigInteger("10"), new BigDecimal(20)));
@@ -218,7 +218,7 @@ public class TestAggregateFiltered extends TestCase
                 "fmin(distinct intBoxed,boolPrimitive) as cmin, " +
                 "stddev(distinct intBoxed,boolPrimitive) as cstddev, " +
                 "sum(distinct intBoxed,boolPrimitive) as csum " +
-                "from SupportBean.win:length(3)";
+                "from SupportBean#length(3)";
         stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -281,7 +281,7 @@ public class TestAggregateFiltered extends TestCase
                 "firstever(intBoxed,boolPrimitive) as c1, " +
                 "lastever(intBoxed,boolPrimitive) as c2, " +
                 "countever(*,boolPrimitive) as c3 " +
-                "from SupportBean.win:length(3)";
+                "from SupportBean#length(3)";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, epl);
         stmt.addListener(listener);
 

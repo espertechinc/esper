@@ -214,7 +214,7 @@ public class TestLegacyBeanEvents extends TestCase
                     "explicitMArray[0], " +
                     "explicitMIndexed[1], " +
                     "explicitMMapped('key2')" +
-                    " from MyLegacyEvent.win:length(5)";
+                    " from MyLegacyEvent#length(5)";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -311,7 +311,7 @@ public class TestLegacyBeanEvents extends TestCase
         String statementText = "select " +
                     "explicitFNested.fieldNestedClassValue as fnested, " +
                     "explicitMNested.readNestedClassValue as mnested" +
-                    " from MyLegacyEvent.win:length(5)";
+                    " from MyLegacyEvent#length(5)";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -329,7 +329,7 @@ public class TestLegacyBeanEvents extends TestCase
         try
         {
             // invalid statement, JavaBean-style getters not exposed
-            statementText = "select intPrimitive from MySupportBean.win:length(5)";
+            statementText = "select intPrimitive from MySupportBean#length(5)";
             epService.getEPAdministrator().createEPL(statementText);
         }
         catch (EPStatementException ex)
@@ -357,7 +357,7 @@ public class TestLegacyBeanEvents extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String statementText = "select intPrimitive, explicitFInt, explicitMGetInt, explicitMReadInt " +
-                    " from MyLegacyEvent.win:length(5)";
+                    " from MyLegacyEvent#length(5)";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();
@@ -390,7 +390,7 @@ public class TestLegacyBeanEvents extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String statementText = "select intPrimitive " +
-                    "from " + SupportBeanFinal.class.getName() + ".win:length(5)";
+                    "from " + SupportBeanFinal.class.getName() + "#length(5)";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
         SupportUpdateListener listener = new SupportUpdateListener();

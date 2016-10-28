@@ -38,12 +38,12 @@ public class TestSubselectOrderOfEval extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TradeEvent", TradeEvent.class);
         listener = new SupportUpdateListener();
 
-        epService.getEPAdministrator().createEPL("select * from TradeEvent.std:lastevent()");
+        epService.getEPAdministrator().createEPL("select * from TradeEvent#lastevent()");
 
         epService.getEPAdministrator().createEPL(
                 "select window(tl.*) as longItems, " +
-                "       (SELECT window(ts.*) AS shortItems FROM TradeEvent.win:time(20 minutes) as ts WHERE ts.securityID=tl.securityID) " +
-                "from TradeEvent.win:time(20 minutes) as tl " +
+                "       (SELECT window(ts.*) AS shortItems FROM TradeEvent#time(20 minutes) as ts WHERE ts.securityID=tl.securityID) " +
+                "from TradeEvent#time(20 minutes) as tl " +
                 "where tl.securityID = 1000" +
                 "group by tl.securityID "
         ).addListener(listener);
@@ -71,7 +71,7 @@ public class TestSubselectOrderOfEval extends TestCase
 
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        String viewExpr = "select * from SupportBean(intPrimitive<10) where intPrimitive not in (select intPrimitive from SupportBean.std:unique(intPrimitive))";
+        String viewExpr = "select * from SupportBean(intPrimitive<10) where intPrimitive not in (select intPrimitive from SupportBean#unique(intPrimitive))";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(viewExpr);
         stmtOne.addListener(listener);
 
@@ -80,7 +80,7 @@ public class TestSubselectOrderOfEval extends TestCase
 
         stmtOne.destroy();
 
-        String viewExprTwo = "select * from SupportBean where intPrimitive not in (select intPrimitive from SupportBean(intPrimitive<10).std:unique(intPrimitive))";
+        String viewExprTwo = "select * from SupportBean where intPrimitive not in (select intPrimitive from SupportBean(intPrimitive<10)#unique(intPrimitive))";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(viewExprTwo);
         stmtTwo.addListener(listener);
 
@@ -101,7 +101,7 @@ public class TestSubselectOrderOfEval extends TestCase
 
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        String viewExpr = "select * from SupportBean(intPrimitive<10) where intPrimitive not in (select intPrimitive from SupportBean.std:unique(intPrimitive))";
+        String viewExpr = "select * from SupportBean(intPrimitive<10) where intPrimitive not in (select intPrimitive from SupportBean#unique(intPrimitive))";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(viewExpr);
         stmtOne.addListener(listener);
 
@@ -110,7 +110,7 @@ public class TestSubselectOrderOfEval extends TestCase
 
         stmtOne.destroy();
 
-        String viewExprTwo = "select * from SupportBean where intPrimitive not in (select intPrimitive from SupportBean(intPrimitive<10).std:unique(intPrimitive))";
+        String viewExprTwo = "select * from SupportBean where intPrimitive not in (select intPrimitive from SupportBean(intPrimitive<10)#unique(intPrimitive))";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(viewExprTwo);
         stmtTwo.addListener(listener);
 

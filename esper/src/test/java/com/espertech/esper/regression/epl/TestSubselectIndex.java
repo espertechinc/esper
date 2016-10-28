@@ -96,7 +96,7 @@ public class TestSubselectIndex extends TestCase implements IndexBackingTableInf
 
     private void runAssertion(boolean disableImplicitUniqueIdx, String uniqueFields, String whereClause, String backingTable, IndexAssertionEventSend assertion) {
         String eplUnique = INDEX_CALLBACK_HOOK + "select s1 as c0, " +
-                "(select s2 from SSB2.std:unique(" + uniqueFields + ") as ssb2 " + whereClause + ") as c1 " +
+                "(select s2 from SSB2#unique(" + uniqueFields + ") as ssb2 " + whereClause + ") as c1 " +
                 "from SSB1 as ssb1";
         if (disableImplicitUniqueIdx) {
             eplUnique = "@Hint('DISABLE_UNIQUE_IMPLICIT_IDX')" + eplUnique;
@@ -118,7 +118,7 @@ public class TestSubselectIndex extends TestCase implements IndexBackingTableInf
 
         // test std:unique
         String eplUnique = INDEX_CALLBACK_HOOK + "select id as c0, " +
-                "(select intPrimitive from SupportBean.std:unique(theString) where theString = s0.p00) as c1 " +
+                "(select intPrimitive from SupportBean#unique(theString) where theString = s0.p00) as c1 " +
                 "from S0 as s0";
         EPStatement stmtUnique = epService.getEPAdministrator().createEPL(eplUnique);
         stmtUnique.addListener(listener);
@@ -140,7 +140,7 @@ public class TestSubselectIndex extends TestCase implements IndexBackingTableInf
 
         // test std:firstunique
         String eplFirstUnique = INDEX_CALLBACK_HOOK + "select id as c0, " +
-                "(select intPrimitive from SupportBean.std:firstunique(theString) where theString = s0.p00) as c1 " +
+                "(select intPrimitive from SupportBean#firstunique(theString) where theString = s0.p00) as c1 " +
                 "from S0 as s0";
         EPStatement stmtFirstUnique = epService.getEPAdministrator().createEPL(eplFirstUnique);
         stmtFirstUnique.addListener(listener);
@@ -162,7 +162,7 @@ public class TestSubselectIndex extends TestCase implements IndexBackingTableInf
 
         // test intersection std:firstunique
         String eplIntersection = INDEX_CALLBACK_HOOK + "select id as c0, " +
-                "(select intPrimitive from SupportBean.win:time(1).std:unique(theString) where theString = s0.p00) as c1 " +
+                "(select intPrimitive from SupportBean#time(1)#unique(theString) where theString = s0.p00) as c1 " +
                 "from S0 as s0";
         EPStatement stmtIntersection = epService.getEPAdministrator().createEPL(eplIntersection);
         stmtIntersection.addListener(listener);
@@ -184,7 +184,7 @@ public class TestSubselectIndex extends TestCase implements IndexBackingTableInf
 
         // test grouped unique
         String eplGrouped = INDEX_CALLBACK_HOOK + "select id as c0, " +
-                "(select longPrimitive from SupportBean.std:groupwin(theString).std:unique(intPrimitive) where theString = s0.p00 and intPrimitive = s0.id) as c1 " +
+                "(select longPrimitive from SupportBean#groupwin(theString)#unique(intPrimitive) where theString = s0.p00 and intPrimitive = s0.id) as c1 " +
                 "from S0 as s0";
         EPStatement stmtGrouped = epService.getEPAdministrator().createEPL(eplGrouped);
         stmtGrouped.addListener(listener);

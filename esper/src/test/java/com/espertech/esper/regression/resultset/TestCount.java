@@ -70,7 +70,7 @@ public class TestCount extends TestCase
 
     public void testCount()
     {
-    	String statementText = "select count(*) as cnt from " + SupportMarketDataBean.class.getName() + ".win:time(1)";
+    	String statementText = "select count(*) as cnt from " + SupportMarketDataBean.class.getName() + "#time(1)";
         selectTestView = epService.getEPAdministrator().createEPL(statementText);
         selectTestView.addListener(listener);
        

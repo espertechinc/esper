@@ -80,7 +80,7 @@ public class TestEnumDataSources extends TestCase {
     public void testTableRow() {
         // test table access expression
         epService.getEPAdministrator().createEPL("create table MyTableUnkeyed(theWindow window(*) @type(SupportBean))");
-        epService.getEPAdministrator().createEPL("into table MyTableUnkeyed select window(*) as theWindow from SupportBean.win:time(30)");
+        epService.getEPAdministrator().createEPL("into table MyTableUnkeyed select window(*) as theWindow from SupportBean#time(30)");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
 
@@ -201,7 +201,7 @@ public class TestEnumDataSources extends TestCase {
                 "minby(theString).allOf(x => x.intPrimitive < 5) as c2," +
                 "maxbyever(theString).allOf(x => x.intPrimitive < 5) as c3," +
                 "minbyever(theString).allOf(x => x.intPrimitive < 5) as c4" +
-                " from SupportBean.win:length(5)";
+                " from SupportBean#length(5)";
         EPStatement stmtWindowAgg = epService.getEPAdministrator().createEPL(eplWindowAgg);
         stmtWindowAgg.addListener(listener);
 
@@ -214,7 +214,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType(ContainerEvent.class);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("" +
-                "select * from SelectorEvent.win:keepall() as sel, ContainerEvent.win:keepall() as cont " +
+                "select * from SelectorEvent#keepall() as sel, ContainerEvent#keepall() as cont " +
                 "where cont.items.anyOf(i => sel.selector = i.selected)");
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -226,7 +226,7 @@ public class TestEnumDataSources extends TestCase {
 
     public void testPrevWindowSorted() {
         EPStatement stmt = epService.getEPAdministrator().createEPL("select prevwindow(st0) as val0, prevwindow(st0).esperInternalNoop() as val1 " +
-                "from SupportBean_ST0.ext:sort(3, p00 asc) as st0");
+                "from SupportBean_ST0#sort(3, p00 asc) as st0");
         stmt.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmt.getEventType(), "val0,val1".split(","), new Class[]{SupportBean_ST0[].class, Collection.class});
 
@@ -250,7 +250,7 @@ public class TestEnumDataSources extends TestCase {
         // Scalar version
         String[] fields = new String[] {"val0"};
         EPStatement stmtScalar = epService.getEPAdministrator().createEPL("select prevwindow(id).where(x => x not like '%ignore%') as val0 " +
-                "from SupportBean_ST0.win:keepall() as st0");
+                "from SupportBean_ST0#keepall() as st0");
         stmtScalar.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmtScalar.getEventType(), fields, new Class[]{Collection.class});
 
@@ -274,10 +274,10 @@ public class TestEnumDataSources extends TestCase {
     public void testNamedWindow() {
 
         // test named window
-        epService.getEPAdministrator().createEPL("create window MyWindow.win:keepall() as SupportBean_ST0");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean_ST0");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean_ST0");
-        String eplNamedWindow = "select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean.win:keepall()";
+        String eplNamedWindow = "select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall()";
         EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL(eplNamedWindow);
         stmtNamedWindow.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmtNamedWindow.getEventType(), "allOfX".split(","), new Class[]{Boolean.class});
@@ -293,7 +293,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean_A("A1"));
 
         // test named window correlated
-        String eplNamedWindowCorrelated = "select MyWindow(key0 = sb.theString).allOf(x => x.p00 < 5) as allOfX from SupportBean.win:keepall() sb";
+        String eplNamedWindowCorrelated = "select MyWindow(key0 = sb.theString).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall() sb";
         EPStatement stmtNamedWindowCorrelated = epService.getEPAdministrator().createEPL(eplNamedWindowCorrelated);
         stmtNamedWindowCorrelated.addListener(listener);
 
@@ -312,7 +312,7 @@ public class TestEnumDataSources extends TestCase {
     public void testSubselect() {
 
         // test subselect-wildcard
-        String eplSubselect = "select (select * from SupportBean_ST0.win:keepall()).allOf(x => x.p00 < 5) as allOfX from SupportBean.win:keepall()";
+        String eplSubselect = "select (select * from SupportBean_ST0#keepall()).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall()";
         EPStatement stmtSubselect = epService.getEPAdministrator().createEPL(eplSubselect);
         stmtSubselect.addListener(listener);
 
@@ -326,7 +326,7 @@ public class TestEnumDataSources extends TestCase {
         stmtSubselect.destroy();
 
         // test subselect scalar return
-        String eplSubselectScalar = "select (select id from SupportBean_ST0.win:keepall()).allOf(x => x  like '%B%') as allOfX from SupportBean.win:keepall()";
+        String eplSubselectScalar = "select (select id from SupportBean_ST0#keepall()).allOf(x => x  like '%B%') as allOfX from SupportBean#keepall()";
         EPStatement stmtSubselectScalar = epService.getEPAdministrator().createEPL(eplSubselectScalar);
         stmtSubselectScalar.addListener(listener);
 
@@ -340,7 +340,7 @@ public class TestEnumDataSources extends TestCase {
         stmtSubselectScalar.destroy();
 
         // test subselect-correlated scalar return
-        String eplSubselectScalarCorrelated = "select (select key0 from SupportBean_ST0.win:keepall() st0 where st0.id = sb.theString).allOf(x => x  like '%hello%') as allOfX from SupportBean.win:keepall() sb";
+        String eplSubselectScalarCorrelated = "select (select key0 from SupportBean_ST0#keepall() st0 where st0.id = sb.theString).allOf(x => x  like '%hello%') as allOfX from SupportBean#keepall() sb";
         EPStatement stmtSubselectScalarCorrelated = epService.getEPAdministrator().createEPL(eplSubselectScalarCorrelated);
         stmtSubselectScalarCorrelated.addListener(listener);
 
@@ -359,7 +359,7 @@ public class TestEnumDataSources extends TestCase {
 
         // test subselect multivalue return
         String[] fields = new String[] {"id", "p00"};
-        String eplSubselectMultivalue = "select (select id, p00 from SupportBean_ST0.win:keepall()).take(10) as c0 from SupportBean";
+        String eplSubselectMultivalue = "select (select id, p00 from SupportBean_ST0#keepall()).take(10) as c0 from SupportBean";
         EPStatement stmtSubselectMultivalue = epService.getEPAdministrator().createEPL(eplSubselectMultivalue);
         stmtSubselectMultivalue.addListener(listener);
 
@@ -377,7 +377,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPAdministrator().createEPL("create schema AEvent (symbol string)");
         epService.getEPAdministrator().createEPL("create schema BEvent (a AEvent)");
         EPStatement stmt = epService.getEPAdministrator().createEPL(
-                "select (select a from BEvent.win:keepall()).anyOf(v => symbol = 'GE') as flag from SupportBean");
+                "select (select a from BEvent#keepall()).anyOf(v => symbol = 'GE') as flag from SupportBean");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeBEvent("XX"), "BEvent");
@@ -409,7 +409,7 @@ public class TestEnumDataSources extends TestCase {
                 "first(*, 1).allOf(x => x.intPrimitive < 5) as val2," +
                 "last(*).allOf(x => x.intPrimitive < 5) as val3," +
                 "last(*, 1).allOf(x => x.intPrimitive < 5) as val4" +
-                " from SupportBean.win:length(2)";
+                " from SupportBean#length(2)";
         EPStatement stmtWindowAgg = epService.getEPAdministrator().createEPL(eplWindowAgg);
         stmtWindowAgg.addListener(listener);
 
@@ -431,7 +431,7 @@ public class TestEnumDataSources extends TestCase {
                 "first(intPrimitive, 1).allOf(x => x < 5) as val2," +
                 "last(intPrimitive).allOf(x => x < 5) as val3," +
                 "last(intPrimitive, 1).allOf(x => x < 5) as val4" +
-                " from SupportBean.win:length(2)";
+                " from SupportBean#length(2)";
         EPStatement stmtWindowAggScalar = epService.getEPAdministrator().createEPL(eplWindowAggScalar);
         stmtWindowAggScalar.addListener(listener);
 
@@ -450,7 +450,7 @@ public class TestEnumDataSources extends TestCase {
     public void testProperty() {
 
         // test fragment type - collection inside
-        String eplFragment = "select contained.allOf(x => x.p00 < 5) as allOfX from SupportBean_ST0_Container.win:keepall()";
+        String eplFragment = "select contained.allOf(x => x.p00 < 5) as allOfX from SupportBean_ST0_Container#keepall()";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
 
@@ -465,7 +465,7 @@ public class TestEnumDataSources extends TestCase {
         String[] fields = "val0,val1".split(",");
         eplFragment = "select intarray.sumof() as val0, " +
                 "intiterable.sumOf() as val1 " +
-                " from SupportCollection.win:keepall()";
+                " from SupportCollection#keepall()";
         stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
 
@@ -516,7 +516,7 @@ public class TestEnumDataSources extends TestCase {
                 "prevwindow(sb).allOf(x => x.intPrimitive < 5) as val0," +
                 "prev(sb,1).allOf(x => x.intPrimitive < 5) as val1," +
                 "prevtail(sb,1).allOf(x => x.intPrimitive < 5) as val2" +
-                " from SupportBean.win:length(2) as sb";
+                " from SupportBean#length(2) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -538,7 +538,7 @@ public class TestEnumDataSources extends TestCase {
                 "prevwindow(intPrimitive).allOf(x => x < 5) as val0," +
                 "prev(intPrimitive,1).allOf(x => x < 5) as val1," +
                 "prevtail(intPrimitive,1).allOf(x => x < 5) as val2" +
-                " from SupportBean.win:length(2) as sb";
+                " from SupportBean#length(2) as sb";
         EPStatement stmtScalar = epService.getEPAdministrator().createEPL(eplScalar);
         stmtScalar.addListener(listener);
 
@@ -564,7 +564,7 @@ public class TestEnumDataSources extends TestCase {
                 "SupportBean_ST0_Container.makeSampleArray().where(x => x.p00 < 5) as val2, " +
                 "makeSampleList().where(x => x.p00 < 5) as val3, " +
                 "makeSampleArray().where(x => x.p00 < 5) as val4 " +
-                "from SupportBean.win:length(2) as sb";
+                "from SupportBean#length(2) as sb";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         
@@ -600,7 +600,7 @@ public class TestEnumDataSources extends TestCase {
                 "SupportCollection.makeSampleArrayString().where(x => x != 'E1') as val1, " +
                 "makeSampleListString().where(x => x != 'E1') as val2, " +
                 "makeSampleArrayString().where(x => x != 'E1') as val3 " +
-                "from SupportBean.win:length(2) as sb";
+                "from SupportBean#length(2) as sb";
         EPStatement stmtScalar = epService.getEPAdministrator().createEPL(eplScalar);
         stmtScalar.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmtScalar.getEventType(), fields, new Class[] {Collection.class, Collection.class, Collection.class, Collection.class});
