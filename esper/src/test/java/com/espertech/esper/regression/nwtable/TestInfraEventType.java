@@ -24,6 +24,7 @@ import com.espertech.esper.support.bean.SupportBean_S1;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.support.event.EventTypeAssertionEnum;
 import com.espertech.esper.support.event.EventTypeAssertionUtil;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import com.espertech.esper.support.util.SupportModelHelper;
 import junit.framework.TestCase;
 
@@ -46,8 +47,19 @@ public class TestInfraEventType extends TestCase
     public void testEventType() {
         runAssertionType(true);
         runAssertionType(false);
-    }
 
+        // name cannot be the same as an existing event type
+        epService.getEPAdministrator().createEPL("create schema SchemaOne as (p0 string)");
+        SupportMessageAssertUtil.tryInvalid(epService, "create window SchemaOne.win:keepall() as SchemaOne",
+                "Error starting statement: An event type or schema by name 'SchemaOne' already exists"
+        );
+
+        epService.getEPAdministrator().createEPL("create schema SchemaTwo as (p0 string)");
+        SupportMessageAssertUtil.tryInvalid(epService, "create table SchemaTwo(c0 int)",
+                "Error starting statement: An event type or schema by name 'SchemaTwo' already exists"
+        );
+    }
+    
     private void runAssertionType(boolean namedWindow) {
         String eplCreate = namedWindow ?
                 "create window MyInfra#keepall() as (c0 int[], c1 int[primitive])" :

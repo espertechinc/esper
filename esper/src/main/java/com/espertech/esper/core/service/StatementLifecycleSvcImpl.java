@@ -40,10 +40,7 @@ import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzer;
 import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.event.EventTypeUtility;
-import com.espertech.esper.event.NativeEventType;
+import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
@@ -1401,6 +1398,12 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
     {
         String typeName = spec.getCreateWindowDesc().getWindowName();
         EventType targetType;
+
+        // determine that the window name is not already in use as an event type name
+        EventType existingType = servicesContext.getEventAdapterService().getExistsTypeByName(typeName);
+        if (existingType != null && ((EventTypeSPI)existingType).getMetadata().getTypeClass() != EventTypeMetadata.TypeClass.NAMED_WINDOW) {
+            throw new ExprValidationException("Error starting statement: An event type or schema by name '" + typeName + "' already exists");
+        }
 
         // Validate the select expressions which consists of properties only
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
