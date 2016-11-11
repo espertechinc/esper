@@ -9,7 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.view;
+package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
@@ -22,6 +22,7 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.bookexample.OrderBean;
 import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.support.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
@@ -55,11 +56,11 @@ public class TestContainedEventNested extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{1}, {2}, {10}});
         listener.reset();
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{201}});
         listener.reset();
     }
@@ -77,12 +78,12 @@ public class TestContainedEventNested extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"E1", 24d + 35d + 27d}});
         listener.reset();
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"E2", 15d + 13d}});
         listener.reset();
@@ -104,11 +105,11 @@ public class TestContainedEventNested extends TestCase
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         assertFalse(listener.isInvoked());
 
         epService.getEPRuntime().sendEvent(new SupportBean("Foundation 2", 2));
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"Foundation 2", 2}});
     }
 
@@ -122,11 +123,11 @@ public class TestContainedEventNested extends TestCase
         assertTrue(stmt.getStatementContext().isStatelessSelect());
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{1}, {2}, {10}});
         listener.reset();
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{201}});
         listener.reset();
     }
@@ -141,7 +142,7 @@ public class TestContainedEventNested extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{1}, {2}});
         listener.reset();
 
@@ -151,7 +152,7 @@ public class TestContainedEventNested extends TestCase
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{1}});
         listener.reset();
 
@@ -161,7 +162,7 @@ public class TestContainedEventNested extends TestCase
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{1}});
         listener.reset();
         assertFalse(listener.isInvoked());
@@ -235,8 +236,8 @@ public class TestContainedEventNested extends TestCase
                 "every r=OrderEvent[books][reviews] -> SupportBean(intPrimitive = r[0].reviewId)]");
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());
@@ -257,8 +258,8 @@ public class TestContainedEventNested extends TestCase
                 "exists (select * from OrderEvent[books][reviews]#unique(reviewId) where reviewId = s0.intPrimitive)");
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());
@@ -281,12 +282,12 @@ public class TestContainedEventNested extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{
                 {"PO200901", "10020", 1}, {"PO200901", "10020", 2}, {"PO200901", "10021", 10}});
         listener.reset();
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"PO200904", "10031", 201}});
         listener.reset();
     }
@@ -327,12 +328,12 @@ public class TestContainedEventNested extends TestCase
     {
         String[] fields = "orderId,bookId,reviewId".split(",");
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{
                 {"PO200901", "10020", 1}, {"PO200901", "10020", 2}, {"PO200901", "10021", 10}});
         listener.reset();
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventFour());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
         EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"PO200904", "10031", 201}});
         listener.reset();
     }

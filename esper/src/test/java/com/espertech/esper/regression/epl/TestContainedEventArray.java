@@ -9,7 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.view;
+package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;

@@ -15,11 +15,11 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.view.TestContainedEventSimple;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_A;
 import com.espertech.esper.support.bean.SupportBean_S0;
 import com.espertech.esper.support.bean.bookexample.OrderBean;
+import com.espertech.esper.support.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
@@ -211,7 +211,7 @@ public class TestNamedWindowOnMerge extends TestCase {
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(mergeListener);
 
-        epService.getEPRuntime().sendEvent(TestContainedEventSimple.makeEventOne());
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
         EPAssertionUtil.assertPropsPerRow(mergeListener.getLastNewData(), fields, new Object[][]{{"10020", "Enders Game"},
                 {"10021", "Foundation 1"}, {"10022", "Stranger in a Strange Land"}});
     }

@@ -9,7 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.regression.view;
+package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
