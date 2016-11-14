@@ -12,18 +12,25 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.deploy.DeploymentResult;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.SupportBean;
 import com.espertech.esper.support.bean.SupportBean_S0;
+import com.espertech.esper.support.bean.bookexample.OrderBean;
+import com.espertech.esper.support.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import com.espertech.esper.support.util.SupportModelHelper;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TestSplitStream extends TestCase
 {
@@ -55,64 +62,29 @@ public class TestSplitStream extends TestCase
 
     public void testInvalid()
     {
-        tryInvalid("on SupportBean select * where intPrimitive=1 insert into BStream select * where 1=2",
-                   "Error starting statement: Required insert-into clause is not provided, the clause is required for split-stream syntax [on SupportBean select * where intPrimitive=1 insert into BStream select * where 1=2]");
+        SupportMessageAssertUtil.tryInvalid(epService, "on SupportBean select * where intPrimitive=1 insert into BStream select * where 1=2",
+                   "Error starting statement: Required insert-into clause is not provided, the clause is required for split-stream syntax");
 
-        tryInvalid("on SupportBean insert into AStream select * where intPrimitive=1 group by string insert into BStream select * where 1=2",
-                   "Error starting statement: A group-by clause, having-clause or order-by clause is not allowed for the split stream syntax [on SupportBean insert into AStream select * where intPrimitive=1 group by string insert into BStream select * where 1=2]");
+        SupportMessageAssertUtil.tryInvalid(epService, "on SupportBean insert into AStream select * where intPrimitive=1 group by string insert into BStream select * where 1=2",
+                   "Error starting statement: A group-by clause, having-clause or order-by clause is not allowed for the split stream syntax");
 
-        tryInvalid("on SupportBean insert into AStream select * where intPrimitive=1 insert into BStream select avg(intPrimitive) where 1=2",
-                   "Error starting statement: Aggregation functions are not allowed in this context [on SupportBean insert into AStream select * where intPrimitive=1 insert into BStream select avg(intPrimitive) where 1=2]");
+        SupportMessageAssertUtil.tryInvalid(epService, "on SupportBean insert into AStream select * where intPrimitive=1 insert into BStream select avg(intPrimitive) where 1=2",
+                   "Error starting statement: Aggregation functions are not allowed in this context");
     }
 
-    private void tryInvalid(String stmtText, String message)
-    {
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals(message, ex.getMessage());
-        }
+    public void testFromClause() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
+
+        runAssertionFromClauseBeginBodyEnd();
+        runAssertionFromClauseAsMultiple();
+        runAssertionFromClauseOutputFirstWhere();
+        runAssertionFromClauseDocSample();
     }
 
     public void testSplitPremptiveNamedWindow() {
         runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.OBJECTARRAY);
         runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.MAP);
         runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.DEFAULT);
-    }
-
-    public void runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum eventRepresentationEnum)
-    {
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTwo(col2 int)");
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTrigger(trigger int)");
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window WinTwo#keepall() as TypeTwo");
-
-        String stmtOrigText = "on TypeTrigger " +
-                    "insert into OtherStream select 1 " +
-                    "insert into WinTwo(col2) select 2 " +
-                    "output all";
-        epService.getEPAdministrator().createEPL(stmtOrigText);
-
-        EPStatement stmt = epService.getEPAdministrator().createEPL("on OtherStream select col2 from WinTwo");
-        stmt.addListener(listener);
-        
-        // populate WinOne
-        epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
-
-        // fire trigger
-        if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new Object[] {null});
-        }
-        else {
-            epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new HashMap());
-        }
-
-        assertEquals(2, listener.assertOneGetNewAndReset().get("col2"));
-
-        epService.initialize();
     }
 
     public void test1SplitDefault()
@@ -408,5 +380,175 @@ public class TestSplitStream extends TestCase
         stmtOrig.destroy();
         stmtOne.destroy();
         stmtTwo.destroy();
+    }
+
+    private void runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum eventRepresentationEnum)
+    {
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTwo(col2 int)");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTrigger(trigger int)");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window WinTwo#keepall() as TypeTwo");
+
+        String stmtOrigText = "on TypeTrigger " +
+                "insert into OtherStream select 1 " +
+                "insert into WinTwo(col2) select 2 " +
+                "output all";
+        epService.getEPAdministrator().createEPL(stmtOrigText);
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("on OtherStream select col2 from WinTwo");
+        stmt.addListener(listener);
+
+        // populate WinOne
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 2));
+
+        // fire trigger
+        if (eventRepresentationEnum.isObjectArrayEvent()) {
+            epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new Object[] {null});
+        }
+        else {
+            epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new HashMap());
+        }
+
+        assertEquals(2, listener.assertOneGetNewAndReset().get("col2"));
+
+        epService.initialize();
+    }
+
+    private void runAssertionFromClauseBeginBodyEnd() {
+        runAssertionFromClauseBeginBodyEnd(false);
+        runAssertionFromClauseBeginBodyEnd(true);
+    }
+
+    private void runAssertionFromClauseAsMultiple() {
+        runAssertionFromClauseAsMultiple(false);
+        runAssertionFromClauseAsMultiple(true);
+    }
+
+    private void runAssertionFromClauseAsMultiple(boolean soda) {
+        String epl = "on OrderEvent as oe " +
+                "insert into StartEvent select oe.orderdetail.orderId as oi " +
+                "insert into ThenEvent select * from [select oe.orderdetail.orderId as oi, itemId from orderdetail.items] as item " +
+                "insert into MoreEvent select oe.orderdetail.orderId as oi, item.itemId as itemId from [select oe, * from orderdetail.items] as item " +
+                "output all";
+        SupportModelHelper.createByCompileOrParse(epService, soda, epl);
+
+        epService.getEPAdministrator().createEPL("select * from StartEvent").addListener(listeners[0]);
+        epService.getEPAdministrator().createEPL("select * from ThenEvent").addListener(listeners[1]);
+        epService.getEPAdministrator().createEPL("select * from MoreEvent").addListener(listeners[2]);
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
+        String[] fieldsOrderId = "oi".split(",");
+        String[] fieldsItems = "oi,itemId".split(",");
+        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {"PO200901"});
+        Object[][] expected = new Object[][] {{"PO200901", "A001"}, {"PO200901", "A002"}, {"PO200901", "A003"}};
+        EPAssertionUtil.assertPropsPerRow(listeners[1].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
+        EPAssertionUtil.assertPropsPerRow(listeners[2].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFromClauseBeginBodyEnd(boolean soda) {
+        String epl = "on OrderEvent " +
+                "insert into BeginEvent select orderdetail.orderId as orderId " +
+                "insert into OrderItem select * from [select orderdetail.orderId as orderId, * from orderdetail.items] " +
+                "insert into EndEvent select orderdetail.orderId as orderId " +
+                "output all";
+        SupportModelHelper.createByCompileOrParse(epService, soda, epl);
+
+        epService.getEPAdministrator().createEPL("select * from BeginEvent").addListener(listeners[0]);
+        epService.getEPAdministrator().createEPL("select * from OrderItem").addListener(listeners[1]);
+        epService.getEPAdministrator().createEPL("select * from EndEvent").addListener(listeners[2]);
+
+        EventType typeOrderItem = epService.getEPAdministrator().getConfiguration().getEventType("OrderItem");
+        assertEquals("[amount, itemId, price, productId, orderId]", Arrays.toString(typeOrderItem.getPropertyNames()));
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
+        assertFromClauseWContained("PO200901", new Object[][]{{"PO200901", "A001"}, {"PO200901", "A002"}, {"PO200901", "A003"}});
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventTwo());
+        assertFromClauseWContained("PO200902", new Object[][]{{"PO200902", "B001"}});
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
+        assertFromClauseWContained("PO200904", new Object[0][]);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFromClauseOutputFirstWhere() {
+        runAssertionFromClauseOutputFirstWhere(false);
+        runAssertionFromClauseOutputFirstWhere(true);
+    }
+
+    private void runAssertionFromClauseOutputFirstWhere(boolean soda) {
+        String[] fieldsOrderId = "oe.orderdetail.orderId".split(",");
+        String epl = "on OrderEvent as oe " +
+                "insert into HeaderEvent select orderdetail.orderId as orderId where 1=2 " +
+                "insert into StreamOne select * from [select oe, * from orderdetail.items] where productId=\"10020\" " +
+                "insert into StreamTwo select * from [select oe, * from orderdetail.items] where productId=\"10022\" " +
+                "insert into StreamThree select * from [select oe, * from orderdetail.items] where productId in (\"10020\",\"10025\",\"10022\")";
+        SupportModelHelper.createByCompileOrParse(epService, soda, epl);
+
+        String[] listenerEPL = new String[] {"select * from StreamOne", "select * from StreamTwo", "select * from StreamThree"};
+        for (int i = 0; i < listenerEPL.length; i++) {
+            epService.getEPAdministrator().createEPL(listenerEPL[i]).addListener(listeners[i]);
+            listeners[i].reset();
+        }
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventOne());
+        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {"PO200901"});
+        assertFalse(listeners[1].isInvoked());
+        assertFalse(listeners[2].isInvoked());
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventTwo());
+        assertFalse(listeners[0].isInvoked());
+        EPAssertionUtil.assertProps(listeners[1].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {"PO200902"});
+        assertFalse(listeners[2].isInvoked());
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventThree());
+        assertFalse(listeners[0].isInvoked());
+        assertFalse(listeners[1].isInvoked());
+        EPAssertionUtil.assertProps(listeners[2].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {"PO200903"});
+
+        epService.getEPRuntime().sendEvent(OrderBeanFactory.makeEventFour());
+        assertFalse(listeners[0].isInvoked());
+        assertFalse(listeners[1].isInvoked());
+        assertFalse(listeners[2].isInvoked());
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFromClauseDocSample() throws Exception {
+        String epl =
+                "create schema MyOrderItem(itemId string);\n" +
+                "create schema MyOrderEvent(orderId string, items MyOrderItem[]);\n" +
+                "on MyOrderEvent\n" +
+                "  insert into MyOrderBeginEvent select orderId\n" +
+                "  insert into MyOrderItemEvent select * from [select orderId, * from items]\n" +
+                "  insert into MyOrderEndEvent select orderId\n" +
+                "  output all;\n" +
+                "create context MyOrderContext \n" +
+                "  initiated by MyOrderBeginEvent as obe\n" +
+                "  terminated by MyOrderEndEvent(orderId = obe.orderId);\n" +
+                "@Name('count') context MyOrderContext select count(*) as orderItemCount from MyOrderItemEvent output when terminated;\n";
+        DeploymentResult result = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+
+        listener.reset();
+        epService.getEPAdministrator().getStatement("count").addListener(listener);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("orderId", "1010");
+        event.put("items", new Map[] {Collections.singletonMap("itemId", "A0001")});
+        epService.getEPRuntime().sendEvent(event, "MyOrderEvent");
+
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("orderItemCount"));
+
+        epService.getEPAdministrator().getDeploymentAdmin().undeploy(result.getDeploymentId());
+    }
+
+    private void assertFromClauseWContained(String orderId, Object[][] expected) {
+        String[] fieldsOrderId = "orderId".split(",");
+        String[] fieldsItems = "orderId,itemId".split(",");
+        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {orderId});
+        EPAssertionUtil.assertPropsPerRow(listeners[1].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
+        EPAssertionUtil.assertProps(listeners[2].assertOneGetNewAndReset(), fieldsOrderId, new Object[] {orderId});
     }
 }

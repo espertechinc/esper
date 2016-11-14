@@ -16,7 +16,9 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouter;
+import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
@@ -49,9 +51,9 @@ public class RouteResultView extends ViewSupport
                            EPStatementHandle epStatementHandle,
                            InternalEventRouter internalEventRouter,
                            TableStateInstance[] tableStateInstances,
-                           boolean[] isNamedWindowInsert,
+                           EPStatementStartMethodOnTriggerItem[] items,
                            ResultSetProcessor[] processors,
-                           ExprNode[] whereClauses,
+                           ExprEvaluator[] whereClauses,
                            AgentInstanceContext agentInstanceContext)
     {
         if (whereClauses.length != processors.length)
@@ -63,11 +65,11 @@ public class RouteResultView extends ViewSupport
         this.eventType = eventType;
         if (isFirst)
         {
-            handler = new RouteResultViewHandlerFirst(epStatementHandle, internalEventRouter, tableStateInstances, isNamedWindowInsert, processors, ExprNodeUtility.getEvaluators(whereClauses), agentInstanceContext);
+            handler = new RouteResultViewHandlerFirst(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
         }
         else
         {
-            handler = new RouteResultViewHandlerAll(epStatementHandle, internalEventRouter, tableStateInstances, isNamedWindowInsert, processors, ExprNodeUtility.getEvaluators(whereClauses), agentInstanceContext);
+            handler = new RouteResultViewHandlerAll(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
         }
     }
 

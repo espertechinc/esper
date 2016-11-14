@@ -376,9 +376,15 @@ public class StatementSpecMapper
                 {
                     whereClause = unmapExpressionDeep(stream.getWhereClause(), unmapContext);
                 }
+                List<ContainedEventSelect> propertySelects = null;
+                String propertySelectStreamName = null;
+                if (stream.getFromClause() != null) {
+                    propertySelects = unmapPropertySelects(stream.getFromClause().getPropertyEvalSpec(), unmapContext);
+                    propertySelectStreamName = stream.getFromClause().getOptionalStreamName();
+                }
                 InsertIntoClause insertIntoClause = unmapInsertInto(stream.getInsertInto());
                 SelectClause selectClause = unmapSelect(stream.getSelectClause(), SelectClauseStreamSelectorEnum.ISTREAM_ONLY, unmapContext);
-                clause.addItem(OnInsertSplitStreamItem.create(insertIntoClause, selectClause, whereClause));
+                clause.addItem(OnInsertSplitStreamItem.create(insertIntoClause, selectClause, propertySelects, propertySelectStreamName, whereClause));
             }
             model.setOnExpr(clause);
             clause.setFirst(trigger.isFirst());
@@ -1034,16 +1040,21 @@ public class StatementSpecMapper
             List<OnTriggerSplitStream> streams = new ArrayList<OnTriggerSplitStream>();
             for (OnInsertSplitStreamItem item : splitClause.getItems())
             {
+                OnTriggerSplitStreamFromClause fromClause = null;
+                if (item.getPropertySelects() != null) {
+                    PropertyEvalSpec propertyEvalSpec = mapPropertySelects(item.getPropertySelects(), mapContext);
+                    fromClause = new OnTriggerSplitStreamFromClause(propertyEvalSpec, item.getPropertySelectsStreamName());
+                }
+
                 ExprNode whereClause = null;
-                if (item.getWhereClause() != null)
-                {
+                if (item.getWhereClause() != null) {
                     whereClause = mapExpressionDeep(item.getWhereClause(), mapContext);
                 }
 
                 InsertIntoDesc insertDesc = mapInsertInto(item.getInsertInto());
                 SelectClauseSpecRaw selectDesc = mapSelectRaw(item.getSelectClause(), mapContext);
 
-                streams.add(new OnTriggerSplitStream(insertDesc, selectDesc, whereClause));
+                streams.add(new OnTriggerSplitStream(insertDesc, selectDesc, fromClause, whereClause));
             }
             OnTriggerSplitStreamDesc desc = new OnTriggerSplitStreamDesc(OnTriggerType.ON_SPLITSTREAM, splitClause.isFirst(), streams);
             raw.setOnTriggerDesc(desc);
@@ -3296,29 +3307,34 @@ public class StatementSpecMapper
         PropertyEvalSpec evalSpec = null;
         if (filter.getOptionalPropertySelects() != null)
         {
-            evalSpec = new PropertyEvalSpec();
-            for (ContainedEventSelect propertySelect : filter.getOptionalPropertySelects())
-            {
-                SelectClauseSpecRaw selectSpec = null;
-                if (propertySelect.getSelectClause() != null) {
-                    selectSpec = mapSelectRaw(propertySelect.getSelectClause(), mapContext);
-                }
-
-                ExprNode exprNodeWhere = null;
-                if (propertySelect.getWhereClause() != null) {
-                    exprNodeWhere = mapExpressionDeep(propertySelect.getWhereClause(), mapContext);
-                }
-
-                ExprNode splitterExpr = null;
-                if (propertySelect.getSplitExpression() != null) {
-                    splitterExpr = mapExpressionDeep(propertySelect.getSplitExpression(), mapContext);
-                }
-
-                evalSpec.add(new PropertyEvalAtom(splitterExpr, propertySelect.getOptionalSplitExpressionTypeName(), propertySelect.getOptionalAsName(), selectSpec, exprNodeWhere));
-            }
+            evalSpec = mapPropertySelects(filter.getOptionalPropertySelects(), mapContext);
         }
 
         return new FilterSpecRaw(filter.getEventTypeName(), expr, evalSpec);
+    }
+
+    private static PropertyEvalSpec mapPropertySelects(List<ContainedEventSelect> propertySelects, StatementSpecMapContext mapContext) {
+        PropertyEvalSpec evalSpec = new PropertyEvalSpec();
+        for (ContainedEventSelect propertySelect : propertySelects)
+        {
+            SelectClauseSpecRaw selectSpec = null;
+            if (propertySelect.getSelectClause() != null) {
+                selectSpec = mapSelectRaw(propertySelect.getSelectClause(), mapContext);
+            }
+
+            ExprNode exprNodeWhere = null;
+            if (propertySelect.getWhereClause() != null) {
+                exprNodeWhere = mapExpressionDeep(propertySelect.getWhereClause(), mapContext);
+            }
+
+            ExprNode splitterExpr = null;
+            if (propertySelect.getSplitExpression() != null) {
+                splitterExpr = mapExpressionDeep(propertySelect.getSplitExpression(), mapContext);
+            }
+
+            evalSpec.add(new PropertyEvalAtom(splitterExpr, propertySelect.getOptionalSplitExpressionTypeName(), propertySelect.getOptionalAsName(), selectSpec, exprNodeWhere));
+        }
+        return evalSpec;
     }
 
     private static Filter unmapFilter(FilterSpecRaw filter, StatementSpecUnMapContext unmapContext)
@@ -3342,35 +3358,40 @@ public class StatementSpecMapper
 
         if (filter.getOptionalPropertyEvalSpec() != null)
         {
-            List<ContainedEventSelect> propertySelects = new ArrayList<ContainedEventSelect>();
-            for (PropertyEvalAtom atom : filter.getOptionalPropertyEvalSpec().getAtoms())
-            {
-                SelectClause selectClause = null;
-                if (atom.getOptionalSelectClause() != null && !atom.getOptionalSelectClause().getSelectExprList().isEmpty()) {
-                    selectClause = unmapSelect(atom.getOptionalSelectClause(), SelectClauseStreamSelectorEnum.ISTREAM_ONLY, unmapContext);
-                }
-
-                Expression filterExpression = null;
-                if (atom.getOptionalWhereClause() != null) {
-                    filterExpression = unmapExpressionDeep(atom.getOptionalWhereClause(), unmapContext);
-                }
-
-                Expression splitExpression = unmapExpressionDeep(atom.getSplitterExpression(), unmapContext);
-
-                ContainedEventSelect contained = new ContainedEventSelect(splitExpression);
-                contained.setOptionalSplitExpressionTypeName(atom.getOptionalResultEventType());
-                contained.setSelectClause(selectClause);
-                contained.setWhereClause(filterExpression);
-                contained.setOptionalAsName(atom.getOptionalAsName());
-
-                if (atom.getSplitterExpression() != null) {
-                    contained.setSplitExpression(unmapExpressionDeep(atom.getSplitterExpression(), unmapContext));
-                }
-                propertySelects.add(contained);
-            }
+            List<ContainedEventSelect> propertySelects = unmapPropertySelects(filter.getOptionalPropertyEvalSpec(), unmapContext);
             filterDef.setOptionalPropertySelects(propertySelects);
         }
         return filterDef;
+    }
+
+    private static List<ContainedEventSelect> unmapPropertySelects(PropertyEvalSpec propertyEvalSpec, StatementSpecUnMapContext unmapContext) {
+        List<ContainedEventSelect> propertySelects = new ArrayList<ContainedEventSelect>();
+        for (PropertyEvalAtom atom : propertyEvalSpec.getAtoms())
+        {
+            SelectClause selectClause = null;
+            if (atom.getOptionalSelectClause() != null && !atom.getOptionalSelectClause().getSelectExprList().isEmpty()) {
+                selectClause = unmapSelect(atom.getOptionalSelectClause(), SelectClauseStreamSelectorEnum.ISTREAM_ONLY, unmapContext);
+            }
+
+            Expression filterExpression = null;
+            if (atom.getOptionalWhereClause() != null) {
+                filterExpression = unmapExpressionDeep(atom.getOptionalWhereClause(), unmapContext);
+            }
+
+            Expression splitExpression = unmapExpressionDeep(atom.getSplitterExpression(), unmapContext);
+
+            ContainedEventSelect contained = new ContainedEventSelect(splitExpression);
+            contained.setOptionalSplitExpressionTypeName(atom.getOptionalResultEventType());
+            contained.setSelectClause(selectClause);
+            contained.setWhereClause(filterExpression);
+            contained.setOptionalAsName(atom.getOptionalAsName());
+
+            if (atom.getSplitterExpression() != null) {
+                contained.setSplitExpression(unmapExpressionDeep(atom.getSplitterExpression(), unmapContext));
+            }
+            propertySelects.add(contained);
+        }
+        return propertySelects;
     }
 
     private static List<AnnotationPart> unmapAnnotations(List<AnnotationDesc> annotations) {

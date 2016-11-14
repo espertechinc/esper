@@ -150,14 +150,14 @@ public class TestEventAdapterSvcMT extends TestCase
             futures[i] = threadPool.submit(callables[i]);
         }
 
+        threadPool.shutdown();
+        threadPool.awaitTermination(10, TimeUnit.SECONDS);
+
         Object[] results = new Object[futures.length];
         for (int i = 0; i < futures.length; i++)
         {
             results[i] = futures[i].get();
         }
-
-        threadPool.shutdown();
-        threadPool.awaitTermination(10, TimeUnit.SECONDS);
 
         return results;
     }

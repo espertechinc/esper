@@ -17,6 +17,7 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouter;
+import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -27,36 +28,10 @@ import com.espertech.esper.util.AuditPath;
 /**
  * Handler for split-stream evaluating the first where-clause matching select-clause.
  */
-public class RouteResultViewHandlerFirst implements RouteResultViewHandler
+public class RouteResultViewHandlerFirst extends RouteResultViewHandlerBase
 {
-    private final InternalEventRouter internalEventRouter;
-    private final TableStateInstance[] tableStateInstances;
-    private final boolean[] isNamedWindowInsert;
-    private final EPStatementHandle epStatementHandle;
-    private final ResultSetProcessor[] processors;
-    private final ExprEvaluator[] whereClauses;
-    private final EventBean[] eventsPerStream = new EventBean[1];
-    private final AgentInstanceContext agentInstanceContext;
-    private final boolean audit;
-
-    /**
-     * Ctor.
-     * @param epStatementHandle handle
-     * @param internalEventRouter routes generated events
-     * @param processors select clauses
-     * @param whereClauses where clauses
-     * @param agentInstanceContext agent instance context
-     */
-    public RouteResultViewHandlerFirst(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, boolean[] isNamedWindowInsert, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext)
-    {
-        this.internalEventRouter = internalEventRouter;
-        this.tableStateInstances = tableStateInstances;
-        this.isNamedWindowInsert = isNamedWindowInsert;
-        this.epStatementHandle = epStatementHandle;
-        this.processors = processors;
-        this.whereClauses = whereClauses;
-        this.agentInstanceContext = agentInstanceContext;
-        this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
+    public RouteResultViewHandlerFirst(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, EPStatementStartMethodOnTriggerItem[] items, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext) {
+        super(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
     }
 
     public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
@@ -64,44 +39,44 @@ public class RouteResultViewHandlerFirst implements RouteResultViewHandler
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStream(false, theEvent, whereClauses);}
 
         int index = -1;
-        eventsPerStream[0] = theEvent;
 
         for (int i = 0; i < whereClauses.length; i++)
         {
-            if (whereClauses[i] == null)
-            {
-                index = i;
-                break;
-            }
+            EPStatementStartMethodOnTriggerItem item = items[i];
+            eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStreamWhere(i);}
-            Boolean pass = (Boolean) whereClauses[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if ((pass != null) && (pass))
-            {
-                index = i;
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStreamWhere(pass);}
-                break;
+            // handle no contained-event evaluation
+            if (item.getPropertyEvaluator() == null) {
+                boolean pass = checkWhereClauseCurrentEvent(i, exprEvaluatorContext);
+                if (pass) {
+                    index = i;
+                    break;
+                }
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStreamWhere(pass);}
+            else {
+                // need to get contained events first
+                EventBean[] containeds = items[i].getPropertyEvaluator().getProperty(eventsPerStream[0], exprEvaluatorContext);
+                if (containeds == null || containeds.length == 0) {
+                    continue;
+                }
+
+                for (EventBean contained : containeds) {
+                    eventsPerStream[0] = contained;
+                    boolean pass = checkWhereClauseCurrentEvent(i, exprEvaluatorContext);
+                    if (pass) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    break;
+                }
+            }
         }
 
-        if (index != -1)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStreamRoute(index);}
-            UniformPair<EventBean[]> result = processors[index].processViewResult(eventsPerStream, null, false);
-            if ((result != null) && (result.getFirst() != null) && (result.getFirst().length > 0))
-            {
-                if (audit) {
-                    AuditPath.auditInsertInto(agentInstanceContext.getEngineURI(), agentInstanceContext.getStatementName(), result.getFirst()[0]);
-                }
-                if (tableStateInstances[index] != null) {
-                    tableStateInstances[index].addEventUnadorned(result.getFirst()[0]);
-                }
-                else {
-                    internalEventRouter.route(result.getFirst()[0], epStatementHandle, agentInstanceContext.getStatementContext().getInternalEventEngineRouteDest(), agentInstanceContext, isNamedWindowInsert[index]);
-                }
-            }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStreamRoute();}
+        if (index != -1) {
+            mayRouteCurrentEvent(index, exprEvaluatorContext);
         }
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStream(false, index != -1);}

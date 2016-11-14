@@ -42,6 +42,8 @@ import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.epl.named.NamedWindowOnExprFactory;
 import com.espertech.esper.epl.named.NamedWindowOnExprFactoryFactory;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
+import com.espertech.esper.epl.property.PropertyEvaluator;
+import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -332,12 +334,6 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
     private ContextFactoryResult handleContextFactorySplitStream(StatementSpecCompiled statementSpec, StatementContext statementContext, EPServicesContext services, OnTriggerSplitStreamDesc desc, StreamSpecCompiled streamSpec, ContextPropertyRegistry contextPropertyRegistry, SubSelectActivationCollection subSelectStreamDesc, ActivatorResult activatorResult)
             throws ExprValidationException
     {
-        String streamName = streamSpec.getOptionalStreamName();
-        if (streamName == null)
-        {
-            streamName = "stream_0";
-        }
-        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {activatorResult.activatorResultEventType}, new String[] {streamName}, new boolean[] {true}, services.getEngineURI(), false);
         if (statementSpec.getInsertIntoDesc() == null)
         {
             throw new ExprValidationException("Required insert-into clause is not provided, the clause is required for split-stream syntax");
@@ -347,45 +343,56 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
             throw new ExprValidationException("A group-by clause, having-clause or order-by clause is not allowed for the split stream syntax");
         }
 
-        // Materialize sub-select views
+        String streamName = streamSpec.getOptionalStreamName();
+        if (streamName == null) {
+            streamName = "stream_0";
+        }
+        StreamTypeService typeServiceTrigger = new StreamTypeServiceImpl(new EventType[] {activatorResult.activatorResultEventType}, new String[] {streamName}, new boolean[] {true}, services.getEngineURI(), false);
+
+        // materialize sub-select views
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, isQueryPlanLogging(services), subSelectStreamDesc, new String[]{streamSpec.getOptionalStreamName()}, new EventType[]{activatorResult.activatorResultEventType}, new String[]{activatorResult.triggerEventTypeName}, statementSpec.getDeclaredExpressions(), contextPropertyRegistry);
 
-        EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
+        // compile top-level split
+        EPStatementStartMethodOnTriggerItem[] items = new EPStatementStartMethodOnTriggerItem[desc.getSplitStreams().size() + 1];
+        items[0] = onSplitValidate(statementSpec, typeServiceTrigger, contextPropertyRegistry, services, statementContext, null);
 
-        ResultSetProcessorFactoryDesc[] processorFactories = new ResultSetProcessorFactoryDesc[desc.getSplitStreams().size() + 1];
-        ExprNode[] whereClauses = new ExprNode[desc.getSplitStreams().size() + 1];
-        processorFactories[0] = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                statementSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
-        whereClauses[0] = statementSpec.getFilterRootNode();
-        boolean[] isNamedWindowInsert = new boolean[desc.getSplitStreams().size() + 1];
-        isNamedWindowInsert[0] = false;
-        String[] insertIntoTableNames = new String[desc.getSplitStreams().size() + 1];
-        insertIntoTableNames[0] = getOptionalInsertIntoTableName(statementSpec.getInsertIntoDesc(), services.getTableService());
-
+        // compile each additional split
         int index = 1;
+        Collection<Integer> assignedTypeNumberStack = new ArrayList<>();
         for (OnTriggerSplitStream splits : desc.getSplitStreams())
         {
             StatementSpecCompiled splitSpec = new StatementSpecCompiled();
             splitSpec.setInsertIntoDesc(splits.getInsertInto());
             splitSpec.setSelectClauseSpec(StatementLifecycleSvcImpl.compileSelectAllowSubselect(splits.getSelectClause()));
             splitSpec.setFilterExprRootNode(splits.getWhereClause());
-            EPStatementStartMethodHelperValidate.validateNodes(splitSpec, statementContext, typeService, null);
 
-            processorFactories[index] = ResultSetProcessorFactoryFactory.getProcessorPrototype(
-                    splitSpec, statementContext, typeService, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
-            whereClauses[index] = splitSpec.getFilterRootNode();
-            isNamedWindowInsert[index] = statementContext.getNamedWindowMgmtService().isNamedWindow(splits.getInsertInto().getEventTypeName());
-            insertIntoTableNames[index] = getOptionalInsertIntoTableName(splits.getInsertInto(), services.getTableService());
+            PropertyEvaluator optionalPropertyEvaluator = null;
+            StreamTypeService typeServiceProperty;
+            if (splits.getFromClause() != null) {
+                optionalPropertyEvaluator = PropertyEvaluatorFactory.makeEvaluator(splits.getFromClause().getPropertyEvalSpec(), activatorResult.activatorResultEventType, streamName, services.getEventAdapterService(), services.getEngineImportService(), services.getSchedulingService(), services.getVariableService(), services.getTableService(), typeServiceTrigger.getEngineURIQualifier(), statementContext.getStatementId(), statementContext.getStatementName(), statementContext.getAnnotations(), assignedTypeNumberStack, services.getConfigSnapshot(), services.getNamedWindowMgmtService(), statementContext.getStatementExtensionServicesContext());
+                typeServiceProperty = new StreamTypeServiceImpl(new EventType[] {optionalPropertyEvaluator.getFragmentEventType()}, new String[] {splits.getFromClause().getOptionalStreamName()}, new boolean[] {true}, services.getEngineURI(), false);
+            }
+            else {
+                typeServiceProperty = typeServiceTrigger;
+            }
 
+            items[index] = onSplitValidate(splitSpec, typeServiceProperty, contextPropertyRegistry, services, statementContext, optionalPropertyEvaluator);
             index++;
         }
 
-        StatementAgentInstanceFactoryOnTriggerSplitDesc splitDesc = new StatementAgentInstanceFactoryOnTriggerSplitDesc(processorFactories, whereClauses, isNamedWindowInsert);
-        StatementAgentInstanceFactoryOnTriggerSplit contextFactory = new StatementAgentInstanceFactoryOnTriggerSplit(statementContext, statementSpec, services, activatorResult.activator, subSelectStrategyCollection, splitDesc, activatorResult.activatorResultEventType, insertIntoTableNames);
+        StatementAgentInstanceFactoryOnTriggerSplit contextFactory = new StatementAgentInstanceFactoryOnTriggerSplit(statementContext, statementSpec, services, activatorResult.activator, subSelectStrategyCollection, items, activatorResult.activatorResultEventType);
         return new ContextFactoryResult(contextFactory, subSelectStrategyCollection, null);
     }
 
-    private String getOptionalInsertIntoTableName(InsertIntoDesc insertIntoDesc, TableService tableService) {
+    private static EPStatementStartMethodOnTriggerItem onSplitValidate(StatementSpecCompiled statementSpec, StreamTypeService typeServiceTrigger, ContextPropertyRegistry contextPropertyRegistry, EPServicesContext services, StatementContext statementContext, PropertyEvaluator optionalPropertyEvaluator) throws ExprValidationException {
+        boolean isNamedWindowInsert = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
+        EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeServiceTrigger, null);
+        ResultSetProcessorFactoryDesc factoryDescs = ResultSetProcessorFactoryFactory.getProcessorPrototype(
+                statementSpec, statementContext, typeServiceTrigger, null, new boolean[0], false, contextPropertyRegistry, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, true);
+        return new EPStatementStartMethodOnTriggerItem(statementSpec.getFilterRootNode(), isNamedWindowInsert, getOptionalInsertIntoTableName(statementSpec.getInsertIntoDesc(), services.getTableService()), factoryDescs, optionalPropertyEvaluator);
+    }
+
+    private static String getOptionalInsertIntoTableName(InsertIntoDesc insertIntoDesc, TableService tableService) {
         if (insertIntoDesc == null) {
             return null;
         }

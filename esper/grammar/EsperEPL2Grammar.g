@@ -355,8 +355,11 @@ onUpdateExpr
 onSelectInsertExpr
 @init  { paraphrases.push("on-select-insert clause"); }
 @after { paraphrases.pop(); }
-		: INSERT insertIntoExpr SELECT selectionList (WHERE whereClause)?;
+		: INSERT insertIntoExpr SELECT selectionList onSelectInsertFromClause? (WHERE whereClause)?;
 	
+onSelectInsertFromClause
+		: FROM propertyExpression (AS i=IDENT | i=IDENT)?;
+
 outputClauseInsert : OUTPUT (f=FIRST | a=ALL);
 	
 onDeleteExpr	

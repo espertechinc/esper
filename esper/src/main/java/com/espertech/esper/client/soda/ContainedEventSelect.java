@@ -13,6 +13,7 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * Represents a contained-event selection.
@@ -154,6 +155,21 @@ public class ContainedEventSelect implements Serializable
         {
             writer.write(" where ");
             whereClause.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+        }
+    }
+
+    /**
+     * Render contained-event select
+     * @param writer to render to
+     * @param formatter to use
+     * @param items to render
+     */
+    public static void toEPL(StringWriter writer, EPStatementFormatter formatter, List<ContainedEventSelect> items) {
+        for (ContainedEventSelect propertySelect : items)
+        {
+            writer.write('[');
+            propertySelect.toEPL(writer, formatter);
+            writer.write(']');
         }
     }
 }

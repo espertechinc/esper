@@ -119,6 +119,10 @@ public class View extends EPBaseNamedObject
         super(namespace, name, parameters);
     }
 
+    /**
+     * Render view.
+     * @param writer to render to
+     */
     public void toEPLWithHash(StringWriter writer) {
         writer.write(getName());
         writer.write('(');

@@ -5757,6 +5757,7 @@ create variant schema AnyEvent as *]]></programlisting>
 		
 		<para>
 		  For splitting a single event that acts as a container and expose child events as a property of itself consider the contained-event syntax as described in <xref linkend="epl-containedeventselect"/>.
+		  For generating marker events for contained-events please see below.
 		</para>
 
 		<para>
@@ -5770,7 +5771,8 @@ create variant schema AnyEvent as *]]></programlisting>
 <synopsis>[context <emphasis>context_name</emphasis>]
 on <emphasis>event_type</emphasis>[(<emphasis>filter_criteria</emphasis>)] [as <emphasis>stream_name</emphasis>]
 insert into <emphasis>insert_into_def</emphasis> select <emphasis>select_list</emphasis> [where <emphasis>condition</emphasis>]
-[insert into <emphasis>insert_into_def</emphasis> select <emphasis>select_list</emphasis> [where <emphasis>condition</emphasis>]]
+[insert into <emphasis>insert_into_def</emphasis> select <emphasis>select_list</emphasis> [from <emphasis>contained-event-selection</emphasis>] [where <emphasis>condition</emphasis>]]
+[insert into <emphasis>insert_into_def</emphasis> select <emphasis>select_list</emphasis> [from <emphasis>contained-event-selection</emphasis>] [where <emphasis>condition</emphasis>]]
 [insert into...]
 [output first | all]</synopsis>
 
@@ -5782,6 +5784,11 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 
 		<para>
 			Following the <literal>on</literal>-clause is one or more <emphasis>insert into</emphasis> clauses as described in <xref linkend="epl-insert-into"/> and <emphasis>select</emphasis> clauses as described in <xref linkend="epl-select-list"/>. 
+		</para>
+		
+		<para>
+			The second and subsequent <literal>insert into</literal> and <literal>select</literal> clause pair can have a <literal>from</literal> clause for <emphasis>contained-event-selection</emphasis>. 
+			This is useful when your trigger events themselves contain events that must be processed individually and that may be delimited by marker events that you can define.
 		</para>
 		
 		<para>
@@ -5845,6 +5852,69 @@ can be used to assign a stream name. Patterns and named windows can also be spec
 				</para>
 			</listitem>
 		</orderedlist>
+		
+		<sect2 xml:id="split_containedeventselect" revision="1">
+			<title>Generating Marker Events for Contained Events</title>
+			
+			<para>
+				When a trigger event contains properties that are themselves events, or more generally when your application needs to split the trigger event into multiple events,
+				or to generate marker events (begin, end etc.) or process contained events in a defined order, you may specify a <literal>from</literal> clause.  
+			</para>
+			
+			<para>
+				The <literal>from</literal> clause is only allowed for the second and subsequent <literal>insert into</literal> and <literal>select</literal> clause pair.
+				It specifies how the trigger event should get unpacked into individual events and is based on the 
+				<xref linkend="epl-containedeventselect"/>.
+			</para>
+			
+			<para>
+				For example, assume there is an order event that contains order items:
+			</para>
+			
+			<programlisting><![CDATA[create schema OrderItem(itemId string)]]></programlisting>
+			<programlisting><![CDATA[create schema OrderEvent(orderId string, items OrderItem[])]]></programlisting>
+
+			<para>
+				We can tell the engine that, for each order event, it should process in the following order:
+			</para>
+
+			<orderedlist>
+				<ns:listitem>
+					<para>Process a single <literal>OrderBeginEvent</literal> that holds just the order id.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Process all order items contained in an order event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Process a single <literal>OrderEndEvent</literal> that holds just the order id.</para>
+				</ns:listitem>
+			</orderedlist>
+
+			<para>
+				The EPL is:
+			</para>
+
+			<programlisting><![CDATA[on OrderEvent
+  insert into OrderBeginEvent select orderId
+  insert into OrderItemEvent select * from [select orderId, * from items]
+  insert into OrderEndEvent select orderId
+  output all]]></programlisting>
+
+			<para>
+				When an <literal>OrderEvent</literal> comes in, the engine first processes an <literal>OrderBeginEvent</literal>. The engine unpacks the order event and for each
+				order item processes an <literal>OrderItemEvent</literal> containing the respective item. The engine last processes an <literal>OrderEndEvent</literal>.
+			</para>
+			
+			<para>
+				Such begin and end marker events are useful to initiate and terminate an analysis using context declaration, for example.
+				The next two EPL statements declare a context and perform a simple count of order items per order:
+			</para>
+
+			<programlisting><![CDATA[create context OrderContext 
+  initiated by OrderBeginEvent as obe
+  terminated by OrderEndEvent(orderId = obe.orderId)]]></programlisting>
+			<programlisting><![CDATA[context OrderContext select count(*) as orderItemCount from OrderItemEvent output when terminated]]></programlisting>
+		</sect2>
 	</sect1>
 
 	<sect1 xml:id="variables_overview" revision="1">
@@ -6825,6 +6895,15 @@ select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></progr
 			<programlisting><![CDATA[on MyEvent[ids@type(IdContainer)] as my_ids 
 delete from MyWindow my_window 
 where my_ids.id = my_window.id]]></programlisting>
+		</sect2>		
+
+		<sect2 xml:id="epl-containedeventselect-beginend" revision="1">
+			<title>Generating Marker Events such as a Begin and End Event</title>
+
+			<para>
+				The syntax for splitting and duplicating streams can be used to generate marker events.
+				Please see <xref linkend="split_containedeventselect"/> for more information.
+			</para>
 		</sect2>		
 
 		<sect2 xml:id="epl-containedeventselect-restrictions" >

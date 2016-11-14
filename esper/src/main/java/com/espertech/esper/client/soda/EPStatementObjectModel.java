@@ -30,7 +30,7 @@ import java.util.List;
  * <pre>
  * EPStatementObjectModel model = new EPStatementObjectModel();
  * model.setSelectClause(SelectClause.create("page", "responseTime"));
- * model.setFromClause(FromClause.create(FilterStream.create("PageLoad")));
+ * model.setPropertyEvalSpec(FromClause.create(FilterStream.create("PageLoad")));
  * </pre>
  * <p>
  * The select-clause and from-clause must be set for the statement object model to be useable by the

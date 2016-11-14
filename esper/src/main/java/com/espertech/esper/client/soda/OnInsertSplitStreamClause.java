@@ -67,18 +67,24 @@ public class OnInsertSplitStreamClause extends OnClause
      */
     public void toEPL(StringWriter writer, EPStatementFormatter formatter)
     {
-        String delimiter = "";
         for (OnInsertSplitStreamItem item : items)
         {
-            writer.append(delimiter);
             item.getInsertInto().toEPL(writer, formatter, true);
             item.getSelectClause().toEPL(writer, formatter, true, false);
+            if (item.getPropertySelects() != null)
+            {
+                writer.append(" from ");
+                ContainedEventSelect.toEPL(writer, formatter, item.getPropertySelects());
+                if (item.getPropertySelectsStreamName() != null) {
+                    writer.append(" as ");
+                    writer.append(item.getPropertySelectsStreamName());
+                }
+            }
             if (item.getWhereClause() != null)
             {
                 writer.append(" where ");
                 item.getWhereClause().toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             }
-            delimiter = " ";
         }
 
         if (!first)

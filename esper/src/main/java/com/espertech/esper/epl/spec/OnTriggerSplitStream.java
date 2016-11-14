@@ -20,18 +20,21 @@ public class OnTriggerSplitStream implements Serializable
     private static final long serialVersionUID = 7836326460852522622L;
     private InsertIntoDesc insertInto;
     private SelectClauseSpecRaw selectClause;
+    private OnTriggerSplitStreamFromClause fromClause;
     private ExprNode whereClause;
+
 
     /**
      * Ctor.
      * @param insertInto the insert-into clause
      * @param selectClause the select-clause
+     * @param fromClause the from-clause
      * @param whereClause where-expression or null
      */
-    public OnTriggerSplitStream(InsertIntoDesc insertInto, SelectClauseSpecRaw selectClause, ExprNode whereClause)
-    {
+    public OnTriggerSplitStream(InsertIntoDesc insertInto, SelectClauseSpecRaw selectClause, OnTriggerSplitStreamFromClause fromClause, ExprNode whereClause) {
         this.insertInto = insertInto;
         this.selectClause = selectClause;
+        this.fromClause = fromClause;
         this.whereClause = whereClause;
     }
 
@@ -60,5 +63,9 @@ public class OnTriggerSplitStream implements Serializable
     public ExprNode getWhereClause()
     {
         return whereClause;
+    }
+
+    public OnTriggerSplitStreamFromClause getFromClause() {
+        return fromClause;
     }
 }

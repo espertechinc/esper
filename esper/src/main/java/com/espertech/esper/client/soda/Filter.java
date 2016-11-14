@@ -142,12 +142,7 @@ public class Filter implements Serializable
         }
         if (optionalPropertySelects != null)
         {
-            for (ContainedEventSelect propertySelect : optionalPropertySelects)
-            {
-                writer.write('[');
-                propertySelect.toEPL(writer, formatter);
-                writer.write(']');
-            }
+            ContainedEventSelect.toEPL(writer, formatter, optionalPropertySelects);
         }
     }
 }

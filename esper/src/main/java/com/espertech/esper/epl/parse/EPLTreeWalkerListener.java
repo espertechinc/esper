@@ -121,6 +121,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
 
     private final Map<Tree, StatementSpecRaw> astStatementSpecMap = new HashMap<>();
 
+    private Map<StatementSpecRaw, OnTriggerSplitStreamFromClause> onTriggerSplitPropertyEvals;
+
     private LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory> plugInAggregations = new LazyAllocatedMap<>();
 
     private FilterSpecRaw filterSpec;
@@ -649,6 +651,14 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
             throw new IllegalStateException("Invalid AST type node, cannot map to stream specification");
         }
         statementSpec.getStreamSpecs().add(streamSpec);
+    }
+
+    public void exitOnSelectInsertFromClause(EsperEPL2GrammarParser.OnSelectInsertFromClauseContext ctx) {
+        if (onTriggerSplitPropertyEvals == null) {
+            onTriggerSplitPropertyEvals = new HashMap<>();
+        }
+        onTriggerSplitPropertyEvals.put(statementSpec, new OnTriggerSplitStreamFromClause(propertyEvalSpec, ctx.i == null ? null : ctx.i.getText()));
+        propertyEvalSpec = null;
     }
 
     public void exitPropertyExpressionAtomic(EsperEPL2GrammarParser.PropertyExpressionAtomicContext ctx) {
@@ -1577,9 +1587,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
                 List<OnTriggerSplitStream> splitStreams = new ArrayList<>();
                 for (int i = 1; i <= statementSpecStack.size() - 1; i++) {
                     StatementSpecRaw raw = statementSpecStack.get(i);
-                    splitStreams.add(new OnTriggerSplitStream(raw.getInsertIntoDesc(), raw.getSelectClauseSpec(), raw.getFilterExprRootNode()));
+                    OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(raw);
+                    splitStreams.add(new OnTriggerSplitStream(raw.getInsertIntoDesc(), raw.getSelectClauseSpec(), fromClause, raw.getFilterExprRootNode()));
                 }
-                splitStreams.add(new OnTriggerSplitStream(statementSpec.getInsertIntoDesc(), statementSpec.getSelectClauseSpec(), statementSpec.getFilterExprRootNode()));
+                OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(statementSpec);
+                splitStreams.add(new OnTriggerSplitStream(statementSpec.getInsertIntoDesc(), statementSpec.getSelectClauseSpec(), fromClause, statementSpec.getFilterExprRootNode()));
                 if (!statementSpecStack.isEmpty()) {
                     statementSpec = statementSpecStack.get(0);
                 }
@@ -2540,4 +2552,5 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     public void enterViewExpressionWNamespace(EsperEPL2GrammarParser.ViewExpressionWNamespaceContext ctx) {}
     public void exitViewWParameters(EsperEPL2GrammarParser.ViewWParametersContext ctx) {}
     public void enterViewExpressionOptNamespace(EsperEPL2GrammarParser.ViewExpressionOptNamespaceContext ctx) {}
+    public void enterOnSelectInsertFromClause(EsperEPL2GrammarParser.OnSelectInsertFromClauseContext ctx) {};
 }

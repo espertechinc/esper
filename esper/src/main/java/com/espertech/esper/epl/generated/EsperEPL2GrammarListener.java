@@ -310,6 +310,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitOnSelectInsertExpr(EsperEPL2GrammarParser.OnSelectInsertExprContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#onSelectInsertFromClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnSelectInsertFromClause(EsperEPL2GrammarParser.OnSelectInsertFromClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#onSelectInsertFromClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnSelectInsertFromClause(EsperEPL2GrammarParser.OnSelectInsertFromClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#outputClauseInsert}.
 	 * @param ctx the parse tree
 	 */
