@@ -24,7 +24,7 @@ import com.espertech.esper.support.bean.SupportBean_C;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 
-public class Test3StreamSingleOpJoin extends TestCase
+public class TestJoinSingleOp3Stream extends TestCase
 {
     private EPServiceProvider epService;
     private SupportUpdateListener updateListener;

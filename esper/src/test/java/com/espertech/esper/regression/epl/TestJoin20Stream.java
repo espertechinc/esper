@@ -22,7 +22,7 @@ import com.espertech.esper.support.client.SupportConfigFactory;
 
 import java.io.StringWriter;
 
-public class Test20StreamJoin extends TestCase
+public class TestJoin20Stream extends TestCase
 {
     private EPServiceProvider epService;
     private SupportUpdateListener listener;

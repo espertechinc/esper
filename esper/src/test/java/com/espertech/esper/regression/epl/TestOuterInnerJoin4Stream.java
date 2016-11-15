@@ -25,7 +25,7 @@ import com.espertech.esper.support.bean.SupportBean_S2;
 import com.espertech.esper.support.bean.SupportBean_S3;
 import com.espertech.esper.support.client.SupportConfigFactory;
 
-public class Test4StreamOuterInnerJoin extends TestCase
+public class TestOuterInnerJoin4Stream extends TestCase
 {
     private final static String fields[] = "s0.id, s0.p00, s1.id, s1.p10, s2.id, s2.p20, s3.id, s3.p30".split(",");
     

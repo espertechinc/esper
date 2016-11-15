@@ -23,7 +23,7 @@ import com.espertech.esper.support.bean.SupportBean_S2;
 import com.espertech.esper.support.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
-public class Test3StreamOuterInnerJoin extends TestCase
+public class TestOuterInnerJoin3Stream extends TestCase
 {
     private EPServiceProvider epService;
     private SupportUpdateListener updateListener;

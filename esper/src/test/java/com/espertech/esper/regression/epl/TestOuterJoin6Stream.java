@@ -23,7 +23,7 @@ import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.util.ArrayHandlingUtil;
 import com.espertech.esper.support.client.SupportConfigFactory;
 
-public class Test6StreamOuterJoin extends TestCase
+public class TestOuterJoin6Stream extends TestCase
 {
     private EPServiceProvider epService;
     private SupportUpdateListener updateListener;

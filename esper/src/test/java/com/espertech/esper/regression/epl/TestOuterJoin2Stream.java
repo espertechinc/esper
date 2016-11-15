@@ -22,7 +22,7 @@ import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 
-public class Test2StreamOuterJoin extends TestCase
+public class TestOuterJoin2Stream extends TestCase
 {
     private final static String[] fields = new String[] {"s0.id", "s0.p00", "s1.id", "s1.p10"};
 
