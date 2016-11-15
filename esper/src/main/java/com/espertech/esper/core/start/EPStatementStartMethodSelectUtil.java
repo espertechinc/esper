@@ -36,7 +36,6 @@ import com.espertech.esper.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.epl.join.base.JoinSetComposerPrototypeFactory;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.util.EPLValidationUtil;
@@ -51,6 +50,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalRootFactoryNode;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
+import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.HistoricalEventViewable;
@@ -103,7 +103,7 @@ public class EPStatementStartMethodSelectUtil
         HistoricalEventViewable[] historicalEventViewables = new HistoricalEventViewable[numStreams];
 
         // verify for joins that required views are present
-        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowMgmtService(), defaultAgentInstanceContext);
+        StreamJoinAnalysisResult joinAnalysisResult = verifyJoinViews(statementSpec, statementContext.getNamedWindowMgmtService());
         final ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
 
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
@@ -361,7 +361,7 @@ public class EPStatementStartMethodSelectUtil
         }
     }
 
-    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowMgmtService namedWindowMgmtService, AgentInstanceContext defaultAgentInstanceContext)
+    private static StreamJoinAnalysisResult verifyJoinViews(StatementSpecCompiled statementSpec, NamedWindowMgmtService namedWindowMgmtService)
             throws ExprValidationException
     {
         StreamSpecCompiled[] streamSpecs = statementSpec.getStreamSpecs();
@@ -374,25 +374,16 @@ public class EPStatementStartMethodSelectUtil
         // Determine if any stream has a unidirectional keyword
 
         // inspect unidirectional indicator and named window flags
-        int unidirectionalStreamNumber = -1;
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
         {
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
-            if (streamSpec.getOptions().isUnidirectional())
-            {
+            if (streamSpec.getOptions().isUnidirectional()) {
                 analysisResult.setUnidirectionalInd(i);
-                if (unidirectionalStreamNumber != -1)
-                {
-                    throw new ExprValidationException("The unidirectional keyword can only apply to one stream in a join");
-                }
-                unidirectionalStreamNumber = i;
             }
-            if (streamSpec.getViewSpecs().length > 0)
-            {
+            if (streamSpec.getViewSpecs().length > 0) {
                 analysisResult.setHasChildViews(i);
             }
-            if (streamSpec instanceof NamedWindowConsumerStreamSpec)
-            {
+            if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                 NamedWindowConsumerStreamSpec nwSpec = (NamedWindowConsumerStreamSpec) streamSpec;
                 if (nwSpec.getOptPropertyEvaluator() != null && !streamSpec.getOptions().isUnidirectional()) {
                     throw new ExprValidationException("Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");
@@ -410,11 +401,11 @@ public class EPStatementStartMethodSelectUtil
                 }
             }
         }
-        if ((unidirectionalStreamNumber != -1) && (analysisResult.getHasChildViews()[unidirectionalStreamNumber]))
-        {
-            throw new ExprValidationException("The unidirectional keyword requires that no views are declared onto the stream");
+
+        // non-outer-join: verify unidirectional can be on a single stream only
+        if (statementSpec.getStreamSpecs().length > 1 && analysisResult.isUnidirectional()) {
+            verifyJoinUnidirectional(analysisResult, statementSpec);
         }
-        analysisResult.setUnidirectionalStreamNumber(unidirectionalStreamNumber);
 
         // count streams that provide data, excluding streams that poll data (DB and method)
         int countProviderNonpolling = 0;
@@ -513,5 +504,44 @@ public class EPStatementStartMethodSelectUtil
         }
 
         return analysisResult;
+    }
+
+    private static void verifyJoinUnidirectional(StreamJoinAnalysisResult analysisResult, StatementSpecCompiled statementSpec) throws ExprValidationException {
+        int numUnidirectionalStreams = analysisResult.getUnidirectionalCount();
+        int numStreams = statementSpec.getStreamSpecs().length;
+
+        // only a single stream is unidirectional (applies to all but all-full-outer-join)
+        if (!isFullOuterJoinAllStreams(statementSpec)) {
+            if (numUnidirectionalStreams > 1) {
+                throw new ExprValidationException("The unidirectional keyword can only apply to one stream in a join");
+            }
+        }
+        // verify full-outer-join: requires unidirectional for all streams
+        else {
+            if (numUnidirectionalStreams > 1 && numUnidirectionalStreams < numStreams) {
+                throw new ExprValidationException("The unidirectional keyword must either apply to a single stream or all streams in a full outer join");
+            }
+        }
+
+        // verify no-child-view for unidirectional
+        for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
+            if (analysisResult.getUnidirectionalInd()[i]) {
+                if (analysisResult.getHasChildViews()[i]) {
+                    throw new ExprValidationException("The unidirectional keyword requires that no views are declared onto the stream (applies to stream " + i + ")");
+                }
+            }
+        }
+    }
+
+    private static boolean isFullOuterJoinAllStreams(StatementSpecCompiled statementSpec) {
+        if (statementSpec.getOuterJoinDescList() == null || statementSpec.getOuterJoinDescList().length == 0) {
+            return false;
+        }
+        for (int stream = 0; stream < statementSpec.getStreamSpecs().length - 1; stream++) {
+            if (statementSpec.getOuterJoinDescList()[stream].getOuterJoinType() != OuterJoinType.FULL) {
+                return false;
+            }
+        }
+        return true;
     }
 }

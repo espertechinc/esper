@@ -14,7 +14,6 @@ package com.espertech.esper.core.context.factory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
 import com.espertech.esper.core.context.activator.ViewableActivatorStreamReuseView;
@@ -553,7 +552,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         agentInstanceContext.getEpStatementAgentInstanceHandle().setOptionalDispatchable(joinStatementDispatch);
 
         JoinPreloadMethod preloadMethod;
-        if (joinAnalysisResult.getUnidirectionalStreamNumber() >= 0) {
+        if (joinAnalysisResult.isUnidirectional()) {
             preloadMethod = new JoinPreloadMethodNull();
         }
         else {

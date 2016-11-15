@@ -1537,7 +1537,8 @@ from MyEvent#length(2) as s0</programlisting>
 		</para>
 
 		<para>
-			For joins and outer joins, specify two or more event streams. Joins between pattern-based and filter-based event streams are also supported. Joins and the <literal>unidirectional</literal> keyword are described in more detail in <xref linkend="epl-join"/>.
+			For joins and outer joins, specify two or more event streams. Joins and the <literal>unidirectional</literal> keyword are described in more detail in <xref linkend="epl-join"/>.
+			Joins are handy when multiple streams or patterns can trigger output and outer joins can be used to union and connect streams via <literal>or</literal>.
 		</para>
 
 		<para>
@@ -4687,12 +4688,13 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			</para>
 				
 			<para>
-				The direction of the join execution depends on which stream or streams are currently providing an insert or remove stream event for executing the join. A join is thus multidirectional, or bidirectional when only two streams are joined.
+				The direction of the join execution depends on which stream or streams are currently providing an insert or remove stream event for executing the join. 
+				A join is thus multidirectional, or bidirectional when only two streams are joined.
 				A join can be made unidirectional if your application does not want new results when events arrive on a given stream or streams.
 			</para>
 	
 			<para>
-				The <literal>unidirectional</literal> keyword can be used in the <literal>from</literal> clause to identify a single stream that provides the events to execute the join. If the keyword is present for a stream, all other streams in the <literal>from</literal> clause become passive streams. When events arrive or leave a data window of a passive stream then the join does not generate join results. 
+				The <literal>unidirectional</literal> keyword can be used in the <literal>from</literal> clause to identify streams that provide the events to execute the join. If the keyword is present for a stream, all other streams in the <literal>from</literal> clause become passive streams. When events arrive or leave a data window of a passive stream then the join does not generate join results. 
 			</para>
 	
 			<para>
@@ -4710,7 +4712,7 @@ where tick.symbol = news.symbol]]></programlisting>
 			</para>
 			<programlisting><![CDATA[select count(*) from TickEvent unidirectional, NewsEvent#time(10 sec) 
 where tick.symbol = news.symbol]]></programlisting>
-	
+
 			<para>
 				The following restrictions apply to unidirectional joins:
 			</para>
@@ -4718,7 +4720,7 @@ where tick.symbol = news.symbol]]></programlisting>
 			<orderedlist spacing="compact">
 				<listitem>
 					<para>
-						The <literal>unidirectional</literal> keyword can only be specified for a single stream in the <literal>from</literal> clause. 
+						The <literal>unidirectional</literal> keyword can only be specified for a single stream in the <literal>from</literal> clause, unless all streams are in a full outer join and all streams declare <literal>unidirectional</literal>.
 					</para>
 				</listitem>
 				<listitem>
@@ -4732,6 +4734,42 @@ where tick.symbol = news.symbol]]></programlisting>
 					</para>
 				</listitem>
 			</orderedlist>
+		</sect2>
+
+		<sect2 xml:id="epl-unidirectional-fullouterjoin">
+			<title>Unidirectional Full Outer Joins</title>
+	
+			<indexterm><primary>unidirectional full outer joins</primary></indexterm>
+			<indexterm><primary>EPL</primary><secondary>outer join, unidirectional</secondary></indexterm>
+	
+			<para>
+				In a full outer join all streams can be marked as <literal>unidirectional</literal>. 
+				This is useful for declaring multiple triggering events and for performing a union or merge of streams.
+			</para>
+	
+			<para>
+				When marking more than one stream as unidirectional, all streams must be unidirectional and inner, left and right joins are not allowed. 
+				This is because unidirectional streams have no depth and cannot be looked-up against.
+			</para>
+
+			<para>
+				For example, consider a use case where output should occur when either a tick event or a news event arrives:
+			</para>
+
+			<programlisting><![CDATA[select * from TickEvent as te unidirectional, 
+  full outer join
+  NewsEvent as ne unidirectional]]></programlisting>
+
+			<para>
+				Place filter criteria for a given stream into parenthesis, for example:
+			</para>
+
+			<programlisting><![CDATA[select * from TickEvent(symbol='IBM') unidirectional, 
+  full outer join
+  TradeEvent(symbol='IBM') unidirectional
+  full outer join
+  SettlementEvent(symbol='IBM') unidirectional
+  where coalesce(TickEvent.price,TradeEvent.price) > 100 // place common critera into a where-clause that may use coalesce]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="epl-join-hints">

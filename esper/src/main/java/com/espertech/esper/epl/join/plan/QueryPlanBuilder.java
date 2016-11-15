@@ -39,7 +39,7 @@ public class QueryPlanBuilder
      * @param streamNames - names of streams
      * @param dependencyGraph - dependencies between historical streams
      * @param historicalStreamIndexLists - index management, populated for the query plan
-     * @param streamJoinAnalysisResult
+     * @param streamJoinAnalysisResult stream join analysis metadata
      * @return query plan
      * @throws ExprValidationException if the query plan fails
      */
@@ -121,11 +121,17 @@ public class QueryPlanBuilder
 
     // Remove plans for non-unidirectional streams
     private static void removeUnidirectionalAndTable(QueryPlan queryPlan, StreamJoinAnalysisResult streamJoinAnalysisResult) {
+        boolean allUnidirectional = streamJoinAnalysisResult.isUnidirectionalAll();
         for (int streamNum = 0; streamNum < queryPlan.getExecNodeSpecs().length; streamNum++) {
-            boolean unidirectional = streamJoinAnalysisResult.isUnidirectional() && !streamJoinAnalysisResult.getUnidirectionalInd()[streamNum];
-            boolean table = streamJoinAnalysisResult.getTablesPerStream()[streamNum] != null;
-            if (unidirectional || table) {
-                queryPlan.getExecNodeSpecs()[streamNum] = new QueryPlanNodeNoOp();
+            if (allUnidirectional) {
+                queryPlan.getExecNodeSpecs()[streamNum] = new QueryPlanNodeAllUnidirectionalOuter(streamNum);
+            }
+            else {
+                boolean unidirectional = streamJoinAnalysisResult.isUnidirectional() && !streamJoinAnalysisResult.getUnidirectionalInd()[streamNum];
+                boolean table = streamJoinAnalysisResult.getTablesPerStream()[streamNum] != null;
+                if (unidirectional || table) {
+                    queryPlan.getExecNodeSpecs()[streamNum] = new QueryPlanNodeNoOp();
+                }
             }
         }
     }

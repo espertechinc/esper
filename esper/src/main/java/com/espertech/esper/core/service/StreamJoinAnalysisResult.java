@@ -25,7 +25,6 @@ import java.util.Set;
 public class StreamJoinAnalysisResult
 {
     private final int numStreams;
-    private int unidirectionalStreamNumber;
     private boolean[] isUnidirectionalInd;
     private boolean[] isUnidirectionalNonDriving;
     private boolean isPureSelfJoin;
@@ -34,6 +33,7 @@ public class StreamJoinAnalysisResult
     private VirtualDWViewProviderForAgentInstance[] viewExternal;
     private String[][][] uniqueKeys;
     private TableMetadata[] tablesPerStream;
+    private boolean unidirectionalAll;
 
     /**
      * Ctor.
@@ -41,7 +41,6 @@ public class StreamJoinAnalysisResult
      */
     public StreamJoinAnalysisResult(int numStreams)
     {
-        unidirectionalStreamNumber = -1;
         this.numStreams = numStreams;
         isPureSelfJoin = false;
         isUnidirectionalInd = new boolean[numStreams];
@@ -51,33 +50,6 @@ public class StreamJoinAnalysisResult
         viewExternal = new VirtualDWViewProviderForAgentInstance[numStreams];
         uniqueKeys = new String[numStreams][][];
         tablesPerStream = new TableMetadata[numStreams];
-    }
-
-    /**
-     * Returns unidirectional flag.
-     * @return unidirectional flag
-     */
-    public boolean isUnidirectional()
-    {
-        return unidirectionalStreamNumber != -1;
-    }
-
-    /**
-     * Returns unidirectional stream number.
-     * @return num
-     */
-    public int getUnidirectionalStreamNumber()
-    {
-        return unidirectionalStreamNumber;
-    }
-
-    /**
-     * Sets flag.
-     * @param unidirectionalStreamNumber index
-     */
-    public void setUnidirectionalStreamNumber(int unidirectionalStreamNumber)
-    {
-        this.unidirectionalStreamNumber = unidirectionalStreamNumber;
     }
 
     /**
@@ -205,5 +177,40 @@ public class StreamJoinAnalysisResult
                 }
             }
         }
+    }
+
+    public boolean isUnidirectional() {
+        for (boolean ind : isUnidirectionalInd) {
+            if (ind) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getUnidirectionalStreamNumberFirst() {
+        for (int i = 0; i < isUnidirectionalInd.length; i++) {
+            if (isUnidirectionalInd[i]) {
+                return i;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    public boolean isUnidirectionalAll() {
+        for (boolean ind : isUnidirectionalInd) {
+            if (!ind) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int getUnidirectionalCount() {
+        int count = 0;
+        for (boolean ind : isUnidirectionalInd) {
+            count += ind ? 1 : 0;
+        }
+        return count;
     }
 }

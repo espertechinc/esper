@@ -19,6 +19,7 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.support.bean.*;
 import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.support.util.SupportMessageAssertUtil;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
 
@@ -599,26 +600,18 @@ public class TestUnidirectionalStreamJoin extends TestCase
                           "full outer join " +
                           SupportMarketDataBean.class.getName() + "#keepall() unidirectional " +
                           "on theString = symbol";
-        tryInvalid(text, "Error starting statement: The unidirectional keyword can only apply to one stream in a join [select * from com.espertech.esper.support.bean.SupportBean unidirectional full outer join com.espertech.esper.support.bean.SupportMarketDataBean#keepall() unidirectional on theString = symbol]");
+        tryInvalid(text, "Error starting statement: The unidirectional keyword requires that no views are declared onto the stream (applies to stream 1)");
 
         text = "select * from " + SupportBean.class.getName() + "#length(2) unidirectional " +
                           "full outer join " +
                           SupportMarketDataBean.class.getName() + "#keepall()" +
                           "on theString = symbol";
-        tryInvalid(text, "Error starting statement: The unidirectional keyword requires that no views are declared onto the stream [select * from com.espertech.esper.support.bean.SupportBean#length(2) unidirectional full outer join com.espertech.esper.support.bean.SupportMarketDataBean#keepall()on theString = symbol]");
+        tryInvalid(text, "Error starting statement: The unidirectional keyword requires that no views are declared onto the stream");
     }
 
     private void tryInvalid(String text, String message)
     {
-        try
-        {
-            epService.getEPAdministrator().createEPL(text);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals(message, ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, text, message);
     }
 
     private void tryFullOuterPassive2Stream(EPStatement stmt)

@@ -211,23 +211,28 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         }
         else
         {
-            QueryStrategy driver;
-            int unidirectionalStream;
-            if (streamJoinAnalysisResult.getUnidirectionalStreamNumber() != -1)
-            {
-                unidirectionalStream = streamJoinAnalysisResult.getUnidirectionalStreamNumber();
-                driver = queryStrategies[unidirectionalStream];
-            }
-            else
-            {
-                unidirectionalStream = 0;
-                driver = queryStrategies[0];
-            }
-
-            JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
-                    unidirectionalStream, driver, streamJoinAnalysisResult.getUnidirectionalNonDriving());
             ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
-            joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+
+            if (streamJoinAnalysisResult.isUnidirectionalAll()) {
+                JoinSetComposer composer = new JoinSetComposerAllUnidirectionalOuter(queryStrategies);
+                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+            }
+            else {
+                QueryStrategy driver;
+                int unidirectionalStream;
+                if (streamJoinAnalysisResult.isUnidirectional()) {
+                    unidirectionalStream = streamJoinAnalysisResult.getUnidirectionalStreamNumberFirst();
+                    driver = queryStrategies[unidirectionalStream];
+                }
+                else {
+                    unidirectionalStream = 0;
+                    driver = queryStrategies[0];
+                }
+
+                JoinSetComposer composer = new JoinSetComposerStreamToWinImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, streamJoinAnalysisResult.isPureSelfJoin(),
+                        unidirectionalStream, driver, streamJoinAnalysisResult.getUnidirectionalNonDriving());
+                joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
+            }
         }
 
         // init if the join-set-composer allows it

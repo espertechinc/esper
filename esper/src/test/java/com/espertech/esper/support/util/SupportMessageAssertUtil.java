@@ -12,6 +12,7 @@
 package com.espertech.esper.support.util;
 
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPStatementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,5 +65,17 @@ public class SupportMessageAssertUtil {
             log.error("Exception: " + ex.getMessage(), ex);
             Assert.fail("No assertion provided, received: " + ex.getMessage());
         }
+    }
+
+    public static void tryInvalidIterate(EPServiceProvider engine, String epl, String message) {
+        EPStatement stmt = engine.getEPAdministrator().createEPL(epl);
+        try {
+            stmt.iterator();
+            Assert.fail();
+        }
+        catch (UnsupportedOperationException ex) {
+            assertMessage(ex, message);
+        }
+        stmt.destroy();
     }
 }
