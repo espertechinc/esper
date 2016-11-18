@@ -4749,7 +4749,7 @@ where tick.symbol = news.symbol]]></programlisting>
 	
 			<para>
 				When marking more than one stream as unidirectional, all streams must be unidirectional and inner, left and right joins are not allowed. 
-				This is because unidirectional streams have no depth and cannot be looked-up against.
+				This is because unidirectional streams have an undefined depth and cannot be looked-up against.
 			</para>
 
 			<para>
