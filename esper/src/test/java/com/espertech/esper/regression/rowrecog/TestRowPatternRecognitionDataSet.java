@@ -169,7 +169,7 @@ public class TestRowPatternRecognitionDataSet extends TestCase
     public void testExampleWithPREV()
     {
         String query = "SELECT * " +
-            "FROM MyEvent#keepall()" +
+            "FROM MyEvent#keepall" +
             "   MATCH_RECOGNIZE (" +
             "       MEASURES A.theString AS a_string," +
             "         A.value AS a_value," +

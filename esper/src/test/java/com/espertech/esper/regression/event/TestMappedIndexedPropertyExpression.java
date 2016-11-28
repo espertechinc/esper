@@ -52,14 +52,14 @@ public class TestMappedIndexedPropertyExpression extends TestCase {
         String eplBeans = "select " +
                 "mapped(theString) as val0, " +
                 "indexed(intPrimitive) as val1 " +
-                "from SupportBeanComplexProps#lastevent(), SupportBean sb unidirectional";
+                "from SupportBeanComplexProps#lastevent, SupportBean sb unidirectional";
         runAssertionBean(eplBeans);
 
         // test bean-type prefixed
         String eplBeansPrefixed = "select " +
                 "sbcp.mapped(theString) as val0, " +
                 "sbcp.indexed(intPrimitive) as val1 " +
-                "from SupportBeanComplexProps#lastevent() sbcp, SupportBean sb unidirectional";
+                "from SupportBeanComplexProps#lastevent sbcp, SupportBean sb unidirectional";
         runAssertionBean(eplBeansPrefixed);
 
         // test wrap
@@ -68,13 +68,13 @@ public class TestMappedIndexedPropertyExpression extends TestCase {
         String eplWrap = "select " +
                 "mapped(theString) as val0," +
                 "indexed(intPrimitive) as val1 " +
-                "from SecondStream #lastevent(), SupportBean unidirectional";
+                "from SecondStream #lastevent, SupportBean unidirectional";
         runAssertionBean(eplWrap);
 
         String eplWrapPrefixed = "select " +
                 "sbcp.mapped(theString) as val0," +
                 "sbcp.indexed(intPrimitive) as val1 " +
-                "from SecondStream #lastevent() sbcp, SupportBean unidirectional";
+                "from SecondStream #lastevent sbcp, SupportBean unidirectional";
         runAssertionBean(eplWrapPrefixed);
 
         // test Map-type
@@ -86,13 +86,13 @@ public class TestMappedIndexedPropertyExpression extends TestCase {
         String eplMap = "select " +
                 "mapped(theString) as val0," +
                 "indexed(intPrimitive) as val1 " +
-                "from MapEvent#lastevent(), SupportBean unidirectional";
+                "from MapEvent#lastevent, SupportBean unidirectional";
         runAssertionMap(eplMap);
 
         String eplMapPrefixed = "select " +
                 "sbcp.mapped(theString) as val0," +
                 "sbcp.indexed(intPrimitive) as val1 " +
-                "from MapEvent#lastevent() sbcp, SupportBean unidirectional";
+                "from MapEvent#lastevent sbcp, SupportBean unidirectional";
         runAssertionMap(eplMapPrefixed);
 
         // test insert-int
@@ -115,13 +115,13 @@ public class TestMappedIndexedPropertyExpression extends TestCase {
         String eplObjectArray = "select " +
                 "mapped(theString) as val0," +
                 "indexed(intPrimitive) as val1 " +
-                "from ObjectArrayEvent#lastevent(), SupportBean unidirectional";
+                "from ObjectArrayEvent#lastevent, SupportBean unidirectional";
         runAssertionObjectArray(eplObjectArray);
 
         String eplObjectArrayPrefixed = "select " +
                 "sbcp.mapped(theString) as val0," +
                 "sbcp.indexed(intPrimitive) as val1 " +
-                "from ObjectArrayEvent#lastevent() sbcp, SupportBean unidirectional";
+                "from ObjectArrayEvent#lastevent sbcp, SupportBean unidirectional";
         runAssertionObjectArray(eplObjectArrayPrefixed);
     }
 

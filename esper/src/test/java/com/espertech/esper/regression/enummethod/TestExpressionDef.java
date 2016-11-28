@@ -55,7 +55,7 @@ public class TestExpressionDef extends TestCase {
 
     public void testNestedExpressionMultiSubquery() {
         String[] fields = "c0".split(",");
-        epService.getEPAdministrator().createEPL("create expression F1 { (select intPrimitive from SupportBean#lastevent())}");
+        epService.getEPAdministrator().createEPL("create expression F1 { (select intPrimitive from SupportBean#lastevent)}");
         epService.getEPAdministrator().createEPL("create expression F2 { param => (select a.intPrimitive from SupportBean#unique(theString) as a where a.theString = param.theString) }");
         epService.getEPAdministrator().createEPL("create expression F3 { s => F1()+F2(s) }");
         epService.getEPAdministrator().createEPL("select F3(myevent) as c0 from SupportBean as myevent").addListener(listener);
@@ -89,11 +89,11 @@ public class TestExpressionDef extends TestCase {
 
     public void testSequenceAndNested() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_S0", SupportBean_S0.class);
-        epService.getEPAdministrator().createEPL("create window WindowOne#keepall() as (col1 string, col2 string)");
+        epService.getEPAdministrator().createEPL("create window WindowOne#keepall as (col1 string, col2 string)");
         epService.getEPAdministrator().createEPL("insert into WindowOne select p00 as col1, p01 as col2 from SupportBean_S0");
 
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_S1", SupportBean_S1.class);
-        epService.getEPAdministrator().createEPL("create window WindowTwo#keepall() as (col1 string, col2 string)");
+        epService.getEPAdministrator().createEPL("create window WindowTwo#keepall as (col1 string, col2 string)");
         epService.getEPAdministrator().createEPL("insert into WindowTwo select p10 as col1, p11 as col2 from SupportBean_S1");
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "A", "B1"));
@@ -173,29 +173,29 @@ public class TestExpressionDef extends TestCase {
     public void testSubqueryMultiresult() {
         String eplOne = "" +
                 "expression maxi {" +
-                " (select max(intPrimitive) from SupportBean#keepall())" +
+                " (select max(intPrimitive) from SupportBean#keepall)" +
                 "} " +
                 "expression mini {" +
-                " (select min(intPrimitive) from SupportBean#keepall())" +
+                " (select min(intPrimitive) from SupportBean#keepall)" +
                 "} " +
                 "select p00/maxi() as val0, p00/mini() as val1 " +
-                "from SupportBean_ST0#lastevent()";
+                "from SupportBean_ST0#lastevent";
         runAssertionMultiResult(eplOne);
 
         String eplTwo = "" +
                 "expression subq {" +
-                " (select max(intPrimitive) as maxi, min(intPrimitive) as mini from SupportBean#keepall())" +
+                " (select max(intPrimitive) as maxi, min(intPrimitive) as mini from SupportBean#keepall)" +
                 "} " +
                 "select p00/subq().maxi as val0, p00/subq().mini as val1 " +
-                "from SupportBean_ST0#lastevent()";
+                "from SupportBean_ST0#lastevent";
         runAssertionMultiResult(eplTwo);
 
         String eplTwoAlias = "" +
                 "expression subq alias for " +
-                " { (select max(intPrimitive) as maxi, min(intPrimitive) as mini from SupportBean#keepall()) }" +
+                " { (select max(intPrimitive) as maxi, min(intPrimitive) as mini from SupportBean#keepall) }" +
                 " " +
                 "select p00/subq().maxi as val0, p00/subq().mini as val1 " +
-                "from SupportBean_ST0#lastevent()";
+                "from SupportBean_ST0#lastevent";
         runAssertionMultiResult(eplTwoAlias);
     }
 
@@ -220,15 +220,15 @@ public class TestExpressionDef extends TestCase {
 
     public void testSubqueryCross() {
         String eplDeclare = "expression subq {" +
-                " (x, y) => (select theString from SupportBean#keepall() where theString = x.id and intPrimitive = y.p10)" +
+                " (x, y) => (select theString from SupportBean#keepall where theString = x.id and intPrimitive = y.p10)" +
                 "} " +
                 "select subq(one, two) as val1 " +
-                "from SupportBean_ST0#lastevent() as one, SupportBean_ST1#lastevent() as two";
+                "from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two";
         runAssertionSubqueryCross(eplDeclare);
 
-        String eplAlias = "expression subq alias for { (select theString from SupportBean#keepall() where theString = one.id and intPrimitive = two.p10) }" +
+        String eplAlias = "expression subq alias for { (select theString from SupportBean#keepall where theString = one.id and intPrimitive = two.p10) }" +
                 "select subq as val1 " +
-                "from SupportBean_ST0#lastevent() as one, SupportBean_ST1#lastevent() as two";
+                "from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two";
         runAssertionSubqueryCross(eplAlias);
     }
 
@@ -254,18 +254,18 @@ public class TestExpressionDef extends TestCase {
     public void testSubqueryJoinSameField() {
         String eplDeclare = "" +
                 "expression subq {" +
-                " x => (select intPrimitive from SupportBean#keepall() where theString = x.pcommon)" +   // a common field
+                " x => (select intPrimitive from SupportBean#keepall where theString = x.pcommon)" +   // a common field
                 "} " +
                 "select subq(one) as val1, subq(two) as val2 " +
-                "from SupportBean_ST0#lastevent() as one, SupportBean_ST1#lastevent() as two";
+                "from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two";
         runAssertionSubqueryJoinSameField(eplDeclare);
 
         String eplAlias = "" +
-                "expression subq alias for {(select intPrimitive from SupportBean#keepall() where theString = pcommon) }" +
+                "expression subq alias for {(select intPrimitive from SupportBean#keepall where theString = pcommon) }" +
                 "select subq as val1, subq as val2 " +
-                "from SupportBean_ST0#lastevent() as one, SupportBean_ST1#lastevent() as two";
+                "from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two";
         tryInvalid(eplAlias,
-                "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate filter expression 'theString=pcommon': Property named 'pcommon' is ambiguous as is valid for more then one stream [expression subq alias for {(select intPrimitive from SupportBean#keepall() where theString = pcommon) }select subq as val1, subq as val2 from SupportBean_ST0#lastevent() as one, SupportBean_ST1#lastevent() as two]");
+                "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate filter expression 'theString=pcommon': Property named 'pcommon' is ambiguous as is valid for more then one stream [expression subq alias for {(select intPrimitive from SupportBean#keepall where theString = pcommon) }select subq as val1, subq as val2 from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two]");
     }
 
     private void runAssertionSubqueryJoinSameField(String epl)
@@ -291,12 +291,12 @@ public class TestExpressionDef extends TestCase {
 
     public void testSubqueryCorrelated() {
         String eplDeclare = "expression subqOne {" +
-                " x => (select id from SupportBean_ST0#keepall() where p00 = x.intPrimitive)" +
+                " x => (select id from SupportBean_ST0#keepall where p00 = x.intPrimitive)" +
                 "} " +
                 "select theString as val0, subqOne(t) as val1 from SupportBean as t";
         runAssertionSubqueryCorrelated(eplDeclare);
 
-        String eplAlias = "expression subqOne alias for {(select id from SupportBean_ST0#keepall() where p00 = t.intPrimitive)} " +
+        String eplAlias = "expression subqOne alias for {(select id from SupportBean_ST0#keepall where p00 = t.intPrimitive)} " +
                 "select theString as val0, subqOne(t) as val1 from SupportBean as t";
         runAssertionSubqueryCorrelated(eplAlias);
     }
@@ -325,11 +325,11 @@ public class TestExpressionDef extends TestCase {
     }
 
     public void testSubqueryUncorrelated() {
-        String eplDeclare = "expression subqOne {(select id from SupportBean_ST0#lastevent())} " +
+        String eplDeclare = "expression subqOne {(select id from SupportBean_ST0#lastevent)} " +
                 "select theString as val0, subqOne() as val1 from SupportBean as t";
         runAssertionSubqueryUncorrelated(eplDeclare);
 
-        String eplAlias = "expression subqOne alias for {(select id from SupportBean_ST0#lastevent())} " +
+        String eplAlias = "expression subqOne alias for {(select id from SupportBean_ST0#lastevent)} " +
                 "select theString as val0, subqOne as val1 from SupportBean as t";
         runAssertionSubqueryUncorrelated(eplAlias);
     }
@@ -370,7 +370,7 @@ public class TestExpressionDef extends TestCase {
         String[] fieldsSelected = "c0,c1".split(",");
         String[] fieldsInside = "val0".split(",");
 
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall() as (val0 string, val1 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -426,7 +426,7 @@ public class TestExpressionDef extends TestCase {
         runAssertionSubqNWCorrelated(epl);
 
         // test ambiguous property names
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindowTwo#keepall() as (id string, p00 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindowTwo#keepall as (id string, p00 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindowTwo (id, p00) select theString, intPrimitive from SupportBean");
         epl =    "expression subqnamedwin {" +
                         "  x => MyWindowTwo(MyWindowTwo.id = x.id).where(y => y.p00 > 10)" +
@@ -439,7 +439,7 @@ public class TestExpressionDef extends TestCase {
         String[] fieldSelected = "c0".split(",");
         String[] fieldInside = "val0".split(",");
 
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall() as (val0 string, val1 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -507,11 +507,11 @@ public class TestExpressionDef extends TestCase {
 
     public void testAggregationAccess() {
         String eplDeclare = "expression wb {s => window(*).where(y => y.intPrimitive > 2) }" +
-                "select wb(t) as val1 from SupportBean#keepall() as t";
+                "select wb(t) as val1 from SupportBean#keepall as t";
         runAssertionAggregationAccess(eplDeclare);
 
         String eplAlias = "expression wb alias for {window(*).where(y => y.intPrimitive > 2)}" +
-                "select wb as val1 from SupportBean#keepall() as t";
+                "select wb as val1 from SupportBean#keepall as t";
         runAssertionAggregationAccess(eplAlias);
     }
 
@@ -573,7 +573,7 @@ public class TestExpressionDef extends TestCase {
 
     private void runAssertionNamedWindowCast(String epl) {
 
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as (myObject long)");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as (myObject long)");
         epService.getEPAdministrator().createEPL("insert into MyWindow(myObject) select cast(intPrimitive, long) from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -787,8 +787,8 @@ public class TestExpressionDef extends TestCase {
 
     public void testInvalid() {
 
-        String epl = "expression abc {(select * from SupportBean_ST0#lastevent() as st0 where p00=intPrimitive)} select abc() from SupportBean";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {(select * from SupportBean_ST0#lastevent() as st0 where p00=intPrimitive)} select abc() from SupportBean]");
+        String epl = "expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=intPrimitive)} select abc() from SupportBean";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=intPrimitive)} select abc() from SupportBean]");
 
         epl = "expression abc {x=>strvals.where(x=> x != 'E1')} select abc(str) from SupportCollection str";
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'abc(str)': Error validating expression declaration 'abc': Failed to validate declared expression body expression 'strvals.where()': Error validating enumeration method 'where', the lambda-parameter name 'x' has already been declared in this context [expression abc {x=>strvals.where(x=> x != 'E1')} select abc(str) from SupportCollection str]");
@@ -796,8 +796,8 @@ public class TestExpressionDef extends TestCase {
         epl = "expression abc {avg(intPrimitive)} select abc() from SupportBean";
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'abc()': Error validating expression declaration 'abc': Failed to validate declared expression body expression 'avg(intPrimitive)': Property named 'intPrimitive' is not valid in any stream [expression abc {avg(intPrimitive)} select abc() from SupportBean]");
 
-        epl = "expression abc {(select * from SupportBean_ST0#lastevent() as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb";
-        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=sb.intPrimitive': Failed to find a stream named 'sb' (did you mean 'st0'?) [expression abc {(select * from SupportBean_ST0#lastevent() as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb]");
+        epl = "expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb";
+        tryInvalid(epl, "Error starting statement: Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=sb.intPrimitive': Failed to find a stream named 'sb' (did you mean 'st0'?) [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb]");
 
         epl = "expression abc {window(*)} select abc() from SupportBean";
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'abc()': Error validating expression declaration 'abc': Failed to validate declared expression body expression 'window(*)': The 'window' aggregation function requires that at least one stream is provided [expression abc {window(*)} select abc() from SupportBean]");
@@ -820,8 +820,8 @@ public class TestExpressionDef extends TestCase {
         epl = "expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)";
         tryInvalid(epl, "Filter expression not returning a boolean value: 'abc(sb)' [expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)]");
 
-        epl = "expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent() sb1, SupportBean#lastevent() sb2 where abc(*)";
-        tryInvalid(epl, "Error validating expression: Failed to validate filter expression 'abc(*)': Expression 'abc' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead [expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent() sb1, SupportBean#lastevent() sb2 where abc(*)]");
+        epl = "expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)";
+        tryInvalid(epl, "Error validating expression: Failed to validate filter expression 'abc(*)': Expression 'abc' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead [expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)]");
     }
 
     private SupportBean getSupportBean(int intPrimitive, Integer intBoxed) {

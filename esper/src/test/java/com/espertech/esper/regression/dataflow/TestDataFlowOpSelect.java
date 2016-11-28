@@ -75,13 +75,13 @@ public class TestDataFlowOpSelect extends TestCase {
                 "  // joining the last event per stream forming pairs\n" +
                 "  Select(instream, secondstream) -> outstream {\n" +
                 "    select: (select a.tagId, b.tagId \n" +
-                "                 from instream#lastevent() as a, secondstream#lastevent() as b)\n" +
+                "                 from instream#lastevent as a, secondstream#lastevent as b)\n" +
                 "  }\n" +
                 "  \n" +
                 "  // A join with multiple input streams and using aliases.\n" +
                 "  @Audit Select(instream as S1, secondstream as S2) -> outstream {\n" +
                 "    select: (select a.tagId, b.tagId \n" +
-                "                 from S1#lastevent() as a, S2#lastevent() as b)\n" +
+                "                 from S1#lastevent as a, S2#lastevent as b)\n" +
                 "  }";
         epService.getEPAdministrator().createEPL(epl);
         epService.getEPRuntime().getDataFlowRuntime().instantiate("MyDataFlow");
@@ -106,7 +106,7 @@ public class TestDataFlowOpSelect extends TestCase {
         tryInvalidInstantiate("select theString from ME output every 10 seconds", true,
                 "Failed to instantiate data flow 'MySelect': Failed validation for operator 'Select': Output rate limiting is not supported with 'iterate'");
 
-        tryInvalidInstantiate("select (select * from SupportBean#lastevent()) from ME", false,
+        tryInvalidInstantiate("select (select * from SupportBean#lastevent) from ME", false,
                 "Failed to instantiate data flow 'MySelect': Failed validation for operator 'Select': Subselects are not supported");
     }
 
@@ -247,7 +247,7 @@ public class TestDataFlowOpSelect extends TestCase {
                 "Emitter -> instream_s0<SupportBean_S0>{name: 'emitterS0'}\n" +
                 "Emitter -> instream_s1<SupportBean_S1>{name: 'emitterS1'}\n" +
                 "Select(instream_s0 as S0, instream_s1 as S1) -> outstream {\n" +
-                "  select: (select p00, p10 from S0#keepall() full outer join S1#keepall())\n" +
+                "  select: (select p00, p10 from S0#keepall full outer join S1#keepall)\n" +
                 "}\n" +
                 "CaptureOp(outstream) {}\n";
         epService.getEPAdministrator().createEPL(graph);
@@ -271,9 +271,9 @@ public class TestDataFlowOpSelect extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S1.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S2.class);
 
-        runAssertionJoinOrder("from S2#lastevent() as s2, S1#lastevent() as s1, S0#lastevent() as s0");
-        runAssertionJoinOrder("from S0#lastevent() as s0, S1#lastevent() as s1, S2#lastevent() as s2");
-        runAssertionJoinOrder("from S1#lastevent() as s1, S2#lastevent() as s2, S0#lastevent() as s0");
+        runAssertionJoinOrder("from S2#lastevent as s2, S1#lastevent as s1, S0#lastevent as s0");
+        runAssertionJoinOrder("from S0#lastevent as s0, S1#lastevent as s1, S2#lastevent as s2");
+        runAssertionJoinOrder("from S1#lastevent as s1, S2#lastevent as s2, S0#lastevent as s0");
     }
 
     public void runAssertionJoinOrder(String fromClause) {

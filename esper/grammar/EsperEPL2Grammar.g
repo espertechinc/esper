@@ -586,7 +586,7 @@ viewExpressionWNamespace : ns=IDENT COLON viewWParameters;
 
 viewExpressionOptNamespace : (ns=IDENT COLON)? viewWParameters;
 
-viewWParameters : (i=IDENT|m=MERGE) LPAREN expressionWithTimeList? RPAREN;
+viewWParameters : (i=IDENT|m=MERGE) (LPAREN expressionWithTimeList? RPAREN)?;
 
 groupByListExpr
 @init  { paraphrases.push("group-by clause"); }

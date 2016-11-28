@@ -183,8 +183,8 @@ public class TestEnumExceptIntersectUnion extends TestCase {
         epl = "select contained.union(true) from SupportBean_ST0_Container";
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(true)': Enumeration method 'union' requires an expression yielding an event-collection as input paramater [select contained.union(true) from SupportBean_ST0_Container]");
 
-        epl = "select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent(), SupportBean#keepall() s1";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(prevwindow(s1))': Enumeration method 'union' expects event type 'SupportBean_ST0' but receives event type 'SupportBean' [select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent(), SupportBean#keepall() s1]");
+        epl = "select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent, SupportBean#keepall s1";
+        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.union(prevwindow(s1))': Enumeration method 'union' expects event type 'SupportBean_ST0' but receives event type 'SupportBean' [select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent, SupportBean#keepall s1]");
     }
 
     public void testUnionWhere() {

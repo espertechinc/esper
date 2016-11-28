@@ -88,7 +88,7 @@ public class TestViewGroupBy extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         String query =
                 " @Hint('reclaim_group_aged=1,reclaim_group_freq=1') select Product.product as product, Product.productsize as productsize from Product unidirectional" +
-                " left outer join Product#time(3 seconds)#groupwin(product,productsize)#size() PrevProduct on Product.product=PrevProduct.product and Product.productsize=PrevProduct.productsize" +
+                " left outer join Product#time(3 seconds)#groupwin(product,productsize)#size PrevProduct on Product.product=PrevProduct.product and Product.productsize=PrevProduct.productsize" +
                 " having PrevProduct.size<2";
         epService.getEPAdministrator().createEPL(query);
 
@@ -147,7 +147,7 @@ public class TestViewGroupBy extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         String epl = "@Hint('reclaim_group_aged=5,reclaim_group_freq=1') " +
-                "select * from SupportBean#groupwin(theString)#keepall()";
+                "select * from SupportBean#groupwin(theString)#keepall";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
 
         int maxSlots = 10;

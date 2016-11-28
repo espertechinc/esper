@@ -63,7 +63,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol";
+                            "SupportBean#keepall where theString=symbol";
         runAssertion12(stmtText, "none");
     }
 
@@ -79,7 +79,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             " having sum(price) > 100";
         runAssertion34(stmtText, "none");
     }
@@ -96,7 +96,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
     }
@@ -114,7 +114,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100" +
                             "output every 1 seconds";
         runAssertion78(stmtText, "default");
@@ -140,7 +140,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -149,7 +149,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -176,7 +176,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100" +
                             "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -186,7 +186,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "having sum(price) > 100" +
                 "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -212,7 +212,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -221,7 +221,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -248,7 +248,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "select symbol, sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100 " +
                             "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -258,7 +258,7 @@ public class TestOutputLimitAggregateAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "having sum(price) > 100 " +
                 "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -485,7 +485,7 @@ public class TestOutputLimitAggregateAll extends TestCase
 
         String viewExpr = "select symbol, avg(price) as avgPrice " +
                           "from " + SupportMarketDataBean.class.getName() + "#time(3 sec) as md, " +
-                          SupportBean.class.getName() + "#keepall() as s where s.theString = md.symbol " +
+                          SupportBean.class.getName() + "#keepall as s where s.theString = md.symbol " +
                           "having avg(price) > 10" +
                           "output every 1 seconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
@@ -595,7 +595,7 @@ public class TestOutputLimitAggregateAll extends TestCase
         sendTimer(0);
         String selectStmt = "select symbol, sum(price) as sumprice from " + SupportMarketDataBean.class.getName() +
                 "#time(10 seconds) as m, " + SupportBean.class.getName() +
-                "#keepall() as s where s.theString = m.symbol output snapshot every 1 seconds order by symbol asc";
+                "#keepall as s where s.theString = m.symbol output snapshot every 1 seconds order by symbol asc";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -654,7 +654,7 @@ public class TestOutputLimitAggregateAll extends TestCase
 
         String viewExpr = "select irstream volume, max(price) as maxVol" +
                           " from " + SupportMarketDataBean.class.getName() + "#sort(1, volume desc) as s0," +
-                          SupportBean.class.getName() + "#keepall() as s1 " +
+                          SupportBean.class.getName() + "#keepall as s1 " +
                           "output every 1 seconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);

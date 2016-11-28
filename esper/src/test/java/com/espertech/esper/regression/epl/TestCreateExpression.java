@@ -122,7 +122,7 @@ public class TestCreateExpression extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         String epl = "select " +
                 "TwoPi() as c0," +
-                "(select TwoPi() from SupportBean_S0#lastevent()) as c1," +
+                "(select TwoPi() from SupportBean_S0#lastevent) as c1," +
                 "factorPi(sb) as c2 " +
                 "from SupportBean sb";
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(epl);
@@ -149,7 +149,7 @@ public class TestCreateExpression extends TestCase
         assertEquals(eplExpr, stmtSODAExpr.getText());
 
         // test SODA and join and 2-stream parameter
-        String eplJoin = "select JoinMultiplication(sb,s0) from SupportBean#lastevent() as sb, SupportBean_S0#lastevent() as s0";
+        String eplJoin = "select JoinMultiplication(sb,s0) from SupportBean#lastevent as sb, SupportBean_S0#lastevent as s0";
         EPStatementObjectModel modelJoin = epService.getEPAdministrator().compileEPL(eplJoin);
         assertEquals(eplJoin, modelJoin.toEPL());
         EPStatement stmtSODAJoin = epService.getEPAdministrator().create(modelJoin);
@@ -165,7 +165,7 @@ public class TestCreateExpression extends TestCase
         SupportUpdateListener listener = new SupportUpdateListener();
         epService.getEPAdministrator().createEPL("create expression myexpr {(select intPrimitive from MyInfra)}");
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as SupportBean" :
+                "create window MyInfra#keepall as SupportBean" :
                 "create table MyInfra(theString string, intPrimitive int)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");

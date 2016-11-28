@@ -355,13 +355,13 @@ public class TestSubselectIn extends TestCase
         try
         {
             String stmtText = "select " +
-                          "intArr in (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean";
+                          "intArr in (select intPrimitive from SupportBean#keepall) as r1 from ArrayBean";
             epService.getEPAdministrator().createEPL(stmtText);
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr in (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean]", ex.getMessage());
+            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr in (select intPrimitive from SupportBean#keepall) as r1 from ArrayBean]", ex.getMessage());
         }
     }
 

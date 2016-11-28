@@ -885,7 +885,7 @@ from pattern[every timer:interval(30)]]]></programlisting>
 			<para>
 			  The next example utilizes a subquery that counts zone events per name and finds those that have a count greater then 1:
 			</para>			
-			<programlisting><![CDATA[select (select name, count(*) as cnt from Zone#keepall() group by name)
+			<programlisting><![CDATA[select (select name, count(*) as cnt from Zone#keepall group by name)
   .where(v => cnt > 1) from LocationReport]]]></programlisting>
 
 			<para>

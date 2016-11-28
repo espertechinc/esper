@@ -44,7 +44,7 @@ public class TestNamedWindowConsumer extends TestCase
                         "create schema IncomingEvent(id int);\n" +
                         "create schema RetainedEvent(id int);\n" +
                         "insert into RetainedEvent select * from IncomingEvent#expr_batch(current_count >= 10000);\n" +
-                        "create window RetainedEventWindow#keepall() as RetainedEvent;\n" +
+                        "create window RetainedEventWindow#keepall as RetainedEvent;\n" +
                         "insert into RetainedEventWindow select * from RetainedEvent;\n");
 
         Map<String, Integer> event = new HashMap<String, Integer>();

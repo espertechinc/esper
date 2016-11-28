@@ -59,7 +59,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
     }
 
     private void runConstantValueAssertion(boolean indexShare, boolean buildIndex) {
-        String createEpl = "create window MyWindow#keepall() as select * from SupportBean";
+        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }
@@ -151,7 +151,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
     }
 
     private void runKeyAndRangeAssertion(boolean indexShare, boolean buildIndex) {
-        String createEpl = "create window MyWindow#keepall() as select * from SupportBean";
+        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }
@@ -195,7 +195,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
     }
 
     private void runRangeAssertion(boolean indexShare, boolean buildIndex) {
-        String createEpl = "create window MyWindow#keepall() as select * from SupportBean";
+        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }
@@ -232,7 +232,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
-        String createEpl = "create window MyWindow#keepall() as select * from SupportBean";
+        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         epService.getEPAdministrator().createEPL(createEpl);
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
@@ -284,7 +284,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
     private void runAssertion(boolean enableIndexShareCreate, boolean disableIndexShareConsumer, boolean createExplicitIndex) {
         epService.getEPAdministrator().createEPL("create schema EventSchema(e0 string, e1 int, e2 string)");
 
-        String createEpl = "create window MyWindow#keepall() as select * from SupportBean";
+        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

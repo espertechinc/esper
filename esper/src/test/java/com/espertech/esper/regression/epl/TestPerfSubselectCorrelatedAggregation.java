@@ -45,7 +45,7 @@ public class TestPerfSubselectCorrelatedAggregation extends TestCase
 
     public void testPerformanceCorrelatedAggregation() {
         String stmtText = "select p00, " +
-                "(select sum(intPrimitive) from SupportBean#keepall() where theString = s0.p00) as sump00 " +
+                "(select sum(intPrimitive) from SupportBean#keepall where theString = s0.p00) as sump00 " +
                 "from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);

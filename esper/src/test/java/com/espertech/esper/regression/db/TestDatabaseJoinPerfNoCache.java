@@ -136,7 +136,7 @@ public class TestDatabaseJoinPerfNoCache extends TestCase
     public void testWhereClauseNoIndexNoCache()
     {
         String stmtText = "select id, mycol3, mycol2 from " +
-                SupportBean_S0.class.getName() + "#keepall() as s0," +
+                SupportBean_S0.class.getName() + "#keepall as s0," +
                 " sql:MyDB ['select mycol3, mycol2 from mytesttable_large'] as s1 where s0.id = s1.mycol3";
 
         EPStatement statement = epServiceRetained.getEPAdministrator().createEPL(stmtText);

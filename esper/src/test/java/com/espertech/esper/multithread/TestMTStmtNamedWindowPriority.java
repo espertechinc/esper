@@ -39,7 +39,7 @@ public class TestMTStmtNamedWindowPriority extends TestCase
 
     public void testPriority() throws Exception
     {
-        EPStatement stmtWindow = engine.getEPAdministrator().createEPL("create window MyWindow#keepall() as (c0 string, c1 string)");
+        EPStatement stmtWindow = engine.getEPAdministrator().createEPL("create window MyWindow#keepall as (c0 string, c1 string)");
         engine.getEPAdministrator().createEPL("insert into MyWindow select p00 as c0, p01 as c1 from SupportBean_S0");
         engine.getEPAdministrator().createEPL("@Priority(1) on SupportBean_S1 s1 merge MyWindow s0 where s1.p10 = c0 " +
                 "when matched then update set c1 = s1.p11");

@@ -171,70 +171,70 @@ public class TestDTIntervalOps extends TestCase {
                    "Error starting statement: Failed to validate select-clause expression 'a.before('x')': Failed to resolve enumeration method, date-time method or mapped property 'a.before('x')': For date-time method 'before' the first parameter expression returns 'class java.lang.String', however requires a Date, Calendar, Long-type return value or event (with timestamp) [select a.before('x') from A as a]");
 
         // wrong 1st parameter - event not defined with timestamp expression
-        tryInvalid("select a.before(b) from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before(b)': For date-time method 'before' the first parameter is event type 'SupportBean', however no timestamp property has been defined for this event type [select a.before(b) from A#lastevent() as a, SupportBean#lastevent() as b]");
+        tryInvalid("select a.before(b) from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before(b)': For date-time method 'before' the first parameter is event type 'SupportBean', however no timestamp property has been defined for this event type [select a.before(b) from A#lastevent as a, SupportBean#lastevent as b]");
 
         // wrong 1st parameter - boolean
-        tryInvalid("select a.before(true) from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before(true)': For date-time method 'before' the first parameter expression returns 'class java.lang.Boolean', however requires a Date, Calendar, Long-type return value or event (with timestamp) [select a.before(true) from A#lastevent() as a, SupportBean#lastevent() as b]");
+        tryInvalid("select a.before(true) from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before(true)': For date-time method 'before' the first parameter expression returns 'class java.lang.Boolean', however requires a Date, Calendar, Long-type return value or event (with timestamp) [select a.before(true) from A#lastevent as a, SupportBean#lastevent as b]");
 
         // wrong zero parameters
-        tryInvalid("select a.before() from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before()': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives no parameters [select a.before() from A#lastevent() as a, SupportBean#lastevent() as b]");
+        tryInvalid("select a.before() from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before()': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives no parameters [select a.before() from A#lastevent as a, SupportBean#lastevent as b]");
 
         // wrong target
-        tryInvalid("select theString.before(a) from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'theString.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received java.lang.String [select theString.before(a) from A#lastevent() as a, SupportBean#lastevent() as b]");
-        tryInvalid("select b.before(a) from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'b.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property [select b.before(a) from A#lastevent() as a, SupportBean#lastevent() as b]");
-        tryInvalid("select a.get('month').before(a) from A#lastevent() as a, SupportBean#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.get(\"month\").before(a)': Invalid input for date-time method 'before' [select a.get('month').before(a) from A#lastevent() as a, SupportBean#lastevent() as b]");
+        tryInvalid("select theString.before(a) from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'theString.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received java.lang.String [select theString.before(a) from A#lastevent as a, SupportBean#lastevent as b]");
+        tryInvalid("select b.before(a) from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'b.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property [select b.before(a) from A#lastevent as a, SupportBean#lastevent as b]");
+        tryInvalid("select a.get('month').before(a) from A#lastevent as a, SupportBean#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.get(\"month\").before(a)': Invalid input for date-time method 'before' [select a.get('month').before(a) from A#lastevent as a, SupportBean#lastevent as b]");
 
         // test before/after
-        tryInvalid("select a.before(b, 'abc') from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,\"abc\")': Error validating date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 1 but received java.lang.String [select a.before(b, 'abc') from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.before(b, 1, 'def') from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,1,\"def\")': Error validating date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 2 but received java.lang.String [select a.before(b, 1, 'def') from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.before(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,1,2,3)': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives 4 expressions [select a.before(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.before(b, 'abc') from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,\"abc\")': Error validating date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 1 but received java.lang.String [select a.before(b, 'abc') from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.before(b, 1, 'def') from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,1,\"def\")': Error validating date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 2 but received java.lang.String [select a.before(b, 1, 'def') from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.before(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.before(b,1,2,3)': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives 4 expressions [select a.before(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b]");
 
         // test coincides
-        tryInvalid("select a.coincides(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.coincides(b,1,2,3)': Parameters mismatch for date-time method 'coincides', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing threshold for start and end value, or an expression providing timestamp or timestamped-event and an expression providing threshold for start value and an expression providing threshold for end value, but receives 4 expressions [select a.coincides(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.coincides(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.coincides(b,-1)': The coincides date-time method does not allow negative start and end values [select a.coincides(b, -1) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.coincides(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.coincides(b,1,2,3)': Parameters mismatch for date-time method 'coincides', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing threshold for start and end value, or an expression providing timestamp or timestamped-event and an expression providing threshold for start value and an expression providing threshold for end value, but receives 4 expressions [select a.coincides(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.coincides(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.coincides(b,-1)': The coincides date-time method does not allow negative start and end values [select a.coincides(b, -1) from A#lastevent as a, B#lastevent as b]");
 
         // test during+interval
-        tryInvalid("select a.during(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.during(b,1,2,3)': Parameters mismatch for date-time method 'during', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance start and an expression providing maximum distance start and an expression providing minimum distance end and an expression providing maximum distance end, but receives 4 expressions [select a.during(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.during(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.during(b,1,2,3)': Parameters mismatch for date-time method 'during', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance start and an expression providing maximum distance start and an expression providing minimum distance end and an expression providing maximum distance end, but receives 4 expressions [select a.during(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b]");
 
         // test finishes+finished-by
-        tryInvalid("select a.finishes(b, 1, 2) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.finishes(b,1,2)': Parameters mismatch for date-time method 'finishes', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between end timestamps, but receives 3 expressions [select a.finishes(b, 1, 2) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.finishes(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.finishes(b,-1)': The finishes date-time method does not allow negative threshold value [select a.finishes(b, -1) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.finishedby(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.finishedby(b,-1)': The finishedby date-time method does not allow negative threshold value [select a.finishedby(b, -1) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.finishes(b, 1, 2) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.finishes(b,1,2)': Parameters mismatch for date-time method 'finishes', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between end timestamps, but receives 3 expressions [select a.finishes(b, 1, 2) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.finishes(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.finishes(b,-1)': The finishes date-time method does not allow negative threshold value [select a.finishes(b, -1) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.finishedby(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.finishedby(b,-1)': The finishedby date-time method does not allow negative threshold value [select a.finishedby(b, -1) from A#lastevent as a, B#lastevent as b]");
 
         // test meets+met-by
-        tryInvalid("select a.meets(b, 1, 2) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.meets(b,1,2)': Parameters mismatch for date-time method 'meets', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start and end timestamps, but receives 3 expressions [select a.meets(b, 1, 2) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.meets(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.meets(b,-1)': The meets date-time method does not allow negative threshold value [select a.meets(b, -1) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.metBy(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.metBy(b,-1)': The metBy date-time method does not allow negative threshold value [select a.metBy(b, -1) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.meets(b, 1, 2) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.meets(b,1,2)': Parameters mismatch for date-time method 'meets', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start and end timestamps, but receives 3 expressions [select a.meets(b, 1, 2) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.meets(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.meets(b,-1)': The meets date-time method does not allow negative threshold value [select a.meets(b, -1) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.metBy(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.metBy(b,-1)': The metBy date-time method does not allow negative threshold value [select a.metBy(b, -1) from A#lastevent as a, B#lastevent as b]");
 
         // test overlaps+overlapped-by
-        tryInvalid("select a.overlaps(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.overlaps(b,1,2,3)': Parameters mismatch for date-time method 'overlaps', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, but receives 4 expressions [select a.overlaps(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.overlaps(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.overlaps(b,1,2,3)': Parameters mismatch for date-time method 'overlaps', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, but receives 4 expressions [select a.overlaps(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b]");
 
         // test start/startedby
-        tryInvalid("select a.starts(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.starts(b,1,2,3)': Parameters mismatch for date-time method 'starts', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start timestamps, but receives 4 expressions [select a.starts(b, 1, 2, 3) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.starts(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.starts(b,-1)': The starts date-time method does not allow negative threshold value [select a.starts(b, -1) from A#lastevent() as a, B#lastevent() as b]");
-        tryInvalid("select a.startedBy(b, -1) from A#lastevent() as a, B#lastevent() as b",
-                   "Error starting statement: Failed to validate select-clause expression 'a.startedBy(b,-1)': The startedBy date-time method does not allow negative threshold value [select a.startedBy(b, -1) from A#lastevent() as a, B#lastevent() as b]");
+        tryInvalid("select a.starts(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.starts(b,1,2,3)': Parameters mismatch for date-time method 'starts', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start timestamps, but receives 4 expressions [select a.starts(b, 1, 2, 3) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.starts(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.starts(b,-1)': The starts date-time method does not allow negative threshold value [select a.starts(b, -1) from A#lastevent as a, B#lastevent as b]");
+        tryInvalid("select a.startedBy(b, -1) from A#lastevent as a, B#lastevent as b",
+                   "Error starting statement: Failed to validate select-clause expression 'a.startedBy(b,-1)': The startedBy date-time method does not allow negative threshold value [select a.startedBy(b, -1) from A#lastevent as a, B#lastevent as b]");
     }
 
     public void testInvalidConfig() {
@@ -274,8 +274,8 @@ public class TestDTIntervalOps extends TestCase {
                 "select " +
                 "a.msecdateStart.before(b.msecdateStart) as c0," +
                 "a.before(b) as c1 " +
-                " from A#lastevent() as a, " +
-                "      B#lastevent() as b";
+                " from A#lastevent as a, " +
+                "      B#lastevent as b";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         LambdaAssertionUtil.assertTypesAllSame(stmt.getEventType(), fields, Boolean.class);
@@ -1158,7 +1158,7 @@ public class TestDTIntervalOps extends TestCase {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts");
 
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select a.includes(b) as val0 from TypeA#lastevent() as a, TypeB#lastevent() as b");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select a.includes(b) as val0 from TypeA#lastevent as a, TypeB#lastevent as b");
         stmt.addListener(listener);
 
         makeSendEvent("TypeA", eventRepresentationEnum, startA, endA);
@@ -1190,7 +1190,7 @@ public class TestDTIntervalOps extends TestCase {
 
     private void assertExpressionForType(String seedTime, long seedDuration, String whereClause, Object[][] timestampsAndResult, Validator validator, SupportDateTimeFieldType fieldType) {
 
-        String epl = "select * from A_" + fieldType.name() + "#lastevent() as a, B_" + fieldType.name() + "#lastevent() as b " +
+        String epl = "select * from A_" + fieldType.name() + "#lastevent as a, B_" + fieldType.name() + "#lastevent as b " +
                 "where " + whereClause;
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -1232,7 +1232,7 @@ public class TestDTIntervalOps extends TestCase {
 
     private void assertExpressionBean(String seedTime, long seedDuration, String whereClause, Object[][] timestampsAndResult, Validator validator) {
 
-        String epl = "select * from A#lastevent() as a, B#lastevent() as b " +
+        String epl = "select * from A#lastevent as a, B#lastevent as b " +
                 "where " + whereClause;
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);

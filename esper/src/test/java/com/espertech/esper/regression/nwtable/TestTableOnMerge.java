@@ -55,7 +55,7 @@ public class TestTableOnMerge extends TestCase {
     public void testMergeWhereWithMethodRead() {
         epService.getEPAdministrator().createEPL("create table varagg (keyOne string primary key, cnt count(*))");
         epService.getEPAdministrator().createEPL("into table varagg select count(*) as cnt " +
-                "from SupportBean#lastevent() group by theString");
+                "from SupportBean#lastevent group by theString");
 
         epService.getEPAdministrator().createEPL("select varagg[p00].keyOne as c0 from SupportBean_S0").addListener(listener);
         epService.getEPAdministrator().createEPL("on SupportBean_S1 merge varagg where cnt = 0 when matched then delete");

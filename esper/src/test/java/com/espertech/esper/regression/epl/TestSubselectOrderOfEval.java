@@ -38,7 +38,7 @@ public class TestSubselectOrderOfEval extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TradeEvent", TradeEvent.class);
         listener = new SupportUpdateListener();
 
-        epService.getEPAdministrator().createEPL("select * from TradeEvent#lastevent()");
+        epService.getEPAdministrator().createEPL("select * from TradeEvent#lastevent");
 
         epService.getEPAdministrator().createEPL(
                 "select window(tl.*) as longItems, " +

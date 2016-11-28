@@ -325,8 +325,8 @@ public class TestFilterExpressions extends TestCase
     public void testEqualsSemanticExpr()
     {
         // Test for Esper-114
-        String text = "select * from " + SupportBeanComplexProps.class.getName() + "(simpleProperty='1')#keepall() as s0" +
-                ", " + SupportBeanComplexProps.class.getName() + "(simpleProperty='2')#keepall() as s1" +
+        String text = "select * from " + SupportBeanComplexProps.class.getName() + "(simpleProperty='1')#keepall as s0" +
+                ", " + SupportBeanComplexProps.class.getName() + "(simpleProperty='2')#keepall as s1" +
                 " where s0.nested = s1.nested";
         EPStatement stmt = epService.getEPAdministrator().createEPL(text);
         stmt.addListener(listener);

@@ -95,7 +95,7 @@ public class TestAudit extends TestCase {
         stmtInput.destroy();
 
         auditLog.info("*** Named Window And Insert-Into: ");
-        EPStatement stmtNW = epService.getEPAdministrator().createEPL("@Name('create') @Audit create window WinOne#keepall() as SupportBean");
+        EPStatement stmtNW = epService.getEPAdministrator().createEPL("@Name('create') @Audit create window WinOne#keepall as SupportBean");
         EPStatement stmtInsertNW = epService.getEPAdministrator().createEPL("@Name('insert') @Audit insert into WinOne select * from SupportBean");
         EPStatement stmtConsumeNW = epService.getEPAdministrator().createEPL("@Name('select') @Audit select * from WinOne");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
@@ -155,7 +155,7 @@ public class TestAudit extends TestCase {
 
         // view
         auditLog.info("*** View: ");
-        EPStatement stmtView = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('view') select intPrimitive from SupportBean#lastevent()");
+        EPStatement stmtView = epService.getEPAdministrator().createEPL("@Name('ABC') @Audit('view') select intPrimitive from SupportBean#lastevent");
         stmtView.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 50));
         assertEquals(50, listener.assertOneGetNewAndReset().get("intPrimitive"));
@@ -199,7 +199,7 @@ public class TestAudit extends TestCase {
         stmtProp.destroy();
         
         // with aggregation
-        epService.getEPAdministrator().createEPL("@Audit @Name ('create') create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("@Audit @Name ('create') create window MyWindow#keepall as SupportBean");
         String eplWithAgg = "@Audit @Name('S0') on SupportBean as sel select count(*) from MyWindow as win having count(*)=3 order by win.intPrimitive";
         EPStatement stmtWithAgg = epService.getEPAdministrator().createEPL(eplWithAgg);
         stmtWithAgg.destroy();

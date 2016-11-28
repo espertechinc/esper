@@ -54,7 +54,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         epService.getEPAdministrator().createEPL("create variable int VFREQ = 15");
         epService.getEPAdministrator().createEPL("create variable int VMIN = 8");
         epService.getEPAdministrator().createEPL("create variable int VMAX = 17");
-        String expression = "select * from MarketData#lastevent() output at (*/VFREQ, VMIN:VMAX, *, *, *)";
+        String expression = "select * from MarketData#lastevent output at (*/VFREQ, VMIN:VMAX, *, *, *)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);
         stmt.addListener(listener);
         runAssertionCrontab(1, stmt);
@@ -64,7 +64,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent output at (*/15, 8:17, *, *, *)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);
         stmt.addListener(listener);
         runAssertionCrontab(1, stmt);
@@ -74,7 +74,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
 
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent output at (*/15, 8:17, *, *, *)";
 
         EPStatementObjectModel model = new EPStatementObjectModel();
         model.setSelectClause(SelectClause.createWildcard());
@@ -99,7 +99,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
     {
         // every 15 minutes 8am to 5pm
         sendTimeEvent(1, 17, 10, 0, 0);
-        String expression = "select * from MarketData#lastevent() output at (*/15, 8:17, *, *, *)";
+        String expression = "select * from MarketData#lastevent output at (*/15, 8:17, *, *, *)";
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(expression);
         assertEquals(expression, model.toEPL());
@@ -211,7 +211,7 @@ public class TestOutputLimitCrontabWhen extends TestCase
         // test when-then with condition triggered by output events
         sendTimeEvent(2, 8, 0, 0, 0);
         String eplToDeploy = "create variable boolean varOutputTriggered = false\n;" +
-                "@Audit @Name('out') select * from SupportBean#lastevent() output snapshot when (count_insert > 1 and varOutputTriggered = false) then set varOutputTriggered = true;";
+                "@Audit @Name('out') select * from SupportBean#lastevent output snapshot when (count_insert > 1 and varOutputTriggered = false) then set varOutputTriggered = true;";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(eplToDeploy);
         epService.getEPAdministrator().getStatement("out").addListener(listener);
 

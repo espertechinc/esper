@@ -53,7 +53,7 @@ public class TestTableMTUngroupedAccessReadInotTableWriteIterate extends TestCas
         epService.getEPAdministrator().createEPL(eplInto);
         epService.getEPRuntime().sendEvent(makeSupportBean("E", 1, 1, 1));
 
-        EPStatement iterateStatement = epService.getEPAdministrator().createEPL("select vartotal.s0 as c0, vartotal.s1 as c1, vartotal.s2 as c2 from SupportBean_S0#lastevent()");
+        EPStatement iterateStatement = epService.getEPAdministrator().createEPL("select vartotal.s0 as c0, vartotal.s1 as c1, vartotal.s2 as c2 from SupportBean_S0#lastevent");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
         // setup writer

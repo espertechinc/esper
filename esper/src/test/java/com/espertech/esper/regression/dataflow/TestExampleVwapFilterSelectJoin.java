@@ -63,7 +63,7 @@ public class TestExampleVwapFilterSelectJoin extends TestCase {
                 "Select(VwapTrades as T, QuoteStream as Q) -> BargainIndex {\r\n" +
                 "select: " +
                 "(select case when vwap>askprice then asksize*(Math.exp(vwap-askprice)) else 0.0d end as index " +
-                "from T#unique(ticker) as t, Q#lastevent() as q " +
+                "from T#unique(ticker) as t, Q#lastevent as q " +
                 "where t.ticker=q.ticker)\r\n" +
                 "}\r\n" +
                 "DefaultSupportCaptureOp(BargainIndex) {}\r\n";

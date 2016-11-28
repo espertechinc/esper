@@ -65,7 +65,7 @@ public class TestInfraSubqUncorrel extends TestCase
     private void runAssertion(boolean namedWindow, boolean enableIndexShareCreate, boolean disableIndexShareConsumer)
     {
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, longPrimitive as b, longBoxed as c from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, longPrimitive as b, longBoxed as c from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b long, c long)";
         if (enableIndexShareCreate) {
             stmtTextCreate = "@Hint('enable_window_subquery_indexshare') " + stmtTextCreate;

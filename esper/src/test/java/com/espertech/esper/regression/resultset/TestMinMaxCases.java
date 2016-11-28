@@ -84,7 +84,7 @@ public class TestMinMaxCases extends TestCase
 
         String[] fields = "maxi,mini,max0,min0".split(",");
         String epl = "select max(intPrimitive) as maxi, min(intPrimitive) as mini," +
-                     "(select max(id) from S0#lastevent()) as max0, (select min(id) from S0#lastevent()) as min0" +
+                     "(select max(id) from S0#lastevent) as max0, (select min(id) from S0#lastevent) as min0" +
                      " from SupportBean";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
         

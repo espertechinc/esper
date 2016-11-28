@@ -54,7 +54,7 @@ public class TestOutputLimitFirstHaving extends TestCase {
         statement.destroy();
 
         // test joined
-        query = "select doublePrimitive from SupportBean#lastevent(),SupportBean_ST0#lastevent() st0 having doublePrimitive > 1 output first every 2 events";
+        query = "select doublePrimitive from SupportBean#lastevent,SupportBean_ST0#lastevent st0 having doublePrimitive > 1 output first every 2 events";
         statement = epService.getEPAdministrator().createEPL(query);
         epService.getEPRuntime().sendEvent(new SupportBean_ST0("ID", 1));
         statement.addListener(listener);

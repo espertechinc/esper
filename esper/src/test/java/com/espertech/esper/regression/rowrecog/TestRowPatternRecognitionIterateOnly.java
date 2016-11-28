@@ -76,7 +76,7 @@ public class TestRowPatternRecognitionIterateOnly extends TestCase {
         epService.initialize();
 
         String[] fields = "a".split(",");
-        String text = "@Hint('iterate_only') select * from MyEvent#lastevent() " +
+        String text = "@Hint('iterate_only') select * from MyEvent#lastevent " +
                 "match_recognize (" +
                 "  measures A.theString as a" +
                 "  all matches " +
@@ -114,7 +114,7 @@ public class TestRowPatternRecognitionIterateOnly extends TestCase {
         epService.initialize();
 
         String[] fields = "a,cat".split(",");
-        String text = "@Hint('iterate_only') select * from MyEvent#lastevent() " +
+        String text = "@Hint('iterate_only') select * from MyEvent#lastevent " +
                 "match_recognize (" +
                 "  partition by cat" +
                 "  measures A.theString as a, A.cat as cat" +

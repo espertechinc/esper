@@ -53,7 +53,7 @@ public class TestInfraContext extends TestCase
         epService.getEPAdministrator().createEPL("create context ContextOne start SupportBean_S0 end SupportBean_S1");
 
         String eplCreate = namedWindow ?
-                "context ContextOne create window MyInfra#keepall() as (pkey0 string, pkey1 int, c0 long)" :
+                "context ContextOne create window MyInfra#keepall as (pkey0 string, pkey1 int, c0 long)" :
                 "context ContextOne create table MyInfra as (pkey0 string primary key, pkey1 int primary key, c0 long)";
         epService.getEPAdministrator().createEPL(eplCreate);
 

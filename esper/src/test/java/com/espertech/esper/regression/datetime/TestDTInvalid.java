@@ -51,8 +51,8 @@ public class TestDTInvalid extends TestCase {
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.set(\"hour\",1)': Date-time enumeration method 'set' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received collection of events of type 'com.espertech.esper.support.bean.SupportBean_ST0' [select contained.set('hour', 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
-        epl = "select window(*).set('hour', 1) from SupportBean#keepall()";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'window(*).set(\"hour\",1)': Date-time enumeration method 'set' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received collection of events of type 'SupportBean' [select window(*).set('hour', 1) from SupportBean#keepall()]");
+        epl = "select window(*).set('hour', 1) from SupportBean#keepall";
+        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'window(*).set(\"hour\",1)': Date-time enumeration method 'set' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received collection of events of type 'SupportBean' [select window(*).set('hour', 1) from SupportBean#keepall]");
 
         // invalid incompatible params
         epl = "select utildate.set('invalid') from SupportDateTime";

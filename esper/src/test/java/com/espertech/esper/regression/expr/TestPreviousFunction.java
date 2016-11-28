@@ -703,7 +703,7 @@ public class TestPreviousFunction extends TestCase
                           " prevtail(1, price) as prevTail1Price, " +
                           " prevcount(price) as prevCountPrice, " +
                           " prevwindow(price) as prevWindowPrice " +
-                          "from " + SupportBean.class.getName() + "#keepall(), " +
+                          "from " + SupportBean.class.getName() + "#keepall, " +
                           SupportMarketDataBean.class.getName() + "#time_batch(1 min)";
 
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
@@ -977,11 +977,11 @@ public class TestPreviousFunction extends TestCase
                 "from " + SupportMarketDataBean.class.getName() + "#length(100)#uni(price)",
                 "Error starting statement: Previous function requires a single data window view onto the stream [select prev(0, average) from com.espertech.esper.support.bean.SupportMarketDataBean#length(100)#uni(price)]");
 
-        tryInvalid("select count(*) from SupportBean#keepall() where prev(0, intPrimitive) = 5",
-                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall() where prev(0, intPrimitive) = 5]");
+        tryInvalid("select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5",
+                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5]");
 
-        tryInvalid("select count(*) from SupportBean#keepall() having prev(0, intPrimitive) = 5",
-                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall() having prev(0, intPrimitive) = 5]");
+        tryInvalid("select count(*) from SupportBean#keepall having prev(0, intPrimitive) = 5",
+                "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall having prev(0, intPrimitive) = 5]");
     }
 
     private void tryInvalid(String statement, String expectedError)

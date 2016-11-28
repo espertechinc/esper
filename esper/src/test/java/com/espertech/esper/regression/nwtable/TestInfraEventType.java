@@ -50,7 +50,7 @@ public class TestInfraEventType extends TestCase
 
         // name cannot be the same as an existing event type
         epService.getEPAdministrator().createEPL("create schema SchemaOne as (p0 string)");
-        SupportMessageAssertUtil.tryInvalid(epService, "create window SchemaOne.win:keepall() as SchemaOne",
+        SupportMessageAssertUtil.tryInvalid(epService, "create window SchemaOne.win:keepall as SchemaOne",
                 "Error starting statement: An event type or schema by name 'SchemaOne' already exists"
         );
 
@@ -62,7 +62,7 @@ public class TestInfraEventType extends TestCase
     
     private void runAssertionType(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as (c0 int[], c1 int[primitive])" :
+                "create window MyInfra#keepall as (c0 int[], c1 int[primitive])" :
                 "create table MyInfra (c0 int[], c1 int[primitive])";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, false, eplCreate);
 

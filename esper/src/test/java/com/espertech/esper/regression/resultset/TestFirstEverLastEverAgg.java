@@ -57,7 +57,7 @@ public class TestFirstEverLastEverAgg extends TestCase {
 
     public void testOnDelete()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow where theString = id");
 

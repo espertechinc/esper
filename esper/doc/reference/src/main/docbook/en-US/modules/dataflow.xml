@@ -1054,13 +1054,13 @@ epService.getEPAdministrator().createEPL(epl);]]></programlisting>
   // joining the last event per stream forming pairs
   Select(instream, secondstream) -> outstream {
     select: (select a.tagId, b.tagId 
-        from instream#lastevent() as a, secondstream#lastevent() as b)
+        from instream#lastevent as a, secondstream#lastevent as b)
   }
   
   // A join with multiple input streams and using aliases.
   Select(instream as S1, secondstream as S2) -> outstream {
     select: (select a.tagId, b.tagId 
-        from S1#lastevent() as a, S2#lastevent() as b)
+        from S1#lastevent as a, S2#lastevent as b)
   }]]></programlisting>
 			
 		</sect2>
@@ -1395,7 +1395,7 @@ emitter.submit(new Object[] {"this is some text"});]]></programlisting>
   Select(VwapTrades as T, QuoteStream as Q) -> BargainIndex {
     select: 
       (select case when vwap > askprice then asksize * (Math.exp(vwap - askprice)) else 0.0d end as index
-      from T#unique(ticker) as t, Q#lastevent() as q
+      from T#unique(ticker) as t, Q#lastevent as q
       where t.ticker = q.ticker)
   }
   

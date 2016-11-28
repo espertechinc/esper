@@ -61,7 +61,7 @@ public class TestContainedEventSimple extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
-        EPStatement stmtNW = epService.getEPAdministrator().createEPL("create window MyWindow#lastevent() as BookDesc");
+        EPStatement stmtNW = epService.getEPAdministrator().createEPL("create window MyWindow#lastevent as BookDesc");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from BookStream bs where not exists (select * from MyWindow mw where mw.price > bs.price)");
 
         epService.getEPRuntime().sendEvent(makeEventOne());
@@ -153,7 +153,7 @@ public class TestContainedEventSimple extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
         String stmtText = "select count(*) from " +
                       "OrderEvent[books]#unique(bookId) book, " +
-                      "OrderEvent[orderdetail.items]#keepall() item " +
+                      "OrderEvent[orderdetail.items]#keepall item " +
                       "where book.bookId = item.productId";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -185,7 +185,7 @@ public class TestContainedEventSimple extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("OrderEvent", OrderBean.class);
         String stmtText = "select book.bookId,item.itemId,amount from " +
                       "OrderEvent[books]#firstunique(bookId) book, " +
-                      "OrderEvent[orderdetail.items]#keepall() item " +
+                      "OrderEvent[orderdetail.items]#keepall item " +
                       "where book.bookId = item.productId " +
                       "order by book.bookId, item.itemId";
 

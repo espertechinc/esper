@@ -109,7 +109,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
     public void testSubselect()
     {
         String stmtText = "select (" +
-           "select symbol from " + SupportMarketDataBean.class.getName() + "(symbol=?)#lastevent()) as mysymbol from " +
+           "select symbol from " + SupportMarketDataBean.class.getName() + "(symbol=?)#lastevent) as mysymbol from " +
                 SupportBean.class.getName();
 
         EPPreparedStatement preparedStmt = epService.getEPAdministrator().prepareEPL(stmtText);

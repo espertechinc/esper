@@ -42,8 +42,8 @@ public class TestEPLTreeWalker extends TestCase
 {
     private static String CLASSNAME = SupportBean.class.getName();
     private static String EXPRESSION = "select * from " +
-                    CLASSNAME + "(string='a')#length(10)#lastevent() as win1," +
-                    CLASSNAME + "(string='b')#length(10)#lastevent() as win2 ";
+                    CLASSNAME + "(string='a')#length(10)#lastevent as win1," +
+                    CLASSNAME + "(string='b')#length(10)#lastevent as win2 ";
 
     public void testWalkGraph() throws Exception {
         String expression = "create dataflow MyGraph MyOp((s0, s1) as ST1, s2) -> out1, out2 {}";
@@ -458,7 +458,7 @@ public class TestEPLTreeWalker extends TestCase
 
         for (int i = 0; i < patternTests.length; i++)
         {
-            String expression = "select * from MyEvent#keepall() match_recognize (" +
+            String expression = "select * from MyEvent#keepall match_recognize (" +
                     "  partition by string measures A.string as a_string pattern ( " + patternTests[i] + ") define A as (A.value = 1) )";
 
             EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
@@ -588,9 +588,9 @@ public class TestEPLTreeWalker extends TestCase
     public void testWalkWhereWithAnd() throws Exception
     {
         String expression = "select * from " +
-                        CLASSNAME + "(string='a')#length(10)#lastevent() as win1," +
-                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2, " +
-                        CLASSNAME + "(string='c')#length(3)#lastevent() as win3 " +
+                        CLASSNAME + "(string='a')#length(10)#lastevent as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent as win2, " +
+                        CLASSNAME + "(string='c')#length(3)#lastevent as win3 " +
                         "where win1.f1=win2.f2 and win3.f3=f4 limit 5 offset 10";
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
@@ -682,8 +682,8 @@ public class TestEPLTreeWalker extends TestCase
     public void testWalkInsertInto() throws Exception
     {
         String expression = "insert into MyAlias select * from " +
-                        CLASSNAME + "()#length(10)#lastevent() as win1," +
-                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2";
+                        CLASSNAME + "()#length(10)#lastevent as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent as win2";
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
 
@@ -693,8 +693,8 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals(0, desc.getColumnNames().size());
 
         expression = "insert rstream into MyAlias(a, b, c) select * from " +
-                        CLASSNAME + "()#length(10)#lastevent() as win1," +
-                        CLASSNAME + "(string='b')#length(9)#lastevent() as win2";
+                        CLASSNAME + "()#length(10)#lastevent as win1," +
+                        CLASSNAME + "(string='b')#length(9)#lastevent as win2";
 
         walker = SupportParserHelper.parseAndWalkEPL(expression);
 
@@ -1000,7 +1000,7 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals("s2", patternStreamSpec.getOptionalStreamName());
 
         // Test patterns with views
-        walker = SupportParserHelper.parseAndWalkEPL("select * from pattern [" + patternOne + "]#time(1), pattern [" + patternTwo + "]#length(1)#lastevent() as s1");
+        walker = SupportParserHelper.parseAndWalkEPL("select * from pattern [" + patternOne + "]#time(1), pattern [" + patternTwo + "]#length(1)#lastevent as s1");
         assertEquals(2, walker.getStatementSpec().getStreamSpecs().size());
         patternStreamSpec = (PatternStreamSpecRaw) walker.getStatementSpec().getStreamSpecs().get(0);
         assertEquals(1, patternStreamSpec.getViewSpecs().length);

@@ -66,7 +66,7 @@ public class TestInfraOnMerge extends TestCase
 
         // invalid assignment: wrong event type
         epService.getEPAdministrator().createEPL("create map schema Composite as (c0 int)");
-        epService.getEPAdministrator().createEPL("create window AInfra#keepall() as (c Composite)");
+        epService.getEPAdministrator().createEPL("create window AInfra#keepall as (c Composite)");
         epService.getEPAdministrator().createEPL("create map schema SomeOther as (c1 int)");
         epService.getEPAdministrator().createEPL("create map schema MyEvent as (so SomeOther)");
 
@@ -319,7 +319,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().createEPL("create schema MyEvent as (in1 string, in2 int)");
         epService.getEPAdministrator().createEPL("create schema MySchema as (col1 string, col2 int)");
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as MySchema" :
+                "create window MyInfra#keepall as MySchema" :
                 "create table MyInfra (col1 string primary key, col2 int)";
         epService.getEPAdministrator().createEPL(eplCreate);
 
@@ -372,7 +372,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().createEPL("create schema MyEvent as (in1 string, in2 int)");
         epService.getEPAdministrator().createEPL("create schema MySchema as (col1 string, col2 int)");
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as MySchema" :
+                "create window MyInfra#keepall as MySchema" :
                 "create table MyInfra (col1 string, col2 int)";
         EPStatement namedWindowStmt = epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyInfra");
@@ -427,7 +427,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().createEPL(eplCreateMergeInfra);
         epService.getEPAdministrator().createEPL("create schema ABCSchema as (val int)");
         String eplCreateABCInfra = namedWindow ?
-                "create window ABCInfra#keepall() as ABCSchema" :
+                "create window ABCInfra#keepall as ABCSchema" :
                 "create table ABCInfra (val int)";
         epService.getEPAdministrator().createEPL(eplCreateABCInfra);
 
@@ -479,7 +479,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInnerSchema(in1 string, in2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventSchema(col1 string, col2 MyInnerSchema)");
         String eplCreate = namedWindow ?
-                eventRepresentationEnum.getAnnotationText() + " create window MyInfra#keepall() as (c1 string, c2 MyInnerSchema)" :
+                eventRepresentationEnum.getAnnotationText() + " create window MyInfra#keepall as (c1 string, c2 MyInnerSchema)" :
                 eventRepresentationEnum.getAnnotationText() + " create table MyInfra as (c1 string primary key, c2 MyInnerSchema)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("create variable boolean myvar");
@@ -543,7 +543,7 @@ public class TestInfraOnMerge extends TestCase
     private void runAssertionPatternMultimatch(boolean namedWindow) {
         String[] fields = "c1,c2".split(",");
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as (c1 string, c2 string)" :
+                "create window MyInfra#keepall as (c1 string, c2 string)" :
                 "create table MyInfra as (c1 string primary key, c2 string primary key)";
         EPStatement namedWindowStmt = epService.getEPAdministrator().createEPL(eplCreate);
 
@@ -580,7 +580,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().createEPL("create schema WinSchema as (v1 string, v2 int)");
 
         String eplCreate = namedWindow ?
-                "create window Win#keepall() as WinSchema " :
+                "create window Win#keepall as WinSchema " :
                 "create table Win as (v1 string primary key, v2 int)";
         EPStatement nmStmt = epService.getEPAdministrator().createEPL(eplCreate);
         String epl = "on SupportBean_ST0 as st0 merge Win as win where win.v1=st0.key0 " +
@@ -619,7 +619,7 @@ public class TestInfraOnMerge extends TestCase
 
     private void runAssertionMultiactionDeleteUpdate(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "create window Win#keepall() as SupportBean" :
+                "create window Win#keepall as SupportBean" :
                 "create table Win (theString string primary key, intPrimitive int)";
         EPStatement nmStmt = epService.getEPAdministrator().createEPL(eplCreate);
 
@@ -714,7 +714,7 @@ public class TestInfraOnMerge extends TestCase
 
     private void runAssertionUpdateOrderOfFields(boolean namedWindow) throws Exception {
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as SupportBean" :
+                "create window MyInfra#keepall as SupportBean" :
                 "create table MyInfra(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive, intBoxed, doublePrimitive from SupportBean");
@@ -797,7 +797,7 @@ public class TestInfraOnMerge extends TestCase
                 "create " + metaType + " schema Composite as (c0 int);\n" +
                 "create " + metaType + " schema AInfraType as (k string, cflat Composite, carr Composite[]);\n" +
                 (namedWindow ?
-                        "create window AInfra#lastevent() as AInfraType;\n":
+                        "create window AInfra#lastevent as AInfraType;\n":
                         "create table AInfra (k string, cflat Composite, carr Composite[]);\n") +
                 "insert into AInfra select theString as k, null as cflat, null as carr from SupportBean;\n" +
                 "create " + metaType + " schema MyEvent as (cf Composite, ca Composite[]);\n" +

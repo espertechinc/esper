@@ -216,7 +216,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
     }
 
     private void runAssertionSubquery() {
-        String epl = "select (select * from SupportBean_IntAlphabetic(a=1 or b=1)#keepall()) as c0 from SupportBean";
+        String epl = "select (select * from SupportBean_IntAlphabetic(a=1 or b=1)#keepall) as c0 from SupportBean";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 

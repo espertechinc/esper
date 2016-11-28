@@ -37,7 +37,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1" +
                 " after match skip to current row" +
@@ -92,7 +92,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
 
         String[] fields = "a,b0,b1".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a, B[0].theString as b0, B[1].theString as b1" +
                 "  AFTER MATCH SKIP TO NEXT ROW " +
@@ -129,7 +129,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
 
         String[] fields = "a_string,b_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string " +
                 "  all matches " +
@@ -189,7 +189,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
 
         String[] fields = "a0,b,a1".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A[0].theString as a0, B.theString as b, A[1].theString as a1 " +
                 "  all matches " +
@@ -237,7 +237,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
 
         String[] fields = "a_string,a_value,b_value".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  partition by theString" +
                 "  measures A.theString as a_string, A.value as a_value, B.value as b_value " +
@@ -325,7 +325,7 @@ public class TestRowPatternRecognitionAfter extends TestCase {
         epService.initialize();
 
         String[] fields = "a_string,b_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string " +
                 "  all matches " +

@@ -62,7 +62,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol";
+                            "SupportBean#keepall where theString=symbol";
         runAssertion12(stmtText, "none");
     }
 
@@ -78,7 +78,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             " having price > 10";
         runAssertion34(stmtText, "none");
     }
@@ -95,7 +95,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
     }
@@ -113,7 +113,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having price > 10" +
                             "output every 1 seconds";
         runAssertion78(stmtText, "default");
@@ -139,7 +139,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -148,7 +148,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -175,7 +175,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having price > 10" +
                             "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -185,7 +185,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select symbol, volume, price " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "having price > 10" +
                 "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -203,7 +203,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -221,7 +221,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having price > 10 " +
                             "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -239,7 +239,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select symbol, volume, price " +
                 "from MarketData#time(5.5 sec)," +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output first every 1 seconds";
         runAssertion17IStream(stmtText, "first");
     }
@@ -256,7 +256,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         String stmtText = "select irstream symbol, volume, price " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output first every 1 seconds";
         runAssertion17IRStream(stmtText, "first");
     }
@@ -276,7 +276,7 @@ public class TestOutputLimitSimple extends TestCase
 
         String[] fields = "c0,c1".split(",");
         String epl =
-                "create window MyWindow#keepall() as SupportBean_S0;\n" +
+                "create window MyWindow#keepall as SupportBean_S0;\n" +
                 "insert into MyWindow select * from SupportBean_S0;\n" +
                 "@name('join') select myWindow.id as c0, s1.id as c1\n" +
                 "from SupportBean_S1 as s1 unidirectional, MyWindow as myWindow\n" +
@@ -310,7 +310,7 @@ public class TestOutputLimitSimple extends TestCase
     {
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(2000));
 
-        String stmtText = "select symbol from MarketData#keepall() output snapshot every 1 day 2 hours 3 minutes 4 seconds 5 milliseconds";
+        String stmtText = "select symbol from MarketData#keepall output snapshot every 1 day 2 hours 3 minutes 4 seconds 5 milliseconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         sendMDEvent("E1", 0);
@@ -333,7 +333,7 @@ public class TestOutputLimitSimple extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("S", int.class, 4);
         epService.getEPAdministrator().getConfiguration().addVariable("MS", int.class, 5);
 
-        String stmtText = "select symbol from MarketData#keepall() output snapshot every D days H hours M minutes S seconds MS milliseconds";
+        String stmtText = "select symbol from MarketData#keepall output snapshot every D days H hours M minutes S seconds MS milliseconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         sendMDEvent("E1", 0);
@@ -1012,7 +1012,7 @@ public class TestOutputLimitSimple extends TestCase
 
         sendTimer(0);
         String selectStmt = "select theString from " + SupportBean.class.getName() + "#time(10) as s," +
-                SupportMarketDataBean.class.getName() + "#keepall() as m where s.theString = m.symbol output snapshot every 3 events order by symbol asc";
+                SupportMarketDataBean.class.getName() + "#keepall as m where s.theString = m.symbol output snapshot every 3 events order by symbol asc";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -1077,7 +1077,7 @@ public class TestOutputLimitSimple extends TestCase
     public void testSnapshotMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent() output snapshot every 1 month").addListener(listener);
+        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent output snapshot every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         sendCurrentTimeWithMinus("2002-03-01T09:00:00.000", 1);
@@ -1090,7 +1090,7 @@ public class TestOutputLimitSimple extends TestCase
     public void testFirstMonthScoped() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         sendCurrentTime("2002-02-01T09:00:00.000");
-        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent() output first every 1 month").addListener(listener);
+        epService.getEPAdministrator().createEPL("select * from SupportBean#lastevent output first every 1 month").addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         assertTrue(listener.getAndClearIsInvoked());

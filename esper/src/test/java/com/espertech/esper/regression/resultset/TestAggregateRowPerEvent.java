@@ -54,7 +54,7 @@ public class TestAggregateRowPerEvent extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
         String epl = "select window(s0.*) as rows, sb " +
-                "from SupportBean#keepall() as sb, SupportBean_S0#keepall() as s0 " +
+                "from SupportBean#keepall as sb, SupportBean_S0#keepall as s0 " +
                 "where sb.theString = s0.p00";
         epService.getEPAdministrator().createEPL(epl).addListener(testListener);
 

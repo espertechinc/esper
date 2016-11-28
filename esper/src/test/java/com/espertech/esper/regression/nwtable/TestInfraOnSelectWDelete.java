@@ -59,7 +59,7 @@ public class TestInfraOnSelectWDelete extends TestCase implements IndexBackingTa
         String[] fieldsSelect = "c0".split(",");
         
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as SupportBean" :
+                "create window MyInfra#keepall as SupportBean" :
                 "create table MyInfra (theString string primary key, intPrimitive int primary key)";
         EPStatement stmtWin = epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");

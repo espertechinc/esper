@@ -70,7 +70,7 @@ public class TestRevisionDeclared extends TestCase
         listenerTwo = new SupportUpdateListener();
         listenerThree = new SupportUpdateListener();
 
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote#keepall() as select * from RevisableQuote");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window RevQuote#keepall as select * from RevisableQuote");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from FullEvent");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D1");
         epService.getEPAdministrator().createEPL("insert into RevQuote select * from D2");

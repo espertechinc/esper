@@ -98,14 +98,14 @@ public class TestNamedWindowOnDelete extends TestCase
         String[] fieldsTwo = new String[] {"a2", "b2"};
 
         // create window one
-        String stmtTextCreateOne = outputType.getAnnotationText() + " create window MyWindowOne#keepall() as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
+        String stmtTextCreateOne = outputType.getAnnotationText() + " create window MyWindowOne#keepall as select theString as a1, intPrimitive as b1 from " + SupportBean.class.getName();
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listenerWindow);
         assertEquals(0, getCount("MyWindowOne"));
         assertEquals(outputType.getOutputClass(), stmtCreateOne.getEventType().getUnderlyingType());
 
         // create window two
-        String stmtTextCreateTwo = outputType.getAnnotationText() + " create window MyWindowTwo#keepall() as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
+        String stmtTextCreateTwo = outputType.getAnnotationText() + " create window MyWindowTwo#keepall as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listenerWindowTwo);
         assertEquals(0, getCount("MyWindowTwo"));
@@ -163,7 +163,7 @@ public class TestNamedWindowOnDelete extends TestCase
     public void testCoercionKeyMultiPropIndexes()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select " +
+        String stmtTextCreate = "create window MyWindow#keepall as select " +
                                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -277,7 +277,7 @@ public class TestNamedWindowOnDelete extends TestCase
         // test single-two-field index reuse
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_ST0", SupportBean_ST0.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
-        epService.getEPAdministrator().createEPL("create window WinOne#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window WinOne#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_ST0 select * from WinOne where theString = key0");
         assertEquals(1, epService.getNamedWindowMgmtService().getNamedWindowIndexes("WinOne").length);
 
@@ -291,7 +291,7 @@ public class TestNamedWindowOnDelete extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanTwo", SupportBeanTwo.class);
 
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select " +
+        String stmtTextCreate = "create window MyWindow#keepall as select " +
                                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from SupportBean";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);
@@ -368,7 +368,7 @@ public class TestNamedWindowOnDelete extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanTwo", SupportBeanTwo.class);
 
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select " +
+        String stmtTextCreate = "create window MyWindow#keepall as select " +
                                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from SupportBean";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmtCreate.addListener(listenerWindow);

@@ -130,7 +130,7 @@ public class TestEPStatement extends TestCase
 
         // test named window and having-clause
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(
-                "create window SupportBeanWindow#keepall() as SupportBean;\n" +
+                "create window SupportBeanWindow#keepall as SupportBean;\n" +
                 "insert into SupportBeanWindow select * from SupportBean;\n");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPStatement stmtWHaving = epService.getEPAdministrator().createEPL("select theString, intPrimitive from SupportBeanWindow having intPrimitive > 4000");

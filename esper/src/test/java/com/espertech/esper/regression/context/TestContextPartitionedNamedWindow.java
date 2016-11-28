@@ -46,7 +46,7 @@ public class TestContextPartitionedNamedWindow extends TestCase {
     public void testNWFireAndForgetInvalid() {
         epService.getEPAdministrator().createEPL("create context SegmentedByString partition by theString from SupportBean");
 
-        epService.getEPAdministrator().createEPL("context SegmentedByString create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("context SegmentedByString create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("context SegmentedByString insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 0));

@@ -46,7 +46,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testNoParamChainedAndProperty() {
         epService.getEPAdministrator().getConfiguration().addEventType("ChainEvent", ChainEvent.class);
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select first().property as val0, first().myMethod() as val1, window() as val2 from ChainEvent#lastevent()");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select first().property as val0, first().myMethod() as val1, window() as val2 from ChainEvent#lastevent");
         stmt.addListener(listener);
         
         epService.getEPRuntime().sendEvent(new ChainEvent("p1"));
@@ -54,7 +54,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     }
 
     public void testLastMaxMixedOnSelect() {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(theString like 'A%')");
 
         String epl = "on SupportBean(theString like 'B%') select last(mw.intPrimitive) as li, max(mw.intPrimitive) as mi from MyWindow mw";
@@ -129,7 +129,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
         // test join
         stmt.destroy();
-        epl += ", SupportBean_A#lastevent()";
+        epl += ", SupportBean_A#lastevent";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_A("A1"));
@@ -141,7 +141,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         epService.getEPAdministrator().createEPL("create variable int indexvar = 2");
         epl = "select " +
                 "first(intPrimitive, indexvar) as f0 " +
-                "from SupportBean#keepall()";
+                "from SupportBean#keepall";
 
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -182,17 +182,17 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         tryInvalid("select window(distinct intPrimitive) from SupportBean",
                    "Incorrect syntax near '(' ('distinct' is a reserved keyword) at line 1 column 13 near reserved keyword 'distinct' [");
 
-        tryInvalid("select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent() sa, SupportBean#lastevent() sb",
-                   "Error starting statement: Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent() sa, SupportBean#lastevent() sb]");
+        tryInvalid("select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb",
+                   "Error starting statement: Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb]");
 
-        tryInvalid("select last(*) from SupportBean#lastevent() sa, SupportBean#lastevent() sb",
-                   "Error starting statement: Failed to validate select-clause expression 'last(*)': The 'last' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select last(*) from SupportBean#lastevent() sa, SupportBean#lastevent() sb]");
+        tryInvalid("select last(*) from SupportBean#lastevent sa, SupportBean#lastevent sb",
+                   "Error starting statement: Failed to validate select-clause expression 'last(*)': The 'last' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select last(*) from SupportBean#lastevent sa, SupportBean#lastevent sb]");
 
-        tryInvalid("select theString, (select first(*) from SupportBean#lastevent() sa) from SupportBean#lastevent() sb",
-                   "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate select-clause expression 'first(*)': The 'first' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select theString, (select first(*) from SupportBean#lastevent() sa) from SupportBean#lastevent() sb]");
+        tryInvalid("select theString, (select first(*) from SupportBean#lastevent sa) from SupportBean#lastevent sb",
+                   "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Failed to validate select-clause expression 'first(*)': The 'first' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select theString, (select first(*) from SupportBean#lastevent sa) from SupportBean#lastevent sb]");
 
-        tryInvalid("select window(x.*) from SupportBean#lastevent()",
-                   "Error starting statement: Failed to validate select-clause expression 'window(x.*)': Stream by name 'x' could not be found among all streams [select window(x.*) from SupportBean#lastevent()]");
+        tryInvalid("select window(x.*) from SupportBean#lastevent",
+                   "Error starting statement: Failed to validate select-clause expression 'window(x.*)': Stream by name 'x' could not be found among all streams [select window(x.*) from SupportBean#lastevent]");
 
         tryInvalid("select window(*) from SupportBean x",
                    "Error starting statement: Failed to validate select-clause expression 'window(*)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(*) from SupportBean x]");
@@ -201,11 +201,11 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         tryInvalid("select window(x.intPrimitive) from SupportBean x",
                    "Error starting statement: Failed to validate select-clause expression 'window(x.intPrimitive)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(x.intPrimitive) from SupportBean x]");
 
-        tryInvalid("select window(x.intPrimitive, 10) from SupportBean#keepall() x",
+        tryInvalid("select window(x.intPrimitive, 10) from SupportBean#keepall x",
                    "Error starting statement: Failed to validate select-clause expression 'window(x.intPrimitive,10)': The 'window' aggregation function does not accept an index expression; Use 'first' or 'last' instead [");
 
-        tryInvalid("select first(x.*, 10d) from SupportBean#lastevent() as x",
-                   "Error starting statement: Failed to validate select-clause expression 'first(x.*,10.0)': The 'first' aggregation function requires an index expression that returns an integer value [select first(x.*, 10d) from SupportBean#lastevent() as x]");
+        tryInvalid("select first(x.*, 10d) from SupportBean#lastevent as x",
+                   "Error starting statement: Failed to validate select-clause expression 'first(x.*,10.0)': The 'first' aggregation function requires an index expression that returns an integer value [select first(x.*, 10d) from SupportBean#lastevent as x]");
     }
 
     public void testSubquery() {
@@ -246,7 +246,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{5, intArray(2, 3)});
 
         stmt.destroy();
-        epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall() as sa group by theString";
+        epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall as sa group by theString";
         stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -264,7 +264,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
     }
 
     public void testOutputRateLimiting() {
-        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall() as sa output every 2 events";
+        String epl = "select sum(intPrimitive) as si, window(sa.intPrimitive) as wi from SupportBean#keepall as sa output every 2 events";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         String[] fields = "si,wi".split(",");
@@ -413,9 +413,9 @@ public class TestAccessAggFirstLastWindow extends TestCase {
                 "first(sb.p10) as fb, " +
                 "window(sb.p10) as wb, " +
                 "last(sb.p10) as lb " +
-                "from S0#keepall() as sa " +
+                "from S0#keepall as sa " +
                 "left outer join " +
-                "S1#keepall() as sb " +
+                "S1#keepall as sb " +
                 "on sa.id = sb.id";        
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
@@ -518,7 +518,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testLateInitialize()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -539,7 +539,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testOnDelete()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow where theString = id");
 
@@ -585,7 +585,7 @@ public class TestAccessAggFirstLastWindow extends TestCase {
 
     public void testOnDemandQuery()
     {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));

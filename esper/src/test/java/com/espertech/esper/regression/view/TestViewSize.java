@@ -41,7 +41,7 @@ public class TestViewSize extends TestCase
 
     public void testSize()
     {
-        String statementText = "select irstream size from " + SupportMarketDataBean.class.getName() + "#size()";
+        String statementText = "select irstream size from " + SupportMarketDataBean.class.getName() + "#size";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(statementText);
         selectTestView.addListener(listener);
 

@@ -90,7 +90,7 @@
 					</row>
 					<row>
 						<entry>Keep-All Window</entry>
-						<entry><literal>keepall()</literal></entry>
+						<entry><literal>keepall</literal></entry>
 						<entry>The keep-all data window view simply retains all events.</entry>
 					</row>
 					<row>
@@ -120,12 +120,12 @@
 					</row>
 					<row>
 						<entry>Last Event Window</entry>
-						<entry><literal>lastevent()</literal></entry>
+						<entry><literal>lastevent</literal></entry>
 						<entry>Retains the last event, acts as a length window of size 1.</entry>
 					</row>
 					<row>
 						<entry>First Event Window</entry>
-						<entry><literal>firstevent()</literal></entry>
+						<entry><literal>firstevent</literal></entry>
 						<entry>Retains the very first arriving event, disregarding all subsequent events.</entry>
 					</row>
 					<row>
@@ -246,8 +246,16 @@
 		   </para>
 
 		   <para>
-			   If a view takes no parameters, use empty parenthesis <literal>()</literal>.
+			   If a view takes no parameters you may leave parenthesis off or the use empty parenthesis <literal>()</literal>.
 		   </para>
+
+		   <para>
+			   The below examples all specify a keep-all window:
+		   </para>
+			<programlisting><![CDATA[select * from StockTickEvent#keepall]]></programlisting>
+			<programlisting><![CDATA[select * from StockTickEvent#keepall()]]></programlisting>
+			<programlisting><![CDATA[select * from StockTickEvent.win:keepall()]]></programlisting>
+			<programlisting><![CDATA[select * from StockTickEvent.win:keepall]]></programlisting>
 		</sect1>
 
 		<sect1 xml:id="view-batchwindows" >
@@ -311,7 +319,7 @@
 				<para>
 					A length window of 1 is equivalent to the last event window <literal>lastevent</literal>. The <literal>lastevent</literal> data window is the preferred notation:
 				</para>
-				<programlisting><![CDATA[select * from StockTickEvent#lastevent()	// Prefer this
+				<programlisting><![CDATA[select * from StockTickEvent#lastevent	// Prefer this
 // ... equivalent to ...
 select * from StockTickEvent#length(1)]]></programlisting>
 			</sect2>
@@ -644,12 +652,12 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<para>
 					The view accepts no parameters. The synopsis is as follows:
 				</para>				
-				<synopsis>keepall()</synopsis>
+				<synopsis>keepall</synopsis>
 
 				<para>
 					The next example shows a keep-all window that accumulates all events received into the window:
 				</para>
-				<programlisting><![CDATA[ select * from MyEvent#keepall()]]></programlisting>
+				<programlisting><![CDATA[ select * from MyEvent#keepall]]></programlisting>
 
 				<para>
 					Note that since the view does not release events, care must be taken to prevent retained events from using all available memory.
@@ -1206,7 +1214,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<para>
 					When combined with a data window view, the size view reports the current number of events in the data window in the insert stream and the prior number of events in the data window as the remove stream. This example reports the number of tick events within the last 1 minute:
 				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#time(1 min)#size()]]></programlisting>
+				<programlisting><![CDATA[select size from StockTickEvent#time(1 min)#size]]></programlisting>
 
 				<para>
 					To select additional event properties you may add each event property to output as a parameter to the view. 
@@ -1225,17 +1233,17 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<para>
 					The size view is also useful in conjunction with a <literal>groupwin</literal> grouped-window view to count the number of events per group. The EPL below returns the number of events per symbol.
 				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#groupwin(symbol)#size()]]></programlisting>
+				<programlisting><![CDATA[select size from StockTickEvent#groupwin(symbol)#size]]></programlisting>
 
 				<para>
 					When used without a data window, the view simply counts the number of events:
 				</para>
-				<programlisting><![CDATA[select size from StockTickEvent#size()]]></programlisting>
+				<programlisting><![CDATA[select size from StockTickEvent#size]]></programlisting>
 
 				<para>
 					All views can be used with pattern statements as well. The next EPL snippet shows a pattern where we look for tick events followed by trade events for the same symbol. The size view counts the number of occurrences of the pattern.
 				</para>
-				<programlisting><![CDATA[select size from pattern[every s=StockTickEvent -> TradeEvent(symbol=s.symbol)]#size()]]></programlisting>
+				<programlisting><![CDATA[select size from pattern[every s=StockTickEvent -> TradeEvent(symbol=s.symbol)]#size]]></programlisting>
 			</sect2>
 
 			<sect2 xml:id="view-std-last" >
@@ -1248,7 +1256,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<para>
 					This view exposes the last element of its parent view:
 				</para>
-				<synopsis>lastevent()</synopsis>
+				<synopsis>lastevent</synopsis>
 
 				<para>
 					The view acts as a length window of size 1. It thus posts as old events the prior event in the stream, if any.
@@ -1258,7 +1266,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 					This example statement retains the last stock tick event for the symbol GE. 
 				</para>
 	
-				<programlisting><![CDATA[select * from StockTickEvent(symbol='GE')#lastevent()]]></programlisting>
+				<programlisting><![CDATA[select * from StockTickEvent(symbol='GE')#lastevent]]></programlisting>
 
 				<para>
 					If you want to output the last event within a sliding window, please see <xref linkend="epl-single-row-function-ref-previous"/>. That function accepts a relative (count) or absolute index and returns event properties or an event in the context of the specified data window.
@@ -1274,7 +1282,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 				<para>
 					This view retains only the first arriving event:
 				</para>
-				<synopsis>firstevent()</synopsis>
+				<synopsis>firstevent</synopsis>
 
 				<para>
 					All events arriving after the first event are discarded.
@@ -1288,7 +1296,7 @@ select * from Market#groupwin(ticker)#length(1000000)#merge(ticker)
 					An example of a statement that retains the first <literal>ReferenceData</literal> event arriving is:
 				</para>
 	
-				<programlisting><![CDATA[select * from ReferenceData#firstevent()]]></programlisting>
+				<programlisting><![CDATA[select * from ReferenceData#firstevent]]></programlisting>
 
 				<para>
 					If you want to output the first event within a sliding window, please see <xref linkend="epl-single-row-function-ref-previous"/>. That function accepts a relative (count) or absolute index and returns event properties or an event in the context of the specified data window.

@@ -103,7 +103,7 @@ public class TestSolutionPattern_PortScan extends TestCase {
                 "select src, dst, count(*) as cnt, window(*) as win\n" +
                 "from PortScanEvent#unique(src, dst, port)#time(30 sec) group by src,dst;\n" +
                 "\n" +
-                "create window SituationsWindow#keepall() (src string, dst string, detectionTime long);\n" +
+                "create window SituationsWindow#keepall (src string, dst string, detectionTime long);\n" +
                 "\n" +
                 "on CountStream(cnt >= 20) as cs\n" +
                 "merge SituationsWindow sw\n" +

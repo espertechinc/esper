@@ -36,7 +36,7 @@ public class TestRowPatternRecognitionInterval extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         sendTimer(0, epService);
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 " measures A.theString as a, B[0].theString as b0, B[1].theString as b1, last(B.theString) as lastb" +
                 " pattern (A B*)" +
@@ -125,7 +125,7 @@ public class TestRowPatternRecognitionInterval extends TestCase {
 
         sendTimer(0, epService);
         String[] fields = "a,b0,b1,lastb".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  partition by cat " +
                 "  measures A.theString as a, B[0].theString as b0, B[1].theString as b1, last(B.theString) as lastb" +
@@ -186,7 +186,7 @@ public class TestRowPatternRecognitionInterval extends TestCase {
 
         sendTimer(0, epService);
         String[] fields = "a,b0,b1,lastb".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a, B[0].theString as b0, B[1].theString as b1, last(B.theString) as lastb" +
                 "  pattern (A B*) " +

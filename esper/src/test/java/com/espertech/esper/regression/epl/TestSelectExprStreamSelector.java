@@ -124,8 +124,8 @@ public class TestSelectExprStreamSelector extends TestCase
         EPStatement selectTestView = epService.getEPAdministrator().create(model);
         selectTestView.addListener(testListener);
 
-        String viewExpr = "select s0.*, s1.* as s1stream, theString as sym from " + SupportBean.class.getName() + "#keepall() as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+        String viewExpr = "select s0.*, s1.* as s1stream, theString as sym from " + SupportBean.class.getName() + "#keepall as s0, " +
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         assertEquals(viewExpr, model.toEPL());
         EPStatementObjectModel modelReverse = epService.getEPAdministrator().compileEPL(model.toEPL());
         assertEquals(viewExpr, modelReverse.toEPL());
@@ -159,7 +159,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testJoinWildcardNoAlias()
     {
         String viewExpr = "select *, s1.* from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -198,7 +198,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testJoinWildcardWithAlias()
     {
         String viewExpr = "select *, s1.* as s1stream, s0.* as s0stream from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -241,7 +241,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testJoinWithAliasWithProperties()
     {
         String viewExpr = "select intPrimitive, s1.* as s1stream, theString, symbol as sym, s0.* as s0stream from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -286,7 +286,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testJoinNoAliasWithProperties()
     {
         String viewExpr = "select intPrimitive, s1.*, symbol as sym from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -337,7 +337,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testAloneJoinAlias()
     {
         String viewExpr = "select s1.* as s1 from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -355,7 +355,7 @@ public class TestSelectExprStreamSelector extends TestCase
 
         // reverse streams
         viewExpr = "select s0.* as szero from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -373,7 +373,7 @@ public class TestSelectExprStreamSelector extends TestCase
     public void testAloneJoinNoAlias()
     {
         String viewExpr = "select s1.* from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         EPStatement selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -391,7 +391,7 @@ public class TestSelectExprStreamSelector extends TestCase
 
         // reverse streams
         viewExpr = "select s0.* from " + SupportBean.class.getName() + "#length(3) as s0, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as s1";
+                SupportMarketDataBean.class.getName() + "#keepall as s1";
         selectTestView = epService.getEPAdministrator().createEPL(viewExpr);
         selectTestView.addListener(testListener);
 
@@ -417,8 +417,8 @@ public class TestSelectExprStreamSelector extends TestCase
         tryInvalid("select s0.* as abc, s0.* as abc from " + SupportBean.class.getName() + "#length(3) as s0",
                    "Error starting statement: Column name 'abc' appears more then once in select clause [select s0.* as abc, s0.* as abc from com.espertech.esper.support.bean.SupportBean#length(3) as s0]");
 
-        tryInvalid("select s0.*, s1.* from " + SupportBean.class.getName() + "#keepall() as s0, " + SupportBean.class.getName() + "#keepall() as s1",
-                   "Error starting statement: A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation [select s0.*, s1.* from com.espertech.esper.support.bean.SupportBean#keepall() as s0, com.espertech.esper.support.bean.SupportBean#keepall() as s1]");
+        tryInvalid("select s0.*, s1.* from " + SupportBean.class.getName() + "#keepall as s0, " + SupportBean.class.getName() + "#keepall as s1",
+                   "Error starting statement: A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation [select s0.*, s1.* from com.espertech.esper.support.bean.SupportBean#keepall as s0, com.espertech.esper.support.bean.SupportBean#keepall as s1]");
     }
 
     private void tryInvalid(String clause, String message)

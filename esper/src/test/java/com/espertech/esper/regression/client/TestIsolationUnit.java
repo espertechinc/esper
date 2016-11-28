@@ -416,7 +416,7 @@ public class TestIsolationUnit extends TestCase
         }
 
         String[] fields = new String[] {"theString"};
-        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow#keepall() as SupportBean");
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL("@Name('create') create window MyWindow#keepall as SupportBean");
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("@Name('insert') insert into MyWindow select * from SupportBean");
         EPStatement stmtDelete = epService.getEPAdministrator().createEPL("@Name('delete') on SupportBean_A delete from MyWindow where theString = id");
         EPStatement stmtConsume = epService.getEPAdministrator().createEPL("@Name('consume') select irstream * from MyWindow");
@@ -706,7 +706,7 @@ public class TestIsolationUnit extends TestCase
             return;
         }
 
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 

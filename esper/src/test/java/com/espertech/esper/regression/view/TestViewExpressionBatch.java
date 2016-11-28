@@ -263,8 +263,8 @@ public class TestViewExpressionBatch extends TestCase
         tryInvalid("select * from SupportBean#expr_batch(1)",
                    "Error starting statement: Error attaching view to event stream: Invalid return value for expiry expression, expected a boolean return value but received Integer [select * from SupportBean#expr_batch(1)]");
 
-        tryInvalid("select * from SupportBean#expr_batch((select * from SupportBean#lastevent()))",
-                   "Error starting statement: Error attaching view to event stream: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean#expr_batch((select * from SupportBean#lastevent()))]");
+        tryInvalid("select * from SupportBean#expr_batch((select * from SupportBean#lastevent))",
+                   "Error starting statement: Error attaching view to event stream: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean#expr_batch((select * from SupportBean#lastevent))]");
     }
 
     public void tryInvalid(String epl, String message) {

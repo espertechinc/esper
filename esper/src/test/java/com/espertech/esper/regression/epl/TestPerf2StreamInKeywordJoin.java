@@ -47,7 +47,7 @@ public class TestPerf2StreamInKeywordJoin extends TestCase
 
     public void testInKeywordSingleIndexLookup()
     {
-        String epl = "select intPrimitive as val from SupportBean#keepall() sb, SupportBean_S0 s0 unidirectional " +
+        String epl = "select intPrimitive as val from SupportBean#keepall sb, SupportBean_S0 s0 unidirectional " +
                 "where sb.theString in (s0.p00, s0.p01)";
         String[] fields = "val".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -69,7 +69,7 @@ public class TestPerf2StreamInKeywordJoin extends TestCase
 
     public void testInKeywordMultiIndexLookup()
     {
-        String epl = "select id as val from SupportBean_S0#keepall() s0, SupportBean sb unidirectional " +
+        String epl = "select id as val from SupportBean_S0#keepall s0, SupportBean sb unidirectional " +
                 "where sb.theString in (s0.p00, s0.p01)";
         String[] fields = "val".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

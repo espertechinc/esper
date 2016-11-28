@@ -457,11 +457,11 @@ select * from MarketData(symbol = 'GE') group by symbol having sum(price) > 1000
 				remove <literal>std:groupwin</literal>:
 			</para>
 <programlisting><![CDATA[// Prefer:
-create window MarketDataWindow#keepall() as MarketDataEventType
+create window MarketDataWindow#keepall as MarketDataEventType
 
 // Don't use this, since keeping all events 
 // or keeping all events per symbol is the same thing:
-create window MarketDataWindow#groupwin(symbol)#keepall() as MarketDataEventType
+create window MarketDataWindow#groupwin(symbol)#keepall as MarketDataEventType
 
 // Don't use this, since keeping the last 1-minute of events 
 // or keeping 1-minute of events per symbol is the same thing:
@@ -474,13 +474,13 @@ create window MarketDataWindow#groupwin(symbol)#time(1 min) as MarketDataEventTy
 select * from MarketDataWindow
 
 // Don't have a data window if just listening to events, prefer the above
-select * from MarketDataWindow#lastevent()]]></programlisting>
+select * from MarketDataWindow#lastevent]]></programlisting>
 
 			<para>
 				If your statement specifies unique data window but the filter criteria only allows one unique criteria, consider removing the unique data window:
 			</para>
 <programlisting><![CDATA[// Prefer:
-select * from MarketDataWindow(symbol = 'GE')#lastevent()
+select * from MarketDataWindow(symbol = 'GE')#lastevent
 
 // Don't have a unique-key data window if your filter specifies a single value
 select * from MarketDataWindow(symbol = 'GE')#unique(symbol)]]></programlisting>
@@ -1302,7 +1302,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 				<para>
 					An inner join of all A and B events might look like this:
 				</para>
-				<programlisting><![CDATA[select * from A#keepall() as a, B#keepall() as b where aprop = bprop]]></programlisting>
+				<programlisting><![CDATA[select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlisting>
 				
 				<para>
 					In the default query plan, when an A event comes in, the engine obtains the value of <literal>aprop</literal> and performs an index lookup against <literal>bprop</literal>
@@ -1358,7 +1358,7 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 					in effect causing the query planner to always execute the statement as a full table scan.
 				</para>
 				<programlisting><![CDATA[@hint('exclude_plan(true)')
-select * from A#keepall() as a, B#keepall() as b where aprop = bprop]]></programlisting>
+select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlisting>
 
 				<para>
 					This hint instructs the engine to ignore all equals-operators for query planning:
@@ -1550,7 +1550,7 @@ select * from A#keepall() as a, B#keepall() as b where aprop = bprop]]></program
 				<para>
 				  The next paragraph assumes that a named window has been created to hold some historical financial data per symbol and minute:
 				</para>
-				<programlisting><![CDATA[create window HistoricalWindow#keepall() as (symbol string, int minute, double price)]]></programlisting>
+				<programlisting><![CDATA[create window HistoricalWindow#keepall as (symbol string, int minute, double price)]]></programlisting>
 				<programlisting><![CDATA[insert into HistoricalWindow select symbol, minute, price from HistoricalTick]]></programlisting>
 
 				<para>

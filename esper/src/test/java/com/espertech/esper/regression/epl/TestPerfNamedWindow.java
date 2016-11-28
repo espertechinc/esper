@@ -47,7 +47,7 @@ public class TestPerfNamedWindow extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_S1", SupportBean_S1.class);
 
         // create window
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean_S0");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean_S0");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean_S0");
 
         int maxRows = 10000;   // for performance testing change to int maxRows = 100000;
@@ -68,7 +68,7 @@ public class TestPerfNamedWindow extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         // create window one
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         // insert X rows
@@ -126,7 +126,7 @@ public class TestPerfNamedWindow extends TestCase
     public void testDeletePerformance()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create delete stmt
@@ -162,7 +162,7 @@ public class TestPerfNamedWindow extends TestCase
     public void testDeletePerformanceCoercion()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create delete stmt
@@ -202,7 +202,7 @@ public class TestPerfNamedWindow extends TestCase
         }
 
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create delete stmt one
@@ -243,7 +243,7 @@ public class TestPerfNamedWindow extends TestCase
     public void testDeletePerformanceIndexReuse()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as a, longPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         // create delete stmt

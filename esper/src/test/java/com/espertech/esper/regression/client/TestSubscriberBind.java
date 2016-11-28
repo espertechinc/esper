@@ -328,7 +328,7 @@ public class TestSubscriberBind extends TestCase
     }
 
     private void runAssertionStreamSelectWJoin(SupportSubscriberRowByRowSpecificBase subscriber) {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select null, s1, s0 from SupportBean#keepall() as s0, SupportMarketDataBean#keepall() as s1 where s0.theString = s1.symbol");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select null, s1, s0 from SupportBean#keepall as s0, SupportMarketDataBean#keepall as s1 where s0.theString = s1.symbol");
         stmt.setSubscriber(subscriber);
 
         SupportBean s0 = new SupportBean("E1", 100);
@@ -341,7 +341,7 @@ public class TestSubscriberBind extends TestCase
     }
 
     private void runAssertionBindWildcardJoin(SupportSubscriberRowByRowSpecificBase subscriber) {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#keepall() as s0, SupportMarketDataBean#keepall() as s1 where s0.theString = s1.symbol");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean#keepall as s0, SupportMarketDataBean#keepall as s1 where s0.theString = s1.symbol");
         stmt.setSubscriber(subscriber);
 
         SupportBean s0 = new SupportBean("E1", 100);
@@ -362,7 +362,7 @@ public class TestSubscriberBind extends TestCase
 
     private void runAssertionStreamWildcardJoin(SupportSubscriberRowByRowSpecificBase subscriber)
     {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString || '<', s1.* as s1, s0.* as s0 from SupportBean#keepall() as s0, SupportMarketDataBean#keepall() as s1 where s0.theString = s1.symbol");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString || '<', s1.* as s1, s0.* as s0 from SupportBean#keepall as s0, SupportMarketDataBean#keepall as s1 where s0.theString = s1.symbol");
         stmt.setSubscriber(subscriber);
 
         SupportBean s0 = new SupportBean("E1", 100);
@@ -398,7 +398,7 @@ public class TestSubscriberBind extends TestCase
     }
 
     private void runAssertionOutputLimitJoin(SupportSubscriberRowByRowSpecificBase subscriber) {
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString, intPrimitive from SupportBean#keepall(), SupportMarketDataBean#keepall() where symbol = theString output every 2 events");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString, intPrimitive from SupportBean#keepall, SupportMarketDataBean#keepall where symbol = theString output every 2 events");
         stmt.setSubscriber(subscriber);
 
         epService.getEPRuntime().sendEvent(new SupportMarketDataBean("E1", 0, 1L, ""));

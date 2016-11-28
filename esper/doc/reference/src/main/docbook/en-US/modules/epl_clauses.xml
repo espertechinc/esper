@@ -493,7 +493,7 @@ epService.getEPAdministrator().createEPL("select * from OrderEvent(
 			<para>
 				For example, the Color enum type as an inner class to <literal>MyEvent</literal> in package <literal>org.myorg</literal> can be referenced as shown:
 			</para>
-			<programlisting><![CDATA[select * from MyEvent(enumProp=org.myorg.MyEvent$Color.GREEN)#firstevent()]]></programlisting>
+			<programlisting><![CDATA[select * from MyEvent(enumProp=org.myorg.MyEvent$Color.GREEN)#firstevent]]></programlisting>
 	
 			<para>
 				Instance methods may also be invoked on event instances by specifying a stream name, as shown below:
@@ -1030,7 +1030,7 @@ select midPrice(*) from MarketDataEvent]]></programlisting>
 			</para>
 			<programlisting><![CDATA[expression weightedSentiment { (x, y) => x.price * y.sentiment } 
 select weightedSentiment(md, news) 
-from MarketDataEvent#lastevent() as md, NewsEvent#lastevent() news]]></programlisting>
+from MarketDataEvent#lastevent as md, NewsEvent#lastevent news]]></programlisting>
 
 			<para>
 				Any expression can be used in the expression body including aggregations, variables, subqueries or further declared or alias expressions. Sub-queries, when used without <literal>in</literal> or <literal>exists</literal>, must be placed within parenthesis.
@@ -3851,7 +3851,7 @@ from OrderStream#time(30 sec) group by customerId</programlisting>
 				Your <literal>select</literal> clause may use the stream name to populate a stream of events in which each event has properties that are itself an event. A sample statement is:				
 			</para>
 			<programlisting>insert into CompositeStream select order, service, order.price+service.price as totalPrice 
-from PurchaseOrder#lastevent() as order, ServiceEvent:std:lastevent() as service</programlisting>			
+from PurchaseOrder#lastevent as order, ServiceEvent#lastevent as service</programlisting>			
 
 			<para>
 				When using the stream name (or tag in patterns) in the select-clause, the engine produces composite events: One or more of the properties of the composite event are events themselves.
@@ -3978,7 +3978,7 @@ from TriggerEvent</programlisting>
 			Esper supports both simple subqueries as well as correlated subqueries. In a simple subquery, the inner query is not correlated to the outer query. Here is an example simple subquery within a <literal>select</literal> clause:
 	    </para>
 			
-		<programlisting><![CDATA[select assetId, (select zone from ZoneClosed#lastevent()) as lastClosed from RFIDEvent]]></programlisting>
+		<programlisting><![CDATA[select assetId, (select zone from ZoneClosed#lastevent) as lastClosed from RFIDEvent]]></programlisting>
 
 		<para>
 			If the inner query is dependent on the outer query, we will have a correlated subquery. An example of a correlated subquery is shown below. Notice the <literal>where</literal> clause in the inner query, where the condition involves a stream from the outer query:
@@ -4006,7 +4006,7 @@ from TriggerEvent</programlisting>
 			The <literal>select</literal> clause of a subquery also allows wildcard selects, which return as an event property the underlying event object of the event type as defined in the <literal>from</literal> clause. An example:
 		</para>
 
-		<programlisting><![CDATA[select (select * from MarketData#lastevent()) as md 
+		<programlisting><![CDATA[select (select * from MarketData#lastevent) as md 
   from pattern [every timer:interval(10 sec)]]]></programlisting>
 
 		<para>
@@ -4017,7 +4017,7 @@ from TriggerEvent</programlisting>
 			Aggregation functions may be used in the <literal>select</literal> clause of the subselect as this example outlines:
 		</para>
 		<programlisting><![CDATA[select * from MarketData
-where price > (select max(price) from MarketData(symbol='GOOG')#lastevent())]]></programlisting>
+where price > (select max(price) from MarketData(symbol='GOOG')#lastevent)]]></programlisting>
 
 		<para>
 			As the sub-select expression is evaluated first (by default), the query above actually never fires for the GOOG symbol, only for other symbols that have a price higher then the current maximum for GOOG. As a sidenote, the <literal>insert into</literal> clause can also be handy to compute aggregation results for use in multiple subqueries.
@@ -4043,7 +4043,7 @@ where qty >
 			The following example filters <literal>BarData</literal> events that have a close price less then the last moving average (field <literal>movAgv</literal>) as provided by stream <literal>SMA20Stream</literal> (an uncorrelated subquery):
 		</para>
 		<programlisting><![CDATA[select * from BarData(ticker='MSFT', closePrice < 
-    (select movAgv from SMA20Stream(ticker='MSFT')#lastevent()))]]></programlisting>
+    (select movAgv from SMA20Stream(ticker='MSFT')#lastevent))]]></programlisting>
 
 		<para>
 			A few generic examples follow to demonstrate the point. The examples use short event and property names so they are easy to read. Assume <literal>A</literal> and <literal>B</literal> are streams and <literal>DNamedWindow</literal> is a named window, and <literal>ETable</literal> is a table and properties <literal>a_id, b_id, d_id, e_id, a_val, b_val, d_val, e_val</literal> respectively:
@@ -4202,7 +4202,7 @@ select * from A(a_val in
 
 			<programlisting><![CDATA[select * from ProductOrder as ord
   where quantity < any
-    (select minimumQuantity from MinimumQuantity#keepall())]]></programlisting>
+    (select minimumQuantity from MinimumQuantity#keepall)]]></programlisting>
 
 			<para>
 				The above query compares ProductOrder event's quantity value with all rows from the MinimumQuantity stream of events and returns only those ProductOrder events that have a quantity that is less then any of the minimum quantity values of the MinimumQuantity events.
@@ -4247,7 +4247,7 @@ select * from A(a_val in
 
 			<programlisting><![CDATA[select * from ProductOrder as ord
   where quantity < all
-    (select minimumQuantity from MinimumQuantity#keepall())]]></programlisting>
+    (select minimumQuantity from MinimumQuantity#keepall)]]></programlisting>
 
 			<para>
 				The above query compares ProductOrder event's quantity value with all rows from the MinimumQuantity stream of events and returns only those ProductOrder events that have a quantity that is less then all of the minimum quantity values of the MinimumQuantity events.
@@ -4409,7 +4409,7 @@ from OrderEvent]]></programlisting>
 				This sample EPL statement creates a named window with subquery index sharing enabled:
 			</para>
 			<programlisting><![CDATA[@Hint('enable_window_subquery_indexshare')
-create window OrdersNamedWindow#keepall() as OrderMapEventType]]></programlisting>
+create window OrdersNamedWindow#keepall as OrderMapEventType]]></programlisting>
 
 			<para>
 				When subquery index sharing is enabled, performance may increase as named window stream consumption is no longer needed for correlated subqueries. You may also expect reduced memory use especially if a large number of EPL statements perform similar subqueries against a named window. Subquery index sharing may require additional short-lived object creation and may slightly increase lock held time for named windows. 
@@ -4459,7 +4459,7 @@ select
 			<para>
 				Consider the sample statement shown next:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent#lastevent(), NewsEvent#lastevent()]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent, NewsEvent#lastevent]]></programlisting>
 
 			<para>
 				The above statement outputs the last TickEvent and the last NewsEvent in one output event when either a TickEvent or a NewsEvent arrives. If no TickEvent was received before a NewsEvent arrives, no output occurs. Similarly when no NewsEvent was received before a TickEvent arrives, no output occurs.
@@ -4559,7 +4559,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 				Joins can also include one or more pattern statements as the next example shows:
 			</para>
 <programlisting><![CDATA[select * from FraudWarningEvent#time(30 min) as fraud,
-    pattern [every w=WithdrawalEvent -> PINChangeEvent(acct=w.acct)]#lastevent() as withdraw
+    pattern [every w=WithdrawalEvent -> PINChangeEvent(acct=w.acct)]#lastevent as withdraw
  where fraud.accountNumber = withdraw.w.accountNumber]]></programlisting>
 	
 			<para>
@@ -4573,7 +4573,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			<para>
 				The next example joins all FraudWarningEvent events that arrived since the statement was started, with the last 20 seconds of PINChangeEvent events:
 			</para>
-<programlisting><![CDATA[select * from FraudWarningEvent#keepall() as fraud, PINChangeEvent#time(20 sec) as pin
+<programlisting><![CDATA[select * from FraudWarningEvent#keepall as fraud, PINChangeEvent#time(20 sec) as pin
  where fraud.accountNumber = pin.accountNumber]]></programlisting>
 
 			<para>
@@ -4652,9 +4652,9 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
-      left outer join ProductName#keepall() as refprod
+      left outer join ProductName#keepall as refprod
         on rfid.productId = refprod.prodId
-      left outer join LocationDescription#keepall() as refdesc
+      left outer join LocationDescription#keepall as refdesc
         on rfid.location = refdesc.locId]]></programlisting>
         
 			<para>
@@ -4781,14 +4781,14 @@ where tick.symbol = news.symbol]]></programlisting>
 			<para>
 				An outer join that specifies only <literal>inner</literal> keywords for all streams is equivalent to an default (inner) join. The following two statements are equivalent:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent#lastevent(), 
-    NewsEvent#lastevent() where tick.symbol = news.symbol]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent, 
+    NewsEvent#lastevent where tick.symbol = news.symbol]]></programlisting>
 
 			<para>
 				Equivalent to:
 			</para>
-			<programlisting><![CDATA[select * from TickEvent#lastevent() 
-	inner join NewsEvent#lastevent() on tick.symbol = news.symbol]]></programlisting>
+			<programlisting><![CDATA[select * from TickEvent#lastevent 
+	inner join NewsEvent#lastevent on tick.symbol = news.symbol]]></programlisting>
 			
 			<para>
 				For all types of joins, the query planner determines a query graph: The term is used here for all the information regarding what properties or expressions are used to join the streams. The query graph thus includes the where-clause expressions as well as outer-join on-clauses if this statement is an outer join. The query planner also computes a dependency graph which includes information about all historical data streams (relational and non-relational as below) and their input needs. 
@@ -4806,7 +4806,7 @@ where tick.symbol = news.symbol]]></programlisting>
 				For example, consider the below statement. Depending on the number of matching rows in OrderBookOne and OrderBookTwo (named windows in this example, and assumed to be defined elsewhere) the performance of the join may be better using the merge join plan.
 			</para>
 			<programlisting><![CDATA[@Hint('prefer_merge_join') 
-select * from TickEvent#lastevent() t, 
+select * from TickEvent#lastevent t, 
 	OrderBookOne ob1, OrderBookOne ob2
 where ob1.symbol = t.symbol and ob2.symbol = t.symbol 
 and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]></programlisting>
@@ -6929,7 +6929,7 @@ select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></progr
 			<para>
 				This example declares a named window and uses on-delete:
 			</para>
-			<programlisting><![CDATA[create window MyWindow#keepall() (id int)]]></programlisting>
+			<programlisting><![CDATA[create window MyWindow#keepall (id int)]]></programlisting>
 			<programlisting><![CDATA[on MyEvent[ids@type(IdContainer)] as my_ids 
 delete from MyWindow my_window 
 where my_ids.id = my_window.id]]></programlisting>

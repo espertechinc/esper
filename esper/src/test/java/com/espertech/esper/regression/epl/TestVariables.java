@@ -375,7 +375,7 @@ public class TestVariables extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("var1", String.class, "a");
         epService.getEPAdministrator().getConfiguration().addVariable("var2", String.class, "b");
 
-        String stmtTextSet = "on " + SupportBean_S0.class.getName() + " as s0str set var1 = (select p10 from S1#lastevent()), var2 = (select p11||s0str.p01 from S1#lastevent())";
+        String stmtTextSet = "on " + SupportBean_S0.class.getName() + " as s0str set var1 = (select p10 from S1#lastevent), var2 = (select p11||s0str.p01 from S1#lastevent)";
         EPStatement stmtSet = epService.getEPAdministrator().createEPL(stmtTextSet);
         stmtSet.addListener(listenerSet);
         String[] fieldsVar = new String[] {"var1", "var2"};

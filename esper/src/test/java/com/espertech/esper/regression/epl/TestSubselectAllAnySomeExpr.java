@@ -46,10 +46,10 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "g,ge,l,le".split(",");
         String stmtText = "select " +
-            "intPrimitive > all (select intPrimitive from SupportBean(theString like \"S%\")#keepall()) as g, " +
-            "intPrimitive >= all (select intPrimitive from SupportBean(theString like \"S%\")#keepall()) as ge, " +
-            "intPrimitive < all (select intPrimitive from SupportBean(theString like \"S%\")#keepall()) as l, " +
-            "intPrimitive <= all (select intPrimitive from SupportBean(theString like \"S%\")#keepall()) as le " +
+            "intPrimitive > all (select intPrimitive from SupportBean(theString like \"S%\")#keepall) as g, " +
+            "intPrimitive >= all (select intPrimitive from SupportBean(theString like \"S%\")#keepall) as ge, " +
+            "intPrimitive < all (select intPrimitive from SupportBean(theString like \"S%\")#keepall) as l, " +
+            "intPrimitive <= all (select intPrimitive from SupportBean(theString like \"S%\")#keepall) as le " +
             "from SupportBean(theString like \"E%\")";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -81,12 +81,12 @@ public class TestSubselectAllAnySomeExpr extends TestCase
 
         try
         {
-            epService.getEPAdministrator().createEPL("select intArr > all (select intPrimitive from SupportBean#keepall()) from ArrayBean");
+            epService.getEPAdministrator().createEPL("select intArr > all (select intPrimitive from SupportBean#keepall) from ArrayBean");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr > all (select intPrimitive from SupportBean#keepall()) from ArrayBean]", ex.getMessage());
+            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr > all (select intPrimitive from SupportBean#keepall) from ArrayBean]", ex.getMessage());
         }
         
         // test OM
@@ -103,8 +103,8 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "vall,vany".split(",");
         String stmtText = "select " +
-            "intBoxed >= all (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as vall, " +
-            "intBoxed >= any (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as vany " +
+            "intBoxed >= all (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as vall, " +
+            "intBoxed >= any (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as vany " +
             " from SupportBean(theString like 'E%')";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -143,10 +143,10 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "g,ge,l,le".split(",");
         String stmtText = "select " +
-            "intPrimitive > any (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as g, " +
-            "intPrimitive >= any (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as ge, " +
-            "intPrimitive < any (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as l, " +
-            "intPrimitive <= any (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as le " +
+            "intPrimitive > any (select intPrimitive from SupportBean(theString like 'S%')#keepall) as g, " +
+            "intPrimitive >= any (select intPrimitive from SupportBean(theString like 'S%')#keepall) as ge, " +
+            "intPrimitive < any (select intPrimitive from SupportBean(theString like 'S%')#keepall) as l, " +
+            "intPrimitive <= any (select intPrimitive from SupportBean(theString like 'S%')#keepall) as le " +
             " from SupportBean(theString like 'E%')";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -184,10 +184,10 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "eq,neq,sqlneq,nneq".split(",");
         String stmtText = "select " +
-                          "intPrimitive=all(select intPrimitive from SupportBean(theString like 'S%')#keepall()) as eq, " +
-                          "intPrimitive != all (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as neq, " +
-                          "intPrimitive <> all (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as sqlneq, " +
-                          "not intPrimitive = all (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as nneq " +
+                          "intPrimitive=all(select intPrimitive from SupportBean(theString like 'S%')#keepall) as eq, " +
+                          "intPrimitive != all (select intPrimitive from SupportBean(theString like 'S%')#keepall) as neq, " +
+                          "intPrimitive <> all (select intPrimitive from SupportBean(theString like 'S%')#keepall) as sqlneq, " +
+                          "not intPrimitive = all (select intPrimitive from SupportBean(theString like 'S%')#keepall) as nneq " +
                           " from SupportBean(theString like 'E%')";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -217,10 +217,10 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "r1,r2,r3,r4".split(",");
         String stmtText = "select " +
-                    "intPrimitive = SOME (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as r1, " +
-                    "intPrimitive = ANY (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as r2, " +
-                    "intPrimitive != SOME (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as r3, " +
-                    "intPrimitive <> ANY (select intPrimitive from SupportBean(theString like 'S%')#keepall()) as r4 " +
+                    "intPrimitive = SOME (select intPrimitive from SupportBean(theString like 'S%')#keepall) as r1, " +
+                    "intPrimitive = ANY (select intPrimitive from SupportBean(theString like 'S%')#keepall) as r2, " +
+                    "intPrimitive != SOME (select intPrimitive from SupportBean(theString like 'S%')#keepall) as r3, " +
+                    "intPrimitive <> ANY (select intPrimitive from SupportBean(theString like 'S%')#keepall) as r4 " +
                     "from SupportBean(theString like 'E%')";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -247,11 +247,11 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         String[] fields = "eall,eany,neall,neany,isin".split(",");
         String stmtText = "select " +
-            "intBoxed = all (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as eall, " +
-            "intBoxed = any (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as eany, " +
-            "intBoxed != all (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as neall, " +
-            "intBoxed != any (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as neany, " +
-            "intBoxed in (select doubleBoxed from SupportBean(theString like 'S%')#keepall()) as isin " +
+            "intBoxed = all (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as eall, " +
+            "intBoxed = any (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as eany, " +
+            "intBoxed != all (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as neall, " +
+            "intBoxed != any (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as neany, " +
+            "intBoxed in (select doubleBoxed from SupportBean(theString like 'S%')#keepall) as isin " +
             " from SupportBean(theString like 'E%')";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -288,13 +288,13 @@ public class TestSubselectAllAnySomeExpr extends TestCase
     {
         try
         {
-            String stmtText = "select intArr = all (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean";
+            String stmtText = "select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from ArrayBean";
             epService.getEPAdministrator().createEPL(stmtText);
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr = all (select intPrimitive from SupportBean#keepall()) as r1 from ArrayBean]", ex.getMessage());
+            assertEquals("Error starting statement: Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords [select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from ArrayBean]", ex.getMessage());
         }
     }
 

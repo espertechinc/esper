@@ -130,12 +130,12 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
 
         // enumeration type is incompatible
         epService.getEPAdministrator().createEPL("create schema TypeOne(sbs SupportBean[])");
-        tryInvalid("insert into TypeOne select (select * from SupportBean_S0#keepall()) as sbs from SupportBean_S1",
-                "Error starting statement: Incompatible type detected attempting to insert into column 'sbs' type 'SupportBean' compared to selected type 'SupportBean_S0' [insert into TypeOne select (select * from SupportBean_S0#keepall()) as sbs from SupportBean_S1]");
+        tryInvalid("insert into TypeOne select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
+                "Error starting statement: Incompatible type detected attempting to insert into column 'sbs' type 'SupportBean' compared to selected type 'SupportBean_S0' [insert into TypeOne select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1]");
 
         epService.getEPAdministrator().createEPL("create schema TypeTwo(sbs SupportBean)");
-        tryInvalid("insert into TypeTwo select (select * from SupportBean_S0#keepall()) as sbs from SupportBean_S1",
-                "Error starting statement: Incompatible type detected attempting to insert into column 'sbs' type 'SupportBean' compared to selected type 'SupportBean_S0' [insert into TypeTwo select (select * from SupportBean_S0#keepall()) as sbs from SupportBean_S1]");
+        tryInvalid("insert into TypeTwo select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
+                "Error starting statement: Incompatible type detected attempting to insert into column 'sbs' type 'SupportBean' compared to selected type 'SupportBean_S0' [insert into TypeTwo select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1]");
 
         // typable - selected column type is incompatible
         tryInvalid("insert into N1_2 select new {p0='a'} as p1 from SupportBean",
@@ -148,8 +148,8 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
 
     private void runAssertionFragmentSingeColNamedWindow() {
         epService.getEPAdministrator().createEPL("create schema AEvent (symbol string)");
-        epService.getEPAdministrator().createEPL("create window MyEventWindow#lastevent() (e AEvent)");
-        epService.getEPAdministrator().createEPL("insert into MyEventWindow select (select * from AEvent#lastevent()) as e from SupportBean(theString = 'A')");
+        epService.getEPAdministrator().createEPL("create window MyEventWindow#lastevent (e AEvent)");
+        epService.getEPAdministrator().createEPL("insert into MyEventWindow select (select * from AEvent#lastevent) as e from SupportBean(theString = 'A')");
         epService.getEPAdministrator().createEPL("create schema BEvent (e AEvent)");
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into BEvent select (select e from MyEventWindow) as e from SupportBean(theString = 'B')");
         stmt.addListener(listener);
@@ -180,7 +180,7 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
 
         String[] fields = "ez.e0_0,ez.e0_1".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into EventOne select " +
-                "(select p00 as e0_0, p01 as e0_1 from SupportBean_S0#lastevent()" +
+                "(select p00 as e0_0, p01 as e0_1 from SupportBean_S0#lastevent" +
                 (filter ? " where id >= 100" : "") + ") as ez " +
                 "from SupportBean");
         stmt.addListener(listener);
@@ -212,7 +212,7 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
         String[] fields = "e1_0,ez[0].e0_0,ez[0].e0_1,ez[1].e0_0,ez[1].e0_1".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("" +
                 "expression thequery {" +
-                "  (select p00 as e0_0, p01 as e0_1 from SupportBean_S0#keepall())" +
+                "  (select p00 as e0_0, p01 as e0_1 from SupportBean_S0#keepall)" +
                 "} " +
                 "insert into EventOne select " +
                 "theString as e1_0, " +
@@ -242,7 +242,7 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
 
         String[] fields = "e0_0".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into EventOne select " +
-                "(select p00 as e0_0, p01 as e0_1 from SupportBean_S0#keepall() where id between 10 and 20) as ez " +
+                "(select p00 as e0_0, p01 as e0_1 from SupportBean_S0#keepall where id between 10 and 20) as ez " +
                 "from SupportBean");
         stmt.addListener(listener);
 
@@ -266,7 +266,7 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
 
         String[] fields = "p00".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into EventOne select " +
-                "(select * from SupportBean_S0#keepall()" +
+                "(select * from SupportBean_S0#keepall " +
                 (filter ? "where 1=1" : "") + ") as sbarr " +
                 "from SupportBean");
         stmt.addListener(listener);

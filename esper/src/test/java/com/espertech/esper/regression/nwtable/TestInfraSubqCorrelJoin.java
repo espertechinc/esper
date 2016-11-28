@@ -65,7 +65,7 @@ public class TestInfraSubqCorrelJoin extends TestCase
         epService.getEPAdministrator().createEPL(createEpl);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString, intPrimitive from SupportBean");
 
-        String consumeEpl = "select (select intPrimitive from MyInfra where theString = s1.p10) as val from S0Bean#lastevent() as s0, S1Bean#lastevent() as s1";
+        String consumeEpl = "select (select intPrimitive from MyInfra where theString = s1.p10) as val from S0Bean#lastevent as s0, S1Bean#lastevent as s1";
         EPStatement consumeStmt = epService.getEPAdministrator().createEPL(consumeEpl);
         consumeStmt.addListener(listener);
 

@@ -50,10 +50,10 @@ public class TestConsumingPattern extends TestCase
                 "Error in expression: Unrecognized pattern-level annotation 'XX' [select * from pattern @XX [A]]");
 
         String expected = "Discard-partials and suppress-matches is not supported in a joins, context declaration and on-action ";
-        tryInvalid("select * from pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[A]#keepall(), A#keepall()",
-                expected + "[select * from pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [A]#keepall(), A#keepall()]");
+        tryInvalid("select * from pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[A]#keepall, A#keepall",
+                expected + "[select * from pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [A]#keepall, A#keepall]");
 
-        epService.getEPAdministrator().createEPL("create window AWindow#keepall() as A");
+        epService.getEPAdministrator().createEPL("create window AWindow#keepall as A");
         tryInvalid("on pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[A] select * from AWindow",
                 expected + "[on pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [A] select * from AWindow]");
     }

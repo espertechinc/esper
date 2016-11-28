@@ -57,7 +57,7 @@ public class TestNamedWindowSubquery extends TestCase
     }
 
     public void testSubqueryLateConsumerAggregation() {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));

@@ -36,7 +36,7 @@ public class TestRowPatternRecognitionGreedyness extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string " +
                 "  pattern (A?? B?) " +
@@ -66,7 +66,7 @@ public class TestRowPatternRecognitionGreedyness extends TestCase {
         epService.initialize();
 
         String[] fields = "a0,a1,a2,b,c".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A[0].theString as a0, A[1].theString as a1, A[2].theString as a2, B.theString as b, C.theString as c" +
                 "  pattern (A*? B? C) " +
@@ -115,7 +115,7 @@ public class TestRowPatternRecognitionGreedyness extends TestCase {
         epService.initialize();
 
         String[] fields = "a0,a1,a2,b,c".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A[0].theString as a0, A[1].theString as a1, A[2].theString as a2, B.theString as b, C.theString as c" +
                 "  pattern (A+? B? C) " +

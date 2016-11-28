@@ -102,7 +102,7 @@ public class TestSubscriberMgmt extends TestCase
     {
         String fields[] = "key,value".split(",");
         SubscriberMap subscriberNamedWindow = new SubscriberMap();
-        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall() as select theString as key, intPrimitive as value from SupportBean";
+        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall as select theString as key, intPrimitive as value from SupportBean";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtTextCreate);
         stmt.setSubscriber(subscriberNamedWindow);
 
@@ -138,7 +138,7 @@ public class TestSubscriberMgmt extends TestCase
     public void testSimpleSelectUpdateOnly()
     {
         SupportSubscriberRowByRowSpecificNStmt subscriber = new SupportSubscriberRowByRowSpecificNStmt();
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString, intPrimitive from " + SupportBean.class.getName() + "#lastevent()");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select theString, intPrimitive from " + SupportBean.class.getName() + "#lastevent");
         stmt.setSubscriber(subscriber);
 
         // get statement, attach listener

@@ -216,7 +216,7 @@ public class TestTableAccessCore extends TestCase {
 
     private void runAssertionSubqueryWithExpressionHasTableAccess() {
         epService.getEPAdministrator().createEPL("create table MyTableTwo(theString string primary key, intPrimitive int)");
-        epService.getEPAdministrator().createEPL("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1#lastevent())}");
+        epService.getEPAdministrator().createEPL("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1#lastevent)}");
         epService.getEPAdministrator().createEPL("insert into MyTableTwo select theString, intPrimitive from SupportBean");
         epService.getEPAdministrator().createEPL("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0");
 
@@ -556,7 +556,7 @@ public class TestTableAccessCore extends TestCase {
 
     public void testSubquery() {
         epService.getEPAdministrator().createEPL("create table subquery_var_agg (key string primary key, total count(*))");
-        epService.getEPAdministrator().createEPL("select (select subquery_var_agg[p00].total from SupportBean_S0#lastevent()) as c0 " +
+        epService.getEPAdministrator().createEPL("select (select subquery_var_agg[p00].total from SupportBean_S0#lastevent) as c0 " +
                 "from SupportBean_S1").addListener(listener);
         epService.getEPAdministrator().createEPL("into table subquery_var_agg select count(*) as total from SupportBean group by theString");
 

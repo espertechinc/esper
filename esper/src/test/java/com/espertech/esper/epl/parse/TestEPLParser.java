@@ -290,11 +290,11 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + "(string in (1:2) or katc=3 or lax like '%e%')");
         assertIsValid(preFill + "(string in (1:2) and dodo=3, lax like '%e%' and oppol / yyy = 5, yunc(3))");
         assertIsValid(preFill + "()[myprop]");
-        assertIsValid(preFill + "[myprop]#keepall()");
-        assertIsValid(preFill + "[myprop as orderId][mythirdprop]#keepall()");
-        assertIsValid(preFill + "[select *, abc, a.b from myprop as orderId where a=s][mythirdprop]#keepall()");
-        assertIsValid(preFill + "[xyz][select *, abc, a.b from myprop]#keepall()");
-        assertIsValid(preFill + "[xyz][myprop where a=x]#keepall()");
+        assertIsValid(preFill + "[myprop]#keepall");
+        assertIsValid(preFill + "[myprop as orderId][mythirdprop]#keepall");
+        assertIsValid(preFill + "[select *, abc, a.b from myprop as orderId where a=s][mythirdprop]#keepall");
+        assertIsValid(preFill + "[xyz][select *, abc, a.b from myprop]#keepall");
+        assertIsValid(preFill + "[xyz][myprop where a=x]#keepall");
         assertIsValid("select * from A where (select * from B[myprop])");
 
         assertIsValid("select max(intPrimitive, intBoxed) from " + className + "().std:win(20)");

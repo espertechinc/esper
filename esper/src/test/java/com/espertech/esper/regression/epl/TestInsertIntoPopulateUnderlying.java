@@ -115,7 +115,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         stmtTwo.destroy();
 
         // test join wildcard
-        String eplThree = "insert into SupportBeanCtorTwo select * from SupportBean_ST0#lastevent(), SupportBean_ST1#lastevent()";
+        String eplThree = "insert into SupportBeanCtorTwo select * from SupportBean_ST0#lastevent, SupportBean_ST1#lastevent";
         EPStatement stmtThree = epService.getEPAdministrator().createEPL(eplThree);
         stmtThree.addListener(listener);
         
@@ -139,7 +139,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         // test Ctor accepting same types
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().addEventType(MyEventWithCtorSameType.class);
-        String epl = "insert into MyEventWithCtorSameType select c1,c2 from SupportBean(theString='b1')#lastevent() as c1, SupportBean(theString='b2')#lastevent() as c2";
+        String epl = "insert into MyEventWithCtorSameType select c1,c2 from SupportBean(theString='b1')#lastevent as c1, SupportBean(theString='b2')#lastevent as c2";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("b1", 1));
@@ -175,7 +175,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
     public void testBeanJoin()
     {
         // test wildcard
-        String stmtTextOne = "insert into SupportBeanObject select * from SupportBean_N#lastevent() as one, SupportBean_S0#lastevent() as two";
+        String stmtTextOne = "insert into SupportBeanObject select * from SupportBean_N#lastevent as one, SupportBean_S0#lastevent as two";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmtOne.addListener(listener);
 
@@ -189,7 +189,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
 
         // test select stream names
         stmtOne.destroy();
-        stmtTextOne = "insert into SupportBeanObject select one, two from SupportBean_N#lastevent() as one, SupportBean_S0#lastevent() as two";
+        stmtTextOne = "insert into SupportBeanObject select one, two from SupportBean_N#lastevent as one, SupportBean_S0#lastevent as two";
         stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmtOne.addListener(listener);
 
@@ -201,7 +201,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         stmtOne.destroy();
 
         // test fully-qualified class name as target
-        stmtTextOne = "insert into " + SupportBeanObject.class.getName() + " select one, two from SupportBean_N#lastevent() as one, SupportBean_S0#lastevent() as two";
+        stmtTextOne = "insert into " + SupportBeanObject.class.getName() + " select one, two from SupportBean_N#lastevent as one, SupportBean_S0#lastevent as two";
         stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmtOne.addListener(listener);
 

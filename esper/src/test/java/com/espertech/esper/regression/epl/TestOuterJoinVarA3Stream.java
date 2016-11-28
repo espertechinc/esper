@@ -57,10 +57,10 @@ public class TestOuterJoinVarA3Stream extends TestCase
 
     public void testMapLeftJoinUnsortedProps()
     {
-        String stmtText = "select t1.col1, t1.col2, t2.col1, t2.col2, t3.col1, t3.col2 from type1#keepall() as t1" +
-                " left outer join type2#keepall() as t2" +
+        String stmtText = "select t1.col1, t1.col2, t2.col1, t2.col2, t3.col1, t3.col2 from type1#keepall as t1" +
+                " left outer join type2#keepall as t2" +
                 " on t1.col2 = t2.col2 and t1.col1 = t2.col1" +
-                " left outer join type3#keepall() as t3" +
+                " left outer join type3#keepall as t3" +
                 " on t1.col1 = t3.col1";
 
         Map<String, Object> mapType = new HashMap<String, Object>();
@@ -155,7 +155,7 @@ public class TestOuterJoinVarA3Stream extends TestCase
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean_S0#keepall() as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall() as s1 on s0.p00 = s1.p10 left outer join com.espertech.esper.support.bean.SupportBean_S2#keepall() as s2 on s0.p00 = s2.p20", model.toEPL());
+        assertEquals("select * from com.espertech.esper.support.bean.SupportBean_S0#keepall as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall as s1 on s0.p00 = s1.p10 left outer join com.espertech.esper.support.bean.SupportBean_S2#keepall as s2 on s0.p00 = s2.p20", model.toEPL());
         EPStatement joinView = epService.getEPAdministrator().create(model);
         joinView.addListener(updateListener);
 

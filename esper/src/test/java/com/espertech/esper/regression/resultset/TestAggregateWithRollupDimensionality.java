@@ -125,7 +125,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     public void testOnSelect() {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL("on SupportBean_S0 as s0 select mw.theString as c0, sum(mw.intPrimitive) as c1, count(*) as c2 from MyWindow mw group by rollup(mw.theString)");
         stmt.addListener(listener);
@@ -508,7 +508,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
 
     private void runAssertionNamedWindowCube2Dim(String groupBy) {
 
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(intBoxed = 0)");
         epService.getEPAdministrator().createEPL("on SupportBean(intBoxed = 3) delete from MyWindow");
 
@@ -556,7 +556,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
     }
 
     private void runAssertionNamedWindowDeleteAndRStream2Dim(String groupBy) {
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean(intBoxed = 0)");
         epService.getEPAdministrator().createEPL("on SupportBean(intBoxed = 1) as sb " +
                 "delete from MyWindow mw where sb.theString = mw.theString and sb.intPrimitive = mw.intPrimitive");
@@ -692,7 +692,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#length(3) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#length(3) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive)").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
@@ -891,7 +891,7 @@ public class TestAggregateWithRollupDimensionality extends TestCase
         String[] fields = "c0,c1,c2,c3,c4".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, longPrimitive as c2, count(*) as c3, sum(doublePrimitive) as c4 " +
-                "from SupportBean#keepall() " + (isJoin ? ", SupportBean_S0#lastevent() " : "") +
+                "from SupportBean#keepall " + (isJoin ? ", SupportBean_S0#lastevent " : "") +
                 "group by " + groupByClause).addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 

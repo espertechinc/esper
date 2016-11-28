@@ -61,7 +61,7 @@ public class TestMTStmtNamedWindowSubqueryAgg extends TestCase
         engine.getEPAdministrator().createEPL("create schema UpdateEvent as (uekey string, ueint int)");
         engine.getEPAdministrator().createEPL("create schema WindowSchema as (wskey string, wsint int)");
 
-        String createEpl = "create window MyWindow#keepall() as WindowSchema";
+        String createEpl = "create window MyWindow#keepall as WindowSchema";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

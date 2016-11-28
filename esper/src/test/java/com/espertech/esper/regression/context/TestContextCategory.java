@@ -69,7 +69,7 @@ public class TestContextCategory extends TestCase {
     public void testContextPartitionSelection() {
         String[] fields = "c0,c1,c2,c3".split(",");
         epService.getEPAdministrator().createEPL("create context MyCtx as group by intPrimitive < -5 as grp1, group by intPrimitive between -5 and +5 as grp2, group by intPrimitive > 5 as grp3 from SupportBean");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.label as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall() group by theString");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.label as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", -5));

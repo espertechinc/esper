@@ -70,7 +70,7 @@ public class TestIterator extends TestCase
     {
 		String cepStatementString =	"select * from pattern " +
 									"[every ( addressInfo = " + SupportBean.class.getName() + "(theString='address') " +
-									"-> txnWD = " + SupportBean.class.getName() + "(theString='txn') ) ]#lastevent() " +
+									"-> txnWD = " + SupportBean.class.getName() + "(theString='txn') ) ]#lastevent " +
 									"where addressInfo.intBoxed = txnWD.intBoxed";
 		EPStatement epStatement = epService.getEPAdministrator().createEPL(cepStatementString);
 

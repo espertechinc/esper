@@ -348,7 +348,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "having sum(longPrimitive) > 100 " +
                 "output first every 1 second").addListener(listener);
@@ -412,7 +412,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output first every 1 second").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
@@ -494,7 +494,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output first every 1 second " +
                 "order by theString, intPrimitive").addListener(listener);
@@ -575,7 +575,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) "  + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) "  + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output every 1 second").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
@@ -653,7 +653,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output every 1 second " +
                 "order by theString, intPrimitive").addListener(listener);
@@ -738,7 +738,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output all every 1 second").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
@@ -788,7 +788,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output all every 1 second " +
                 "order by theString, intPrimitive").addListener(listener);
@@ -840,7 +840,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL(hint + "@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output last every 1 second").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
@@ -893,7 +893,7 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent()" : "") +
+                "from SupportBean#time(3.5 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "output last every 1 second " +
                 "order by theString, intPrimitive").addListener(listener);

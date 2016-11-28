@@ -135,7 +135,7 @@ public class TestVariantStreamAny extends TestCase
 
         epService.getEPAdministrator().createEPL("insert into MyStream select theString, intPrimitive from SupportBean");
         epService.getEPAdministrator().createEPL("insert into VarStream select theString as abc from MyStream");
-        epService.getEPAdministrator().createEPL("@Name('Target') select * from VarStream#keepall()");
+        epService.getEPAdministrator().createEPL("@Name('Target') select * from VarStream#keepall");
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
 

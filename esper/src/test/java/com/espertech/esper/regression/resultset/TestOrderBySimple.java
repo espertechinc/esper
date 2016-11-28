@@ -147,7 +147,7 @@ public class TestOrderBySimple extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class.getName());
 
         // test order by
-        String stmtText = "select theString from SupportBean#keepall() order by theString asc";
+        String stmtText = "select theString from SupportBean#keepall order by theString asc";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtText);
         epService.getEPRuntime().sendEvent(new SupportBean(frenchForSin, 1));
         epService.getEPRuntime().sendEvent(new SupportBean(frenchForFruit, 1));

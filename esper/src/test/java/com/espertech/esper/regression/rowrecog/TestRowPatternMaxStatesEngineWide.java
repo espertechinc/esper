@@ -316,7 +316,7 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         initService(3L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String namedWindow = "create window MyWindow#keepall() as SupportBean";
+        String namedWindow = "create window MyWindow#keepall as SupportBean";
         epService.getEPAdministrator().createEPL(namedWindow);
         String insert = "insert into MyWindow select * from SupportBean";
         epService.getEPAdministrator().createEPL(insert);
@@ -375,7 +375,7 @@ public class TestRowPatternMaxStatesEngineWide extends TestCase implements Suppo
         initService(3L, true);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
-        String namedWindow = "create window MyWindow#keepall() as SupportBean";
+        String namedWindow = "create window MyWindow#keepall as SupportBean";
         epService.getEPAdministrator().createEPL(namedWindow);
         String insert = "insert into MyWindow select * from SupportBean";
         epService.getEPAdministrator().createEPL(insert);

@@ -44,14 +44,14 @@ public class TestPerfSubselectIn extends TestCase
 
     public void testPerformanceInKeywordAsPartOfSubquery()
     {
-        String eplSingleIndex = "select (select p00 from S0#keepall() as s0 where s0.p01 in (s1.p10, s1.p11)) as c0 from S1 as s1";
+        String eplSingleIndex = "select (select p00 from S0#keepall as s0 where s0.p01 in (s1.p10, s1.p11)) as c0 from S1 as s1";
         EPStatement stmtSingleIdx = epService.getEPAdministrator().createEPL(eplSingleIndex);
         stmtSingleIdx.addListener(listener);
 
         runAssertionPerformanceInKeywordAsPartOfSubquery();
         stmtSingleIdx.destroy();
 
-        String eplMultiIdx = "select (select p00 from S0#keepall() as s0 where s1.p11 in (s0.p00, s0.p01)) as c0 from S1 as s1";
+        String eplMultiIdx = "select (select p00 from S0#keepall as s0 where s1.p11 in (s0.p00, s0.p01)) as c0 from S1 as s1";
         EPStatement stmtMultiIdx = epService.getEPAdministrator().createEPL(eplMultiIdx);
         stmtMultiIdx.addListener(listener);
 

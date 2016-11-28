@@ -53,11 +53,11 @@ public class TestNamedWindowOM extends TestCase
     public void testCompile()
     {
         String[] fields = new String[] {"key", "value"};
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as key, longBoxed as value from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as key, longBoxed as value from " + SupportBean.class.getName();
         EPStatementObjectModel modelCreate = epService.getEPAdministrator().compileEPL(stmtTextCreate);
         EPStatement stmtCreate = epService.getEPAdministrator().create(modelCreate);
         stmtCreate.addListener(listenerWindow);
-        assertEquals("create window MyWindow#keepall() as select theString as key, longBoxed as value from com.espertech.esper.support.bean.SupportBean", modelCreate.toEPL());
+        assertEquals("create window MyWindow#keepall as select theString as key, longBoxed as value from com.espertech.esper.support.bean.SupportBean", modelCreate.toEPL());
 
         String stmtTextOnSelect = "on " + SupportBean_B.class.getName() + " select mywin.* from MyWindow as mywin";
         EPStatementObjectModel modelOnSelect = epService.getEPAdministrator().compileEPL(stmtTextOnSelect);
@@ -137,7 +137,7 @@ public class TestNamedWindowOM extends TestCase
         EPStatement stmtCreate = epService.getEPAdministrator().create(model);
         stmtCreate.addListener(listenerWindow);
 
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as key, longBoxed as value from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as key, longBoxed as value from " + SupportBean.class.getName();
         assertEquals(stmtTextCreate, model.toEPL());
 
         String stmtTextInsert = "insert into MyWindow select theString as key, longBoxed as value from " + SupportBean.class.getName();
@@ -219,7 +219,7 @@ public class TestNamedWindowOM extends TestCase
 
     public void testOMCreateTableSyntax()
     {
-        String expected = "create window MyWindow#keepall() as (a1 string, a2 double, a3 int)";
+        String expected = "create window MyWindow#keepall as (a1 string, a2 double, a3 int)";
 
         // create window object model
         EPStatementObjectModel model = new EPStatementObjectModel();

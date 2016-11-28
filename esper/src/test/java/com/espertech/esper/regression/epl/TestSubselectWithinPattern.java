@@ -46,9 +46,9 @@ public class TestSubselectWithinPattern extends TestCase {
         tryInvalid("select * from S0(exists (select * from S1))",
                 "Failed to validate subquery number 1 querying S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from S0(exists (select * from S1))]");
         
-        epService.getEPAdministrator().createEPL("create window MyWindow#lastevent() as select * from S0");
-        tryInvalid("select * from S0(exists (select * from MyWindow#lastevent()))",
-                "Failed to validate subquery number 1 querying MyWindow: Consuming statements to a named window cannot declare a data window view onto the named window [select * from S0(exists (select * from MyWindow#lastevent()))]");
+        epService.getEPAdministrator().createEPL("create window MyWindow#lastevent as select * from S0");
+        tryInvalid("select * from S0(exists (select * from MyWindow#lastevent))",
+                "Failed to validate subquery number 1 querying MyWindow: Consuming statements to a named window cannot declare a data window view onto the named window [select * from S0(exists (select * from MyWindow#lastevent))]");
 
         tryInvalid("select * from S0(id in ((select p00 from MyWindow)))",
                 "Failed to validate filter expression 'id in (subselect_1)': Implicit conversion not allowed: Cannot coerce types java.lang.Integer and java.lang.String [select * from S0(id in ((select p00 from MyWindow)))]");
@@ -57,7 +57,7 @@ public class TestSubselectWithinPattern extends TestCase {
     public void testSubqueryAgainstNamedWindowInUDFInPattern() {
 
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("supportSingleRowFunction", TestSubselectWithinPattern.class.getName(), "supportSingleRowFunction");
-        epService.getEPAdministrator().createEPL("create window MyWindow#unique(p00)#keepall() as S0");
+        epService.getEPAdministrator().createEPL("create window MyWindow#unique(p00)#keepall as S0");
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from pattern[S1(supportSingleRowFunction((select * from MyWindow)))]");
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S1(1));
@@ -67,21 +67,21 @@ public class TestSubselectWithinPattern extends TestCase {
     public void testFilterPatternNamedWindowNoAlias()
     {
         // subselect in pattern
-        String stmtTextOne = "select s.id as myid from pattern [every s=S0(p00 in (select p10 from S1#lastevent()))]";
+        String stmtTextOne = "select s.id as myid from pattern [every s=S0(p00 in (select p10 from S1#lastevent))]";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmtOne.addListener(listener);
         runAssertion();
         stmtOne.destroy();
 
         // subselect in filter
-        String stmtTextTwo = "select id as myid from S0(p00 in (select p10 from S1#lastevent()))";
+        String stmtTextTwo = "select id as myid from S0(p00 in (select p10 from S1#lastevent))";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtTextTwo);
         stmtTwo.addListener(listener);
         runAssertion();
         stmtTwo.destroy();
 
         // subselect in filter with named window
-        EPStatement stmtNamedThree = epService.getEPAdministrator().createEPL("create window MyS1Window#lastevent() as select * from S1");
+        EPStatement stmtNamedThree = epService.getEPAdministrator().createEPL("create window MyS1Window#lastevent as select * from S1");
         EPStatement stmtInsertThree = epService.getEPAdministrator().createEPL("insert into MyS1Window select * from S1");
         String stmtTextThree = "select id as myid from S0(p00 in (select p10 from MyS1Window))";
         EPStatement stmtThree = epService.getEPAdministrator().createEPL(stmtTextThree);
@@ -92,7 +92,7 @@ public class TestSubselectWithinPattern extends TestCase {
         stmtNamedThree.destroy();
 
         // subselect in pattern with named window
-        EPStatement stmtNamedFour = epService.getEPAdministrator().createEPL("create window MyS1Window#lastevent() as select * from S1");
+        EPStatement stmtNamedFour = epService.getEPAdministrator().createEPL("create window MyS1Window#lastevent as select * from S1");
         EPStatement stmtInsertFour = epService.getEPAdministrator().createEPL("insert into MyS1Window select * from S1");
         String stmtTextFour = "select s.id as myid from pattern [every s=S0(p00 in (select p10 from MyS1Window))]";
         EPStatement stmtFour = epService.getEPAdministrator().createEPL(stmtTextFour);
@@ -105,13 +105,13 @@ public class TestSubselectWithinPattern extends TestCase {
 
     public void testCorrelated() {
 
-        String stmtTextTwo = "select sp1.id as myid from pattern[every sp1=S0(exists (select * from S1#keepall() as stream1 where stream1.p10 = sp1.p00))]";
+        String stmtTextTwo = "select sp1.id as myid from pattern[every sp1=S0(exists (select * from S1#keepall as stream1 where stream1.p10 = sp1.p00))]";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtTextTwo);
         stmtTwo.addListener(listener);
         runAssertionTwo();
         stmtTwo.destroy();
 
-        String stmtTextOne = "select id as myid from S0(exists (select stream1.id from S1#keepall() as stream1 where stream1.p10 = stream0.p00)) as stream0";
+        String stmtTextOne = "select id as myid from S0(exists (select stream1.id from S1#keepall as stream1 where stream1.p10 = stream0.p00)) as stream0";
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
         stmtOne.addListener(listener);
         runAssertionTwo();
@@ -119,7 +119,7 @@ public class TestSubselectWithinPattern extends TestCase {
 
         // Correlated across two matches
         String stmtTextThree = "select sp0.p00||'+'||sp1.p10 as myid from pattern[" +
-                "every sp0=S0 -> sp1=S1(p11 = (select stream2.p21 from S2#keepall() as stream2 where stream2.p20 = sp0.p00))]";
+                "every sp0=S0 -> sp1=S1(p11 = (select stream2.p21 from S2#keepall as stream2 where stream2.p20 = sp0.p00))]";
         EPStatement stmtThree = epService.getEPAdministrator().createEPL(stmtTextThree);
         stmtThree.addListener(listener);
 

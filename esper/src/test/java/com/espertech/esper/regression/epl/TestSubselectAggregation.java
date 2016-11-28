@@ -94,7 +94,7 @@ public class TestSubselectAggregation extends TestCase
     public void testCorrelatedAggregationSelectEquals()
     {
         String stmtText = "select p00, " +
-                "(select sum(intPrimitive) from SupportBean#keepall() where theString = s0.p00) as sump00 " +
+                "(select sum(intPrimitive) from SupportBean#keepall where theString = s0.p00) as sump00 " +
                 "from S0 as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
@@ -123,10 +123,10 @@ public class TestSubselectAggregation extends TestCase
         // test distinct
         fields = "theString,c0,c1,c2,c3".split(",");
         String viewExpr = "select theString, " +
-                "(select count(sb.intPrimitive) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c0, " +
-                "(select count(distinct sb.intPrimitive) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c1, " +
-                "(select count(sb.intPrimitive, true) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c2, " +
-                "(select count(distinct sb.intPrimitive, true) from SupportBean()#keepall() as sb where bean.theString = sb.theString) as c3 " +
+                "(select count(sb.intPrimitive) from SupportBean()#keepall as sb where bean.theString = sb.theString) as c0, " +
+                "(select count(distinct sb.intPrimitive) from SupportBean()#keepall as sb where bean.theString = sb.theString) as c1, " +
+                "(select count(sb.intPrimitive, true) from SupportBean()#keepall as sb where bean.theString = sb.theString) as c2, " +
+                "(select count(distinct sb.intPrimitive, true) from SupportBean()#keepall as sb where bean.theString = sb.theString) as c3 " +
                 "from SupportBean as bean";
         stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);
@@ -147,14 +147,14 @@ public class TestSubselectAggregation extends TestCase
     public void testCorrelatedAggregationWhereGreater()
     {
         String stmtText = "select p00 from S0 as s0 where id > " +
-                "(select sum(intPrimitive) from SupportBean#keepall() where theString = s0.p00)";
+                "(select sum(intPrimitive) from SupportBean#keepall where theString = s0.p00)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
         runAssertionCorrAggWhereGreater();
 
         stmtText = "select p00 from S0 as s0 where id > " +
-                "(select sum(intPrimitive) from SupportBean#keepall() where theString||'X' = s0.p00||'X')";
+                "(select sum(intPrimitive) from SupportBean#keepall where theString||'X' = s0.p00||'X')";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 
@@ -186,7 +186,7 @@ public class TestSubselectAggregation extends TestCase
     public void testPriceMap()
     {
         String stmtText = "select * from MarketData " +
-                "where price > (select max(price) from MarketData(symbol='GOOG')#lastevent()) ";
+                "where price > (select max(price) from MarketData(symbol='GOOG')#lastevent) ";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
 

@@ -55,7 +55,7 @@ public class TestTableMTUngroupedAccessWithinRowFAFConsistency extends TestCase
         String eplInto = "into table vartotal select count(*) as cnt, sum(intPrimitive) as sumint, avg(intPrimitive) as avgint from SupportBean";
         epService.getEPAdministrator().createEPL(eplInto);
 
-        epService.getEPAdministrator().createEPL("create window MyWindow#lastevent() as SupportBean_S0");
+        epService.getEPAdministrator().createEPL("create window MyWindow#lastevent as SupportBean_S0");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean_S0");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 

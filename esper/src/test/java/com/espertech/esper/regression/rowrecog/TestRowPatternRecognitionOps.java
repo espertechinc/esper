@@ -50,7 +50,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string " +
                 "  all matches " +
@@ -109,7 +109,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b0_string,b1_string,b2_string,c_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, " +
                 "    B[0].theString as b0_string, " +
@@ -185,7 +185,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b0_string,b1_string,b2_string,c_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, " +
                 "    B[0].theString as b0_string, " +
@@ -242,7 +242,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b_string,c_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string, " +
                 "    C.theString as c_string" +
@@ -318,7 +318,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,a_value,b_value".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  partition by theString" +
                 "  measures A.theString as a_string, A.value as a_value, B.value as b_value " +
@@ -402,7 +402,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  partition by value" +
                 "  measures A.theString as a_string " +
@@ -444,7 +444,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b_string,c_string,d_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string, C.theString as c_string, D.theString as d_string " +
                 "  all matches pattern ( A B | C D ) " +
@@ -493,7 +493,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,b_string,c_string,d_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string, B.theString as b_string, C.theString as c_string, D.theString as d_string " +
                 "  all matches pattern ( (A | B) (C | D) ) " +
@@ -540,7 +540,7 @@ public class TestRowPatternRecognitionOps extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a0,b,a1".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A[0].theString as a0, B.theString as b, A[1].theString as a1 " +
                 "  all matches pattern ( A B A ) " +

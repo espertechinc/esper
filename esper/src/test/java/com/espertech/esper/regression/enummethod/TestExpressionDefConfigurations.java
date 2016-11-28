@@ -45,7 +45,7 @@ public class TestExpressionDefConfigurations extends TestCase {
 
         // set up
         EPStatement stmt = epService.getEPAdministrator().createEPL(
-                "expression myExpr {v => alwaysTrue(null) } select myExpr(st0) as c0, myExpr(st1) as c1, myExpr(st0) as c2, myExpr(st1) as c3 from SupportBean_ST0#lastevent() as st0, SupportBean_ST1#lastevent() as st1");
+                "expression myExpr {v => alwaysTrue(null) } select myExpr(st0) as c0, myExpr(st1) as c1, myExpr(st0) as c2, myExpr(st1) as c3 from SupportBean_ST0#lastevent as st0, SupportBean_ST1#lastevent as st1");
         stmt.addListener(new SupportUpdateListener());
 
         // send event and assert

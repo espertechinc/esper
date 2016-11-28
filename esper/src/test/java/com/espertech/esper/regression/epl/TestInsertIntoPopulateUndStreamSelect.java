@@ -43,7 +43,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         String epl = "create objectarray schema Event();\n" +
                 "create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
                 "create objectarray schema Incident(name string, event Event);\n" +
-                "@Name('window') create window IncidentWindow#keepall() as Incident;\n" +
+                "@Name('window') create window IncidentWindow#keepall as Incident;\n" +
                 "\n" +
                 "on ChildEvent e\n" +
                 "    merge IncidentWindow w\n" +

@@ -65,7 +65,7 @@ public class TestDatabaseJoin extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanTwo", SupportBeanTwo.class);
 
-        String stmtText = "select * from SupportBean#lastevent() sb, SupportBeanTwo#lastevent() sbt, " +
+        String stmtText = "select * from SupportBean#lastevent sb, SupportBeanTwo#lastevent sbt, " +
                 "sql:MyDB ['select myint from mytesttable'] as s1 " +
                 "  where sb.theString = sbt.stringTwo and s1.myint = sbt.intPrimitiveTwo";
 
@@ -99,7 +99,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String[] fields = "intPrimitive,myint,myvarchar".split(",");
         String stmtText = "select intPrimitive, myint, myvarchar from " +
-                SupportBean.class.getName() + "#keepall() as s0, " +
+                SupportBean.class.getName() + "#keepall as s0, " +
                 " sql:MyDB ['select myint from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s1," +
                 " sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s2 ";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -126,7 +126,7 @@ public class TestDatabaseJoin extends TestCase
     {
         String[] fields = "a,b,c,d".split(",");
         String stmtText = "select theString as a, intPrimitive as b, s1.myvarchar as c, s2.myvarchar as d from " +
-                SupportBean.class.getName() + "#keepall() as s0 " +
+                SupportBean.class.getName() + "#keepall as s0 " +
                 " inner join " +
                 " sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.mybigint'] as s1 " +
                 " on s1.myvarchar=s0.theString " +
@@ -161,7 +161,7 @@ public class TestDatabaseJoin extends TestCase
 
         String stmtText = "select myint from " +
                 " sql:MyDB ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0, " +
-                "A#keepall() as s1";
+                "A#keepall as s1";
         
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         listener = new SupportUpdateListener();
@@ -175,7 +175,7 @@ public class TestDatabaseJoin extends TestCase
         stmt.destroy();
 
         stmtText = "select myint from " +
-                "A#keepall() as s1, " +
+                "A#keepall as s1, " +
                 "sql:MyDB ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0";
 
         stmt = epService.getEPAdministrator().createEPL(stmtText);

@@ -78,7 +78,7 @@ public class TestEnumDocSamples extends TestCase {
     public void testSubquery() throws Exception {
 
         String eplFragment = "select assetId," +
-                "  (select * from Zone#keepall()).where(z => inrect(z.rectangle, location)) as zones " +
+                "  (select * from Zone#keepall).where(z => inrect(z.rectangle, location)) as zones " +
                 "from Item";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
@@ -100,11 +100,11 @@ public class TestEnumDocSamples extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
 
         // subquery with aggregation
-        epService.getEPAdministrator().createEPL("select (select name, count(*) as cnt from Zone#keepall() group by name).where(v => cnt > 1) from LocationReport");
+        epService.getEPAdministrator().createEPL("select (select name, count(*) as cnt from Zone#keepall group by name).where(v => cnt > 1) from LocationReport");
     }
 
     public void testNamedWindow() {
-        epService.getEPAdministrator().createEPL("create window ZoneWindow#keepall() as Zone");
+        epService.getEPAdministrator().createEPL("create window ZoneWindow#keepall as Zone");
         epService.getEPAdministrator().createEPL("insert into ZoneWindow select * from Zone");
 
         String epl = "select ZoneWindow.where(z => inrect(z.rectangle, location)) as zones from Item";
@@ -240,7 +240,7 @@ public class TestEnumDocSamples extends TestCase {
         assertStmt("select items.leastFrequent(i => type) as leastFreqType from LocationReport");
 
         String epl = "expression myquery {itm => " +
-                "(select * from Zone#keepall()).where(z => inrect(z.rectangle,itm.location))" +
+                "(select * from Zone#keepall).where(z => inrect(z.rectangle,itm.location))" +
                 "} " +
                 "select assetId, myquery(item) as subq, myquery(item).where(z => z.name=\"Z01\") as assetItem " +
                 "from Item as item";

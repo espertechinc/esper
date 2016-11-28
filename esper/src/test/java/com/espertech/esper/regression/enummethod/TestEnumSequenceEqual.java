@@ -119,8 +119,8 @@ public class TestEnumSequenceEqual extends TestCase {
     public void testInvalid() {
         String epl;
 
-        epl = "select window(*).sequenceEqual(strvals) from SupportCollection#lastevent()";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'window(*).sequenceEqual(strvals)': Invalid input for built-in enumeration method 'sequenceEqual' and 1-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'SupportCollection' [select window(*).sequenceEqual(strvals) from SupportCollection#lastevent()]");
+        epl = "select window(*).sequenceEqual(strvals) from SupportCollection#lastevent";
+        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'window(*).sequenceEqual(strvals)': Invalid input for built-in enumeration method 'sequenceEqual' and 1-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'SupportCollection' [select window(*).sequenceEqual(strvals) from SupportCollection#lastevent]");
     }
 
     private void tryInvalid(String epl, String message) {

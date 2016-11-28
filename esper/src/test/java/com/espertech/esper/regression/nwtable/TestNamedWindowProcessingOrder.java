@@ -91,7 +91,7 @@ public class TestNamedWindowProcessingOrder extends TestCase
     public void testOrderedDeleteAndSelect()
     {
         String stmtText;
-        stmtText = "create window MyWindow#lastevent() as select * from Event";
+        stmtText = "create window MyWindow#lastevent as select * from Event";
         epService.getEPAdministrator().createEPL(stmtText);
 
         stmtText = "insert into MyWindow select * from Event";

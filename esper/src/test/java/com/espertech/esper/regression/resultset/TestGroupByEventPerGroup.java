@@ -148,7 +148,7 @@ public class TestGroupByEventPerGroup extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_B", SupportBean_B.class);
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean_A a delete from MyWindow w where w.theString = a.id");
         epService.getEPAdministrator().createEPL("on SupportBean_B delete from MyWindow");

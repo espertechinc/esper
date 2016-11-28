@@ -41,7 +41,7 @@ public class TestMTUpdateIStreamSubselect extends TestCase
         engine.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         engine.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
         EPStatement stmt = engine.getEPAdministrator().createEPL("update istream SupportBean as sb " +
-                        "set longPrimitive = (select count(*) from SupportBean_S0#keepall() as s0 where s0.p00 = sb.theString)");
+                        "set longPrimitive = (select count(*) from SupportBean_S0#keepall as s0 where s0.p00 = sb.theString)");
         stmt.addListener(listener);
 
         // insert 5 data events for each symbol

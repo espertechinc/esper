@@ -250,7 +250,7 @@ public class TestDataWindowIntersectExpiry extends TestCase
         listener.reset();
 
         // another combination
-        epService.getEPAdministrator().createEPL("select * from SupportBean#groupwin(theString)#time(.0083 sec)#firstevent()");
+        epService.getEPAdministrator().createEPL("select * from SupportBean#groupwin(theString)#time(.0083 sec)#firstevent");
     }
 
     public void testIntersectSubselect()

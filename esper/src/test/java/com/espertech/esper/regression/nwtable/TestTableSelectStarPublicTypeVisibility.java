@@ -77,9 +77,9 @@ public class TestTableSelectStarPublicTypeVisibility extends TestCase {
 
         epService.getEPAdministrator().createEPL("into table MyTable " +
                 "select sum(intPrimitive) as totalInt, sum(longPrimitive) as totalLong," +
-                "window(*) as winsb from SupportBean#keepall() group by theString");
+                "window(*) as winsb from SupportBean#keepall group by theString");
         epService.getEPAdministrator().createEPL("into table MyTable " +
-                "select window(*) as winsb0 from SupportBean_S0#keepall() group by p00");
+                "select window(*) as winsb0 from SupportBean_S0#keepall group by p00");
         epService.getEPAdministrator().createEPL("on SupportBean_S1 " +
                 "merge MyTable where p10 = key when matched then " +
                 "update set p0 = p11, p1 = p12");

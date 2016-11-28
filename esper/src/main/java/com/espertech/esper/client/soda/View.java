@@ -125,8 +125,10 @@ public class View extends EPBaseNamedObject
      */
     public void toEPLWithHash(StringWriter writer) {
         writer.write(getName());
-        writer.write('(');
-        ExpressionBase.toPrecedenceFreeEPL(getParameters(), writer);
-        writer.write(')');
+        if (!getParameters().isEmpty()) {
+            writer.write('(');
+            ExpressionBase.toPrecedenceFreeEPL(getParameters(), writer);
+            writer.write(')');
+        }
     }
 }

@@ -58,12 +58,12 @@ public class TestNamedWindowInsertFrom extends TestCase
     public void testCreateNamedAfterNamed()
     {
         // create window
-        String stmtTextCreateOne = "create window MyWindow#keepall() as SupportBean";
+        String stmtTextCreateOne = "create window MyWindow#keepall as SupportBean";
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listeners[0]);
 
         // create window
-        String stmtTextCreateTwo = "create window MyWindowTwo#keepall() as MyWindow";
+        String stmtTextCreateTwo = "create window MyWindowTwo#keepall as MyWindow";
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listeners[1]);
 
@@ -87,7 +87,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         String[] fields = new String[] {"theString"};
 
         // create window
-        String stmtTextCreateOne = "create window MyWindow#keepall() as SupportBean";
+        String stmtTextCreateOne = "create window MyWindow#keepall as SupportBean";
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne, "name1");
         stmtCreateOne.addListener(listeners[0]);
         EventType eventTypeOne = stmtCreateOne.getEventType();
@@ -110,7 +110,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         listeners[0].reset();
         
         // create window with keep-all
-        String stmtTextCreateTwo = "create window MyWindowTwo#keepall() as MyWindow insert";
+        String stmtTextCreateTwo = "create window MyWindowTwo#keepall as MyWindow insert";
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listeners[2]);
         EPAssertionUtil.assertPropsPerRow(stmtCreateTwo.iterator(), fields, new Object[][]{{"A1"}, {"B2"}, {"C3"}, {"A4"}, {"C5"}});
@@ -120,7 +120,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         assertEquals(StatementType.CREATE_WINDOW, ((EPStatementSPI) stmtCreateTwo).getStatementMetadata().getStatementType());
 
         // create window with keep-all and filter
-        String stmtTextCreateThree = "create window MyWindowThree#keepall() as MyWindow insert where theString like 'A%'";
+        String stmtTextCreateThree = "create window MyWindowThree#keepall as MyWindow insert where theString like 'A%'";
         EPStatement stmtCreateThree = epService.getEPAdministrator().createEPL(stmtTextCreateThree);
         stmtCreateThree.addListener(listeners[3]);
         EPAssertionUtil.assertPropsPerRow(stmtCreateThree.iterator(), fields, new Object[][]{{"A1"}, {"A4"}});
@@ -181,7 +181,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         Map<String, Object> dataType = makeMap(new Object[][] {{"a", String.class}, {"b", int.class}});
         epService.getEPAdministrator().getConfiguration().addEventType("MyMap", dataType);
 
-        String stmtTextCreateOne = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall() as select a, b from MyMap";
+        String stmtTextCreateOne = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall as select a, b from MyMap";
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreateOne.getEventType().getUnderlyingType());
         stmtCreateOne.addListener(listeners[0]);
@@ -202,7 +202,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         model.setCreateWindow(CreateWindowClause.create("MyWindowTwo", View.create("keepall")).insert(true).insertWhereClause(where));
         model.setSelectClause(SelectClause.createWildcard());
         model.setFromClause(FromClause.create(FilterStream.create("MyWindow")));
-        String text = eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall() as select * from MyWindow insert where b=10";
+        String text = eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall as select * from MyWindow insert where b=10";
         assertEquals(text.trim(), model.toEPL());
 
         EPStatementObjectModel modelTwo = epService.getEPAdministrator().compileEPL(text);
@@ -212,7 +212,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), "a,b".split(","), new Object[][]{{"E2", 10}, {"E3", 10}});
 
         // test select individual fields and from an insert-from named window
-        stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowThree#keepall() as select a from MyWindowTwo insert where a = 'E2'");
+        stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowThree#keepall as select a from MyWindowTwo insert where a = 'E2'");
         EPAssertionUtil.assertPropsPerRow(stmt.iterator(), "a".split(","), new Object[][]{{"E2"}});
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -231,8 +231,8 @@ public class TestNamedWindowInsertFrom extends TestCase
         config.addEventTypeName("SupportBean_A");
         config.addEventTypeName("SupportBean_B");
         epService.getEPAdministrator().getConfiguration().addVariantStream("VarStream", config);
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as select * from VarStream");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall() as MyWindow");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as select * from VarStream");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall as MyWindow");
 
         epService.getEPAdministrator().createEPL("insert into VarStream select * from SupportBean_A");
         epService.getEPAdministrator().createEPL("insert into VarStream select * from SupportBean_B");
@@ -246,57 +246,57 @@ public class TestNamedWindowInsertFrom extends TestCase
 
     public void testInvalid()
     {
-        String stmtTextCreateOne = "create window MyWindow#keepall() as SupportBean";
+        String stmtTextCreateOne = "create window MyWindow#keepall as SupportBean";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
 
         try
         {
-            epService.getEPAdministrator().createEPL("create window testWindow3#keepall() as SupportBean insert");
+            epService.getEPAdministrator().createEPL("create window testWindow3#keepall as SupportBean insert");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("A named window by name 'SupportBean' could not be located, use the insert-keyword with an existing named window [create window testWindow3#keepall() as SupportBean insert]", ex.getMessage());
+            assertEquals("A named window by name 'SupportBean' could not be located, use the insert-keyword with an existing named window [create window testWindow3#keepall as SupportBean insert]", ex.getMessage());
         }
 
         try
         {
-            epService.getEPAdministrator().createEPL("create window testWindow3#keepall() as select * from " + SupportBean.class.getName() + " insert where (intPrimitive = 10)");
+            epService.getEPAdministrator().createEPL("create window testWindow3#keepall as select * from " + SupportBean.class.getName() + " insert where (intPrimitive = 10)");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("A named window by name 'com.espertech.esper.support.bean.SupportBean' could not be located, use the insert-keyword with an existing named window [create window testWindow3#keepall() as select * from com.espertech.esper.support.bean.SupportBean insert where (intPrimitive = 10)]", ex.getMessage());
+            assertEquals("A named window by name 'com.espertech.esper.support.bean.SupportBean' could not be located, use the insert-keyword with an existing named window [create window testWindow3#keepall as select * from com.espertech.esper.support.bean.SupportBean insert where (intPrimitive = 10)]", ex.getMessage());
         }
 
         try
         {
-            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall() as MyWindow insert where (select intPrimitive from SupportBean#lastevent())");
+            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall as MyWindow insert where (select intPrimitive from SupportBean#lastevent)");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Create window where-clause may not have a subselect [create window MyWindowTwo#keepall() as MyWindow insert where (select intPrimitive from SupportBean#lastevent())]", ex.getMessage());
+            assertEquals("Create window where-clause may not have a subselect [create window MyWindowTwo#keepall as MyWindow insert where (select intPrimitive from SupportBean#lastevent)]", ex.getMessage());
         }
 
         try
         {
-            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall() as MyWindow insert where sum(intPrimitive) > 2");
+            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall as MyWindow insert where sum(intPrimitive) > 2");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Create window where-clause may not have an aggregation function [create window MyWindowTwo#keepall() as MyWindow insert where sum(intPrimitive) > 2]", ex.getMessage());
+            assertEquals("Create window where-clause may not have an aggregation function [create window MyWindowTwo#keepall as MyWindow insert where sum(intPrimitive) > 2]", ex.getMessage());
         }
 
         try
         {
-            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall() as MyWindow insert where prev(1, intPrimitive) = 1");
+            epService.getEPAdministrator().createEPL("create window MyWindowTwo#keepall as MyWindow insert where prev(1, intPrimitive) = 1");
             fail();
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Create window where-clause may not have a function that requires view resources (prior, prev) [create window MyWindowTwo#keepall() as MyWindow insert where prev(1, intPrimitive) = 1]", ex.getMessage());
+            assertEquals("Create window where-clause may not have a function that requires view resources (prior, prev) [create window MyWindowTwo#keepall as MyWindow insert where prev(1, intPrimitive) = 1]", ex.getMessage());
         }
     }
 

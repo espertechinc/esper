@@ -150,7 +150,7 @@ public class TestAggregationFunctionPlugIn extends TestCase
         EPAssertionUtil.assertProps(listenerTwo.assertOneGetNewAndReset(), "val".split(","), new Object[] {"SupportBean(d, -1) SupportBean(e, 2)"});
 
         try {
-            epService.getEPAdministrator().createEPL("select concatstring(*) as val from SupportBean#lastevent(), SupportBean unidirectional");
+            epService.getEPAdministrator().createEPL("select concatstring(*) as val from SupportBean#lastevent, SupportBean unidirectional");
         }
         catch (EPStatementException ex) {
             SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'concatstring(*)': The 'concatstring' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead");

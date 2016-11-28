@@ -81,7 +81,7 @@ public class TestNamedWindowLateStartIndex extends TestCase
     }
 
     private void preloadData(boolean indexShare) {
-        String createEpl = "create window AWindow#keepall() as MyCountAccessEvent";
+        String createEpl = "create window AWindow#keepall as MyCountAccessEvent";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

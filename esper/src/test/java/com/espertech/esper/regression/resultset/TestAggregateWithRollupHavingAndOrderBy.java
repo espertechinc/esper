@@ -55,7 +55,7 @@ public class TestAggregateWithRollupHavingAndOrderBy extends TestCase
         String[] fields = "c0,c1".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, sum(intPrimitive) as c1 " +
-                "from SupportBean#length(3) " + (join ? ", SupportBean_S0#keepall()" : "") +
+                "from SupportBean#length(3) " + (join ? ", SupportBean_S0#keepall " : "") +
                 "group by rollup(theString)");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
@@ -84,7 +84,7 @@ public class TestAggregateWithRollupHavingAndOrderBy extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean_S0 unidirectional, SupportBean#keepall() " +
+                "from SupportBean_S0 unidirectional, SupportBean#keepall " +
                 "group by cube(theString, intPrimitive)").addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 10, 100));
@@ -129,7 +129,7 @@ public class TestAggregateWithRollupHavingAndOrderBy extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#keepall() " + (join ? ", SupportBean_S0#lastevent() " : "") +
+                "from SupportBean#keepall " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive)" +
                 "having sum(longPrimitive) > 1000").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
@@ -153,7 +153,7 @@ public class TestAggregateWithRollupHavingAndOrderBy extends TestCase
         String[] fieldsC0C1 = "c0,c1".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select theString as c0, sum(intPrimitive) as c1 " +
-                "from SupportBean#keepall() " + (join ? ", SupportBean_S0#lastevent() " : "") +
+                "from SupportBean#keepall " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString) " +
                 "having " +
                 "(theString is null and sum(intPrimitive) > 100) " +
@@ -193,7 +193,7 @@ public class TestAggregateWithRollupHavingAndOrderBy extends TestCase
         String[] fields = "c0,c1,c2".split(",");
         epService.getEPAdministrator().createEPL("@Name('s1')" +
                 "select irstream theString as c0, intPrimitive as c1, sum(longPrimitive) as c2 " +
-                "from SupportBean#time_batch(1 sec) " + (join ? ", SupportBean_S0#lastevent() " : "") +
+                "from SupportBean#time_batch(1 sec) " + (join ? ", SupportBean_S0#lastevent " : "") +
                 "group by rollup(theString, intPrimitive) " +
                 "order by theString, intPrimitive").addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));

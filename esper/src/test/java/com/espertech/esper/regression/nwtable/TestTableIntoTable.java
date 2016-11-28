@@ -49,7 +49,7 @@ public class TestTableIntoTable extends TestCase {
 
         epService.getEPAdministrator().createEPL("into table MyTable " +
                 "select window(sb.*) as thewin, sorted(sb.*) as thesort " +
-                "from SupportBean_S0#lastevent(), SupportBean#keepall() as sb");
+                "from SupportBean_S0#lastevent, SupportBean#keepall as sb");
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));
 
         SupportBean sb1 = new SupportBean("E1", 1);
@@ -85,7 +85,7 @@ public class TestTableIntoTable extends TestCase {
                 "windowb window(*) @type('SupportBean'))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
@@ -127,7 +127,7 @@ public class TestTableIntoTable extends TestCase {
                 "sortedb sorted(intPrimitive) @type('SupportBean'))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 
@@ -166,7 +166,7 @@ public class TestTableIntoTable extends TestCase {
                 "maxb max(int), maxu maxever(int), minb min(int), minu minever(int))";
         SupportModelHelper.createByCompileOrParse(epService, soda, eplDeclare);
 
-        String eplIterate = "select varagg from SupportBean_S0#lastevent()";
+        String eplIterate = "select varagg from SupportBean_S0#lastevent";
         EPStatement stmtIterate = SupportModelHelper.createByCompileOrParse(epService, soda, eplIterate);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
 

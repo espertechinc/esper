@@ -63,7 +63,7 @@ public class TestAggregateRowForAll extends TestCase
     public void testSumJoin()
     {
         String viewExpr = "select irstream sum(longBoxed) as mySum " +
-                          "from " + SupportBeanString.class.getName() + "#keepall() as one, " +
+                          "from " + SupportBeanString.class.getName() + "#keepall as one, " +
                                     SupportBean.class.getName() + "#time(10 sec) as two " +
                           "where one.theString = two.theString";
 

@@ -60,7 +60,7 @@ public class TestGroupByEventPerRowHaving extends TestCase
     private void runAssertionGroupByHaving(boolean join) {
         String epl = !join ?
                 "select * from SupportBean#length_batch(3) group by theString having count(*) > 1" :
-                "select theString, intPrimitive from SupportBean_S0#lastevent(), SupportBean#length_batch(3) group by theString having count(*) > 1";
+                "select theString, intPrimitive from SupportBean_S0#lastevent, SupportBean#length_batch(3) group by theString having count(*) > 1";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(testListener);
 

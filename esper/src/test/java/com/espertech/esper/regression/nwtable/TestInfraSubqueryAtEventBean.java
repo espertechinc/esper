@@ -56,7 +56,7 @@ public class TestInfraSubqueryAtEventBean extends TestCase
     private void runAssertionSubSelStar(boolean namedWindow)
     {
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as (c0 string, c1 int)" :
+                "create window MyInfra#keepall as (c0 string, c1 int)" :
                 "create table MyInfra(c0 string primary key, c1 int)";
         epService.getEPAdministrator().createEPL(eplCreate);
 

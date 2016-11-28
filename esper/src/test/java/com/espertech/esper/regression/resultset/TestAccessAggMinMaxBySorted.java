@@ -79,7 +79,7 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
                 "minby(intPrimitive) as c4, " +
                 "maxbyever(intPrimitive) as c5, " +
                 "minbyever(intPrimitive) as c6 " +
-                "from S0#lastevent(), SupportBean#groupwin(longPrimitive)#length(3) as sb " +
+                "from S0#lastevent, SupportBean#groupwin(longPrimitive)#length(3) as sb " +
                 "group by longPrimitive";
         EPStatement stmtJoin = epService.getEPAdministrator().createEPL(eplJoin);
         stmtJoin.addListener(listener);
@@ -89,7 +89,7 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
 
         // test join multirow
         String[] fields = "c0".split(",");
-        String joinMultirow = "select sorted(intPrimitive desc) as c0 from S0#keepall(), SupportBean#length(2)";
+        String joinMultirow = "select sorted(intPrimitive desc) as c0 from S0#keepall, SupportBean#length(2)";
         EPStatement stmtJoinMultirow = epService.getEPAdministrator().createEPL(joinMultirow);
         stmtJoinMultirow.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S1"));
@@ -270,7 +270,7 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
                 "maxby(theString).longPrimitive as c5," +
                 "minby(intPrimitive).longPrimitive as c6," +
                 "minby(theString).longPrimitive as c7 " +
-                "from SupportBean#keepall()");
+                "from SupportBean#keepall");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("C", 10, 1L));
@@ -314,7 +314,7 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
                 "sorted(theString, intPrimitive) as c1," +
                 "sorted(theString asc, intPrimitive asc) as c2," +
                 "sorted(theString desc, intPrimitive asc) as c3 " +
-                "from SupportBean#keepall()");
+                "from SupportBean#keepall");
         stmt.addListener(listener);
 
         SupportBean eventOne = new SupportBean("C", 10);
@@ -362,7 +362,7 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
                 "minby(intPrimitive, theString).longPrimitive as c5," +
                 "maxby(theString, intPrimitive).longPrimitive as c6," +
                 "minby(theString, intPrimitive).longPrimitive as c7 " +
-                "from SupportBean#keepall()");
+                "from SupportBean#keepall");
         stmtTwo.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeEvent("C", 10, 1L));
@@ -414,8 +414,8 @@ public class TestAccessAggMinMaxBySorted extends TestCase {
     }
 
     public void testInvalid() {
-        tryInvalid("select maxBy(p00||p10) from S0#lastevent(), S1#lastevent()",
-                "Error starting statement: Failed to validate select-clause expression 'maxby(p00||p10)': The 'maxby' aggregation function requires that any parameter expressions evaluate properties of the same stream [select maxBy(p00||p10) from S0#lastevent(), S1#lastevent()]");
+        tryInvalid("select maxBy(p00||p10) from S0#lastevent, S1#lastevent",
+                "Error starting statement: Failed to validate select-clause expression 'maxby(p00||p10)': The 'maxby' aggregation function requires that any parameter expressions evaluate properties of the same stream [select maxBy(p00||p10) from S0#lastevent, S1#lastevent]");
 
         tryInvalid("select sorted(p00) from S0",
                 "Error starting statement: Failed to validate select-clause expression 'sorted(p00)': The 'sorted' aggregation function requires that a data window is declared for the stream [select sorted(p00) from S0]");

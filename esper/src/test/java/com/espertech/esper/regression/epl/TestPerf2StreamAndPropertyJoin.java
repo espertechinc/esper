@@ -50,7 +50,7 @@ public class TestPerf2StreamAndPropertyJoin extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
         String joinStatement = "select * from SupportBean#time(1) as sb, " +
-                " SupportBean_S0#keepall() as s0 " +
+                " SupportBean_S0#keepall as s0 " +
                 " where myStaticEvaluator(sb.theString, s0.p00)";
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
         joinView.addListener(updateListener);

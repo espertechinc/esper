@@ -151,11 +151,11 @@ public class TestPerf3StreamOuterJoinCoercion extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         String stmtText = "select * from " +
-                "SupportBeanRange#keepall() sbr " +
+                "SupportBeanRange#keepall sbr " +
                 " left outer join " +
-                "SupportBean_ST0#keepall() s0 on s0.key0=sbr.key" +
+                "SupportBean_ST0#keepall s0 on s0.key0=sbr.key" +
                 " left outer join " +
-                "SupportBean_ST1#keepall() s1 on s1.key1=s0.key0" +
+                "SupportBean_ST1#keepall s1 on s1.key1=s0.key0" +
                 " where s0.p00 between sbr.rangeStartLong and sbr.rangeEndLong";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);

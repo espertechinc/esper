@@ -109,7 +109,7 @@ public class TestContextLifecycle extends TestCase {
         epService.getEPAdministrator().createEPL("create context TenToFive as start (0, 10, *, *, *) end (0, 17, *, *, *)");
 
         // Trigger not in context
-        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("context NineToFive create window MyWindow#keepall() as SupportBean");
+        EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL("context NineToFive create window MyWindow#keepall as SupportBean");
         try {
             epService.getEPAdministrator().createEPL("on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1");
             fail();
@@ -129,7 +129,7 @@ public class TestContextLifecycle extends TestCase {
 
         // Named window not in context, trigger in different context
         stmtNamedWindow.destroy();
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         try {
             epService.getEPAdministrator().createEPL("context TenToFive on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1");
             fail();
@@ -195,11 +195,11 @@ public class TestContextLifecycle extends TestCase {
         epService.getEPAdministrator().createEPL("insert into ABCStream select * from SupportBean");
         epService.getEPAdministrator().createEPL("@Name('context') create context SegmentedByAString partition by theString from SupportBean");
         try {
-            epService.getEPAdministrator().createEPL("context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent()) where intPrimitive < 0");
+            epService.getEPAdministrator().createEPL("context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent) where intPrimitive < 0");
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error starting statement: Update IStream is not supported in conjunction with a context [context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent()) where intPrimitive < 0]", ex.getMessage());
+            assertEquals("Error starting statement: Update IStream is not supported in conjunction with a context [context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent) where intPrimitive < 0]", ex.getMessage());
         }
 
         // context declaration for create-context

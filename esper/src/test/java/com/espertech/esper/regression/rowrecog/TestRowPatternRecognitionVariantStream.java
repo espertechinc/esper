@@ -35,7 +35,7 @@ public class TestRowPatternRecognitionVariantStream extends TestCase {
         epService.getEPAdministrator().createEPL("create variant schema MyVariantType as S0, S1");
 
         String[] fields = "a,b".split(",");
-        String text = "select * from MyVariantType#keepall() " +
+        String text = "select * from MyVariantType#keepall " +
                 "match_recognize (" +
                 "  measures A.id? as a, B.id? as b" +
                 "  pattern (A B) " +

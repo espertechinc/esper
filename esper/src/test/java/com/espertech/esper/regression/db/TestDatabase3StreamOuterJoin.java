@@ -54,9 +54,9 @@ public class TestDatabase3StreamOuterJoin extends TestCase
 
     public void testInnerJoinLeftS0()
     {
-        String stmtText = "select * from SupportBean#lastevent() sb" +
+        String stmtText = "select * from SupportBean#lastevent sb" +
                 " inner join " +
-                " SupportBeanTwo#lastevent() sbt" +
+                " SupportBeanTwo#lastevent sbt" +
                 " on sb.theString = sbt.stringTwo " +
                 " inner join " +
                 " sql:MyDB ['select myint from mytesttable'] as s1 " +
@@ -82,9 +82,9 @@ public class TestDatabase3StreamOuterJoin extends TestCase
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanTwo", SupportBeanTwo.class);
-        String stmtText = "select * from SupportBean#lastevent() sb" +
+        String stmtText = "select * from SupportBean#lastevent sb" +
                 " left outer join " +
-                " SupportBeanTwo#lastevent() sbt" +
+                " SupportBeanTwo#lastevent sbt" +
                 " on sb.theString = sbt.stringTwo " +
                 " left outer join " +
                 " sql:MyDB ['select myint from mytesttable'] as s1 " +

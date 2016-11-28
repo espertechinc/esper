@@ -243,7 +243,7 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
 
     private void runAssertionMultipleIndexHints(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall() as select * from SSB1" :
+                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall as select * from SSB1" :
                 "create table MyInfra(s1 String primary key, i1 int  primary key, d1 double primary key, l1 long primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("create unique index I1 on MyInfra (s1)");

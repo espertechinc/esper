@@ -116,7 +116,7 @@ public class TestPriorityAndDropInstructions extends TestCase
         String stmtText;
         EPStatement stmt;
 
-        stmtText = "create window MyWindow#lastevent() as select * from SupportBean";
+        stmtText = "create window MyWindow#lastevent as select * from SupportBean";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
 
         stmtText = "insert into MyWindow select * from SupportBean";
@@ -168,7 +168,7 @@ public class TestPriorityAndDropInstructions extends TestCase
         String stmtText;
         EPStatement stmt;
 
-        stmtText = "create window MyWindow#lastevent() as select * from SupportBean";
+        stmtText = "create window MyWindow#lastevent as select * from SupportBean";
         stmt = epService.getEPAdministrator().createEPL(stmtText);
 
         stmtText = "insert into MyWindow select * from SupportBean";

@@ -85,7 +85,7 @@ public class TestRevisionWindowed extends TestCase
         config.addNameDeltaEventType("ISupportDeltaFive");
         epService.getEPAdministrator().getConfiguration().addRevisionEventType("MyInterface", config);
 
-        stmtCreateWin = epService.getEPAdministrator().createEPL("create window MyInterfaceWindow#keepall() as select * from MyInterface");
+        stmtCreateWin = epService.getEPAdministrator().createEPL("create window MyInterfaceWindow#keepall as select * from MyInterface");
         epService.getEPAdministrator().createEPL("insert into MyInterfaceWindow select * from ISupportRevisionFull");
         epService.getEPAdministrator().createEPL("insert into MyInterfaceWindow select * from ISupportDeltaFive");
 

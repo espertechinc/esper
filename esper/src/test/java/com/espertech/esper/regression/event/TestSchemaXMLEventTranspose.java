@@ -74,8 +74,8 @@ public class TestSchemaXMLEventTranspose extends TestCase
         metaNestedArray.setSchemaResource(schemaURI);
         epService.getEPAdministrator().getConfiguration().addEventType("MyNestedArrayEvent", metaNestedArray);
 
-        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into Nested3Stream select nested1simple, nested4array from MyXMLEvent#lastevent()");
-        EPStatement stmtWildcard = epService.getEPAdministrator().createEPL("select * from MyXMLEvent#lastevent()");
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into Nested3Stream select nested1simple, nested4array from MyXMLEvent#lastevent");
+        EPStatement stmtWildcard = epService.getEPAdministrator().createEPL("select * from MyXMLEvent#lastevent");
         EventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
         EventTypeAssertionUtil.assertConsistency(stmtWildcard.getEventType());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
@@ -156,13 +156,13 @@ public class TestSchemaXMLEventTranspose extends TestCase
         // eventTypeMeta.setXPathPropertyExpr(false); <== the default
         epService.getEPAdministrator().getConfiguration().addEventType("TestXMLSchemaType", eventTypeMeta);
 
-        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyNestedStream select nested1 from TestXMLSchemaType#lastevent()");
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyNestedStream select nested1 from TestXMLSchemaType#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),
         }, stmtInsert.getEventType().getPropertyDescriptors());
         EventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
 
-        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select nested1.attr1 as attr1, nested1.prop1 as prop1, nested1.prop2 as prop2, nested1.nested2.prop3 as prop3, nested1.nested2.prop3[0] as prop3_0, nested1.nested2 as nested2 from MyNestedStream#lastevent()");
+        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select nested1.attr1 as attr1, nested1.prop1 as prop1, nested1.prop2 as prop2, nested1.nested2.prop3 as prop3, nested1.nested2.prop3[0] as prop3_0, nested1.nested2 as nested2 from MyNestedStream#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
@@ -179,7 +179,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         }, stmtSelectWildcard.getEventType().getPropertyDescriptors());
         EventTypeAssertionUtil.assertConsistency(stmtSelectWildcard.getEventType());
 
-        EPStatement stmtInsertWildcard = epService.getEPAdministrator().createEPL("insert into MyNestedStreamTwo select nested1.* from TestXMLSchemaType#lastevent()");
+        EPStatement stmtInsertWildcard = epService.getEPAdministrator().createEPL("insert into MyNestedStreamTwo select nested1.* from TestXMLSchemaType#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("prop1", String.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("prop2", Boolean.class, null, false, false, false, false, false),
@@ -222,7 +222,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TestXMLSchemaType", eventTypeMeta);
 
         // note class not a fragment
-        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyNestedStream select nested1 from TestXMLSchemaType#lastevent()");
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyNestedStream select nested1 from TestXMLSchemaType#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, false),
         }, stmtInsert.getEventType().getPropertyDescriptors());
@@ -246,7 +246,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TestXMLSchemaType", eventTypeMeta);
 
         // try array property insert
-        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("select nested3.nested4 as narr from TestXMLSchemaType#lastevent()");
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("select nested3.nested4 as narr from TestXMLSchemaType#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("narr", Node[].class, Node.class, false, false, true, false, true),
         }, stmtInsert.getEventType().getPropertyDescriptors());
@@ -266,7 +266,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         assertEquals("SAMPLE_V10", fragmentItem.get("prop5[0]"));
 
         // try array index property insert
-        EPStatement stmtInsertItem = epService.getEPAdministrator().createEPL("select nested3.nested4[1] as narr from TestXMLSchemaType#lastevent()");
+        EPStatement stmtInsertItem = epService.getEPAdministrator().createEPL("select nested3.nested4[1] as narr from TestXMLSchemaType#lastevent");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("narr", Node.class, null, false, false, false, false, true),
         }, stmtInsertItem.getEventType().getPropertyDescriptors());
@@ -297,7 +297,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("TestNested2", eventTypeMeta);
 
         // try array property in select
-        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("select * from TestNested2#lastevent()");
+        EPStatement stmtInsert = epService.getEPAdministrator().createEPL("select * from TestNested2#lastevent");
         stmtInsert.addListener(listener);
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("prop3", Integer[].class, null, false, false, true, false, false),
@@ -314,7 +314,7 @@ public class TestSchemaXMLEventTranspose extends TestCase
         EventTypeAssertionUtil.assertConsistency(theEvent);
 
         // try array property nested
-        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select nested3.* from ABCType#lastevent()");
+        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select nested3.* from ABCType#lastevent");
         SupportXML.sendDefaultEvent(epService.getEPRuntime(), "test");
         EventBean stmtSelectResult = stmtSelect.iterator().next();
         EventTypeAssertionUtil.assertConsistency(stmtSelectResult);

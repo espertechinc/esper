@@ -44,7 +44,7 @@ public class TestDeployRedefinition extends TestCase
 
         String text = "module test.test1;\n" +
                 "create schema MyTypeOne(col1 string, col2 int);" +
-                "create window MyWindowOne#keepall() as select * from MyTypeOne;" +
+                "create window MyWindowOne#keepall as select * from MyTypeOne;" +
                 "insert into MyWindowOne select * from MyTypeOne;";
 
         DeploymentResult resultOne = deploySvc.parseDeploy(text, "uri1", "arch1", null);
@@ -54,7 +54,7 @@ public class TestDeployRedefinition extends TestCase
         deploySvc.undeployRemove(resultTwo.getDeploymentId());
         text = "module test.test1;\n" +
                 "create schema MyTypeOne(col1 string, col2 int, col3 long);" +
-                "create window MyWindowOne#keepall() as select * from MyTypeOne;" +
+                "create window MyWindowOne#keepall as select * from MyTypeOne;" +
                 "insert into MyWindowOne select * from MyTypeOne;";
 
         DeploymentResult resultThree = deploySvc.parseDeploy(text, "uri1", "arch1", null);

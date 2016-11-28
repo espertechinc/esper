@@ -174,7 +174,7 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         stmtFilter.destroy();
 
         // test "first"
-        String textAccessAgg = "select * from SupportBean#keepall() having 'E2' = getValueAsString(last(*), 'theString')";
+        String textAccessAgg = "select * from SupportBean#keepall having 'E2' = getValueAsString(last(*), 'theString')";
         EPStatement stmtAccessAgg = epService.getEPAdministrator().createEPL(textAccessAgg);
         stmtAccessAgg.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));
@@ -183,7 +183,7 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         stmtAccessAgg.destroy();
 
         // test "window"
-        String textWindowAgg = "select * from SupportBean#keepall() having eventsCheckStrings(window(*), 'theString', 'E1')";
+        String textWindowAgg = "select * from SupportBean#keepall having eventsCheckStrings(window(*), 'theString', 'E1')";
         EPStatement stmtWindowAgg = epService.getEPAdministrator().createEPL(textWindowAgg);
         stmtWindowAgg.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 1));

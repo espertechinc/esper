@@ -165,7 +165,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression js:abc() [throw new Error(\"Some error\");] select * from SupportBean#keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression js:abc() [throw new Error(\"Some error\");] select * from SupportBean#keepall where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
@@ -176,7 +176,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression js:abc[dummy;] select * from SupportBean#keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression js:abc[dummy;] select * from SupportBean#keepall where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();
@@ -231,7 +231,7 @@ public class TestScriptExpression extends TestCase {
 
         // execution problem
         epService.getEPAdministrator().destroyAllStatements();
-        epService.getEPAdministrator().createEPL("expression mvel:abc() [Integer a = null; a + 1;] select * from SupportBean#keepall() where abc() = 1");
+        epService.getEPAdministrator().createEPL("expression mvel:abc() [Integer a = null; a + 1;] select * from SupportBean#keepall where abc() = 1");
         try {
             epService.getEPRuntime().sendEvent(new SupportBean());
             fail();

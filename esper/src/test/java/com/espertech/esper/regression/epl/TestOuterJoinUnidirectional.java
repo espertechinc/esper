@@ -54,12 +54,12 @@ public class TestOuterJoinUnidirectional extends TestCase
 
         // no-view-declared
         SupportMessageAssertUtil.tryInvalid(epService,
-                "select * from SupportBean_A unidirectional full outer join SupportBean_B#keepall() unidirectional",
+                "select * from SupportBean_A unidirectional full outer join SupportBean_B#keepall unidirectional",
                 "Error starting statement: The unidirectional keyword requires that no views are declared onto the stream (applies to stream 1)");
 
         // not-all-unidirectional
         SupportMessageAssertUtil.tryInvalid(epService,
-                "select * from SupportBean_A unidirectional full outer join SupportBean_B unidirectional full outer join SupportBean_C#keepall()",
+                "select * from SupportBean_A unidirectional full outer join SupportBean_B unidirectional full outer join SupportBean_C#keepall",
                 "Error starting statement: The unidirectional keyword must either apply to a single stream or all streams in a full outer join");
 
         // no iterate
@@ -125,7 +125,7 @@ public class TestOuterJoinUnidirectional extends TestCase
     }
 
     private void runAssertion3StreamMixed() {
-        epService.getEPAdministrator().createEPL("create window MyCWindow#keepall() as SupportBean_C");
+        epService.getEPAdministrator().createEPL("create window MyCWindow#keepall as SupportBean_C");
         epService.getEPAdministrator().createEPL("insert into MyCWindow select * from SupportBean_C");
         String epl = "select a.id as aid, b.id as bid, MyCWindow.id as cid, SupportBean_D.id as did " +
                 "from pattern[every a=SupportBean_A -> b=SupportBean_B] t1 unidirectional " +

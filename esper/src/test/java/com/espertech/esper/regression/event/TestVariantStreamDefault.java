@@ -278,7 +278,7 @@ public class TestVariantStreamDefault extends TestCase
 
         // test subquery
         stmt.destroy();
-        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean_A as a where exists(select * from MyVariantStream#lastevent() as b where b.theString=a.id)");
+        stmt = epService.getEPAdministrator().createEPL("select * from SupportBean_A as a where exists(select * from MyVariantStream#lastevent as b where b.theString=a.id)");
         stmt.addListener(listenerOne);
         events = new Object[] {new SupportBean("E1", -1), new SupportBeanVariantStream("E2"), new SupportBean_A("E2")};
 

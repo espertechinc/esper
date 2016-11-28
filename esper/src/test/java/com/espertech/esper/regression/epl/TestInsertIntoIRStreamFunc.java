@@ -50,7 +50,7 @@ public class TestInsertIntoIRStreamFunc extends TestCase
         String[] fields = "c0,c1".split(",");
         String stmtTextOne = "insert irstream into MyStream " +
                 "select irstream theString as c0, istream() as c1 " +
-                "from SupportBean#lastevent()";
+                "from SupportBean#lastevent";
         epService.getEPAdministrator().createEPL(stmtTextOne).addListener(listenerInsert);
 
         String stmtTextTwo = "select * from MyStream";
@@ -80,7 +80,7 @@ public class TestInsertIntoIRStreamFunc extends TestCase
         epService.getEPAdministrator().destroyAllStatements();
         fields = "c0,c1,c2".split(",");
         String stmtTextJoin = "select irstream theString as c0, id as c1, istream() as c2 " +
-                "from SupportBean#lastevent(), SupportBean_S0#lastevent()";
+                "from SupportBean#lastevent, SupportBean_S0#lastevent";
         epService.getEPAdministrator().createEPL(stmtTextJoin).addListener(listenerSelect);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 0));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(10));

@@ -90,7 +90,7 @@ public class TestFromClauseMethod extends TestCase
         String stmtText;
 
         // fetchBetween must execute first, fetchIdDelimited is dependent on the result of fetchBetween
-        stmtText = "select intPrimitive,intBoxed,col1,col2 from SupportBean#keepall() " +
+        stmtText = "select intPrimitive,intBoxed,col1,col2 from SupportBean#keepall " +
                    "left outer join " +
                    "method:" + className + ".fetchResult100() " +
                    "on intPrimitive = col1 and intBoxed = col2";
@@ -307,7 +307,7 @@ public class TestFromClauseMethod extends TestCase
 
     private void runAssertionReturnTypeMultipleRow(String method) {
         String epl = "select theString, intPrimitive, mapstring, mapint from " +
-                SupportBean.class.getName() + "#keepall() as s1, " +
+                SupportBean.class.getName() + "#keepall as s1, " +
                 "method:com.espertech.esper.support.epl.SupportStaticMethodLib." + method;
         String[] fields = "theString,intPrimitive,mapstring,mapint".split(",");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

@@ -42,7 +42,7 @@ public class TestEnumNamedWindowPerformance extends TestCase {
 
     public void testNamedWindowQualified() {
 
-        epService.getEPAdministrator().createEPL("create window Win#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window Win#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into Win select * from SupportBean");
 
         // preload

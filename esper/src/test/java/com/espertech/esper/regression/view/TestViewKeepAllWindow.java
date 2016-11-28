@@ -44,7 +44,7 @@ public class TestViewKeepAllWindow extends TestCase
 
     public void testIterator()
     {
-        String viewExpr = "select symbol, price from " + SupportMarketDataBean.class.getName() + "#keepall()";
+        String viewExpr = "select symbol, price from " + SupportMarketDataBean.class.getName() + "#keepall";
         EPStatement statement = epService.getEPAdministrator().createEPL(viewExpr);
         statement.addListener(listener);
 
@@ -82,7 +82,7 @@ public class TestViewKeepAllWindow extends TestCase
     public void testWindowStats()
     {
         String viewExpr = "select irstream symbol, count(*) as cnt, sum(price) as mysum from " + SupportMarketDataBean.class.getName() +
-                "#keepall() group by symbol";
+                "#keepall group by symbol";
         EPStatement statement = epService.getEPAdministrator().createEPL(viewExpr);
         statement.addListener(listener);
         listener.reset();

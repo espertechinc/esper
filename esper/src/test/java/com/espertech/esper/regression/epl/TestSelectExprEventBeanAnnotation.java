@@ -94,7 +94,7 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
         epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(col1 string, col2 string)");
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         String eplInsert = "insert into DStream select " +
-                "(select * from MyEvent#keepall()) @eventbean as c0 " +
+                "(select * from MyEvent#keepall) @eventbean as c0 " +
                 "from SupportBean";
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
 

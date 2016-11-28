@@ -177,7 +177,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
 
     public void testSameProviderGroupedReturnSingleEvent() throws Exception
     {
-        String epl = "select se1() as c0, se2() as c1 from SupportBean#keepall() group by theString";
+        String epl = "select se1() as c0, se2() as c1 from SupportBean#keepall group by theString";
 
         // test regular
         SupportAggMFFactory.reset();

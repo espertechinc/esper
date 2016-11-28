@@ -124,7 +124,7 @@ public class TestInfraCreateIndex extends TestCase
 
     private void runAssertionInvalid(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int)" :
+                "create window MyInfra#keepall as (f1 string, f2 int)" :
                 "create table MyInfra as (f1 string primary key, f2 int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("create index MyInfraIndex on MyInfra(f1)");
@@ -132,7 +132,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().createEPL("create context ContextOne initiated by SupportBean terminated after 5 sec");
         epService.getEPAdministrator().createEPL("create context ContextTwo initiated by SupportBean terminated after 5 sec");
         String eplCreateWContext = namedWindow ?
-                "context ContextOne create window MyInfraCtx#keepall() as (f1 string, f2 int)" :
+                "context ContextOne create window MyInfraCtx#keepall as (f1 string, f2 int)" :
                 "context ContextOne create table MyInfraCtx as (f1 string primary key, f2 int primary key)";
         epService.getEPAdministrator().createEPL(eplCreateWContext);
 
@@ -166,7 +166,7 @@ public class TestInfraCreateIndex extends TestCase
         // invalid insert-into unique index
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         String eplCreateTwo = namedWindow ?
-                "@Name('create') create window MyInfraTwo#keepall() as SupportBean" :
+                "@Name('create') create window MyInfraTwo#keepall as SupportBean" :
                 "@Name('create') create table MyInfraTwo(theString string primary key, intPrimitive int primary key)";
         epService.getEPAdministrator().createEPL(eplCreateTwo);
         epService.getEPAdministrator().createEPL("@Name('insert') insert into MyInfraTwo select theString, intPrimitive from SupportBean");
@@ -198,7 +198,7 @@ public class TestInfraCreateIndex extends TestCase
     private void runAssertionOnSelectReUse(boolean namedWindow)
     {
         String stmtTextCreateOne = namedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int)" :
+                "create window MyInfra#keepall as (f1 string, f2 int)" :
                 "create table MyInfra as (f1 string primary key, f2 int primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2) select theString, intPrimitive from SupportBean");
@@ -230,7 +230,7 @@ public class TestInfraCreateIndex extends TestCase
         assertEquals(namedWindow ? 0 : 1, getIndexCount(namedWindow));
 
         // two-key index order test
-        epService.getEPAdministrator().createEPL("create window MyInfraTwo#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyInfraTwo#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("create index idx1 on MyInfraTwo (theString, intPrimitive)");
         epService.getEPAdministrator().createEPL("on SupportBean sb select * from MyInfraTwo w where w.theString = sb.theString and w.intPrimitive = sb.intPrimitive");
         epService.getEPAdministrator().createEPL("on SupportBean sb select * from MyInfraTwo w where w.intPrimitive = sb.intPrimitive and w.theString = sb.theString");
@@ -246,7 +246,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
         String stmtTextCreateOne = namedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int, f3 string, f4 string)" :
+                "create window MyInfra#keepall as (f1 string, f2 int, f3 string, f4 string)" :
                 "create table MyInfra as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean");
@@ -295,7 +295,7 @@ public class TestInfraCreateIndex extends TestCase
     private void runAssertionMultipleColumnMultipleIndex(boolean namedWindow)
     {
         String stmtTextCreateOne = namedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int, f3 string, f4 string)" :
+                "create window MyInfra#keepall as (f1 string, f2 int, f3 string, f4 string)" :
                 "create table MyInfra as (f1 string primary key, f2 int, f3 string, f4 string)";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean");
@@ -336,7 +336,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
         String stmtTextCreateOne = namedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int, f3 string, f4 string)" :
+                "create window MyInfra#keepall as (f1 string, f2 int, f3 string, f4 string)" :
                 "create table MyInfra as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean");
@@ -359,7 +359,7 @@ public class TestInfraCreateIndex extends TestCase
     private void runAssertionIndexStaleness(boolean isNamedWindow) {
 
         String eplCreate = isNamedWindow ?
-                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall() (pkey string, col0 int, col1 long)" :
+                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall (pkey string, col0 int, col1 long)" :
                 "create table MyInfra (pkey string primary key, col0 int, col1 long)";
         epService.getEPAdministrator().createEPL(eplCreate);
 
@@ -386,7 +386,7 @@ public class TestInfraCreateIndex extends TestCase
     private void runAssertionIndexReferences(boolean isNamedWindow) {
         
         String eplCreate = isNamedWindow ?
-                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall() (col0 string, pkey int)" :
+                "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall (col0 string, pkey int)" :
                 "create table MyInfra (col0 string, pkey int primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra select theString as col0, intPrimitive as pkey from SupportBean");
@@ -394,7 +394,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().createEPL("@name('idx') create index MyIndex on MyInfra (col0)");
         epService.getEPAdministrator().createEPL("@name('merge') on SupportBean_S1 merge MyInfra where col0 = p10 when matched then delete");
         epService.getEPAdministrator().createEPL("@name('subq') select (select col0 from MyInfra where col0 = s1.p10) from SupportBean_S1 s1");
-        epService.getEPAdministrator().createEPL("@name('join') select col0 from MyInfra, SupportBean_S1#lastevent() where col0 = p10");
+        epService.getEPAdministrator().createEPL("@name('join') select col0 from MyInfra, SupportBean_S1#lastevent where col0 = p10");
         assertIndexesRef(isNamedWindow, isNamedWindow ? "idx,merge,subq" : "idx,merge,subq,join");
 
         epService.getEPAdministrator().getStatement("idx").destroy();
@@ -469,7 +469,7 @@ public class TestInfraCreateIndex extends TestCase
     private void runAssertionCompositeIndex(boolean isNamedWindow)
     {
         String stmtTextCreate = isNamedWindow ?
-                "create window MyInfra#keepall() as (f1 string, f2 int, f3 string, f4 string)" :
+                "create window MyInfra#keepall as (f1 string, f2 int, f3 string, f4 string)" :
                 "create table MyInfra as (f1 string primary key, f2 int, f3 string, f4 string)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean");
@@ -505,7 +505,7 @@ public class TestInfraCreateIndex extends TestCase
     {
         // widen to long
         String stmtTextCreate = isNamedWindow ?
-                "create window MyInfra#keepall() as (f1 long, f2 string)" :
+                "create window MyInfra#keepall as (f1 long, f2 string)" :
                 "create table MyInfra as (f1 long primary key, f2 string primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfra(f1, f2) select longPrimitive, theString from SupportBean");
@@ -519,7 +519,7 @@ public class TestInfraCreateIndex extends TestCase
 
         // coerce to short
         stmtTextCreate = isNamedWindow ?
-                "create window MyInfraTwo#keepall() as (f1 short, f2 string)" :
+                "create window MyInfraTwo#keepall as (f1 short, f2 string)" :
                 "create table MyInfraTwo as (f1 short primary key, f2 string primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
         epService.getEPAdministrator().createEPL("insert into MyInfraTwo(f1, f2) select shortPrimitive, theString from SupportBean");
@@ -542,7 +542,7 @@ public class TestInfraCreateIndex extends TestCase
 
         // widen to long
         String eplCreate = isNamedWindow ?
-                "create window MyInfra#keepall() as (f1 long, f2 string)" :
+                "create window MyInfra#keepall as (f1 long, f2 string)" :
                 "create table MyInfra as (f1 long primary key, f2 string primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
 
@@ -572,7 +572,7 @@ public class TestInfraCreateIndex extends TestCase
 
         // coerce to short
         String eplCreateTwo = isNamedWindow ?
-                "create window MyInfraTwo#keepall() as (f1 short, f2 string)" :
+                "create window MyInfraTwo#keepall as (f1 short, f2 string)" :
                 "create table MyInfraTwo as (f1 short primary key, f2 string primary key)";
         epService.getEPAdministrator().createEPL(eplCreateTwo);
 
@@ -594,7 +594,7 @@ public class TestInfraCreateIndex extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanRange", SupportBeanRange.class);
 
         String eplCreate = isNamedWindow ?
-                "create window MyInfra#keepall() as SupportBeanRange" :
+                "create window MyInfra#keepall as SupportBeanRange" :
                 "create table MyInfra(id string primary key, key string, keyLong long, rangeStartLong long primary key, rangeEndLong long primary key)";
         epService.getEPAdministrator().createEPL(eplCreate);
 

@@ -60,13 +60,13 @@ public class TestRowLimit extends TestCase {
         epService.getEPAdministrator().createEPL("create context StartS0EndS1 as start SupportBean_S0 end SupportBean_S1");
 
         String eplContextSingleKey = "context StartS0EndS1 " +
-                "select theString from SupportBean#keepall() " +
+                "select theString from SupportBean#keepall " +
                 "output snapshot when terminated " +
                 "order by theString limit 1";
         runAssertionLimitOneSingleKeySortBatch(eplContextSingleKey);
 
         String eplContextMultiKey = "context StartS0EndS1 " +
-                "select theString, intPrimitive from SupportBean#keepall() " +
+                "select theString, intPrimitive from SupportBean#keepall " +
                 "output snapshot when terminated " +
                 "order by theString asc, intPrimitive desc limit 1";
         runAssertionLimitOneMultiKeySortBatch(eplContextMultiKey);

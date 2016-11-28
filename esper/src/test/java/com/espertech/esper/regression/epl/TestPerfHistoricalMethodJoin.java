@@ -50,7 +50,7 @@ public class TestPerfHistoricalMethodJoin extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt#lastevent() as s0, " +
+                   "from SupportBeanInt#lastevent as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', 100) as h0, " +
                    "method:SupportJoinMethods.fetchVal('H1', 100) as h1 " +
                    "where h0.index = p00 and h1.index = p00";
@@ -83,7 +83,7 @@ public class TestPerfHistoricalMethodJoin extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt#lastevent() as s0 " +
+                   "from SupportBeanInt#lastevent as s0 " +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchVal('H0', 100) as h0 " +
                    " on h0.index = p00 " +
@@ -118,9 +118,9 @@ public class TestPerfHistoricalMethodJoin extends TestCase
         String expression;
 
         expression = "select s0.id as s0id, s1.id as s1id, h0.val as valh0 " +
-                   "from SupportBeanInt(id like 'E%')#lastevent() as s0, " +
+                   "from SupportBeanInt(id like 'E%')#lastevent as s0, " +
                    "method:SupportJoinMethods.fetchVal('H0', 100) as h0, " +
-                   "SupportBeanInt(id like 'F%')#lastevent() as s1 " +
+                   "SupportBeanInt(id like 'F%')#lastevent as s1 " +
                    "where h0.index = s0.p00 and h0.index = s1.p00";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);
@@ -156,8 +156,8 @@ public class TestPerfHistoricalMethodJoin extends TestCase
 
         expression = "select s0.id as s0id, s1.id as s1id, h0.val as valh0, h0.index as indexh0 from " +
                     "method:SupportJoinMethods.fetchVal('H0', 100) as h0, " +
-                    "SupportBeanInt(id like 'H%')#lastevent() as s1, " +
-                    "SupportBeanInt(id like 'E%')#lastevent() as s0 " +
+                    "SupportBeanInt(id like 'H%')#lastevent as s1, " +
+                    "SupportBeanInt(id like 'E%')#lastevent as s0 " +
                     "where h0.index = s0.p00 and h0.val = s1.id";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(expression);

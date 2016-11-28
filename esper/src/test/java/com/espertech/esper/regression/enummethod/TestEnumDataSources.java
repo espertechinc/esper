@@ -214,7 +214,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType(ContainerEvent.class);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("" +
-                "select * from SelectorEvent#keepall() as sel, ContainerEvent#keepall() as cont " +
+                "select * from SelectorEvent#keepall as sel, ContainerEvent#keepall as cont " +
                 "where cont.items.anyOf(i => sel.selector = i.selected)");
         SupportUpdateListener listener = new SupportUpdateListener();
         stmt.addListener(listener);
@@ -250,7 +250,7 @@ public class TestEnumDataSources extends TestCase {
         // Scalar version
         String[] fields = new String[] {"val0"};
         EPStatement stmtScalar = epService.getEPAdministrator().createEPL("select prevwindow(id).where(x => x not like '%ignore%') as val0 " +
-                "from SupportBean_ST0#keepall() as st0");
+                "from SupportBean_ST0#keepall as st0");
         stmtScalar.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmtScalar.getEventType(), fields, new Class[]{Collection.class});
 
@@ -274,10 +274,10 @@ public class TestEnumDataSources extends TestCase {
     public void testNamedWindow() {
 
         // test named window
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean_ST0");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean_ST0");
         epService.getEPAdministrator().createEPL("on SupportBean_A delete from MyWindow");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean_ST0");
-        String eplNamedWindow = "select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall()";
+        String eplNamedWindow = "select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall";
         EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL(eplNamedWindow);
         stmtNamedWindow.addListener(listener);
         LambdaAssertionUtil.assertTypes(stmtNamedWindow.getEventType(), "allOfX".split(","), new Class[]{Boolean.class});
@@ -293,7 +293,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportBean_A("A1"));
 
         // test named window correlated
-        String eplNamedWindowCorrelated = "select MyWindow(key0 = sb.theString).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall() sb";
+        String eplNamedWindowCorrelated = "select MyWindow(key0 = sb.theString).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall sb";
         EPStatement stmtNamedWindowCorrelated = epService.getEPAdministrator().createEPL(eplNamedWindowCorrelated);
         stmtNamedWindowCorrelated.addListener(listener);
 
@@ -312,7 +312,7 @@ public class TestEnumDataSources extends TestCase {
     public void testSubselect() {
 
         // test subselect-wildcard
-        String eplSubselect = "select (select * from SupportBean_ST0#keepall()).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall()";
+        String eplSubselect = "select (select * from SupportBean_ST0#keepall).allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall";
         EPStatement stmtSubselect = epService.getEPAdministrator().createEPL(eplSubselect);
         stmtSubselect.addListener(listener);
 
@@ -326,7 +326,7 @@ public class TestEnumDataSources extends TestCase {
         stmtSubselect.destroy();
 
         // test subselect scalar return
-        String eplSubselectScalar = "select (select id from SupportBean_ST0#keepall()).allOf(x => x  like '%B%') as allOfX from SupportBean#keepall()";
+        String eplSubselectScalar = "select (select id from SupportBean_ST0#keepall).allOf(x => x  like '%B%') as allOfX from SupportBean#keepall";
         EPStatement stmtSubselectScalar = epService.getEPAdministrator().createEPL(eplSubselectScalar);
         stmtSubselectScalar.addListener(listener);
 
@@ -340,7 +340,7 @@ public class TestEnumDataSources extends TestCase {
         stmtSubselectScalar.destroy();
 
         // test subselect-correlated scalar return
-        String eplSubselectScalarCorrelated = "select (select key0 from SupportBean_ST0#keepall() st0 where st0.id = sb.theString).allOf(x => x  like '%hello%') as allOfX from SupportBean#keepall() sb";
+        String eplSubselectScalarCorrelated = "select (select key0 from SupportBean_ST0#keepall st0 where st0.id = sb.theString).allOf(x => x  like '%hello%') as allOfX from SupportBean#keepall sb";
         EPStatement stmtSubselectScalarCorrelated = epService.getEPAdministrator().createEPL(eplSubselectScalarCorrelated);
         stmtSubselectScalarCorrelated.addListener(listener);
 
@@ -359,7 +359,7 @@ public class TestEnumDataSources extends TestCase {
 
         // test subselect multivalue return
         String[] fields = new String[] {"id", "p00"};
-        String eplSubselectMultivalue = "select (select id, p00 from SupportBean_ST0#keepall()).take(10) as c0 from SupportBean";
+        String eplSubselectMultivalue = "select (select id, p00 from SupportBean_ST0#keepall).take(10) as c0 from SupportBean";
         EPStatement stmtSubselectMultivalue = epService.getEPAdministrator().createEPL(eplSubselectMultivalue);
         stmtSubselectMultivalue.addListener(listener);
 
@@ -377,7 +377,7 @@ public class TestEnumDataSources extends TestCase {
         epService.getEPAdministrator().createEPL("create schema AEvent (symbol string)");
         epService.getEPAdministrator().createEPL("create schema BEvent (a AEvent)");
         EPStatement stmt = epService.getEPAdministrator().createEPL(
-                "select (select a from BEvent#keepall()).anyOf(v => symbol = 'GE') as flag from SupportBean");
+                "select (select a from BEvent#keepall).anyOf(v => symbol = 'GE') as flag from SupportBean");
         stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(makeBEvent("XX"), "BEvent");
@@ -450,7 +450,7 @@ public class TestEnumDataSources extends TestCase {
     public void testProperty() {
 
         // test fragment type - collection inside
-        String eplFragment = "select contained.allOf(x => x.p00 < 5) as allOfX from SupportBean_ST0_Container#keepall()";
+        String eplFragment = "select contained.allOf(x => x.p00 < 5) as allOfX from SupportBean_ST0_Container#keepall";
         EPStatement stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
 
@@ -465,7 +465,7 @@ public class TestEnumDataSources extends TestCase {
         String[] fields = "val0,val1".split(",");
         eplFragment = "select intarray.sumof() as val0, " +
                 "intiterable.sumOf() as val1 " +
-                " from SupportCollection#keepall()";
+                " from SupportCollection#keepall";
         stmtFragment = epService.getEPAdministrator().createEPL(eplFragment);
         stmtFragment.addListener(listener);
 

@@ -65,7 +65,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol";
+                            "SupportBean#keepall where theString=symbol";
         runAssertion12(stmtText, "none");
     }
 
@@ -81,7 +81,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             " having sum(price) > 100";
         runAssertion34(stmtText, "none");
     }
@@ -98,7 +98,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output every 1 seconds";
         runAssertion56(stmtText, "default");
     }
@@ -116,7 +116,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100" +
                             "output every 1 seconds";
         runAssertion78(stmtText, "default");
@@ -142,7 +142,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -151,7 +151,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output all every 1 seconds";
         runAssertion56(stmtText, "all");
     }
@@ -178,7 +178,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100" +
                             "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -188,7 +188,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "having sum(price) > 100" +
                 "output all every 1 seconds";
         runAssertion78(stmtText, "all");
@@ -214,7 +214,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -223,7 +223,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "output last every 1 seconds";
         runAssertion13_14(stmtText, "last");
     }
@@ -250,7 +250,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "select sum(price) " +
                             "from MarketData#time(5.5 sec), " +
-                            "SupportBean#keepall() where theString=symbol " +
+                            "SupportBean#keepall where theString=symbol " +
                             "having sum(price) > 100 " +
                             "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -260,7 +260,7 @@ public class TestOutputLimitRowForAll extends TestCase
     {
         String stmtText = "@Hint('enable_outputlimit_opt') select sum(price) " +
                 "from MarketData#time(5.5 sec), " +
-                "SupportBean#keepall() where theString=symbol " +
+                "SupportBean#keepall where theString=symbol " +
                 "having sum(price) > 100 " +
                 "output last every 1 seconds";
         runAssertion15_16(stmtText, "last");
@@ -289,7 +289,7 @@ public class TestOutputLimitRowForAll extends TestCase
 
     private void runAssertionOuputLastWithInsertInto(boolean hinted) {
         String hint = hinted ? "@Hint('enable_outputlimit_opt') " : "";
-        String eplInsert = hint + "insert into MyStream select sum(intPrimitive) as thesum from SupportBean#keepall() " +
+        String eplInsert = hint + "insert into MyStream select sum(intPrimitive) as thesum from SupportBean#keepall " +
                 "output last every 2 events";
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
 
@@ -519,7 +519,7 @@ public class TestOutputLimitRowForAll extends TestCase
 
         String viewExpr = "select irstream max(price) as maxVol" +
                           " from " + SupportMarketDataBean.class.getName() + "#sort(1,volume desc) as s0, " +
-                          SupportBean.class.getName() + "#keepall() as s1 where s1.theString=s0.symbol " +
+                          SupportBean.class.getName() + "#keepall as s1 where s1.theString=s0.symbol " +
                           "output every 1.0d seconds";
         EPStatement stmt = epService.getEPAdministrator().createEPL(viewExpr);
         stmt.addListener(listener);
@@ -697,7 +697,7 @@ public class TestOutputLimitRowForAll extends TestCase
         sendTimer(0);
         String selectStmt = "select count(*) as cnt from " +
                 SupportBean.class.getName() + "#time(10 seconds) as s, " +
-                SupportMarketDataBean.class.getName() + "#keepall() as m where m.symbol = s.theString and intPrimitive > 0 output snapshot every 1 seconds";
+                SupportMarketDataBean.class.getName() + "#keepall as m where m.symbol = s.theString and intPrimitive > 0 output snapshot every 1 seconds";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(selectStmt);
         stmt.addListener(listener);
@@ -766,7 +766,7 @@ public class TestOutputLimitRowForAll extends TestCase
     private void runAssertionOutputSnapshotGetValue(boolean join) {
         EPStatement stmt = epService.getEPAdministrator().createEPL(
                 "select customagg(intPrimitive) as c0 from SupportBean" +
-                (join ? "#keepall(), SupportBean_S0#lastevent()" : "") +
+                (join ? "#keepall, SupportBean_S0#lastevent" : "") +
                 " output snapshot every 3 events");
         stmt.addListener(listener);
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1));

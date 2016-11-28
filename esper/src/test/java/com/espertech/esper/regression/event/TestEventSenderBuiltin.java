@@ -209,7 +209,7 @@ public class TestEventSenderBuiltin extends TestCase
         typeMeta.setEventSenderValidatesRoot(false);
         epService.getEPAdministrator().getConfiguration().addEventType("BEvent", typeMeta);
 
-        stmtText = "select element2 from BEvent#lastevent()";
+        stmtText = "select element2 from BEvent#lastevent";
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(stmtText);
 
         // test sender that doesn't care about the root element

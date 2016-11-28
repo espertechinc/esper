@@ -51,7 +51,7 @@ public class TestVariablesPerf extends TestCase
     public void testConstantPerformance() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean_S0.class);
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("insert into MyWindow select * from SupportBean");
         epService.getEPAdministrator().createEPL("create const variable String MYCONST = 'E331'");
 

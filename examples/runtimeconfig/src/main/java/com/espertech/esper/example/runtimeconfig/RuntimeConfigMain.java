@@ -69,7 +69,7 @@ public class RuntimeConfigMain
 
         provider.getEPAdministrator().getConfiguration().addVariable("myintvar", int.class, 5);
 
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select propertyOne, propertyTwo, myintvar from MyEvent#lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select propertyOne, propertyTwo, myintvar from MyEvent#lastevent");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
@@ -129,7 +129,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addEventType("MyMedianSampleEvent", typeDefinition);
 
         // keep the last few events from the variant stream
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select mymedian(doubles) as med from MyMedianSampleEvent#lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select mymedian(doubles) as med from MyMedianSampleEvent#lastevent");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
@@ -161,7 +161,7 @@ public class RuntimeConfigMain
         provider.getEPAdministrator().getConfiguration().addEventType("MyByteEvent", typeDefinition);
 
         // keep the last few events from the variant stream
-        EPStatement stmt = provider.getEPAdministrator().createEPL("select RuntimeConfigMain.check2BitSet(byteValue) as check2BitSet from MyByteEvent#lastevent()");
+        EPStatement stmt = provider.getEPAdministrator().createEPL("select RuntimeConfigMain.check2BitSet(byteValue) as check2BitSet from MyByteEvent#lastevent");
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();

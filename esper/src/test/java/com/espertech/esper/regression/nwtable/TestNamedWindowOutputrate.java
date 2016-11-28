@@ -42,7 +42,7 @@ public class TestNamedWindowOutputrate extends TestCase
     public void testOutputSnapshot() {
         epService.getEPAdministrator().createEPL("create schema SupportBean as " + SupportBean.class.getName());
 
-        epService.getEPAdministrator().createEPL("create window MyWindowOne#keepall() as (theString string, intv int)");
+        epService.getEPAdministrator().createEPL("create window MyWindowOne#keepall as (theString string, intv int)");
         epService.getEPAdministrator().createEPL("insert into MyWindowOne select theString, intPrimitive as intv from SupportBean");
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));

@@ -59,7 +59,7 @@ public class TestTableInsertInto extends TestCase {
 
     public void testNamedWindowMergeInsertIntoTable() {
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL("create table MyTable(pkey string)");
-        epService.getEPAdministrator().createEPL("create window MyWindow#keepall() as SupportBean");
+        epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportBean");
         epService.getEPAdministrator().createEPL("on SupportBean as sb merge MyWindow when not matched " +
                 "then insert into MyTable select sb.theString as pkey");
 

@@ -274,7 +274,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string,a_cat,a_value,b_value".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  partition by theString, cat" +
                 "  measures A.theString as a_string, A.cat as a_cat, A.value as a_value, B.value as b_value " +
@@ -340,7 +340,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
 
         String[] fields = "a_string".split(",");
-        String text = "select * from MyEvent#keepall() " +
+        String text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string" +
                 "  all matches pattern (A) " +
@@ -388,7 +388,7 @@ public class TestRowPatternRecognitionPrev extends TestCase {
 
         stmt.stop();
 
-        text = "select * from MyEvent#keepall() " +
+        text = "select * from MyEvent#keepall " +
                 "match_recognize (" +
                 "  measures A.theString as a_string" +
                 "  all matches pattern (A) " +

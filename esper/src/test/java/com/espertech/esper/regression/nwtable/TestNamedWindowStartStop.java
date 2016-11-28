@@ -54,7 +54,7 @@ public class TestNamedWindowStartStop extends TestCase
         ConfigurationOperations configOps = epService.getEPAdministrator().getConfiguration();
 
         // test remove type with statement used (no force)
-        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall() (a int, b string)", "stmtOne");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall (a int, b string)", "stmtOne");
         EPAssertionUtil.assertEqualsExactOrder(configOps.getEventTypeNameUsedBy("MyWindowEventType").toArray(), new String[]{"stmtOne"});
 
         try {
@@ -80,7 +80,7 @@ public class TestNamedWindowStartStop extends TestCase
         }
 
         // add back the type
-        stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall() (c int, d string)", "stmtOne");
+        stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall (c int, d string)", "stmtOne");
         assertTrue(configOps.isEventTypeExists("MyWindowEventType"));
         assertFalse(configOps.getEventTypeNameUsedBy("MyWindowEventType").isEmpty());
 
@@ -109,7 +109,7 @@ public class TestNamedWindowStartStop extends TestCase
 
         // add back the type
         stmt.destroy();
-        stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall() (f int)", "stmtOne");
+        stmt = epService.getEPAdministrator().createEPL("create window MyWindowEventType#keepall (f int)", "stmtOne");
         assertTrue(configOps.isEventTypeExists("MyWindowEventType"));
 
         // compile
@@ -126,7 +126,7 @@ public class TestNamedWindowStartStop extends TestCase
     public void testStartStopCreator()
     {
         // create window
-        String stmtTextCreate = "create window MyWindow#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        String stmtTextCreate = "create window MyWindow#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate, "stmtCreateFirst");
         stmtCreate.addListener(listenerWindow);
 
@@ -187,7 +187,7 @@ public class TestNamedWindowStartStop extends TestCase
         EPAssertionUtil.assertPropsPerRow(stmtSelect.iterator(), fields, new Object[][]{{"E3", 3}, {"E4", 4}});
 
         // create window anew
-        stmtTextCreate = "create window MyWindow#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
+        stmtTextCreate = "create window MyWindow#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName();
         stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate, "stmtCreate");
         stmtCreate.addListener(listenerWindow);
 

@@ -131,7 +131,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -190,7 +190,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -266,7 +266,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -345,7 +345,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra(a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -401,7 +401,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra (a string primary key, b int primary key)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -464,7 +464,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra (a string primary key, b int)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -517,7 +517,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select theString as a, intPrimitive as b from " + SupportBean.class.getName() :
                 "create table MyInfra (a string primary key, b int)";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -570,7 +570,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
     private void runAssertionInvalid(boolean namedWindow) {
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select * from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select * from " + SupportBean.class.getName() :
                 "create table MyInfra (theString string, intPrimitive int)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -593,7 +593,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
         sendTimer(0, epService);
 
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as select * from " + SupportBean.class.getName() :
+                "create window MyInfra#keepall as select * from " + SupportBean.class.getName() :
                 "create table MyInfra as (theString string)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -627,7 +627,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
     {
         // create window
         String stmtTextCreate = namedWindow ?
-                "create window MyInfra#keepall() as (a string, b int)" :
+                "create window MyInfra#keepall as (a string, b int)" :
                 "create table MyInfra as (a string primary key, b int primary key)";
         epService.getEPAdministrator().createEPL(stmtTextCreate);
 
@@ -657,7 +657,7 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
 
     private void runAssertionWindowAgg(boolean namedWindow) {
         String eplCreate = namedWindow ?
-                "create window MyInfra#keepall() as SupportBean" :
+                "create window MyInfra#keepall as SupportBean" :
                 "create table MyInfra(theString string primary key, intPrimitive int)";
         epService.getEPAdministrator().createEPL(eplCreate);
         String eplInsert = namedWindow ?

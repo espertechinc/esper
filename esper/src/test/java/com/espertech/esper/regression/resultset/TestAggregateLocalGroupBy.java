@@ -101,7 +101,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                 "Error starting statement: Match-recognize does not allow aggregation functions to specify a group-by");
 
         // disallow subqueries to specify their own local group-by
-        String eplSubq = "select (select sum(intPrimitive, group_by:theString) from SupportBean#keepall()) from SupportBean_S0";
+        String eplSubq = "select (select sum(intPrimitive, group_by:theString) from SupportBean#keepall) from SupportBean_S0";
         SupportMessageAssertUtil.tryInvalid(epService, eplSubq,
                 "Error starting statement: Failed to plan subquery number 1 querying SupportBean: Subselect aggregations functions cannot specify a group-by");
     }
@@ -171,7 +171,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                 });
 
         // aggregated and un-grouped (row for event)
-        runAssertionAggAndFullyAgg("select sum(group_by:theString, intPrimitive) as c0 from SupportBean#keepall()",
+        runAssertionAggAndFullyAgg("select sum(group_by:theString, intPrimitive) as c0 from SupportBean#keepall",
                 new MyAssertion() {
                     public void doAssert(SupportUpdateListener listener) {
                         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), colsC0, new Object[][]{{10}, {50}, {50}});
@@ -192,7 +192,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                                    " sum(longPrimitive, group_by:theString) as c1, " +
                                    " sum(longPrimitive, group_by:intPrimitive) as c2, " +
                                    " theString " +
-                                   "from SupportBean#keepall() group by theString",
+                                   "from SupportBean#keepall group by theString",
                 new MyAssertion() {
                     public void doAssert(SupportUpdateListener listener) {
                         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(),
@@ -203,7 +203,7 @@ public class TestAggregateLocalGroupBy extends TestCase
 
     private void runAssertionUngroupedRowRemove() throws Exception {
         String[] cols = "theString,intPrimitive,c0,c1".split(",");
-        String epl = "create window MyWindow#keepall() as SupportBean;\n" +
+        String epl = "create window MyWindow#keepall as SupportBean;\n" +
                      "insert into MyWindow select * from SupportBean;\n" +
                      "on SupportBean_S0 delete from MyWindow where p00 = theString and id = intPrimitive;\n" +
                      "on SupportBean_S1 delete from MyWindow;\n" +
@@ -244,7 +244,7 @@ public class TestAggregateLocalGroupBy extends TestCase
 
     private void runAssertionGroupedRowRemove() throws Exception {
         String[] cols = "theString,intPrimitive,c0,c1".split(",");
-        String epl = "create window MyWindow#keepall() as SupportBean;\n" +
+        String epl = "create window MyWindow#keepall as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean;\n" +
                 "on SupportBean_S0 delete from MyWindow where p00 = theString and id = intPrimitive;\n" +
                 "on SupportBean_S1 delete from MyWindow;\n" +
@@ -328,7 +328,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                 "   window(*, group_by:theString) as c2," +
                 "   window(*, group_by:intPrimitive) as c3," +
                 "   window(*, group_by:()) as c4" +
-                " from SupportBean#keepall()" +
+                " from SupportBean#keepall" +
                 " group by theString, intPrimitive" +
                 " output snapshot every 10 seconds" +
                 " order by theString, intPrimitive";
@@ -584,7 +584,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                 "fminever(intPrimitive, intPrimitive>0, group_by:(theString)) as fminever0," +
                 "median(intPrimitive, group_by:(theString)) as median0," +
                 "Math.round(coalesce(stddev(intPrimitive, group_by:(theString)), 0)) as stddev0" +
-                " from SupportBean#keepall()";
+                " from SupportBean#keepall";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 
@@ -661,7 +661,7 @@ public class TestAggregateLocalGroupBy extends TestCase
         String epl = "select intPrimitive as c0, " +
                 "sum(intPrimitive, group_by:()) as sum0, " +
                 "sum(intPrimitive, group_by:(theString)) as sum1 " +
-                " from SupportBean#keepall()";
+                " from SupportBean#keepall";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -694,7 +694,7 @@ public class TestAggregateLocalGroupBy extends TestCase
     private void runAssertionUngroupedOrderBy() throws Exception {
         String epl = "create context StartS0EndS1 start SupportBean_S0 end SupportBean_S1;" +
                 "@name('out') context StartS0EndS1 select theString, sum(intPrimitive, group_by:theString) as c0 " +
-                " from SupportBean#keepall() " +
+                " from SupportBean#keepall " +
                 " output snapshot when terminated" +
                 " order by sum(intPrimitive, group_by:theString)" +
                 ";";
@@ -720,7 +720,7 @@ public class TestAggregateLocalGroupBy extends TestCase
     }
 
     private void runAssertionGroupedOnSelect() throws Exception {
-        String epl = "create window MyWindow#keepall() as SupportBean;" +
+        String epl = "create window MyWindow#keepall as SupportBean;" +
                 "insert into MyWindow select * from SupportBean;" +
                 "@name('out') on SupportBean_S0 select theString, sum(intPrimitive) as c0, sum(intPrimitive, group_by:()) as c1" +
                 " from MyWindow group by theString;";
@@ -747,7 +747,7 @@ public class TestAggregateLocalGroupBy extends TestCase
     }
 
     private void runAssertionUngroupedUnidirectionalJoin() {
-        String epl = "select theString, sum(intPrimitive, group_by:theString) as c0 from SupportBean#keepall(), SupportBean_S0 unidirectional";
+        String epl = "select theString, sum(intPrimitive, group_by:theString) as c0 from SupportBean#keepall, SupportBean_S0 unidirectional";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
 
         makeSendEvent("E1", 10);
@@ -776,7 +776,7 @@ public class TestAggregateLocalGroupBy extends TestCase
                 " window(intPrimitive, group_by:theString).firstOf() as c3," +
                 " first(*, group_by:()).intPrimitive as c4," +
                 " first(*, group_by:theString).intPrimitive as c5 " +
-                " from SupportBean#keepall()" +
+                " from SupportBean#keepall " +
                 (grouped ? "group by theString, intPrimitive" : "");
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
 

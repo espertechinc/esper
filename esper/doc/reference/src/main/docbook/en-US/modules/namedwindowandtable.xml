@@ -251,7 +251,7 @@ select * from AppoximateCountPerWord]]></programlisting>
 				<para>
 					The next statement creates a named window <literal>OrdersNamedWindow</literal> for which the expiry policy is simply to keep all events. Assume that the event type 'OrderMapEventType' has been configured. The named window is to hold events of type 'OrderMapEventType':
 				</para>
-				<programlisting><![CDATA[create window OrdersNamedWindow#keepall() as OrderMapEventType]]></programlisting>
+				<programlisting><![CDATA[create window OrdersNamedWindow#keepall as OrderMapEventType]]></programlisting>
 		
 				<para>
 					The below sample statement demonstrates the <literal>select</literal> syntax. It defines a named window in which each row has the three properties 'symbol', 'volume' and 'price'. This named window actively removes events from the window that are older than 30 seconds.
@@ -339,7 +339,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 				<para>
 					For example, and assuming the named window <literal>OrdersNamedWindow</literal> already exists, this statement creates a new named window <literal>ScratchOrders</literal> and populates all orders in <literal>OrdersNamedWindow</literal> into the new named window:
 				</para>
-				<programlisting>create window ScratchOrders#keepall() as OrdersNamedWindow insert</programlisting>
+				<programlisting>create window ScratchOrders#keepall as OrdersNamedWindow insert</programlisting>
 		
 				<para>
 					The <literal>where</literal> keyword is also available to perform filtering, for example:
@@ -366,7 +366,7 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
 			<para>
 				In this example we first create a named window using some of the columns of an OrderEvent event type:
 			</para>
-			<programlisting><![CDATA[create window OrdersWindow#keepall() as select symbol, volume, price from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[create window OrdersWindow#keepall as select symbol, volume, price from OrderEvent]]></programlisting>
 			
 			<para>
 				The insert into the named window selects individual columns to be inserted:
@@ -1749,7 +1749,7 @@ when matched and active = true then update set active = false]]></programlisting
 			The second example demonstrates the use of a select-clause with wildcard, a search condition and the <literal>delete</literal> keyword. It creates a named window that holds order events and employs on-merge to insert order events for which no corresponding order id was found, update quantity to the quantity provided by the last arriving event and delete order events that are marked as deleted:
 		</para>
 		
-		<programlisting><![CDATA[create window OrderWindow#keepall() as OrderEvent]]></programlisting>
+		<programlisting><![CDATA[create window OrderWindow#keepall as OrderEvent]]></programlisting>
 		<programlisting><![CDATA[on OrderEvent oe
   merge OrderWindow pw
   where pw.orderId = oe.orderId

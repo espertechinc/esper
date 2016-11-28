@@ -217,7 +217,7 @@ public class TestContextInitTerm extends TestCase {
         String[] fields = "c0,c1,c2,c3".split(",");
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         epService.getEPAdministrator().createEPL("create context MyCtx as initiated by SupportBean_S0 s0 terminated by SupportBean_S1(id=s0.id)");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall() group by theString");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString");
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "S0_1"));
@@ -298,7 +298,7 @@ public class TestContextInitTerm extends TestCase {
         String[] fields = "c1,c2".split(",");
         SupportUpdateListener listener = new SupportUpdateListener();
         EPStatement statement = epService.getEPAdministrator().createEPL("context EveryNowAndThen select context.s0.p00 as c1, sum(intPrimitive) as c2 " +
-                "from SupportBean#keepall() output snapshot when terminated");
+                "from SupportBean#keepall output snapshot when terminated");
         statement.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));

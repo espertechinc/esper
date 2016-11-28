@@ -54,7 +54,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "from SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
                    " on s0.p02 = h0.index " +
@@ -67,7 +67,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 from " +
                    "method:SupportJoinMethods.fetchValMultiRow('H1', p01, p05) as h1 " +
                    " right outer join " +
-                   "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " on s0.p03 = h1.index " +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
@@ -78,7 +78,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 from " +
                    "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
                    " right outer join " +
-                   "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " on s0.p02 = h0.index" +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchValMultiRow('H1', p01, p05) as h1 " +
@@ -89,7 +89,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 from " +
                    "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
                    " full outer join " +
-                   "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " on s0.p02 = h0.index" +
                    " full outer join " +
                    "method:SupportJoinMethods.fetchValMultiRow('H1', p01, p05) as h1 " +
@@ -103,7 +103,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "from SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " inner join " +
                    "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
                    " on s0.p02 = h0.index " +
@@ -116,7 +116,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 from " +
                     "method:SupportJoinMethods.fetchValMultiRow('H0', p00, p04) as h0 " +
                     " inner join " +
-                    "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                    "SupportBeanInt(id like 'E%')#keepall as s0 " +
                     " on s0.p02 = h0.index " +
                     " inner join " +
                     "method:SupportJoinMethods.fetchValMultiRow('H1', p01, p05) as h1 " +
@@ -130,7 +130,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1 " +
-                   "from SupportBeanInt(id like 'E%')#lastevent() as s0 " +
+                   "from SupportBeanInt(id like 'E%')#lastevent as s0 " +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchVal('H0', p00) as h0 " +
                    " on s0.p02 = h0.index " +
@@ -181,7 +181,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 " +
-                    "from SupportBeanInt(id like 'E%')#lastevent() as s0 " +
+                    "from SupportBeanInt(id like 'E%')#lastevent as s0 " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal('H0', p00) as h0 " +
                     " on s0.p03 = h0.index " +
@@ -197,7 +197,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 from " +
                     "method:SupportJoinMethods.fetchVal('H0', p00) as h0 " +
                     " right outer join " +
-                    "SupportBeanInt(id like 'E%')#lastevent() as s0 " +
+                    "SupportBeanInt(id like 'E%')#lastevent as s0 " +
                     " on s0.p03 = h0.index " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal('H1', p01) as h1 " +
@@ -249,7 +249,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as id, h0.val as valh0, h1.val as valh1, h2.val as valh2 " +
-                    "from SupportBeanInt(id like 'E%')#lastevent() as s0 " +
+                    "from SupportBeanInt(id like 'E%')#lastevent as s0 " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal(s0.id || '-H0', p00) as h0 " +
                     " on s0.p03 = h0.index " +
@@ -395,28 +395,28 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         //      H0  (depends H1)
         //      H1
         expression = "select * from " +
-                    "SupportBeanInt#lastevent() as s0 " +
+                    "SupportBeanInt#lastevent as s0 " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal(h1.val, 1) as h0 " +
                     " on s0.p00 = h0.index " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal('H1', 1) as h1 " +
                     " on h0.index = h1.index";
-        tryInvalid(expression, "Error starting statement: Historical stream 1 parameter dependency originating in stream 2 cannot or may not be satisfied by the join [select * from SupportBeanInt#lastevent() as s0  left outer join method:SupportJoinMethods.fetchVal(h1.val, 1) as h0  on s0.p00 = h0.index  left outer join method:SupportJoinMethods.fetchVal('H1', 1) as h1  on h0.index = h1.index]");
+        tryInvalid(expression, "Error starting statement: Historical stream 1 parameter dependency originating in stream 2 cannot or may not be satisfied by the join [select * from SupportBeanInt#lastevent as s0  left outer join method:SupportJoinMethods.fetchVal(h1.val, 1) as h0  on s0.p00 = h0.index  left outer join method:SupportJoinMethods.fetchVal('H1', 1) as h1  on h0.index = h1.index]");
 
         // Optimization conflict : required streams are always executed before optional streams
         //              S0
         //  full outer join H0 to S0
         //  left outer join H1 to S0 (H1 depends on H0)
         expression = "select * from " +
-                    "SupportBeanInt#lastevent() as s0 " +
+                    "SupportBeanInt#lastevent as s0 " +
                     " full outer join " +
                     "method:SupportJoinMethods.fetchVal('x', 1) as h0 " +
                     " on s0.p00 = h0.index " +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal(h0.val, 1) as h1 " +
                     " on s0.p00 = h1.index";
-        tryInvalid(expression, "Error starting statement: Historical stream 2 parameter dependency originating in stream 1 cannot or may not be satisfied by the join [select * from SupportBeanInt#lastevent() as s0  full outer join method:SupportJoinMethods.fetchVal('x', 1) as h0  on s0.p00 = h0.index  left outer join method:SupportJoinMethods.fetchVal(h0.val, 1) as h1  on s0.p00 = h1.index]");
+        tryInvalid(expression, "Error starting statement: Historical stream 2 parameter dependency originating in stream 1 cannot or may not be satisfied by the join [select * from SupportBeanInt#lastevent as s0  full outer join method:SupportJoinMethods.fetchVal('x', 1) as h0  on s0.p00 = h0.index  left outer join method:SupportJoinMethods.fetchVal(h0.val, 1) as h1  on s0.p00 = h1.index]");
     }
 
     public void test2Stream1HistStarSubordinateLeftRight()
@@ -425,19 +425,19 @@ public class TestFromClauseMethodOuterNStream extends TestCase
 
         //   S1 -> S0 -> H0 
         expression = "select s0.id as s0id, s1.id as s1id, h0.val as valh0 from " +
-                   "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " left outer join " +
                    "method:SupportJoinMethods.fetchVal(s0.id || 'H0', s0.p00) as h0 " +
                    " on s0.p01 = h0.index " +
                    " right outer join " +
-                   "SupportBeanInt(id like 'F%')#keepall() as s1 " +
+                   "SupportBeanInt(id like 'F%')#keepall as s1 " +
                    " on s1.p01 = s0.p01";
         runAssertionSix(expression);
 
         expression = "select s0.id as s0id, s1.id as s1id, h0.val as valh0 from " +
-                    "SupportBeanInt(id like 'F%')#keepall() as s1 " +
+                    "SupportBeanInt(id like 'F%')#keepall as s1 " +
                     " left outer join " +
-                    "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                    "SupportBeanInt(id like 'E%')#keepall as s0 " +
                     " on s1.p01 = s0.p01" +
                     " left outer join " +
                     "method:SupportJoinMethods.fetchVal(s0.id || 'H0', s0.p00) as h0 " +
@@ -447,10 +447,10 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as s0id, s1.id as s1id, h0.val as valh0 from " +
                     "method:SupportJoinMethods.fetchVal(s0.id || 'H0', s0.p00) as h0 " +
                     " right outer join " +
-                    "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                    "SupportBeanInt(id like 'E%')#keepall as s0 " +
                     " on s0.p01 = h0.index " +
                     " right outer join " +
-                    "SupportBeanInt(id like 'F%')#keepall() as s1 " +
+                    "SupportBeanInt(id like 'F%')#keepall as s1 " +
                     " on s1.p01 = s0.p01";
         runAssertionSix(expression);
     }
@@ -499,7 +499,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         String expression;
 
         expression = "select s0.id as s0id, h0.val as valh0, h1.val as valh1 from " +
-                   "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                   "SupportBeanInt(id like 'E%')#keepall as s0 " +
                    " right outer join " +
                    "method:SupportJoinMethods.fetchVal('H0', 2) as h0 " +
                    " on s0.p00 = h0.index " +
@@ -511,7 +511,7 @@ public class TestFromClauseMethodOuterNStream extends TestCase
         expression = "select s0.id as s0id, h0.val as valh0, h1.val as valh1 from " +
                 "method:SupportJoinMethods.fetchVal('H1', 2) as h1 " +
                 " left outer join " +
-                "SupportBeanInt(id like 'E%')#keepall() as s0 " +
+                "SupportBeanInt(id like 'E%')#keepall as s0 " +
                 " on s0.p00 = h1.index" +
                 " right outer join " +
                 "method:SupportJoinMethods.fetchVal('H0', 2) as h0 " +
