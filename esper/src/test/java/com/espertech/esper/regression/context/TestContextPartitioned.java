@@ -52,6 +52,11 @@ public class TestContextPartitioned extends TestCase {
         listener = null;
     }
 
+    public void testNullKey() {
+        runAssertionNullSingleKey();
+        runAssertionNullKeyMultiKey();
+    }
+
     public void testPatternFilter() {
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("stringContainsX", this.getClass().getName(), "stringContainsX");
         String eplContext = "create context IndividualBean partition by theString from SupportBean";
@@ -777,6 +782,40 @@ public class TestContextPartitioned extends TestCase {
         assertTrue(listener.isInvoked());
     }
 
+    private void runAssertionNullSingleKey() {
+        epService.getEPAdministrator().createEPL("create context MyContext partition by theString from SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyContext select count(*) as cnt from SupportBean");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean(null, 10));
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean(null, 20));
+        assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean("A", 30));
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionNullKeyMultiKey() {
+        epService.getEPAdministrator().createEPL("create context MyContext partition by theString, intBoxed, intPrimitive from SupportBean");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyContext select count(*) as cnt from SupportBean");
+        stmt.addListener(listener);
+
+        sendSBEvent(epService, "A", null, 1);
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        sendSBEvent(epService, "A", null, 1);
+        assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        sendSBEvent(epService, "A", 10, 1);
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
     private void assertViewData(int newIntExpected, Object[][] newArrayExpected, Integer oldIntExpected) {
         assertEquals(1, listener.getLastNewData().length);
         assertEquals(newIntExpected, listener.getLastNewData()[0].get("intPrimitive"));
@@ -909,6 +948,12 @@ public class TestContextPartitioned extends TestCase {
 
     public static boolean stringContainsX(String theString) {
         return theString.contains("X");
+    }
+
+    private static void sendSBEvent(EPServiceProvider engine, String string, Integer intBoxed, int intPrimitive) {
+        SupportBean bean = new SupportBean(string, intPrimitive);
+        bean.setIntBoxed(intBoxed);
+        engine.getEPRuntime().sendEvent(bean);
     }
 
     public static class WebEvent implements Serializable {

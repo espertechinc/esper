@@ -223,7 +223,7 @@ public class ContextControllerPartitionedUtil {
             EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(propertyName);
             Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(propertyName);
             FilterSpecLookupable lookupable = new FilterSpecLookupable(propertyName, getter, resultType, false);
-            FilterValueSetParam filter = new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keyValue);
+            FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keyValue);
             addendumFilters.add(filter);
         }
         else {
@@ -233,7 +233,7 @@ public class ContextControllerPartitionedUtil {
                 EventPropertyGetter getter = foundPartition.getFilterSpecCompiled().getFilterForEventType().getGetter(partitionPropertyName);
                 Class resultType = foundPartition.getFilterSpecCompiled().getFilterForEventType().getPropertyType(partitionPropertyName);
                 FilterSpecLookupable lookupable = new FilterSpecLookupable(partitionPropertyName, getter, resultType, false);
-                FilterValueSetParam filter = new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keys[i]);
+                FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keys[i]);
                 addendumFilters.add(filter);
             }
         }
@@ -247,6 +247,13 @@ public class ContextControllerPartitionedUtil {
         }
 
         return addendum;
+    }
+
+    private static FilterValueSetParam getFilterMayEqualOrNull(FilterSpecLookupable lookupable, Object keyValue) {
+        if (keyValue == null) {
+            return new FilterValueSetParamImpl(lookupable, FilterOperator.IS, null);
+        }
+        return new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keyValue);
     }
 
     private static String getTypeValidationMessage(String contextName, String typeNameEx) {

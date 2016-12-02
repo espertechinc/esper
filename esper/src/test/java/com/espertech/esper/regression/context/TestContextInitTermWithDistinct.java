@@ -69,6 +69,11 @@ public class TestContextInitTermWithDistinct extends TestCase {
                 "Incorrect syntax near 'distinct' (a reserved keyword) at line 1 column 31 [create context MyContext start distinct(theString) SupportBean end after 15 seconds]");
     }
 
+    public void testNullKey() {
+        runAssertionNullSingleKey();
+        runAssertionNullKeyMultiKey();
+    }
+
     public void testDistinctOverlappingSingleKey() {
         epService.getEPAdministrator().createEPL(
                 "create context MyContext " +
@@ -191,6 +196,40 @@ public class TestContextInitTermWithDistinct extends TestCase {
         }
     }
 
+    private void runAssertionNullSingleKey() {
+        epService.getEPAdministrator().createEPL("create context MyContext initiated by distinct(theString) SupportBean as sb terminated after 24 hours");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyContext select count(*) as cnt from SupportBean");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean(null, 10));
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean(null, 20));
+        assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        epService.getEPRuntime().sendEvent(new SupportBean("A", 30));
+        assertEquals(2, listener.getAndResetLastNewData().length);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionNullKeyMultiKey() {
+        epService.getEPAdministrator().createEPL("create context MyContext initiated by distinct(theString, intBoxed, intPrimitive) SupportBean as sb terminated after 100 hours");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyContext select count(*) as cnt from SupportBean");
+        stmt.addListener(listener);
+
+        sendSBEvent(epService, "A", null, 1);
+        assertEquals(1L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        sendSBEvent(epService, "A", null, 1);
+        assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+
+        sendSBEvent(epService, "A", 10, 1);
+        assertEquals(2, listener.getAndResetLastNewData().length);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
     private static void sendEvent(EPServiceProvider engine, String theString, int intPrimitive, long longPrimitive) {
         SupportBean event = new SupportBean(theString, intPrimitive);
         event.setLongPrimitive(longPrimitive);
@@ -205,6 +244,12 @@ public class TestContextInitTermWithDistinct extends TestCase {
         catch (EPStatementException ex) {
             assertEquals(message, ex.getMessage());
         }
+    }
+
+    private static void sendSBEvent(EPServiceProvider engine, String string, Integer intBoxed, int intPrimitive) {
+        SupportBean bean = new SupportBean(string, intPrimitive);
+        bean.setIntBoxed(intBoxed);
+        engine.getEPRuntime().sendEvent(bean);
     }
 
     private static EPContextPartitionAdminSPI getSpi(EPServiceProvider epService) {
