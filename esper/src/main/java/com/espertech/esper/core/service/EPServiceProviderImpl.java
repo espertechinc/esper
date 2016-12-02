@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -789,8 +790,30 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
     {
         try
         {
+            // Allow variables to have non-serializable values by copying their initial value
+            Map<String, Object> variableInitialValues = null;
+            if (!configuration.getVariables().isEmpty()) {
+                variableInitialValues = new HashMap<>();
+                for (Map.Entry<String, ConfigurationVariable> variable : configuration.getVariables().entrySet()) {
+                    Object initializationValue = variable.getValue().getInitializationValue();
+                    if (initializationValue != null) {
+                        variableInitialValues.put(variable.getKey(), initializationValue);
+                        variable.getValue().setInitializationValue(null);
+                    }
+                }
+            }
+
             Configuration copy = (Configuration) SerializableObjectCopier.copy(configuration);
             copy.setTransientConfiguration(configuration.getTransientConfiguration());
+
+            // Restore variable with initial values
+            if (variableInitialValues != null && !variableInitialValues.isEmpty()) {
+                for (Map.Entry<String, Object> entry : variableInitialValues.entrySet()) {
+                    ConfigurationVariable config = copy.getVariables().get(entry.getKey());
+                    config.setInitializationValue(entry.getValue());
+                }
+            }
+
             return copy;
         }
         catch (IOException e)

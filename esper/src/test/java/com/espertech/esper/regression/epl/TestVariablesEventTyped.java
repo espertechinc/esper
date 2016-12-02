@@ -69,12 +69,16 @@ public class TestVariablesEventTyped extends TestCase
         config.addVariable("vars1", SupportBean_S1.class.getName(), new SupportBean_S1(20));
         config.addVariable("varsobj1", Object.class.getName(), 123);
 
+        NonSerializable nonSerializable = new NonSerializable("abc");
+        config.addVariable("myNonSerializable", NonSerializable.class, nonSerializable);
+
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
 
         assertEquals(10, ((SupportBean_S0) epService.getEPRuntime().getVariableValue("vars0")).getId());
         assertEquals(20, ((SupportBean_S1) epService.getEPRuntime().getVariableValue("vars1")).getId());
         assertEquals(123, epService.getEPRuntime().getVariableValue("varsobj1"));
+        assertSame(nonSerializable, epService.getEPRuntime().getVariableValue("myNonSerializable"));
 
         epService.getEPAdministrator().getConfiguration().addVariable("vars2", "TypeS2", new SupportBean_S2(30));
         epService.getEPAdministrator().getConfiguration().addVariable("vars3", SupportBean_S3.class, new SupportBean_S3(40));
@@ -230,6 +234,18 @@ public class TestVariablesEventTyped extends TestCase
         }
         catch (EPStatementException ex) {
             assertEquals(message, ex.getMessage());
+        }
+    }
+
+    public static class NonSerializable {
+        private final String myString;
+
+        public NonSerializable(String myString) {
+            this.myString = myString;
+        }
+
+        public String getMyString() {
+            return myString;
         }
     }
 }
