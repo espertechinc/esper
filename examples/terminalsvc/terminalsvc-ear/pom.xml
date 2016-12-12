@@ -1,9 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-	<name>Esper Examples TerminalSvc - EAR</name>
+	<parent>
+		<groupId>com.espertech</groupId>
+		<artifactId>esper-examples-terminalsvc-parent</artifactId>
+		<version>6.0.0</version>
+	</parent>
+	<name>Esper Examples - TerminalSvc - EAR</name>
 	<artifactId>example-terminalsvc-ear</artifactId>
 	<groupId>com.espertech</groupId>
-	<version>1.0</version>
 	<packaging>ear</packaging>
 	<description>Esper TerminalSvc example - EAR</description>
 	<repositories>
@@ -16,7 +20,7 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>example-terminalsvc-mdb</artifactId>
-			<version>1.0</version>
+			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
 	</dependencies>

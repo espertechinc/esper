@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.espertech</groupId>
-		<artifactId>esper_examples</artifactId>
+		<artifactId>esper-examples-parent</artifactId>
 		<version>6.0.0</version>
 	</parent>
 	<name>Esper Examples - Transaction</name>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
+			<version>${slf4j-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.5.3</version>
+			<version>${antlr4-runtime.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -37,13 +37,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.21</version>
+			<version>${slf4j-api.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<version>${log4j.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.jms</groupId>

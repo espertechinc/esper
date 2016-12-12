@@ -1,9 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.espertech</groupId>
+        <artifactId>esper-parent</artifactId>
+        <version>6.0.0</version>
+	</parent>
 	<name>Esper Examples</name>
 	<groupId>com.espertech</groupId>
-	<artifactId>esper_examples</artifactId>
-	<version>6.0.0</version>
+	<artifactId>esper-examples-parent</artifactId>
 	<packaging>pom</packaging>
 	<description>Esper CEP ESP engine for Java examples</description>
 	<modules>
@@ -29,17 +33,17 @@
 			<dependency>
 				<groupId>com.espertech</groupId>
 				<artifactId>esper</artifactId>
-				<version>6.0.0</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>1.7.21</version>
+				<version>${slf4j-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
+				<version>${junit.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<!-- for javax.jms 1.1 dependency -->
@@ -51,13 +55,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.21</version>
+			<version>${slf4j-api.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<version>${log4j.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.jms</groupId>

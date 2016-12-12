@@ -1,9 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.espertech</groupId>
+        <artifactId>esper-parent</artifactId>
+        <version>6.0.0</version>
+	</parent>
 	<name>EsperIO-AMQP</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esperio-amqp</artifactId>
-	<version>6.0.0</version>
 	<packaging>jar</packaging>
 	<description>EsperIO AMQP</description>
 	<url>http://www.espertech.com/esper</url>
@@ -46,7 +50,7 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>esper</artifactId>
-			<version>6.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
@@ -56,29 +60,29 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.5.3</version>
+			<version>${antlr4-runtime.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
-			<version>3.2.4</version>
+			<version>${cglib-nodep.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.21</version>
+			<version>${slf4j-api.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<version>${log4j.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.jms</groupId>

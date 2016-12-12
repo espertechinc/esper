@@ -49,13 +49,13 @@
 					<dependency>
 						<groupId>com.espertech</groupId>
 						<artifactId>esper-jdocbook-xslt</artifactId>
-						<version>6.0.0</version>
+						<version>${project.version}</version>
 					</dependency>
 					<dependency>
 						<groupId>com.espertech</groupId>
 						<artifactId>esper-jdocbook-style</artifactId>
 						<type>jdocbook-style</type>
-						<version>6.0.0</version>
+						<version>${project.version}</version>
 					</dependency>
 					    <dependency>
 					      <groupId>org.jboss.pressgang</groupId>
