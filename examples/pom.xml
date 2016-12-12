@@ -6,24 +6,6 @@
 	<version>6.0.0</version>
 	<packaging>pom</packaging>
 	<description>Esper CEP ESP engine for Java examples</description>
-	<repositories>
-		<repository>
-			<id>central</id>
-			<name>Maven Repository Switchboard</name>
-			<layout>default</layout>
-			<url>http://repo1.maven.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<!-- Java.Net legacy maven 1 repo for javax.jms -->
-		<repository>
-          <id>maven2-repository.dev.java.net</id>
-          <name>Java.net Repository for Maven</name>
-          <url>https://maven-repository.dev.java.net/nonav/repository</url>
-          <layout>legacy</layout>
-        </repository>		
-	</repositories>	
 	<modules>
 		<module>autoid</module>
 		<module>benchmark</module>
