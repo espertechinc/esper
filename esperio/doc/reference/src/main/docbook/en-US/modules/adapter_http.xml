@@ -44,7 +44,7 @@
 		</para>
 
 		<para>
-			A sample adapter configuration file is provided in <literal>esperio-http-sample-config.xml</literal> in the <literal>etc</literal> folder of the distribution. A configuration file must be valid according to schema <literal>esperio-http-configuration-5-0.xsd</literal>.
+			A sample adapter configuration file is provided in <literal>esperio-http-sample-config.xml</literal> in the <literal>etc</literal> folder of the distribution. A configuration file must be valid according to schema <literal>esperio-http-configuration-6-0.xsd</literal>.
 		</para>
 
 		<sect2 xml:id="adapterhttp-gettingstarted-pluginloader">

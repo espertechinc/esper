@@ -79,7 +79,7 @@ configuration.configure("myengine.esper.cfg.xml");
 
         <para>
 			Here is an example configuration file.
-            The schema for the configuration file can be found in the <literal>etc</literal> folder and is named <literal>esper-configuration-5-0.xsd</literal>.
+            The schema for the configuration file can be found in the <literal>etc</literal> folder and is named <literal>esper-configuration-6-0.xsd</literal>.
             It is also available online at <literal>http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd</literal> so that IDE can fetch it automatically.
             The namespace used is <literal>http://www.espertech.com/schema/esper</literal>.
         </para>
