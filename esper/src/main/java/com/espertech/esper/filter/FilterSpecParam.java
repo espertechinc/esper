@@ -41,7 +41,7 @@ public abstract class FilterSpecParam implements MetaDefItem, Serializable
     /**
      * Return the filter parameter constant to filter for.
      * @param matchedEvents is the prior results that can be used to determine filter parameters
-     * @param agentInstanceContext
+     * @param agentInstanceContext context
      * @return filter parameter constant's value
      */
     public abstract Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext);

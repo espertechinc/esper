@@ -108,6 +108,7 @@ public enum MathArithTypeEnum
      * @param typeTwo - the RHS type
      * @param isIntegerDivision - false for division returns double, true for using Java-standard integer division
      * @param isDivisionByZeroReturnsNull - false for division-by-zero returns infinity, true for null
+     * @param optionalMathContext - math context or null
      * @return number cruncher
      */
     public Computer getComputer(Class coercedType, Class typeOne, Class typeTwo, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull, MathContext optionalMathContext)

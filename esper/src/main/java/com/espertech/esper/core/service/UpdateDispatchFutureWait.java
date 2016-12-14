@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * is a stand-in for a future dispatching of a statement result to statement listeners.
  * <p>
  * UpdateDispatchFutureWait is aware of future and past dispatches:
- * (newest) DF3   <-->   DF2  <-->  DF1  (oldest)
+ * (newest) DF3   &lt;--&gt;   DF2  &lt;--&gt;  DF1  (oldest)
  */
 public class UpdateDispatchFutureWait implements Dispatchable
 {

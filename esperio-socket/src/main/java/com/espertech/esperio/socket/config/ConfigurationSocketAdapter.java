@@ -54,10 +54,10 @@ public class ConfigurationSocketAdapter {
      * Use the ConfigurationSocketAdapter specified in the given application
      * resource. The format of the resource is defined in
      * <tt>esper-configuration-2.0.xsd</tt>.
-     * <p/>
+     * <p>
      * The resource is found via <tt>getConfigurationInputStream(resource)</tt>.
      * That method can be overridden to implement an arbitrary lookup strategy.
-     * <p/>
+     * </p>
      * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
      * @param resource if the file name of the resource
      * @return ConfigurationSocketAdapter initialized from the resource

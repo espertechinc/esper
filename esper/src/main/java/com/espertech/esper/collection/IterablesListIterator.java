@@ -30,6 +30,7 @@ public final class IterablesListIterator implements Iterator<EventBean>
 
     /**
      * Constructor - takes a list of Iterable that supply the iterators to iterate over.
+     * @param iteratorOfIterables super-iterate of iterables
      */
     public IterablesListIterator(Iterator<Iterable<EventBean>> iteratorOfIterables)
     {

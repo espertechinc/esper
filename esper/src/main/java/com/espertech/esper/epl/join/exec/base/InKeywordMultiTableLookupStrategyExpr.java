@@ -29,9 +29,6 @@ public class InKeywordMultiTableLookupStrategyExpr implements JoinExecTableLooku
     private final ExprEvaluator evaluator;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    /**
-     * Ctor.
-     */
     public InKeywordMultiTableLookupStrategyExpr(ExprEvaluator evaluator, int streamNum, PropertyIndexedEventTableSingle[] indexes, LookupStrategyDesc lookupStrategyDesc)
     {
         if (indexes == null) {

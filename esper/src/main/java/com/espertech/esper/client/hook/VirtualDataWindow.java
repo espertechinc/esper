@@ -100,7 +100,7 @@ public interface VirtualDataWindow {
      * receives initial state from the named window, for example "select sum(field) from MyVirtualDataWindow"
      * in order to initialize its state.
      * <p>
-     * It is valid to return an empty iterator such as "return Collections.<EventBean>emptyList().iterator();".
+     * It is valid to return an empty iterator such as "return Collections.&lt;EventBean&gt;emptyList().iterator();".
      * If returning an empty iterator then consuming statements do not receive initial data, therefor in the example provide earlier
      * the "sum(field)" is initially zero and no the sum of the field values.
      * </p>

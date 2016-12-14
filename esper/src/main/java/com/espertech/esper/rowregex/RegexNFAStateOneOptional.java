@@ -32,6 +32,7 @@ public class RegexNFAStateOneOptional extends RegexNFAStateBase implements Regex
      * @param multiple true for multiple matches
      * @param isGreedy true for greedy
      * @param exprNode filter expression
+     * @param exprRequiresMultimatchState indicator for multi-match state required
      */
     public RegexNFAStateOneOptional(String nodeNum, String variableName, int streamNum, boolean multiple, boolean isGreedy, ExprNode exprNode, boolean exprRequiresMultimatchState)
     {

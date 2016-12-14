@@ -39,6 +39,9 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
      * @param columns column definition
      * @param inherits supertypes
      * @param assignedType any type assignment such as Map, Object-array or variant or none-specified
+     * @param startTimestampProperty name of start-interval prop
+     * @param endTimestampProperty name of end-interval prop
+     * @param copyFrom copy-from
      */
     public CreateSchemaDesc(String schemaName, Set<String> types, List<ColumnDesc> columns, Set<String> inherits, AssignedType assignedType, String startTimestampProperty, String endTimestampProperty, Set<String> copyFrom) {
         this.schemaName = schemaName;

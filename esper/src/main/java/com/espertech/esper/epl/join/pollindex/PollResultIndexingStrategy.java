@@ -25,11 +25,10 @@ public interface PollResultIndexingStrategy
 {
     /**
      * Build and index of a poll result.
-     * @param agentInstanceContext
      * @param pollResult result of a poll operation
      * @param isActiveCache true to indicate that caching is active and therefore index building makes sense as
      *   the index structure is not a throw-away.
-     * @param statementContext
+     * @param statementContext statement context
      * @return indexed collection of poll results
      */
     public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext);

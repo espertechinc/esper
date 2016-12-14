@@ -37,9 +37,6 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
 
     private transient EventType containedType;
 
-    /**
-     * Ctor.
-     */
     public ExprAggMultiFunctionSortedMinMaxByNode(boolean max, boolean ever, boolean sortedwin) {
         super(false);
         this.max = max;

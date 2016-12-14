@@ -109,14 +109,6 @@ public class StatementSpecMapper
         return unmapExpressionDeepRowRegex(pattern, new StatementSpecUnMapContext());
     }
 
-    /**
-     * Maps the SODA object model to a statement specification.
-     * @param sodaStatement is the object model to map
-     * @param engineImportService for resolving imports such as plug-in aggregations
-     * @param variableService provides variable values
-     * @param configuration supplies config values
-     * @return statement specification, and internal representation of a statement
-     */
     public static StatementSpecRaw map(EPStatementObjectModel sodaStatement, EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, TableService tableService)
     {
         com.espertech.esper.core.context.util.ContextDescriptor contextDescriptor = null;

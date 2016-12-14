@@ -17,7 +17,7 @@ import com.espertech.esper.util.JavaClassHelper;
 import java.io.StringWriter;
 
 /**
- * Represents a lesser or greater then (</<=/>/>=) expression in a filter expression tree.
+ * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
 public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprRelationalOpNode
 {

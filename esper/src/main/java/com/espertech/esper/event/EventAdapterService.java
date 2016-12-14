@@ -34,6 +34,7 @@ public interface EventAdapterService
     /**
      * Returns descriptors for all writable properties.
      * @param eventType to reflect on
+     * @param allowAnyType whether any type is allowed to be populated
      * @return list of writable properties
      */
     public Set<WriteablePropertyDescriptor> getWriteableProperties(EventType eventType, boolean allowAnyType);
@@ -43,7 +44,8 @@ public interface EventAdapterService
      *
      * @param eventType to create underlying objects for
      * @param properties to write
-     * @param engineImportService
+     * @param engineImportService engine imports
+     * @param allowAnyType whether any type is allowed to be populated
      * @return factory
      * @throws EventBeanManufactureException if a factory cannot be created for the type
      */
@@ -96,6 +98,8 @@ public interface EventAdapterService
      * @param isConfigured if the type is application-configured
      * @param namedWindow if the type is from a named window
      * @param insertInto if inserting into a stream
+     * @param isPreconfigured whether pre-configured
+     * @param isPreconfiguredStatic whether statically pre-configured
      * @throws EventAdapterException if name already exists and doesn't match property type info
      */
     public EventType addNestableMapType(String eventTypeName, Map<String, Object> propertyTypes, ConfigurationEventTypeMap optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto) throws EventAdapterException;
@@ -123,6 +127,7 @@ public interface EventAdapterService
      * <p>
      * @param propertyTypes is a map of String to Class objects
      * @param isTransient transient types are not available by event type id lookup and recovery, they are always re-created on-the-fly
+     * @param typeName type name
      * @return EventType implementation for map field names and value types
      */
     public EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes, boolean isTransient);
@@ -150,6 +155,9 @@ public interface EventAdapterService
      * @param eventTypeName is the name for the event type
      * @param fullyQualClassName is the fully qualified class name
      * @param considerAutoName whether auto-name by Java packages should be considered
+     * @param isConfigured indicator whether from configs
+     * @param isPreconfigured indicator whether preconfigured
+     * @param isPreconfiguredStatic indicator whether static configured
      * @return event type is the type added
      * @throws EventAdapterException if name already exists and doesn't match class names
      */
@@ -166,6 +174,8 @@ public interface EventAdapterService
      * @param eventTypeName is the name for the event type
      * @param clazz is the fully Java class
      * @param isConfigured if the class is application-configured
+     * @param isPreconfigured indicator whether preconfigured
+     * @param isPreconfiguredStatic indicator whether static configured
      * @return event type is the type added
      * @throws EventAdapterException if name already exists and doesn't match class names
      */
@@ -229,6 +239,7 @@ public interface EventAdapterService
      * as well as the additional given properties.
      * @param underlyingEventType is the event type for the event type that this wrapper wraps
      * @param propertyTypes is the names and types of any additional properties
+     * @param typeName type name
      * @return eventType is the type createdStatement
      * @throws EventAdapterException if name already exists and doesn't match this type's info
      */
@@ -239,6 +250,7 @@ public interface EventAdapterService
      * @param eventTypeName is the name to add the type for
      * @param configurationEventTypeXMLDOM is the XML DOM config info
      * @param optionalSchemaModel is the object model of the schema, or null in none provided
+     * @param isPreconfiguredStatic preconfigured thru static config
      * @return event type
      */
     public EventType addXMLDOMType(String eventTypeName, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, SchemaModel optionalSchemaModel, boolean isPreconfiguredStatic);
@@ -252,6 +264,7 @@ public interface EventAdapterService
     /**
      * Returns the configured legacy Java class information or null if none defined.
      * @param className is the fully-qualified class name
+     * @return config
      */
     public ConfigurationEventTypeLegacy getClassLegacyConfigs(String className);
 
@@ -342,6 +355,7 @@ public interface EventAdapterService
      * @param taggedEventTypes simple type per property name
      * @param arrayEventTypes array type per property name
      * @param isUsedByChildViews if the type is going to be in used by child views
+     * @param typeName type name
      * @return event type
      */
     public EventType createSemiAnonymousMapType(String typeName, Map<String, Pair<EventType, String>> taggedEventTypes, Map<String, Pair<EventType, String>> arrayEventTypes, boolean isUsedByChildViews);

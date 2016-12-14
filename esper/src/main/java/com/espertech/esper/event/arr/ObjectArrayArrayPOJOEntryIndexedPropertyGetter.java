@@ -30,6 +30,7 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
      * @param index the index to fetch the array element for
      * @param eventAdapterService factory for event beans and event types
      * @param returnType type of the entry returned
+     * @param propertyIndex property num
      */
     public ObjectArrayArrayPOJOEntryIndexedPropertyGetter(int propertyIndex, int index, EventAdapterService eventAdapterService, Class returnType)
     {

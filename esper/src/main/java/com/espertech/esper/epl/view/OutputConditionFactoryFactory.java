@@ -31,11 +31,6 @@ public class OutputConditionFactoryFactory
 {
 	private static final Logger log = LoggerFactory.getLogger(OutputConditionFactoryFactory.class);
 
-    /**
-     * Creates an output condition instance.
-     * @param outputLimitSpec specifies what kind of condition to create
-     * @return instance for performing output
-     */
 	public static OutputConditionFactory createCondition(OutputLimitSpec outputLimitSpec,
 										 	  	  StatementContext statementContext,
                                                   boolean isGrouped,

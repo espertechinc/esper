@@ -186,6 +186,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     /**
      * For use by implementing classes, validates the aggregation node expecting
      * a single numeric-type child node.
+     * @param hasFilter for filter indication
      * @return numeric type of single child
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the validation failed
      */

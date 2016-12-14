@@ -35,20 +35,6 @@ public class OutputLimitSpec implements MetaDefItem, Serializable
     private List<OnTriggerSetAssignment> andAfterTerminateThenExpressions;
     private static final long serialVersionUID = 7314871194757342071L;
 
-    /**
-	 * Ctor.
-	 * 	 For batching events by event count.
-     * @param rate is the fixed output rate, or null if by variable
-	 * @param displayLimit - indicates whether to output only the first, only the last, or all events
-     * @param variableForRate - an optional variable name instead of the rate
-     * @param rateType - type of the rate
-     * @param whenExpressionNode - for controlling output by a boolean expression
-     * @param thenExpressions variable assignments, if null if none
-     * @param crontabAtSchedule - crontab parameters
-     * @param timePeriodExpr - the time period, or null if none
-     * @param afterTimePeriodExpr - after-keyword time period
-     * @param afterNumberOfEvents - after-keyword number of events
-     */
     public OutputLimitSpec(Double rate, String variableForRate, OutputLimitRateType rateType, OutputLimitLimitType displayLimit, ExprNode whenExpressionNode, List<OnTriggerSetAssignment> thenExpressions, List<ExprNode> crontabAtSchedule, ExprTimePeriod timePeriodExpr, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, boolean andAfterTerminate, ExprNode andAfterTerminateExpr, List<OnTriggerSetAssignment> andAfterTerminateSetExpressions)
 	{
 		this.rate = rate;

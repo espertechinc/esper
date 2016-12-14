@@ -70,29 +70,6 @@ public class StatementSpecCompiled
     private FilterSpecCompiled[] filterSpecsOverall;
     private NamedWindowConsumerStreamSpec[] namedWindowConsumersAll;
 
-    /**
-     * Ctor.
-     * @param insertIntoDesc insert into def
-     * @param selectClauseStreamSelectorEnum stream selection
-     * @param selectClauseSpec select clause
-     * @param streamSpecs specs for streams
-     * @param outerJoinDescList outer join def
-     * @param filterExprRootNode where filter expr nodes
-     * @param havingExprRootNode having expression
-     * @param outputLimitSpec output limit
-     * @param orderByList order by
-     * @param subSelectExpressions list of subqueries
-     * @param onTriggerDesc describes on-delete statements
-     * @param createWindowDesc describes create-window statements
-     * @param createVariableDesc describes create-variable statements
-     * @param rowLimitSpec row limit specification, or null if none supplied
-     * @param eventTypeReferences event type names statically determined
-     * @param annotations statement annotations
-     * @param updateSpec update specification if used
-     * @param matchRecognizeSpec if provided
-     * @param variableReferences variables referenced
-     * @param createIndexDesc when an index get
-     */
     public StatementSpecCompiled(OnTriggerDesc onTriggerDesc,
                                  CreateWindowDesc createWindowDesc,
                                  CreateIndexDesc createIndexDesc,

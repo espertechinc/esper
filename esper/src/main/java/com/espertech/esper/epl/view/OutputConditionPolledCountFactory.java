@@ -27,6 +27,8 @@ public final class OutputConditionPolledCountFactory implements OutputConditionP
      * Constructor.
      * @param eventRate is the number of old or new events that
      * must arrive in order for the condition to be satisfied
+     * @param variableName variable
+     * @param statementContext context
      */
     public OutputConditionPolledCountFactory(int eventRate, StatementContext statementContext, String variableName)
     {

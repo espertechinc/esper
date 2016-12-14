@@ -23,6 +23,7 @@ public class OnTriggerWindowDesc extends OnTriggerDesc
      * @param windowName the window name
      * @param optionalAsName the optional name
      * @param onTriggerType for indicationg on-delete, on-select or on-update
+     * @param deleteAndSelect indicator whether delete-and-select
      */
     public OnTriggerWindowDesc(String windowName, String optionalAsName, OnTriggerType onTriggerType, boolean deleteAndSelect)
     {

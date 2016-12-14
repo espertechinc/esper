@@ -51,6 +51,7 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
      * @param size is the number of events to batch
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
      * @param lengthBatchViewFactory for copying this view in a group-by
+     * @param agentInstanceViewFactoryContext context
      */
     public LengthBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext,
                            LengthBatchViewFactory lengthBatchViewFactory,

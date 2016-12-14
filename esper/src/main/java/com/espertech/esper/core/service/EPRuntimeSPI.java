@@ -56,6 +56,7 @@ public interface EPRuntimeSPI extends EPRuntime
      *
      * @param object is the event to sent to the runtime
      * @throws com.espertech.esper.client.EPException is thrown when the processing of the event lead to an error
+     * @return returns object wrapped as event bean
      */
     public EventBean wrapEvent(Object object);
 
@@ -69,6 +70,7 @@ public interface EPRuntimeSPI extends EPRuntime
      * can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
      * @param eventTypeName - the name for the Map event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
+     * @return returns map wrapped as event bean
      */
     public EventBean wrapEvent(Map map, String eventTypeName);
 
@@ -80,6 +82,7 @@ public interface EPRuntimeSPI extends EPRuntime
      *
      * @param node is the DOM node as an event
      * @throws EPException is thrown when the processing of the event lead to an error
+     * @return returns node wrapped as event bean
      */
     public EventBean wrapEvent(org.w3c.dom.Node node);
 

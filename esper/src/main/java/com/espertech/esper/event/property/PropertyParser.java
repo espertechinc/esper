@@ -65,6 +65,7 @@ public class PropertyParser
      * Parse the given property name returning a Property instance for the property.
      * @param isRootedDynamic is true to indicate that the property is already rooted in a dynamic
      * property and therefore all child properties should be dynamic properties as well
+     * @param tree tree
      * @return Property instance for property
      */
     public static Property walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext tree, boolean isRootedDynamic)

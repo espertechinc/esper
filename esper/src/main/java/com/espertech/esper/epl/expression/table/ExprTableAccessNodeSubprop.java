@@ -34,9 +34,6 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
     private transient EPType optionalEnumerationType;
     private transient ExprEvaluatorEnumerationGivenEvent optionalPropertyEnumEvaluator;
 
-    /**
-     * Ctor.
-     */
     public ExprTableAccessNodeSubprop(String tableName, String subpropName) {
         super(tableName);
         this.subpropName = subpropName;

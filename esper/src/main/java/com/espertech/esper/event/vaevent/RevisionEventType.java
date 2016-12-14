@@ -38,6 +38,7 @@ public class RevisionEventType implements EventTypeSPI
      * @param propertyDesc describes each properties type
      * @param eventAdapterService for nested property handling
      * @param metadata - event type metadata
+     * @param eventTypeId type id
      */
     public RevisionEventType(EventTypeMetadata metadata, int eventTypeId, Map<String, RevisionPropertyTypeDesc> propertyDesc, EventAdapterService eventAdapterService)
     {

@@ -12,9 +12,9 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * Lambda-expression is an expression of the form "parameter => body" where-in the "=>" reads as goes-to.
+ * Lambda-expression is an expression of the form "parameter =&gt; body" where-in the "=&gt;" reads as goes-to.
  * <p>
- * The form "x => x * x" reads as "x goes to x times x", for an example expression that yields x multiplied by x.
+ * The form "x =&gt; x * x" reads as "x goes to x times x", for an example expression that yields x multiplied by x.
  * <p>
  * Used with expression declaration and with enumeration methods, for example, to parameterize by an expression.
  */

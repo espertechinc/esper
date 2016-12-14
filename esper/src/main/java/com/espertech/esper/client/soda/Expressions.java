@@ -11,7 +11,6 @@ package com.espertech.esper.client.soda;
 import com.espertech.esper.type.BitWiseOpEnum;
 
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 

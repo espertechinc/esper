@@ -42,7 +42,10 @@ public class NStreamOuterQueryPlanBuilder
      * @param typesPerStream - event types for each stream
      * @param dependencyGraph - dependencies between historical streams
      * @param historicalStreamIndexLists - index management, populated for the query plan
-     * @param exprEvaluatorContext context for expression evalauation
+     * @param exprEvaluatorContext context for expression evaluation
+     * @param historicalViewableDesc historicals
+     * @param indexedStreamsUniqueProps unique props
+     * @param tablesPerStream tables
      * @return query plan
      * @throws ExprValidationException if the query planning failed
      */
@@ -309,6 +312,7 @@ public class NStreamOuterQueryPlanBuilder
      * @param requiredPerStream indicates which streams are required and which are optional
      * @param streamCallStack the query plan call stack of streams available via cursor
      * @param dependencyGraph - dependencies between historical streams
+     * @param innerJoinGraph inner join graph
      * @throws ExprValidationException if the query planning failed
      */
     protected static void recursiveBuild(int streamNum,

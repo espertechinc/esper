@@ -33,10 +33,6 @@ public class SubordInKeywordSingleTableLookupStrategyNW implements SubordTableLo
 
     protected final LookupStrategyDesc strategyDesc;
 
-    /**
-     * Ctor.
-     * @param index is the table carrying the data to lookup into
-     */
     public SubordInKeywordSingleTableLookupStrategyNW(ExprEvaluator[] evaluators, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc)
     {
         this.evaluators = evaluators;

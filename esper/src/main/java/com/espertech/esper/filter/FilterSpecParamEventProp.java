@@ -40,6 +40,7 @@ public final class FilterSpecParamEventProp extends FilterSpecParam
      * @param isMustCoerce indicates on whether numeric coercion must be performed
      * @param coercionType indicates the numeric coercion type to use
      * @param numberCoercer interface to use to perform coercion
+     * @param statementName statement name
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
     public FilterSpecParamEventProp(FilterSpecLookupable lookupable, FilterOperator filterOperator, String resultEventAsName,

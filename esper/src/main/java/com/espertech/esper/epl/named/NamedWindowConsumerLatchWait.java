@@ -32,10 +32,6 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
     private volatile boolean isCompleted;
     private Thread currentThread;
 
-    /**
-     * Ctor.
-     * @param earlier the latch before this latch that this latch should be waiting for
-     */
     public NamedWindowConsumerLatchWait(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier)
     {
         super(deltaData, dispatchTo);
@@ -43,9 +39,6 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
         this.earlier = earlier;
     }
 
-    /**
-     * Ctor - use for the first and unused latch to indicate completion.
-     */
     public NamedWindowConsumerLatchWait(NamedWindowConsumerLatchFactory factory)
     {
         super(null, null);
@@ -74,7 +67,6 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
 
     /**
      * Blcking call that returns only when the earlier latch completed.
-     * @return payload of the latch
      */
     public void await()
     {

@@ -54,6 +54,7 @@ public class SimpleXMLEventType extends BaseXMLEventType {
      * @param configurationEventTypeXMLDOM configures the event type
      * @param eventTypeMetadata event type metadata
      * @param eventAdapterService for type looking and registration
+     * @param eventTypeId type id
      */
     public SimpleXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, EventAdapterService eventAdapterService)
     {

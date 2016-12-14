@@ -29,6 +29,7 @@ public class MultiIndexEventTable implements EventTable
     /**
      * Ctor.
      * @param tables tables to hold
+     * @param organization organization
      */
     public MultiIndexEventTable(EventTable[] tables, EventTableOrganization organization)
     {

@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
  * with the longest combination gets returned first and the least long combination of the highest N-1 value last.
  * <p>
  *     For example, for N=3:
+ * </p>
  *     <pre>
  *         {0, 1, 2}
  *         {0, 1}
@@ -31,7 +32,6 @@ import java.util.NoSuchElementException;
  *         {1}
  *         {2}
  *     </pre>
- * </p>
  */
 public class NumberAscCombinationEnumeration implements Enumeration<int[]>{
     private final int n;

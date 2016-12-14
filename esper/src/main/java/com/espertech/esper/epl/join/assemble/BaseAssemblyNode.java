@@ -68,8 +68,8 @@ public abstract class BaseAssemblyNode implements ResultAssembler
     /**
      * Process results.
      * @param result is a list of result nodes per stream
-     * @param resultFinalRows
-     * @param resultRootEvent
+     * @param resultFinalRows final row collection
+     * @param resultRootEvent root event
      */
     public abstract void process(List<Node>[] result, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent);
 

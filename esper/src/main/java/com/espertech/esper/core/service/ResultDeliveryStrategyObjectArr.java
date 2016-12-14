@@ -34,6 +34,7 @@ public class ResultDeliveryStrategyObjectArr implements ResultDeliveryStrategy
      * Ctor.
      * @param subscriber is the subscriber to deliver to
      * @param method the method to invoke
+     * @param statement statement
      */
     public ResultDeliveryStrategyObjectArr(EPStatement statement, Object subscriber, Method method)
     {

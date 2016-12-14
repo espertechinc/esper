@@ -42,6 +42,7 @@ public class OutputStrategyUtil
     /**
      * Indicate statement result.
      * @param newOldEvents result
+     * @param statementContext context
      */
     public static void indicateEarlyReturn(StatementContext statementContext, UniformPair<EventBean[]> newOldEvents) {
         if (newOldEvents == null) {

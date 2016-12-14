@@ -26,10 +26,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
     private transient EventType eventType;
     private static final long serialVersionUID = 6611578192872250478L;
 
-    /**
-     * Ctor.
-     * @param streamName is the name of the stream for which to return the underlying event
-     */
     public ExprStreamUnderlyingNodeImpl(String streamName, boolean isWildcard)
     {
         if ((streamName == null) && (!isWildcard))

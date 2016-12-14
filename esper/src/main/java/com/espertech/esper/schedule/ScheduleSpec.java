@@ -31,11 +31,6 @@ public final class ScheduleSpec implements MetaDefItem, Serializable
     private CronParameter optionalDayOfWeekOperator;
     private static final long serialVersionUID = -7050807714879367353L;
 
-    /**
-     * Constructor - validates that all mandatory schedule.
-     * @param unitValues are the values for each minute, hour, day, month etc.
-     * @throws IllegalArgumentException - if validation of value set per unit fails
-     */
     public ScheduleSpec(EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues, String optionalTimeZone, CronParameter optionalDayOfMonthOperator, CronParameter optionalDayOfWeekOperator) throws IllegalArgumentException
     {
         validate(unitValues);

@@ -168,6 +168,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
     /**
      * Return a snapshot using index lookup filters.
      * @param optionalFilter to index lookup
+     * @param annotations annotations
      * @return events
      */
     public Collection<EventBean> snapshot(FilterSpecCompiled optionalFilter, Annotation[] annotations) {
@@ -186,6 +187,7 @@ public class NamedWindowRootViewInstance extends ViewSupport
      * @param unique indicator whether unique
      * @param indexName indexname
      * @param columns properties indexed
+     * @param isRecoveringResilient indicator for recovering
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
     public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {

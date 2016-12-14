@@ -123,37 +123,6 @@ public final class EPServicesContext
     private ExprDeclaredService exprDeclaredService;
     private ExpressionResultCacheService expressionResultCacheSharable;
 
-    /**
-     * Constructor - sets up new set of services.
-     * @param engineURI is the engine URI
-     * @param schedulingService service to get time and schedule callbacks
-     * @param eventAdapterService service to resolve event types
-     * @param databaseConfigService service to resolve a database name to database connection factory and configs
-     * @param plugInViews resolves view namespace and name to view factory class
-     * @param statementLockFactory creates statement-level locks
-     * @param eventProcessingRWLock is the engine lock for statement management
-     * @param engineLevelExtensionServicesContext marker interface allows adding additional services
-     * @param engineImportService is engine imported static func packages and aggregation functions
-     * @param engineSettingsService provides engine settings
-     * @param statementContextFactory is the factory to use to create statement context objects
-     * @param engineEnvContext is engine environment/directory information for use with adapters and external env
-     * @param plugInPatternObjects resolves plug-in pattern objects
-     * @param timerService is the timer service
-     * @param filterService the filter service
-     * @param streamFactoryService is hooking up filters to streams
-     * @param namedWindowMgmtService is holding information about the named windows active in the system
-     * @param variableService provides access to variable values
-     * @param valueAddEventService handles update events
-     * @param timeSourceService time source provider class
-     * @param metricsReportingService - for metric reporting
-     * @param statementEventTypeRef - statement to event type reference holding
-     * @param statementVariableRef - statement to variabke reference holding
-     * @param configSnapshot configuration snapshot
-     * @param threadingServiceImpl - engine-level threading services
-     * @param internalEventRouter - routing of events
-     * @param statementIsolationService - maintains isolation information per statement
-     * @param schedulingMgmtService - schedule management for statements
-     */
     public EPServicesContext(String engineURI,
                              SchedulingServiceSPI schedulingService,
                              EventAdapterService eventAdapterService,

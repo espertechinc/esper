@@ -47,6 +47,7 @@ public interface EPStatementSPI extends EPStatement
      * Care must be taken in the use of this method as unsynchronized modification to the
      * listeners of a statement can yield problems.
      * @param listeners set
+     * @param isRecovery whether we are recovering
      */
     public void setListeners(EPStatementListenerSet listeners, boolean isRecovery);
 

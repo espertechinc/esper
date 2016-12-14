@@ -24,9 +24,6 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase
     private final Map<ExprNodeAdapterBase, EventEvaluator> evaluatorsMap;
     private final ReadWriteLock constantsMapRWLock;
 
-    /**
-     * Constructs the index for multiple-exact matches.
-     */
     public FilterParamIndexBooleanExpr(ReadWriteLock readWriteLock)
     {
         super(FilterOperator.BOOLEAN_EXPRESSION);

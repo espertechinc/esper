@@ -20,6 +20,7 @@ public interface PatternStarter
      * Returns the callback to use to stop the event expression.
      * @param matchCallback must be supplied to indicate what to call when the expression turns true
      * @param context is the context for handles to services required for evaluation.
+     * @param isRecoveringResilient true for recovering
      * @return a callback to stop the expression again
      */
     public PatternStopCallback start(PatternMatchCallback matchCallback,

@@ -28,6 +28,8 @@ public class RendererMetaOptions
      * Ctor.
      * @param preventLooping true to prevent looping
      * @param xmlOutput true for XML output
+     * @param rendererContext context
+     * @param renderer renderer
      */
     public RendererMetaOptions(boolean preventLooping, boolean xmlOutput, EventPropertyRenderer renderer, EventPropertyRendererContext rendererContext) {
         this.preventLooping = preventLooping;

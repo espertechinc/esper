@@ -33,6 +33,8 @@ public class ExceptionHandlerContext {
      * @param throwable exception
      * @param statementName statement name
      * @param epl statement EPL expression text
+     * @param type exception type
+     * @param currentEvent the event when applicable
      */
     public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl, ExceptionHandlerExceptionType type, EventBean currentEvent) {
         this.engineURI = engineURI;

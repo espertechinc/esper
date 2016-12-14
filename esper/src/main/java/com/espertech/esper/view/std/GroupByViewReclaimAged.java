@@ -44,6 +44,7 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
      * @param criteriaExpressions is the fields from which to pull the values to group by
      * @param reclaimMaxAge age after which to reclaim group
      * @param reclaimFrequency frequency in which to check for groups to reclaim
+     * @param criteriaEvaluators evaluators
      */
     public GroupByViewReclaimAged(AgentInstanceViewFactoryChainContext agentInstanceContext,
                                   ExprNode[] criteriaExpressions,

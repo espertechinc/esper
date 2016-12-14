@@ -118,6 +118,7 @@ public class EventRowRegexHelper
      * @param parent to build start state for
      * @param variableDefinitions each variable and its expressions
      * @param variableStreams variable name and its stream number
+     * @param exprRequiresMultimatchState indicator whether multi-match state required
      * @return strand of regex state nodes
      */
     protected static RegexNFAStrandResult recursiveBuildStartStates(RowRegexExprNode parent,

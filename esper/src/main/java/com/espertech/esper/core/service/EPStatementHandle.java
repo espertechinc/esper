@@ -49,6 +49,11 @@ public class EPStatementHandle implements MetaDefItem, Serializable
      * @param metricsHandle handle for metrics reporting
      * @param priority priority, zero is default
      * @param preemptive true for drop after done
+     * @param statementName statement name
+     * @param statementText epl
+     * @param statementType statement type
+     * @param hasTableAccess indicator whether tables are accessed
+     * @param multiMatchHandler handler for multimatches for statement
      */
     public EPStatementHandle(int statementId, String statementName, String statementText, StatementType statementType, String expressionText, boolean hasVariables, StatementMetricHandle metricsHandle, int priority, boolean preemptive, boolean hasTableAccess, MultiMatchHandler multiMatchHandler)
     {

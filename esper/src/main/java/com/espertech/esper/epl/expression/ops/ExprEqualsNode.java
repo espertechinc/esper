@@ -11,7 +11,7 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 /**
- * Represents an equals (=, !=, <>, is, is not) comparator in a filter expressiun tree.
+ * Represents an equals (=, !=, &lt;&gt;, is, is not) comparator in a filter expressiun tree.
  */
 public interface ExprEqualsNode extends ExprNode
 {

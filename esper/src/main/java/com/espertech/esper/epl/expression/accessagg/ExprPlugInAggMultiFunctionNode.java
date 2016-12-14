@@ -36,12 +36,6 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
     private final ConfigurationPlugInAggregationMultiFunction config;
     private transient ExprPlugInAggMultiFunctionNodeFactory factory;
 
-    /**
-     * Ctor.
-     * @param distinct - flag indicating unique or non-unique value aggregation
-     * @param pluginAggregationMultiFunctionFactory - the factory
-     * @param functionName is the aggregation function name
-     */
     public ExprPlugInAggMultiFunctionNode(boolean distinct, ConfigurationPlugInAggregationMultiFunction config, PlugInAggregationMultiFunctionFactory pluginAggregationMultiFunctionFactory, String functionName)
     {
         super(distinct);

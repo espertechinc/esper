@@ -40,13 +40,13 @@ public interface AggregationService extends AggregationResultFuture, StopCallbac
      * Set the current aggregation state row - for use when evaluation nodes are asked to evaluate.
      * @param groupKey - single key identifying the row of aggregation states
      * @param agentInstanceId context partition id
-     * @param rollupLevel
+     * @param rollupLevel rollup level
      */
     public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel);
 
     /**
      * Clear current aggregation state.
-     * @param exprEvaluatorContext
+     * @param exprEvaluatorContext context
      */
     public void clearResults(ExprEvaluatorContext exprEvaluatorContext);
 

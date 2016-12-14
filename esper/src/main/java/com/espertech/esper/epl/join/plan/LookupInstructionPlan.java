@@ -70,13 +70,15 @@ public class LookupInstructionPlan
     /**
      * Constructs the executable from the plan.
      *
-     * @param statementName
-     * @param statementId
-     *@param annotations
+     * @param statementName statement name
+     * @param statementId statement id
+     * @param annotations annotations
      * @param indexesPerStream is the index objects for use in lookups
      * @param streamTypes is the types of each stream
      * @param streamViews the viewable representing each stream
      * @param historicalStreamIndexLists index management for historical streams     @return executable instruction
+     * @param viewExternal virtual data window
+     * @return instruction exec
      */
     public LookupInstructionExec makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal)
     {

@@ -79,6 +79,7 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
      * @param agentInstanceContext contains required view services
      * @param eventType type of event
      * @param additionalProps additional props
+     * @param viewFactory view factory
      */
     public BaseBivariateStatisticsView(ViewFactory viewFactory,
                                        AgentInstanceContext agentInstanceContext,

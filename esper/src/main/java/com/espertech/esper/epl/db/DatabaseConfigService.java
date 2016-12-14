@@ -47,6 +47,8 @@ public interface DatabaseConfigService
      * @param databaseName is the name of the database to return a new cache implementation for for
      * @param statementContext statement context
      * @param epStatementAgentInstanceHandle is the statements-own handle for use in registering callbacks with services
+     * @param dataCacheFactory factory for cache
+     * @param streamNumber stream number
      * @return cache implementation
      * @throws DatabaseConfigException is thrown to indicate database configuration errors
      */

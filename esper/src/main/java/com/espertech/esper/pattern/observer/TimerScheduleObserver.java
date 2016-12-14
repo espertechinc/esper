@@ -41,11 +41,6 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
 
     protected EPStatementHandleCallback scheduleHandle;
 
-    /**
-     * Ctor.
-     * @param beginState - start state
-     * @param observerEventEvaluator - receiver for events
-     */
     public TimerScheduleObserver(TimerScheduleSpec spec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, boolean isFilterChildNonQuitting)
     {
         this.beginState = beginState;

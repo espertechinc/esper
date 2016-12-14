@@ -38,9 +38,6 @@ public abstract class FilterServiceBase implements FilterServiceSPI
     private volatile long filtersVersion = 1;
     private final CopyOnWriteArraySet<FilterServiceListener> filterServiceListeners;
 
-    /**
-     * Constructor.
-     */
     protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, boolean allowIsolation)
     {
         this.lockFactory = lockFactory;

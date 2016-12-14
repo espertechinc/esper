@@ -22,6 +22,8 @@ public class TwoStreamQueryPlanBuilder
      * @param queryGraph - navigability info
      * @param optionalOuterJoinType - outer join type, null if not an outer join
      * @param typesPerStream - event types for each stream
+     * @param tablesPerStream - table info
+     * @param uniqueIndexProps props of unique indexes
      * @return query plan
      */
     public static QueryPlan build(EventType[] typesPerStream, QueryGraph queryGraph, OuterJoinType optionalOuterJoinType, String[][][] uniqueIndexProps, TableMetadata[] tablesPerStream)

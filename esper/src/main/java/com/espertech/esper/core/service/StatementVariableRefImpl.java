@@ -40,6 +40,8 @@ public class StatementVariableRefImpl implements StatementVariableRef
     /**
      * Ctor.
      * @param variableService variables
+     * @param tableService table service
+     * @param namedWindowMgmtService named window service
      */
     public StatementVariableRefImpl(VariableService variableService, TableService tableService, NamedWindowMgmtService namedWindowMgmtService)
     {

@@ -50,6 +50,7 @@ public class QueryPlanIndex
     /**
      * Find a matching index for the property names supplied.
      * @param indexProps - property names to search for
+     * @param rangeProps - range props
      * @return -1 if not found, or offset within indexes if found
      */
     protected Pair<TableLookupIndexReqKey, int[]> getIndexNum(String[] indexProps, String[] rangeProps)

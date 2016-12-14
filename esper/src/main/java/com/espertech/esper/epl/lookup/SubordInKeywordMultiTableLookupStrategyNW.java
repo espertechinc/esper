@@ -31,9 +31,6 @@ public class SubordInKeywordMultiTableLookupStrategyNW implements SubordTableLoo
 
     protected final LookupStrategyDesc strategyDesc;
 
-    /**
-     * Ctor.
-     */
     public SubordInKeywordMultiTableLookupStrategyNW(ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc)
     {
         this.evaluator = evaluator;

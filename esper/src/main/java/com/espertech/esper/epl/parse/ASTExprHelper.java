@@ -131,11 +131,6 @@ public class ASTExprHelper {
         return timeNode;
     }
 
-    /**
-    * Returns the list of set-variable assignments under the given node.
-    * @param astExprNodeMap map of AST to expression
-    * @return list of assignments
-    */
     protected static List<OnTriggerSetAssignment> getOnTriggerSetAssignments(EsperEPL2GrammarParser.OnSetAssignmentListContext ctx, Map<Tree, ExprNode> astExprNodeMap)
     {
         if (ctx == null || ctx.onSetAssignment().isEmpty()) {

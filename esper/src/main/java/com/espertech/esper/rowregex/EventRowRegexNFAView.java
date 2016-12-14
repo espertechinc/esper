@@ -84,20 +84,6 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
     protected RegexPartitionStateRepo regexPartitionStateRepo;
     private LinkedHashSet<EventBean> windowMatchedEventset; // this is NOT per partition - some optimizations are done for batch-processing (minus is out-of-sequence in partition) 
 
-    /**
-     * Ctor.
-     * @param compositeEventType final event type
-     * @param rowEventType event type for input rows
-     * @param matchRecognizeSpec specification
-     * @param variableStreams variables and their assigned stream number
-     * @param streamsVariables stream number and the assigned variable
-     * @param variablesSingle single variables
-     * @param callbacksPerIndex  for handling the 'prev' function
-     * @param aggregationService handles aggregations
-     * @param isUnbound true if unbound stream
-     * @param isIterateOnly true for iterate-only
-     * @param isCollectMultimatches if asking for multimatches
-     */
     public EventRowRegexNFAView(EventRowRegexNFAViewFactory factory,
                                 ObjectArrayEventType compositeEventType,
                                 EventType rowEventType,

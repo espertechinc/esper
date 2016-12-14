@@ -47,8 +47,8 @@ public interface ViewFactory
 
     /**
      * Create a new view.
-     *
-     * @param agentInstanceViewFactoryContext
+     * @return view
+     * @param agentInstanceViewFactoryContext context
      */
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext);
 

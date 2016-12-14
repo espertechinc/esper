@@ -19,6 +19,7 @@ public interface InternalEventRouteDest
      * Route the event such that the event is processed as required.
      * @param theEvent to route
      * @param statementHandle provides statement resources
+     * @param addToFront whether to add to the front of the work queue
      */
     public void route(EventBean theEvent, EPStatementHandle statementHandle, boolean addToFront);
 

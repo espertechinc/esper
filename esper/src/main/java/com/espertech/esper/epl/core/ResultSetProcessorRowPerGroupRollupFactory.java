@@ -43,13 +43,6 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
     private final boolean enableOutputLimitOpt;
     private final int numStreams;
 
-    /**
-     * Ctor.
-     * @param groupKeyNodes - list of group-by expression nodes needed for building the group-by keys
-     * Aggregation functions in the having node must have been pointed to the AggregationService for evaluation.
-     * @param isSelectRStream - true if remove stream events should be generated
-     * @param isUnidirectional - true if unidirectional join
-     */
     public ResultSetProcessorRowPerGroupRollupFactory(GroupByRollupPerLevelExpression perLevelExpression,
                                                       ExprNode[] groupKeyNodeExpressions,
                                                       ExprEvaluator[] groupKeyNodes,

@@ -40,6 +40,7 @@ public interface NamedWindowDispatchService
      * For use to add a result of a named window that must be dispatched to consuming views.
      * @param delta is the result to dispatch
      * @param consumers is the destination of the dispatch, a map of statements to one or more consuming views
+     * @param latchFactory latch factory
      */
     void addDispatch(NamedWindowConsumerLatchFactory latchFactory, NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers);
 

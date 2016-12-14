@@ -22,7 +22,7 @@ public interface StreamTypeService
      * This method considers only a property name and looks at all streams to resolve the property name.
      *
      * @param propertyName - property name in event
-     * @param obtainFragment
+     * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
      * @throws PropertyNotFoundException to indicate property could not be resolved
@@ -37,7 +37,7 @@ public interface StreamTypeService
      * This method considers only a property name and looks at all streams to resolve the property name.
      *
      * @param propertyName - property name in event
-     * @param obtainFragment
+     * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
      * @throws PropertyNotFoundException to indicate property could not be resolved
@@ -53,7 +53,7 @@ public interface StreamTypeService
      *
      * @param streamName - name of stream, required
      * @param propertyName - property name in event, , required
-     * @param obtainFragment
+     * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws PropertyNotFoundException to indicate property could not be resolved
      * @throws StreamNotFoundException to indicate stream name could not be resolved
@@ -69,7 +69,7 @@ public interface StreamTypeService
      *
      * @param streamName - name of stream, required
      * @param propertyName - property name in event, , required
-     * @param obtainFragment
+     * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws PropertyNotFoundException to indicate property could not be resolved
      * @throws StreamNotFoundException to indicate stream name could not be resolved
@@ -86,7 +86,7 @@ public interface StreamTypeService
      * to consider a stream name that may be part of the property name.
      *
      * @param streamAndPropertyName - stream name and property name (e.g. s0.p0) or just a property name (p0)
-     * @param obtainFragment
+     * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
      * @throws PropertyNotFoundException to indicate property could not be resolved

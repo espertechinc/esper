@@ -48,10 +48,6 @@ public class RegexPartitionStateRepoNoGroup implements RegexPartitionStateRepo
         return optionalIntervalSchedules;
     }
 
-    /**
-     * Ctor.
-     * @param getter "prev" getter
-     */
     public RegexPartitionStateRepoNoGroup(RegexPartitionStateRandomAccessGetter getter, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare)
     {
         singletonState = new RegexPartitionStateImpl(getter, new ArrayList<RegexNFAStateEntry>());

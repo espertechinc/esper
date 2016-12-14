@@ -38,7 +38,7 @@ public class StreamTypeServiceImpl implements StreamTypeService
     /**
      * Ctor.
      * @param engineURI engine URI
-     * @param isOnDemandStreams
+     * @param isOnDemandStreams for on-demand stream
      */
     public StreamTypeServiceImpl(String engineURI, boolean isOnDemandStreams)
     {

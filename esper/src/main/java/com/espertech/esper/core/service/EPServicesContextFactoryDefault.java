@@ -294,6 +294,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      * Adds configured variables to the variable service.
      * @param variableService service to add to
      * @param variables configured variables
+     * @param engineImportService engine imports
      */
     protected static void initVariables(VariableService variableService, Map<String, ConfigurationVariable> variables, EngineImportService engineImportService)
     {
@@ -536,6 +537,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
     /**
      * Constructs the auto import service.
      * @param configSnapshot config info
+     * @param aggregationFactoryFactory factory of aggregation service provider
      * @return service
      */
     protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory)

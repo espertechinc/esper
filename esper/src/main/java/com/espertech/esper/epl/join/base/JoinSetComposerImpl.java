@@ -39,13 +39,6 @@ public class JoinSetComposerImpl implements JoinSetComposer
     protected Set<MultiKey<EventBean>> oldResults = new LinkedHashSet<MultiKey<EventBean>>();
     protected Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
 
-    /**
-     * Ctor.
-     * @param repositories - for each stream an array of (indexed/unindexed) tables for lookup.
-     * @param queryStrategies - for each stream a strategy to execute the join
-     * @param isPureSelfJoin - for self-join only
-     * @param exprEvaluatorContext expression evaluation context
-     */
     public JoinSetComposerImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin,
                                ExprEvaluatorContext exprEvaluatorContext, boolean joinRemoveStream)
     {

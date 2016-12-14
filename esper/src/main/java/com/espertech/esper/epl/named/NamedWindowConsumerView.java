@@ -39,12 +39,6 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
     private final FlushedEventBuffer optPropertyContainedBuffer;
     private final boolean audit;
 
-    /**
-     * Ctor.
-     * @param eventType the event type of the named window
-     * @param filterList is a list of filter expressions
-     * @param exprEvaluatorContext context for expression evalauation
-     */
     public NamedWindowConsumerView(ExprEvaluator[] filterList,
                                    PropertyEvaluator optPropertyEvaluator,
                                    EventType eventType,

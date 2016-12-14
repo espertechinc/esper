@@ -40,6 +40,10 @@ public class QueryPlanBuilder
      * @param dependencyGraph - dependencies between historical streams
      * @param historicalStreamIndexLists - index management, populated for the query plan
      * @param streamJoinAnalysisResult stream join analysis metadata
+     * @param historicalViewableDesc historicals
+     * @param isQueryPlanLogging for logging
+     * @param exprEvaluatorContext context
+     * @param annotations annotations
      * @return query plan
      * @throws ExprValidationException if the query plan fails
      */

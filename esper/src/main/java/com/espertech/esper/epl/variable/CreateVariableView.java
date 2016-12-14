@@ -42,6 +42,8 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
      * @param variableService for looking up variables
      * @param variableName is the name of the variable to create
      * @param statementResultService for coordinating on whether insert and remove stream events should be posted
+     * @param statementId statement id
+     * @param agentInstanceId agent instance id
      */
     public CreateVariableView(int statementId, EventAdapterService eventAdapterService, VariableService variableService, String variableName, StatementResultService statementResultService, int agentInstanceId)
     {

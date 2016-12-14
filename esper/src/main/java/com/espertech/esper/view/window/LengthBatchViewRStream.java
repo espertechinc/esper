@@ -34,6 +34,7 @@ public class LengthBatchViewRStream extends ViewSupport implements CloneableView
      * Constructor.
      * @param size is the number of events to batch
      * @param lengthBatchViewFactory for copying this view in a group-by
+     * @param agentInstanceViewFactoryContext context
      */
     public LengthBatchViewRStream(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext,
                                   LengthBatchViewFactory lengthBatchViewFactory,

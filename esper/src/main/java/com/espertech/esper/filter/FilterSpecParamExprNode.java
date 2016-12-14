@@ -46,17 +46,6 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
 
     private static final long serialVersionUID = 2298436088557677833L;
 
-    /**
-     * Ctor.
-     * @param lookupable is the lookup-able
-     * @param filterOperator is expected to be the BOOLEAN_EXPR operator
-     * @param exprNode represents the boolean expression
-     * @param taggedEventTypes is null if the expression doesn't need other streams, or is filled with a ordered list of stream names and types
-     * @param arrayEventTypes is a map of name tags and event type per tag for repeat-expressions that generate an array of events
-     * @param variableService - provides access to variables
-     * @param eventAdapterService for creating event types and event beans
-     * @throws IllegalArgumentException for illegal args
-     */
     public FilterSpecParamExprNode(FilterSpecLookupable lookupable,
                              FilterOperator filterOperator,
                              ExprNode exprNode,

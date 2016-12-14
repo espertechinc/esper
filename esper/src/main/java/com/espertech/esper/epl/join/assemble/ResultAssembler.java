@@ -27,7 +27,7 @@ public interface ResultAssembler
      * @param myEvent is optional and is the event that led to the row result
      * @param myNode is optional and is the result node of the event that led to the row result
      * @param resultFinalRows is the final result rows
-     * @param resultRootEvent
+     * @param resultRootEvent root event
      */
     public void result(EventBean[] row, int fromStreamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent);
 }

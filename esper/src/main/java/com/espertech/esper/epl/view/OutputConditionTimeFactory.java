@@ -26,6 +26,7 @@ public class OutputConditionTimeFactory implements OutputConditionFactory
     /**
      * Constructor.
      * @param timePeriod is the number of minutes or seconds to batch events for, may include variables
+     * @param isStartConditionOnCreation indicator whether to start right away
      */
     public OutputConditionTimeFactory(ExprTimePeriod timePeriod,
                                       boolean isStartConditionOnCreation)

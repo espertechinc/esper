@@ -29,11 +29,6 @@ public class PollResultIndexingStrategyIndexCoerceSingle implements PollResultIn
     private final String propertyName;
     private final Class coercionType;
 
-    /**
-     * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
-     */
     public PollResultIndexingStrategyIndexCoerceSingle(int streamNum, EventType eventType, String propertyName, Class coercionType)
     {
         this.streamNum = streamNum;

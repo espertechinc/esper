@@ -28,6 +28,8 @@ public interface EPStatementStartMethod
      * @param isNewStatement indicator whether the statement is new or a stop-restart statement
      * @param isRecoveringStatement true to indicate the statement is in the process of being recovered
      * @param isRecoveringResilient true to indicate the statement is in the process of being recovered and that statement is resilient    @throws com.espertech.esper.epl.expression.ExprValidationException when the expression validation fails
+     * @param services services
+     * @throws ExprValidationException validation exception
      * @throws com.espertech.esper.view.ViewProcessingException when views cannot be started
      */
     public EPStatementStartResult start(EPServicesContext services, StatementContext statementContext, boolean isNewStatement, boolean isRecoveringStatement, boolean isRecoveringResilient)

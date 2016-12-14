@@ -47,12 +47,6 @@ public class UnionView extends ViewSupport implements LastPostObserver, Cloneabl
     private boolean isRetainObserverEvents;
     private boolean isDiscardObserverEvents;
 
-    /**
-     * Ctor.
-     * @param factory the view factory
-     * @param eventType the parent event type
-     * @param viewList the list of data window views
-     */
     public UnionView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, UnionViewFactory factory, EventType eventType, List<View> viewList)
     {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;

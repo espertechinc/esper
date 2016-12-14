@@ -45,16 +45,6 @@ public class JoinSetComposerPrototypeFactory
 {
     private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
-    /**
-     * Builds join tuple composer.
-     * @param outerJoinDescList - list of descriptors for outer join criteria
-     * @param optionalFilterNode - filter tree for analysis to build indexes for fast access
-     * @param streamTypes - types of streams
-     * @param streamNames - names of streams
-     * @return composer implementation
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException is thrown to indicate that
-     * validation of view use in joins failed.
-     */
     public static JoinSetComposerPrototype makeComposerPrototype(String statementName,
                                                           int statementId,
                                                           OuterJoinDesc[] outerJoinDescList,

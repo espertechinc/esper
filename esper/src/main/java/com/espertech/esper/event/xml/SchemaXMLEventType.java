@@ -51,6 +51,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
      * @param eventTypeMetadata - event type metadata
      * @param schemaModel - the schema representation
      * @param eventAdapterService - type lookup and registration
+     * @param eventTypeId type id
      */
     public SchemaXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM config, SchemaModel schemaModel, EventAdapterService eventAdapterService)
     {

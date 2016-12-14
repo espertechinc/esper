@@ -20,10 +20,10 @@ import java.util.List;
 
 /**
  * For use when the index comprises of either two or more ranges or a unique key in combination with a range.
- * Organizes into a TreeMap<key, TreeMap<key2, Set<EventBean>>, for short. The top level can also be just Map<MultiKeyUntyped, TreeMap...>.
+ * Organizes into a TreeMap&lt;key, TreeMap&lt;key2, Set&lt;EventBean&gt;&gt;, for short. The top level can also be just Map&lt;MultiKeyUntyped, TreeMap...&gt;.
  * Expected at least either (A) one key and one range or (B) zero keys and 2 ranges.
  * <p>
- * An alternative implementatation could have been based on "TreeMap<ComparableMultiKey, Set<EventBean>>>", however the following implication arrive
+ * An alternative implementatation could have been based on "TreeMap&lt;ComparableMultiKey, Set&lt;EventBean&gt;&gt;&gt;", however the following implication arrive
  * - not applicable for range-only lookups (since there the key can be the value itself
  * - not applicable for multiple nested range as ordering not nested
  * - each add/remove and lookup would also need to construct a key object.
@@ -37,12 +37,6 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
     protected final Class[] optKeyCoercedTypes;
     protected final Class[] optRangeCoercedTypes;
 
-    /**
-     * Ctor.
-     * @param streamNum - the stream number that is indexed
-     * @param eventType - types of events indexed
-     * @param optRangeCoercedTypes - property types
-     */
     public PropertyCompositeEventTableFactory(int streamNum, EventType eventType, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, String[] rangeProps, Class[] optRangeCoercedTypes)
     {
         this.streamNum = streamNum;

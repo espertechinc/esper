@@ -40,6 +40,7 @@ public class EsperIOHTTPAdapter
     /**
      * Quickstart constructor.
      * @param config configuration
+     * @param engineURI engine URI
      */
     public EsperIOHTTPAdapter(ConfigurationHTTPAdapter config, String engineURI)
     {

@@ -29,13 +29,6 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
     private final OutputLimitSpec outputLimitSpec;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
-    /**
-     * Ctor.
-     * @param selectExprProcessor - for processing the select expression and generting the final output rows
-     * @param optionalHavingNode - having clause expression node
-     * @param isSelectRStream - true if remove stream events should be generated
-     * @param isUnidirectional - true if unidirectional join
-     */
     public ResultSetProcessorRowForAllFactory(SelectExprProcessor selectExprProcessor,
                                               ExprEvaluator optionalHavingNode,
                                               boolean isSelectRStream,

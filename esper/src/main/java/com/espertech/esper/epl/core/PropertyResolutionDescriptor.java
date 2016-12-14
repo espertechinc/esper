@@ -31,6 +31,7 @@ public class PropertyResolutionDescriptor
      * @param propertyName is the regular name of property
      * @param streamNum is the number offset of the stream
      * @param propertyType is the type of the property
+     * @param fragmentEventType fragment type
      */
     public PropertyResolutionDescriptor(String streamName, EventType streamEventType, String propertyName, int streamNum, Class propertyType, FragmentEventType fragmentEventType)
     {

@@ -21,7 +21,13 @@ public class EventTableUtil
      *
      * @param indexedStreamNum - number of stream indexed
      * @param eventType - type of event to expect
-     * @param optionalIndexName
+     * @param optionalIndexName index name
+     * @param agentInstanceContext context
+     * @param item plan item
+     * @param optionalSerde serde if any
+     * @param isFireAndForget indicates fire-and-forget
+     * @param unique indicates unique
+     * @param coerceOnAddOnly indicator whether to coerce on value-add
      * @return table build
      */
     public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean coerceOnAddOnly, boolean unique, String optionalIndexName, Object optionalSerde, boolean isFireAndForget)

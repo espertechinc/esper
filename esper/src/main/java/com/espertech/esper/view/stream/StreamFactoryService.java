@@ -39,6 +39,11 @@ public interface StreamFactoryService
      * necessary for stream reuse and multithreading concerns
      * @param agentInstanceContext expression evaluation context
      * @param hasOrderBy if the consumer has order-by
+     * @param annotations annotations
+     * @param filterWithSameTypeSubselect whether filter and subselect type match
+     * @param isCanIterateUnbound whether we can iterate unbound
+     * @param stateless whether stateless
+     * @param streamNum stream number
      * @return event stream representing active filter
      */
     public Pair<EventStream, StatementAgentInstanceLock> createStream(final int statementId,
@@ -62,6 +67,8 @@ public interface StreamFactoryService
      * @param isJoin is indicatng whether the stream will participate in a join statement, information
      * necessary for stream reuse and multithreading concerns
      * @param hasOrderBy if the consumer has an order-by clause
+     * @param filterWithSameTypeSubselect whether filter and subselect event type match
+     * @param stateless whether stateless
      */
     public void dropStream(FilterSpecCompiled filterSpec, FilterService filterService, boolean isJoin, boolean hasOrderBy, boolean filterWithSameTypeSubselect, boolean stateless);
 

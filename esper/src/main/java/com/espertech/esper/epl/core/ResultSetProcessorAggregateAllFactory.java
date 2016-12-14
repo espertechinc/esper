@@ -30,13 +30,6 @@ public class ResultSetProcessorAggregateAllFactory implements ResultSetProcessor
     private final boolean enableOutputLimitOpt;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
 
-    /**
-     * Ctor.
-     * @param selectExprProcessor - for processing the select expression and generting the final output rows
-     * @param optionalHavingNode - having clause expression node
-     * @param isSelectRStream - true if remove stream events should be generated
-     * @param isUnidirectional - true if unidirectional join
-     */
     public ResultSetProcessorAggregateAllFactory(SelectExprProcessor selectExprProcessor,
                                                  ExprEvaluator optionalHavingNode,
                                                  boolean isSelectRStream,

@@ -33,9 +33,6 @@ public class EventTypeIndex implements EventEvaluator
     private Map<EventType, FilterHandleSetNode> eventTypes;
     private ReadWriteLock eventTypesRWLock;
 
-    /**
-     * Constructor.
-     */
     public EventTypeIndex(FilterServiceGranularLockFactory lockFactory)
     {
         eventTypes = new HashMap<EventType, FilterHandleSetNode>();

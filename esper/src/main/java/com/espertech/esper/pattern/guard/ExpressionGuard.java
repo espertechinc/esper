@@ -29,10 +29,6 @@ public class ExpressionGuard implements Guard
     private final MatchedEventConvertor convertor;
     private final ExprEvaluator expression;
 
-    /**
-     * Ctor.
-     * @param quitable - to use to indicate that the gaurd quitted
-     */
     public ExpressionGuard(MatchedEventConvertor convertor, ExprEvaluator expression, Quitable quitable) {
         this.quitable = quitable;
         this.convertor = convertor;

@@ -115,6 +115,7 @@ public class StatementMetricRepository
      * @param handle statement handle
      * @param cpu time
      * @param wall time
+     * @param numInput number of input rows
      */
     public void accountTimes(StatementMetricHandle handle, long cpu, long wall, int numInput)
     {

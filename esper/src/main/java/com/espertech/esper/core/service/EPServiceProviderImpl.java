@@ -410,6 +410,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
     /**
      * Performs the initialization.
+     * @param startTime optional start time
      */
     protected void doInitialize(Long startTime)
     {

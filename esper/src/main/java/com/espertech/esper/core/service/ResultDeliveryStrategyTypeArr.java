@@ -37,6 +37,8 @@ public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy
      * Ctor.
      * @param subscriber is the receiver to method invocations
      * @param method is the method to deliver to
+     * @param statement statement
+     * @param componentType component type
      */
     public ResultDeliveryStrategyTypeArr(EPStatement statement, Object subscriber, Method method, Class componentType)
     {

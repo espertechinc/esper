@@ -40,15 +40,6 @@ public class ResultSetProcessorRowPerGroupFactory implements ResultSetProcessorF
     private final int numStreams;
     private final OutputConditionPolledFactory optionalOutputFirstConditionFactory;
 
-    /**
-     * Ctor.
-     * @param selectExprProcessor - for processing the select expression and generting the final output rows
-     * @param groupKeyNodes - list of group-by expression nodes needed for building the group-by keys
-     * @param optionalHavingNode - expression node representing validated HAVING clause, or null if none given.
-     * Aggregation functions in the having node must have been pointed to the AggregationService for evaluation.
-     * @param isSelectRStream - true if remove stream events should be generated
-     * @param isUnidirectional - true if unidirectional join
-     */
     public ResultSetProcessorRowPerGroupFactory(SelectExprProcessor selectExprProcessor,
                                                 ExprNode[] groupKeyNodeExpressions,
                                                 ExprEvaluator[] groupKeyNodes,

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a lesser or greater then (</<=/>/>=) expression in a filter expression tree.
+ * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
 public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEvaluator
 {

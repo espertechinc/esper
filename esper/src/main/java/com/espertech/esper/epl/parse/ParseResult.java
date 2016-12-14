@@ -30,6 +30,8 @@ public class ParseResult
      * Ctor.
      * @param tree parse tree
      * @param expressionWithoutAnnotations expression text no annotations, or null if same
+     * @param scripts script list
+     * @param tokenStream tokens
      */
     public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts)
     {

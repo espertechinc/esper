@@ -39,6 +39,8 @@ public class VariantEventType implements EventTypeSPI
      * @param variantSpec the variant specification
      * @param propertyResStrategy stragegy for resolving properties
      * @param metadata event type metadata
+     * @param eventTypeId type id
+     * @param config configs
      */
     public VariantEventType(EventTypeMetadata metadata, int eventTypeId, VariantSpec variantSpec, VariantPropResolutionStrategy propertyResStrategy, ConfigurationVariantStream config)
     {

@@ -29,11 +29,6 @@ public class KeepAllView extends ViewSupport implements DataWindowView, Cloneabl
     protected LinkedHashSet<EventBean> indexedEvents;
     protected ViewUpdatedCollection viewUpdatedCollection;
 
-    /**
-     * Ctor.
-     * @param keepAllViewFactory for copying this view in a group-by
-     * @param viewUpdatedCollection for satisfying queries that select previous events in window order
-     */
     public KeepAllView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, KeepAllViewFactory keepAllViewFactory, ViewUpdatedCollection viewUpdatedCollection)
     {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;

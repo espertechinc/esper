@@ -104,7 +104,8 @@ public final class FilterSpecCompiled
      * Returns the values for the filter, using the supplied result events to ask filter parameters
      * for the value to filter for.
      * @param matchedEvents contains the result events to use for determining filter values
-     * @param agentInstanceContext
+     * @param agentInstanceContext context
+     * @param addendum context addendum
      * @return filter values
      */
     public FilterValueSet getValueSet(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterValueSetParam[][] addendum)

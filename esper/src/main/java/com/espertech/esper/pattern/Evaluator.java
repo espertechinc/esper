@@ -27,7 +27,7 @@ public interface Evaluator
     /**
      * Indicate a change in truth value to false.
      * @param fromNode is the node that indicates the change
-     * @param restartable
+     * @param restartable whether the evaluator can be restarted
      */
     public void evaluateFalse(EvalStateNode fromNode, boolean restartable);
 

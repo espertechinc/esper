@@ -61,6 +61,8 @@ public interface EngineImportService
      * @param singleRowFuncClass is the class that provides the single row function
      * @param methodName is the name of the public static method provided by the class that provides the single row function
      * @param valueCache setting to control value cache behavior which may cache a result value when constant parameters are passed
+     * @param filterOptimizable filter behavior setting
+     * @param rethrowExceptions for whether to rethrow
      * @throws EngineImportException throw if format or information is invalid
      */
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions) throws EngineImportException;
@@ -92,6 +94,8 @@ public interface EngineImportService
      * @param className is the class name to use
      * @param methodName is the method name
      * @param paramTypes is parameter types match expression sub-nodes
+     * @param allowEventBeanType flag for whether event bean is allowed
+     * @param allowEventBeanCollType flag for whether event bean array is allowed
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static method
      */
@@ -109,6 +113,7 @@ public interface EngineImportService
     /**
      * Resolves a given class name, either fully qualified and simple and imported to a class.
      * @param className is the class name to use
+     * @param forAnnotation whether we are resolving an annotation
      * @return class this resolves to
      * @throws EngineImportException if there was an error resolving the class
      */
@@ -150,6 +155,7 @@ public interface EngineImportService
      * @param methodName is the method name
      * @param paramTypes is parameter types match expression sub-nodes
      * @param allowEventBeanType whether EventBean footprint is allowed
+     * @param allowEventBeanCollType whether EventBean array footprint is allowed
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static or instance method
      */

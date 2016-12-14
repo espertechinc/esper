@@ -37,11 +37,6 @@ public class RegexPartitionStateRepoGroup implements RegexPartitionStateRepo
     private int currentCollectionSize = INITIAL_COLLECTION_MIN;
     private int eventSequenceNumber;
 
-    /**
-     * Ctor.
-     * @param getter for "prev" function access
-     * @param meta general metadata for grouping
-     */
     public RegexPartitionStateRepoGroup(RegexPartitionStateRandomAccessGetter getter,
                                         RegexPartitionStateRepoGroupMeta meta,
                                         boolean keepScheduleState,

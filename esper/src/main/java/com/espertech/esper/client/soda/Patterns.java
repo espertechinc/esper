@@ -124,7 +124,7 @@ public class Patterns
     }
 
     /**
-     * Pattern every-operator and filter in combination, equivalent to the "every MyEvent(vol > 100)" syntax.
+     * Pattern every-operator and filter in combination, equivalent to the "every MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @return pattern expression
      */
@@ -135,7 +135,7 @@ public class Patterns
     }
 
     /**
-     * Pattern every-operator and filter in combination, equivalent to the "every tag=MyEvent(vol > 100)" syntax.
+     * Pattern every-operator and filter in combination, equivalent to the "every tag=MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @param tagName is the tag name to assign to matching events
      * @return pattern expression
@@ -168,7 +168,7 @@ public class Patterns
     }
 
     /**
-     * Filter expression for use in patterns, equivalent to the "MyEvent(vol > 100)" syntax.
+     * Filter expression for use in patterns, equivalent to the "MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @return pattern expression
      */
@@ -178,7 +178,7 @@ public class Patterns
     }
 
     /**
-     * Filter expression for use in patterns, equivalent to the "tag=MyEvent(vol > 100)" syntax.
+     * Filter expression for use in patterns, equivalent to the "tag=MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @param tagName is the tag name to assign to matching events
      * @return pattern expression
@@ -279,7 +279,7 @@ public class Patterns
     }
 
     /**
-     * Pattern not-operator and filter in combination, equivalent to the "not MyEvent(vol > 100)" syntax.
+     * Pattern not-operator and filter in combination, equivalent to the "not MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @return pattern expression
      */
@@ -289,7 +289,7 @@ public class Patterns
     }
 
     /**
-     * Pattern not-operator and filter in combination, equivalent to the "not tag=MyEvent(vol > 100)" syntax.
+     * Pattern not-operator and filter in combination, equivalent to the "not tag=MyEvent(vol &gt; 100)" syntax.
      * @param filter specifies the event type name and filter expression to filter for
      * @param tagName is the tag name to assign to matching events
      * @return pattern expression

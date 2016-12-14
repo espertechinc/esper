@@ -31,11 +31,6 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
     private final String[] rangePropertiesJoin;
     private final Class[] rangeCoercionTypes;
 
-    /**
-     * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
-     */
     public PollResultIndexingStrategyComposite(int streamNum, EventType eventType, String[] indexPropertiesJoin, Class[] keyCoercionTypes, String[] rangePropertiesJoin, Class[] rangeCoercionTypes)
     {
         this.streamNum = streamNum;

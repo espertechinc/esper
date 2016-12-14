@@ -81,6 +81,7 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
      * @param events - input events
      * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
      * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     * @param agentInstanceContext context
      * @return output events, one for each input event
      */
     protected static EventBean[] getSelectEventsNoHaving(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext agentInstanceContext)
@@ -109,6 +110,7 @@ public class ResultSetProcessorHandThrough extends ResultSetProcessorBaseSimple
      * @param events - input events
      * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
      * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     * @param agentInstanceContext context
      * @return output events, one for each input event
      */
     protected static EventBean[] getSelectEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext agentInstanceContext)

@@ -46,14 +46,6 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     private transient TimePeriodAdder[] adders;
     private static final long serialVersionUID = -7229827032500659319L;
 
-    /**
-     * Ctor.
-     * @param hasDay true if the expression has that part, false if not
-     * @param hasHour true if the expression has that part, false if not
-     * @param hasMinute true if the expression has that part, false if not
-     * @param hasSecond true if the expression has that part, false if not
-     * @param hasMillisecond true if the expression has that part, false if not
-     */
     public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond)
     {
         this.timeZone = timeZone;

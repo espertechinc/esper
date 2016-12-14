@@ -23,7 +23,7 @@ public class EPAdministratorContext
 
     /**
      * Ctor.
-     * @param runtimeSPI
+     * @param runtimeSPI runtime spi
      * @param services engine services
      * @param configurationOperations configuration snapshot
      * @param defaultStreamSelector default stream selection

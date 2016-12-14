@@ -35,19 +35,11 @@ public class ScheduleBucket
         lastSlot = 0;
     }
 
-    /**
-     * Returns a new slot in the bucket.
-     * @return slot
-     */
     public long allocateSlot()
     {
         return toLong(bucketNum, lastSlot++);
     }
 
-    /**
-     * Returns a given slot in the bucket, given a slot number
-     * @return slot
-     */
     public long allocateSlot(int slotNumber)
     {
         return toLong(bucketNum, slotNumber);

@@ -14,7 +14,7 @@ package com.espertech.esper.multithread.dispatchmodel;
 import com.espertech.esper.dispatch.Dispatchable;
 
 /**
- * DF3   <-->   DF2  <-->  DF1
+ * DF3   &lt;--&gt;   DF2  &lt;--&gt;  DF1
  *
  * DF1 completes: set DF2.earlier = null, notify DF2
  */

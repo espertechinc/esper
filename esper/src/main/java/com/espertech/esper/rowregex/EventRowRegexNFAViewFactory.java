@@ -71,6 +71,8 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
      * @param matchRecognizeSpec specification
      * @param isUnbound true for unbound stream
      * @param annotations annotations
+     * @param matchRecognizeConfig config
+     * @param agentInstanceContext context
      * @throws ExprValidationException if validation fails
      */
     public EventRowRegexNFAViewFactory(ViewFactoryChain viewChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations, ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig)

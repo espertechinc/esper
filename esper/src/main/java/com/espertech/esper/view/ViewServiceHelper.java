@@ -127,6 +127,7 @@ public class ViewServiceHelper
      * Instantiate a chain of views.
      * @param parentViewable - parent view to add the chain to
      * @param viewFactories - is the view factories to use to make each view, or reuse and existing view
+     * @param viewFactoryChainContext context
      * @return chain of views instantiated
      */
     public static List<View> instantiateChain(Viewable parentViewable,
@@ -307,6 +308,8 @@ public class ViewServiceHelper
      * @param streamNum is the stream number
      * @param viewSpecList is the view definition
      * @param statementContext is statement service context and statement info
+     * @param isSubquery subquery indicator
+     * @param subqueryNumber for subqueries
      * @return list of view factories
      * @throws ViewProcessingException if the factory cannot be creates such as for invalid view spec
      */

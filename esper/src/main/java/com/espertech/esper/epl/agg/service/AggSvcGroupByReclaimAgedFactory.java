@@ -45,6 +45,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
      * @param accessors accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
+     * @param optionalContextName context name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation fails
      */
     public AggSvcGroupByReclaimAgedFactory(ExprEvaluator evaluators[],

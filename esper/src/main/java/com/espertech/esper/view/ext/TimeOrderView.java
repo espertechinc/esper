@@ -59,13 +59,6 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     protected boolean isCallbackScheduled;
     protected int eventCount;
 
-    /**
-     * Ctor.
-     * @param optionalSortedRandomAccess is the friend class handling the random access, if required by
-     * expressions
-     * @param timeOrderViewFactory for copying this view in a group-by
-     * @param timestampExpr the property name of the event supplying timestamp values
-     */
     public TimeOrderView( AgentInstanceViewFactoryChainContext agentInstanceContext,
                           TimeOrderViewFactory timeOrderViewFactory,
                           ExprNode timestampExpr,

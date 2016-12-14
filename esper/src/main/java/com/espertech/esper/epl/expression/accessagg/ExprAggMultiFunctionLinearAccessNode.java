@@ -39,9 +39,6 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     private transient EventType containedType;
     private transient Class scalarCollectionComponentType;
 
-    /**
-     * Ctor.
-     */
     public ExprAggMultiFunctionLinearAccessNode(AggregationStateType stateType)
     {
         super(false);

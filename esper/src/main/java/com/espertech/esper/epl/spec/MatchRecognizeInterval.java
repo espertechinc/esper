@@ -37,6 +37,7 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
     /**
      * Ctor.
      * @param timePeriodExpr time period
+     * @param orTerminated or-terminated indicator
      */
     public MatchRecognizeInterval(ExprTimePeriod timePeriodExpr, boolean orTerminated)
     {
@@ -55,6 +56,8 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
 
     /**
      * Returns the number of milliseconds.
+     * @param fromTime from-time
+     * @param agentInstanceContext context
      * @return msec
      */
     public long getScheduleForwardDelta(long fromTime, AgentInstanceContext agentInstanceContext)
@@ -70,6 +73,8 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
 
     /**
      * Returns the number of milliseconds.
+     * @param fromTime from-time
+     * @param agentInstanceContext context
      * @return msec
      */
     public long getScheduleBackwardDelta(long fromTime, AgentInstanceContext agentInstanceContext)

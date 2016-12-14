@@ -19,7 +19,7 @@ import com.espertech.esper.client.EventBean;
 import java.util.Collection;
 
 /**
- * Strategy for subselects with ">/</<=/>= ANY".
+ * Strategy for subselects with "&gt;/&lt;/&lt;=/&gt;= ANY".
  */
 public class SubselectEvalStrategyRelOpAny implements SubselectEvalStrategy
 {

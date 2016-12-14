@@ -38,9 +38,6 @@ public abstract class PropertySortedEventTable implements EventTable
     public abstract Collection<EventBean> lookupGreaterColl(Object keyStart);
     public abstract Set<EventBean> lookupConstants(RangeIndexLookupValue lookupValueBase);
 
-    /**
-     * Ctor.
-     */
     public PropertySortedEventTable(EventPropertyGetter propertyGetter, EventTableOrganization organization)
     {
         this.propertyGetter = propertyGetter;

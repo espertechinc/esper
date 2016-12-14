@@ -27,11 +27,6 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
 
     protected final EventPropertyGetter propertyGetter;
 
-    /**
-     * Ctor.
-     * @param streamNum - the stream number that is indexed
-     * @param eventType - types of events indexed
-     */
     public PropertyIndexedEventTableSingleFactory(int streamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName)
     {
         this.streamNum = streamNum;

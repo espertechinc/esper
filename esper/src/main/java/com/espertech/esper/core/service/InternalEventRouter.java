@@ -39,6 +39,7 @@ public interface InternalEventRouter
      * @param statementHandle provides statement resources
      * @param exprEvaluatorContext context for expression evalauation
      * @param routeDest routing destination
+     * @param addToFront indicator whether to add to front queue
      */
     public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront);
 

@@ -29,6 +29,8 @@ public class QueryPlanIndexItem
      * distinct indexes. The second dimension can be empty and indicates a full table scan.
      * @param optIndexCoercionTypes - array of coercion types for each index, or null entry for no coercion required
      * @param unique whether index is unique on index props (not applicable to range-only)
+     * @param optRangeCoercionTypes coercion for ranges
+     * @param rangeProps range props
      */
     public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique) {
         this.indexProps = indexProps;

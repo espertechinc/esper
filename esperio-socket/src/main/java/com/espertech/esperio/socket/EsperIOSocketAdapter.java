@@ -36,6 +36,7 @@ public class EsperIOSocketAdapter
     /**
      * Quickstart constructor.
      * @param config configuration
+     * @param engineURI engine URI
      */
     public EsperIOSocketAdapter(ConfigurationSocketAdapter config, String engineURI)
     {

@@ -28,6 +28,8 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
      * @param entryGetter the getter for the map entry
      * @param eventAdapterService for producing wrappers to objects
      * @param returnType type of the entry returned
+     * @param propertyIndex index
+     * @param nestedComponentType nested component type
      */
     public ObjectArrayPOJOEntryPropertyGetter(int propertyIndex, BeanEventPropertyGetter entryGetter, EventAdapterService eventAdapterService, Class returnType, Class nestedComponentType) {
         super(eventAdapterService, returnType, nestedComponentType);

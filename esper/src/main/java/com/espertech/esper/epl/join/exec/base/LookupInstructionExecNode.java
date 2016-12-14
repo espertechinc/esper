@@ -42,6 +42,7 @@ public class LookupInstructionExecNode extends ExecNode
      * @param numStreams is the number of streams
      * @param lookupInstructions is a list of lookups to perform
      * @param requiredPerStream indicates which streams are required and which are optional in the lookup
+     * @param assemblyInstructionFactories factories for assembly
      */
     public LookupInstructionExecNode(int rootStream,
                                      String rootStreamName,

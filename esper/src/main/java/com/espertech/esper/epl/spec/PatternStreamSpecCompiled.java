@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
  * pattern statement.
  * <p>
  * The pattern statement is represented by the top EvalNode evaluation node.
- * A pattern statement contains tagged events (i.e. a=A -> b=B).
+ * A pattern statement contains tagged events (i.e. a=A -&gt; b=B).
  * Thus the resulting event type is has properties "a" and "b" of the type of A and B.
  */
 public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamSpecCompiled
@@ -34,15 +34,6 @@ public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamS
     private final boolean discardPartialsOnMatch;
     private static final long serialVersionUID = 1268004301792124753L;
 
-    /**
-     * Ctor.
-     * @param evalFactoryNode - pattern evaluation node representing pattern statement
-     * @param viewSpecs - specifies what view to use to derive data
-     * @param taggedEventTypes - event tags and their types as specified in the pattern, copied to allow original collection to change
-     * @param arrayEventTypes - event tags and their types as specified in the pattern for any repeat-expressions that generate an array of events
-     * @param optionalStreamName - stream name, or null if none supplied
-     * @param streamSpecOptions - additional stream options such as unidirectional stream in a join, applicable for joins
-     */
     public PatternStreamSpecCompiled(EvalFactoryNode evalFactoryNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTags, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions, boolean suppressSameEventMatches, boolean discardPartialsOnMatch)
     {
         super(optionalStreamName, viewSpecs, streamSpecOptions);

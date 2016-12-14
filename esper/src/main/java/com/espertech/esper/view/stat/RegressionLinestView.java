@@ -30,12 +30,6 @@ import java.util.Map;
  */
 public class RegressionLinestView extends BaseBivariateStatisticsView implements CloneableView
 {
-    /**
-     * Constructor.
-     * @param xFieldName is the field name of the field providing X data points
-     * @param yFieldName is the field name of the field providing X data points
-     * @param agentInstanceContext contains required view services
-     */
     public RegressionLinestView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xFieldName, ExprNode yFieldName, EventType eventType, StatViewAdditionalProps additionalProps)
     {
         super(viewFactory, agentInstanceContext, xFieldName, yFieldName, eventType, additionalProps);
@@ -99,11 +93,6 @@ public class RegressionLinestView extends BaseBivariateStatisticsView implements
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    /**
-     * Creates the event type for this view.
-     * @param statementContext is the event adapter service
-     * @return event type of view
-     */
     protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();

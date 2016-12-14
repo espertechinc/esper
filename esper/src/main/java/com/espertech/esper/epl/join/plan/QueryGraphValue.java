@@ -47,6 +47,7 @@ public class QueryGraphValue
      *
      * @param keyProperty - key property
      * @param indexPropertyIdent - index property
+     * @param keyPropNode key node
      * @return true if added and either property did not exist, false if either already existed
      */
     public boolean addStrictCompare(String keyProperty, ExprIdentNode keyPropNode, ExprIdentNode indexPropertyIdent)

@@ -25,11 +25,6 @@ public class PollResultIndexingStrategySorted implements PollResultIndexingStrat
     private final String propertyName;
     private final Class coercionType;
 
-    /**
-     * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
-     */
     public PollResultIndexingStrategySorted(int streamNum, EventType eventType, String propertyName, Class coercionType)
     {
         this.streamNum = streamNum;

@@ -51,12 +51,14 @@ public interface FilterService
      * @param filterValueSet is a specification of filter parameters, contains
      * event type information, event property values and operators
      * @param callback is the callback to be invoked when the filter matches an event
+     * @return entry
      */
     public FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle callback);
 
     /**
      * Remove a filter callback.
      * @param callback is the callback to be removed
+     * @param filterServiceEntry entry
      */
     public void remove(FilterHandle callback, FilterServiceEntry filterServiceEntry);
 

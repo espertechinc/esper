@@ -30,6 +30,7 @@ public class InsertIntoLatchSpin
 
     /**
      * Ctor.
+     * @param factory the latch factory
      * @param earlier the latch before this latch that this latch should be waiting for
      * @param msecTimeout the timeout after which delivery occurs
      * @param payload the payload is an event to deliver
@@ -44,6 +45,7 @@ public class InsertIntoLatchSpin
 
     /**
      * Ctor - use for the first and unused latch to indicate completion.
+     * @param factory the latch factory
      */
     public InsertIntoLatchSpin(InsertIntoLatchFactory factory)
     {

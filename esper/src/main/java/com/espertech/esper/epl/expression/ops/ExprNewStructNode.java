@@ -31,9 +31,6 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
     private transient ExprEvaluator[] evaluators;
     private boolean isAllConstants;
 
-    /**
-     * Ctor.
-     */
     public ExprNewStructNode(String[] columnNames)
     {
         this.columnNames = columnNames;

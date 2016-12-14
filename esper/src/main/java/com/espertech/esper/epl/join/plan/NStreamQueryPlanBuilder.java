@@ -105,14 +105,6 @@ import java.util.*;
  */
 public class NStreamQueryPlanBuilder
 {
-    /**
-     * Build a query plan based on the stream property relationships indicated in queryGraph.
-     * @param queryGraph - navigation info between streams
-     * @param typesPerStream - event types for each stream
-     * @param dependencyGraph - dependencies between historical streams
-     * @param historicalStreamIndexLists - index management, populated for the query plan
-     * @return query plan
-     */
     protected static QueryPlan build(QueryGraph queryGraph,
                                      EventType[] typesPerStream,
                                      HistoricalViewableDesc historicalViewableDesc,
@@ -192,6 +184,7 @@ public class NStreamQueryPlanBuilder
      * @param typesPerStream - event types for each stream
      * @param isHistorical - indicator for each stream if it is a historical streams or not
      * @param historicalStreamIndexLists - index management, populated for the query plan
+     * @param tablesPerStream tables
      * @return NestedIterationNode with lookups attached underneath
      */
     protected static QueryPlanNode createStreamPlan(int lookupStream, int[] bestChain, QueryGraph queryGraph,
@@ -239,6 +232,7 @@ public class NStreamQueryPlanBuilder
      * @param indexedStream - stream to look up in
      * @param indexSpecs - index specification defining indexes to be created for stream
      * @param typesPerStream - event types for each stream
+     * @param indexedStreamTableMeta table info
      * @return plan for performing a lookup in a given table using one of the indexes supplied
      */
     public static TableLookupPlan createLookupPlan(QueryGraph queryGraph, int currentLookupStream, int indexedStream,

@@ -37,6 +37,8 @@ public class EventTypeMetadata
      * @param applicationConfigured true if configured by the application
      * @param applicationType type of application class or null if not an application type
      * @param isPropertyAgnostic true for types that accept any property name as a valid property (unchecked type)
+     * @param applicationPreConfigured preconfigured
+     * @param isApplicationPreConfiguredStatic preconfigured via static config
      */
     protected EventTypeMetadata(String primaryName, Set<String> secondaryNames, TypeClass typeClass, boolean isApplicationPreConfiguredStatic, boolean applicationPreConfigured, boolean applicationConfigured, ApplicationType applicationType, boolean isPropertyAgnostic)
     {
@@ -71,6 +73,9 @@ public class EventTypeMetadata
      * @param name type name
      * @param clazz java class
      * @param isConfigured whether the class was made known or is discovered
+     * @param typeClass type of type
+     * @param isPreConfigured preconfigured
+     * @param isPreConfiguredStatic preconfigured via static config
      * @return instance
      */
     public static EventTypeMetadata createBeanType(String name, Class clazz, boolean isPreConfiguredStatic, boolean isPreConfigured, boolean isConfigured, TypeClass typeClass)
@@ -96,6 +101,7 @@ public class EventTypeMetadata
      * Factory for a XML type.
      * @param name type name
      * @param isPropertyAgnostic true for types that accept any property name as a valid property (unchecked type)
+     * @param isPreconfiguredStatic preconfigured via static config
      * @return instance
      */
     public static EventTypeMetadata createXMLType(String name, boolean isPreconfiguredStatic, boolean isPropertyAgnostic)
@@ -155,6 +161,9 @@ public class EventTypeMetadata
      * @param namedWindow true for named window
      * @param insertInto true for insert-into
      * @param configured whether the made known or is discovered
+     * @param preconfigured preconfigured
+     * @param preconfiguredStatic preconfigured via static config
+     * @param providedType type
      * @return instance
      */
     public static EventTypeMetadata createNonPojoApplicationType(ApplicationType providedType, String name, boolean preconfiguredStatic, boolean preconfigured, boolean configured, boolean namedWindow, boolean insertInto)

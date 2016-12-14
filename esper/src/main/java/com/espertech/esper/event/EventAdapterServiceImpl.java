@@ -63,9 +63,6 @@ public class EventAdapterServiceImpl implements EventAdapterService
     private final EventTypeIdGenerator eventTypeIdGenerator;
     private final EventAdapterServiceAnonymousTypeCache anonymousTypeCache;
 
-    /**
-     * Ctor.
-     */
     public EventAdapterServiceImpl(EventTypeIdGenerator eventTypeIdGenerator,
                                    int anonymousTypeCacheSize)
     {

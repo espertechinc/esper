@@ -1547,6 +1547,7 @@ public class JavaClassHelper
      * Resolve a string constant as a possible enumeration value, returning null if not resolved.
      * @param constant to resolve
      * @param engineImportService for engine-level use to resolve enums, can be null
+     * @param isAnnotation whether we are in an annotation
      * @return null or enumeration value
      * @throws ExprValidationException if there is an error accessing the enum
      */

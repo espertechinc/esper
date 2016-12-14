@@ -17,6 +17,7 @@ public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyInd
      * @param streamNum is the stream number of the indexed stream
      * @param eventType is the event type of the indexed stream
      * @param coercionType are the classes to coerce indexed values to
+     * @param propertyName property name
      */
     public PropertyIndexedEventTableSingleCoerceAllFactory(int streamNum, EventType eventType, String propertyName, Class coercionType)
     {

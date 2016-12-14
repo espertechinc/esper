@@ -33,7 +33,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
     /**
      * Ctor.
      * @param isNotEquals - true if this is a (!=) not equals rather then equals, false if its a '=' equals
-     * @param isIs - true when "is" or "is not" (instead of = or <>)
+     * @param isIs - true when "is" or "is not" (instead of = or &lt;&gt;)
      */
     public ExprEqualsNodeImpl(boolean isNotEquals, boolean isIs)
     {

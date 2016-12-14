@@ -39,11 +39,13 @@ public interface RegexPartitionStateRepo
      * @param events to remove
      * @param isEmpty indicator if there are not matches
      * @param found indicator if any partial matches exist to be deleted
+     * @return number removed
      */
     public int removeOld(EventBean[] events, boolean isEmpty, boolean found[]);
 
     /**
      * Copy state for iteration.
+     * @param forOutOfOrderReprocessing indicator whether we are processing out-of-order events
      * @return copied state
      */
     public RegexPartitionStateRepo copyForIterate(boolean forOutOfOrderReprocessing);

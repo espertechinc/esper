@@ -27,6 +27,7 @@ public class AggregatorAvgBigDecimal implements AggregationMethod
 
     /**
      * Ctor.
+     * @param optionalMathContext math context
      */
     public AggregatorAvgBigDecimal(MathContext optionalMathContext)
     {

@@ -33,6 +33,7 @@ public class RegexNFAStateFilter extends RegexNFAStateBase implements RegexNFASt
      * @param streamNum stream number
      * @param multiple true for multiple matches
      * @param exprNode filter expression
+     * @param exprRequiresMultimatchState indicator for multi-match state required
      */
     public RegexNFAStateFilter(String nodeNum, String variableName, int streamNum, boolean multiple, ExprNode exprNode, boolean exprRequiresMultimatchState)
     {

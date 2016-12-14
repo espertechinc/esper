@@ -25,7 +25,7 @@ public abstract class EvalStateNode
      * Starts the event expression or an instance of it.
      * Child classes are expected to initialize and start any event listeners
      * or schedule any time-based callbacks as needed.
-     * @param beginState
+     * @param beginState begin state
      */
     public abstract void start(MatchedEventMap beginState);
 

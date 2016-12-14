@@ -21,6 +21,7 @@ public class OutputConditionCountFactory implements OutputConditionFactory
      * Constructor.
      * @param eventRate is the number of old or new events that
      * must arrive in order for the condition to be satisfied
+     * @param variableMetaData variable metadata
      */
     public OutputConditionCountFactory(int eventRate, VariableMetaData variableMetaData)
     {

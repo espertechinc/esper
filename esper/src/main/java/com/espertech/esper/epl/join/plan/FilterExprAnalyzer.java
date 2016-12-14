@@ -39,6 +39,7 @@ public class FilterExprAnalyzer
      * Analyzes filter expression to build query graph model.
      * @param topNode - filter top node
      * @param queryGraph - model containing relationships between streams, to be written to
+     * @param isOuterJoin indicator for outer join
      */
     public static void analyze(ExprNode topNode, QueryGraph queryGraph, boolean isOuterJoin)
     {
@@ -277,6 +278,7 @@ public class FilterExprAnalyzer
      * Analye EQUALS (=) node.
      * @param equalsNode - node to analyze
      * @param queryGraph - store relationships between stream properties
+     * @param isOuterJoin indicator for outer join
      */
     protected static void analyzeEqualsNode(ExprEqualsNode equalsNode, QueryGraph queryGraph, boolean isOuterJoin)
     {
@@ -334,6 +336,7 @@ public class FilterExprAnalyzer
      * Analyze the AND-node.
      * @param andNode - node to analyze
      * @param queryGraph - to store relationships between stream properties
+     * @param isOuterJoin indicator for outer join
      */
     protected static void analyzeAndNode(ExprAndNode andNode, QueryGraph queryGraph, boolean isOuterJoin)
     {

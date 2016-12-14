@@ -27,6 +27,8 @@ public interface VariableStateHandler
      * @param type type of the variable
      * @param eventType event type or null if not a variable that represents an event
      * @param statementExtContext for caches etc.
+     * @param agentInstanceId agent instance id
+     * @param isConstant indicator for constant
      * @return indicator whether the variable is known and it's state, or whether it doesn't have state (false)
      */
     public Pair<Boolean, Object> getHasState(String variableName, int variableNumber, int agentInstanceId, Class type, EventType eventType, StatementExtensionSvcContext statementExtContext, boolean isConstant);
@@ -35,6 +37,7 @@ public interface VariableStateHandler
      * Sets the new variable value
      * @param variableName name of the variable
      * @param variableNumber number of the variable
+     * @param agentInstanceId agent instance id
      * @param newValue new variable value, null values allowed
      */
     public void setState(String variableName, int variableNumber, int agentInstanceId, Object newValue);

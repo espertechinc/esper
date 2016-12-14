@@ -39,8 +39,8 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
      * @param streamNum - the stream number that is indexed
      * @param eventType - types of events indexed
      * @param propertyNames - property names to use for indexing
-     * @param unique
-     * @param optionalIndexName
+     * @param unique unique flag
+     * @param optionalIndexName index name
      */
     public PropertyIndexedEventTableFactory(int streamNum, EventType eventType, String[] propertyNames, boolean unique, String optionalIndexName)
     {

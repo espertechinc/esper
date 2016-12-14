@@ -39,6 +39,8 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
     /**
      * Constructor.
      * @param timeFirstViewFactory fr copying this view in a group-by
+     * @param agentInstanceContext context
+     * @param timeDeltaComputation delta eval
      */
     public FirstTimeView(FirstTimeViewFactory timeFirstViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,

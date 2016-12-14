@@ -32,6 +32,7 @@ public class RowLimitProcessorFactory {
      * Ctor.
      * @param rowLimitSpec specification for row limit, or null if no row limit is defined
      * @param variableService for retrieving variable state for use with row limiting
+     * @param optionalContextName context name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if row limit specification validation fails
      */
     public RowLimitProcessorFactory(RowLimitSpec rowLimitSpec, VariableService variableService, String optionalContextName)

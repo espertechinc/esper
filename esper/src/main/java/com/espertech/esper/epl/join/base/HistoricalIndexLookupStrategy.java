@@ -26,6 +26,7 @@ public interface HistoricalIndexLookupStrategy
      *
      * @param lookupEvent provides properties to use as key values for indexes
      * @param index is the table providing the cache result set, potentially indexed by index fields
+     * @param context context
      * @return full set or partial index iterator
      */
     public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] index, ExprEvaluatorContext context);

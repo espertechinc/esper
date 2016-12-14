@@ -29,7 +29,7 @@ public interface EPContextPartitionAdmin {
     public String[] getContextStatementNames(String contextName);
 
     /**
-     * Returns the nesting level for the context declaration, i.e. 1 for unnested and >1 for nested contexts.
+     * Returns the nesting level for the context declaration, i.e. 1 for unnested and &gt;1 for nested contexts.
      * @param contextName context name
      * @return nesting level
      * @throws IllegalArgumentException if a context by that name was not declared

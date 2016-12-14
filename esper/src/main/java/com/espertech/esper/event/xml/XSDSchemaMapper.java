@@ -66,6 +66,7 @@ public class XSDSchemaMapper
     /**
      * Loading and mapping of the schema to the internal representation.
      * @param schemaResource schema to load and map.
+     * @param schemaText schema
      * @return model
      */
     public static SchemaModel loadAndMap(String schemaResource, String schemaText)

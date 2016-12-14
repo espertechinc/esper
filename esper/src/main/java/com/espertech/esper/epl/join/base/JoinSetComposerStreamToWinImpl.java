@@ -39,14 +39,6 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
     private Set<MultiKey<EventBean>> emptyResults = new LinkedHashSet<MultiKey<EventBean>>();
     private Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
 
-    /**
-     * Ctor.
-     * @param repositories - for each stream an array of (indexed/unindexed) tables for lookup.
-     * @param isPureSelfJoin for self-joins
-     * @param streamNumber is the undirectional stream
-     * @param queryStrategy is the lookup query strategy for the stream
-     * @param selfJoinRepositoryResets indicators for any stream's table that reset after strategy executon
-     */
     public JoinSetComposerStreamToWinImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets)
     {
         this.allowInitIndex = allowInitIndex;

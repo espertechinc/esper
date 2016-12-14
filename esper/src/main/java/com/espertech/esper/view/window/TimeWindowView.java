@@ -52,6 +52,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
      * out of the timeWindow as oldData in the update method.
      * @param viewUpdatedCollection is a collection the view must update when receiving events
      * @param timeWindowViewFactory for copying the view in a group-by
+     * @param agentInstanceContext context
      */
     public TimeWindowView(AgentInstanceViewFactoryChainContext agentInstanceContext, TimeWindowViewFactory timeWindowViewFactory, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ViewUpdatedCollection viewUpdatedCollection)
     {

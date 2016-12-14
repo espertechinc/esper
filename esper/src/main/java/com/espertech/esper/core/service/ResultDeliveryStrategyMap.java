@@ -38,6 +38,7 @@ public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
      * @param subscriber the object to deliver to
      * @param method the delivery method
      * @param columnNames the column names for the map
+     * @param statement statement
      */
     public ResultDeliveryStrategyMap(EPStatement statement, Object subscriber, Method method, String[] columnNames)
     {

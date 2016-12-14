@@ -62,17 +62,6 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     private final TableService tableService;
     private final Map<String, Object> transientConfiguration;
 
-    /**
-     * Ctor.
-     * @param eventAdapterService is the event wrapper and type service
-     * @param engineImportService for imported aggregation functions and static functions
-     * @param variableService - provides access to variable values
-     * @param engineSettingsService - some engine settings are writable
-     * @param valueAddEventService - update event handling
-     * @param metricReportingService - for metric reporting
-     * @param statementEventTypeRef - statement to event type reference holding 
-     * @param statementVariableRef - statement to variable reference holding 
-     */
     public ConfigurationOperationsImpl(EventAdapterService eventAdapterService,
                                        EventTypeIdGenerator eventTypeIdGenerator,
                                        EngineImportService engineImportService,

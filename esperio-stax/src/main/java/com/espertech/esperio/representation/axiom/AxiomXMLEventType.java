@@ -43,10 +43,6 @@ public class AxiomXMLEventType implements EventTypeSPI
     private Map<String, EventPropertyDescriptor> propertyDescriptorsMap;
     private EventPropertyDescriptor[] propertyDescriptors;
 
-    /**
-     * Ctor.
-     * @param configurationEventTypeAxiom is the configuration for XML access
-     */
     public AxiomXMLEventType(EventTypeMetadata metadata, int eventTypeId, ConfigurationEventTypeAxiom configurationEventTypeAxiom)
     {
         this.metadata = metadata;

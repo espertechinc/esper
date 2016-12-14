@@ -44,11 +44,6 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
 
     private EventBean lastNewEvent;
 
-    /**
-     * Constructor requires the name of the field to use in the parent view to compute the weighted average on,
-     * as well as the name of the field in the parent view to get the weight from.
-     * compute the average for.
-     */
     public WeightedAverageView(WeightedAverageViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext)
     {
         this.viewFactory = viewFactory;
@@ -216,11 +211,6 @@ public class WeightedAverageView extends ViewSupport implements CloneableView, D
                 " fieldNameWeight=" + viewFactory.fieldNameWeight;
     }
 
-    /**
-     * Creates the event type for this view.
-     * @param statementContext is the event adapter service
-     * @return event type of view
-     */
     public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> schemaMap = new HashMap<String, Object>();

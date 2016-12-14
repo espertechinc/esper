@@ -41,22 +41,22 @@ public enum FilterOperator
     IS_NOT("is not"),
 
     /**
-     * Less (<).
+     * Less (&lt;).
      */
     LESS("<"),
 
     /**
-     * Less or equal (<=).
+     * Less or equal (&lt;=).
      */
     LESS_OR_EQUAL("<="),
 
     /**
-     * Greater or equal (>=).
+     * Greater or equal (&gt;=).
      */
     GREATER_OR_EQUAL(">="),
 
     /**
-     * Greater (>).
+     * Greater (&gt;).
      */
     GREATER(">"),
 
@@ -120,13 +120,6 @@ public enum FilterOperator
     private FilterOperator(String textualOp) {
         this.textualOp = textualOp;
     }
-
-    private final static String EQUAL_OP = "=";
-    private final static String NOT_EQUAL_OP = "!=";
-    private final static String LESS_OP = "<";
-    private final static String LESS_EQUAL_OP = "<=";
-    private final static String GREATER_OP = ">";
-    private final static String GREATER_EQUAL_OP = ">=";
 
     /**
      * Returns true for all range operators, false if not a range operator.

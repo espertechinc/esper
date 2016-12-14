@@ -46,16 +46,6 @@ public class NamedWindowProcessor
     private final EventTableIndexMetadata eventTableIndexMetadataRepo = new EventTableIndexMetadata();
     private final StatementContext statementContextCreateWindow;
 
-    /**
-     * Ctor.
-     * @param namedWindowMgmtService service for dispatching results
-     * @param eventType the type of event held by the named window
-     * @param statementResultService for coordinating on whether insert and remove stream events should be posted
-     * @param revisionProcessor for revision processing
-     * @param eplExpression epl expression
-     * @param statementName statement name
-     * @param isPrioritized if the engine is running with prioritized execution
-     */
     public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow)
     {
         this.namedWindowName = namedWindowName;

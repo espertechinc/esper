@@ -27,7 +27,6 @@ import java.util.Collection;
  *     Use factory methods to initialize return type information according to the return values
  *     that your expression is going to provide.
  * </p>
- * <p>
  *  <ol>
  *      <li>
  *          Use {@link EPTypeHelper#collectionOfEvents(com.espertech.esper.client.EventType)}
@@ -54,7 +53,6 @@ import java.util.Collection;
  *          Such expression results cannot be used as input to enumeration methods, for example.
  *      </li>
  *  </ol>
- * </p>.
  */
 public class EPTypeHelper {
 
@@ -190,6 +188,7 @@ public class EPTypeHelper {
 
     /**
      * Returns a nice text detailing the expression result type.
+     * @param epType type
      * @return descriptive text
      */
     public static String toTypeDescriptive(EPType epType) {

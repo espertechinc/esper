@@ -44,6 +44,8 @@ public class ResultDeliveryStrategyFactory
      * @param subscriber to indicate to
      * @param selectClauseTypes are the types of each column in the select clause
      * @param selectClauseColumns the names of each column in the select clause
+     * @param statement statement
+     * @param methodName method name
      * @return strategy for dispatching naturals
      * @throws EPSubscriberException if the subscriber is invalid
      */

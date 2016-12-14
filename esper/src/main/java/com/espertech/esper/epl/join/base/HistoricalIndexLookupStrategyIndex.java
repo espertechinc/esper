@@ -30,10 +30,6 @@ public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookup
     private final int lookupStream;
     private final ExprEvaluator[] evaluators;
 
-    /**
-     * Ctor.
-     * @param eventType - event type to expect for lookup
-     */
     public HistoricalIndexLookupStrategyIndex(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys)
     {
         this.evaluators = new ExprEvaluator[hashKeys.size()];

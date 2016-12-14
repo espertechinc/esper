@@ -283,6 +283,7 @@ public class VariableReadWritePackage
 
     /**
      * Iterate returning all values.
+     * @param agentInstanceId context partition id
      * @return map of values
      */
     public Map<String, Object> iterate(int agentInstanceId)

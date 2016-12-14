@@ -19,9 +19,6 @@ public abstract class StreamTypesException extends Exception
 
     private final StreamTypesExceptionSuggestionGen optionalSuggestionGenerator;
 
-    /**
-     * Ctor.
-     */
     public StreamTypesException(String message, StreamTypesExceptionSuggestionGen optionalSuggestionGenerator)
     {
         super(message);

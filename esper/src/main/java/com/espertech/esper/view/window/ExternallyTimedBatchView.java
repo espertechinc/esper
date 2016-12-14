@@ -55,6 +55,9 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
      * @param factory for copying this view in a group-by
      * @param agentInstanceViewFactoryContext context for expression evalauation
+     * @param optionalReferencePoint ref point
+     * @param timeDeltaComputation time delta
+     * @param timestampExpressionEval timestamp expr eval
      */
     public ExternallyTimedBatchView(ExternallyTimedBatchViewFactory factory,
                                     ExprNode timestampExpression,

@@ -39,10 +39,6 @@ public class SizeView extends ViewSupport implements CloneableView
     private EventBean lastSizeEvent;
     protected Object[] lastValuesEventNew;
 
-    /**
-     * Ctor.
-     * @param agentInstanceContext is services
-     */
     public SizeView(AgentInstanceContext agentInstanceContext, EventType eventType, StatViewAdditionalProps additionalProps)
     {
         this.agentInstanceContext = agentInstanceContext;
@@ -138,11 +134,6 @@ public class SizeView extends ViewSupport implements CloneableView
         return this.getClass().getName();
     }
 
-    /**
-     * Creates the event type for this view
-     * @param statementContext is the event adapter service
-     * @return event type for view
-     */
     public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> schemaMap = new HashMap<String, Object>();

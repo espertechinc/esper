@@ -17,7 +17,7 @@ import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import java.util.Collection;
 
 /**
- * Strategy for subselects with "=/!=/<> ALL".
+ * Strategy for subselects with "=/!=/&gt;&lt; ALL".
  */
 public class SubselectEvalStrategyEqualsAll implements SubselectEvalStrategy
 {

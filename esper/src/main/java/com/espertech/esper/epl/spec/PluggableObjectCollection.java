@@ -38,6 +38,7 @@ public class PluggableObjectCollection
     /**
      * Add a plug-in view.
      * @param configurationPlugInViews is a list of configured plug-in view objects.
+     * @param configurationPlugInVirtualDW virtual data window configs
      * @throws ConfigurationException if the configured views don't resolve
      */
     public void addViews(List<ConfigurationPlugInView> configurationPlugInViews, List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDW) throws ConfigurationException
@@ -102,6 +103,7 @@ public class PluggableObjectCollection
      * @param name is the object's name
      * @param clazz is the class the object resolves to
      * @param type is the object type
+     * @param configuration config
      */
     public void addObject(String namespace, String name, Class clazz, PluggableObjectType type, Serializable configuration)
     {

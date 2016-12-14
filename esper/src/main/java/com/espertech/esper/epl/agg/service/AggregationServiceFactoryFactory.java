@@ -52,7 +52,9 @@ public class AggregationServiceFactoryFactory
      *
      * @param numStreams number of streams
      * @param measureExprNodesPerStream measure nodes
+     * @param typesPerStream type information
      * @return service
+     * @throws ExprValidationException for validation errors
      */
     public static AggregationServiceMatchRecognizeFactoryDesc getServiceMatchRecognize(int numStreams,
                                                                                        Map<Integer, List<ExprAggregateNode>> measureExprNodesPerStream,
@@ -134,24 +136,6 @@ public class AggregationServiceFactoryFactory
         return new AggregationServiceMatchRecognizeFactoryDesc(factory, allExpressions);
     }
 
-    /**
-     * Returns an instance to handle the aggregation required by the aggregation expression nodes, depending on
-     * whether there are any group-by nodes.
-     *
-     *
-     *
-     * @param selectAggregateExprNodes - aggregation nodes extracted out of the select expression
-     * @param havingAggregateExprNodes - aggregation nodes extracted out of the select expression
-     * @param orderByAggregateExprNodes - aggregation nodes extracted out of the select expression
-     * @param hasGroupByClause - indicator on whethere there is group-by required, or group-all
-     * @param annotations - statement annotations
-     * @param variableService - variable
-     * @param isJoin - true for joins
-     * @param whereClause the where-clause function if any
-     * @param havingClause the having-clause function if any
-     * @return instance for aggregation handling
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException if validation fails
-     */
     public static AggregationServiceFactoryDesc getService(List<ExprAggregateNode> selectAggregateExprNodes,
                                                            Map<ExprNode, String> selectClauseNamedNodes,
                                                            List<ExprDeclaredNode> declaredExpressions,

@@ -34,12 +34,6 @@ public class ExpressionWindowView extends ExpressionViewBase {
     protected final ArrayDeque<ExpressionWindowTimestampEventPair> window = new ArrayDeque<ExpressionWindowTimestampEventPair>();
     private final EventBean[] removedEvents = new EventBean[1];
 
-    /**
-     * Constructor creates a moving window extending the specified number of elements into the past.
-     * @param dataWindowViewFactory for copying this view in a group-by
-     * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param variableNames variable names
-     */
     public ExpressionWindowView(ExpressionWindowViewFactory dataWindowViewFactory,
                                 ViewUpdatedCollection viewUpdatedCollection,
                                 ExprEvaluator expiryExpression,

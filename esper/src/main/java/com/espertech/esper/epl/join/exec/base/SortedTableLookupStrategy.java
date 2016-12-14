@@ -34,10 +34,6 @@ public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy
     private final PropertySortedEventTable index;
     private final SortedAccessStrategy strategy;
 
-    /**
-     * Ctor.
-     * @param index - index to look up in
-     */
     public SortedTableLookupStrategy(int lookupStream, int numStreams, QueryGraphValueEntryRange rangeKeyPair, Class coercionType, PropertySortedEventTable index)
     {
         this.rangeKeyPair = rangeKeyPair;

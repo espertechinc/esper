@@ -34,6 +34,8 @@ public abstract class AggregationServiceBaseUngrouped implements AggregationServ
      * Ctor.
      * @param evaluators - are the child node of each aggregation function used for computing the value to be aggregated
      * @param aggregators - aggregation states/factories
+     * @param aggregatorFactories method factories
+     * @param accessAggregations access aggs
      */
     public AggregationServiceBaseUngrouped(ExprEvaluator evaluators[], AggregationMethod aggregators[], AggregationMethodFactory aggregatorFactories[], AggregationStateFactory[] accessAggregations)
     {

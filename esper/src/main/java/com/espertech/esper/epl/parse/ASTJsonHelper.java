@@ -27,12 +27,6 @@ import java.util.Map;
  */
 public class ASTJsonHelper
 {
-    /**
-     * Walk an annotation root name or child node (nested annotations).
-     * @param node annotation walk node
-     * @return annotation descriptor
-     * @throws com.espertech.esper.epl.parse.ASTWalkException if the walk failed
-     */
     public static Object walk(CommonTokenStream tokenStream, EsperEPL2GrammarParser.JsonvalueContext node) throws ASTWalkException
     {
         if (node.constant() != null) {

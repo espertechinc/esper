@@ -24,6 +24,7 @@ public class DependencyGraph
     /**
      * Ctor.
      * @param numStreams - number of streams
+     * @param allowDependencySame - allow same-dependency stream
      */
     public DependencyGraph(int numStreams, boolean allowDependencySame)
     {
@@ -250,6 +251,9 @@ public class DependencyGraph
 
     /**
      * Check if the given stream has any dependencies, direct or indirect, to any of the streams that are not in the ignore list.
+     * @param ignoreList ignore list
+     * @param navigableStream to-stream
+     * @return indicator whether there is an unsatisfied dependency
      */
     public boolean hasUnsatisfiedDependency(int navigableStream, Set<Integer> ignoreList) {
         Set<Integer> deepDependencies = new HashSet<Integer>();

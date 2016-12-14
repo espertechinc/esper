@@ -42,9 +42,6 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
     private transient Map<Integer, VariableReader> readersPerCp;
     private transient VariableReader readerNonCP;
 
-    /**
-     * Ctor.
-     */
     public ExprVariableNodeImpl(VariableMetaData variableMetaData, String optSubPropName)
     {
         if (variableMetaData == null) {

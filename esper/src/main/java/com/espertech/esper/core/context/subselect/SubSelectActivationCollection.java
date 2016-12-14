@@ -33,6 +33,7 @@ public class SubSelectActivationCollection
     /**
      * Add lookup.
      * @param subselectNode is the subselect expression node
+     * @param holder information holder for subselects
      */
     public void add(ExprSubselectNode subselectNode, SubSelectActivationHolder holder)
     {

@@ -47,10 +47,6 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     private transient boolean isReturnsConstantResult;
     private transient ExprEvaluator evaluator;
 
-    /**
-	 * Ctor.
-	 * @param chainSpec - the class and name of the method that this node will invoke plus parameters
-	 */
 	public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, EngineImportSingleRowDesc config)
 	{
         this.functionName = functionName;

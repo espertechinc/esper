@@ -51,6 +51,7 @@ public class EvalNodeUtil
     /**
      * Returns all child nodes as a set.
      * @param currentNode parent node
+     * @param filter filter
      * @return all child nodes
      */
     public static Set<EvalFactoryNode> recursiveGetChildNodes(EvalFactoryNode currentNode, EvalNodeUtilFactoryFilter filter)

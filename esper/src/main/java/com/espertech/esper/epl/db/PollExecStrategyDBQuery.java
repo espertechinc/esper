@@ -54,6 +54,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
      * @param outputTypes describe columns selected by the SQL
      * @param outputRowConversionHook hook to convert rows, if any hook is registered
      * @param columnTypeConversionHook hook to convert columns, if any hook is registered
+     * @param enableJDBCLogging jdbc logging flag
      */
     public PollExecStrategyDBQuery(EventAdapterService eventAdapterService,
                                    EventType eventType,

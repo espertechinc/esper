@@ -11,7 +11,7 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 /**
- * Comparison using one of the relational operators (=, !=, <, <=, >, >=, is, is not).
+ * Comparison using one of the relational operators (=, !=, &lt;, &lt;=, &gt;, &gt;=, is, is not).
  */
 public class RelationalOpExpression extends ExpressionBase
 {

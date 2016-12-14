@@ -27,6 +27,8 @@ public class DataCacheFactory
      * @param epStatementAgentInstanceHandle statement handle for timer invocations
      * @param schedulingService scheduling service for time-based caches
      * @param scheduleBucket for ordered timer invokation
+     * @param statementContext statement context
+     * @param streamNum stream number
      * @return data cache implementation
      */
     public DataCache getDataCache(ConfigurationDataCache cacheDesc,

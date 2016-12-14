@@ -69,6 +69,7 @@ public class StreamFactorySvcImpl implements StreamFactoryService
     /**
      * Ctor.
      * @param isReuseViews indicator on whether stream and view resources are to be reused between statements
+     * @param engineURI engine URI
      */
     public StreamFactorySvcImpl(String engineURI, boolean isReuseViews)
     {

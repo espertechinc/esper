@@ -35,7 +35,14 @@ public interface ValidatedView
      * @param timeProvider for providing current time
      * @param variableService for access to variables
      * @param exprEvaluatorContext context for expression evaluation
-     * @param statementContext
+     * @param statementContext statement context
+     * @param eventAdapterService event type info
+     * @param engineURI engine URI
+     * @param sqlParameters parameters
+     * @param schedulingService scheduling
+     * @param tableService tables
+     * @param engineImportService engine imports
+     * @param configSnapshot configuration
      * @throws ExprValidationException is thrown to indicate an exception in validating the view
      */
     public void validate(EngineImportService engineImportService,

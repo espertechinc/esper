@@ -28,6 +28,7 @@ public interface StatementResultService
      * @param isPattern true if this is a pattern statement
      * @param isDistinct true if using distinct
      * @param statementMetricHandle handle for metrics reporting
+     * @param isForClause indicator that for-clause exists
      */
     public void setContext(EPStatementSPI epStatement, EPServiceProviderSPI epServiceProvider,
                            boolean isInsertInto, boolean isPattern, boolean isDistinct, boolean isForClause, StatementMetricHandle statementMetricHandle);
@@ -36,6 +37,9 @@ public interface StatementResultService
      * For initialize of the service providing select clause column types and names.
      * @param selectClauseTypes types of columns in the select clause
      * @param selectClauseColumnNames column names
+     * @param forClauseDelivery for-clause
+     * @param groupDeliveryExpressions grouped-delivery
+     * @param exprEvaluatorContext context
      */
     public void setSelectClause(Class[] selectClauseTypes, String[] selectClauseColumnNames,
                                 boolean forClauseDelivery, ExprEvaluator[] groupDeliveryExpressions, ExprEvaluatorContext exprEvaluatorContext);
@@ -62,6 +66,7 @@ public interface StatementResultService
     /**
      * Indicate a change in update listener.
      * @param updateListeners is the new listeners and subscriber
+     * @param isRecovery indicator whether recovering
      */
     public void setUpdateListeners(EPStatementListenerSet updateListeners, boolean isRecovery);
 

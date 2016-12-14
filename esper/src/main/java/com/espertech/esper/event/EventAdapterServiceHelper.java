@@ -66,6 +66,7 @@ public class EventAdapterServiceHelper
     /**
      * Returns descriptors for all writable properties.
      * @param eventType to reflect on
+     * @param allowAnyType whether any type property can be populated
      * @return list of writable properties
      */
     public static Set<WriteablePropertyDescriptor> getWriteableProperties(EventType eventType, boolean allowAnyType)
@@ -161,6 +162,7 @@ public class EventAdapterServiceHelper
      * @param properties to write
      * @param engineImportService for resolving methods
      * @param eventAdapterService fatory for event
+     * @param allowAnyType whether any type property can be populated
      * @return factory
      * @throws EventBeanManufactureException if a factory cannot be created for the type
      */

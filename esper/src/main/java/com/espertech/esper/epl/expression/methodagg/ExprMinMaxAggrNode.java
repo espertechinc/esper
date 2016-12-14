@@ -29,11 +29,6 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
     private final boolean hasFilter;
     private final boolean isEver;
 
-    /**
-     * Ctor.
-     * @param distinct - indicator whether distinct values of all values min/max
-     * @param minMaxTypeEnum - enum for whether to minimum or maximum compute
-     */
     public ExprMinMaxAggrNode(boolean distinct, MinMaxTypeEnum minMaxTypeEnum, boolean hasFilter, boolean isEver)
     {
         super(distinct);

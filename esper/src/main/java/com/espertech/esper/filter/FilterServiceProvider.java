@@ -17,6 +17,8 @@ public final class FilterServiceProvider
 {
     /**
      * Creates an implementation of the FilterEvaluationService interface.
+     * @param filterServiceProfile config
+     * @param allowIsolation whether isolation is supported
      * @return implementation
      */
     public static FilterServiceSPI newService(ConfigurationEngineDefaults.FilterServiceProfile filterServiceProfile, boolean allowIsolation)

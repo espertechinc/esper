@@ -34,6 +34,7 @@ public final class IndexTreeBuilder
      * @param filterValueSet is the filter definition
      * @param filterCallback is the callback to be added
      * @param topNode node to be added to any subnode beneath it
+     * @param lockFactory lock factory
      * @return an encapsulation of information need to allow for safe removal of the filter tree.
      */
     public static ArrayDeque<EventTypeIndexBuilderIndexLookupablePair>[] add(FilterValueSet filterValueSet,
@@ -74,6 +75,7 @@ public final class IndexTreeBuilder
      * @param filterCallback filter callback  to be removed
      * @param treePathInfo encapsulates information need to allow for safe removal of the filterCallback
      * @param topNode The top tree node beneath which the filterCallback was added
+     * @param eventType event type
      */
     public static void remove(
                        EventType eventType,

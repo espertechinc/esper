@@ -32,17 +32,6 @@ public class ExprIdentNodeUtil
         return getTypeFromStream(streamTypeService, prop, streamOrProp, obtainFragment);
     }
 
-    /**
-     * Determine stream id and property type given an unresolved property name and
-     * a stream name that may also be part of the property name.
-     * <p>
-     * For example: select s0.p1 from...    p1 is the property name, s0 the stream name, however this could also be a nested property
-     * @param streamTypeService - service for type infos
-     * @param unresolvedPropertyName - property name
-     * @param streamOrPropertyName - stream name, this can also be the first part of the property name
-     * @return pair of stream number and property type
-     * @throws ExprValidationPropertyException if no such property exists
-     */
     protected static Pair<PropertyResolutionDescriptor, String> getTypeFromStream(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName, boolean obtainFragment)
         throws ExprValidationPropertyException
     {
@@ -132,14 +121,6 @@ public class ExprIdentNodeUtil
         throw getSuggestionExceptionSecondStep(propertyNameCandidate, typeExceptionOne, typeExceptionTwo);
     }
 
-    /**
-     * This method only resolves against explicitly-listed properties (for use with XML or other types that allow any name as a property name).
-     * @param streamTypeService stream types
-     * @param unresolvedPropertyName property name
-     * @param streamOrPropertyName optional stream name
-     * @return property info
-     * @throws ExprValidationPropertyException if the property could not be resolved
-     */
     protected static Pair<PropertyResolutionDescriptor, String> getTypeFromStreamExplicitProperties(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName, boolean obtainFragment)
         throws ExprValidationPropertyException
     {

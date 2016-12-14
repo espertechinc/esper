@@ -37,7 +37,7 @@ public class SchemaElementComplex implements SchemaElement, Serializable
      * @param attributes the attributes or empty if none
      * @param children the child complex elements or empty if none
      * @param simpleElements the simple elements or empty if none
-     * @param isArray if unbound or max>1
+     * @param isArray if unbound or max&gt;1
      * @param optionalSimpleType if the element does itself have a type
      * @param optionalSimpleTypeName if the element does itself have a type
      */

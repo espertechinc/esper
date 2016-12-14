@@ -34,6 +34,7 @@ public class LengthWindowView extends ViewSupport implements DataWindowView, Clo
      * @param size is the specified number of elements into the past
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
      * @param lengthWindowViewFactory for copying this view in a group-by
+     * @param agentInstanceViewFactoryContext context
      */
     public LengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, LengthWindowViewFactory lengthWindowViewFactory, int size, ViewUpdatedCollection viewUpdatedCollection)
     {

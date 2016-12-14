@@ -30,14 +30,6 @@ import java.util.Map;
  */
 public class CorrelationView extends BaseBivariateStatisticsView implements CloneableView
 {
-    /**
-     * Constructor.
-     * @param xExpression is the expression providing X data points
-     * @param yExpression is the expression providing X data points
-     * @param agentInstanceContext contains required view services
-     * @param eventType event type
-     * @param additionalProps additional properties
-     */
     public CorrelationView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xExpression, ExprNode yExpression, EventType eventType, StatViewAdditionalProps additionalProps)
     {
         super(viewFactory, agentInstanceContext, xExpression, yExpression, eventType, additionalProps);
@@ -92,12 +84,6 @@ public class CorrelationView extends BaseBivariateStatisticsView implements Clon
                 " fieldY=" + this.getExpressionY();
     }
 
-    /**
-     * Creates the event type for this view.
-     * @param statementContext is the event adapter service
-     * @param additionalProps additional props
-     * @return event type of view
-     */
     protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();

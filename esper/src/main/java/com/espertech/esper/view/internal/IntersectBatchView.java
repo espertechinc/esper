@@ -41,11 +41,6 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
     protected final IntersectViewFactory factory;
     protected final View[] views;
 
-    /**
-     * Ctor.
-     * @param factory the view factory
-     * @param viewList the list of data window views
-     */
     public IntersectBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList)
     {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;

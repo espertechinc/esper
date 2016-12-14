@@ -171,6 +171,7 @@ public class EPStatementListenerSet
     /**
      * Sets a subscriber instance.
      * @param subscriber is the subscriber to set
+     * @param methodName method name
      */
     public void setSubscriber(Object subscriber, String methodName)
     {

@@ -42,6 +42,7 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
      * @param spec specification
      * @param statementStopService for stop handling
      * @param eventAdapterService for nested property handling
+     * @param eventTypeIdGenerator type id gen
      */
     public VAERevisionProcessorMerge(String revisioneventTypeName, RevisionSpec spec, StatementStopService statementStopService, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator)
     {

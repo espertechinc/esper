@@ -29,10 +29,6 @@ public class IndexedTableLookupStrategyExpr implements JoinExecTableLookupStrate
     private final ExprEvaluator[] evaluators;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    /**
-     * Ctor.
-     * @param index - index to look up in
-     */
     public IndexedTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTable index, LookupStrategyDesc lookupStrategyDesc)
     {
         if (index == null) {

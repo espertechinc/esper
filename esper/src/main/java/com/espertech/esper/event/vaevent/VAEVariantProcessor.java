@@ -37,10 +37,6 @@ public class VAEVariantProcessor implements ValueAddEventProcessor
      */
     protected VariantEventType variantEventType;
 
-    /**
-     * Ctor.
-     * @param variantSpec specifies how to handle the disparate events
-     */
     public VAEVariantProcessor(VariantSpec variantSpec, EventTypeIdGenerator eventTypeIdGenerator, ConfigurationVariantStream config)
     {
         this.variantSpec = variantSpec;

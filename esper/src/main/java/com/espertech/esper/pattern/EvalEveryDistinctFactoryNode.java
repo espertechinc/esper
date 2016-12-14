@@ -87,10 +87,6 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
         this.convertor = convertor;
     }
 
-    /**
-     * Sets expressions for distinct-value.
-     * @param distinctExpressions to set
-     */
     public void setDistinctExpressions(List<ExprNode> distinctExpressions, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ExprNode expiryTimeExp)
     {
         this.distinctExpressions = distinctExpressions;

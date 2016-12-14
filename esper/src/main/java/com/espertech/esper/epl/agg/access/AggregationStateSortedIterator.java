@@ -22,6 +22,7 @@ public class AggregationStateSortedIterator extends MixedEventBeanAndCollectionI
     /**
      * Ctor.
      * @param window - sorted map with events
+     * @param reverse for reverse iterator
      */
     public AggregationStateSortedIterator(TreeMap<Object, Object> window, boolean reverse)
     {

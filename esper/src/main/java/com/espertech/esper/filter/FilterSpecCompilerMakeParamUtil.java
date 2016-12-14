@@ -36,9 +36,11 @@ public final class FilterSpecCompilerMakeParamUtil
      * representing the expression, or null if not optimizable.
      *
      * @param constituent is the expression to look at
-     * @param arrayEventTypes @return filter parameter representing the expression, or null
+     * @param arrayEventTypes event types that provide array values
+     * @return filter parameter representing the expression, or null
+     * @param statementName statement name
+     * @param exprEvaluatorContext context
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression is invalid
-     * @return FilterSpecParam filter param
      */
     protected static FilterSpecParam makeFilterParam(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
             throws ExprValidationException

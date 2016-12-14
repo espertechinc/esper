@@ -32,6 +32,7 @@ public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStra
      * Ctor.
      * @param eventType - event type to expect for lookup
      * @param index - index to look up in
+     * @param property property name
      */
     public IndexedTableLookupStrategySingle(EventType eventType, String property, PropertyIndexedEventTableSingle index)
     {

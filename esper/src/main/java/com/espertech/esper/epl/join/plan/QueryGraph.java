@@ -37,6 +37,8 @@ public class QueryGraph
     /**
      * Ctor.
      * @param numStreams - number of streams
+     * @param optionalHint hint if any
+     * @param nToZeroAnalysis indicator for star-eval
      */
     public QueryGraph(int numStreams, ExcludePlanHint optionalHint, boolean nToZeroAnalysis)
     {
@@ -61,6 +63,8 @@ public class QueryGraph
      * @param propertyLeft - left hand stream property
      * @param streamRight - right hand stream
      * @param propertyRight - right hand stream property
+     * @param nodeLeft left expr
+     * @param nodeRight right expr
      * @return true if added and did not exist, false if already known
      */
     public boolean addStrictEquals(int streamLeft, String propertyLeft, ExprIdentNode nodeLeft, int streamRight, String propertyRight, ExprIdentNode nodeRight)
@@ -120,6 +124,7 @@ public class QueryGraph
      * For example, if  a=b and b=c  then addRelOpInternal a=c. The method adds new equalivalent key properties
      * until no additional entries to be added are found, ie. several passes can be made.
      * @param queryGraph - navigablity info between streamss
+     * @param typesPerStream type info
      */
     public static void fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph)
     {

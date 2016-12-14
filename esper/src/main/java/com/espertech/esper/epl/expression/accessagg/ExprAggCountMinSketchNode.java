@@ -53,10 +53,6 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
 
     private final CountMinSketchAggType aggType;
 
-    /**
-     * Ctor.
-     * @param distinct - flag indicating unique or non-unique value aggregation
-     */
     public ExprAggCountMinSketchNode(boolean distinct, CountMinSketchAggType aggType) {
         super(distinct);
         this.aggType = aggType;

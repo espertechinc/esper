@@ -16,6 +16,7 @@ public final class StreamFactoryServiceProvider
     /**
      * Creates an implementation of the StreamFactoryService interface.
      * @param isReuseViews indicator on whether stream and view resources are to be reused between statements
+     * @param engineURI engine URI
      * @return implementation
      */
     public static StreamFactoryService newService(String engineURI, boolean isReuseViews)

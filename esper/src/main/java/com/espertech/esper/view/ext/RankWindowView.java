@@ -54,16 +54,6 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
     protected Map<Object, Object> uniqueKeySortKeys;  // key is computed unique-key, value is computed sort-key
     protected int numberOfEvents;
 
-    /**
-     * Ctor.
-     * @param sortCriteriaExpressions is the event property names to sort
-     * @param descendingValues indicates whether to sort ascending or descending for each field
-     * @param sortWindowSize is the window size
-     * @param optionalRankedRandomAccess is the friend class handling the random access, if required by
-     * expressions
-     * @param rankWindowViewFactory for copying this view in a group-by
-     * @param isSortUsingCollator for string value sorting using compare or Collator
-     */
     public RankWindowView(RankWindowViewFactory rankWindowViewFactory,
                           ExprNode[] uniqueCriteriaExpressions,
                           ExprEvaluator[] uniqueCriteriaEvaluators,

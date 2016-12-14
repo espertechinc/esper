@@ -45,7 +45,9 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
 
     /**
      * Constructor.
-     * @param timeBatchViewFactory fr copying this view in a group-by
+     * @param timeBatchViewFactory for copying this view in a group-by
+     * @param agentInstanceContext context
+     * @param timeDeltaComputation time delta eval
      */
     public TimeAccumViewRStream(TimeAccumViewFactory timeBatchViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,

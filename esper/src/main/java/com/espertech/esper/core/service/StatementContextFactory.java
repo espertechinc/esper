@@ -22,20 +22,6 @@ public interface StatementContextFactory
 {
     public void setStmtEngineServices(EPServicesContext services);
 
-    /**
-     * Create a new statement context consisting of statement-level services.
-     *
-     * @param statementId is the statement is
-     * @param statementName is the statement name
-     * @param expression is the statement expression
-     * @param engineServices is engine services
-     * @param optAdditionalContext addtional context to pass to the statement
-     * @param isFireAndForget if the statement context is for a fire-and-forget statement
-     * @param annotations statement annotations
-     * @param isolationUnitServices for isolation units
-     * @param subselectNodes
-     * @return statement context
-     */
     public StatementContext makeContext(int statementId,
                                         String statementName,
                                         String expression,

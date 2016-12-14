@@ -38,7 +38,7 @@ import java.util.Iterator;
  * The arrival of new events with a newer timestamp then past events causes the window to be re-evaluated and the oldest
  * events pushed out of the window. Ie. Assume event X1 with timestamp T1 is in the window.
  * When event Xn with timestamp Tn arrives, and the window time length in milliseconds is t, then if
- * ((Tn - T1) > t == true) then event X1 is pushed as oldData out of the window. It is assumed that
+ * ((Tn - T1) &gt; t == true) then event X1 is pushed as oldData out of the window. It is assumed that
  * events are sent in in their natural order and the timestamp values are ascending.
  */
 public class ExternallyTimedWindowView extends ViewSupport implements DataWindowView, CloneableView
@@ -64,6 +64,8 @@ public class ExternallyTimedWindowView extends ViewSupport implements DataWindow
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
      * @param externallyTimedWindowViewFactory for copying this view in a group-by
      * @param agentInstanceViewFactoryContext context for expression evalauation
+     * @param timeDeltaComputation delta computation
+     * @param timestampExpressionEval timestamp expr eval
      */
     public ExternallyTimedWindowView(ExternallyTimedWindowViewFactory externallyTimedWindowViewFactory,
                                      ExprNode timestampExpression, ExprEvaluator timestampExpressionEval,

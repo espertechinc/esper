@@ -36,9 +36,6 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
     private final boolean enableQueryPlanLog;
     private final MetricReportingService metricReportingService;
 
-    /**
-     * Ctor.
-     */
     public NamedWindowMgmtServiceImpl(boolean enableQueryPlanLog,
                                       MetricReportingService metricReportingService)
     {

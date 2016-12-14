@@ -68,6 +68,7 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
      * @param timeBatchViewFactory for copying this view in a group-by
      * @param forceOutput is true if the batch should produce empty output if there is no value to output following time intervals
      * @param isStartEager is true for start-eager
+     * @param agentInstanceContext context
      */
     public TimeBatchView(TimeBatchViewFactory timeBatchViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,

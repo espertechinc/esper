@@ -55,10 +55,6 @@ public class EngineImportServiceImpl implements EngineImportService
     private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
     private final AggregationFactoryFactory aggregationFactoryFactory;
 
-    /**
-	 * Ctor
-     * @param allowExtendedAggregationFunc true to allow non-SQL standard builtin agg functions.
-	 */
 	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, AggregationFactoryFactory aggregationFactoryFactory)
     {
         imports = new ArrayList<String>();
@@ -300,6 +296,8 @@ public class EngineImportServiceImpl implements EngineImportService
     /**
      * Finds a class by class name using the auto-import information provided.
      * @param className is the class name to find
+     * @param requireAnnotation whether the class must be an annotation
+     * @param forAnnotationUse whether resolving class for use with annotations
      * @return class
      * @throws ClassNotFoundException if the class cannot be loaded
      */

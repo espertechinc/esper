@@ -166,8 +166,8 @@ public class IntervalOpImpl implements IntervalOp {
      * Obtain information used by filter analyzer to handle this dot-method invocation as part of query planning/indexing.
      *
      * @param typesPerStream event types
-     * @param currentMethod
-     * @param currentParameters
+     * @param currentMethod current method
+     * @param currentParameters current params
      * @param inputDesc descriptor of what the input to this interval method is
      * */
     public ExprDotNodeFilterAnalyzerDTIntervalDesc getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {

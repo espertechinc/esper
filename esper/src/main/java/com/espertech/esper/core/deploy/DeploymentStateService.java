@@ -52,8 +52,8 @@ public interface DeploymentStateService
     public void destroy();
 
     /**
-     *
-     * @param deploymentId
+     * Remove deployment
+     * @param deploymentId to remove
      */
     public void remove(String deploymentId);
 }

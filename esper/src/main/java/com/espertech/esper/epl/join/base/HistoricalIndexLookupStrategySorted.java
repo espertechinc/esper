@@ -26,9 +26,6 @@ public class HistoricalIndexLookupStrategySorted implements HistoricalIndexLooku
 {
     private final SortedAccessStrategy strategy;
 
-    /**
-     * Ctor.
-     */
     public HistoricalIndexLookupStrategySorted(int lookupStream, QueryGraphValueEntryRange property)
     {
         strategy = SortedAccessStrategyFactory.make(false, lookupStream, -1, property, null);

@@ -23,6 +23,7 @@ public interface FilterSpecParamRangeValue extends MetaDefItem, Serializable
     /**
      * Returns the filter value representing the endpoint.
      * @param matchedEvents is the prior results
+     * @param exprEvaluatorContext eval context
      * @return filter value
      */
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext);

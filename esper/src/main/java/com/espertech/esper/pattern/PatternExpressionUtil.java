@@ -88,6 +88,7 @@ public class PatternExpressionUtil
      * @param beginState pattern state
      * @param convertor to converting from pattern match to event-per-stream
      * @param exprEvaluatorContext expression evaluation context
+     * @param timePeriod time period
      * @return evaluation result
      * @throws EPException if the evaluation failed
      */

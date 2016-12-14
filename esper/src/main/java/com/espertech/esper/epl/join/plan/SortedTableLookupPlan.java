@@ -29,6 +29,7 @@ public class SortedTableLookupPlan extends TableLookupPlan
      * @param lookupStream - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
      * @param indexNum - index number for the table containing the full unindexed contents
+     * @param rangeKeyPair range-key pair
      */
     public SortedTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryRange rangeKeyPair)
     {

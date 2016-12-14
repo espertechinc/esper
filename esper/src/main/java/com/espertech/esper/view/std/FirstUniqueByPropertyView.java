@@ -36,9 +36,6 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
     protected final Map<Object, EventBean> firstEvents = new HashMap<Object, EventBean>();
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
-    /**
-     * Constructor.
-     */
     public FirstUniqueByPropertyView(FirstUniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         this.viewFactory = viewFactory;

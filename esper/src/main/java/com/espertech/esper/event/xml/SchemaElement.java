@@ -29,7 +29,7 @@ public interface SchemaElement extends SchemaItem
     public String getName();
 
     /**
-     * Returns true for unbounded or max>1
+     * Returns true for unbounded or max&gt;1
      * @return array indicator
      */
     public boolean isArray();

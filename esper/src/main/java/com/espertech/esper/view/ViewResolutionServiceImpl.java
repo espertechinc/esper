@@ -33,10 +33,6 @@ public class ViewResolutionServiceImpl implements ViewResolutionService
     private final String optionalNamedWindowName;
     private final Class virtualDataWindowViewFactory;
 
-    /**
-     * Ctor.
-     * @param viewObjects is the view objects to use for resolving views, can be both built-in and plug-in views.
-     */
     public ViewResolutionServiceImpl(PluggableObjectRegistry viewObjects, String optionalNamedWindowName, Class virtualDataWindowViewFactory)
     {
         this.viewObjects = viewObjects;

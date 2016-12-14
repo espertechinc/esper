@@ -19,7 +19,7 @@ import com.espertech.esper.type.RelationalOpEnum;
 import java.util.Collection;
 
 /**
- * Strategy for subselects with ">/</<=/>= ALL".
+ * Strategy for subselects with "&gt;/&lt;/&lt;=/&gt;= ALL".
  */
 public class SubselectEvalStrategyRelOpAll implements SubselectEvalStrategy
 {

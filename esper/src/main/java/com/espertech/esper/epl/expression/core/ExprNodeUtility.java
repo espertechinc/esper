@@ -280,6 +280,9 @@ public class ExprNodeUtility {
      * Validates the expression node subtree that has this
      * node as root. Some of the nodes of the tree, including the
      * root, might be replaced in the process.
+     * @param origin validate origin
+     * @param exprNode node
+     * @param validationContext context
      * @throws ExprValidationException when the validation fails
      * @return the root node of the validated subtree, possibly
      *         different than the root node of the unvalidated subtree
@@ -1277,6 +1280,7 @@ public class ExprNodeUtility {
      * Returns true if all properties within the expression are witin data window'd streams.
      * @param child expression to interrogate
      * @param streamTypeService streams
+     * @param unidirectionalJoin indicator unidirection join
      * @return indicator
      */
     public static boolean hasRemoveStreamForAggregations(ExprNode child, StreamTypeService streamTypeService, boolean unidirectionalJoin) {

@@ -33,6 +33,7 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan
      * @param lookupStream - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
      * @param indexNum - index number for the table containing the full unindexed contents
+     * @param expressions expressions
      */
     public InKeywordTableLookupPlanSingleIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, ExprNode[] expressions)
     {

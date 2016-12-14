@@ -27,10 +27,6 @@ public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookup
     private final EventBean[] eventsPerStream;
     private final LookupStrategyDesc strategyDesc;
 
-    /**
-     * Ctor.
-     * @param index - index to look up in
-     */
     public IndexedTableLookupStrategySingleExpr(ExprNode exprNode, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc)
     {
         if (index == null) {

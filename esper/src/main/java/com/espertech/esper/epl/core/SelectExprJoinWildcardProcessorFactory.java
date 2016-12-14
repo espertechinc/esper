@@ -28,15 +28,6 @@ import java.util.Map;
 
 public class SelectExprJoinWildcardProcessorFactory
 {
-    /**
-     * Ctor.
-     * @param streamNames - name of each stream
-     * @param streamTypes - type of each stream
-     * @param eventAdapterService - service for generating events and handling event types
-     * @param insertIntoDesc - describes the insert-into clause
-     * @param selectExprEventTypeRegistry - registry for event type to statements
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression validation failed
-     */
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
                                                   int statementId,
                                                   String[] streamNames,

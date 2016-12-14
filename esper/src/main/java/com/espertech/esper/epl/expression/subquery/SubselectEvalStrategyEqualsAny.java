@@ -20,7 +20,7 @@ import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import java.util.Collection;
 
 /**
- * Strategy for subselects with "=/!=/<> ANY".
+ * Strategy for subselects with "=/!=/&gt;&lt; ANY".
  */
 public class SubselectEvalStrategyEqualsAny implements SubselectEvalStrategy
 {

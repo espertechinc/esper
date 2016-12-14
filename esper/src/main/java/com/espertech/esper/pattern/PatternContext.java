@@ -26,11 +26,6 @@ public class PatternContext
     private final MatchedEventMapMeta matchedEventMapMeta;
     private final boolean isResilient;
 
-    /**
-     * Constructor.
-     * @param statementContext is the statement context
-     * @param streamNumber is the stream number
-     */
     public PatternContext(StatementContext statementContext,
                           int streamNumber,
                           MatchedEventMapMeta matchedEventMapMeta,

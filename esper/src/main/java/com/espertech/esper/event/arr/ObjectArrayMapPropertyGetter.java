@@ -26,6 +26,7 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
     /**
      * Ctor.
      * @param getter      is the getter to use to interrogate the property in the map
+     * @param index index
      */
     public ObjectArrayMapPropertyGetter(int index, MapEventPropertyGetter getter) {
         if (getter == null) {

@@ -45,10 +45,6 @@ public class UniqueByPropertyView extends ViewSupport implements CloneableView, 
     private final EventBean[] eventsPerStream = new EventBean[1];
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
-    /**
-     * Constructor.
-     * @param agentInstanceViewFactoryContext context for expression evaluation
-     */
     public UniqueByPropertyView(UniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         this.viewFactory = viewFactory;

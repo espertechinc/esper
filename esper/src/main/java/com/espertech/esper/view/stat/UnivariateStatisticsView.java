@@ -38,10 +38,6 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
     private EventBean[] eventsPerStream = new EventBean[1];
     protected Object[] lastValuesEventNew;
 
-    /**
-     * Constructor requires the name of the field to use in the parent view to compute the statistics.
-     * compute the statistics on.
-     */
     public UnivariateStatisticsView(UnivariateStatisticsViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext)
     {
         this.viewFactory = viewFactory;
@@ -175,11 +171,6 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    /**
-     * Creates the event type for this view.
-     * @param statementContext is the event adapter service
-     * @return event type of view
-     */
     public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();

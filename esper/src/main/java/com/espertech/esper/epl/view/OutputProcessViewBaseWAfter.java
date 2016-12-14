@@ -34,6 +34,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
     /**
      * Returns true if the after-condition is satisfied.
      * @param newEvents is the view new events
+     * @param statementContext context
      * @return indicator for output condition
      */
     public boolean checkAfterCondition(EventBean[] newEvents, StatementContext statementContext)
@@ -44,6 +45,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
     /**
      * Returns true if the after-condition is satisfied.
      * @param newEvents is the join new events
+     * @param statementContext context
      * @return indicator for output condition
      */
     public boolean checkAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext)
@@ -54,6 +56,7 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
     /**
      * Returns true if the after-condition is satisfied.
      * @param newOldEvents is the new and old events pair
+     * @param statementContext context
      * @return indicator for output condition
      */
     public boolean checkAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext)

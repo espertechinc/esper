@@ -30,6 +30,7 @@ public class EventTypeIndexBuilder
     /**
      * Constructor - takes the event type index to manipulate as its parameter.
      * @param eventTypeIndex - index to manipulate
+     * @param allowIsolation - indicator whether isolated service provider is allowed for the engine
      */
     public EventTypeIndexBuilder(EventTypeIndex eventTypeIndex, boolean allowIsolation)
     {
@@ -60,6 +61,8 @@ public class EventTypeIndexBuilder
      * Throws an IllegalStateException exception if the callback is already registered.
      * @param filterValueSet is the filter information
      * @param filterCallback is the callback
+     * @param lockFactory lock factory
+     * @return filter service enrty
      */
     public final FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle filterCallback, FilterServiceGranularLockFactory lockFactory)
     {
@@ -118,6 +121,7 @@ public class EventTypeIndexBuilder
     /**
      * Remove a filter callback from the given index node.
      * @param filterCallback is the callback to remove
+     * @param filterServiceEntry entry
      */
     public final void remove(FilterHandle filterCallback, FilterServiceEntry filterServiceEntry)
     {
@@ -201,6 +205,7 @@ public class EventTypeIndexBuilder
     /**
      * Add the filters, from previously-taken filters.
      * @param filterSet to add
+     * @param lockFactory lock factory
      */
     public void apply(FilterSet filterSet, FilterServiceGranularLockFactory lockFactory)
     {

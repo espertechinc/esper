@@ -19,9 +19,6 @@ public class SubordIndexedTableLookupStrategySingleCoercingFactory extends Subor
 {
     private Class coercionType;
 
-    /**
-     * Ctor.
-     */
     public SubordIndexedTableLookupStrategySingleCoercingFactory(boolean isNWOnTrigger, int streamCountOuter, SubordPropHashKey hashKey, Class coercionType) {
         super(isNWOnTrigger, streamCountOuter, hashKey);
         this.coercionType = coercionType;

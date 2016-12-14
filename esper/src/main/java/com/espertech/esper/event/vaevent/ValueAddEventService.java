@@ -30,6 +30,7 @@ public interface ValueAddEventService
      * @param revisionTypes is the revision types to add
      * @param variantStreams is the variant streams to add
      * @param eventAdapterService for obtaining event type information for each name
+     * @param eventTypeIdGenerator event type id provider
      */
     public void init(Map<String, ConfigurationRevisionEventType> revisionTypes, Map<String, ConfigurationVariantStream> variantStreams, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator);
 
@@ -46,6 +47,7 @@ public interface ValueAddEventService
      * @param variantEventTypeName the name of the type
      * @param variantStreamConfig the configs
      * @param eventAdapterService for handling nested events
+     * @param eventTypeIdGenerator event type id provider
      * @throws ConfigurationException if the configuration is invalid
      */
     public void addVariantStream(String variantEventTypeName, ConfigurationVariantStream variantStreamConfig, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator)
@@ -65,6 +67,7 @@ public interface ValueAddEventService
      * @param typeName name to use
      * @param statementStopService for handling stops
      * @param eventAdapterService for event type info
+     * @param eventTypeIdGenerator event type id provider
      * @return revision event type
      */
     public EventType createRevisionType(String namedWindowName, String typeName, StatementStopService statementStopService, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator);

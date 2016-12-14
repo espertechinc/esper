@@ -16,22 +16,22 @@ import com.espertech.esper.type.RelationalOpEnum;
 
 public enum QueryGraphRangeEnum {
     /**
-     * Less (<).
+     * Less (&lt;).
      */
     LESS(false, "<"),
 
     /**
-     * Less or equal (<=).
+     * Less or equal (&lt;=).
      */
     LESS_OR_EQUAL(false, "<="),
 
     /**
-     * Greater or equal (>=).
+     * Greater or equal (&gt;=).
      */
     GREATER_OR_EQUAL(false, ">="),
 
     /**
-     * Greater (>).
+     * Greater (&gt;).
      */
     GREATER(false, ">"),
 

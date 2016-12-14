@@ -60,11 +60,6 @@ public class NamedWindowDispatchServiceImpl implements NamedWindowDispatchServic
         }
     };
 
-    /**
-     * Ctor.
-     * @param variableService is for variable access
-     * @param isPrioritized if the engine is running with prioritized execution
-     */
     public NamedWindowDispatchServiceImpl(SchedulingService schedulingService,
                                           VariableService variableService,
                                           TableService tableService,

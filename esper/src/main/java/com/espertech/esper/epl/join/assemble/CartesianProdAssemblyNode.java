@@ -44,6 +44,7 @@ public class CartesianProdAssemblyNode extends BaseAssemblyNode
      * @param numStreams - is the number of streams
      * @param allSubStreamsOptional - true if all child nodes to this node are optional, or false if
      * one or more child nodes are required for a result.
+     * @param childStreamIndex indexes for child streams
      */
     public CartesianProdAssemblyNode(int streamNum, int numStreams, boolean allSubStreamsOptional, int[] childStreamIndex)
     {

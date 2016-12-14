@@ -41,6 +41,7 @@ public class BeanEventAdapter implements BeanEventTypeFactory
      * @param typesPerJavaBean shareable collection that this adapter writes to
      * for caching bean types per class
      * @param eventAdapterService factory for event beans and event types
+     * @param eventTypeIdGenerator type id generator
      */
     public BeanEventAdapter(ConcurrentHashMap<Class, BeanEventType> typesPerJavaBean, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator)
     {

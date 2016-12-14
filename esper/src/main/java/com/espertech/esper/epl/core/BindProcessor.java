@@ -38,6 +38,7 @@ public class BindProcessor
      * @param selectionList the select clause
      * @param typesPerStream the event types per stream
      * @param streamNames the stream names
+     * @param tableService table service
      * @throws ExprValidationException when the validation of the select clause failed
      */
     public BindProcessor(SelectClauseElementCompiled[] selectionList,

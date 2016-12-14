@@ -226,6 +226,7 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
      * Generate a list of matching event combinations constisting of the events per child that are passed in.
      * @param matchEvent can be populated with prior events that must be passed on
      * @param eventsPerChild is the list of events for each child node to the "And" node.
+     * @param indexFrom from-index
      * @return list of events populated with all possible combinations
      */
     public static List<MatchedEventMap> generateMatchEvents(MatchedEventMap matchEvent,

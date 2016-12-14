@@ -29,12 +29,6 @@ public class MatchedEventConvertorImpl implements MatchedEventConvertor
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
     private final MatchedEventMapMeta matchedEventMapMeta;
 
-    /**
-     * Ctor.
-     * @param filterTypes the filter one-event types
-     * @param arrayEventTypes the filter many-event types
-     * @param eventAdapterService for creating wrappers if required
-     */
     public MatchedEventConvertorImpl(LinkedHashMap<String, Pair<EventType, String>> filterTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTags, EventAdapterService eventAdapterService)
     {
         int size = filterTypes.size();

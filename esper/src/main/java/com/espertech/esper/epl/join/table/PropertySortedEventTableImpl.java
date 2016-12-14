@@ -37,9 +37,6 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         return value;
     }
 
-    /**
-     * Ctor.
-     */
     public PropertySortedEventTableImpl(EventPropertyGetter propertyGetter, EventTableOrganization organization)
     {
         super(propertyGetter, organization);
@@ -51,7 +48,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
      * Returns the set of events that have the same property value as the given event.
      * @param keyStart to compare against
      * @param keyEnd to compare against
-     * @param allowRangeReversal indicate whether "a between 60 and 50" should return no results (equivalent to a>= X and a <=Y) or should return results (equivalent to 'between' and 'in'
+     * @param allowRangeReversal indicate whether "a between 60 and 50" should return no results (equivalent to a&gt;= X and a &lt;=Y) or should return results (equivalent to 'between' and 'in'
      * @return set of events with property value, or null if none found (never returns zero-sized set)
      */
     public Set<EventBean> lookupRange(Object keyStart, boolean includeStart, Object keyEnd, boolean includeEnd, boolean allowRangeReversal) {

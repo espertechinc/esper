@@ -41,7 +41,8 @@ public class InternalEventRouterEntry
      * @param writer writes values to an event
      * @param wideners for widening types to write
      * @param outputView for indicating output
-     * @param agentInstanceLock
+     * @param agentInstanceLock agent instance lock
+     * @param hasSubselect indicator whether there are subselects
      */
     public InternalEventRouterEntry(int priority, boolean drop, ExprNode optionalWhereClause, ExprNode[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect)
     {

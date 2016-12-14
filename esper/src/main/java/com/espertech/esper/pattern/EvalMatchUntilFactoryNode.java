@@ -27,9 +27,6 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
     private transient MatchedEventConvertor convertor;
     private int[] tagsArrayed;
 
-    /**
-     * Ctor.
-     */
     protected EvalMatchUntilFactoryNode(ExprNode lowerBounds, ExprNode upperBounds, ExprNode singleBound)
     {
         if (singleBound != null && (lowerBounds != null || upperBounds != null)) {

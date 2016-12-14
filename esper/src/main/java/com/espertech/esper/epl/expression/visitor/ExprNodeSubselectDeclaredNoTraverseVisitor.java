@@ -26,7 +26,7 @@ public class ExprNodeSubselectDeclaredNoTraverseVisitor implements ExprNodeVisit
 
     /**
      * Ctor.
-     * @param declaration
+     * @param declaration declare node
      */
     public ExprNodeSubselectDeclaredNoTraverseVisitor(ExprDeclaredNode declaration)
     {

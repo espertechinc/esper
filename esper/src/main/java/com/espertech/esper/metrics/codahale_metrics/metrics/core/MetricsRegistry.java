@@ -441,7 +441,6 @@ public class MetricsRegistry {
     /**
      * Adds a {@link MetricsRegistryListener} to a collection of listeners that will be notified on
      * metric creation.  Listeners will be notified in the order in which they are added.
-     * <p/>
      * <b>N.B.:</b> The listener will be notified of all existing metrics when it first registers.
      *
      * @param listener the listener that will be notified

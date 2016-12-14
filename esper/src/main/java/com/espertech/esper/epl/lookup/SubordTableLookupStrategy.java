@@ -23,6 +23,7 @@ public interface SubordTableLookupStrategy
      * Returns matched events for a set of events to look up for. Never returns an empty result set,
      * always returns null to indicate no results.
      * @param events to look up
+     * @param context context
      * @return set of matching events, or null if none matching
      */
     public Collection<EventBean> lookup(EventBean[] events, ExprEvaluatorContext context);

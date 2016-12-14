@@ -65,6 +65,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 	 * @param usingEngineThread - true if the Adapter should set time by the scheduling service in the engine,
 	 *                            false if it should set time externally through the calling thread
 	 * @param usingExternalTimer - true to use esper's external timer mechanism instead of internal timing
+	 * @param usingTimeSpanEvents - true for time span events
 	 */
 	public AbstractCoordinatedAdapter(EPServiceProvider epService, boolean usingEngineThread, boolean usingExternalTimer, boolean usingTimeSpanEvents)
 	{

@@ -51,6 +51,7 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
      * @param timeBatchViewFactory fr copying this view in a group-by
      * @param forceOutput is true if the batch should produce empty output if there is no value to output following time intervals
      * @param isStartEager is true for start-eager
+     * @param agentInstanceContext context
      */
     public TimeBatchViewRStream(TimeBatchViewFactory timeBatchViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,

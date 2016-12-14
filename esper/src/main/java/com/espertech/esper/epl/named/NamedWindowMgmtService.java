@@ -48,18 +48,6 @@ public interface NamedWindowMgmtService
      */
     public String[] getNamedWindows();
 
-    /**
-     * Create a new named window.
-     * @param name window name
-     * @param eventType the event type of the window
-     * @param statementResultService for coordinating on whether insert and remove stream events should be posted
-     * @param revisionProcessor handles update events
-     * @param eplExpression is the expression
-     * @param statementName the name of the statement
-     * @param isPrioritized if the engine is running with prioritized execution
-     * @return processor for the named window
-     * @throws ViewProcessingException if the named window already exists
-     */
     public NamedWindowProcessor addProcessor(String name,
                                              String contextName,
                                              EventType eventType,

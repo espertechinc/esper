@@ -27,9 +27,6 @@ public class HistoricalIndexLookupStrategyInKeywordMulti implements HistoricalIn
     private final ExprEvaluator evaluator;
     private final int lookupStream;
 
-    /**
-     * Ctor.
-     */
     public HistoricalIndexLookupStrategyInKeywordMulti(int lookupStream, ExprNode expression)
     {
         this.eventsPerStream = new EventBean[lookupStream + 1];

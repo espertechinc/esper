@@ -69,6 +69,7 @@ public class ParseHelper {
      * @param parseRuleSelector    - parse rule to select
      * @param addPleaseCheck       - true to include depth paraphrase
      * @param eplStatementErrorMsg - text for error
+     * @param rewriteScript - whether to rewrite script expressions
      * @return AST - syntax tree
      * @throws EPException when the AST could not be parsed
      */

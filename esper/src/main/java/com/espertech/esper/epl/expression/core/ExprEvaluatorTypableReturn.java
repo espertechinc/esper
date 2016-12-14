@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
  * <p>
  *     When returning non-null results from {#getRowProperties},
  *     the {@link ExprEvaluator#evaluate(com.espertech.esper.client.EventBean[], boolean, ExprEvaluatorContext)}
- *     must return an instance of Map<String, Object> (HashMap is fine).
+ *     must return an instance of Map&lt;String, Object&gt; (HashMap is fine).
  * </p>
  * <p>
  *     When returning non-null results, the

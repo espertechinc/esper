@@ -33,6 +33,7 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
      * @param accessors accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
+     * @param groupByRollupDesc rollups if any
      */
     public AggSvcGroupByRefcountedWAccessRollupFactory(ExprEvaluator evaluators[],
                                                        AggregationMethodFactory prototypes[],

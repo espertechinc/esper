@@ -33,6 +33,8 @@ public class PropertyEvalAtom implements MetaDefItem, Serializable
      * @param optionalAsName column name assigned, if any
      * @param optionalSelectClause select clause, if any
      * @param optionalWhereClause where clause, if any
+     * @param splitterExpression for nested events
+     * @param optionalResultEventType result event type if split
      */
     public PropertyEvalAtom(ExprNode splitterExpression, String optionalResultEventType, String optionalAsName, SelectClauseSpecRaw optionalSelectClause, ExprNode optionalWhereClause)
     {

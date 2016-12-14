@@ -32,6 +32,8 @@ public class QueryPlanIndexBuilder
      * in order for other streams to look up into the stream. Determines the unique set of properties
      * to avoid building duplicate indexes on the same set of properties.
      * @param queryGraph - navigability info
+     * @param typePerStream type info
+     * @param indexedStreamsUniqueProps per-stream unique props
      * @return query index specs for each stream
      */
     public static QueryPlanIndex[] buildIndexSpec(QueryGraph queryGraph, EventType[] typePerStream, String[][][] indexedStreamsUniqueProps)

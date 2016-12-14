@@ -25,8 +25,8 @@ public abstract class EvalNodeBase implements EvalNode
      * Create the evaluation state node containing the truth value state for each operator in an
      * event expression.
      * @param parentNode is the parent evaluator node that this node indicates a change in truth value to
-     * @param stateNodeNumber
-     * @param stateNodeId
+     * @param stateNodeNumber node number
+     * @param stateNodeId node id
      * @return state node containing the truth value state for the operator
      */
     public abstract EvalStateNode newState(Evaluator parentNode,

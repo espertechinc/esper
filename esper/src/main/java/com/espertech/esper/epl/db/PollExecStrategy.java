@@ -28,7 +28,7 @@ public interface PollExecStrategy
     /**
      * Poll events using the keys provided.
      * @param lookupValues is keys for exeuting a query or such
-     * @param exprEvaluatorContext
+     * @param exprEvaluatorContext context
      * @return a list of events for the keys
      */
     public List<EventBean> poll(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext);

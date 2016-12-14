@@ -66,17 +66,6 @@ public class SelectExprProcessorHelper
     private final TableService tableService;
     private final GroupByRollupInfo groupByRollupInfo;
 
-    /**
-     * Ctor.
-     * @param selectionList - list of select-clause items
-     * @param insertIntoDesc - descriptor for insert-into clause contains column names overriding select clause names
-     * @param isUsingWildcard - true if the wildcard (*) appears in the select clause
-     * @param typeService -service for information about streams
-     * @param eventAdapterService - service for generating events and handling event types
-     * @param valueAddEventService - service that handles update events
-     * @param selectExprEventTypeRegistry - service for statement to type registry
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException thrown if any of the expressions don't validate
-     */
     public SelectExprProcessorHelper(Collection<Integer> assignedTypeNumberStack,
                                      List<SelectClauseExprCompiledSpec> selectionList,
                                      List<SelectExprStreamDesc> selectedStreams,

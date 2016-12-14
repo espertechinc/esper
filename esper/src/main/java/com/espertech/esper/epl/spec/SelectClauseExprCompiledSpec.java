@@ -24,8 +24,9 @@ public class SelectClauseExprCompiledSpec implements SelectClauseElementCompiled
     /**
      * Ctor.
      * @param selectExpression - the expression node to evaluate for matching events
-     * @param assignedName - cannot be null as a name is always assigned or
-     * system-determined
+     * @param assignedName - cannot be null as a name is always assigned or system-determined
+     * @param providedName - name provided
+     * @param isEvents - is events
      */
     public SelectClauseExprCompiledSpec(ExprNode selectExpression, String assignedName, String providedName, boolean isEvents)
     {

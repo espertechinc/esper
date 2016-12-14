@@ -40,20 +40,6 @@ public class SelectExprProcessorFactory
 {
     private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorFactory.class);
 
-    /**
-     * Returns the processor to use for a given select-clause.
-     * @param selectionList - the list of select clause elements/items, which are expected to have been validated
-     * @param isUsingWildcard - true if the wildcard (*) occurs in the select clause
-     * @param insertIntoDesc - contains column names for the optional insert-into clause (if supplied)
-     * @param typeService - serves stream type information
-     * @param eventAdapterService - for generating wrapper instances for events
-     * @param statementResultService handles listeners/subscriptions awareness to reduce output result generation
-     * @param valueAddEventService - service that handles update events and variant events
-     * @param selectExprEventTypeRegistry - registry for event type to statements
-     * @param exprEvaluatorContext context for expression evalauation
-     * @return select-clause expression processor
-     * @throws ExprValidationException to indicate the select expression cannot be validated
-     */
     public static SelectExprProcessor getProcessor(Collection<Integer> assignedTypeNumberStack,
                                                    SelectClauseElementCompiled[] selectionList,
                                                    boolean isUsingWildcard,

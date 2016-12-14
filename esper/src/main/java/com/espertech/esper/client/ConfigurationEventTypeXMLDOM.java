@@ -24,19 +24,22 @@ import java.util.Map;
  * <p>
  * Use this class to configure the engine for processing of XML DOM objects that represent events
  * and contain all the data for event properties used by statements.
+ * </p>
  * <p>
  * Minimally required is the root element name which allows the engine to map the document
  * to the event type that has been named in an EPL or pattern statement.
+ * </p>
  * <p>
  * Event properties that are results of XPath expressions can be made known to the engine via this class.
  * For XPath expressions that must refer to namespace prefixes those prefixes and their
  * namespace name must be supplied to the engine. A default namespace can be supplied as well.
+ * </p>
  * <p>
  * By supplying a schema resource the engine can interrogate the schema, allowing the engine to
  * verify event properties and return event properties in the type defined by the schema.
  * When a schema resource is supplied, the optional root element namespace defines the namespace in case the
  * root element name occurs in multiple namespaces.
- * <p>
+ * </p>
  */
 public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 {

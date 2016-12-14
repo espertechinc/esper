@@ -26,10 +26,6 @@ public class ExprNodeAdapterBase
     protected final ExprEvaluator exprNodeEval;
     protected final ExprEvaluatorContext evaluatorContext;
 
-    /**
-     * Ctor.
-     * @param exprNode is the boolean expression
-     */
     public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
     {
         this.filterSpecId = filterSpecId;

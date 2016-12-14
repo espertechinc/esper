@@ -49,6 +49,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param startMethod to call to indicate when delivery starts, or null if no such indication is required
      * @param endMethod to call to indicate when delivery ends, or null if no such indication is required
      * @param rStreamMethod to deliver the remove stream to, or null if no such indication is required
+     * @param statement statement
      */
     public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod)
     {
@@ -180,6 +181,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param parameters the method parameters
      * @param subscriber the object to deliver to
      * @param method the method to call
+     * @param statementName statement name
      * @throws EPException converted from the passed invocation exception
      */
     protected static void handle(String statementName, Logger logger, InvocationTargetException e, Object[] parameters, Object subscriber, FastMethod method) {

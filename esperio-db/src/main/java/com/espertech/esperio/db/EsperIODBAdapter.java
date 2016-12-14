@@ -38,6 +38,7 @@ public class EsperIODBAdapter
     /**
      * Quickstart constructor.
      * @param config configuration
+     * @param engineURI engine uri
      */
     public EsperIODBAdapter(ConfigurationDBAdapter config, String engineURI)
     {

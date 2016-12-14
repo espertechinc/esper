@@ -31,6 +31,7 @@ public class SubSelectStrategyCollection
     /**
      * Add lookup.
      * @param subselectNode is the subselect expression node
+     * @param prototypeHolder strategy prototype for subselect
      */
     public void add(ExprSubselectNode subselectNode, SubSelectStrategyFactoryDesc prototypeHolder)
     {

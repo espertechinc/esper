@@ -74,7 +74,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      * The type names for events that are backed by java.util.Map,
      * possibly containing strongly-typed nested maps.
      * <p>
-     * Each entrie's value must be either a Class or a Map<String,Object> to
+     * Each entrie's value must be either a Class or a Map&lt;String,Object&gt; to
      * define nested maps.
      */
     protected Map<String, Map<String, Object>> nestableMapNames;
@@ -83,7 +83,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      * The type names for events that are backed by java.util.Map,
      * possibly containing strongly-typed nested maps.
      * <p>
-     * Each entrie's value must be either a Class or a Map<String,Object> to
+     * Each entrie's value must be either a Class or a Map&lt;String,Object&gt; to
      * define nested maps.
      */
     protected Map<String, Map<String, Object>> nestableObjectArrayNames;
@@ -954,11 +954,13 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      * Use the configuration specified in the given application
      * resource. The format of the resource is defined in
      * <tt>esper-configuration-2.0.xsd</tt>.
-     * <p/>
+     * <p>
      * The resource is found via <tt>getConfigurationInputStream(resource)</tt>.
      * That method can be overridden to implement an arbitrary lookup strategy.
-     * <p/>
+     * </p>
+     * <p>
      * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
+     * </p>
      * @param resource if the file name of the resource
      * @return Configuration initialized from the resource
      * @throws EPException thrown to indicate error reading configuration

@@ -39,12 +39,6 @@ public class ExpressionBatchView extends ExpressionViewBase {
     protected EventBean oldestEvent;
     protected EventBean newestEvent;
 
-    /**
-     * Constructor creates a moving window extending the specified number of elements into the past.
-     * @param dataWindowViewFactory for copying this view in a group-by
-     * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param variableNames variable names
-     */
     public ExpressionBatchView(ExpressionBatchViewFactory dataWindowViewFactory,
                                ViewUpdatedCollection viewUpdatedCollection,
                                ExprEvaluator expiryExpression,

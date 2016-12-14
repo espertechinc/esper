@@ -23,6 +23,7 @@ public interface JoinSetComposer
 {
     /**
      * Returns true whether initialization events per stream to populate join indexes can be processed (init method).
+     * @return whether init is supported
      */
     public boolean allowsInit();
 

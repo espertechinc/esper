@@ -28,9 +28,6 @@ public final class FilterHandleSetNode implements EventEvaluator
     private final Set<FilterHandle> callbackSet;
     private final List<FilterParamIndexBase> indizes;
 
-    /**
-     * Constructor.
-     */
     public FilterHandleSetNode(ReadWriteLock nodeRWLock) {
         this.nodeRWLock = nodeRWLock;
         callbackSet = new LinkedHashSet<FilterHandle>();

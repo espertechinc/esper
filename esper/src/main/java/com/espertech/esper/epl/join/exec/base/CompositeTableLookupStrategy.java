@@ -39,11 +39,6 @@ public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
     private final List<QueryGraphValueEntryRange> rangeKeyPairs;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    /**
-     * Ctor.
-     * @param eventType - event type to expect for lookup
-     * @param index - index to look up in
-     */
     public CompositeTableLookupStrategy(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs, PropertyCompositeEventTable index)
     {
         this.eventType = eventType;

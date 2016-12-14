@@ -21,22 +21,22 @@ public enum VirtualDataWindowLookupOp {
     EQUALS("="),
 
     /**
-     * Less (<).
+     * Less (&lt;).
      */
     LESS("<"),
 
     /**
-     * Less or equal (<=).
+     * Less or equal (&lt;=).
      */
     LESS_OR_EQUAL("<="),
 
     /**
-     * Greater or equal (>=).
+     * Greater or equal (&gt;=).
      */
     GREATER_OR_EQUAL(">="),
 
     /**
-     * Greater (>).
+     * Greater (&gt;).
      */
     GREATER(">"),
 

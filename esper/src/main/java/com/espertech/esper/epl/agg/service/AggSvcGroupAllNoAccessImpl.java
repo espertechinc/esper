@@ -25,6 +25,7 @@ public class AggSvcGroupAllNoAccessImpl extends AggregationServiceBaseUngrouped
      * Ctor.
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param aggregators - collect the aggregation state that evaluators evaluate to
+     * @param aggregatorFactories - factories
      */
     public AggSvcGroupAllNoAccessImpl(ExprEvaluator evaluators[], AggregationMethod aggregators[], AggregationMethodFactory aggregatorFactories[])
     {

@@ -28,12 +28,6 @@ public class InKeywordTableLookupPlanMultiIdx extends TableLookupPlan
 {
     private ExprNode keyExpr;
 
-    /**
-     * Ctor.
-     * @param lookupStream - stream that generates event to look up for
-     * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
-     */
     public InKeywordTableLookupPlanMultiIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum, ExprNode keyExpr)
     {
         super(lookupStream, indexedStream, indexNum);

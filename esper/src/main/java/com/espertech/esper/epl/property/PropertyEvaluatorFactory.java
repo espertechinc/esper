@@ -32,18 +32,6 @@ import java.util.*;
  */
 public class PropertyEvaluatorFactory
 {
-    /**
-     * Makes the property evaluator.
-     * @param spec is the property specification
-     * @param sourceEventType the event type
-     * @param optionalSourceStreamName the source stream name
-     * @param eventAdapterService for event instances
-     * @param timeProvider provides time
-     * @param variableService for resolving variables
-     * @param engineURI engine URI
-     * @return propert evaluator
-     * @throws ExprValidationException if any expressions could not be verified
-     */
     public static PropertyEvaluator makeEvaluator(PropertyEvalSpec spec,
                                                   EventType sourceEventType,
                                                   String optionalSourceStreamName,

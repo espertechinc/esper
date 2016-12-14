@@ -73,15 +73,6 @@ public class EPAdministratorHelper
                 services.getEngineImportService(), services.getVariableService(), services.getSchedulingService(), services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), services.getExprDeclaredService(), services.getTableService());
     }
 
-    /**
-     * Compile the EPL.
-     * @param eplStatement expression to compile
-     * @param statementName is the name of the statement
-     * @param defaultStreamSelector - the configuration for which insert or remove streams (or both) to produce
-     * @param eplStatementForErrorMsg - use this text for the error message
-     * @param addPleaseCheck - indicator to add a "please check" wording for stack paraphrases
-     * @return statement specification
-     */
     public static StatementSpecRaw compileEPL(String eplStatement, String eplStatementForErrorMsg, boolean addPleaseCheck, String statementName, SelectClauseStreamSelectorEnum defaultStreamSelector,
                                               EngineImportService engineImportService,
                                               VariableService variableService,

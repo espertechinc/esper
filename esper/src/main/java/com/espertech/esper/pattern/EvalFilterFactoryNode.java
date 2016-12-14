@@ -34,6 +34,7 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
      * @param filterSpecification specifies the filter properties
      * @param eventAsName is the name to use for adding matching events to the MatchedEventMap
      * table used when indicating truth value of true.
+     * @param consumptionLevel when using @consume
      */
     protected EvalFilterFactoryNode(FilterSpecRaw filterSpecification,
                                     String eventAsName,

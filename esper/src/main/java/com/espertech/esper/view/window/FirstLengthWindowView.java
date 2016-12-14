@@ -31,11 +31,6 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
     private final int size;
     protected LinkedHashSet<EventBean> indexedEvents;
 
-    /**
-     * Ctor.
-     * @param size the first N events to consider
-     * @param lengthFirstWindowViewFactory for copying this view in a group-by
-     */
     public FirstLengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, FirstLengthWindowViewFactory lengthFirstWindowViewFactory, int size)
     {
         if (size < 1)

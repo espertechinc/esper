@@ -33,6 +33,8 @@ public interface ViewService
      * @param viewSpecList - the specification for each view factory in the chain to be created
      * @param context - dependent services
      * @param options - stream options such as unidirectional, retain-union etc
+     * @param subqueryNumber subquery num
+     * @param isSubquery subquery indicator
      * @return chain of view factories
      * @throws ViewProcessingException thrown if a view factory doesn't take parameters as supplied,
      * or cannot hook onto it's parent view or event stream
@@ -54,6 +56,7 @@ public interface ViewService
      * @param eventStreamViewable is the event stream to hook into
      * @param viewFactoryChain defines the list of view factorys to call makeView or canReuse on
      * @param viewFactoryChainContext provides services
+     * @param hasPreviousNode indicator whether previous-expr
      * @return last viewable in chain, or the eventStreamViewable if no view factories are supplied
      */
     public ViewServiceCreateResult createViews(Viewable eventStreamViewable,

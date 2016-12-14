@@ -104,7 +104,7 @@ public interface ConfigurationOperations
      * To import a single class offering a static method, simply supply the fully-qualified name of the class
      * and use the syntax <code>classname.methodname(...)</code>
      * <p>
-     * To import a whole package and use the <code>classname.methodname(...)</code> syntax, specifiy a package
+     * To import a whole package and use the <code>classname.methodname(...)</code> syntax, specify a package
      * with wildcard, such as <code>com.mycompany.staticlib.*</code>.
      * @param importName is a fully-qualified class name or a package name with wildcard
      * @throws ConfigurationException if incorrect package or class names are encountered
@@ -113,6 +113,7 @@ public interface ConfigurationOperations
 
     /**
      * Adds a package or class to the list of automatically-imported classes and packages for use by annotations only.
+     * @param importName import such as package name, class name, or package with ".*".
      * @throws ConfigurationException if incorrect package or class names are encountered
      */
     public void addAnnotationImport(String importName) throws ConfigurationException;
@@ -220,7 +221,7 @@ public interface ConfigurationOperations
      * with unlimited nesting levels.
      * <p>
      * Each entry in the type mapping must contain the String property name as the key value,
-     * and either a Class, or a further Map<String, Object>, or the name
+     * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
      * @param eventTypeName is the name for the event type
      * @param typeMap maps the name of each property in the Map event to the type
@@ -236,7 +237,7 @@ public interface ConfigurationOperations
      * with unlimited nesting levels.
      * <p>
      * Each entry in the type mapping must contain the String property name as the key value,
-     * and either a Class, or a further Map<String, Object>, or the name
+     * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
      * @param eventTypeName is the name for the event type
      * @param typeMap maps the name of each property in the Map event to the type
@@ -253,7 +254,7 @@ public interface ConfigurationOperations
      * with unlimited nesting levels.
      * <p>
      * Each entry in the type mapping must contain the String property name as the key value,
-     * and either a Class, or a further Map<String, Object>, or the name
+     * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
      * @param eventTypeName is the name for the event type
      * @param typeMap maps the name of each property in the Map event to the type
@@ -370,7 +371,7 @@ public interface ConfigurationOperations
      * Adds additional nested properties to nesting levels, if any.
      * <p>
      * Each entry in the type mapping must contain the String property name of the additional property
-     * and either a Class or further Map<String, Object> value for nested properties.
+     * and either a Class or further Map&lt;String, Object&gt; value for nested properties.
      * <p>
      * Map event types can only be updated at runtime, at configuration time updates are not allowed.
      * <p>

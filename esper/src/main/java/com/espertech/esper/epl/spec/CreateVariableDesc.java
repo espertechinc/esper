@@ -31,6 +31,9 @@ public class CreateVariableDesc implements MetaDefItem, Serializable
      * @param variableType type of the variable
      * @param variableName name of the variable
      * @param assignment expression assigning the initial value, or null if none
+     * @param constant indicator for constant
+     * @param array indicator for array
+     * @param arrayOfPrimitive indicator for array of primitive
      */
     public CreateVariableDesc(String variableType, String variableName, ExprNode assignment, boolean constant, boolean array, boolean arrayOfPrimitive)
     {

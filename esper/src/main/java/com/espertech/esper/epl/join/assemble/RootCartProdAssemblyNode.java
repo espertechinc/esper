@@ -35,6 +35,7 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
      * @param streamNum - is the stream number
      * @param numStreams - is the number of streams
      * @param allSubStreamsOptional - true if all substreams are optional and none are required
+     * @param childStreamIndex indexes for child streams
      */
     public RootCartProdAssemblyNode(int streamNum, int numStreams, boolean allSubStreamsOptional, int[] childStreamIndex)
     {

@@ -16,6 +16,9 @@ public interface EngineLevelExtensionServicesContext
 {
     /**
      * Invoked to initialize extension services after engine services initialization.
+     * @param engine the engine
+     * @param runtimeSPI runtime SPI
+     * @param adminSPI admin SPI
      */
     public void init(EPServicesContext engine, EPRuntimeSPI runtimeSPI, EPAdministratorSPI adminSPI);
 

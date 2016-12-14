@@ -35,6 +35,9 @@ public class ViewFactoryContext
      * @param streamNum is the stream number from zero to N
      * @param namespaceName is the view namespace
      * @param viewName is the view name
+     * @param isSubquery subquery indicator
+     * @param subqueryNumber for subqueries
+     * @param isGrouped for grouped view
      */
     public ViewFactoryContext(StatementContext statementContext, int streamNum, String namespaceName, String viewName, boolean isSubquery, int subqueryNumber, boolean isGrouped) {
         this.statementContext = statementContext;

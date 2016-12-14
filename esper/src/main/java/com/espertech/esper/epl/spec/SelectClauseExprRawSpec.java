@@ -28,6 +28,7 @@ public class SelectClauseExprRawSpec implements SelectClauseElementRaw
      * Ctor.
      * @param selectExpression - the expression node to evaluate for matching events
      * @param optionalAsName - the name of the item, null if not name supplied
+     * @param isEvents - whether event selected
      */
     public SelectClauseExprRawSpec(ExprNode selectExpression, String optionalAsName, boolean isEvents)
     {

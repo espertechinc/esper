@@ -17,6 +17,7 @@ public interface OutputConditionPolled
 	 * Update the output condition.
 	 * @param newEventsCount - number of new events incoming
      * @param oldEventsCount  - number of old events incoming
+	 * @return indicator whether to output
      */
 	public boolean updateOutputCondition(int newEventsCount, int oldEventsCount);
 }

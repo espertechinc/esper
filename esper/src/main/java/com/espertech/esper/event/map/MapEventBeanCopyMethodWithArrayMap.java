@@ -37,8 +37,8 @@ public class MapEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod
      * Ctor.
      * @param mapEventType map event type
      * @param eventAdapterService for copying events
-     * @param mapPropertiesToCopy
-     * @param arrayPropertiesToCopy
+     * @param mapPropertiesToCopy map props
+     * @param arrayPropertiesToCopy array props
      */
     public MapEventBeanCopyMethodWithArrayMap(MapEventType mapEventType, EventAdapterService eventAdapterService, Set<String> mapPropertiesToCopy, Set<String> arrayPropertiesToCopy) {
         this.mapEventType = mapEventType;

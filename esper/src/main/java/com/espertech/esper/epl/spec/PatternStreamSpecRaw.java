@@ -53,13 +53,6 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
     private static final Logger log = LoggerFactory.getLogger(PatternStreamSpecRaw.class);
     private static final long serialVersionUID = 6393401926404401433L;
 
-    /**
-     * Ctor.
-     * @param evalFactoryNode - pattern evaluation node representing pattern statement
-     * @param viewSpecs - specifies what view to use to derive data
-     * @param optionalStreamName - stream name, or null if none supplied
-     * @param streamSpecOptions - additional options, such as unidirectional stream in a join
-     */
     public PatternStreamSpecRaw(EvalFactoryNode evalFactoryNode, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions, boolean suppressSameEventMatches, boolean discardPartialsOnMatch)
     {
         super(optionalStreamName, viewSpecs, streamSpecOptions);

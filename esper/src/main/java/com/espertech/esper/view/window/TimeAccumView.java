@@ -54,6 +54,7 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
      * @param timeBatchViewFactory fr copying this view in a group-by
      * @param agentInstanceContext is required view services
+     * @param timeDeltaComputation delta computation
      */
     public TimeAccumView(TimeAccumViewFactory timeBatchViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,

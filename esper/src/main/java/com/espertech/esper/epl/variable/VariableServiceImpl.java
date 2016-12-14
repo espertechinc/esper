@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Variables service for reading and writing variables, and for setting a version number for the current thread to
  * consider variables for.
  * <p>
- * Consider a statement as follows: select * from MyEvent as A where A.val > var1 and A.val2 > var1 and A.val3 > var2
+ * Consider a statement as follows: select * from MyEvent as A where A.val &gt; var1 and A.val2 &gt; var1 and A.val3 &gt; var2
  * <p>
  * Upon statement execution we need to guarantee that the same atomic value for all variables is applied for all
  * variable reads (by expressions typically) within the statement.

@@ -33,6 +33,7 @@ public class LengthWindowViewRStream extends ViewSupport implements DataWindowVi
      * Constructor creates a moving window extending the specified number of elements into the past.
      * @param size is the specified number of elements into the past
      * @param lengthWindowViewFactory for copying this view in a group-by
+     * @param agentInstanceViewFactoryContext context
      */
     public LengthWindowViewRStream(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, LengthWindowViewFactory lengthWindowViewFactory, int size)
     {

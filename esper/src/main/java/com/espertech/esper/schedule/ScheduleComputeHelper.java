@@ -49,6 +49,7 @@ public final class ScheduleComputeHelper
      * from-time passed in.
      * @param spec defines the schedule
      * @param afterTimeInMillis defines the start time
+     * @param timeZone time zone
      * @return a long date millisecond value for the next schedule occurance matching the spec
      */
     public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
@@ -79,6 +80,7 @@ public final class ScheduleComputeHelper
      * from-time passed in and returns the delta from the current time.
      * @param spec defines the schedule
      * @param afterTimeInMillis defines the start time
+     * @param timeZone time zone
      * @return a long millisecond value representing the delta between current time and the next schedule occurance matching the spec
      */
     public static long computeDeltaNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)

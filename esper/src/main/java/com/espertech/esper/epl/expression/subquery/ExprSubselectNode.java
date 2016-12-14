@@ -108,6 +108,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
     /**
      * Supplies a compiled statement spec.
      * @param statementSpecCompiled compiled validated filters
+     * @param subselectNumber subselect assigned number
      */
     public void setStatementSpecCompiled(StatementSpecCompiled statementSpecCompiled, int subselectNumber)
     {

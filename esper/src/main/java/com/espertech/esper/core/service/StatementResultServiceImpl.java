@@ -87,6 +87,7 @@ public class StatementResultServiceImpl implements StatementResultService
      * @param statementLifecycleSvc handles persistence for statements
      * @param metricReportingService for metrics reporting
      * @param threadingService for outbound threading
+     * @param statementName statement name
      */
     public StatementResultServiceImpl(String statementName,
                                       StatementLifecycleSvc statementLifecycleSvc,

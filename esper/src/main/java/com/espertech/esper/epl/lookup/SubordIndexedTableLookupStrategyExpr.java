@@ -32,10 +32,6 @@ public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupSt
     private final LookupStrategyDesc strategyDesc;
     private EventBean[] events;
 
-    /**
-     * Ctor.
-     * @param index is the table carrying the data to lookup into
-     */
     public SubordIndexedTableLookupStrategyExpr(int numStreamsOuter, ExprEvaluator[] evaluators, PropertyIndexedEventTable index, LookupStrategyDesc strategyDesc)
     {
         this.evaluators = evaluators;
@@ -70,6 +66,7 @@ public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupSt
     /**
      * Get the index lookup keys.
      * @param eventsPerStream is the events for each stream
+     * @param context context
      * @return key object
      */
     protected Object[] getKeys(EventBean[] eventsPerStream, ExprEvaluatorContext context)

@@ -27,16 +27,6 @@ import java.util.Map;
  */
 public class ASTOutputLimitHelper
 {
-    /**
-     * Build an output limit spec from the AST node supplied.
-     *
-     * @param astExprNodeMap is the map of current AST tree nodes to their respective expression root node
-     * @param engineURI the engine uri
-     * @param timeProvider provides time
-     * @param variableService provides variable resolution
-     * @param exprEvaluatorContext context for expression evaluatiom
-     * @return output limit spec
-     */
     public static OutputLimitSpec buildOutputLimitSpec(CommonTokenStream tokenStream, EsperEPL2GrammarParser.OutputLimitContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, String engineURI, TimeProvider timeProvider, ExprEvaluatorContext exprEvaluatorContext)
     {
         OutputLimitLimitType displayLimit = OutputLimitLimitType.DEFAULT;
@@ -128,10 +118,6 @@ public class ASTOutputLimitHelper
         return new OutputLimitSpec(rate, variableName, rateType, displayLimit, whenExpression, thenExpressions, crontabScheduleSpec, timePeriodExpr, afterTimePeriodExpr, afterNumberOfEvents, andAfterTerminate, andAfterTerminateExpr, andAfterTerminateSetExpressions);
     }
 
-    /**
-     * Builds a row limit specification.
-     * @return row limit spec
-     */
     public static RowLimitSpec buildRowLimitSpec(EsperEPL2GrammarParser.RowLimitContext ctx)
     {
         Object numRows;

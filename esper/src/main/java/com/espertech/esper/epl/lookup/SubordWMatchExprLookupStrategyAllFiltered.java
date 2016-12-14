@@ -26,6 +26,7 @@ public class SubordWMatchExprLookupStrategyAllFiltered implements SubordWMatchEx
     /**
      * Ctor.
      * @param joinExpr is the where clause
+     * @param iterable iterable
      */
     public SubordWMatchExprLookupStrategyAllFiltered(ExprEvaluator joinExpr, Iterable<EventBean> iterable)
     {

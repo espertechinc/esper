@@ -81,10 +81,6 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         tailView.addDispatches(latchFactory, consumersInContext, delta, agentInstanceContext);
     }
 
-    /**
-     * Adds a consuming (selecting) statement to the named window.
-     * @return consumer view
-     */
     public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc, boolean isSubselect)
     {
         NamedWindowConsumerCallback consumerCallback = new NamedWindowConsumerCallback() {
@@ -208,6 +204,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     /**
      * Returns a snapshot of window contents, thread-safely
      * @param filter filters if any
+     * @param annotations annotations
      * @return window contents
      */
     public Collection<EventBean> snapshot(FilterSpecCompiled filter, Annotation[] annotations)

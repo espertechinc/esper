@@ -20,7 +20,7 @@ import java.util.List;
  * <p>
  * Represents an analysis of correlation information provided in the where-clause of the querying EPL statement (join, subquery etc.).
  * Hash-fields are always operator-equals semantics. Btree fields require sorted access as the operator is always
- * a range or relational(>, <, >=, <=) operator.
+ * a range or relational(&gt;, &lt;, &gt;=, &lt;=) operator.
  * <p>
  * For example, the query "select * from MyVirtualDataWindow, MyTrigger where prop = trigger and prop2 between trigger1 and trigger2"
  * indicates a single hash-field "prop" and a single btree field "prop2" with a range operator.

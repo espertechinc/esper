@@ -50,6 +50,9 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
      * @param accessors accessor definitions
      * @param accessAggregations access aggs
      * @param isJoin true for join, false for single-stream
+     * @param rollupLevelDesc rollup info
+     * @param topGroupAggregators aggregators for top group
+     * @param topGroupStates states for top group
      */
     public AggSvcGroupByRefcountedWAccessRollupImpl(ExprEvaluator evaluators[],
                                                     AggregationMethodFactory prototypes[],

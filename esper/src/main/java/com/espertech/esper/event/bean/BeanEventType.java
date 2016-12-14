@@ -63,6 +63,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
      * @param optionalLegacyDef optional configuration supplying legacy event type information
      * @param eventAdapterService factory for event beans and event types
      * @param metadata event type metadata
+     * @param eventTypeId type id
      */
     public BeanEventType(EventTypeMetadata metadata,
                          int eventTypeId,

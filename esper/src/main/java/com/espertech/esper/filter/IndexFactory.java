@@ -19,6 +19,8 @@ public class IndexFactory
      * <p>Does not perform any check of validity of property name.
      *
      * @param filterOperator is the type of index to use
+     * @param lockFactory lock factory
+     * @param lookupable the lookup item
      * @return the proper index based on the filter operator type
      */
     public static FilterParamIndexBase createIndex(FilterSpecLookupable lookupable, FilterServiceGranularLockFactory lockFactory, FilterOperator filterOperator)

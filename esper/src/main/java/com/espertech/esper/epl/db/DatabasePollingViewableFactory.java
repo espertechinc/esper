@@ -56,6 +56,9 @@ public class DatabasePollingViewableFactory
      * @param columnTypeConversionHook hook for statement-specific column conversion
      * @param outputRowConversionHook hook for statement-specific row conversion
      * @param enableJDBCLogging indicator to enable JDBC logging
+     * @param statementId statement id
+     * @param statementContext statement context
+     * @param dataCacheFactory factory for cache
      * @return viewable providing poll functionality
      * @throws ExprValidationException if the validation failed
      */

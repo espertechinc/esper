@@ -20,7 +20,6 @@ import static java.lang.Double.isNaN;
 
 /**
  * A gauge which measures the ratio of one value to another.
- * <p/>
  * If the denominator is zero, not a number, or infinite, the resulting ratio is not a number.
  */
 public abstract class RatioGauge extends Gauge<Double> {

@@ -30,6 +30,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory
      * Ctor.
      * @param streamNum - the stream number that is indexed
      * @param eventType - types of events indexed
+     * @param propertyName - property name
      */
     public PropertySortedEventTableFactory(int streamNum, EventType eventType, String propertyName)
     {

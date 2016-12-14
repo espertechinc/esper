@@ -36,16 +36,6 @@ public class PlugInAggregationMultiFunctionValidationContext {
     private final TableMetadataColumnAggregation optionalTableColumnAccessed;
     private final ExprNode[] allParameterExpressions;
 
-    /**
-     * Ctor.
-     * @param functionName the aggregation function name
-     * @param eventTypes the event types of all events in the select clause
-     * @param parameterExpressions the parameter expressions
-     * @param engineURI the engine URI
-     * @param statementName the statement name
-     * @param validationContext additional validation contextual services
-     * @param config the original configuration object for the aggregation multi-function
-     */
     public PlugInAggregationMultiFunctionValidationContext(String functionName, EventType[] eventTypes, ExprNode[] parameterExpressions, String engineURI, String statementName, ExprValidationContext validationContext, ConfigurationPlugInAggregationMultiFunction config, TableMetadataColumnAggregation optionalTableColumnAccessed, ExprNode[] allParameterExpressions) {
         this.functionName = functionName;
         this.eventTypes = eventTypes;

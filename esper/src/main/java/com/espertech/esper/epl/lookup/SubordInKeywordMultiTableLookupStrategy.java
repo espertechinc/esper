@@ -31,9 +31,6 @@ public class SubordInKeywordMultiTableLookupStrategy implements SubordTableLooku
     private final LookupStrategyDesc strategyDesc;
     private EventBean[] events;
 
-    /**
-     * Ctor.
-     */
     public SubordInKeywordMultiTableLookupStrategy(int numStreamsOuter, ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc)
     {
         this.evaluator = evaluator;

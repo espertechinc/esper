@@ -51,13 +51,6 @@ public class StatementSpecMapContext
     private String contextName;
     private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
 
-    /**
-     * Ctor.
-     * @param engineImportService engine imports
-     * @param variableService variable names
-     * @param configuration the configuration
-     * @param contextDescriptor optional context description
-     */
     public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService)
     {
         this.engineImportService = engineImportService;

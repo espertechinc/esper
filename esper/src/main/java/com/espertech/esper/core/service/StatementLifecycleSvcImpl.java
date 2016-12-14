@@ -164,6 +164,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
      * @param optAdditionalContext additional context for use by the statement context
      * @param userObject the application define user object associated to each statement, if supplied
      * @param isolationUnitServices isolated service services
+     * @param optionalModel model
      * @return started statement
      */
     protected synchronized EPStatementDesc createStoppedAssignName(StatementSpecRaw statementSpec, String expression, boolean isPattern, String optStatementName, int statementId, Map<String, Object> optAdditionalContext, Object userObject, EPIsolationUnitServices isolationUnitServices, EPStatementObjectModel optionalModel)
@@ -214,6 +215,8 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
      * @param isolationUnitServices isolated service services
      * @param isFailed to start the statement in failed state
      * @param nameProvided true when an explicit statement name is provided
+     * @param annotations annotations
+     * @param optionalModel model
      * @return stopped statement
      */
     protected synchronized EPStatementDesc createStopped(StatementSpecRaw statementSpec,
@@ -1026,6 +1029,11 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
      * @param statementContext the statement services
      * @param isSubquery is true for subquery compilation or false for statement compile
      * @param annotations statement annotations
+     * @param isOnDemandQuery indicator whether on-demand query
+     * @param subselectNodes subselects
+     * @param declaredNodes declared expressions
+     * @param tableAccessNodes table nodes
+     * @param servicesContext services
      * @return compiled statement
      * @throws EPStatementException if the statement cannot be compiled
      */

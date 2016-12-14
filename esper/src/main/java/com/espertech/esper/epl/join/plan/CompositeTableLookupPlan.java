@@ -24,12 +24,6 @@ public class CompositeTableLookupPlan extends TableLookupPlan
     private final List<QueryGraphValueEntryHashKeyed> hashKeys;
     private final List<QueryGraphValueEntryRange> rangeKeyPairs;
 
-    /**
-     * Ctor.
-     * @param lookupStream - stream that generates event to look up for
-     * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
-     */
     public CompositeTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs)
     {
         super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});

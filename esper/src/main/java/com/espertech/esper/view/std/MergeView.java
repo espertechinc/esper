@@ -39,11 +39,6 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
     private final EventType eventType;
     private final boolean removable;
 
-    /**
-     * Constructor.
-     * @param groupCriteria is the fields from which to pull the value to group by
-     * @param resultEventType is passed by the factory as the factory adds the merged fields to an event type
-     */
     public MergeView(AgentInstanceViewFactoryChainContext agentInstanceContext,
                      ExprNode[] groupCriteria,
                      EventType resultEventType,

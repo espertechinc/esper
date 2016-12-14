@@ -42,7 +42,6 @@
 			version="true"
 			windowtitle="${Name} API Documentation"
 			Overview="${doc.api.dir}/package.html"
-			stylesheetfile="${doc.api.dir}/jdstyle.css"
 			doctitle="${Name} ${version} API Documentation"
 			maxmemory="1024M">
 			<link href="${javadoc_link}"/>
@@ -66,7 +65,9 @@
 			<group title="Core API"
 				packages="com.espertech.esper.client,com.espertech.esper.client.time,com.espertech.esper.client.soda,com.espertech.esper.client.metric,com.espertech.esper.client.util,com.espertech.esper.client.deploy,com.espertech.esper.client.scopetest,com.espertech.esper.client.context,com.espertech.esper.client.dataflow,com.espertech.esper.client.annotation,com.espertech.esper.client.hook,com.espertech.esper.plugin,com.espertech.esper.client.dataflow.io"/>
 						
-		</javadoc>
+			<arg value="-Xmaxwarns"/>
+			<arg value="10000"/>
+    		</javadoc>
 		<copy file="${doc.api.dir}/package.html" todir="${dist.api.dir}"/>
 	</target>
 	

@@ -31,8 +31,6 @@ public abstract class QueryPlanNode
 {
     /**
      * Make execution node from this specification.
-     *
-     *
      * @param statementName statement name
      * @param statementId statement id
      * @param annotations annotations
@@ -40,8 +38,9 @@ public abstract class QueryPlanNode
      * @param streamTypes - event type of each stream
      * @param streamViews - viewable per stream for access to historical data
      * @param historicalStreamIndexLists index management for historical streams
-     * @param viewExternal      @return execution node matching spec
-     * @param tableSecondaryIndexLocks
+     * @param viewExternal view
+     * @param tableSecondaryIndexLocks locks
+     * @return execution node matching spec
      */
     public abstract ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks);
 

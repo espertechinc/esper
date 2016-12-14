@@ -61,6 +61,7 @@ public abstract class BaseAssemblyNodeFactory
 
     /**
      * Set parent node.
+     * @param parent parent node
      */
     public void setParent(BaseAssemblyNodeFactory parent)
     {

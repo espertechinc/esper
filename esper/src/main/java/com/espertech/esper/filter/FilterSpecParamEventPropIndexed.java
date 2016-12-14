@@ -44,6 +44,7 @@ public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
      * @param coercionType indicates the numeric coercion type to use
      * @param numberCoercer interface to use to perform coercion
      * @param resultEventIndex index
+     * @param statementName statement name
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
     public FilterSpecParamEventPropIndexed(FilterSpecLookupable lookupable, FilterOperator filterOperator, String resultEventAsName,

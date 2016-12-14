@@ -133,6 +133,8 @@ public class MethodResolver
 	 * @param methodName - the name of the method
 	 * @param paramTypes - the parameter types for the method
      * @param allowInstance - true to allow instance methods as well, false to allow only static method
+     * @param allowEventBeanCollType whether event-bean-collection parameter type is allowed
+     * @param allowEventBeanType whether event-bean parameter type is allowed
 	 * @return - the Method object for this method
 	 * @throws EngineNoSuchMethodException if the method could not be found
 	 */

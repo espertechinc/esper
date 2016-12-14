@@ -14,8 +14,6 @@ package com.espertech.esper.metrics.codahale_metrics.metrics.core;
 
 /**
  * A processor of metric instances.
- *
- * @param <T>
  */
 public interface MetricProcessor<T> {
     /**

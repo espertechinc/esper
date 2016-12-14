@@ -72,6 +72,7 @@ public final class FilterSpecCompiler
      * @param optionalStreamName - the stream name, if provided
      * @param optionalPropertyEvalSpec - specification for evaluating properties
      * @param statementContext context for statement
+     * @param assignedTypeNumberStack type numbers assigned
      * @return compiled filter specification
      * @throws ExprValidationException if the expression or type validations failed
      */
@@ -157,9 +158,10 @@ public final class FilterSpecCompiler
      * @param exprNodes is the nodes to validate
      * @param streamTypeService is provding type information for each stream
      * @param taggedEventTypes pattern tagged types
-     * @param arrayEventTypes @return list of validated expression nodes
-     * @return expr nodes
+     * @param arrayEventTypes event types that provide array values
+     * @return list of validated expression nodes
      * @param statementContext context
+     * @param exprNodeOrigin origin
      * @throws ExprValidationException for validation errors
      */
     public static List<ExprNode> validateAllowSubquery(ExprNodeOrigin exprNodeOrigin,

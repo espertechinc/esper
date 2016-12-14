@@ -31,7 +31,7 @@ public class CompareListExpression extends ExpressionBase
     /**
      * Ctor.
      * @param all is all, false if any
-     * @param operator =, !=, <, >, <=, >=, <>
+     * @param operator =, !=, &lt;, &gt;, &lt;=, &gt;=, &lt;&gt;
      */
     public CompareListExpression(boolean all, String operator)
     {
@@ -77,7 +77,7 @@ public class CompareListExpression extends ExpressionBase
 
     /**
      * Sets the operator.
-     * @param operator to set (=, !=, <>, <, >, <=, >=)
+     * @param operator to set (=, !=, &lt;&gt;, &lt;, &gt;, &lt;=, &gt;=)
      */
     public void setOperator(String operator)
     {

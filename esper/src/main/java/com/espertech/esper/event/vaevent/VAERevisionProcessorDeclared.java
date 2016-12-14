@@ -46,6 +46,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
      * @param spec specification
      * @param statementStopService for stop handling
      * @param eventAdapterService for nested property handling
+     * @param eventTypeIdGenerator id generator
      */
     public VAERevisionProcessorDeclared(String revisionEventTypeName, RevisionSpec spec, StatementStopService statementStopService, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator)
     {

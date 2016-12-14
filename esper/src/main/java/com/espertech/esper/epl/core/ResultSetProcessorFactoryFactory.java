@@ -76,18 +76,6 @@ import java.util.*;
  */
 public class ResultSetProcessorFactoryFactory
 {
-    /**
-     * Returns the result set process for the given select expression, group-by clause and
-     * having clause given a set of types describing each stream in the from-clause.
-     * @param statementSpec - a subset of the statement specification
-     * @param stmtContext - engine and statement and agent-instance level services
-     * @param typeService - for information about the streams in the from clause
-     * @param viewResourceDelegate - delegates views resource factory to expression resources requirements
-     * @param isUnidirectionalStream - true if unidirectional join for any of the streams
-     * @param allowAggregation - indicator whether to allow aggregation functions in any expressions
-     * @return result set processor instance
-     * @throws ExprValidationException when any of the expressions is invalid
-     */
     public static ResultSetProcessorFactoryDesc getProcessorPrototype(StatementSpecCompiled statementSpec,
                                                            StatementContext stmtContext,
                                                            StreamTypeService typeService,

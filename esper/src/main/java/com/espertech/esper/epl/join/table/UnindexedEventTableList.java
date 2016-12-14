@@ -28,6 +28,7 @@ public class UnindexedEventTableList implements EventTable
     /**
      * Ctor.
      * @param eventSet is a list initializing the table
+     * @param streamNum stream number
      */
     public UnindexedEventTableList(List<EventBean> eventSet, int streamNum)
     {

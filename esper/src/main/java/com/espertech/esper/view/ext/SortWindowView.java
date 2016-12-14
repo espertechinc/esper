@@ -49,16 +49,6 @@ public class SortWindowView extends ViewSupport implements DataWindowView, Clone
     protected TreeMap<Object, Object> sortedEvents;
     protected int eventCount;
 
-    /**
-     * Ctor.
-     * @param sortCriteriaExpressions is the event property names to sort
-     * @param descendingValues indicates whether to sort ascending or descending for each field
-     * @param sortWindowSize is the window size
-     * @param optionalSortedRandomAccess is the friend class handling the random access, if required by
-     * expressions
-     * @param sortWindowViewFactory for copying this view in a group-by
-     * @param isSortUsingCollator for string value sorting using compare or Collator
-     */
     public SortWindowView(SortWindowViewFactory sortWindowViewFactory,
                           ExprNode[] sortCriteriaExpressions,
                           ExprEvaluator[] sortCriteriaEvaluators,

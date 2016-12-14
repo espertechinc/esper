@@ -44,14 +44,6 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
     private final TimeZone timeZone;
     private final ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy;
 
-    /**
-     * Ctor.
-     * @param epService administrative SPI
-     * @param deploymentStateService deployment state maintenance service
-     * @param statementEventTypeRef maintains statement-eventtype relationship
-     * @param eventAdapterService event wrap service
-     * @param statementIsolationService for isolated statement execution
-     */
     public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
         this.epService = epService;
         this.deploymentStateService = deploymentStateService;

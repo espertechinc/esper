@@ -61,6 +61,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
      * Ctor.
      * @param viewPlugIns is the view plug-in object descriptions
      * @param plugInPatternObj is the pattern plug-in object descriptions
+     * @param systemVirtualDWViewFactory virtual DW factory
      */
     public StatementContextFactoryDefault(PluggableObjectCollection viewPlugIns, PluggableObjectCollection plugInPatternObj, Class systemVirtualDWViewFactory)
     {

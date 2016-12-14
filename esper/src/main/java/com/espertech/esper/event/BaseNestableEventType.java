@@ -58,6 +58,9 @@ public abstract class BaseNestableEventType implements EventTypeSPI
      * @param optionalSuperTypes the supertypes to this type if any, or null if there are no supertypes
      * @param optionalDeepSupertypes the deep supertypes to this type if any, or null if there are no deep supertypes
      * @param metadata event type metadata
+     * @param typeConfig type config
+     * @param eventTypeId tye id
+     * @param getterFactory getter factory
      */
     public BaseNestableEventType(EventTypeMetadata metadata,
                                  String typeName,
@@ -178,7 +181,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI
 
     /**
      * Returns the name-type map of map properties, each value in the map
-     * can be a Class or a Map<String, Object> (for nested maps).
+     * can be a Class or a Map&lt;String, Object&gt; (for nested maps).
      * @return is the property name and types
      */
     public Map<String, Object> getTypes()
@@ -188,7 +191,6 @@ public abstract class BaseNestableEventType implements EventTypeSPI
 
     /**
      * Adds additional properties that do not yet exist on the given type.
-     * <p.
      * Ignores properties already present. Allows nesting.
      * @param typeMap properties to add
      * @param eventAdapterService for resolving further map event types that are property types

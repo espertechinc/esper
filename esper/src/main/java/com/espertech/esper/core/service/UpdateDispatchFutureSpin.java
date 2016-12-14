@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * is a stand-in for a future dispatching of a statement result to statement listeners.
  * <p>
  * UpdateDispatchFutureSpin is aware of future and past dispatches:
- * (newest) DF3   <-->   DF2  <-->  DF1  (oldest), and uses a spin lock to block if required
+ * (newest) DF3   &lt;--&gt;   DF2  &lt;--&gt;  DF1  (oldest), and uses a spin lock to block if required
  */
 public class UpdateDispatchFutureSpin implements Dispatchable
 {

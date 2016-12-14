@@ -28,12 +28,6 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
     private final EvalAuditNode evalAuditNode;
     private EvalStateNode childState;
 
-
-    /**
-     * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
-     * @param evalAuditNode is the factory node associated to the state
-     */
     public EvalAuditStateNode(Evaluator parentNode,
                               EvalAuditNode evalAuditNode,
                               EvalStateNodeNumber stateNodeNumber,

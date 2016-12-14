@@ -34,6 +34,7 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
      * Ctor.
      * @param whenExpressionNode the expression to evaluate, returning true when to output
      * @param assignments is the optional then-clause variable assignments, or null or empty if none
+     * @param statementContext context
      * @throws ExprValidationException when validation fails
      */
     public OutputConditionPolledExpressionFactory(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, StatementContext statementContext)

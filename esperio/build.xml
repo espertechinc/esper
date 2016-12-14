@@ -17,6 +17,7 @@
 	<property name="javadoc_link" value="http://java.sun.com/j2se/1.6.0/docs/api"/>
 
 	<path id="lib.class.path">
+		<fileset dir="../esperio-amqp/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esperio-csv/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esperio-http/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esperio-socket/${lib.dir}"><include name="**/*.jar"/></fileset>
@@ -44,7 +45,6 @@
 			version="true"
 			windowtitle="${Name} API Documentation"
 			Overview="${doc.api.dir}/package.html"
-			stylesheetfile="${doc.api.dir}/jdstyle.css"
 			doctitle="${Name} ${version} API Documentation">
 
 			<link href="${javadoc_link}"/>

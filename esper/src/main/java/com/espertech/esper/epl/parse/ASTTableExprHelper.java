@@ -29,9 +29,6 @@ import java.util.*;
 
 public class ASTTableExprHelper {
 
-    /**
-     * Add reference to table to statement spec.
-     */
     public static void addTableExpressionReference(StatementSpecRaw statementSpec, ExprTableAccessNode tableNode) {
         if (statementSpec.getTableExpressions() == null) {
             statementSpec.setTableExpressions(new HashSet<ExprTableAccessNode>());
@@ -49,9 +46,6 @@ public class ASTTableExprHelper {
         statementSpec.getTableExpressions().addAll(tableNodes);
     }
 
-    /**
-     * Resolve "table.property", not chainable
-     */
     public static Pair<ExprTableAccessNode, ExprDotNode> checkTableNameGetExprForSubproperty(TableService tableService, String tableName, String subproperty) {
         TableMetadata metadata = tableService.getTableMetadata(tableName);
         if (metadata == null) {
@@ -78,6 +72,9 @@ public class ASTTableExprHelper {
 
     /**
      * Resolve "table" and "table.property" when nested-property, not chainable
+     * @param tableService tables
+     * @param propertyName property name
+     * @return table access node
      */
     public static ExprTableAccessNode checkTableNameGetExprForProperty(TableService tableService, String propertyName) {
 
@@ -138,9 +135,6 @@ public class ASTTableExprHelper {
         return handleTable(engineImportService, plugInAggregations, engineURI, tableName, sub, chain);
     }
 
-    /**
-     * Handle "variable[...].xxxxx......"
-     */
     public static Pair<ExprTableAccessNode, List<ExprChainedSpec>> getTableExprChainable(
             EngineImportService engineImportService,
             LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory> plugInAggregations,

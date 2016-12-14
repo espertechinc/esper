@@ -23,6 +23,7 @@ public class EPStatementStartMethodFactory
      * Ctor.
      * @param statementSpec is a container for the definition of all statement constructs that
      * may have been used in the statement, i.e. if defines the select clauses, insert into, outer joins etc.
+     * @return start method
      */
     public static EPStatementStartMethod makeStartMethod(StatementSpecCompiled statementSpec)
     {

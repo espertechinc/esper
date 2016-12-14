@@ -30,10 +30,6 @@ public class InKeywordSingleTableLookupStrategyExpr implements JoinExecTableLook
     private final ExprEvaluator[] evaluators;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    /**
-     * Ctor.
-     * @param index - index to look up in
-     */
     public InKeywordSingleTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc lookupStrategyDesc)
     {
         if (index == null) {

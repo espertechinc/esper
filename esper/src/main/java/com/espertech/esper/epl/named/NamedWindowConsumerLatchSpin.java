@@ -30,10 +30,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
 
     private volatile boolean isCompleted;
 
-    /**
-     * Ctor.
-     * @param earlier the latch before this latch that this latch should be waiting for
-     */
     public NamedWindowConsumerLatchSpin(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchSpin earlier)
     {
         super(deltaData, dispatchTo);
@@ -41,9 +37,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
         this.earlier = earlier;
     }
 
-    /**
-     * Ctor - use for the first and unused latch to indicate completion.
-     */
     public NamedWindowConsumerLatchSpin(NamedWindowConsumerLatchFactory factory)
     {
         super(null, null);
@@ -63,7 +56,6 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
 
     /**
      * Blocking call that returns only when the earlier latch completed.
-     * @return unit of the latch
      */
     public void await()
     {

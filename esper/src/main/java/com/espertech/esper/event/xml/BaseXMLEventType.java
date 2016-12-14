@@ -43,6 +43,7 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
      * @param configurationEventTypeXMLDOM is the XML DOM configuration such as root element and schema names
      * @param metadata event type metadata
      * @param eventAdapterService for registration and lookup of types
+     * @param eventTypeId type id
      */
     public BaseXMLEventType(EventTypeMetadata metadata, int eventTypeId, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, EventAdapterService eventAdapterService)
     {

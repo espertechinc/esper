@@ -37,15 +37,6 @@ public class RouteResultView extends ViewSupport
     private RouteResultViewHandler handler;
     private ExprEvaluatorContext exprEvaluatorContext;
 
-    /**
-     * Ctor.
-     * @param isFirst true for the first-where clause, false for all where-clauses
-     * @param eventType output type
-     * @param epStatementHandle handle
-     * @param processors processors for select clauses
-     * @param whereClauses where expressions
-     * @param agentInstanceContext agent instance context
-     */
     public RouteResultView(boolean isFirst,
                            EventType eventType,
                            EPStatementHandle epStatementHandle,

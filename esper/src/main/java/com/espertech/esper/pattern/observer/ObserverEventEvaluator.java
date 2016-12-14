@@ -24,7 +24,7 @@ public interface ObserverEventEvaluator
 
     /**
      * Indicate that the observer turned permanently false.
-     * @param restartable
+     * @param restartable true for whether it can restart
      */
     public void observerEvaluateFalse(boolean restartable);
 

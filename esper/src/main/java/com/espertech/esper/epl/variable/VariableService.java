@@ -34,13 +34,6 @@ public interface VariableService
      */
     public ReadWriteLock getReadWriteLock();
 
-    /**
-     * Creates a new variable.
-     * @param variableName name of the variable
-     * @param type variable type
-     * @throws VariableExistsException if the variable name is already in use
-     * @throws VariableTypeException if the variable type cannot be recognized
-     */
     public void createNewVariable(String optionalContextName, String variableName, String type, boolean constant, boolean array, boolean arrayOfPrimitive, Object value, EngineImportService engineImportService)
             throws VariableExistsException, VariableTypeException;
 
@@ -48,18 +41,23 @@ public interface VariableService
      * Returns a reader that provides access to variable values. The reader considers the
      * version currently set via setLocalVersion.
      * @param variableName the variable that the reader should read
+     * @param agentInstanceIdAccessor agent instance id of accessor
      * @return reader
      */
     public VariableReader getReader(String variableName, int agentInstanceIdAccessor);
 
     /**
      * Registers a callback invoked when the variable is written with a new value.
+     * @param variableName variable name
+     * @param agentInstanceId agent instance id
      * @param variableChangeCallback a callback
      */
     public void registerCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback);
 
     /**
      * Removes a callback.
+     * @param variableName variable name
+     * @param agentInstanceId agent instance id
      * @param variableChangeCallback a callback
      */
     public void unregisterCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback);
@@ -70,6 +68,7 @@ public interface VariableService
      * Must be followed by either a commit or rollback.
      * @param variableNumber the index number of the variable to write (from VariableReader)
      * @param newValue the new value
+     * @param agentInstanceId agent instance id
      */
     public void write(int variableNumber, int agentInstanceId, Object newValue);
 
@@ -77,6 +76,8 @@ public interface VariableService
      * Check type of the value supplied and writes the new variable value.
      * <p>
      * Must be followed by either a commit or rollback.
+     * @param variableName variable name
+     * @param agentInstanceId agent instance id
      * @param newValue the new value
      */
     public void checkAndWrite(String variableName, int agentInstanceId, Object newValue);

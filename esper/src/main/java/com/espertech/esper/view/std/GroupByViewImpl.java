@@ -58,6 +58,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
      * Constructor.
      * @param criteriaExpressions is the fields from which to pull the values to group by
      * @param agentInstanceContext contains required view services
+     * @param criteriaEvaluators evaluators
      */
     public GroupByViewImpl(AgentInstanceViewFactoryChainContext agentInstanceContext, ExprNode[] criteriaExpressions, ExprEvaluator[] criteriaEvaluators)
     {

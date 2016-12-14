@@ -23,7 +23,7 @@ public interface ObserverFactory
      * Sets the observer object parameters.
      * @param observerParameters is a list of parameters
      * @param convertor for converting partial pattern matches to event-per-stream for expressions
-     * @param validationContext
+     * @param validationContext context
      * @throws ObserverParameterException thrown to indicate a parameter problem
      */
     public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException;
@@ -37,7 +37,7 @@ public interface ObserverFactory
      * @param observerEventEvaluator - receiver for events observed
      * @param stateNodeId - optional id for the associated pattern state node
      * @param observerState - state node for observer
-     * @param isFilterChildNonQuitting
+     * @param isFilterChildNonQuitting true for non-quitting filter
      * @return observer instance
      */
     public EventObserver makeObserver(PatternAgentInstanceContext context,

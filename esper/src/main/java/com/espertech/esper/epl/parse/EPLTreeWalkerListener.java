@@ -156,14 +156,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     private final ExpressionDeclDesc expressionDeclarations;
     private final TableService tableService;
 
-    /**
-     * Ctor.
-     * @param engineImportService is required to resolve lib-calls into static methods or configured aggregation functions
-     * @param variableService for variable access
-     * @param defaultStreamSelector - the configuration for which insert or remove streams (or both) to produce
-     * @param engineURI engine URI
-     * @param configurationInformation configuration info
-     */
     public EPLTreeWalkerListener(CommonTokenStream tokenStream,
                                  EngineImportService engineImportService,
                                  VariableService variableService,

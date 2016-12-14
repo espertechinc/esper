@@ -29,12 +29,6 @@ public abstract class TableLookupPlan
     public abstract JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes);
     public abstract TableLookupKeyDesc getKeyDescriptor();
 
-    /**
-     * Instantiates the lookup plan into a execution strategy for the lookup.
-     * @param indexesPerStream - tables for each stream
-     * @param eventTypes - types of events in stream
-     * @return lookup strategy instance
-     */
     public final JoinExecTableLookupStrategy makeStrategy(String statementName, int statementId, Annotation[] accessedByStmtAnnotations, Map<TableLookupIndexReqKey,EventTable>[] indexesPerStream, EventType[] eventTypes, VirtualDWView[] viewExternals) {
         EventTable[] eventTables = new EventTable[indexNum.length];
         for (int i = 0; i < indexNum.length; i++) {

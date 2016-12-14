@@ -33,6 +33,7 @@ public class InsertIntoLatchFactory
      * @param msecWait the number of milliseconds latches will await maximually
      * @param locking the blocking strategy to employ
      * @param timeSourceService time source provider
+     * @param stateless indicator whether stateless
      */
     public InsertIntoLatchFactory(String name, boolean stateless, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
                                   TimeSourceService timeSourceService)

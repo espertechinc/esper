@@ -59,7 +59,7 @@ public enum HintEnum
      * <p>
      * For use with statements that subquery a named window and that benefit from a statement-local data structure representing named window contents (table, index),
      * maintained through consuming the named window insert and remove stream.
-     * <p>
+     * </p>
      */
     DISABLE_WINDOW_SUBQUERY_INDEXSHARE("DISABLE_WINDOW_SUBQUERY_INDEXSHARE", false, false, false),
 

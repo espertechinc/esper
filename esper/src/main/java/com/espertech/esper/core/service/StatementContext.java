@@ -89,21 +89,6 @@ public final class StatementContext
     private EPStatementSPI statement;
     private FilterFaultHandlerFactory filterFaultHandlerFactory;
 
-    /**
-     * Constructor.
-     * @param stmtEngineServices is the engine services for the statement
-     * @param schedulingService implementation for schedule registration
-     * @param scheduleBucket is for ordering scheduled callbacks within the view statements
-     * @param epStatementHandle is the statements-own handle for use in registering callbacks with services
-     * @param viewResultionService is a service for resolving view namespace and name to a view factory
-     * @param statementExtensionSvcContext provide extension points for custom statement resources
-     * @param statementStopService for registering a callback invoked when a statement is stopped
-     * @param patternContextFactory is the pattern-level services and context information factory
-     * @param filterService is the filtering service
-     * @param patternResolutionService is the service that resolves pattern objects for the statement
-     * @param statementResultService handles awareness of listeners/subscriptions for a statement customizing output produced
-     * @param internalEventEngineRouteDest routing destination
-     */
     public StatementContext(StatementContextEngineServices stmtEngineServices,
                               SchedulingService schedulingService,
                               ScheduleBucket scheduleBucket,

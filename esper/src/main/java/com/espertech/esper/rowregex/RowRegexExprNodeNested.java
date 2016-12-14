@@ -19,10 +19,6 @@ public class RowRegexExprNodeNested extends RowRegexExprNode
     private final RowRegexExprRepeatDesc optionalRepeat;
     private static final long serialVersionUID = -2079284511194587570L;
 
-    /**
-     * Ctor.
-     * @param type multiplicity and greedy
-     */
     public RowRegexExprNodeNested(RegexNFATypeEnum type, RowRegexExprRepeatDesc optionalRepeat) {
         this.type = type;
         this.optionalRepeat = optionalRepeat;

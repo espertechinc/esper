@@ -48,6 +48,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
      * @param underlyngType is the underlying type returned by the event type
      * @param metadata event type metadata
      * @param eventAdapterService for dynamic event type creation
+     * @param eventTypeId type id
      */
     protected BaseConfigurableEventType(EventAdapterService eventAdapterService, EventTypeMetadata metadata, int eventTypeId, Class underlyngType)
     {

@@ -18,7 +18,7 @@ import java.util.Deque;
 
 /**
  * On the level of indexed event properties: Properties that are contained in EventBean instances, such as for Enumeration Methods, get wrapped only once for the same event.
- * The cache is keyed by property-name and EventBean reference and maintains a Collection<EventBean>.
+ * The cache is keyed by property-name and EventBean reference and maintains a Collection&lt;EventBean&gt;.
  *
  * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
  */

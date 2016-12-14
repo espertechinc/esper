@@ -44,6 +44,7 @@ public class InsertIntoLatchWait
 
     /**
      * Ctor - use for the first and unused latch to indicate completion.
+     * @param factory the latch factory
      */
     public InsertIntoLatchWait(InsertIntoLatchFactory factory)
     {

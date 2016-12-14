@@ -17,6 +17,7 @@ public interface CloneableView
      * Duplicates the view.
      * <p>
      * Expected to return a same view in initialized state for grouping.
+     * @return cloned view
      */
     public View cloneView();
 }

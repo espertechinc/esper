@@ -40,6 +40,7 @@ public class SubordIndexedTableLookupStrategyPropFactory implements SubordTableL
      * @param eventTypes is the event types per stream
      * @param keyStreamNumbers is the stream number per property
      * @param properties is the key properties
+     * @param isNWOnTrigger indicator whether named window trigger
      */
     public SubordIndexedTableLookupStrategyPropFactory(boolean isNWOnTrigger, EventType[] eventTypes, int[] keyStreamNumbers, String[] properties)
     {

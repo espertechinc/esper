@@ -1518,7 +1518,7 @@ public class EPAssertionUtil
     }
 
     /**
-     * Assert that a map of collections (Map<String, Collection>) has expected keys and values.
+     * Assert that a map of collections (Map&lt;String, Collection&gt;) has expected keys and values.
      * @param map of string keys and collection-type values
      * @param keys array of key values
      * @param expectedList for each key a string that is a comma-separated list of values
