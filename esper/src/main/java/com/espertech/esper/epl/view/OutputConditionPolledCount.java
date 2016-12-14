@@ -10,7 +10,6 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.sun.org.apache.xpath.internal.operations.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
