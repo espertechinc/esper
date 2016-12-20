@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Export-Package: com.espertech.esperio,
  com.espertech.esperio.amqp
 Bundle-Name: Esper CEP engine for Java - AMQP Input Output Adapters
-Bundle-RequiredExecutionEnvironment: J2SE-1.6, J2SE-1.7
+Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-Vendor: EsperTech
 Built-By: EsperTech
-Build-Jdk: 1.6.0_45
+Build-Jdk: 1.8.0_111
 Bundle-Version: 6.0.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.espertech.esperio-amqp
