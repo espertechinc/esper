@@ -14,7 +14,7 @@
 	<property name="doc.dir" value="doc"/>
 	<property name="doc.api.dir" value="${doc.dir}/api"/>
 	<property name="dist.api.dir" value="doc/javadoc/api"/>
-	<property name="javadoc_link" value="http://java.sun.com/j2se/1.6.0/docs/api"/>
+	<property name="javadoc_link" value="http://docs.oracle.com/javase/8/docs/api"/>
 	<property name="checkstyle_home" value="../../../../../software/checkstyle-4.3"/>
 
 	<target name="info" description="The master build is done my Maven">
