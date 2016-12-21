@@ -11,6 +11,7 @@
 /esperio-db/target
 /esperio-http/target
 /esperio-stax/target
+/esperio-kafka/target
 /esperio/doc/reference/target
 /esperio/doc/javadoc/api
 /examples/target
@@ -18,3 +19,4 @@
 /examples/**/target
 /intellij
 
+/esperio-kafka/lib/*.jar
