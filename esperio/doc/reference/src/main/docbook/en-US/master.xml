@@ -53,6 +53,7 @@
     <xi:include href="modules/adapter_file.xml" />
     <xi:include href="modules/adapter_jms_spring.xml" />
     <xi:include href="modules/adapter_amqp.xml" />
+    <xi:include href="modules/adapter_kafka.xml" />
     <xi:include href="modules/adapter_http.xml" />
     <xi:include href="modules/adapter_socket.xml" />
     <xi:include href="modules/adapter_db.xml" />

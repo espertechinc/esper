@@ -24,6 +24,7 @@
 		<fileset dir="../esperio-springjms/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esperio-stax/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esperio-db/${lib.dir}"><include name="**/*.jar"/></fileset>
+		<fileset dir="../esperio-kafka/${lib.dir}"><include name="**/*.jar"/></fileset>
 		<fileset dir="../esper">
 			<include name="**/esper*.jar"/>
 			<include name="lib/*.jar"/>
@@ -81,6 +82,9 @@
 				<include name="com/espertech/esperio/**"/>
 			</packageset>						
 			<packageset dir="../esperio-stax/${src.dir}" defaultexcludes="yes">
+				<include name="com/espertech/esperio/**"/>
+			</packageset>						
+			<packageset dir="../esperio-kafka/${src.dir}" defaultexcludes="yes">
 				<include name="com/espertech/esperio/**"/>
 			</packageset>						
 		</javadoc>

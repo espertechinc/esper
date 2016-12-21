@@ -66,6 +66,7 @@
             		<zipfileset prefix="tcp" dir="esperio-socket/src/main/java" includes="**"/>
             		<zipfileset prefix="jms" dir="esperio-springjms/src/main/java" includes="**"/>
             		<zipfileset prefix="stax" dir="esperio-stax/src/main/java" includes="**"/>
+            		<zipfileset prefix="kafka" dir="esperio-kafka/src/main/java" includes="**"/>
         	</zip>
         </target>
 
@@ -92,6 +93,7 @@
 			<zipfileset prefix="${name}-${version}" dir="esperio-socket/target" includes="esperio-socket*-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio-springjms/target" includes="esperio-springjms*-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio-stax/target" includes="esperio-stax*-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esperio-kafka/target" includes="esperio-kafka*-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}/esperio-amqp" dir="esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/esperio-csv" dir="esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/esperio-http" dir="esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
@@ -127,6 +129,7 @@
 			<tarfileset prefix="${name}-${version}" dir="esperio-socket/target" includes="esperio-socket*-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio-springjms/target" includes="esperio-springjms*-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio-stax/target" includes="esperio-stax*-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esperio-kafka/target" includes="esperio-kafka*-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}/esperio-amqp" dir="esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/esperio-csv" dir="esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/esperio-http" dir="esperio-http" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
@@ -134,6 +137,7 @@
 			<tarfileset prefix="${name}-${version}/esperio-socket" dir="esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/esperio-springjms" dir="esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/esperio-stax" dir="esperio-stax" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<tarfileset prefix="${name}-${version}/esperio-kafka" dir="esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 		</tar>
 		<gzip zipfile="${tar-file}.gz" src="${tar-file}" />
 		<checksum file="${tar-file}.gz" algorithm="MD5" fileext=".md5"/>

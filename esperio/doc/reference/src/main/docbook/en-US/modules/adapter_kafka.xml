@@ -1,0 +1,361 @@
+<chapter xml:id="adapter_kafka" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+    <title>The Kafka Adapter</title>
+    
+    <para>
+        This chapter discusses the EsperIO Kafka input adapter.
+    </para>
+    
+    <para>
+		This input adapter is for receiving events and event or engine time from Kafka topics.
+    </para>
+    
+    <para>
+		The scope of this input adapter is a local reader and is not meant for coordinated use by multiple servers, which is the scope of Esper Enterprise Edition.
+		Please see Esper Enterprise Edition for information on the horizontal scale-out architecture based on Kafka (the scope of this input adapter is NOT horizontal scale-out).
+    </para>
+
+    <sect1 xml:id="adapterkafka-classpath">
+        <title>Classpath Setup</title>
+
+		<para>
+			Please add the <literal>esperio-kafka-version.jar</literal> jar file to your classpath.
+		</para>
+		
+		<para>
+			Please also add <literal>kafka-clients-</literal><emphasis>version</emphasis><literal>.jar</literal> and the Kafka client dependencies to your classpath.
+		</para>
+
+		<para>
+			The EsperIO Kafka input adapter supports the new Kafka consumer only and requires Kafka client version 0.10.1.0 and higher.
+		</para>
+	</sect1>
+	
+    <sect1 xml:id="adapterkafka-configuration">
+        <title>Configuration and Start</title>
+
+		<para>
+			You may configure and start the EsperIO Kafka input adapter either as part of your Esper configuration file in the plugin loader section or via the adapter API.	
+		</para>
+	
+		<para>
+			The following example shows an Esper configuration file with all properties:
+		</para>
+		<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.espertech.com/schema/esper"
+  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-6-0.xsd">
+  
+  <plugin-loader name="KafkaInput" class-name="com.espertech.esperio.kafka.EsperIOKafkaInputAdapterPlugin">
+    <!--
+      Kafka Consumer Properties: Passed-Through to Kafka Consumer.
+    -->
+    <init-arg name="bootstrap.servers" value="127.0.0.1:9092"/>
+    <init-arg name="key.deserializer" value="org.apache.kafka.common.serialization.StringDeserializer"/>
+    <init-arg name="value.deserializer" value="com.mycompany.MyCustomDeserializer"/>
+    <init-arg name="group.id" value="my_group_id"/>
+
+    <!--
+      EsperIO Kafka Input Properties: Define subscription, topics, processor and timestamp extractor.
+    -->
+    <init-arg name="esperio.kafka.input.subscriber" value="com.espertech.esperio.kafka.EsperIOKafkaInputSubscriberByTopicList"/>
+    <init-arg name="esperio.kafka.topics" value="my_topic"/>
+    <init-arg name="esperio.kafka.input.processor" value="com.espertech.esperio.kafka.EsperIOKafkaInputProcessorDefault"/>
+    <init-arg name="esperio.kafka.input.timestampextractor" value="com.espertech.esperio.kafka.EsperIOKafkaInputTimestampExtractorConsumerRecord"/>
+  </plugin-loader>
+</esper-configuration>]]></programlisting>		
+
+			<para>
+				Alternatively the equivalent API calls to configure the adapter are:
+			</para>
+			<programlisting><![CDATA[Properties props = new Properties();
+
+// Kafka Consumer Properties
+props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class.getName());
+props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, com.mycompany.MyCustomDeserializer.class.getName());
+props.put(ConsumerConfig.GROUP_ID_CONFIG, "my_group_id");
+
+// EsperIO Kafka Input Adapter Properties
+props.put(EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG, EsperIOKafkaInputSubscriberByTopicList.class.getName());
+props.put(EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG, "my_topic");
+props.put(EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG, EsperIOKafkaInputProcessorDefault.class.getName());
+props.put(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG, EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
+
+Configuration config = new Configuration();
+config.addPluginLoader("KafkaInput", EsperIOKafkaInputAdapterPlugin.class.getName(), props, null);]]></programlisting>		
+
+			<para>
+				By adding the plug-in loader to the configuration as above the engine automatically starts the adapter as part of engine initialization.
+			</para>
+
+			<para>
+				Alternatively, the adapter can be started and stopped programatically as follows:
+			</para>
+
+			<programlisting><![CDATA[// start adapter
+EsperIOKafkaInputAdapter adapter = new EsperIOKafkaInputAdapter(props, "engineURI");
+adapter.start();
+
+// destroy the adapter when done
+adapter.destroy();]]></programlisting>
+	</sect1>
+		
+    <sect1 xml:id="adapterkafka-kafkaconnectivity">
+        <title>Kafka Connectivity</title>
+        
+        <para>
+			All properties are passed to the Kafka consumer. This allows your application to add additional properties that are not listed here and according to Kafka consumer documentation.
+        </para>
+        
+        <para>
+			Required properties are below. <literal>ConsumerConfig</literal> is part of the Kafka API in <literal>org.apache.kafka.clients.consumer.ConsumerConfig</literal>.
+        </para>
+
+		<table frame="topbot">
+			<title>Kafka Consumer Required Properties</title>
+			<tgroup cols="3">
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Name</entry>
+						<entry>API Name</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry><literal>bootstrap.servers</literal></entry>
+						<entry><literal>ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG</literal></entry>
+						<entry>Kafka bootstrap server list.</entry>
+					</row>
+					<row>
+						<entry><literal>key.deserializer</literal></entry>
+						<entry><literal>ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG</literal></entry>
+						<entry>Fully-qualified class name of Kafka message key de-serializer.</entry>
+					</row>
+					<row>
+						<entry><literal>value.deserializer</literal></entry>
+						<entry><literal>ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG</literal></entry>
+						<entry>Fully-qualified class name of Kafka message value de-serializer.</entry>
+					</row>
+					<row>
+						<entry><literal>group.id</literal></entry>
+						<entry><literal>ConsumerConfig.GROUP_ID_CONFIG</literal></entry>
+						<entry>Application consumer group id.</entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+    </sect1>
+
+    <sect1 xml:id="adapterkafka-use">
+        <title>Controlling Adapter Operation</title>
+        
+		<para>
+			Adapter operation depends on the <emphasis>subscriber</emphasis> and <emphasis>processor</emphasis>.
+		</para>
+        
+		<para>
+			The <emphasis>subscriber</emphasis> is responsible for calling Kafka consumer subscribe methods, i.e. calls Kafka API <literal>consumer.subscribe(...)</literal>.
+		</para>
+
+		<para>
+			The <emphasis>processor</emphasis> is responsible for processing Kafka API <literal>ConsumerRecords</literal> messages, i.e. implements <literal>process(ConsumerRecords records)</literal>.
+		</para>
+
+        <para>
+			Properties that define the subscriber and consumer are below.
+			<literal>EsperIOKafka</literal> is part of the EsperIO Kafka API in <literal>com.espertech.esperio.kafka.EsperIOKafkaConfig</literal>.
+        </para>
+
+		<table frame="topbot">
+			<title>Kafka Input Adapter Properties</title>
+			<tgroup cols="3">
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Name</entry>
+						<entry>API Name</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry><literal>esperio.kafka.input.subscriber</literal></entry>
+						<entry><literal>EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG</literal></entry>
+						<entry>
+							<para>
+								Required property.
+							</para> 
+							<para>
+								Fully-qualified class name of subscriber that subscribes to topics and partitions.
+							</para> 
+							<para>
+								The class must implement the interface <literal>EsperIOKafkaInputSubscriber</literal>.
+							</para>
+							<para>
+								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputSubscriberByTopicList</literal> and provide a topic list in <literal>esperio.kafka.topics</literal>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><literal>esperio.kafka.topics</literal></entry>
+						<entry><literal>EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG</literal></entry>
+						<entry>
+							<para>
+								Optional property and only required if the subscriber is <literal>EsperIOKafkaInputSubscriberByTopicList</literal>.
+							</para> 
+							<para>
+								Specifies a comma-separated list of topic names to subscribe to.
+							</para> 
+						</entry>
+					</row>
+					<row>
+						<entry><literal>esperio.kafka.input.processor</literal></entry>
+						<entry><literal>EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG</literal></entry>
+						<entry>
+							<para>
+								Required property.
+							</para> 
+							<para>
+								Fully-qualified class name of the Kafka consumer records processor that sends events into the engine and may advance engine time.
+							</para> 
+							<para>
+								The class must implement the interface <literal>EsperIOKafkaInputProcessor</literal>.
+							</para>
+							<para>
+								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputProcessorDefault</literal> for default event and time processing.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><literal>esperio.kafka.input.timestampextractor</literal></entry>
+						<entry><literal>EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG</literal></entry>
+						<entry>
+							<para>
+								Optional property.
+							</para> 
+							<para>
+								Fully-qualified class name of the Kafka message timestamp extractor that extracts a long-typed timestamp from a consumer record, for use as time.
+							</para> 
+							<para>
+								The class must implement the interface <literal>EsperIOKafkaInputTimestampExtractor</literal>.
+							</para>
+							<para>
+								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputTimestampExtractorConsumerRecord</literal> 
+								which returns the time of each consumer record that is part of the consumer record.
+							</para>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+		
+		<sect2 xml:id="adapterkafka-subscriber">
+			<title>Subscriber</title>
+			
+			<para>
+				The subcriber is responsible for calling <literal>consumer.subscribe(...)</literal>.
+			</para>
+			
+			<para>
+				The adapter provides a default implementation by name <literal>EsperIOKafkaInputSubscriberByTopicList</literal>. 
+				Your application may provide its own subscriber by implementing the simple <literal>EsperIOKafkaInputSubscriber</literal> interface.
+			</para>
+
+			<para>
+				This default implementation takes the value of <literal>esperio.kafka.topics</literal> and subscribes to each topic.
+			</para>
+
+			<para>
+				For reference, we provide the code of the default subscriber below (repository or source jar for full code):
+			</para>
+			<programlisting><![CDATA[public class EsperIOKafkaInputSubscriberByTopicList implements EsperIOKafkaInputSubscriber {
+  public void subscribe(EsperIOKafkaInputSubscriberContext context) {
+    String topicsCSV = EsperIOKafkaInputAdapter.getRequiredProperty(context.getProperties(), EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG);
+    String[] topicNames = topicsCSV.split(",");
+    List<String> topics = new ArrayList<>();
+    for (String topicName : topicNames) {
+      if (topicName.trim().length() > 0) {
+        topics.add(topicName.trim());
+      }
+    }
+    context.getConsumer().subscribe(topics);
+  }
+}]]></programlisting>
+		</sect2>
+		
+		<sect2 xml:id="adapterkafka-processor">
+			<title>Processor</title>
+			
+			<para>
+				The processor is responsible for processing Kafka API <literal>ConsumerRecords</literal>.
+			</para>
+			
+			<para>
+				The adapter provides a default implementation by name <literal>EsperIOKafkaInputProcessorDefault</literal>. 
+				Your application may provide its own processor by implementing the simple <literal>EsperIOKafkaInputProcessor</literal> interface.
+			</para>
+
+			<para>
+				This default processor can be configured with an optional timestamp extractor that obtains a timestamp for each consumer record.
+				If no timestamp extractor is configured, the default processor does not advance time.
+			</para>
+
+			<para>
+				For reference, we provide the (slightly simplified) code of the default processor below (repository or source jar for full code):
+			</para>
+			<programlisting><![CDATA[public class EsperIOKafkaInputProcessorDefault implements EsperIOKafkaInputProcessor {
+
+  private EPServiceProvider engine;
+  private EsperIOKafkaInputTimestampExtractor timestampExtractor;
+
+  public void init(EsperIOKafkaInputProcessorContext context) {
+    this.engine = context.getEngine();
+
+    String timestampExtractorClassName = context.getProperties().getProperty(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG);
+    if (timestampExtractorClassName != null) {
+      timestampExtractor = (EsperIOKafkaInputTimestampExtractor) JavaClassHelper.instantiate(EsperIOKafkaInputTimestampExtractor.class, timestampExtractorClassName);
+    }
+  }
+
+  public void process(ConsumerRecords<Object, Object> records) {
+    for (ConsumerRecord record : records) {
+
+      if (timestampExtractor != null) {
+        long timestamp = timestampExtractor.extract(record);
+        // advances engine time
+        engine.getEPRuntime().sendEvent(new CurrentTimeSpanEvent(timestamp));
+      }
+
+      if (record.value() != null) {
+        engine.getEPRuntime().sendEvent(record.value());
+      }
+    }
+  }
+
+  public void close() {}
+}]]></programlisting>
+
+			<para>
+				The default processor takes the message value and sends it as an event into the engine.
+				The default processor takes the extracted time, if a timestamp extractor is provided, and sends a time span event to the engine to advance engine time.
+			</para>
+
+			<para>
+				You must provide your own processor if any additional event transformation is required or if using <literal>epRuntime.send(Map/ObjectArray/Node)</literal>
+				or if the default behavior does not fit for other reasons.
+			</para>
+		</sect2>
+
+    </sect1>
+</chapter>

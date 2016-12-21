@@ -11,6 +11,7 @@
 		<module>esperio-csv</module>
 		<module>esperio-db</module>
 		<module>esperio-http</module>
+		<module>esperio-kafka</module>
 		<module>esperio-socket</module>
 		<module>esperio-springjms</module>
 		<module>esperio-stax</module>
