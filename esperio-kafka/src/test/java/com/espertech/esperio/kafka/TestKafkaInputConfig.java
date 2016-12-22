@@ -23,32 +23,6 @@ import java.util.Properties;
 import static com.espertech.esperio.kafka.SupportConstants.DEV_BOOTSTRAP_SERVER;
 
 public class TestKafkaInputConfig extends TestCase {
-    public void test() {
-        Properties props = new Properties();
-
-// Kafka Consumer Properties
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, com.mycompany.MyCustomDeserializer.class.getName());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "my_group_id");
-
-// EsperIO Kafka Input Adapter Properties
-        props.put(EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG, EsperIOKafkaInputSubscriberByTopicList.class.getName());
-        props.put(EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG, "my_topic");
-        props.put(EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG, EsperIOKafkaInputProcessorDefault.class.getName());
-        props.put(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG, EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
-
-        Configuration config = new Configuration();
-        config.addPluginLoader("KafkaInput", EsperIOKafkaInputAdapterPlugin.class.getName(), props, null);
-
-        // start adapter
-        EsperIOKafkaInputAdapter adapter = new EsperIOKafkaInputAdapter(props, "engineURI");
-        adapter.start();
-
-// destroy the adapter when done
-        httpAdapter.destroy();
-    }
-
     public void testIt() {
         URL url = FileUtil.class.getClassLoader().getResource("esper-kafka-sample-config.xml");
         assertNotNull("Failed to find sample config file", url);
