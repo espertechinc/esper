@@ -15,6 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprConstantNode;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprConstantNode extends TestCase
@@ -36,7 +37,7 @@ public class TestExprConstantNode extends TestCase
 
     public void testValidate() throws Exception
     {
-        constantNode.validate(ExprValidationContextFactory.makeEmpty());
+        constantNode.validate(SupportExprValidationContextFactory.makeEmpty());
     }
 
     public void testEvaluate()

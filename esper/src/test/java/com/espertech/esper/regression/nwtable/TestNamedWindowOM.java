@@ -20,10 +20,10 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.soda.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean_B;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean_B;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestNamedWindowOM extends TestCase
 {
@@ -57,7 +57,7 @@ public class TestNamedWindowOM extends TestCase
         EPStatementObjectModel modelCreate = epService.getEPAdministrator().compileEPL(stmtTextCreate);
         EPStatement stmtCreate = epService.getEPAdministrator().create(modelCreate);
         stmtCreate.addListener(listenerWindow);
-        assertEquals("create window MyWindow#keepall as select theString as key, longBoxed as value from com.espertech.esper.support.bean.SupportBean", modelCreate.toEPL());
+        assertEquals("create window MyWindow#keepall as select theString as key, longBoxed as value from " + SupportBean.class.getName(), modelCreate.toEPL());
 
         String stmtTextOnSelect = "on " + SupportBean_B.class.getName() + " select mywin.* from MyWindow as mywin";
         EPStatementObjectModel modelOnSelect = epService.getEPAdministrator().compileEPL(stmtTextOnSelect);
@@ -87,7 +87,7 @@ public class TestNamedWindowOM extends TestCase
         String stmtTextDelete = "on " + SupportMarketDataBean.class.getName() + " as s0 delete from MyWindow as s1 where s0.symbol=s1.key";
         EPStatementObjectModel modelDelete = epService.getEPAdministrator().compileEPL(stmtTextDelete);
         epService.getEPAdministrator().create(modelDelete);
-        assertEquals("on com.espertech.esper.support.bean.SupportMarketDataBean as s0 delete from MyWindow as s1 where s0.symbol=s1.key", modelDelete.toEPL());
+        assertEquals("on " + SupportMarketDataBean.class.getName() + " as s0 delete from MyWindow as s1 where s0.symbol=s1.key", modelDelete.toEPL());
 
         // send delete event
         sendMarketBean("E1");

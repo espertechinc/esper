@@ -13,8 +13,9 @@ package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprNode extends TestCase
@@ -43,7 +44,7 @@ public class TestExprNode extends TestCase
         parent_2.addChildNode(supportNode2_1);
         parent_2.addChildNode(supportNode2_2);
 
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, ExprValidationContextFactory.makeEmpty());
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, topNode, SupportExprValidationContextFactory.makeEmpty());
 
         assertEquals(1, supportNode1_1.getValidateCountSnapshot());
         assertEquals(2, supportNode1_2.getValidateCountSnapshot());

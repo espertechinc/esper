@@ -13,8 +13,7 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
-import com.espertech.esper.support.bean.ISupportBaseAB;
-import com.mysql.jdbc.StringUtils;
+import com.espertech.esper.supportregression.bean.ISupportBaseAB;
 
 import java.io.StringWriter;
 import java.util.ArrayList;

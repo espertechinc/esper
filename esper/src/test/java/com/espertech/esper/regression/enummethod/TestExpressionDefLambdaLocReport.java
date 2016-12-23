@@ -17,11 +17,11 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.lrreport.Item;
-import com.espertech.esper.support.bean.lrreport.LRUtil;
-import com.espertech.esper.support.bean.lrreport.LocationReport;
-import com.espertech.esper.support.bean.lrreport.LocationReportFactory;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.lrreport.Item;
+import com.espertech.esper.supportregression.bean.lrreport.LRUtil;
+import com.espertech.esper.supportregression.bean.lrreport.LocationReport;
+import com.espertech.esper.supportregression.bean.lrreport.LocationReportFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.Collection;

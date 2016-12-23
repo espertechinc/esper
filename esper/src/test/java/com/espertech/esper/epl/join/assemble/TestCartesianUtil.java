@@ -13,7 +13,7 @@ package com.espertech.esper.epl.join.assemble;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.epl.join.SupportJoinResultNodeFactory;
+import com.espertech.esper.supportunit.epl.join.SupportJoinResultNodeFactory;
 
 import java.util.List;
 import java.util.LinkedList;

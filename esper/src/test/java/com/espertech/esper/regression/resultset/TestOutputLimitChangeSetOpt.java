@@ -21,9 +21,9 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.concurrent.atomic.AtomicLong;

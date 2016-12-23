@@ -17,9 +17,9 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportBean_B;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.bean.SupportBean_B;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestSingleOpJoin extends TestCase

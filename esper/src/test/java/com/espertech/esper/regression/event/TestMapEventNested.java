@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -415,7 +415,7 @@ public class TestMapEventNested extends TestCase
         EPServiceProvider epService = getEngineInitialized(null, null);
 
         Map<String, Object> invalid = makeMap(new Object[][] {{new SupportBean(), null} });
-        tryInvalid(epService, invalid, "com.espertech.esper.support.bean.SupportBean cannot be cast to java.lang.String");
+        tryInvalid(epService, invalid, SupportBean.class.getName() + " cannot be cast to java.lang.String");
 
         invalid = makeMap(new Object[][] {{"abc", new SupportBean()} });
         tryInvalid(epService, invalid, "Nestable type configuration encountered an unexpected property type of 'SupportBean' for property 'abc', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type");

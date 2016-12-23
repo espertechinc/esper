@@ -15,10 +15,10 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
@@ -84,12 +84,12 @@ public class TestEPStatementSubstitutionParams extends TestCase
         prepared.setObject(1, "e1");
         EPStatement statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerOne);
-        assertEquals("select * from pattern [com.espertech.esper.support.bean.SupportBean(theString=\"e1\")]", statement.getText());
+        assertEquals("select * from pattern [" + SupportBean.class.getName() + "(theString=\"e1\")]", statement.getText());
 
         prepared.setObject(1, "e2");
         statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerTwo);
-        assertEquals("select * from pattern [com.espertech.esper.support.bean.SupportBean(theString=\"e2\")]", statement.getText());
+        assertEquals("select * from pattern [com.espertech.esper.supportregression.bean.SupportBean(theString=\"e2\")]", statement.getText());
 
         epService.getEPRuntime().sendEvent(new SupportBean("e2", 10));
         assertFalse(listenerOne.isInvoked());
@@ -103,7 +103,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
         prepared = epService.getEPAdministrator().prepareEPL("create window MyWindow#time(?) as " + SupportBean.class.getName());
         prepared.setObject(1, 300);
         statement = epService.getEPAdministrator().create(prepared);
-        assertEquals("create window MyWindow#time(300) as select * from com.espertech.esper.support.bean.SupportBean", statement.getText());
+        assertEquals("create window MyWindow#time(300) as select * from " + SupportBean.class.getName(), statement.getText());
     }
 
     public void testSubselect()
@@ -154,12 +154,12 @@ public class TestEPStatementSubstitutionParams extends TestCase
         prepared.setObject(1, "e1");
         EPStatement statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerOne);
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e1\")", statement.getText());
+        assertEquals("select * from " + SupportBean.class.getName() + "(theString=\"e1\")", statement.getText());
 
         prepared.setObject(1, "e2");
         statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerTwo);
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e2\")", statement.getText());
+        assertEquals("select * from com.espertech.esper.supportregression.bean.SupportBean(theString=\"e2\")", statement.getText());
 
         epService.getEPRuntime().sendEvent(new SupportBean("e2", 10));
         assertFalse(listenerOne.isInvoked());
@@ -230,7 +230,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
         statement.addListener(listenerOne);
         if (compareText)
         {
-            assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e1\" and intPrimitive=1)", statement.getText());
+            assertEquals("select * from " + SupportBean.class.getName() + "(theString=\"e1\" and intPrimitive=1)", statement.getText());
         }
 
         prepared.setObject(1, "e2");
@@ -246,7 +246,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
         statement.addListener(listenerTwo);
         if (compareText)
         {
-            assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e2\" and intPrimitive=2)", statement.getText());
+            assertEquals("select * from " + SupportBean.class.getName() + "(theString=\"e2\" and intPrimitive=2)", statement.getText());
         }
 
         epService.getEPRuntime().sendEvent(new SupportBean("e2", 2));
@@ -269,11 +269,11 @@ public class TestEPStatementSubstitutionParams extends TestCase
 
         EPStatement statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerOne);
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e1\")", statement.getText());
+        assertEquals("select * from " + SupportBean.class.getName() + "(theString=\"e1\")", statement.getText());
 
         statement = epService.getEPAdministrator().create(prepared);
         statement.addListener(listenerTwo);
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean(theString=\"e1\")", statement.getText());
+        assertEquals("select * from com.espertech.esper.supportregression.bean.SupportBean(theString=\"e1\")", statement.getText());
 
         epService.getEPRuntime().sendEvent(new SupportBean("e2", 10));
         assertFalse(listenerOne.isInvoked());
@@ -341,7 +341,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Failed to validate filter expression 'theString=-1': Implicit conversion from datatype 'Integer' to 'String' is not allowed [select * from com.espertech.esper.support.bean.SupportBean(theString=-1)]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Failed to validate filter expression 'theString=-1': Implicit conversion from datatype 'Integer' to 'String' is not allowed [");
         }
     }
 
@@ -436,7 +436,7 @@ public class TestEPStatementSubstitutionParams extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Incorrect syntax near '?' expecting a closing parenthesis ')' but found a questionmark '?' at line 1 column 70, please check the view specifications within the from clause [select * from com.espertech.esper.support.bean.SupportBean#length(?)]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Incorrect syntax near '?' expecting a closing parenthesis ')' but found a questionmark '?' at line 1 column 70, please check the view specifications within the from clause [");
         }
     }
 

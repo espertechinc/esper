@@ -19,9 +19,9 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 public class TestRowPatternRecognitionClausePresence extends TestCase {

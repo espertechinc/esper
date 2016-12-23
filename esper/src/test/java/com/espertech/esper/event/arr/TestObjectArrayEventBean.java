@@ -13,7 +13,7 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 import org.slf4j.Logger;

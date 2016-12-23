@@ -13,8 +13,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.event.EventTypeAssertionUtil;
+import com.espertech.esper.supportunit.bean.*;
+import com.espertech.esper.supportunit.event.EventTypeAssertionUtil;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 

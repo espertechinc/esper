@@ -22,10 +22,10 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.rowregex.RegexPatternExpandUtil;
 import com.espertech.esper.rowregex.RowRegexExprNode;
 import com.espertech.esper.rowregex.RowRegexExprNodePrecedenceEnum;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;

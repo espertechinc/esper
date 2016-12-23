@@ -11,7 +11,7 @@
 
 package com.espertech.esper.view.stat;
 
-import com.espertech.esper.support.util.DoubleValueAssertionUtil;
+import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 import junit.framework.TestCase;
 
 public class TestCorrelationBean extends TestCase

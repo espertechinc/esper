@@ -22,13 +22,13 @@ import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
-import com.espertech.esper.support.epl.SupportSelectExprFactory;
-import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
+import com.espertech.esper.supportunit.epl.SupportSelectExprFactory;
+import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc1Stream;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportValueAddEventService;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportValueAddEventService;
 import junit.framework.TestCase;
 
 import java.util.Collections;

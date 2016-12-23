@@ -18,13 +18,13 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportQueryPlanIndexHook;
-import com.espertech.esper.support.util.IndexAssertion;
-import com.espertech.esper.support.util.IndexAssertionEventSend;
-import com.espertech.esper.support.util.IndexBackingTableInfo;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
+import com.espertech.esper.supportregression.util.IndexAssertion;
+import com.espertech.esper.supportregression.util.IndexAssertionEventSend;
+import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -575,13 +575,13 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
         epService.getEPAdministrator().createEPL(stmtTextCreate);
 
         SupportMessageAssertUtil.tryInvalid(epService, "on " + SupportBean_A.class.getName() + " select * from MyInfra where sum(intPrimitive) > 100",
-                "Error validating expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause) [on com.espertech.esper.support.bean.SupportBean_A select * from MyInfra where sum(intPrimitive) > 100]");
+                "Error validating expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause) [");
 
         SupportMessageAssertUtil.tryInvalid(epService, "on " + SupportBean_A.class.getName() + " insert into MyStream select * from DUMMY",
-                "Named window or table 'DUMMY' has not been declared [on com.espertech.esper.support.bean.SupportBean_A insert into MyStream select * from DUMMY]");
+                "Named window or table 'DUMMY' has not been declared [");
 
         SupportMessageAssertUtil.tryInvalid(epService, "on " + SupportBean_A.class.getName() + " select prev(1, theString) from MyInfra",
-                "Error starting statement: Failed to validate select-clause expression 'prev(1,theString)': Previous function cannot be used in this context [on com.espertech.esper.support.bean.SupportBean_A select prev(1, theString) from MyInfra]");
+                "Error starting statement: Failed to validate select-clause expression 'prev(1,theString)': Previous function cannot be used in this context [");
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);

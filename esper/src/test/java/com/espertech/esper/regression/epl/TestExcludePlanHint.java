@@ -19,16 +19,15 @@ import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescOnExpr;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescSubquery;
 import com.espertech.esper.epl.lookup.SubordFullTableScanLookupStrategyFactory;
-import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategyAllFiltered;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategyFactoryAllFiltered;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.epl.SupportQueryPlanBuilder;
-import com.espertech.esper.support.epl.SupportQueryPlanIndexHelper;
-import com.espertech.esper.support.epl.SupportQueryPlanIndexHook;
-import com.espertech.esper.support.util.IndexBackingTableInfo;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportregression.epl.SupportQueryPlanBuilder;
+import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHelper;
+import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
+import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
 import junit.framework.TestCase;
 
 public class TestExcludePlanHint extends TestCase implements IndexBackingTableInfo

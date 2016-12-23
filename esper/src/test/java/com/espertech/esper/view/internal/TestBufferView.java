@@ -13,9 +13,9 @@ package com.espertech.esper.view.internal;
 
 import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.view.SupportBufferObserver;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.view.SupportBufferObserver;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 
 public class TestBufferView extends TestCase
 {

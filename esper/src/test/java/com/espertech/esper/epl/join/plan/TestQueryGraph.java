@@ -15,7 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,10 +15,9 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.support.bean.SupportMarketDataIDBean;
-import com.espertech.esper.support.bean.SupportSimpleBeanOne;
-import com.espertech.esper.support.bean.SupportSimpleBeanTwo;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportSimpleBeanOne;
+import com.espertech.esper.supportregression.bean.SupportSimpleBeanTwo;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestPerfFAFQueryJoin extends TestCase

@@ -14,14 +14,14 @@ package com.espertech.esper.regression.epl;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBeanRange;
+import com.espertech.esper.supportregression.bean.SupportBeanRange;
 import junit.framework.TestCase;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestJoinCoercion extends TestCase
 {

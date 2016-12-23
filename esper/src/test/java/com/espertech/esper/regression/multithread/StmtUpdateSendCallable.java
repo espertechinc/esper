@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Callable;
 
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import junit.framework.AssertionFailedError;
 
 public class StmtUpdateSendCallable implements Callable

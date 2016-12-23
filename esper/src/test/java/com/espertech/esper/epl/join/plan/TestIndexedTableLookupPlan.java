@@ -19,8 +19,8 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.PropertyIndexedEventTable;
 import com.espertech.esper.epl.join.table.PropertyIndexedEventTableFactory;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 
 import java.util.*;

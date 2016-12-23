@@ -12,20 +12,13 @@
 package com.espertech.esper.regression.db;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.soda.*;
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportDatabaseService;
-import com.espertech.esper.util.SerializableObjectCopier;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportDatabaseService;
 import junit.framework.TestCase;
 
-import java.math.BigDecimal;
-import java.sql.*;
 import java.util.Properties;
 
 public class TestDatabaseOuterJoinWCache extends TestCase

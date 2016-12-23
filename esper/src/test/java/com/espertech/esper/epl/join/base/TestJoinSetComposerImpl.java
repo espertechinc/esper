@@ -20,8 +20,8 @@ import com.espertech.esper.epl.join.plan.TableLookupIndexReqKey;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 import java.util.HashMap;

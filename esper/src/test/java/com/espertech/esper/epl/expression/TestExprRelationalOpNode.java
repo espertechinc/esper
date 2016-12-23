@@ -16,9 +16,10 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.epl.expression.ops.ExprRelationalOpNode;
 import com.espertech.esper.epl.expression.ops.ExprRelationalOpNodeImpl;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.RelationalOpEnum;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprRelationalOpNode extends TestCase
@@ -42,14 +43,14 @@ public class TestExprRelationalOpNode extends TestCase
         // Test success
         opNode.addChildNode(new SupportExprNode(String.class));
         opNode.addChildNode(new SupportExprNode(String.class));
-        opNode.validate(ExprValidationContextFactory.makeEmpty());
+        opNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         opNode.setChildNodes(new SupportExprNode(String.class));
 
         // Test too few nodes under this node
         try
         {
-            opNode.validate(ExprValidationContextFactory.makeEmpty());
+            opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (IllegalStateException ex)
@@ -61,7 +62,7 @@ public class TestExprRelationalOpNode extends TestCase
         opNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            opNode.validate(ExprValidationContextFactory.makeEmpty());
+            opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -75,7 +76,7 @@ public class TestExprRelationalOpNode extends TestCase
 
         try
         {
-            opNode.validate(ExprValidationContextFactory.makeEmpty());
+            opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -90,7 +91,7 @@ public class TestExprRelationalOpNode extends TestCase
         SupportExprNode childTwo = new SupportExprNode("c");
         opNode.addChildNode(childOne);
         opNode.addChildNode(childTwo);
-        opNode.validate(ExprValidationContextFactory.makeEmpty());       // Type initialization
+        opNode.validate(SupportExprValidationContextFactory.makeEmpty());       // Type initialization
 
         assertEquals(true, opNode.evaluate(null, false, null));
 

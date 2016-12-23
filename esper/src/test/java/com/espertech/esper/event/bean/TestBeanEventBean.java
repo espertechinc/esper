@@ -12,10 +12,10 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.event.EventTypeAssertionUtil;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.*;
+import com.espertech.esper.supportunit.event.EventTypeAssertionUtil;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class TestBeanEventBean extends TestCase
             fail();
         }
         catch (PropertyAccessException ex) {
-            assertEquals("Mismatched getter instance to event bean type, expected com.espertech.esper.support.bean.SupportBeanSimple but received com.espertech.esper.support.bean.SupportBean_A", ex.getMessage());
+            assertEquals("Mismatched getter instance to event bean type, expected com.espertech.esper.supportunit.bean.SupportBeanSimple but received com.espertech.esper.supportunit.bean.SupportBean_A", ex.getMessage());
         }
     }
 

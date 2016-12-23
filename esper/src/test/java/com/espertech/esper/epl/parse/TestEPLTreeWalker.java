@@ -12,7 +12,7 @@
 package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.expression.ExprValidationContextFactory;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
@@ -26,8 +26,8 @@ import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.rowregex.RowRegexExprNodePrecedenceEnum;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.epl.parse.SupportParserHelper;
+import com.espertech.esper.supportunit.bean.*;
+import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.OuterJoinType;
@@ -801,7 +801,7 @@ public class TestEPLTreeWalker extends TestCase
 
         ViewSpec[] viewSpecs = walker.getStatementSpec().getStreamSpecs().get(0).getViewSpecs();
         ExprNode node = viewSpecs[0].getObjectParameters().get(0);
-        node.validate(ExprValidationContextFactory.makeEmpty());
+        node.validate(SupportExprValidationContextFactory.makeEmpty());
         Object[] intParams = (Object[]) ((ExprArrayNode) node).evaluate(null, true, null);
         assertEquals(10, intParams[0]);
         assertEquals(11, intParams[1]);
@@ -812,7 +812,7 @@ public class TestEPLTreeWalker extends TestCase
         walker = SupportParserHelper.parseAndWalkEPL(text);
         viewSpecs = walker.getStatementSpec().getStreamSpecs().get(0).getViewSpecs();
         ExprNode param = viewSpecs[0].getObjectParameters().get(0);
-        param.validate(ExprValidationContextFactory.makeEmpty());
+        param.validate(SupportExprValidationContextFactory.makeEmpty());
         Object[] objParams = (Object[]) ((ExprArrayNode) param).evaluate(null, true, null);
         assertEquals(false, objParams[0]);
         assertEquals(11.2, objParams[1]);
@@ -1364,7 +1364,7 @@ public class TestEPLTreeWalker extends TestCase
         assertEquals("time", viewSpec.getObjectName());
         assertEquals(1, viewSpec.getObjectParameters().size());
         ExprTimePeriod exprNode = (ExprTimePeriod) viewSpec.getObjectParameters().get(0);
-        exprNode.validate(ExprValidationContextFactory.makeEmpty());
+        exprNode.validate(SupportExprValidationContextFactory.makeEmpty());
         return exprNode.evaluateAsSeconds(null, true, null);
     }
 
@@ -1389,7 +1389,7 @@ public class TestEPLTreeWalker extends TestCase
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode exprNode = walker.getStatementSpec().getFilterRootNode().getChildNodes()[0];
         ExprBitWiseNode bitWiseNode = (ExprBitWiseNode) (exprNode);
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, bitWiseNode, ExprValidationContextFactory.makeEmpty());
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, bitWiseNode, SupportExprValidationContextFactory.makeEmpty());
         return bitWiseNode.evaluate(null, false, null);
     }
 
@@ -1399,7 +1399,7 @@ public class TestEPLTreeWalker extends TestCase
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode exprNode = (walker.getStatementSpec().getFilterRootNode().getChildNodes()[0]);
-        exprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprNode, ExprValidationContextFactory.makeEmpty());
+        exprNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, exprNode, SupportExprValidationContextFactory.makeEmpty());
         return exprNode.getExprEvaluator().evaluate(null, false, null);
     }
 
@@ -1409,7 +1409,7 @@ public class TestEPLTreeWalker extends TestCase
 
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         ExprNode filterExprNode = walker.getStatementSpec().getFilterRootNode();
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, filterExprNode, ExprValidationContextFactory.makeEmpty());
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, filterExprNode, SupportExprValidationContextFactory.makeEmpty());
         return filterExprNode.getExprEvaluator().evaluate(null, false, null);
     }
 

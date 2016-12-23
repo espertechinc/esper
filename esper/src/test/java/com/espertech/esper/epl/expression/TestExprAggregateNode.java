@@ -15,8 +15,8 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportAggregateExprNode;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportAggregateExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 
 import java.util.List;
 import java.util.LinkedList;

@@ -15,8 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprEqualsNode extends TestCase
@@ -31,17 +32,17 @@ public class TestExprEqualsNode extends TestCase
         equalsNodes[1] = new ExprEqualsNodeImpl(false, false);
         equalsNodes[1].addChildNode(new SupportExprNode(1L));
         equalsNodes[1].addChildNode(new SupportExprNode(new Integer(1)));
-        equalsNodes[1].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[1].validate(SupportExprValidationContextFactory.makeEmpty());
 
         equalsNodes[2] = new ExprEqualsNodeImpl(true, false);
         equalsNodes[2].addChildNode(new SupportExprNode(1.5D));
         equalsNodes[2].addChildNode(new SupportExprNode(new Integer(1)));
-        equalsNodes[2].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[2].validate(SupportExprValidationContextFactory.makeEmpty());
 
         equalsNodes[3] = new ExprEqualsNodeImpl(false, false);
         equalsNodes[3].addChildNode(new SupportExprNode(1D));
         equalsNodes[3].addChildNode(new SupportExprNode(new Integer(1)));
-        equalsNodes[3].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[3].validate(SupportExprValidationContextFactory.makeEmpty());
     }
 
     public void testGetType()
@@ -54,18 +55,18 @@ public class TestExprEqualsNode extends TestCase
         // Test success
         equalsNodes[0].addChildNode(new SupportExprNode(String.class));
         equalsNodes[0].addChildNode(new SupportExprNode(String.class));
-        equalsNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
 
-        equalsNodes[1].validate(ExprValidationContextFactory.makeEmpty());
-        equalsNodes[2].validate(ExprValidationContextFactory.makeEmpty());
-        equalsNodes[3].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[1].validate(SupportExprValidationContextFactory.makeEmpty());
+        equalsNodes[2].validate(SupportExprValidationContextFactory.makeEmpty());
+        equalsNodes[3].validate(SupportExprValidationContextFactory.makeEmpty());
 
         equalsNodes[0].setChildNodes(new SupportExprNode(String.class));
 
         // Test too few nodes under this node
         try
         {
-            equalsNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+            equalsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -77,7 +78,7 @@ public class TestExprEqualsNode extends TestCase
         equalsNodes[0].addChildNode(new SupportExprNode(Boolean.class));
         try
         {
-            equalsNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+            equalsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -107,14 +108,14 @@ public class TestExprEqualsNode extends TestCase
         assertNull(equalsNodes[0].getExprEvaluator().evaluate(null, false, null));
 
         // try a long and int
-        equalsNodes[1].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[1].validate(SupportExprValidationContextFactory.makeEmpty());
         assertTrue((Boolean)equalsNodes[1].getExprEvaluator().evaluate(null, false, null));
 
         // try a double and int
-        equalsNodes[2].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[2].validate(SupportExprValidationContextFactory.makeEmpty());
         assertTrue((Boolean)equalsNodes[2].getExprEvaluator().evaluate(null, false, null));
 
-        equalsNodes[3].validate(ExprValidationContextFactory.makeEmpty());
+        equalsNodes[3].validate(SupportExprValidationContextFactory.makeEmpty());
         assertTrue((Boolean)equalsNodes[3].getExprEvaluator().evaluate(null, false, null));
     }
 

@@ -15,8 +15,8 @@ import com.espertech.esper.client.ConfigurationEventTypeLegacy;
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventPropertyType;
-import com.espertech.esper.support.bean.SupportLegacyBean;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportLegacyBean;
+import com.espertech.esper.supportunit.bean.SupportBean;
 
 import java.util.List;
 import java.util.LinkedList;

@@ -15,11 +15,12 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprInNode;
 import com.espertech.esper.epl.expression.ops.ExprInNodeImpl;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
 
 public class TestExprInNode extends TestCase
@@ -42,7 +43,7 @@ public class TestExprInNode extends TestCase
     public void testValidate() throws Exception
     {
         inNodeNormal = SupportExprNodeFactory.makeInSetNode(true);
-        inNodeNormal.validate(ExprValidationContextFactory.makeEmpty());
+        inNodeNormal.validate(SupportExprValidationContextFactory.makeEmpty());
 
         // No subnodes: Exception is thrown.
         tryInvalidValidate(new ExprInNodeImpl(true));
@@ -102,7 +103,7 @@ public class TestExprInNode extends TestCase
     private void tryInvalidValidate(ExprInNode exprInNode) throws Exception
     {
         try {
-            exprInNode.validate(ExprValidationContextFactory.makeEmpty());
+            exprInNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

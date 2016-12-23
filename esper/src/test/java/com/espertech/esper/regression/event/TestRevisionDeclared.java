@@ -15,13 +15,14 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Random;
@@ -378,25 +379,11 @@ public class TestRevisionDeclared extends TestCase
 
     public void testInvalidInsertInto()
     {
-        try
-        {
-            epService.getEPAdministrator().createEPL("insert into RevQuote select * from " + SupportBean.class.getName());
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Selected event type is not a valid base or delta event type of revision event type 'RevisableQuote' [insert into RevQuote select * from com.espertech.esper.support.bean.SupportBean]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into RevQuote select * from " + SupportBean.class.getName(),
+                "Error starting statement: Selected event type is not a valid base or delta event type of revision event type 'RevisableQuote' [");
 
-        try
-        {
-            epService.getEPAdministrator().createEPL("insert into RevQuote select intPrimitive as k0 from " + SupportBean.class.getName());
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Selected event type is not a valid base or delta event type of revision event type 'RevisableQuote' [insert into RevQuote select intPrimitive as k0 from com.espertech.esper.support.bean.SupportBean]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into RevQuote select intPrimitive as k0 from " + SupportBean.class.getName(),
+                "Error starting statement: Selected event type is not a valid base or delta event type of revision event type 'RevisableQuote' ");
     }
 
     private void tryInvalidConfig(String name, ConfigurationRevisionEventType config, String message)

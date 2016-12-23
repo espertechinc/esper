@@ -11,8 +11,8 @@
 
 package com.espertech.esper.regression.pattern;
 
-import com.espertech.esper.regression.support.*;
-import com.espertech.esper.support.bean.*;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.patternassert.*;
 import junit.framework.TestCase;
 
 public class TestSuperAndInterfaces extends TestCase

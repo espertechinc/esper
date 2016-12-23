@@ -11,22 +11,21 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import junit.framework.TestCase;
-import com.espertech.esper.client.*;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.client.soda.SelectClause;
-import com.espertech.esper.client.soda.FromClause;
 import com.espertech.esper.client.soda.FilterStream;
+import com.espertech.esper.client.soda.FromClause;
+import com.espertech.esper.client.soda.SelectClause;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import junit.framework.TestCase;
 
 import java.util.Map;
 
@@ -58,7 +57,7 @@ public class TestSelectExprStreamSelector extends TestCase
         }
         catch (Exception ex)
         {
-            assertEquals("Error starting statement: The property wildcard syntax must be used without column name [select simpleProperty.* as a from com.espertech.esper.support.bean.SupportBeanComplexProps as s0]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: The property wildcard syntax must be used without column name");
         }
     }
 
@@ -408,30 +407,17 @@ public class TestSelectExprStreamSelector extends TestCase
 
     public void testInvalidSelect()
     {
-        tryInvalid("select theString.* as theString, theString from " + SupportBean.class.getName() + "#length(3) as theString",
-                   "Error starting statement: Column name 'theString' appears more then once in select clause [select theString.* as theString, theString from com.espertech.esper.support.bean.SupportBean#length(3) as theString]");
+        SupportMessageAssertUtil.tryInvalid(epService, "select theString.* as theString, theString from " + SupportBean.class.getName() + "#length(3) as theString",
+                   "Error starting statement: Column name 'theString' appears more then once in select clause");
 
-        tryInvalid("select s1.* as abc from " + SupportBean.class.getName() + "#length(3) as s0",
-                   "Error starting statement: Stream selector 's1.*' does not match any stream name in the from clause [select s1.* as abc from com.espertech.esper.support.bean.SupportBean#length(3) as s0]");
+        SupportMessageAssertUtil.tryInvalid(epService, "select s1.* as abc from " + SupportBean.class.getName() + "#length(3) as s0",
+                   "Error starting statement: Stream selector 's1.*' does not match any stream name in the from clause [");
 
-        tryInvalid("select s0.* as abc, s0.* as abc from " + SupportBean.class.getName() + "#length(3) as s0",
-                   "Error starting statement: Column name 'abc' appears more then once in select clause [select s0.* as abc, s0.* as abc from com.espertech.esper.support.bean.SupportBean#length(3) as s0]");
+        SupportMessageAssertUtil.tryInvalid(epService, "select s0.* as abc, s0.* as abc from " + SupportBean.class.getName() + "#length(3) as s0",
+                   "Error starting statement: Column name 'abc' appears more then once in select clause");
 
-        tryInvalid("select s0.*, s1.* from " + SupportBean.class.getName() + "#keepall as s0, " + SupportBean.class.getName() + "#keepall as s1",
-                   "Error starting statement: A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation [select s0.*, s1.* from com.espertech.esper.support.bean.SupportBean#keepall as s0, com.espertech.esper.support.bean.SupportBean#keepall as s1]");
-    }
-
-    private void tryInvalid(String clause, String message)
-    {
-        try
-        {
-            epService.getEPAdministrator().createEPL(clause);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals(message, ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select s0.*, s1.* from " + SupportBean.class.getName() + "#keepall as s0, " + SupportBean.class.getName() + "#keepall as s1",
+                   "Error starting statement: A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation");
     }
 
     private SupportBean sendBeanEvent(String s)

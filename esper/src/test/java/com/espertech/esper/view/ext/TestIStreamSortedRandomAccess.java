@@ -13,8 +13,8 @@ package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.util.MultiKeyCastingComparator;
 import com.espertech.esper.util.MultiKeyComparator;
 import com.espertech.esper.view.window.RandomAccessByIndex;

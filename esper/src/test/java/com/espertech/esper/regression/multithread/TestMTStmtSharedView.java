@@ -13,8 +13,8 @@ package com.espertech.esper.regression.multithread;
 
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.util.SupportMTUpdateListener;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.util.SupportMTUpdateListener;
 import com.espertech.esper.client.EventBean;
 
 import java.util.concurrent.*;

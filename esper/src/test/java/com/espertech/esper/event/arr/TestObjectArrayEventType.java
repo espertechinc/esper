@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 import java.util.LinkedHashMap;

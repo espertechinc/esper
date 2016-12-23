@@ -17,8 +17,8 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 

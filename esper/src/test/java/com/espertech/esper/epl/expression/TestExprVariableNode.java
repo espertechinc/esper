@@ -17,7 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprVariableNodeImpl;
 import com.espertech.esper.epl.expression.ops.ExprInNode;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
 public class TestExprVariableNode extends TestCase

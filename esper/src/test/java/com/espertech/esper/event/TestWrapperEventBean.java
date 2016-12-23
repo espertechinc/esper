@@ -13,8 +13,8 @@ package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBeanCombinedProps;
-import com.espertech.esper.support.bean.SupportBeanSimple;
+import com.espertech.esper.supportunit.bean.SupportBeanCombinedProps;
+import com.espertech.esper.supportunit.bean.SupportBeanSimple;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 

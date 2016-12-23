@@ -12,7 +12,7 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.*;
+import com.espertech.esper.supportunit.bean.*;
 import junit.framework.TestCase;
 
 import java.io.BufferedReader;

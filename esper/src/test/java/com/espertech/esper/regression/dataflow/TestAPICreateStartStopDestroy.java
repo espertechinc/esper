@@ -19,8 +19,8 @@ import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.UuidGenerator;
 import junit.framework.TestCase;
 

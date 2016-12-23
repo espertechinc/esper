@@ -16,10 +16,10 @@ import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.view.SupportMapView;
-import com.espertech.esper.support.view.SupportSchemaNeutralView;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.view.SupportMapView;
+import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 
 import java.util.HashMap;

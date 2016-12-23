@@ -14,11 +14,11 @@ package com.espertech.esper.regression.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_G;
-import com.espertech.esper.support.bean.SupportMarkerImplA;
-import com.espertech.esper.support.bean.SupportMarkerInterface;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_G;
+import com.espertech.esper.supportregression.bean.SupportMarkerImplA;
+import com.espertech.esper.supportregression.bean.SupportMarkerInterface;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -69,7 +69,7 @@ public class TestEventSenderBuiltin extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Unexpected event object of type com.espertech.esper.support.bean.SupportBean, expected Object[]", ex.getMessage());
+            assertEquals("Unexpected event object of type " + SupportBean.class.getName() + ", expected Object[]", ex.getMessage());
         }
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -102,7 +102,7 @@ public class TestEventSenderBuiltin extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Event object of type com.espertech.esper.support.bean.SupportBean_G does not equal, extend or implement the type com.espertech.esper.support.bean.SupportBean of event type 'SupportBean'", ex.getMessage());
+            assertEquals("Event object of type " + SupportBean_G.class.getName() + " does not equal, extend or implement the type " + SupportBean.class.getName() + " of event type 'SupportBean'", ex.getMessage());
         }
 
         // test an interface
@@ -150,7 +150,7 @@ public class TestEventSenderBuiltin extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Unexpected event object of type com.espertech.esper.support.bean.SupportBean, expected java.util.Map", ex.getMessage());
+            assertEquals("Unexpected event object of type " + SupportBean.class.getName() + ", expected java.util.Map", ex.getMessage());
         }
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
@@ -198,7 +198,7 @@ public class TestEventSenderBuiltin extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Unexpected event object type 'com.espertech.esper.support.bean.SupportBean' encountered, please supply a org.w3c.dom.Document or Element node", ex.getMessage());
+            assertEquals("Unexpected event object type '" + SupportBean.class.getName() + "' encountered, please supply a org.w3c.dom.Document or Element node", ex.getMessage());
         }
 
         // test adding a second type for the same root element

@@ -11,7 +11,7 @@
 
 package com.espertech.esper.regression.multithread;
 
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

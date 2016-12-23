@@ -15,9 +15,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprInstanceofNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.bean.SupportBean;
 
 public class TestExprInstanceOfNode extends TestCase
 {
@@ -47,7 +48,7 @@ public class TestExprInstanceOfNode extends TestCase
     {
         for (int i = 0; i < instanceofNodes.length; i++)
         {
-            instanceofNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            instanceofNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
             assertEquals(Boolean.class, instanceofNodes[i].getType());
         }
     }
@@ -60,7 +61,7 @@ public class TestExprInstanceOfNode extends TestCase
         // Test too few nodes under this node
         try
         {
-            instanceofNode.validate(ExprValidationContextFactory.makeEmpty());
+            instanceofNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -72,7 +73,7 @@ public class TestExprInstanceOfNode extends TestCase
         instanceofNode.addChildNode(new SupportExprNode("s"));
         try
         {
-            instanceofNode.validate(ExprValidationContextFactory.makeEmpty());
+            instanceofNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -85,7 +86,7 @@ public class TestExprInstanceOfNode extends TestCase
     {
         for (int i = 0; i < instanceofNodes.length; i++)
         {
-            instanceofNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            instanceofNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(true, instanceofNodes[0].evaluate(null, false, null));

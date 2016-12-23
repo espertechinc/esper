@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 
 import java.util.Set;

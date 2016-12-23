@@ -23,9 +23,9 @@ import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Arrays;

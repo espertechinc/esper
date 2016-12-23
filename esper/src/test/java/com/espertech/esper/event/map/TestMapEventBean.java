@@ -11,9 +11,9 @@
 
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;

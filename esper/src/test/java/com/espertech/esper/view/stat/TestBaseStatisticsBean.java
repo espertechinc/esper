@@ -12,7 +12,7 @@
 package com.espertech.esper.view.stat;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.util.DoubleValueAssertionUtil;
+import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 
 public class TestBaseStatisticsBean extends TestCase
 {

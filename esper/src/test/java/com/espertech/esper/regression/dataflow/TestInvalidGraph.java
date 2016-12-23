@@ -19,9 +19,9 @@ import com.espertech.esper.dataflow.interfaces.DataFlowOperatorFactory;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportBean_B;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.bean.SupportBean_B;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestInvalidGraph extends TestCase {

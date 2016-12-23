@@ -15,14 +15,15 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestPreviousFunction extends TestCase
 {
@@ -975,7 +976,7 @@ public class TestPreviousFunction extends TestCase
 
         tryInvalid("select prev(0, average) " +
                 "from " + SupportMarketDataBean.class.getName() + "#length(100)#uni(price)",
-                "Error starting statement: Previous function requires a single data window view onto the stream [select prev(0, average) from com.espertech.esper.support.bean.SupportMarketDataBean#length(100)#uni(price)]");
+                "Error starting statement: Previous function requires a single data window view onto the stream [");
 
         tryInvalid("select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5",
                 "Error starting statement: The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5]");
@@ -994,7 +995,7 @@ public class TestPreviousFunction extends TestCase
         catch (EPException ex)
         {
             // expected
-            assertEquals(expectedError, ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, expectedError);
         }
     }
 

@@ -14,9 +14,9 @@ package com.espertech.esper.regression.view;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.DoubleValueAssertionUtil;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.DoubleValueAssertionUtil;
 import com.espertech.esper.view.ViewFieldEnum;
 import junit.framework.TestCase;
 

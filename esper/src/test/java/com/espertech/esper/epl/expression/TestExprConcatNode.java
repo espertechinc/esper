@@ -18,9 +18,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprConcatNode;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.MathArithTypeEnum;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class TestExprConcatNode extends TestCase
         // Must have 2 or more String subnodes
         try
         {
-            concatNode.validate(ExprValidationContextFactory.makeEmpty());
+            concatNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -64,7 +65,7 @@ public class TestExprConcatNode extends TestCase
         concatNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            concatNode.validate(ExprValidationContextFactory.makeEmpty());
+            concatNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -105,7 +106,7 @@ public class TestExprConcatNode extends TestCase
         for (String text : Arrays.asList(textA, textB, textC)) {
             concatNode.addChildNode(new ExprConstantNodeImpl(text));
         }
-        concatNode.validate(ExprValidationContextFactory.makeEmpty(threadingProfile));
+        concatNode.validate(SupportExprValidationContextFactory.makeEmpty(threadingProfile));
 
         final int numThreads = 4;
         final int numLoop = 10000;

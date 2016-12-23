@@ -16,8 +16,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.support.bean.SupportBeanSimple;
-import com.espertech.esper.support.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportBeanSimple;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 

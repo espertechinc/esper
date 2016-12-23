@@ -14,8 +14,8 @@ package com.espertech.esper.epl.expression;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.methodagg.ExprMedianNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 
 public class TestExprMedianNode extends TestExprAggregateNodeAdapter
 {

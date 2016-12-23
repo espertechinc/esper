@@ -17,9 +17,10 @@ import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.SupportStreamTypeSvc3Stream;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,22 +78,22 @@ public class TestExprIdentNode extends TestCase
 
     public void testValidate() throws Exception
     {
-        identNodes[0].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[0].getStreamId());
         assertEquals(String.class, identNodes[0].getExprEvaluator().getType());
         assertEquals("mapped('a')", identNodes[0].getResolvedPropertyName());
 
-        identNodes[1].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[1].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[1].getStreamId());
         assertEquals(String.class, identNodes[1].getExprEvaluator().getType());
         assertEquals("nested.nestedValue", identNodes[1].getResolvedPropertyName());
 
-        identNodes[2].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(2, identNodes[2].getStreamId());
         assertEquals(int.class, identNodes[2].getExprEvaluator().getType());
         assertEquals("indexed[1]", identNodes[2].getResolvedPropertyName());
 
-        identNodes[3].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, identNodes[3].getStreamId());
         assertEquals(int.class, identNodes[3].getExprEvaluator().getType());
         assertEquals("intPrimitive", identNodes[3].getResolvedPropertyName());
@@ -108,7 +109,7 @@ public class TestExprIdentNode extends TestCase
     public void testGetType() throws Exception
     {
         // test success
-        identNodes[0].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(String.class, identNodes[0].getExprEvaluator().getType());
     }
 
@@ -116,7 +117,7 @@ public class TestExprIdentNode extends TestCase
     {
         EventBean[] events = new EventBean[] {makeEvent(10)};
 
-        identNodes[3].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(10, identNodes[3].getExprEvaluator().evaluate(events, false, null));
         assertNull(identNodes[3].getExprEvaluator().evaluate(new EventBean[2], false, null));
     }
@@ -127,7 +128,7 @@ public class TestExprIdentNode extends TestCase
         // fails if the getter is not in place
 
         EventBean[] events = SupportStreamTypeSvc3Stream.getSampleEvents();
-        identNodes[2].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
 
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 100000; i++)
@@ -144,7 +145,7 @@ public class TestExprIdentNode extends TestCase
     {
         for (int i = 0; i < identNodes.length; i++)
         {
-            identNodes[i].validate(ExprValidationContextFactory.make(streamTypeService));
+            identNodes[i].validate(SupportExprValidationContextFactory.make(streamTypeService));
         }
         assertEquals("mapped('a')", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[0]));
         assertEquals("nested.nestedValue", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(identNodes[1]));
@@ -154,9 +155,9 @@ public class TestExprIdentNode extends TestCase
 
     public void testEqualsNode() throws Exception
     {
-        identNodes[0].validate(ExprValidationContextFactory.make(streamTypeService));
-        identNodes[2].validate(ExprValidationContextFactory.make(streamTypeService));
-        identNodes[3].validate(ExprValidationContextFactory.make(streamTypeService));
+        identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
+        identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
+        identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertTrue(identNodes[3].equalsNode(identNodes[3]));
         assertFalse(identNodes[0].equalsNode(identNodes[2]));
     }
@@ -172,7 +173,7 @@ public class TestExprIdentNode extends TestCase
     {
         try
         {
-            identNode.validate(ExprValidationContextFactory.make(streamTypeService));
+            identNode.validate(SupportExprValidationContextFactory.make(streamTypeService));
             fail();
         }
         catch(ExprValidationException ex)

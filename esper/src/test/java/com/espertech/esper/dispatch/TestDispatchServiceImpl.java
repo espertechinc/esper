@@ -11,7 +11,7 @@
 
 package com.espertech.esper.dispatch;
 
-import com.espertech.esper.support.dispatch.SupportDispatchable;
+import com.espertech.esper.supportunit.dispatch.SupportDispatchable;
 import junit.framework.TestCase;
 import java.util.List;
 

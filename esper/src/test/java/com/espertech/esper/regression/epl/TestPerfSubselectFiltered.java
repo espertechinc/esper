@@ -17,8 +17,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestPerfSubselectFiltered extends TestCase
 {

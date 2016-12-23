@@ -21,8 +21,8 @@ import com.espertech.esper.epl.spec.PatternStreamSpecCompiled;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.PatternExpressionPrecedenceEnum;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;

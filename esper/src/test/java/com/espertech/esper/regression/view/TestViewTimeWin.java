@@ -15,8 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.client.EventBean;
 
 import org.slf4j.Logger;

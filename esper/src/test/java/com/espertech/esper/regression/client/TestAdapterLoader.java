@@ -14,8 +14,8 @@ package com.espertech.esper.regression.client;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.support.plugin.SupportPluginLoader;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.plugin.SupportPluginLoader;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 
 import java.util.Properties;

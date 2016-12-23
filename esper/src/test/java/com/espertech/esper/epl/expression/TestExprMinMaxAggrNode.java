@@ -16,11 +16,12 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.epl.SupportStreamTypeSvc3Stream;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
 public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
 {
@@ -69,7 +70,7 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
         // Must have exactly 1 subnodes
         try
         {
-            minNode.validate(ExprValidationContextFactory.makeEmpty());
+            minNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -83,7 +84,7 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
         minNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            minNode.validate(ExprValidationContextFactory.make(new SupportStreamTypeSvc3Stream()));
+            minNode.validate(SupportExprValidationContextFactory.make(new SupportStreamTypeSvc3Stream()));
             fail();
         }
         catch (ExprValidationException ex)

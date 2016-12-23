@@ -12,12 +12,11 @@
 package com.espertech.esper.view.internal;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.view.internal.PriorEventBufferSingle;
 
 public class TestPriorEventView extends TestCase
 {

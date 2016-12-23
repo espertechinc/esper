@@ -12,9 +12,9 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

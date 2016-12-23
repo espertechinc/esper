@@ -20,12 +20,12 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementFormatter;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.bookexample.*;
-import com.espertech.esper.support.bean.word.SentenceEvent;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.bookexample.*;
+import com.espertech.esper.supportregression.bean.word.SentenceEvent;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
-import static com.espertech.esper.support.bean.bookexample.OrderBeanFactory.*;
+import static com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory.*;
 
 public class TestContainedEventSimple extends TestCase
 {

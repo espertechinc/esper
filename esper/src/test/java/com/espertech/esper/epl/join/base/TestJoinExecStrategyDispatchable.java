@@ -11,11 +11,10 @@
 
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.epl.join.base.JoinExecStrategyDispatchable;
 import com.espertech.esper.view.internal.BufferView;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.epl.SupportJoinExecutionStrategy;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.epl.SupportJoinExecutionStrategy;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 public class TestJoinExecStrategyDispatchable extends TestCase

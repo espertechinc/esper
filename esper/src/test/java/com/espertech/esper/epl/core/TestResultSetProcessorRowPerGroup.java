@@ -21,12 +21,12 @@ import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.SupportAggregationService;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.epl.SupportSelectExprFactory;
-import com.espertech.esper.support.epl.SupportStreamTypeSvc1Stream;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportAggregationService;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportSelectExprFactory;
+import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc1Stream;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;

@@ -16,22 +16,13 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.metrics.codahale_metrics.metrics.MetricNameFactory;
-import com.espertech.esper.metrics.codahale_metrics.metrics.Metrics;
-import com.espertech.esper.metrics.codahale_metrics.metrics.core.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import javax.management.InstanceNotFoundException;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestEPServiceProviderMetricsJMX extends TestCase {
 

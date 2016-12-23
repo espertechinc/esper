@@ -15,8 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.MinMaxTypeEnum;
 
 public class TestExprMinMaxRowNode extends TestCase
@@ -32,11 +33,11 @@ public class TestExprMinMaxRowNode extends TestCase
     {
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
         minMaxNode.addChildNode(new SupportExprNode(Integer.class));
-        minMaxNode.validate(ExprValidationContextFactory.makeEmpty());
+        minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals(Double.class, minMaxNode.getType());
 
         minMaxNode.addChildNode(new SupportExprNode(Double.class));
-        minMaxNode.validate(ExprValidationContextFactory.makeEmpty());
+        minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals(Double.class, minMaxNode.getType());
     }
 
@@ -54,7 +55,7 @@ public class TestExprMinMaxRowNode extends TestCase
         // Must have 2 or more subnodes
         try
         {
-            minMaxNode.validate(ExprValidationContextFactory.makeEmpty());
+            minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -67,7 +68,7 @@ public class TestExprMinMaxRowNode extends TestCase
         minMaxNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            minMaxNode.validate(ExprValidationContextFactory.makeEmpty());
+            minMaxNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -123,7 +124,7 @@ public class TestExprMinMaxRowNode extends TestCase
         {
             nodeMin.addChildNode(new SupportExprNode(floatValue));
         }
-        nodeMin.validate(ExprValidationContextFactory.makeEmpty());
+        nodeMin.validate(SupportExprValidationContextFactory.makeEmpty());
     }
 
     private ExprMinMaxRowNode makeNode(Object valueOne, Class typeOne,
@@ -134,7 +135,7 @@ public class TestExprMinMaxRowNode extends TestCase
         maxNode.addChildNode(new SupportExprNode(valueOne, typeOne));
         maxNode.addChildNode(new SupportExprNode(valueTwo, typeTwo));
         maxNode.addChildNode(new SupportExprNode(valueThree, typeThree));
-        maxNode.validate(ExprValidationContextFactory.makeEmpty());
+        maxNode.validate(SupportExprValidationContextFactory.makeEmpty());
         return maxNode;
     }
 

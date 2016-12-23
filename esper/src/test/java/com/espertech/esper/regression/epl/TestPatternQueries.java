@@ -20,9 +20,9 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 
 public class TestPatternQueries extends TestCase

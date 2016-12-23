@@ -15,11 +15,12 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_Container;
-import com.espertech.esper.support.bean.SupportCollection;
-import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_Container;
+import com.espertech.esper.supportregression.bean.SupportCollection;
+import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
@@ -128,10 +129,10 @@ public class TestEnumAverage extends TestCase {
         String epl;
 
         epl = "select strvals.average() from SupportCollection";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'strvals.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of numeric values as input, received collection of String [select strvals.average() from SupportCollection]");
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'strvals.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of numeric values as input, received collection of String [select strvals.average() from SupportCollection]");
 
         epl = "select beans.average() from Bean";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'beans.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'com.espertech.esper.support.bean.SupportBean' [select beans.average() from Bean]");
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'beans.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean.class.getName() + "'");
     }
 
     private SupportBean make(Integer intBoxed, Double doubleBoxed, Long longBoxed, int bigDecimal) {
@@ -141,16 +142,5 @@ public class TestEnumAverage extends TestCase {
         bean.setLongBoxed(longBoxed);
         bean.setBigDecimal(new BigDecimal(bigDecimal));
         return bean;
-    }
-
-    private void tryInvalid(String epl, String message) {
-        try
-        {
-            epService.getEPAdministrator().createEPL(epl);
-            fail();
-        }
-        catch (EPStatementException ex) {
-            assertEquals(message, ex.getMessage());
-        }
     }
 }

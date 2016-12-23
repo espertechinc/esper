@@ -15,13 +15,13 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.support.view.SupportStreamImpl;
-import com.espertech.esper.support.view.SupportViewDataChecker;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewDataChecker;
 import junit.framework.TestCase;
 
 public class TestExternallyTimedWindowView extends TestCase

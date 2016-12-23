@@ -19,12 +19,12 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.soda.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 
-import com.espertech.esper.support.bean.SupportEnum;
-import com.espertech.esper.support.bean.SupportBeanWithEnum;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportEnum;
+import com.espertech.esper.supportregression.bean.SupportBeanWithEnum;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 
 import org.slf4j.Logger;
@@ -573,8 +573,8 @@ public class TestCaseExpr extends TestCase
     public void testCaseSyntax2EnumChecks()
     {
        String caseExpr = "select case supportEnum " +
-                 " when com.espertech.esper.support.bean.SupportEnum.getValueForEnum(0) then 1 " +
-                 " when com.espertech.esper.support.bean.SupportEnum.getValueForEnum(1) then 2 " +
+                 " when " + SupportEnum.class.getName() + ".getValueForEnum(0) then 1 " +
+                 " when " + SupportEnum.class.getName() + ".getValueForEnum(1) then 2 " +
                  " end as p1 " +
                  " from " + SupportBeanWithEnum.class.getName() + "#length(10)";
 
@@ -598,9 +598,9 @@ public class TestCaseExpr extends TestCase
     public void testCaseSyntax2EnumResult()
     {
        String caseExpr = "select case intPrimitive * 2 " +
-                 " when 2 then com.espertech.esper.support.bean.SupportEnum.getValueForEnum(0) " +
-                 " when 4 then com.espertech.esper.support.bean.SupportEnum.getValueForEnum(1) " +
-                 " else com.espertech.esper.support.bean.SupportEnum.getValueForEnum(2) " +
+                 " when 2 then " + SupportEnum.class.getName() + ".getValueForEnum(0) " +
+                 " when 4 then " + SupportEnum.class.getName() + ".getValueForEnum(1) " +
+                 " else " + SupportEnum.class.getName() + ".getValueForEnum(2) " +
                  " end as p1 " +
                  " from " + SupportBean.class.getName() + "#length(10)";
 

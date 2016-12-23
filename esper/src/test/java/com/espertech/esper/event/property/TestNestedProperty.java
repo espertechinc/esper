@@ -17,9 +17,9 @@ import com.espertech.esper.event.EventTypeIdGeneratorImpl;
 import com.espertech.esper.event.bean.BeanEventAdapter;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.BeanEventTypeFactory;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;

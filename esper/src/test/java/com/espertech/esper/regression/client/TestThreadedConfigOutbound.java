@@ -12,9 +12,8 @@
 package com.espertech.esper.regression.client;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.bean.SupportBeanConstants;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.client.*;
 
 public class TestThreadedConfigOutbound extends TestCase

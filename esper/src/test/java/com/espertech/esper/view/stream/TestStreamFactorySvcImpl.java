@@ -16,14 +16,13 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.StatementAgentInstanceRWLockImpl;
 import com.espertech.esper.core.service.StatementType;
-import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactory;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.filter.FilterOperator;
 import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.filter.SupportFilterServiceImpl;
-import com.espertech.esper.support.filter.SupportFilterSpecBuilder;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.filter.SupportFilterServiceImpl;
+import com.espertech.esper.supportunit.filter.SupportFilterSpecBuilder;
 import com.espertech.esper.view.EventStream;
 import junit.framework.TestCase;
 

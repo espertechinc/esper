@@ -18,9 +18,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.ArrayHandlingUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.ArrayHandlingUtil;
 import junit.framework.TestCase;
 
 public class TestOuterJoin7Stream extends TestCase

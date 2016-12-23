@@ -13,7 +13,7 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
 
 import java.util.Set;

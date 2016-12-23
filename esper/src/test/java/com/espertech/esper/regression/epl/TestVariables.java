@@ -20,10 +20,11 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.event.EventTypeAssertionEnum;
-import com.espertech.esper.support.event.EventTypeAssertionUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
+import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -873,21 +874,21 @@ public class TestVariables extends TestCase
         epService.getEPAdministrator().getConfiguration().addVariable("var3", int.class, 1);
 
         tryInvalidSet("on " + SupportBean.class.getName() + " set dummy = 100",
-                      "Error starting statement: Variable by name 'dummy' has not been created or configured [on com.espertech.esper.support.bean.SupportBean set dummy = 100]");
+                      "Error starting statement: Variable by name 'dummy' has not been created or configured");
 
         tryInvalidSet("on " + SupportBean.class.getName() + " set var1 = 1",
-                      "Error starting statement: Variable 'var1' of declared type java.lang.String cannot be assigned a value of type java.lang.Integer [on com.espertech.esper.support.bean.SupportBean set var1 = 1]");
+                      "Error starting statement: Variable 'var1' of declared type java.lang.String cannot be assigned a value of type java.lang.Integer");
 
         tryInvalidSet("on " + SupportBean.class.getName() + " set var3 = 'abc'",
-                      "Error starting statement: Variable 'var3' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String [on com.espertech.esper.support.bean.SupportBean set var3 = 'abc']");
+                      "Error starting statement: Variable 'var3' of declared type java.lang.Integer cannot be assigned a value of type java.lang.String");
 
         tryInvalidSet("on " + SupportBean.class.getName() + " set var3 = doublePrimitive",
-                      "Error starting statement: Variable 'var3' of declared type java.lang.Integer cannot be assigned a value of type double [on com.espertech.esper.support.bean.SupportBean set var3 = doublePrimitive]");
+                      "Error starting statement: Variable 'var3' of declared type java.lang.Integer cannot be assigned a value of type double");
 
         tryInvalidSet("on " + SupportBean.class.getName() + " set var2 = 'false'", null);
         tryInvalidSet("on " + SupportBean.class.getName() + " set var3 = 1.1", null);
         tryInvalidSet("on " + SupportBean.class.getName() + " set var3 = 22222222222222", null);
-        tryInvalidSet("on " + SupportBean.class.getName() + " set var3", "Error starting statement: Missing variable assignment expression in assignment number 0 [on com.espertech.esper.support.bean.SupportBean set var3]");
+        tryInvalidSet("on " + SupportBean.class.getName() + " set var3", "Error starting statement: Missing variable assignment expression in assignment number 0 [");
     }
 
     private void tryInvalidSet(String stmtText, String message)
@@ -901,7 +902,7 @@ public class TestVariables extends TestCase
         {
             if (message != null)
             {
-                assertEquals(message, ex.getMessage());
+                SupportMessageAssertUtil.assertMessage(ex, message);
             }
         }
     }

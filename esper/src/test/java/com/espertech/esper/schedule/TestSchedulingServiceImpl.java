@@ -11,7 +11,7 @@
 
 package com.espertech.esper.schedule;
 
-import com.espertech.esper.support.schedule.SupportScheduleCallback;
+import com.espertech.esper.supportunit.schedule.SupportScheduleCallback;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.ScheduleUnit;
 import junit.framework.TestCase;

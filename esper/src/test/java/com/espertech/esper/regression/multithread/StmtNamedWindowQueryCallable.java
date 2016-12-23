@@ -14,7 +14,7 @@ package com.espertech.esper.regression.multithread;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.core.service.EPRuntimeSPI;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

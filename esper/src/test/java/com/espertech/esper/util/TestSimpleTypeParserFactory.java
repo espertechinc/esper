@@ -12,13 +12,6 @@
 package com.espertech.esper.util;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.bean.*;
-
-import java.util.*;
-import java.io.Serializable;
-import java.io.LineNumberReader;
-import java.io.BufferedReader;
-import java.io.Reader;
 
 public class TestSimpleTypeParserFactory extends TestCase
 {

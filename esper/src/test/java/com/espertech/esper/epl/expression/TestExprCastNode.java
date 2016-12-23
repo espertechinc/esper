@@ -15,7 +15,8 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCastNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprCastNode extends TestCase
@@ -37,7 +38,7 @@ public class TestExprCastNode extends TestCase
     {
         for (int i = 0; i < castNodes.length; i++)
         {
-            castNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            castNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(Long.class, castNodes[0].getTargetType());
@@ -51,7 +52,7 @@ public class TestExprCastNode extends TestCase
         // Test too few nodes under this node
         try
         {
-            castNode.validate(ExprValidationContextFactory.makeEmpty());
+            castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -64,7 +65,7 @@ public class TestExprCastNode extends TestCase
     {
         for (int i = 0; i < castNodes.length; i++)
         {
-            castNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            castNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(10L, castNodes[0].getExprEvaluator().evaluate(null, false, null));
@@ -80,7 +81,7 @@ public class TestExprCastNode extends TestCase
 
     public void testToExpressionString() throws Exception
     {
-        castNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+        castNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("cast(10,long)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(castNodes[0]));
     }
 }

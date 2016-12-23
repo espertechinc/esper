@@ -13,8 +13,8 @@ package com.espertech.esper.regression.event;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.event.EventTypeAssertionUtil;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

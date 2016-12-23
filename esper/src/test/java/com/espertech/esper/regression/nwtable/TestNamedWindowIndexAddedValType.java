@@ -13,8 +13,8 @@ package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestNamedWindowIndexAddedValType extends TestCase

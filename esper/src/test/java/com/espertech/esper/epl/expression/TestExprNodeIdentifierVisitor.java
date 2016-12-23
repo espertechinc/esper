@@ -13,7 +13,7 @@ package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
 public class TestExprNodeIdentifierVisitor extends TestCase

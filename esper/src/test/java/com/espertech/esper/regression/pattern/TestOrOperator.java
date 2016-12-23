@@ -15,12 +15,12 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.support.*;
-import com.espertech.esper.support.bean.SupportBeanConstants;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportBean_B;
-import com.espertech.esper.support.bean.SupportBean_C;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBeanConstants;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.bean.SupportBean_B;
+import com.espertech.esper.supportregression.bean.SupportBean_C;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.patternassert.*;
 import junit.framework.TestCase;
 
 public class TestOrOperator extends TestCase implements SupportBeanConstants

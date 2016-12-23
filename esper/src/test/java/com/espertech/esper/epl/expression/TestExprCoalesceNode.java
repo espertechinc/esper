@@ -15,8 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCoalesceNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 
 public class TestExprCoalesceNode extends TestCase
 {
@@ -54,7 +55,7 @@ public class TestExprCoalesceNode extends TestCase
     {
         for (int i = 0; i < coalesceNodes.length; i++)
         {
-            coalesceNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(Long.class, coalesceNodes[0].getType());
@@ -72,7 +73,7 @@ public class TestExprCoalesceNode extends TestCase
         // Test too few nodes under this node
         try
         {
-            coalesceNode.validate(ExprValidationContextFactory.makeEmpty());
+            coalesceNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -84,7 +85,7 @@ public class TestExprCoalesceNode extends TestCase
         coalesceNode.addChildNode(new SupportExprNode("s"));
         try
         {
-            coalesceNode.validate(ExprValidationContextFactory.makeEmpty());
+            coalesceNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -97,7 +98,7 @@ public class TestExprCoalesceNode extends TestCase
     {
         for (int i = 0; i < coalesceNodes.length; i++)
         {
-            coalesceNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(4L, coalesceNodes[0].evaluate(null, false, null));
@@ -115,7 +116,7 @@ public class TestExprCoalesceNode extends TestCase
 
     public void testToExpressionString() throws Exception
     {
-        coalesceNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+        coalesceNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("coalesce(null,null,4)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(coalesceNodes[0]));
     }
 }

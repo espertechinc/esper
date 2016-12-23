@@ -17,9 +17,9 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestLeftOuterJoinWhere extends TestCase
 {

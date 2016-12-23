@@ -13,10 +13,10 @@ package com.espertech.esper.epl.core;
 
 import junit.framework.TestCase;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.collection.Pair;
 

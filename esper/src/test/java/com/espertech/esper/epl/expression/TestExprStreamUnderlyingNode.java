@@ -16,9 +16,10 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.SupportStreamTypeSvc3Stream;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class TestExprStreamUnderlyingNode extends TestCase
 
     public void testValidate() throws Exception
     {
-        node.validate(ExprValidationContextFactory.make(streamTypeService));
+        node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, node.getStreamId());
         assertEquals(SupportBean.class, node.getType());
 
@@ -72,13 +73,13 @@ public class TestExprStreamUnderlyingNode extends TestCase
         EventBean theEvent = makeEvent(10);
         EventBean[] events = new EventBean[] {theEvent};
 
-        node.validate(ExprValidationContextFactory.make(streamTypeService));
+        node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(theEvent.getUnderlying(), node.evaluate(events, false, null));
     }
 
     public void testEqualsNode() throws Exception
     {
-        node.validate(ExprValidationContextFactory.make(streamTypeService));
+        node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertTrue(node.equalsNode(new ExprStreamUnderlyingNodeImpl("s0", false)));
         assertFalse(node.equalsNode(new ExprStreamUnderlyingNodeImpl("xxx", false)));
     }
@@ -94,7 +95,7 @@ public class TestExprStreamUnderlyingNode extends TestCase
     {
         try
         {
-            node.validate(ExprValidationContextFactory.make(streamTypeService));
+            node.validate(SupportExprValidationContextFactory.make(streamTypeService));
             fail();
         }
         catch(ExprValidationException ex)

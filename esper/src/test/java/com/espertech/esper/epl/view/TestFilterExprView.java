@@ -12,10 +12,10 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.epl.SupportExprEvaluator;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.view.SupportMapView;
+import com.espertech.esper.supportunit.epl.SupportExprEvaluator;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.view.SupportMapView;
 import junit.framework.TestCase;
 
 public class TestFilterExprView extends TestCase

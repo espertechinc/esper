@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
@@ -299,7 +299,7 @@ public class TestOuterJoin2Stream extends TestCase
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        String stmtText = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from com.espertech.esper.support.bean.SupportBean_S0#keepall as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall as s1 on s0.p00 = s1.p10 and s1.p11 = s0.p01";
+        String stmtText = "select s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11 from " + SupportBean_S0.class.getName() + "#keepall as s0 left outer join " + SupportBean_S1.class.getName() + "#keepall as s1 on s0.p00 = s1.p10 and s1.p11 = s0.p01";
         assertEquals(stmtText, model.toEPL());
         EPStatement outerJoinView = epService.getEPAdministrator().create(model);
         outerJoinView.addListener(listener);

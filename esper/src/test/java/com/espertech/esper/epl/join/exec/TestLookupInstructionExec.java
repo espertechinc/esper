@@ -14,8 +14,8 @@ package com.espertech.esper.epl.join.exec;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
 import com.espertech.esper.epl.join.exec.base.LookupInstructionExec;
-import com.espertech.esper.support.epl.join.SupportRepositoryImpl;
-import com.espertech.esper.support.epl.join.SupportTableLookupStrategy;
+import com.espertech.esper.supportunit.epl.join.SupportRepositoryImpl;
+import com.espertech.esper.supportunit.epl.join.SupportTableLookupStrategy;
 import junit.framework.TestCase;
 
 public class TestLookupInstructionExec extends TestCase

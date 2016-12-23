@@ -18,9 +18,10 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.ISupportBImpl;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.ISupportBImpl;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
@@ -322,7 +323,7 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate select-clause expression 'singlerow(\"a\",\"b\")': Could not find static method named 'testSingleRow' in class 'com.espertech.esper.regression.client.MySingleRowFunctionTwo' with matching parameter number and expected parameter type(s) 'String, String' (nearest match found was 'testSingleRow' taking type(s) 'String, int') [select singlerow('a', 'b') from com.espertech.esper.support.bean.SupportBean]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'singlerow(\"a\",\"b\")': Could not find static method named 'testSingleRow' in class 'com.espertech.esper.regression.client.MySingleRowFunctionTwo' with matching parameter number and expected parameter type(s) 'String, String' (nearest match found was 'testSingleRow' taking type(s) 'String, int')");
         }
     }
 

@@ -12,9 +12,9 @@
 package com.espertech.esper.collection;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean_S0;
+import com.espertech.esper.supportunit.bean.SupportBean;
 
 import java.util.LinkedList;
 import java.util.List;

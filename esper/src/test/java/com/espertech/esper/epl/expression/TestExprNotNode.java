@@ -16,10 +16,11 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.epl.expression.ops.ExprNotNode;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportBoolExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.type.MinMaxTypeEnum;
 
 public class TestExprNotNode extends TestCase
@@ -41,7 +42,7 @@ public class TestExprNotNode extends TestCase
         // fails with zero expressions
         try
         {
-            notNode.validate(ExprValidationContextFactory.makeEmpty());
+            notNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -54,7 +55,7 @@ public class TestExprNotNode extends TestCase
         notNode.addChildNode(new SupportExprNode(Boolean.class));
         try
         {
-            notNode.validate(ExprValidationContextFactory.makeEmpty());
+            notNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -67,7 +68,7 @@ public class TestExprNotNode extends TestCase
         notNode.addChildNode(new SupportExprNode(String.class));
         try
         {
-            notNode.validate(ExprValidationContextFactory.makeEmpty());
+            notNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -78,7 +79,7 @@ public class TestExprNotNode extends TestCase
         // validates
         notNode = new ExprNotNode();
         notNode.addChildNode(new SupportExprNode(Boolean.class));
-        notNode.validate(ExprValidationContextFactory.makeEmpty());
+        notNode.validate(SupportExprValidationContextFactory.makeEmpty());
     }
 
     public void testEvaluate() throws Exception

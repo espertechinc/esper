@@ -17,8 +17,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.MatchedEventMapImpl;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 
 public class TestRangeValueEventProp extends TestCase
 {

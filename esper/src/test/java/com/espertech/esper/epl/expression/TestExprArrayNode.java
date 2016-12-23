@@ -13,8 +13,9 @@ package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.ExprArrayNode;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 
 public class TestExprArrayNode extends TestCase
 {
@@ -42,7 +43,7 @@ public class TestExprArrayNode extends TestCase
 
         for (int i = 0; i < arrayNodes.length; i++)
         {
-            arrayNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            arrayNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
     }
 

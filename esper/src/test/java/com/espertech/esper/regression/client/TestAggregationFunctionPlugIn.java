@@ -19,12 +19,12 @@ import com.espertech.esper.client.soda.*;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.*;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.*;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 
@@ -301,25 +301,11 @@ public class TestAggregationFunctionPlugIn extends TestCase
         epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
 
-        try
-        {
-            String text = "select * from " + SupportBean.class.getName() + " group by xxx(1)";
-            epService.getEPAdministrator().createEPL(text);
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error in expression: Error resolving aggregation: Aggregation class by name 'java.lang.String' does not implement AggregationFunctionFactory [select * from com.espertech.esper.support.bean.SupportBean group by xxx(1)]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBean.class.getName() + " group by xxx(1)",
+            "Error in expression: Error resolving aggregation: Aggregation class by name 'java.lang.String' does not implement AggregationFunctionFactory");
 
-        try
-        {
-            String text = "select * from " + SupportBean.class.getName() + " group by yyy(1)";
-            epService.getEPAdministrator().createEPL(text);
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error in expression: Error resolving aggregation: Could not load aggregation factory class by name 'com.NoSuchClass' [select * from com.espertech.esper.support.bean.SupportBean group by yyy(1)]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBean.class.getName() + " group by yyy(1)",
+            "Error in expression: Error resolving aggregation: Could not load aggregation factory class by name 'com.NoSuchClass'");
     }
 
     public void testInvalidConfigure()
@@ -354,21 +340,8 @@ public class TestAggregationFunctionPlugIn extends TestCase
 
     public void testInvalid()
     {
-        tryInvalid("select xxx(theString) from " + SupportBean.class.getName(),
-                "Error starting statement: Failed to validate select-clause expression 'xxx(theString)': Unknown single-row function, aggregation function or mapped or indexed property named 'xxx' could not be resolved [select xxx(theString) from com.espertech.esper.support.bean.SupportBean]");
-    }
-
-    private void tryInvalid(String stmtText, String expectedMsg)
-    {
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals(expectedMsg, ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select xxx(theString) from " + SupportBean.class.getName(),
+                "Error starting statement: Failed to validate select-clause expression 'xxx(theString)': Unknown single-row function, aggregation function or mapped or indexed property named 'xxx' could not be resolved");
     }
 
     public static class MyAggFuncFactory implements AggregationFunctionFactory {

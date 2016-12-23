@@ -14,8 +14,8 @@ package com.espertech.esper.regression.multithread;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.support.util.SupportMTUpdateListener;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.util.SupportMTUpdateListener;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.client.EventBean;
 
 import java.util.concurrent.*;

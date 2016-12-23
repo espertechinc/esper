@@ -12,8 +12,8 @@
 package com.espertech.esper.regression.resultset;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestAggregateExtInvalid extends TestCase {

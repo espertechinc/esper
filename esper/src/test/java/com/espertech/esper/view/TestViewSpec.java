@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.view.SupportViewSpecFactory;
+import com.espertech.esper.supportunit.view.SupportViewSpecFactory;
 import com.espertech.esper.epl.spec.ViewSpec;
 
 public class TestViewSpec extends TestCase

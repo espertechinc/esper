@@ -20,10 +20,10 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.bookexample.OrderBean;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.bookexample.OrderBeanFactory;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.bookexample.OrderBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestContainedEventNested extends TestCase

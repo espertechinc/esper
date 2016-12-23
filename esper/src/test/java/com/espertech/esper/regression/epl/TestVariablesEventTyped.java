@@ -15,8 +15,9 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -49,14 +50,14 @@ public class TestVariablesEventTyped extends TestCase
             fail();
         }
         catch (VariableValueException ex) {
-            assertEquals("Variable 'vars0' of declared event type 'TypeS0' underlying type 'com.espertech.esper.support.bean.SupportBean_S0' cannot be assigned a value of type 'com.espertech.esper.support.bean.SupportBean_S1'", ex.getMessage());
+            assertEquals("Variable 'vars0' of declared event type 'TypeS0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S1.class.getName() + "'", ex.getMessage());
         }
         
         tryInvalid(epService, "on TypeS0 arrival set vars1 = arrival",
-                   "Error starting statement: Error in variable assignment: Variable 'vars1' of declared event type 'com.espertech.esper.support.bean.SupportBean_S1' underlying type 'com.espertech.esper.support.bean.SupportBean_S1' cannot be assigned a value of type 'com.espertech.esper.support.bean.SupportBean_S0' [on TypeS0 arrival set vars1 = arrival]");
+                   "Error starting statement: Error in variable assignment: Variable 'vars1' of declared event type '" + SupportBean_S1.class.getName() + "' underlying type '" + SupportBean_S1.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S0.class.getName() + "'");
 
         tryInvalid(epService, "on TypeS0 arrival set vars0 = 1",
-                   "Error starting statement: Error in variable assignment: Variable 'vars0' of declared event type 'TypeS0' underlying type 'com.espertech.esper.support.bean.SupportBean_S0' cannot be assigned a value of type 'java.lang.Integer' [on TypeS0 arrival set vars0 = 1]");
+                   "Error starting statement: Error in variable assignment: Variable 'vars0' of declared event type 'TypeS0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'java.lang.Integer' [on TypeS0 arrival set vars0 = 1]");
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
@@ -233,7 +234,7 @@ public class TestVariablesEventTyped extends TestCase
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals(message, ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, message);
         }
     }
 

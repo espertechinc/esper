@@ -15,7 +15,7 @@ import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
-import com.espertech.esper.support.epl.SupportDatabaseService;
+import com.espertech.esper.supportunit.epl.SupportDatabaseService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
 import org.slf4j.Logger;

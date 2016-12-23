@@ -21,9 +21,9 @@ import com.espertech.esper.client.hook.ExceptionHandlerFactoryContext;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.client.SupportExceptionHandlerFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.client.SupportExceptionHandlerFactory;
 import junit.framework.TestCase;
 
 import java.util.List;

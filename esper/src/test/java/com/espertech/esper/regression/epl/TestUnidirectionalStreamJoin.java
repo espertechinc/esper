@@ -17,9 +17,9 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
 

@@ -20,11 +20,11 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.dataflow.ops.Emitter;
 import com.espertech.esper.dataflow.util.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.bean.SupportBean_S2;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.bean.SupportBean_S2;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.CollectionUtil;
 import junit.framework.TestCase;
 

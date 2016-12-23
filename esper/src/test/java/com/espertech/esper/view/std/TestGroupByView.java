@@ -18,11 +18,11 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.view.*;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.view.*;
 import com.espertech.esper.view.EventStream;
 import junit.framework.TestCase;
 

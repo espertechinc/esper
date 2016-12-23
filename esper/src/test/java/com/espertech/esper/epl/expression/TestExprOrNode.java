@@ -15,10 +15,11 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportBoolExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.type.MinMaxTypeEnum;
 
 public class TestExprOrNode extends TestCase
@@ -40,13 +41,13 @@ public class TestExprOrNode extends TestCase
         // test success
         orNode.addChildNode(new SupportExprNode(Boolean.class));
         orNode.addChildNode(new SupportExprNode(Boolean.class));
-        orNode.validate(ExprValidationContextFactory.makeEmpty());
+        orNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         // test failure, type mismatch
         orNode.addChildNode(new SupportExprNode(String.class));
         try
         {
-            orNode.validate(ExprValidationContextFactory.makeEmpty());
+            orNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -59,7 +60,7 @@ public class TestExprOrNode extends TestCase
         orNode.addChildNode(new SupportExprNode(Boolean.class));
         try
         {
-            orNode.validate(ExprValidationContextFactory.makeEmpty());
+            orNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

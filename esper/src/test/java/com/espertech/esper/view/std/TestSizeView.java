@@ -13,12 +13,12 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.support.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.view.ViewFieldEnum;
 import junit.framework.TestCase;
 

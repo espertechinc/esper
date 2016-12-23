@@ -15,9 +15,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNodePreviousType;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 
 public class TestExprPreviousNode extends TestCase {
     private ExprPreviousNode prevNode;
@@ -58,7 +59,7 @@ public class TestExprPreviousNode extends TestCase {
     private void tryInvalidValidate(ExprPreviousNode exprPrevNode) throws Exception
     {
         try {
-            exprPrevNode.validate(ExprValidationContextFactory.makeEmpty());
+            exprPrevNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

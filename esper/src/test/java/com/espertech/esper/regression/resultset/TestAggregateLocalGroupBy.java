@@ -24,14 +24,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.regression.client.MyConcatAggregationFunctionFactory;
 import com.espertech.esper.regression.client.SupportAggMFFactory;
 import com.espertech.esper.regression.client.SupportAggMFFunc;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportAggLevelPlanHook;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportAggLevelPlanHook;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -83,7 +83,7 @@ public class TestAggregateLocalGroupBy extends TestCase
         SupportMessageAssertUtil.tryInvalid(epService, "select coalesce(0, 1, group_by:theString) from SupportBean",
                 "Incorrect syntax near ':' at line 1 column 30");
         SupportMessageAssertUtil.tryInvalid(epService, "select " + SupportStaticMethodLib.class.getName() + ".staticMethod(group_by:intPrimitive) from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'com.espertech.esper.support.epl.Sup...(90 chars)': Named parameters are not allowed");
+                "Error starting statement: Failed to validate select-clause expression 'com.espertech.esper.supportregressi...(100 chars)': Named parameters are not allowed");
 
         // not allowed in combination with roll-up
         SupportMessageAssertUtil.tryInvalid(epService, "select sum(intPrimitive, group_by:theString) from SupportBean group by rollup(theString)",

@@ -21,12 +21,11 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.event.bean.BeanEventBean;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
@@ -418,7 +417,7 @@ public class TestInsertInto extends TestCase
         catch (EPStatementException ex)
         {
             // expected
-            assertEquals("Error starting statement: Event type named 'Event_1' has already been declared with differing column name or type information: Type by name 'Event_1' expects 2 properties but receives 1 properties [insert into Event_1(delta) select (intPrimitive - intBoxed) as deltaTag from com.espertech.esper.support.bean.SupportBean#length(100)]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Event type named 'Event_1' has already been declared with differing column name or type information: Type by name 'Event_1' expects 2 properties but receives 1 properties ");
         }
     }
 

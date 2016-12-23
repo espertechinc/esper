@@ -15,8 +15,8 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import org.junit.Assert;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 import java.math.BigDecimal;
 

@@ -18,11 +18,11 @@ import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.regression.client.SupportAggMFFactory;
 import com.espertech.esper.regression.client.SupportAggMFFunc;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 public class TestTableInvalid extends TestCase {
@@ -357,7 +357,7 @@ public class TestTableInvalid extends TestCase {
                 "Tables cannot be used in pattern filter atoms [");
         // schema by the same name
         SupportMessageAssertUtil.tryInvalid(epService, "create schema aggvar_ungrouped as " + SupportBean.class.getName(),
-                "Error starting statement: A table by name 'aggvar_ungrouped' already exists [create schema aggvar_ungrouped as com.espertech.esper.support.bean.SupportBean]");
+                "Error starting statement: A table by name 'aggvar_ungrouped' already exists [");
         try {
             epService.getEPAdministrator().getConfiguration().addEventType("aggvar_ungrouped", "p0".split(","), new Object[]{int.class});
             fail();

@@ -11,7 +11,7 @@
 
 package com.espertech.esper.util;
 
-import com.espertech.esper.support.bean.SupportEnum;
+import com.espertech.esper.supportunit.bean.SupportEnum;
 import junit.framework.TestCase;
 
 public class TestSerializableObjectCopier extends TestCase

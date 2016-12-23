@@ -14,7 +14,7 @@ package com.espertech.esper.epl.parse;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.spec.PatternStreamSpecRaw;
 import com.espertech.esper.pattern.PatternExpressionPrecedenceEnum;
-import com.espertech.esper.support.epl.parse.SupportParserHelper;
+import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;

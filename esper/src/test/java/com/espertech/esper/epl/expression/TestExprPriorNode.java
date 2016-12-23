@@ -16,10 +16,11 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategyRandomAccess;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import com.espertech.esper.view.internal.PriorEventBufferUnbound;
 import junit.framework.TestCase;
 
@@ -80,7 +81,7 @@ public class TestExprPriorNode extends TestCase
     private void tryInvalidValidate(ExprPriorNode exprPriorNode) throws Exception
     {
         try {
-            exprPriorNode.validate(ExprValidationContextFactory.makeEmpty());
+            exprPriorNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

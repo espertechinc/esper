@@ -13,8 +13,8 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

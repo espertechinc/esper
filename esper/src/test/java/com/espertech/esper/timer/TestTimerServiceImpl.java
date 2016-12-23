@@ -12,7 +12,7 @@
 package com.espertech.esper.timer;
 
 import junit.framework.*;
-import com.espertech.esper.support.timer.SupportTimerCallback;
+import com.espertech.esper.supportunit.timer.SupportTimerCallback;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 

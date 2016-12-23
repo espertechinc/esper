@@ -16,10 +16,11 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatementException;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_ST0_Container;
-import com.espertech.esper.support.bean.SupportDateTime;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0_Container;
+import com.espertech.esper.supportregression.bean.SupportDateTime;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestDTInvalid extends TestCase {
@@ -48,7 +49,7 @@ public class TestDTInvalid extends TestCase {
 
         // invalid incompatible params
         epl = "select contained.set('hour', 1) from SupportBean_ST0_Container";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.set(\"hour\",1)': Date-time enumeration method 'set' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received collection of events of type 'com.espertech.esper.support.bean.SupportBean_ST0' [select contained.set('hour', 1) from SupportBean_ST0_Container]");
+        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.set(\"hour\",1)': Date-time enumeration method 'set' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received collection of events of type '" + SupportBean_ST0.class.getName() + "' [select contained.set('hour', 1) from SupportBean_ST0_Container]");
 
         // invalid incompatible params
         epl = "select window(*).set('hour', 1) from SupportBean#keepall";

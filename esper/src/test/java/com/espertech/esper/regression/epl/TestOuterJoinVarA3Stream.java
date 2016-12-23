@@ -16,12 +16,13 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
-import com.espertech.esper.support.bean.SupportBean_S2;
-import com.espertech.esper.support.bean.SupportBean_S3;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.ArrayHandlingUtil;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.bean.SupportBean_S2;
+import com.espertech.esper.supportregression.bean.SupportBean_S3;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.ArrayHandlingUtil;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
@@ -155,7 +156,7 @@ public class TestOuterJoinVarA3Stream extends TestCase
         model.setFromClause(fromClause);
         model = (EPStatementObjectModel) SerializableObjectCopier.copy(model);
 
-        assertEquals("select * from com.espertech.esper.support.bean.SupportBean_S0#keepall as s0 left outer join com.espertech.esper.support.bean.SupportBean_S1#keepall as s1 on s0.p00 = s1.p10 left outer join com.espertech.esper.support.bean.SupportBean_S2#keepall as s2 on s0.p00 = s2.p20", model.toEPL());
+        assertEquals("select * from " + SupportBean_S0.class.getName() + "#keepall as s0 left outer join " + SupportBean_S1.class.getName() + "#keepall as s1 on s0.p00 = s1.p10 left outer join " + SupportBean_S2.class.getName() + "#keepall as s2 on s0.p00 = s2.p20", model.toEPL());
         EPStatement joinView = epService.getEPAdministrator().create(model);
         joinView.addListener(updateListener);
 
@@ -568,7 +569,7 @@ public class TestOuterJoinVarA3Stream extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0#length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2#length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause");
         }
 
         try
@@ -582,7 +583,7 @@ public class TestOuterJoinVarA3Stream extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [select * from com.espertech.esper.support.bean.SupportBean_S0#length(1000) as s0  left outer join com.espertech.esper.support.bean.SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11 left outer join com.espertech.esper.support.bean.SupportBean_S2#length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error validating expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [");
         }
     }
 

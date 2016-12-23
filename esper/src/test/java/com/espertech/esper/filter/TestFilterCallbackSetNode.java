@@ -13,13 +13,13 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanSimple;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.filter.SupportEventEvaluator;
-import com.espertech.esper.support.filter.SupportFilterHandle;
-import com.espertech.esper.support.filter.SupportFilterParamIndex;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBeanSimple;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.filter.SupportEventEvaluator;
+import com.espertech.esper.supportunit.filter.SupportFilterHandle;
+import com.espertech.esper.supportunit.filter.SupportFilterParamIndex;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;

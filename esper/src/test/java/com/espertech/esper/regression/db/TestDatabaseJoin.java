@@ -18,9 +18,10 @@ import com.espertech.esper.client.soda.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportDatabaseService;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportDatabaseService;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 
@@ -203,7 +204,7 @@ public class TestDatabaseJoin extends TestCase
         model.setFromClause(fromClause);
         SerializableObjectCopier.copy(model);
 
-        assertEquals("select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from sql:MyDB[\"select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from mytesttable where ${intPrimitive} = mytesttable.mybigint\"] as s0, com.espertech.esper.support.bean.SupportBean#time_batch(10) as s1",
+        assertEquals("select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from sql:MyDB[\"select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from mytesttable where ${intPrimitive} = mytesttable.mybigint\"] as s0, " + SupportBean.class.getName() + "#time_batch(10) as s1",
                 model.toEPL());
 
         EPStatement stmt = epService.getEPAdministrator().create(model);
@@ -264,15 +265,8 @@ public class TestDatabaseJoin extends TestCase
                 " sql:MyDB ['select mychar,, from mytesttable where '] as s0," +
                 SupportBeanComplexProps.class.getName() + " as s1";
 
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Error in statement 'select mychar,, from mytesttable where ', failed to obtain result metadata, consider turning off metadata interrogation via configuration, please check the statement, reason: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' from mytesttable where' at line 1 [select myvarchar from  sql:MyDB ['select mychar,, from mytesttable where '] as s0,com.espertech.esper.support.bean.SupportBeanComplexProps as s1]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, stmtText,
+                "Error starting statement: Error in statement 'select mychar,, from mytesttable where ', failed to obtain result metadata, consider turning off metadata interrogation via configuration, please check the statement, reason: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' from mytesttable where' at line 1");
     }
 
     public void testInvalidBothHistorical()
@@ -306,22 +300,14 @@ public class TestDatabaseJoin extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Failed to validate from-clause database-access parameter expression 's1.xxx[0]': Failed to resolve property 's1.xxx[0]' to a stream or nested property in a stream [select myvarchar from  sql:MyDB ['select mychar from mytesttable where ${s1.xxx[0]} = mytesttable.mybigint'] as s0,com.espertech.esper.support.bean.SupportBeanComplexProps as s1]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate from-clause database-access parameter expression 's1.xxx[0]': Failed to resolve property 's1.xxx[0]' to a stream or nested property in a stream");
         }
 
         stmtText = "select myvarchar from " +
                 " sql:MyDB ['select mychar from mytesttable where ${} = mytesttable.mybigint'] as s0," +
                 SupportBeanComplexProps.class.getName() + " as s1";
-
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Missing expression within ${...} in SQL statement [select myvarchar from  sql:MyDB ['select mychar from mytesttable where ${} = mytesttable.mybigint'] as s0,com.espertech.esper.support.bean.SupportBeanComplexProps as s1]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, stmtText,
+                "Missing expression within ${...} in SQL statement [");
     }
 
     public void testInvalidPropertyHistorical()
@@ -329,16 +315,8 @@ public class TestDatabaseJoin extends TestCase
         String stmtText = "select myvarchar from " +
                 " sql:MyDB ['select myvarchar from mytesttable where ${myvarchar} = mytesttable.mybigint'] as s0," +
                 SupportBeanComplexProps.class.getName() + " as s1";
-
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Invalid expression 'myvarchar' resolves to the historical data itself [select myvarchar from  sql:MyDB ['select myvarchar from mytesttable where ${myvarchar} = mytesttable.mybigint'] as s0,com.espertech.esper.support.bean.SupportBeanComplexProps as s1]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, stmtText,
+                "Error starting statement: Invalid expression 'myvarchar' resolves to the historical data itself");
     }
 
     public void testInvalid1Stream()
@@ -362,16 +340,8 @@ public class TestDatabaseJoin extends TestCase
         String sql = "sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec)";
         String stmtText = "select myvarchar as s0Name from " +
                 sql + " as s0, " + SupportBean.class.getName() + " as s1";
-
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Historical data joins do not allow views onto the data, view 'time' is not valid in this context [select myvarchar as s0Name from sql:MyDB ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec) as s0, com.espertech.esper.support.bean.SupportBean as s1]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, stmtText,
+                "Error starting statement: Historical data joins do not allow views onto the data, view 'time' is not valid in this context [select myvarchar as s0Name from sql:MyDB [");
     }
 
     public void testStreamNamesAndRename()

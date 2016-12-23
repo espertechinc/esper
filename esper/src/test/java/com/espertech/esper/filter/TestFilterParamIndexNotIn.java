@@ -14,9 +14,9 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.filter.SupportEventEvaluator;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.filter.SupportEventEvaluator;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;

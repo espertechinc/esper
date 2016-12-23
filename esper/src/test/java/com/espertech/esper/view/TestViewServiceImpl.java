@@ -12,11 +12,11 @@
 package com.espertech.esper.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.support.view.SupportStreamImpl;
-import com.espertech.esper.support.view.SupportViewSpecFactory;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewSpecFactory;
 import junit.framework.TestCase;
 
 public class TestViewServiceImpl extends TestCase

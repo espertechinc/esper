@@ -14,7 +14,7 @@ package com.espertech.esper.view.ext;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.collection.MultiKeyUntyped;
-import com.espertech.esper.support.event.EventFactoryHelper;
+import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.util.MultiKeyCastingComparator;
 import com.espertech.esper.util.MultiKeyComparator;
 import junit.framework.TestCase;

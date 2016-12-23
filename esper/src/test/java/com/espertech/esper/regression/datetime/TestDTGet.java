@@ -15,10 +15,10 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportDateTime;
-import com.espertech.esper.support.bean.SupportTimeStartEndA;
-import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportDateTime;
+import com.espertech.esper.supportregression.bean.SupportTimeStartEndA;
+import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestDTGet extends TestCase {

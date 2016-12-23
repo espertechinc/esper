@@ -12,7 +12,7 @@
 package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.epl.agg.aggregator.AggregatorDistinctValue;
-import com.espertech.esper.support.epl.SupportAggregator;
+import com.espertech.esper.supportunit.epl.SupportAggregator;
 import junit.framework.TestCase;
 
 public class TestUniqueValueAggregator extends TestCase

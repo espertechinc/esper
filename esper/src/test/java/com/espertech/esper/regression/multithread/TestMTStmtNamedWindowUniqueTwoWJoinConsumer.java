@@ -10,8 +10,8 @@ package com.espertech.esper.regression.multithread;/*
  */
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMTUpdateListener;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMTUpdateListener;
 import junit.framework.TestCase;
 
 import java.util.List;

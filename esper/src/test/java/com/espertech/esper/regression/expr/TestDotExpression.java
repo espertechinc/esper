@@ -16,8 +16,9 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.events.SampleEnumInEventsPackage;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -78,7 +79,7 @@ public class TestDotExpression extends TestCase
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {false, true, 300, true});
 
         // test "events" reserved keyword in package name
-        epService.getEPAdministrator().createEPL("select com.espertech.esper.support.events.SampleEnumInEventsPackage.A from SupportBean");
+        epService.getEPAdministrator().createEPL("select " + SampleEnumInEventsPackage.class.getName() + ".A from SupportBean");
     }
 
     public void testMapIndexPropertyRooted() {
@@ -109,9 +110,9 @@ public class TestDotExpression extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportChainTop", SupportChainTop.class);
 
         tryInvalid("select abc.noSuchMethod() from SupportBean abc",
-                "Error starting statement: Failed to validate select-clause expression 'abc.noSuchMethod()': Failed to solve 'noSuchMethod' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method or instance method named 'noSuchMethod' in class 'com.espertech.esper.support.bean.SupportBean' taking no parameters [select abc.noSuchMethod() from SupportBean abc]");
+                "Error starting statement: Failed to validate select-clause expression 'abc.noSuchMethod()': Failed to solve 'noSuchMethod' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method or instance method named 'noSuchMethod' in class '" + SupportBean.class.getName() + "' taking no parameters [select abc.noSuchMethod() from SupportBean abc]");
         tryInvalid("select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc",
-                "Error starting statement: Failed to validate select-clause expression 'abc.getChildOne(\"abc\",10).noSuchMethod()': Failed to solve 'getChildOne' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method or instance method named 'noSuchMethod' in class 'com.espertech.esper.support.bean.SupportChainChildOne' taking no parameters [select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc]");
+                "Error starting statement: Failed to validate select-clause expression 'abc.getChildOne(\"abc\",10).noSuchMethod()': Failed to solve 'getChildOne' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method or instance method named 'noSuchMethod' in class '" + SupportChainChildOne.class.getName() + "' taking no parameters [select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc]");
     }
 
     public void testNestedPropertyInstanceExpr() {

@@ -13,12 +13,12 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
-import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.view.SupportStreamImpl;
-import com.espertech.esper.support.view.SupportViewDataChecker;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.event.EventFactoryHelper;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewDataChecker;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.client.EventBean;
 
 import java.util.Map;

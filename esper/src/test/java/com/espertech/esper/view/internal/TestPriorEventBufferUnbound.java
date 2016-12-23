@@ -13,9 +13,8 @@ package com.espertech.esper.view.internal;
 
 import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.view.internal.PriorEventBufferUnbound;
+import com.espertech.esper.supportunit.bean.SupportBean_S0;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 
 public class TestPriorEventBufferUnbound extends TestCase
 {

@@ -18,11 +18,11 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.subscriber.SupportSubscriberRowByRowSpecificNStmt;
-import com.espertech.esper.support.subscriber.SupportSubscriberRowByRowSpecificWStmt;
-import com.espertech.esper.support.util.SupportStmtAwareUpdateListener;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificNStmt;
+import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificWStmt;
+import com.espertech.esper.supportregression.util.SupportStmtAwareUpdateListener;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 

@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean;
 
 public class TestRelationalOpEnum extends TestCase
 {

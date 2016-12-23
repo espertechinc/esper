@@ -18,9 +18,9 @@ import junit.framework.TestCase;
 import java.util.Iterator;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.util.DoubleValueAssertionUtil;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.util.DoubleValueAssertionUtil;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.view.ViewFieldEnum;
 import com.espertech.esper.client.EventBean;
 

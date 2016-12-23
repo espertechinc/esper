@@ -13,9 +13,9 @@ package com.espertech.esper.view;
 
 import junit.framework.*;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 
 public class TestPropertyCheckHelper extends TestCase
 {

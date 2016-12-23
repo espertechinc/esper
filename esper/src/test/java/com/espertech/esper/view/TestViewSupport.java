@@ -13,8 +13,8 @@ package com.espertech.esper.view;
 
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.view.SupportSchemaNeutralView;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;

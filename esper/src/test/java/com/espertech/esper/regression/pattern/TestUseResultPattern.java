@@ -13,12 +13,12 @@ package com.espertech.esper.regression.pattern;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.support.*;
-import com.espertech.esper.support.bean.SupportBeanConstants;
-import com.espertech.esper.support.bean.SupportBean_N;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportTradeEvent;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBeanConstants;
+import com.espertech.esper.supportregression.bean.SupportBean_N;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportTradeEvent;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.patternassert.*;
 import junit.framework.TestCase;
 
 import java.util.Random;

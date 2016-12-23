@@ -13,9 +13,9 @@ package com.espertech.esper.regression.datetime;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.support.bean.SupportDateTime;
-import com.espertech.esper.support.bean.SupportTimeStartEndA;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportDateTime;
+import com.espertech.esper.supportregression.bean.SupportTimeStartEndA;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestPerfDTBetween extends TestCase {

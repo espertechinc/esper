@@ -18,14 +18,13 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean_ST0;
-import com.espertech.esper.support.bean.SupportBean_ST0_Container;
-import com.espertech.esper.support.bean.SupportCollection;
-import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0_Container;
+import com.espertech.esper.supportregression.bean.SupportCollection;
+import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 

@@ -12,10 +12,10 @@
 package com.espertech.esper.util;
 
 import junit.framework.TestCase;
-import com.espertech.esper.support.util.SupportCtorNone;
-import com.espertech.esper.support.util.SupportCtorObjectArray;
-import com.espertech.esper.support.util.SupportCtorInt;
-import com.espertech.esper.support.util.SupportCtorIntObjectArray;
+import com.espertech.esper.supportunit.util.SupportCtorNone;
+import com.espertech.esper.supportunit.util.SupportCtorObjectArray;
+import com.espertech.esper.supportunit.util.SupportCtorInt;
+import com.espertech.esper.supportunit.util.SupportCtorIntObjectArray;
 
 public class TestConstructorHelper extends TestCase
 {

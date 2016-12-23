@@ -15,8 +15,8 @@ import com.espertech.esper.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.filter.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.parse.SupportParserHelper;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 

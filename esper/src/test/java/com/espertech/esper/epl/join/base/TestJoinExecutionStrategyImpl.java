@@ -11,11 +11,9 @@
 
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.epl.join.base.JoinExecutionStrategyImpl;
-import com.espertech.esper.epl.join.base.JoinSetComposer;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportJoinSetComposer;
-import com.espertech.esper.support.epl.SupportJoinSetProcessor;
+import com.espertech.esper.supportunit.epl.SupportJoinSetComposer;
+import com.espertech.esper.supportunit.epl.SupportJoinSetProcessor;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;

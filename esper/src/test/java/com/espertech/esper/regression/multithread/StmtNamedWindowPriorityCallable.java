@@ -12,8 +12,8 @@
 package com.espertech.esper.regression.multithread;
 
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.bean.SupportBean_S1;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

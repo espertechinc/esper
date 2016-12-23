@@ -14,22 +14,9 @@ package com.espertech.esper.regression.epl;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.soda.*;
-import com.espertech.esper.core.service.EPRuntimeSPI;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.core.service.EPStatementSPI;
-import com.espertech.esper.filter.*;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.util.*;
 
 public class TestVariablesPerf extends TestCase
 {

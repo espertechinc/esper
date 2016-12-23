@@ -20,10 +20,11 @@ import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.bean.SupportBean_B;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.bean.SupportBean_B;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -266,7 +267,7 @@ public class TestNamedWindowInsertFrom extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("A named window by name 'com.espertech.esper.support.bean.SupportBean' could not be located, use the insert-keyword with an existing named window [create window testWindow3#keepall as select * from com.espertech.esper.support.bean.SupportBean insert where (intPrimitive = 10)]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "A named window by name '" + SupportBean.class.getName() + "' could not be located, use the insert-keyword with an existing named window [");
         }
 
         try

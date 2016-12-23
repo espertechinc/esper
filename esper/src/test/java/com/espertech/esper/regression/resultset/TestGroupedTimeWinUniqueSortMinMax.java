@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

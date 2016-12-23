@@ -14,10 +14,9 @@ package com.espertech.esper.pattern.observer;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.schedule.ScheduleParameterException;
-import com.espertech.esper.support.timer.SupportDateTimeUtil;
+import com.espertech.esper.supportunit.timer.SupportDateTimeUtil;
 import junit.framework.TestCase;
 
-import java.util.Calendar;
 import java.util.TimeZone;
 
 public class TestTimerScheduleISO8601Parser extends TestCase {

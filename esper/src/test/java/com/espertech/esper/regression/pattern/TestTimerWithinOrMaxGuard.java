@@ -12,8 +12,8 @@
 package com.espertech.esper.regression.pattern;
 
 import com.espertech.esper.client.soda.*;
-import com.espertech.esper.regression.support.*;
-import com.espertech.esper.support.bean.SupportBeanConstants;
+import com.espertech.esper.supportregression.bean.SupportBeanConstants;
+import com.espertech.esper.supportregression.patternassert.*;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 

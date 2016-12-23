@@ -16,7 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
 public class TestAliasNodeSwapper extends TestCase

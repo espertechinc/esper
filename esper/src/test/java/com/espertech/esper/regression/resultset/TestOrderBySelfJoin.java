@@ -17,7 +17,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

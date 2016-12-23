@@ -14,12 +14,12 @@ package com.espertech.esper.regression.expr;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -1020,32 +1020,32 @@ public class TestFilterExpressions extends TestCase
     {
         tryInvalid("select * from pattern [every a=" + SupportBean.class.getName() + " -> " +
                 "b=" + SupportMarketDataBean.class.getName() + "(sum(a.longBoxed) = 2)]",
-                "Aggregation functions not allowed within filters [select * from pattern [every a=com.espertech.esper.support.bean.SupportBean -> b=com.espertech.esper.support.bean.SupportMarketDataBean(sum(a.longBoxed) = 2)]]");
+                "Aggregation functions not allowed within filters [");
 
         tryInvalid("select * from pattern [every a=" + SupportBean.class.getName() + "(prior(1, a.longBoxed))]",
-                "Failed to validate filter expression 'prior(1,a.longBoxed)': Prior function cannot be used in this context [select * from pattern [every a=com.espertech.esper.support.bean.SupportBean(prior(1, a.longBoxed))]]");
+                "Failed to validate filter expression 'prior(1,a.longBoxed)': Prior function cannot be used in this context [");
 
         tryInvalid("select * from pattern [every a=" + SupportBean.class.getName() + "(prev(1, a.longBoxed))]",
-                "Failed to validate filter expression 'prev(1,a.longBoxed)': Previous function cannot be used in this context [select * from pattern [every a=com.espertech.esper.support.bean.SupportBean(prev(1, a.longBoxed))]]");
+                "Failed to validate filter expression 'prev(1,a.longBoxed)': Previous function cannot be used in this context [");
 
         tryInvalid("select * from " + SupportBean.class.getName() + "(5 - 10)",
-                "Filter expression not returning a boolean value: '5-10' [select * from com.espertech.esper.support.bean.SupportBean(5 - 10)]");
+                "Filter expression not returning a boolean value: '5-10' [");
 
         tryInvalid("select * from " + SupportBeanWithEnum.class.getName() + "(theString=" + SupportEnum.class.getName() + ".ENUM_VALUE_1)",
-                "Failed to validate filter expression 'theString=ENUM_VALUE_1': Implicit conversion from datatype 'SupportEnum' to 'String' is not allowed [select * from com.espertech.esper.support.bean.SupportBeanWithEnum(theString=com.espertech.esper.support.bean.SupportEnum.ENUM_VALUE_1)]");
+                "Failed to validate filter expression 'theString=ENUM_VALUE_1': Implicit conversion from datatype 'SupportEnum' to 'String' is not allowed [");
 
         tryInvalid("select * from " + SupportBeanWithEnum.class.getName() + "(supportEnum=A.b)",
-                "Failed to validate filter expression 'supportEnum=A.b': Failed to resolve property 'A.b' to a stream or nested property in a stream [select * from com.espertech.esper.support.bean.SupportBeanWithEnum(supportEnum=A.b)]");
+                "Failed to validate filter expression 'supportEnum=A.b': Failed to resolve property 'A.b' to a stream or nested property in a stream [");
 
         tryInvalid("select * from pattern [a=" + SupportBean.class.getName() + " -> b=" +
                 SupportBean.class.getName() + "(doubleBoxed not in (doubleBoxed, x.intBoxed, 9))]",
-                "Failed to validate filter expression 'doubleBoxed not in (doubleBoxed,x.i...(45 chars)': Failed to find a stream named 'x' (did you mean 'b'?) [select * from pattern [a=com.espertech.esper.support.bean.SupportBean -> b=com.espertech.esper.support.bean.SupportBean(doubleBoxed not in (doubleBoxed, x.intBoxed, 9))]]");
+                "Failed to validate filter expression 'doubleBoxed not in (doubleBoxed,x.i...(45 chars)': Failed to find a stream named 'x' (did you mean 'b'?) [");
 
         tryInvalid("select * from pattern [a=" + SupportBean.class.getName()
                 + " -> b=" + SupportBean.class.getName() + "(cluedo.intPrimitive=a.intPrimitive)"
                 + " -> c=" + SupportBean.class.getName()
                 + "]",
-                "Failed to validate filter expression 'cluedo.intPrimitive=a.intPrimitive': Failed to resolve property 'cluedo.intPrimitive' to a stream or nested property in a stream [select * from pattern [a=com.espertech.esper.support.bean.SupportBean -> b=com.espertech.esper.support.bean.SupportBean(cluedo.intPrimitive=a.intPrimitive) -> c=com.espertech.esper.support.bean.SupportBean]]");
+                "Failed to validate filter expression 'cluedo.intPrimitive=a.intPrimitive': Failed to resolve property 'cluedo.intPrimitive' to a stream or nested property in a stream [");
     }
 
     private void tryInvalid(String text, String expectedMsg)
@@ -1057,7 +1057,7 @@ public class TestFilterExpressions extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals(expectedMsg, ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, expectedMsg);
         }
     }
 

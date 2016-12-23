@@ -13,7 +13,7 @@ package com.espertech.esper.collection;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.event.EventFactoryHelper;
+import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import junit.framework.TestCase;
 
 import java.util.List;

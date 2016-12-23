@@ -14,9 +14,10 @@ package com.espertech.esper.regression.client;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Map;
@@ -66,25 +67,11 @@ public class TestConfigurationOperations extends TestCase
         configOps.addEventTypeAutoName(this.getClass().getPackage().getName());
         configOps.addEventTypeAutoName(SupportBean.class.getPackage().getName());
 
-        try
-        {
-            epService.getEPAdministrator().createEPL("select * from " + SupportAmbigousEventType.class.getSimpleName());
-            fail();
-        }
-        catch (Exception ex)
-        {
-            assertEquals("Failed to resolve event type: Failed to resolve name 'SupportAmbigousEventType', the class was ambigously found both in package 'com.espertech.esper.regression.client' and in package 'com.espertech.esper.support.bean' [select * from SupportAmbigousEventType]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportAmbigousEventType.class.getSimpleName(),
+                "Failed to resolve event type: Failed to resolve name 'SupportAmbigousEventType', the class was ambigously found both in package 'com.espertech.esper.regression.client' and in package 'com.espertech.esper.supportregression.bean'");
 
-        try
-        {
-            epService.getEPAdministrator().createEPL("select * from XXXX");
-            fail();
-        }
-        catch (Exception ex)
-        {
-            assertEquals("Failed to resolve event type: Event type or class named 'XXXX' was not found [select * from XXXX]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from XXXX",
+                "Failed to resolve event type: Event type or class named 'XXXX' was not found");
     }
 
     public void testAddDOMType() throws Exception

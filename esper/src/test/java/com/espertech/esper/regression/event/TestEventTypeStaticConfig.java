@@ -16,10 +16,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
 import junit.framework.TestCase;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

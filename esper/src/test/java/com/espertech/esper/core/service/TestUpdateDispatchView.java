@@ -18,11 +18,11 @@ import com.espertech.esper.dispatch.DispatchServiceImpl;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.support.core.SupportEPStatementSPI;
-import com.espertech.esper.support.core.SupportExprEvaluatorContext;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.core.SupportEPStatementSPI;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingPath;
+import com.espertech.esper.util.support.SupportExprEvaluatorContext;
 import junit.framework.TestCase;
 
 public class TestUpdateDispatchView extends TestCase

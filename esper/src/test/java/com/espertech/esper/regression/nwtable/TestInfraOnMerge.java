@@ -21,9 +21,9 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -447,7 +447,7 @@ public class TestInfraOnMerge extends TestCase
 
         if (namedWindow) {
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *";
-            SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Validation failed in when-not-matched (clause 1): Expression-returned event type 'SupportBean_A' with underlying type 'com.espertech.esper.support.bean.SupportBean_A' cannot be converted to target event type 'MergeInfra' with underlying type 'com.espertech.esper.support.bean.SupportBean' [on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *]");
+            SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Validation failed in when-not-matched (clause 1): Expression-returned event type 'SupportBean_A' with underlying type '" + SupportBean_A.class.getName() + "' cannot be converted to target event type 'MergeInfra' with underlying type '" + SupportBean.class.getName() + "' [on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *]");
         }
 
         epl = "on SupportBean as up merge MergeInfra as mv";

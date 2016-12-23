@@ -12,14 +12,14 @@
 package com.espertech.esper.regression.client;
 
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatementSyntaxException;
-import com.espertech.esper.support.bean.SupportBeanReservedKeyword;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBeanReservedKeyword;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestInvalidSyntaxMsg extends TestCase
 {
@@ -39,19 +39,19 @@ public class TestInvalidSyntaxMsg extends TestCase
     public void testInvalidSyntax()
     {
         tryCompile("insert into 7event select * from " + SupportBeanReservedKeyword.class.getName(),
-                   "Incorrect syntax near '7' at line 1 column 12 [insert into 7event select * from com.espertech.esper.support.bean.SupportBeanReservedKeyword]");
+                   "Incorrect syntax near '7' at line 1 column 12");
 
         tryCompile("select foo, create from " + SupportBeanReservedKeyword.class.getName(),
-                   "Incorrect syntax near 'create' (a reserved keyword) at line 1 column 12, please check the select clause [select foo, create from com.espertech.esper.support.bean.SupportBeanReservedKeyword]");
+                   "Incorrect syntax near 'create' (a reserved keyword) at line 1 column 12, please check the select clause");
 
         tryCompile("select * from pattern [",
-                   "Unexpected end-of-input at line 1 column 23, please check the pattern expression within the from clause [select * from pattern []");
+                   "Unexpected end-of-input at line 1 column 23, please check the pattern expression within the from clause");
 
         tryCompile("select * from A, into",
-                   "Incorrect syntax near 'into' (a reserved keyword) at line 1 column 17, please check the from clause [select * from A, into]");
+                   "Incorrect syntax near 'into' (a reserved keyword) at line 1 column 17, please check the from clause");
 
         tryCompile("select * from pattern[A -> B - C]",
-                   "Incorrect syntax near '-' at line 1 column 29, please check the pattern expression within the from clause [select * from pattern[A -> B - C]]");
+                   "Incorrect syntax near '-' at line 1 column 29, please check the pattern expression within the from clause");
 
         tryCompile("insert into A (a",
                    "Unexpected end-of-input at line 1 column 16 [insert into A (a]");

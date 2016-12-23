@@ -16,9 +16,10 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.epl.expression.ops.ExprOrNode;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.type.MathArithTypeEnum;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
 public class TestExprSumNode extends TestExprAggregateNodeAdapter
 {
@@ -66,7 +67,7 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter
         // Must have exactly 1 subnodes
         try
         {
-            sumNode.validate(ExprValidationContextFactory.makeEmpty());
+            sumNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -79,7 +80,7 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter
         sumNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            sumNode.validate(ExprValidationContextFactory.makeEmpty());
+            sumNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

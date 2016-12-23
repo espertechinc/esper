@@ -15,9 +15,9 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -91,7 +91,7 @@ public class TestPropertyResolution extends TestCase
             fail();
         }
         catch (EPException ex) {
-            assertEquals("Error starting statement: Failed to validate select-clause expression 'select': Property named 'select' is not valid in any stream [select `select` from com.espertech.esper.support.bean.SupportBean]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Failed to validate select-clause expression 'select': Property named 'select' is not valid in any stream [");
         }
 
         try {
@@ -277,7 +277,7 @@ public class TestPropertyResolution extends TestCase
         }
         catch (EPException ex)
         {
-            assertEquals("Unexpected exception starting statement: Unable to determine which property to use for \"MyProperty\" because more than one property matched [select MyProperty from com.espertech.esper.support.bean.SupportBeanDupProperty]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Unexpected exception starting statement: Unable to determine which property to use for \"MyProperty\" because more than one property matched [");
             // expected
         }
 

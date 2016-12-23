@@ -18,8 +18,9 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
 import com.espertech.esper.schedule.TimeProvider;
-import com.espertech.esper.support.core.SupportExprEvaluatorContext;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.util.support.SupportExprEvaluatorContext;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 public class TestExprTimestampNode extends TestCase
@@ -43,7 +44,7 @@ public class TestExprTimestampNode extends TestCase
         node.addChildNode(new SupportExprNode(1));
         try
         {
-            node.validate(ExprValidationContextFactory.makeEmpty());
+            node.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

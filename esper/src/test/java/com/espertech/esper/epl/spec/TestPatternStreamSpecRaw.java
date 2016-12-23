@@ -17,8 +17,8 @@ import com.espertech.esper.filter.*;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.pattern.EvalNodeAnalysisResult;
 import com.espertech.esper.pattern.EvalNodeUtil;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.epl.parse.SupportParserHelper;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 

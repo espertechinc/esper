@@ -12,8 +12,8 @@
 package com.espertech.esper.regression.multithread;
 
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean_A;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
 
 import java.util.concurrent.Callable;
 import java.util.List;

@@ -23,8 +23,8 @@ import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;

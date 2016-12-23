@@ -13,9 +13,9 @@ package com.espertech.esper.regression.enummethod;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import junit.framework.TestCase;
 
 public class TestExpressionDefConfigurations extends TestCase {

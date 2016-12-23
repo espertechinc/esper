@@ -14,13 +14,13 @@ package com.espertech.esper.client;
 import junit.framework.TestCase;
 
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.support.client.SupportConfigFactory;
 
 public class TestEPServiceProviderManager extends TestCase
 {
     public void testGetInstance()
     {
-        Configuration configuration = SupportConfigFactory.getConfiguration();
+        Configuration configuration = new Configuration();
+        configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(true);
 
         EPServiceProvider runtimeDef1 = EPServiceProviderManager.getDefaultProvider();
         EPServiceProvider runtimeA1 = EPServiceProviderManager.getProvider("A");

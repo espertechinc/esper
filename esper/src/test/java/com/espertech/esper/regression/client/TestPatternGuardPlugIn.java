@@ -13,11 +13,11 @@ package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestPatternGuardPlugIn extends TestCase
 {
@@ -103,7 +103,7 @@ public class TestPatternGuardPlugIn extends TestCase
         }
         catch (EPStatementException ex)
         {
-            SupportMessageAssertUtil.assertMessage(ex, "Failed to resolve pattern guard 'com.espertech.esper.support.bean.SupportBean where namespace:name(10)': Error casting guard factory instance to com.espertech.esper.pattern.guard.GuardFactory interface for guard 'name'");
+            SupportMessageAssertUtil.assertMessage(ex, "Failed to resolve pattern guard '" + SupportBean.class.getName() + " where namespace:name(10)': Error casting guard factory instance to com.espertech.esper.pattern.guard.GuardFactory interface for guard 'name'");
         }
     }
 }

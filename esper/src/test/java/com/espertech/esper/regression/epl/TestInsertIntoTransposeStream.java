@@ -16,9 +16,9 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -166,7 +166,7 @@ public class TestInsertIntoTransposeStream extends TestCase
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error starting statement: Expression-returned value of type 'com.espertech.esper.support.bean.SupportBean' cannot be converted to target event type 'SupportBeanNumeric' with underlying type 'com.espertech.esper.support.bean.SupportBeanNumeric' [insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
+            assertEquals("Error starting statement: Expression-returned value of type '" + SupportBean.class.getName() + "' cannot be converted to target event type 'SupportBeanNumeric' with underlying type '" + SupportBeanNumeric.class.getName() + "' [insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
         }
 
         // invalid additional properties
@@ -175,7 +175,7 @@ public class TestInsertIntoTransposeStream extends TestCase
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error starting statement: Cannot transpose additional properties in the select-clause to target event type 'SupportBean' with underlying type 'com.espertech.esper.support.bean.SupportBean', the transpose function must occur alone in the select clause [insert into SupportBean select 1 as dummy, transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
+            assertEquals("Error starting statement: Cannot transpose additional properties in the select-clause to target event type 'SupportBean' with underlying type '" + SupportBean.class.getName() + "', the transpose function must occur alone in the select clause [insert into SupportBean select 1 as dummy, transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
         }
 
         // invalid occurs twice
@@ -194,7 +194,7 @@ public class TestInsertIntoTransposeStream extends TestCase
             fail();
         }
         catch (EPStatementException ex) {
-            assertEquals("Error starting statement: Expression-returned value of type 'com.espertech.esper.support.bean.SupportBean' cannot be converted to target event type 'SomeOtherStream' with underlying type 'java.util.Map' [insert into SomeOtherStream select transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
+            assertEquals("Error starting statement: Expression-returned value of type '" + SupportBean.class.getName() + "' cannot be converted to target event type 'SomeOtherStream' with underlying type 'java.util.Map' [insert into SomeOtherStream select transpose(customOne('O', 10)) from SupportBean]", ex.getMessage());
         }
 
         // invalid two parameters

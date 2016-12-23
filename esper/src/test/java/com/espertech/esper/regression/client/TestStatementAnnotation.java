@@ -18,10 +18,10 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportEnum;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportEnum;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.lang.annotation.Annotation;
@@ -288,14 +288,14 @@ public class TestStatementAnnotation extends TestCase
                 "@MyAnnotationSimple " +
                 "@MyAnnotationValue('abc') " +
                 "@MyAnnotationValueDefaulted " +
-                "@MyAnnotationValueEnum(supportEnum=com.espertech.esper.support.bean.SupportEnum.ENUM_VALUE_3) " +
+                "@MyAnnotationValueEnum(supportEnum=" + SupportEnum.class.getName() + ".ENUM_VALUE_3) " +
                 "@MyAnnotationValuePair(stringVal='a',intVal=-1,longVal=2,booleanVal=true,charVal='x',byteVal=10,shortVal=20,doubleVal=2.5) " +
                 "@Name('STMTONE') " +
                 "select * from Bean";
         String stmtTextFormatted = "@MyAnnotationSimple" + NEWLINE +
                 "@MyAnnotationValue('abc')" + NEWLINE +
                 "@MyAnnotationValueDefaulted" + NEWLINE +
-                "@MyAnnotationValueEnum(supportEnum=com.espertech.esper.support.bean.SupportEnum.ENUM_VALUE_3)" + NEWLINE +
+                "@MyAnnotationValueEnum(supportEnum=" + SupportEnum.class.getName() + ".ENUM_VALUE_3)" + NEWLINE +
                 "@MyAnnotationValuePair(stringVal='a',intVal=-1,longVal=2,booleanVal=true,charVal='x',byteVal=10,shortVal=20,doubleVal=2.5)" + NEWLINE +
                 "@Name('STMTONE')" + NEWLINE +
                 "select *" + NEWLINE +

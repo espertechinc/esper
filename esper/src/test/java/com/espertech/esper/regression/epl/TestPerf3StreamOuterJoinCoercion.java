@@ -13,9 +13,9 @@ package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.support.bean.*;
+import com.espertech.esper.supportregression.bean.*;
 import junit.framework.TestCase;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

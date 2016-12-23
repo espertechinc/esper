@@ -15,7 +15,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import com.espertech.esper.client.EventBean;
 
 import java.util.concurrent.Callable;

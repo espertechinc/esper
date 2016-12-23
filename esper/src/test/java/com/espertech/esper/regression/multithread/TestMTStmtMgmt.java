@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.Configuration;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 import java.util.concurrent.*;
 import java.util.Arrays;

@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
-import com.espertech.esper.support.bean.ISupportD;
-import com.espertech.esper.support.bean.ISupportDImpl;
-import com.espertech.esper.support.bean.SupportBeanComplexProps;
-import com.espertech.esper.support.bean.SupportBeanSimple;
+import com.espertech.esper.supportunit.bean.ISupportD;
+import com.espertech.esper.supportunit.bean.ISupportDImpl;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBeanSimple;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 

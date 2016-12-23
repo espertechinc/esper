@@ -15,11 +15,11 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.bean.bookexample.BookDesc;
-import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
-import com.espertech.esper.support.bean.lrreport.LocationReportFactory;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.bean.bookexample.BookDesc;
+import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
+import com.espertech.esper.supportregression.bean.lrreport.LocationReportFactory;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.*;

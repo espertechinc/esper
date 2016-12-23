@@ -15,8 +15,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.bean.SupportBean;
 
 import java.util.concurrent.Callable;
 import java.util.Set;

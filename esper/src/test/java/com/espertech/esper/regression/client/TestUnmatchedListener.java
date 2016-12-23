@@ -14,8 +14,8 @@ package com.espertech.esper.regression.client;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.client.EventBean;
 
 import java.util.List;

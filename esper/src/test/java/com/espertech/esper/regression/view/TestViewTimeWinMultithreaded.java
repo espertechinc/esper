@@ -12,8 +12,8 @@
 package com.espertech.esper.regression.view;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import org.junit.Assert;
 import junit.framework.TestCase;
 import org.slf4j.Logger;

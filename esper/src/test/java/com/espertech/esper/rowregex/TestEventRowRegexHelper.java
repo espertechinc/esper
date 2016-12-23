@@ -13,7 +13,7 @@ package com.espertech.esper.rowregex;
 
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
-import com.espertech.esper.support.epl.parse.SupportParserHelper;
+import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
 import junit.framework.TestCase;
 
 import java.util.*;

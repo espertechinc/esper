@@ -15,7 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportAggregationResultFuture;
+import com.espertech.esper.supportunit.epl.SupportAggregationResultFuture;
 
 public abstract class TestExprAggregateNodeAdapter extends TestCase
 {

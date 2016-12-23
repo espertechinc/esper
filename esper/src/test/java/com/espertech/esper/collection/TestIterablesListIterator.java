@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.espertech.esper.support.event.EventFactoryHelper;
+import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.client.EventBean;
 
 public class TestIterablesListIterator extends TestCase

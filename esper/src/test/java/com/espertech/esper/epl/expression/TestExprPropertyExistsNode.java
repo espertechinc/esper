@@ -15,9 +15,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprPropertyExistsNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.client.EventBean;
 
 public class TestExprPropertyExistsNode extends TestCase
@@ -39,7 +40,7 @@ public class TestExprPropertyExistsNode extends TestCase
     {
         for (int i = 0; i < existsNodes.length; i++)
         {
-            existsNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
             assertEquals(Boolean.class, existsNodes[i].getType());
         }
     }
@@ -51,7 +52,7 @@ public class TestExprPropertyExistsNode extends TestCase
         // Test too few nodes under this node
         try
         {
-            castNode.validate(ExprValidationContextFactory.makeEmpty());
+            castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -62,7 +63,7 @@ public class TestExprPropertyExistsNode extends TestCase
         castNode.addChildNode(new SupportExprNode(1));
         try
         {
-            castNode.validate(ExprValidationContextFactory.makeEmpty());
+            castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -75,7 +76,7 @@ public class TestExprPropertyExistsNode extends TestCase
     {
         for (int i = 0; i < existsNodes.length; i++)
         {
-            existsNodes[i].validate(ExprValidationContextFactory.makeEmpty());
+            existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(false, existsNodes[0].evaluate(new EventBean[3], false, null));
@@ -94,7 +95,7 @@ public class TestExprPropertyExistsNode extends TestCase
 
     public void testToExpressionString() throws Exception
     {
-        existsNodes[0].validate(ExprValidationContextFactory.makeEmpty());
+        existsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("exists(s0.dummy?)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(existsNodes[0]));
     }
 }

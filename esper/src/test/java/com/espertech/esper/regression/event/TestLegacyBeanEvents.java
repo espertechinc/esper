@@ -18,8 +18,8 @@ import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.HashMap;

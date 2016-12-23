@@ -17,9 +17,9 @@ import com.espertech.esper.client.scopetest.SupportSubscriber;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -226,7 +226,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBeanCtorOne", SupportBeanCtorOne.class);
 
         String text = "insert into SupportBeanCtorOne select 1 from SupportBean";
-        tryInvalid("Error starting statement: Failed to find a suitable constructor for class 'com.espertech.esper.support.bean.SupportBeanCtorOne': Could not find constructor in class 'com.espertech.esper.support.bean.SupportBeanCtorOne' with matching parameter number and expected parameter type(s) 'Integer' (nearest matching constructor taking type(s) 'String, Integer, int, boolean') [insert into SupportBeanCtorOne select 1 from SupportBean]", text);
+        tryInvalid("Error starting statement: Failed to find a suitable constructor for class '" + SupportBeanCtorOne.class.getName() + "': Could not find constructor in class '" + SupportBeanCtorOne.class.getName() + "' with matching parameter number and expected parameter type(s) 'Integer' (nearest matching constructor taking type(s) 'String, Integer, int, boolean') [insert into SupportBeanCtorOne select 1 from SupportBean]", text);
 
         text = "insert into SupportBean(intPrimitive) select 1L from SupportBean";
         tryInvalid("Error starting statement: Invalid assignment of column 'intPrimitive' of type 'java.lang.Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into SupportBean(intPrimitive) select 1L from SupportBean]", text);
@@ -235,7 +235,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         tryInvalid("Error starting statement: Invalid assignment of column 'intPrimitive' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [insert into SupportBean(intPrimitive) select null from SupportBean]", text);
         
         text = "insert into SupportBeanReadOnly select 'a' as geom from SupportBean";
-        tryInvalid("Error starting statement: Failed to find a suitable constructor for class 'com.espertech.esper.support.bean.SupportBeanReadOnly': Could not find constructor in class 'com.espertech.esper.support.bean.SupportBeanReadOnly' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly select 'a' as geom from SupportBean]", text);
+        tryInvalid("Error starting statement: Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly select 'a' as geom from SupportBean]", text);
 
         text = "insert into SupportBean select 3 as dummyField from SupportBean";
         tryInvalid("Error starting statement: Column 'dummyField' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 as dummyField from SupportBean]", text);
@@ -244,16 +244,16 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         tryInvalid("Error starting statement: Column '3' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 from SupportBean]", text);
 
         text = "insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap";
-        tryInvalid("Error starting statement: Invalid assignment of column 'isa' of type 'com.espertech.esper.support.bean.ISupportBImpl' to event property 'isa' typed as 'com.espertech.esper.support.bean.ISupportA', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap]", text);
+        tryInvalid("Error starting statement: Invalid assignment of column 'isa' of type '" + ISupportBImpl.class.getName() + "' to event property 'isa' typed as '" + ISupportA.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap]", text);
 
         text = "insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap";
-        tryInvalid("Error starting statement: Invalid assignment of column 'isg' of type 'com.espertech.esper.support.bean.ISupportBaseABImpl' to event property 'isg' typed as 'com.espertech.esper.support.bean.ISupportAImplSuperG', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap]", text);
+        tryInvalid("Error starting statement: Invalid assignment of column 'isg' of type '" + ISupportBaseABImpl.class.getName() + "' to event property 'isg' typed as '" + ISupportAImplSuperG.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap]", text);
 
         text = "insert into SupportBean(dummy) select 3 from SupportBean";
         tryInvalid("Error starting statement: Column 'dummy' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean(dummy) select 3 from SupportBean]", text);
 
         text = "insert into SupportBeanReadOnly(side) select 'E1' from MyMap";
-        tryInvalid("Error starting statement: Failed to find a suitable constructor for class 'com.espertech.esper.support.bean.SupportBeanReadOnly': Could not find constructor in class 'com.espertech.esper.support.bean.SupportBeanReadOnly' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly(side) select 'E1' from MyMap]", text);
+        tryInvalid("Error starting statement: Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly(side) select 'E1' from MyMap]", text);
 
         epService.getEPAdministrator().createEPL("insert into ABCStream select *, 1+1 from SupportBean");
         text = "insert into ABCStream(string) select 'E1' from MyMap";
@@ -604,7 +604,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             fail();
         }
         catch (EPException ex) {
-            assertEquals("Error starting statement: Invalid assignment of column 'endEvent' of type 'com.espertech.esper.support.bean.SupportBean[]' to event property 'endEvent' typed as 'com.espertech.esper.support.bean.SupportBean', column and parameter types mismatch [INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]", ex.getMessage());
+            assertEquals("Error starting statement: Invalid assignment of column 'endEvent' of type '" + SupportBean.class.getName() + "[]' to event property 'endEvent' typed as '" + SupportBean.class.getName() + "', column and parameter types mismatch [INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]", ex.getMessage());
         }
 
         // Test invalid case of array destination insert from non-array var
@@ -615,7 +615,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             fail();
         }
         catch (EPException ex) {
-            assertEquals("Error starting statement: Invalid assignment of column 'startEvent' of type 'com.espertech.esper.support.bean.SupportBean_S0' to event property 'startEvent' typed as 'com.espertech.esper.support.bean.SupportBean_S0[]', column and parameter types mismatch [INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]", ex.getMessage());
+            assertEquals("Error starting statement: Invalid assignment of column 'startEvent' of type '" + SupportBean_S0.class.getName() + "' to event property 'startEvent' typed as '" + SupportBean_S0.class.getName() + "[]', column and parameter types mismatch [INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]", ex.getMessage());
         }
     }
 

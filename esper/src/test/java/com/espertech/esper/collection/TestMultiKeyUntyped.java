@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 
 public class TestMultiKeyUntyped extends TestCase
 {

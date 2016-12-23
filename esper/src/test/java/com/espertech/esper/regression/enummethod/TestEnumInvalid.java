@@ -15,9 +15,9 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 public class TestEnumInvalid extends TestCase {
@@ -133,6 +133,6 @@ public class TestEnumInvalid extends TestCase {
 
         // not a property
         epl = "select contained.firstof().dummy from SupportBean_ST0_Container";
-        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.firstof().dummy()': Failed to resolve method 'dummy': Could not find enumeration method, date-time method or instance method named 'dummy' in class 'com.espertech.esper.support.bean.SupportBean_ST0' taking no parameters [select contained.firstof().dummy from SupportBean_ST0_Container]");
+        SupportMessageAssertUtil.tryInvalid(epService, epl, "Error starting statement: Failed to validate select-clause expression 'contained.firstof().dummy()': Failed to resolve method 'dummy': Could not find enumeration method, date-time method or instance method named 'dummy' in class '" + SupportBean_ST0.class.getName() + "' taking no parameters [select contained.firstof().dummy from SupportBean_ST0_Container]");
     }
 }

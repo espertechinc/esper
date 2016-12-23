@@ -15,7 +15,7 @@ import junit.framework.*;
 import java.util.NoSuchElementException;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 
 public class TestSingleEventIterator extends TestCase
 {

@@ -20,10 +20,10 @@ import com.espertech.esper.client.util.EventPropertyRendererContext;
 import com.espertech.esper.client.util.JSONRenderingOptions;
 import com.espertech.esper.client.util.XMLRenderingOptions;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBeanRendererOne;
-import com.espertech.esper.support.bean.SupportBeanRendererThree;
-import com.espertech.esper.support.bean.SupportBean_S0;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBeanRendererOne;
+import com.espertech.esper.supportregression.bean.SupportBeanRendererThree;
+import com.espertech.esper.supportregression.bean.SupportBean_S0;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.*;

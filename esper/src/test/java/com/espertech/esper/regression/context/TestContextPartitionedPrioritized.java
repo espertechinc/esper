@@ -12,19 +12,12 @@
 package com.espertech.esper.regression.context;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.context.*;
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.filter.FilterServiceSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
-
-import java.util.*;
 
 public class TestContextPartitionedPrioritized extends TestCase {
 

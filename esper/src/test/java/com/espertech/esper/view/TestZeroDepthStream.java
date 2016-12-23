@@ -13,10 +13,10 @@ package com.espertech.esper.view;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.view.SupportSchemaNeutralView;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
 import junit.framework.TestCase;
 
 public class TestZeroDepthStream extends TestCase

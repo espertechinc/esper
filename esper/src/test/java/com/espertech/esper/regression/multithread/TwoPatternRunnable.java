@@ -15,8 +15,8 @@ import org.junit.Assert;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportTradeEvent;
-import com.espertech.esper.support.util.SupportStmtAwareUpdateListener;
+import com.espertech.esper.supportregression.bean.SupportTradeEvent;
+import com.espertech.esper.supportregression.util.SupportStmtAwareUpdateListener;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,10 +12,10 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBean_A;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.util.IndexBackingTableInfo;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBean_A;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
 import junit.framework.TestCase;
 
 public class TestInfraIndexFAFPerf extends TestCase implements IndexBackingTableInfo

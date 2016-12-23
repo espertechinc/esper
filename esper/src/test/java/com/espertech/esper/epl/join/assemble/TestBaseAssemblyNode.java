@@ -12,7 +12,7 @@
 package com.espertech.esper.epl.join.assemble;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.epl.join.SupportJoinProcNode;
+import com.espertech.esper.supportunit.epl.join.SupportJoinProcNode;
 import junit.framework.TestCase;
 
 public class TestBaseAssemblyNode extends TestCase

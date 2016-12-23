@@ -15,9 +15,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.service.AggSvcGroupAllNoAccessImpl;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.support.epl.SupportAggregator;
-import com.espertech.esper.support.epl.SupportAggregatorFactory;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportAggregator;
+import com.espertech.esper.supportunit.epl.SupportAggregatorFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import junit.framework.TestCase;
 
 public class TestAggregationServiceGroupAllImpl extends TestCase

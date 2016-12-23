@@ -13,12 +13,12 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanSimple;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
-import com.espertech.esper.support.filter.SupportFilterHandle;
-import com.espertech.esper.support.filter.SupportFilterSpecBuilder;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBeanSimple;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.filter.SupportFilterHandle;
+import com.espertech.esper.supportunit.filter.SupportFilterSpecBuilder;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

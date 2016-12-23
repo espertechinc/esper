@@ -14,12 +14,13 @@ package com.espertech.esper.epl.expression;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCaseNode;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
-import com.espertech.esper.support.epl.SupportExprNode;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,10 @@ public class TestExprCaseNode extends TestCase
     public void testValidate() throws Exception
     {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
-        caseNode.validate(ExprValidationContextFactory.makeEmpty());
+        caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
-        caseNode.validate(ExprValidationContextFactory.makeEmpty());
+        caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         // No subnodes: Exception is thrown.
         tryInvalidValidate(new ExprCaseNode(false));
@@ -71,14 +72,14 @@ public class TestExprCaseNode extends TestCase
     public void testEvaluate() throws Exception
     {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
-        caseNode.validate(ExprValidationContextFactory.makeEmpty());
+        caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         assertEquals("a", caseNode.evaluate(makeEvent(1), false, null));
         assertEquals("b", caseNode.evaluate(makeEvent(2), false, null));
         assertEquals("c", caseNode.evaluate(makeEvent(3), false, null));
 
         caseNode = SupportExprNodeFactory.makeCaseSyntax2Node();
-        caseNode.validate(ExprValidationContextFactory.makeEmpty());
+        caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
         assertEquals("a", caseNode.evaluate(makeEvent(1), false, null));
         assertEquals("b", caseNode.evaluate(makeEvent(2), false, null));
@@ -111,7 +112,7 @@ public class TestExprCaseNode extends TestCase
     private void tryInvalidValidate(ExprCaseNode exprCaseNode) throws Exception
     {
         try {
-            exprCaseNode.validate(ExprValidationContextFactory.makeEmpty());
+            exprCaseNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)

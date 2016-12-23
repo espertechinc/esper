@@ -14,9 +14,9 @@ package com.espertech.esper.regression.epl;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.support.bean.SupportBeanInt;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportJoinMethods;
+import com.espertech.esper.supportregression.bean.SupportBeanInt;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportJoinMethods;
 import junit.framework.TestCase;
 
 import java.util.Random;

@@ -12,8 +12,8 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.support.bean.SupportBeanPropertyNames;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.bean.SupportBeanPropertyNames;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;

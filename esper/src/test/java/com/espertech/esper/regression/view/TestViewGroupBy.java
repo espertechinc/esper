@@ -18,10 +18,11 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.bean.SupportBeanTimestamp;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportBeanTimestamp;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 
@@ -174,7 +175,7 @@ public class TestViewGroupBy extends TestCase
         }
         catch (EPStatementException ex)
         {
-            assertEquals("Error starting statement: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause [select avg(price), symbol from com.espertech.esper.support.bean.SupportMarketDataBean#length(100)#groupwin(symbol)]", ex.getMessage());
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause [");
         }
     }
 

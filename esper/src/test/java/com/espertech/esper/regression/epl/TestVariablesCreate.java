@@ -14,7 +14,8 @@ package com.espertech.esper.regression.epl;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.util.SupportModelHelper;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
@@ -22,8 +23,8 @@ import com.espertech.esper.client.soda.CreateVariableClause;
 import com.espertech.esper.client.soda.Expressions;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.core.service.StatementType;
 
@@ -247,30 +248,17 @@ public class TestVariablesCreate extends TestCase
     public void testInvalid()
     {
         String stmt = "create variable somedummy myvar = 10";
-        tryInvalid(stmt, "Error starting statement: Cannot create variable: Cannot create variable 'myvar', type 'somedummy' is not a recognized type [create variable somedummy myvar = 10]");
+        SupportMessageAssertUtil.tryInvalid(epService, stmt, "Error starting statement: Cannot create variable: Cannot create variable 'myvar', type 'somedummy' is not a recognized type [create variable somedummy myvar = 10]");
 
         stmt = "create variable string myvar = 5";
-        tryInvalid(stmt, "Error starting statement: Cannot create variable: Variable 'myvar' of declared type java.lang.String cannot be initialized by a value of type java.lang.Integer [create variable string myvar = 5]");
+        SupportMessageAssertUtil.tryInvalid(epService, stmt, "Error starting statement: Cannot create variable: Variable 'myvar' of declared type java.lang.String cannot be initialized by a value of type java.lang.Integer [create variable string myvar = 5]");
 
         stmt = "create variable string myvar = 'a'";
         epService.getEPAdministrator().createEPL("create variable string myvar = 'a'");
-        tryInvalid(stmt, "Error starting statement: Cannot create variable: Variable by name 'myvar' has already been created [create variable string myvar = 'a']");
+        SupportMessageAssertUtil.tryInvalid(epService, stmt, "Error starting statement: Cannot create variable: Variable by name 'myvar' has already been created [create variable string myvar = 'a']");
 
-        tryInvalid("select * from " + SupportBean.class.getName() + " output every somevar events",
-            "Error starting statement: Error in the output rate limiting clause: Variable named 'somevar' has not been declared [select * from com.espertech.esper.support.bean.SupportBean output every somevar events]");
-    }
-
-    private void tryInvalid(String stmtText, String message)
-    {
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals(message, ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBean.class.getName() + " output every somevar events",
+            "Error starting statement: Error in the output rate limiting clause: Variable named 'somevar' has not been declared [");
     }
 
     private SupportBean sendSupportBean(String theString, int intPrimitive)

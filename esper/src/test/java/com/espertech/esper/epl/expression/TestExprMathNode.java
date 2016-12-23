@@ -15,9 +15,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
-import com.espertech.esper.support.epl.SupportExprNodeUtil;
+import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.MathArithTypeEnum;
 
 public class TestExprMathNode extends TestCase
@@ -33,7 +34,7 @@ public class TestExprMathNode extends TestCase
     {
         arithNode.addChildNode(new SupportExprNode(Double.class));
         arithNode.addChildNode(new SupportExprNode(Integer.class));
-        arithNode.validate(ExprValidationContextFactory.makeEmpty());
+        arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals(Double.class, arithNode.getType());
     }
 
@@ -56,7 +57,7 @@ public class TestExprMathNode extends TestCase
         // Must have exactly 2 subnodes
         try
         {
-            arithNode.validate(ExprValidationContextFactory.makeEmpty());
+            arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -69,7 +70,7 @@ public class TestExprMathNode extends TestCase
         arithNode.addChildNode(new SupportExprNode(Integer.class));
         try
         {
-            arithNode.validate(ExprValidationContextFactory.makeEmpty());
+            arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
         }
         catch (ExprValidationException ex)
@@ -82,7 +83,7 @@ public class TestExprMathNode extends TestCase
     {
         arithNode.addChildNode(new SupportExprNode(new Integer(10)));
         arithNode.addChildNode(new SupportExprNode(new Double(1.5)));
-        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, ExprValidationContextFactory.makeEmpty());
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, SupportExprValidationContextFactory.makeEmpty());
         assertEquals(11.5d, arithNode.evaluate(null, false, null));
 
         arithNode = makeNode(null, Integer.class, 5d, Double.class);

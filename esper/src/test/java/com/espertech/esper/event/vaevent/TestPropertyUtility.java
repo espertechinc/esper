@@ -14,7 +14,7 @@ package com.espertech.esper.event.vaevent;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.support.bean.*;
+import com.espertech.esper.supportunit.bean.*;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 

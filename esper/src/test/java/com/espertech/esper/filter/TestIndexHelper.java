@@ -13,8 +13,8 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventTypeFactory;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 
 import java.util.ArrayDeque;

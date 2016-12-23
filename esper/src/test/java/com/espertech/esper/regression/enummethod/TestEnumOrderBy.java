@@ -14,10 +14,11 @@ package com.espertech.esper.regression.enummethod;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean_ST0_Container;
-import com.espertech.esper.support.bean.SupportCollection;
-import com.espertech.esper.support.bean.lambda.LambdaAssertionUtil;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0;
+import com.espertech.esper.supportregression.bean.SupportBean_ST0_Container;
+import com.espertech.esper.supportregression.bean.SupportCollection;
+import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -130,7 +131,7 @@ public class TestEnumOrderBy extends TestCase {
         String epl;
 
         epl = "select contained.orderBy() from Bean";
-        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.orderBy()': Invalid input for built-in enumeration method 'orderBy' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'com.espertech.esper.support.bean.SupportBean_ST0' [select contained.orderBy() from Bean]");
+        tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'contained.orderBy()': Invalid input for built-in enumeration method 'orderBy' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean_ST0.class.getName() + "' [select contained.orderBy() from Bean]");
     }
 
     private void tryInvalid(String epl, String message) {

@@ -17,8 +17,8 @@ import junit.framework.TestCase;
 import com.espertech.esper.client.soda.*;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.SerializableObjectCopier;
 
 public class TestSubselectFiltered extends TestCase

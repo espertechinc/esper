@@ -14,7 +14,7 @@ package com.espertech.esper.epl.expression;
 import com.espertech.esper.collection.PermutationEnumeration;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.support.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import junit.framework.TestCase;
 
 public class TestExprNodeUtility extends TestCase

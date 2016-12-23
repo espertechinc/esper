@@ -21,8 +21,8 @@ import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
 

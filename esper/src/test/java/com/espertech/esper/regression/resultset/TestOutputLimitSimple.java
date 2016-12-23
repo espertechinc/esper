@@ -19,11 +19,11 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.regression.support.ResultAssertExecution;
-import com.espertech.esper.regression.support.ResultAssertExecutionTestSelector;
-import com.espertech.esper.regression.support.ResultAssertTestResult;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.patternassert.ResultAssertExecution;
+import com.espertech.esper.supportregression.patternassert.ResultAssertExecutionTestSelector;
+import com.espertech.esper.supportregression.patternassert.ResultAssertTestResult;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
 
 public class TestOutputLimitSimple extends TestCase

@@ -19,9 +19,10 @@ import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -423,7 +424,7 @@ public class TestStreamExpr extends TestCase
         tryInvalid("select s0.getString(1,2,3) from " + SupportBean.class.getName() + " as s0", null);
 
         tryInvalid("select s0.abc() from " + SupportBean.class.getName() + " as s0",
-                   "Error starting statement: Failed to validate select-clause expression 's0.abc()': Failed to solve 'abc' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'abc': Could not find enumeration method, date-time method or instance method named 'abc' in class 'com.espertech.esper.support.bean.SupportBean' taking no parameters [select s0.abc() from com.espertech.esper.support.bean.SupportBean as s0]");
+                   "Error starting statement: Failed to validate select-clause expression 's0.abc()': Failed to solve 'abc' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'abc': Could not find enumeration method, date-time method or instance method named 'abc' in class '" + SupportBean.class.getName() + "' taking no parameters [");
 
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         tryInvalid("select s.theString from pattern [every [2] s=SupportBean] ee",
@@ -445,7 +446,7 @@ public class TestStreamExpr extends TestCase
         {
             if (message != null)
             {
-                assertEquals(message, ex.getMessage());
+                SupportMessageAssertUtil.assertMessage(ex, message);
             }
         }
     }

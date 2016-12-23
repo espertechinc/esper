@@ -15,8 +15,9 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.*;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,25 +326,11 @@ public class TestVariantStreamDefault extends TestCase
         variant.addEventTypeName("SupportBeanVariantStream");
         epService.getEPAdministrator().getConfiguration().addVariantStream("MyVariantStream", variant);
 
-        try
-        {
-            epService.getEPAdministrator().createEPL("insert into MyVariantStream select * from " + SupportBean_A.class.getName());
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Selected event type is not a valid event type of the variant stream 'MyVariantStream' [insert into MyVariantStream select * from com.espertech.esper.support.bean.SupportBean_A]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into MyVariantStream select * from " + SupportBean_A.class.getName(),
+                "Error starting statement: Selected event type is not a valid event type of the variant stream 'MyVariantStream'");
 
-        try
-        {
-            epService.getEPAdministrator().createEPL("insert into MyVariantStream select intPrimitive as k0 from " + SupportBean.class.getName());
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            assertEquals("Error starting statement: Selected event type is not a valid event type of the variant stream 'MyVariantStream' [insert into MyVariantStream select intPrimitive as k0 from com.espertech.esper.support.bean.SupportBean]", ex.getMessage());
-        }
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into MyVariantStream select intPrimitive as k0 from " + SupportBean.class.getName(),
+                "Error starting statement: Selected event type is not a valid event type of the variant stream 'MyVariantStream' ");
     }
 
     public void testInvalidConfig()

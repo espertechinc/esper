@@ -11,7 +11,7 @@
 
 package com.espertech.esper.regression.client;
 
-import com.espertech.esper.support.bean.SupportEnum;
+import com.espertech.esper.supportregression.bean.SupportEnum;
 
 public @interface MyAnnotationValueEnumTwo
 {

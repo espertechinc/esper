@@ -15,13 +15,13 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.support.bean.SupportBean;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportBeanTimestamp;
-import com.espertech.esper.support.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBeanTimestamp;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class TestViewTimeOrder extends TestCase
 {
@@ -381,28 +381,14 @@ public class TestViewTimeOrder extends TestCase
 
     public void testInvalid()
     {
-        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 0 for Time-Order view: Failed to validate view parameter expression 'bump': Property named 'bump' is not valid in any stream [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(bump, 10 sec)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(bump, 10 sec)"));
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBeanTimestamp.class.getName() + "#time_order(bump, 10 sec)",
+                "Error starting statement: Error attaching view to event stream: Invalid parameter expression 0 for Time-Order view: Failed to validate view parameter expression 'bump': Property named 'bump' is not valid in any stream [");
 
-        assertEquals("Error starting statement: Error attaching view to event stream: Time-Order view requires the expression supplying timestamp values, and a numeric or time period parameter for interval size [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(10 sec)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(10 sec)"));
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBeanTimestamp.class.getName() + "#time_order(10 sec)",
+                "Error starting statement: Error attaching view to event stream: Time-Order view requires the expression supplying timestamp values, and a numeric or time period parameter for interval size [");
 
-        assertEquals("Error starting statement: Error attaching view to event stream: Invalid parameter expression 1 for Time-Order view: Failed to validate view parameter expression 'abc': Property named 'abc' is not valid in any stream (did you mean 'id'?) [select * from com.espertech.esper.support.bean.SupportBeanTimestamp#time_order(timestamp, abc)]",
-                    tryInvalid("select * from " + SupportBeanTimestamp.class.getName() + "#time_order(timestamp, abc)"));
-    }
-
-    private String tryInvalid(String stmtText)
-    {
-        try
-        {
-            epService.getEPAdministrator().createEPL(stmtText);
-            fail();
-        }
-        catch (EPStatementException ex)
-        {
-            return ex.getMessage();
-        }
-        return null;
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from " + SupportBeanTimestamp.class.getName() + "#time_order(timestamp, abc)",
+                "Error starting statement: Error attaching view to event stream: Invalid parameter expression 1 for Time-Order view: Failed to validate view parameter expression 'abc': Property named 'abc' is not valid in any stream (did you mean 'id'?) [");
     }
 
     public void testPreviousAndPrior()

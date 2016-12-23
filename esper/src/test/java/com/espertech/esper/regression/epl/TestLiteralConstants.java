@@ -19,9 +19,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.Configuration;
-import com.espertech.esper.support.client.SupportConfigFactory;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.bean.SupportBean;
 
 public class TestLiteralConstants extends TestCase
 {

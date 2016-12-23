@@ -11,10 +11,9 @@
 
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.epl.join.base.ExecNodeQueryStrategy;
-import com.espertech.esper.support.epl.SupportQueryExecNode;
-import com.espertech.esper.support.bean.SupportBean;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.epl.SupportQueryExecNode;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
 import junit.framework.TestCase;
 

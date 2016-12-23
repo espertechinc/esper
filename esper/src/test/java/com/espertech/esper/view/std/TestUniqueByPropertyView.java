@@ -14,12 +14,12 @@ package com.espertech.esper.view.std;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.support.bean.SupportMarketDataBean;
-import com.espertech.esper.support.view.SupportBeanClassView;
-import com.espertech.esper.support.view.SupportStreamImpl;
-import com.espertech.esper.support.view.SupportViewDataChecker;
-import com.espertech.esper.support.event.SupportEventBeanFactory;
-import com.espertech.esper.support.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewDataChecker;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 
 public class TestUniqueByPropertyView extends TestCase
 {
