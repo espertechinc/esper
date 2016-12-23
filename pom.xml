@@ -1,12 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-	<name>Esper</name>
+	<name>Esper (Parent)</name>
 	<groupId>com.espertech</groupId>
 	<version>6.0.0</version>
 	<artifactId>esper-parent</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>esper</module>
+		<module>esper-regression</module>
 		<module>esperio-amqp</module>
 		<module>esperio-csv</module>
 		<module>esperio-db</module>

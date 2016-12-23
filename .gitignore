@@ -4,6 +4,7 @@
 /esper/doc/javadoc/api
 /esper/target
 /esper/copy.cmd
+/esper-regression/target
 /esperio-amqp/target
 /esperio-csv/target
 /esperio-socket/target

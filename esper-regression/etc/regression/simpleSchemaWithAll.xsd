@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Pablo Polvorin (ACHA) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ss="samples:schemas:simpleSchemaWithAll" targetNamespace="samples:schemas:simpleSchemaWithAll" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="event-page-visit">
+		<xs:annotation>
+			<xs:documentation>Event of visiting a page</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="sessionId"/>
+				<xs:element name="customerId" minOccurs="0"/>
+				<xs:element name="url"/>
+				<xs:element name="method"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
