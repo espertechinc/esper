@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Export-Package: com.espertech.esper.avro.core,
+ com.espertech.esper.avro.getter
+Bundle-Name: Esper Complex Event Processing - Avro Support
+Created-By: Apache Maven
+Bundle-RequiredExecutionEnvironment: J2SE-1.8
+Bundle-Vendor: EsperTech
+Built-By: EsperTech
+Build-Jdk: 1.8.0_111
+Bundle-Version: 6.0.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.espertech.esper.avro
+Eclipse-BuddyPolicy: dependent
+Import-Package: org.antlr.v4.runtime,
+ org.antlr.v4.runtime.atn,
+ org.antlr.v4.runtime.dfa,
+ org.antlr.v4.runtime.misc,
+ org.antlr.v4.runtime.tree

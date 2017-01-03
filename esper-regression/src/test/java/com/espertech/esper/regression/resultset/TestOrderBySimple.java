@@ -997,9 +997,9 @@ public class TestOrderBySimple extends TestCase {
 	private void assertSymbolsJoinWildCard()
     {
     	EventBean[] events = testListener.getLastNewData();
-    	log.debug(".assertValues event type = " + events[0].getEventType());
-    	log.debug(".assertValues values: " + symbols);
-    	log.debug(".assertValues events.length==" + events.length);
+    	log.debug(".assertValuesMayConvert event type = " + events[0].getEventType());
+    	log.debug(".assertValuesMayConvert values: " + symbols);
+    	log.debug(".assertValuesMayConvert events.length==" + events.length);
     	for(int i = 0; i < events.length; i++)
     	{
     		SupportMarketDataBean theEvent = (SupportMarketDataBean)events[i].get("one");
@@ -1011,10 +1011,10 @@ public class TestOrderBySimple extends TestCase {
     {
     	EventBean[] events = testListener.getLastNewData();
     	assertEquals(values.size(), events.length);
-    	log.debug(".assertValues values: " + values);
+    	log.debug(".assertValuesMayConvert values: " + values);
     	for(int i = 0; i < events.length; i++)
     	{
-    		log.debug(".assertValues events["+i+"]=="+events[i].get(valueName));
+    		log.debug(".assertValuesMayConvert events["+i+"]=="+events[i].get(valueName));
     		assertEquals(values.get(i), events[i].get(valueName));
     	}
     }

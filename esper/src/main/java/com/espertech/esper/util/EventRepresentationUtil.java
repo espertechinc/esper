@@ -21,6 +21,8 @@ import java.lang.annotation.Annotation;
 
 public class EventRepresentationUtil {
 
+    // TODO
+    @Deprecated
     public static boolean isMap(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
         // assigned type has priority
         if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {
@@ -42,5 +44,47 @@ public class EventRepresentationUtil {
 
         // use engine-wide default
         return configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation() == Configuration.EventRepresentation.MAP;
+    }
+
+    public static Configuration.EventRepresentation getRepresentation(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
+        // assigned type has priority
+        if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {
+            return Configuration.EventRepresentation.OBJECTARRAY;
+        }
+        else if (assignedType == CreateSchemaDesc.AssignedType.MAP) {
+            return Configuration.EventRepresentation.MAP;
+        }
+        else if (assignedType == CreateSchemaDesc.AssignedType.AVRO) {
+            return Configuration.EventRepresentation.AVRO;
+        }
+        if (assignedType == CreateSchemaDesc.AssignedType.VARIANT || assignedType != CreateSchemaDesc.AssignedType.NONE) {
+            throw new IllegalStateException("Not handled by event representation: " + assignedType);
+        }
+
+        // annotation has second priority
+        Annotation annotation = AnnotationUtil.findAnnotation(annotations, EventRepresentation.class);
+        if (annotation != null) {
+            EventRepresentation eventRepresentation = (EventRepresentation) annotation;
+            if (eventRepresentation.avro()) {
+                return Configuration.EventRepresentation.AVRO;
+            }
+            else if (eventRepresentation.array()) {
+                return Configuration.EventRepresentation.OBJECTARRAY;
+            }
+            return Configuration.EventRepresentation.MAP;
+        }
+
+        // use engine-wide default
+        Configuration.EventRepresentation configured = configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
+        if (configured == Configuration.EventRepresentation.OBJECTARRAY) {
+            return Configuration.EventRepresentation.OBJECTARRAY;
+        }
+        else if (configured == Configuration.EventRepresentation.MAP) {
+            return Configuration.EventRepresentation.MAP;
+        }
+        else if (configured == Configuration.EventRepresentation.AVRO) {
+            return Configuration.EventRepresentation.AVRO;
+        }
+        return Configuration.EventRepresentation.MAP;
     }
 }

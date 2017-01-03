@@ -270,44 +270,6 @@ public class TestMapEvent extends TestCase
         tryInvalid("select String.trim(myInt) from myMapEvent#length(5)");
     }
 
-    public void testSendMapNative()
-    {
-        String statementText = "select * from myMapEvent#length(5)";
-        EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
-        SupportUpdateListener listener = new SupportUpdateListener();
-        statement.addListener(listener);
-
-        // send Map<String, Object> event
-        epService.getEPRuntime().sendEvent(map, "myMapEvent");
-
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(map, listener.getLastNewData()[0].getUnderlying());
-        assertEquals(3, listener.getLastNewData()[0].get("myInt"));
-        assertEquals("some string", listener.getLastNewData()[0].get("myString"));
-
-        // send Map base event
-        Map mapNoType = new HashMap();
-        mapNoType.put("myInt", 4);
-        mapNoType.put("myString", "string2");
-        epService.getEPRuntime().sendEvent(mapNoType, "myMapEvent");
-
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(mapNoType, listener.getLastNewData()[0].getUnderlying());
-        assertEquals(4, listener.getLastNewData()[0].get("myInt"));
-        assertEquals("string2", listener.getLastNewData()[0].get("myString"));
-
-        Map<String, Object> mapStrings = new HashMap<String, Object>();
-        mapStrings.put("myInt", 5);
-        mapStrings.put("myString", "string3");
-        epService.getEPRuntime().sendEvent(mapStrings, "myMapEvent");
-
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(5, listener.getLastNewData()[0].get("myInt"));
-        assertEquals("string3", listener.getLastNewData()[0].get("myString"));
-    }
-
     private void tryInvalid(String statementText)
     {
         try

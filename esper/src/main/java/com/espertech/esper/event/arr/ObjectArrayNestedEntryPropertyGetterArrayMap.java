@@ -38,4 +38,8 @@ public class ObjectArrayNestedEntryPropertyGetterArrayMap extends ObjectArrayNes
     public Object handleNestedValueFragment(Object value) {
         return BaseNestableEventUtil.handleNestedValueArrayWithMapFragment(value, index, getter, eventAdapterService, fragmentType);
     }
+
+    public boolean handleNestedValueExists(Object value) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExists(value, index, getter);
+    }
 }

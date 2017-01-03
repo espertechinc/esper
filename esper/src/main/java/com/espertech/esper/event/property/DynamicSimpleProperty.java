@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayDynamicPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
+import com.espertech.esper.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.DynamicSimplePropertyGetter;
 import com.espertech.esper.event.map.MapDynamicPropertyGetter;
@@ -29,7 +30,7 @@ import java.util.Map;
  * <p>
  * Dynamic properties always exist, have an Object type and are resolved to a method during runtime.
  */
-public class DynamicSimpleProperty extends PropertyBase implements DynamicProperty
+public class DynamicSimpleProperty extends PropertyBase implements DynamicProperty, PropertySimple
 {
     /**
      * Ctor.
@@ -96,6 +97,14 @@ public class DynamicSimpleProperty extends PropertyBase implements DynamicProper
     }
 
     public ObjectArrayEventPropertyGetter getGetterObjectArray(Map<String, Integer> indexPerProperty, Map<String, Object> nestableTypes, EventAdapterService eventAdapterService) {
-        return new ObjectArrayDynamicPropertyGetter(propertyNameAtomic);
+        // The simple, none-dynamic property needs a definition of the map contents else no property
+        if (nestableTypes == null) {
+            return new ObjectArrayDynamicPropertyGetter(propertyNameAtomic);
+        }
+        Integer propertyIndex = indexPerProperty.get(propertyNameAtomic);
+        if (propertyIndex == null) {
+            return new ObjectArrayDynamicPropertyGetter(propertyNameAtomic);
+        }
+        return new ObjectArrayPropertyGetterDefaultObjectArray(propertyIndex, null, eventAdapterService);
     }
 }

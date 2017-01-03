@@ -145,4 +145,8 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
     public EventPropertyGetterIndexed getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService) {
         return indexedProperty.getGetterObjectArray(propertiesIndex, nestableTypes, eventAdapterService);
     }
+
+    public EventPropertyGetter getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventAdapterService eventAdapterService) {
+        return null; // this case is not supported
+    }
 }

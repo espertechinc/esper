@@ -70,7 +70,7 @@ public class TestEventRenderer extends TestCase
         XMLRenderingOptions xmlOptions = new XMLRenderingOptions();
         xmlOptions.setRenderer(new MyRenderer());
         String xmlOne = epService.getEPRuntime().getEventRenderer().renderXML("MyEvent", stmt.iterator().next(), xmlOptions);
-        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <MyEvent> <id>id1</id> <someProperties>index#0=1;index#1=x</someProperties> <someProperties>index#0=2;index#1=y</someProperties> <mappedProperty> <key>value<key> </mappedProperty> </MyEvent>";
+        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <MyEvent> <id>id1</id> <someProperties>index#0=1;index#1=x</someProperties> <someProperties>index#0=2;index#1=y</someProperties> <mappedProperty> <key>value</key> </mappedProperty> </MyEvent>";
         assertEquals(4, MyRenderer.getContexts().size());
         assertEquals(removeNewline(expected), removeNewline(xmlOne));
     }
@@ -117,9 +117,9 @@ public class TestEventRenderer extends TestCase
         String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<MyEvent>\n" +
                 "  <stringObjectMap>\n" +
-                "    <abc>def<abc>\n" +
-                "    <def>123<def>\n" +
-                "    <efg><efg>\n" +
+                "    <abc>def</abc>\n" +
+                "    <def>123</def>\n" +
+                "    <efg></efg>\n" +
                 "  </stringObjectMap>\n" +
                 "</MyEvent>";
         assertEquals(removeNewline(expected), removeNewline(xmlOne));

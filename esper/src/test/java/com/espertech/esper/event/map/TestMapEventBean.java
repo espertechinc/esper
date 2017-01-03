@@ -11,6 +11,7 @@
 
 package com.espertech.esper.event.map;
 
+import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
@@ -46,7 +47,8 @@ public class TestMapEventBean extends TestCase
         testValuesMap.put("anInt", 10);
         testValuesMap.put("myComplexBean", supportBean);
 
-        eventType = new MapEventType(null, "", 1, SupportEventAdapterService.getService(), testTypesMap, null, null, null);
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, "testtype", true, true, true, false, false);
+        eventType = new MapEventType(metadata, "", 1, SupportEventAdapterService.getService(), testTypesMap, null, null, null);
         eventBean = new MapEventBean(testValuesMap, eventType);
     }
 

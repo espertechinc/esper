@@ -112,4 +112,8 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         }
         return new MapPropertyGetterDefaultMap(name, eventType, eventAdapterService);
     }
+
+    public EventPropertyGetter getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventAdapterService eventAdapterService) {
+        return new MapNestedEntryPropertyGetterPropertyProvidedDynamic(propertyName, null, eventAdapterService, nestedGetter);
+    }
 }

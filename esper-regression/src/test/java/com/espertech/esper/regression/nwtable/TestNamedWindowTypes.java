@@ -70,10 +70,10 @@ public class TestNamedWindowTypes extends TestCase
 
     public void runAssertionEventTypeColumnDef(EventRepresentationEnum eventRepresentationEnum) {
         EPStatement stmtSchema = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema SchemaOne(col1 int, col2 int)");
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtSchema.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtSchema.getEventType().getUnderlyingType()));
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window SchemaWindow#lastevent as (s1 SchemaOne)");
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         stmt.addListener(listenerWindow);
         epService.getEPAdministrator().createEPL("insert into SchemaWindow (s1) select sone from SchemaOne as sone");
@@ -117,7 +117,7 @@ public class TestNamedWindowTypes extends TestCase
         // create window
         String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall as select one, two from OuterType";
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(stmtTextCreate);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreate.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtCreate.getEventType().getUnderlyingType()));
         stmtCreate.addListener(listenerWindow);
         EPAssertionUtil.assertEqualsAnyOrder(stmtCreate.getEventType().getPropertyNames(), new String[]{"one", "two"});
         EventType eventType = stmtCreate.getEventType();

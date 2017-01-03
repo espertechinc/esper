@@ -127,9 +127,9 @@ public abstract class BaseNestableEventType implements EventTypeSPI
     public EventPropertyGetter getGetter(final String propertyName)
     {
         if (propertyGetterCache == null) {
-            propertyGetterCache = new HashMap<String, EventPropertyGetter>();
+            propertyGetterCache = new HashMap<>();
         }
-        return EventTypeUtility.getNestableGetter(propertyName, propertyItems, propertyGetterCache, nestableTypes, eventAdapterService, getterFactory);
+        return EventTypeUtility.getNestableGetter(propertyName, propertyItems, propertyGetterCache, nestableTypes, eventAdapterService, getterFactory, metadata.getOptionalApplicationType() == EventTypeMetadata.ApplicationType.OBJECTARR);
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
@@ -161,10 +161,10 @@ public abstract class BaseNestableEventType implements EventTypeSPI
         if (propertyType == null)
         {
             // Could be a native null type, such as "insert into A select null as field..."
-            if (propertyItems.containsKey(ASTUtil.unescapeDot(propertyName)))
-            {
+            if (propertyItems.containsKey(ASTUtil.unescapeDot(propertyName))) {
                 return true;
             }
+
         }
         return propertyType != null;
     }

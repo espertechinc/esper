@@ -36,6 +36,7 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     public abstract Object handleNestedValue(Object value);
+    public abstract boolean handleNestedValueExists(Object value);
     public abstract Object handleNestedValueFragment(Object value);
 
     public Object getObjectArray(Object[] array) throws PropertyAccessException
@@ -60,7 +61,12 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
 
     public boolean isExistsProperty(EventBean eventBean)
     {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
+        Object value = array[propertyIndex];
+        if (value == null) {
+            return false;
+        }
+        return handleNestedValueExists(value);
     }
 
     public Object getFragment(EventBean obj)

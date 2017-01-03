@@ -184,7 +184,7 @@ public class TestNamedWindowInsertFrom extends TestCase
 
         String stmtTextCreateOne = eventRepresentationEnum.getAnnotationText() + " create window MyWindow#keepall as select a, b from MyMap";
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreateOne.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtCreateOne.getEventType().getUnderlyingType()));
         stmtCreateOne.addListener(listeners[0]);
 
         // create insert into
@@ -198,12 +198,12 @@ public class TestNamedWindowInsertFrom extends TestCase
 
         // create window with keep-all using OM
         EPStatementObjectModel model = new EPStatementObjectModel();
-        eventRepresentationEnum.addAnnotation(model);
+        eventRepresentationEnum.addAnnotationForNonMap(model);
         Expression where = Expressions.eq("b", 10);
         model.setCreateWindow(CreateWindowClause.create("MyWindowTwo", View.create("keepall")).insert(true).insertWhereClause(where));
         model.setSelectClause(SelectClause.createWildcard());
         model.setFromClause(FromClause.create(FilterStream.create("MyWindow")));
-        String text = eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall as select * from MyWindow insert where b=10";
+        String text = eventRepresentationEnum.getAnnotationTextForNonMap() + " create window MyWindowTwo#keepall as select * from MyWindow insert where b=10";
         assertEquals(text.trim(), model.toEPL());
 
         EPStatementObjectModel modelTwo = epService.getEPAdministrator().compileEPL(text);

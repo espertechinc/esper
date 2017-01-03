@@ -425,4 +425,6 @@ public interface EPRuntime
      * @return clocking indicator
      */
     public boolean isExternalClockingEnabled();
+
+    void sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName);
 }

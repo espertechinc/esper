@@ -110,7 +110,61 @@ public class DOMAttributeAndElementGetter implements EventPropertyGetter, DOMPro
 
     public boolean isExistsProperty(EventBean eventBean)
     {
-        return true;
+        // The underlying is expected to be a map
+        if (!(eventBean.getUnderlying() instanceof Node))
+        {
+            throw new PropertyAccessException("Mismatched property getter to event bean type, " +
+                    "the underlying data object is not of type Node");
+        }
+
+        Node node = (Node) eventBean.getUnderlying();
+        NamedNodeMap namedNodeMap = node.getAttributes();
+        if (namedNodeMap != null)
+        {
+            for (int i = 0; i < namedNodeMap.getLength(); i++)
+            {
+                Node attrNode = namedNodeMap.item(i);
+                if (attrNode.getLocalName() != null)
+                {
+                    if (propertyName.equals(attrNode.getLocalName()))
+                    {
+                        return true;
+                    }
+                    continue;
+                }
+                if (propertyName.equals(attrNode.getNodeName()))
+                {
+                    return true;
+                }
+            }
+        }
+
+        NodeList list = node.getChildNodes();
+        for (int i = 0; i < list.getLength(); i++)
+        {
+            Node childNode = list.item(i);
+            if (childNode == null) {
+                continue;
+            }
+            if (childNode.getNodeType() != Node.ELEMENT_NODE)
+            {
+                continue;
+            }
+            if (childNode.getLocalName() != null)
+            {
+                if (propertyName.equals(childNode.getLocalName()))
+                {
+                    return true;
+                }
+                continue;
+            }
+            if (childNode.getNodeName().equals(propertyName))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException

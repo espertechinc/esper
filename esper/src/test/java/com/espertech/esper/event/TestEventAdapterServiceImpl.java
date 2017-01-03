@@ -32,7 +32,7 @@ public class TestEventAdapterServiceImpl extends TestCase
 
     public void setUp()
     {
-        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5);
+        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null);
     }
 
     public void testSelfRefEvent()

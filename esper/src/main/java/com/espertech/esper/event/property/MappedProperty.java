@@ -30,7 +30,7 @@ import java.util.Map;
  * Represents a mapped property or array property, ie. an 'value' property with read method getValue(int index)
  * or a 'array' property via read method getArray() returning an array.
  */
-public class MappedProperty extends PropertyBase
+public class MappedProperty extends PropertyBase implements PropertyWithKey
 {
     private String key;
 

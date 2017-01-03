@@ -240,6 +240,10 @@ class ConfigurationParser {
             {
                 handleLegacy(name, optionalClassName, configuration, eventTypeElement);
             }
+            else if (nodeName.equals("avro"))
+            {
+                handleAvro(name, configuration, eventTypeElement);
+            }
         }
     }
 
@@ -419,6 +423,15 @@ class ConfigurationParser {
                 }
             }
         }
+    }
+
+    private static void handleAvro(String name, Configuration configuration, Element xmldomElement)
+    {
+        String schemaText = getOptionalAttribute(xmldomElement, "schema-text");
+
+        ConfigurationEventTypeAvro avroEventTypeDesc = new ConfigurationEventTypeAvro();
+        avroEventTypeDesc.setAvroSchemaText(schemaText);
+        configuration.addEventTypeAvro(name, avroEventTypeDesc);
     }
 
     private static void handleLegacy(String name, String className, Configuration configuration, Element xmldomElement)

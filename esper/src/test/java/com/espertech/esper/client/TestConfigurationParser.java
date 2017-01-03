@@ -208,6 +208,12 @@ public class TestConfigurationParser extends TestCase
         assertEquals("startts", config.getObjectArrayTypeConfigurations().get("MyObjectArrayEvent").getStartTimestampPropertyName());
         assertEquals("endts", config.getObjectArrayTypeConfigurations().get("MyObjectArrayEvent").getEndTimestampPropertyName());
 
+        // assert avro events
+        assertEquals(1, config.getEventTypesAvro().size());
+        ConfigurationEventTypeAvro avro = config.getEventTypesAvro().get("MyAvroEvent");
+        assertEquals("{\"type\":\"record\",\"name\":\"typename\",\"fields\":[{\"name\":\"num\",\"type\":\"int\"}]}", avro.getAvroSchemaText());
+        assertNull(avro.getAvroSchema());
+
         // assert legacy type declaration
         assertEquals(1, config.getEventTypesLegacy().size());
         ConfigurationEventTypeLegacy legacy = config.getEventTypesLegacy().get("MyLegacyTypeEvent");

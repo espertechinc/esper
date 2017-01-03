@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Represents a simple property of a given name.
  */
-public class SimpleProperty extends PropertyBase
+public class SimpleProperty extends PropertyBase implements PropertySimple
 {
     /**
      * Ctor.

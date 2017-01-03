@@ -15,6 +15,8 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroMarkerEventType;
+import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.event.bean.BeanEventAdapter;
 import com.espertech.esper.event.bean.BeanEventBean;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -23,7 +25,6 @@ import com.espertech.esper.event.map.MapEventBean;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.xml.*;
 import com.espertech.esper.plugin.*;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,11 +64,14 @@ public class EventAdapterServiceImpl implements EventAdapterService
     private final Map<URI, PlugInEventRepresentation> plugInRepresentations;
     private final EventTypeIdGenerator eventTypeIdGenerator;
     private final EventAdapterServiceAnonymousTypeCache anonymousTypeCache;
+    private final EventAdapterAvroHandler avroHandler;
 
     public EventAdapterServiceImpl(EventTypeIdGenerator eventTypeIdGenerator,
-                                   int anonymousTypeCacheSize)
+                                   int anonymousTypeCacheSize,
+                                   EventAdapterAvroHandler avroHandler)
     {
         this.eventTypeIdGenerator = eventTypeIdGenerator;
+        this.avroHandler = avroHandler;
 
         nameToTypeMap = new HashMap<String, EventType>();
         xmldomRootElementNames = new HashMap<String, EventType>();
@@ -223,6 +228,10 @@ public class EventAdapterServiceImpl implements EventAdapterService
         if (eventType instanceof BaseXMLEventType)
         {
             return new EventSenderXMLDOM(runtimeEventSender, (BaseXMLEventType) eventType, this, threadingService);
+        }
+        if (eventType instanceof AvroMarkerEventType)
+        {
+            return new EventSenderAvro(runtimeEventSender, eventType, this, threadingService);
         }
 
         PlugInEventTypeHandler handlers = nameToHandlerMap.get(eventTypeName);
@@ -804,6 +813,15 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return anonymousTypeCache.addReturnExistingAnonymousType(oaEventType);
     }
 
+    public final EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations) throws EventAdapterException
+    {
+        String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
+        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName); // TODO why no application type?
+        int typeId = eventTypeIdGenerator.getTypeId(assignedTypeName);
+        EventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, assignedTypeName, typeId, this, properties, annotations);
+        return anonymousTypeCache.addReturnExistingAnonymousType(newEventType);
+    }
+
     public EventType createSemiAnonymousMapType(String typeName, Map<String, Pair<EventType, String>> taggedEventTypes, Map<String, Pair<EventType, String>> arrayEventTypes, boolean isUsedByChildViews)
     {
         Map<String, Object> mapProperties = new LinkedHashMap<String, Object>();
@@ -954,5 +972,49 @@ public class EventAdapterServiceImpl implements EventAdapterService
 
     public EventBeanAdapterFactory getAdapterFactoryForType(EventType eventType) {
         return EventAdapterServiceHelper.getAdapterFactoryForType(eventType);
+    }
+
+    public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured) throws EventAdapterException {
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, false, false);
+
+        int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
+        EventType newEventType = avroHandler.newEventTypeFromSchema(metadata, eventTypeName, typeId, this, avro);
+
+        /* TODO
+        EventType existingType = nameToTypeMap.get(eventTypeName);
+        if (existingType != null)
+        {
+            // The existing type must be the same as the type createdStatement
+            if (!newEventTypeFromSchema.equalsCompareType(existingType))
+            {
+                String message = newEventTypeFromSchema.getEqualsMessage(existingType);
+                throw new EventAdapterException("Event type named '" + eventTypeName +
+                        "' has already been declared with differing column name or type information: " + message);
+            }
+
+            // Since it's the same, return the existing type
+            return existingType;
+        }
+        */
+
+        nameToTypeMap.put(eventTypeName, newEventType);
+
+        return newEventType;
+    }
+
+    public EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName) {
+        EventType existingType = nameToTypeMap.get(eventTypeName);
+        if (!(existingType instanceof AvroMarkerEventType)) {
+            throw new EPException(EventAdapterServiceHelper.getMessageExpecting(eventTypeName, existingType, "Avro"));
+        }
+        return avroHandler.adapterForTypeAvro(avroGenericDataDotRecord, existingType);
+    }
+
+    public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType) {
+        return avroHandler.adapterForTypeAvro(avroGenericDataDotRecord, eventType);
+    }
+
+    public EventAdapterAvroHandler getEventAdapterAvroHandler() {
+        return avroHandler;
     }
 }

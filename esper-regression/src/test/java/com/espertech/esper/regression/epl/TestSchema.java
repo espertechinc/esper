@@ -134,7 +134,7 @@ public class TestSchema extends TestCase
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema E1 () copyfrom BaseOne");
         EPStatement stmtOne = epService.getEPAdministrator().createEPL("select * from E1");
         stmtOne.addListener(listener);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtOne.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtOne.getEventType().getUnderlyingType()));
         assertEquals(String.class, stmtOne.getEventType().getPropertyType("prop1"));
         assertEquals(Integer.class, stmtOne.getEventType().getPropertyType("prop2"));
 
@@ -314,12 +314,12 @@ public class TestSchema extends TestCase
 
         // destroy and create differently
         stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col5 string, col6 int)");
-        assertEquals(stmtCreate.getEventType().getUnderlyingType(), eventRepresentationEnum.getOutputClass());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtCreate.getEventType().getUnderlyingType()));
         assertEquals(Integer.class, stmtCreate.getEventType().getPropertyType("col6"));
         assertEquals(2, stmtCreate.getEventType().getPropertyDescriptors().length);
         stmtSelect = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select * from MyEventType");
         stmtSelect.addListener(listener);
-        assertEquals(stmtSelect.getEventType().getUnderlyingType(), eventRepresentationEnum.getOutputClass());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtSelect.getEventType().getUnderlyingType()));
 
         // send event
         Map<String, Object> data = new LinkedHashMap<String, Object>();
@@ -346,7 +346,7 @@ public class TestSchema extends TestCase
         String epl = "create" + eventRepresentationEnum.getOutputTypeCreateSchemaName() + " schema MyEventTypeTwo as (col1 string, col2 int, sbean " + SupportBean.class.getName() + ", col3.col4 int)";
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(epl);
         assertTypeColDef(stmtCreateTwo.getEventType());
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreateTwo.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtCreateTwo.getEventType().getUnderlyingType()));
         stmtCreateTwo.destroy();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyEventTypeTwo", true);
 
@@ -354,7 +354,7 @@ public class TestSchema extends TestCase
         assertEquals(model.toEPL(), epl);
         stmtCreateTwo = epService.getEPAdministrator().create(model);
         assertTypeColDef(stmtCreateTwo.getEventType());
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtCreateTwo.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtCreateTwo.getEventType().getUnderlyingType()));
 
         epService.initialize();
     }
@@ -408,7 +408,7 @@ public class TestSchema extends TestCase
         assertTrue(inner.getPropertyDescriptor("col1").isIndexed());
         assertEquals(Integer[].class, inner.getPropertyType("col2"));
         assertTrue(inner.getPropertyDescriptor("col2").isIndexed());
-        assertEquals(eventRepresentationEnum.getOutputClass(), inner.getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(inner.getUnderlyingType()));
 
         EPStatement stmtOuter = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyOuterType as (col1 MyInnerType, col2 MyInnerType[])");
         FragmentEventType type = stmtOuter.getEventType().getFragmentType("col1");
@@ -422,7 +422,7 @@ public class TestSchema extends TestCase
         
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select * from MyOuterType");
         stmtSelect.addListener(listener);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtSelect.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtSelect.getEventType().getUnderlyingType()));
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             Object[] innerData = new Object[] {"abc,def".split(","), new int[] {1, 2}};

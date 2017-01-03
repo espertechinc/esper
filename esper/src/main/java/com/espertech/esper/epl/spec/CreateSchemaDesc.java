@@ -110,6 +110,7 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
         VARIANT,
         MAP,
         OBJECTARRAY,
+        AVRO,   // TODO
         NONE;
 
         public CreateSchemaClauseTypeDef mapToSoda() {

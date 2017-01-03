@@ -189,6 +189,29 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         sendEvent(currentTimeEvent);
     }
 
+    public void sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName) {
+        if (avroGenericDataDotRecord == null)
+        {
+            throw new IllegalArgumentException("Invalid null event object");
+        }
+
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
+        {
+            log.debug(".sendMap Processing event " + avroGenericDataDotRecord.toString());
+        }
+
+        if ((ThreadingOption.isThreadingEnabled) && (services.getThreadingService().isInboundThreading()))
+        {
+            // TODO services.getThreadingService().submitInbound(new InboundUnitSendObjectArray(propertyValues, objectArrayEventTypeName, services, this));
+        }
+        else
+        {
+            // Process event
+            EventBean eventBean = wrapEventAvro(avroGenericDataDotRecord, avroEventTypeName);
+            processWrappedEvent(eventBean);
+        }
+    }
+
     public void sendEvent(Object theEvent) throws EPException
     {
         if (theEvent == null)
@@ -318,6 +341,10 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
     public EventBean wrapEvent(Object[] objectArray, String eventTypeName) {
         return services.getEventAdapterService().adapterForObjectArray(objectArray, eventTypeName);
+    }
+
+    public EventBean wrapEventAvro(Object avroGenericDataDotRecord, String eventTypeName) {
+        return services.getEventAdapterService().adapterForAvro(avroGenericDataDotRecord, eventTypeName);
     }
 
     public void route(Map map, String eventTypeName) throws EPException

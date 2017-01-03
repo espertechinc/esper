@@ -292,7 +292,7 @@ public class TestUpdate extends TestCase
         stmtSelect.stop();
         stmtSelect = epService.getEPAdministrator().createEPL("select * from MyStream");
         stmtSelect.addListener(listener);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtSelect.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtSelect.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("D1", -2));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"D1", -2});

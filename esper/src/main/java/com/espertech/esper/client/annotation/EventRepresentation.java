@@ -17,8 +17,14 @@ package com.espertech.esper.client.annotation;
 public @interface EventRepresentation
 {
     /**
-     * True for object-array, false for Map.
+     * True for object-array, false for Map. May not be used with Avro flag.
      * @return array indicator
      */
-    public boolean array();
+    public boolean array() default false;
+
+    /**
+     * True for Avro. May not be used with array flag.
+     * @return avro indicator
+     */
+    public boolean avro() default false;
 }

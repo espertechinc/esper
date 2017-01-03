@@ -12,7 +12,7 @@
 package com.espertech.esper.regression.client;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.regression.event.SupportXML;
+import com.espertech.esper.supportregression.event.SupportXML;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.core.service.EPServiceProviderSPI;

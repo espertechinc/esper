@@ -102,14 +102,14 @@ public class TestNamedWindowOnDelete extends TestCase
         EPStatement stmtCreateOne = epService.getEPAdministrator().createEPL(stmtTextCreateOne);
         stmtCreateOne.addListener(listenerWindow);
         assertEquals(0, getCount("MyWindowOne"));
-        assertEquals(outputType.getOutputClass(), stmtCreateOne.getEventType().getUnderlyingType());
+        assertTrue(outputType.matchesClass(stmtCreateOne.getEventType().getUnderlyingType()));
 
         // create window two
         String stmtTextCreateTwo = outputType.getAnnotationText() + " create window MyWindowTwo#keepall as select theString as a2, intPrimitive as b2 from " + SupportBean.class.getName();
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(stmtTextCreateTwo);
         stmtCreateTwo.addListener(listenerWindowTwo);
         assertEquals(0, getCount("MyWindowTwo"));
-        assertEquals(outputType.getOutputClass(), stmtCreateTwo.getEventType().getUnderlyingType());
+        assertTrue(outputType.matchesClass(stmtCreateTwo.getEventType().getUnderlyingType()));
 
         // create delete stmt
         String stmtTextDelete = "on MyWindowOne delete from MyWindowTwo where a1 = a2";

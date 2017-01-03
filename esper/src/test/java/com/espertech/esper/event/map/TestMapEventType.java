@@ -231,7 +231,8 @@ public class TestMapEventType extends TestCase
         levelZero.put("nodefmap", Map.class);
         levelZero.put("map", levelOne);
 
-        MapEventType mapType = new MapEventType(null, "M1", 1, eventAdapterService, levelZero, null, null, null);
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, "testtype", true, true, true, false, false);
+        MapEventType mapType = new MapEventType(metadata, "M1", 1, eventAdapterService, levelZero, null, null, null);
         Map<String, Object> testData = getTestData();
         MapEventBean theEvent = new MapEventBean(testData, mapType);
 

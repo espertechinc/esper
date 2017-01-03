@@ -482,6 +482,8 @@ public class SelectExprProcessorHelper
         boolean underlyingIsFragmentEvent = false;
         EventPropertyGetter underlyingPropertyEventGetter = null;
         ExprEvaluator underlyingExprEvaluator = null;
+        Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+        // TODO remove useMapOutput
         boolean useMapOutput = EventRepresentationUtil.isMap(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
 
         if (!selectedStreams.isEmpty()) {
@@ -601,18 +603,25 @@ public class SelectExprProcessorHelper
             }
 
             EventType resultEventType;
-            if (!useMapOutput) {
+            if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
+            }
+            else if (representation == Configuration.EventRepresentation.AVRO) {
+                resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, annotations);
             }
             else {
                 resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
             }
+
             if (selectExprContext.getExpressionNodes().length == 0) {
                 return new EvalSelectNoWildcardEmptyProps(selectExprContext, resultEventType);
             }
             else {
-                if (!useMapOutput) {
+                if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
                     return new EvalSelectNoWildcardObjectArray(selectExprContext, resultEventType);
+                }
+                else if (representation == Configuration.EventRepresentation.AVRO) {
+                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeNoWildcard(selectExprContext, resultEventType);
                 }
                 return new EvalSelectNoWildcardMap(selectExprContext, resultEventType);
             }

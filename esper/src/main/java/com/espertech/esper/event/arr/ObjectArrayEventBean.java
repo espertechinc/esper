@@ -62,9 +62,8 @@ public class ObjectArrayEventBean implements EventBeanSPI, ObjectArrayBackedEven
 
     public Object getFragment(String propertyExpression) throws PropertyAccessException {
         EventPropertyGetter getter = eventType.getGetter(propertyExpression);
-        if (getter == null)
-        {
-            throw new PropertyAccessException("Property named '" + propertyExpression + "' is not a valid property name for this type");
+        if (getter == null) {
+            throw PropertyAccessException.notAValidProperty(propertyExpression);
         }
         return getter.getFragment(this);
     }

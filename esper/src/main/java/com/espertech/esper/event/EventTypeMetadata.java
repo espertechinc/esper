@@ -349,6 +349,11 @@ public class EventTypeMetadata
         /**
          * Class type.
          */
-        CLASS
+        CLASS,
+
+        /**
+         * Avro type.
+         */
+        AVRO
     }
 }

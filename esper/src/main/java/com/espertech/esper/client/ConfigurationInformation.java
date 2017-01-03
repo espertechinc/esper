@@ -52,6 +52,8 @@ public interface ConfigurationInformation
      */
     public Map<String, ConfigurationEventTypeXMLDOM> getEventTypesXMLDOM();
 
+    public Map<String, ConfigurationEventTypeAvro> getEventTypesAvro();
+
     /**
      * Returns the mapping of event type name to legacy java event type information.
      * @return event type name mapping to legacy java class configs

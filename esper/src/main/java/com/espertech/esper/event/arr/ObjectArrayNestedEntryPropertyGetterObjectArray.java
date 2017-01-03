@@ -51,4 +51,15 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
         EventBean eventBean = eventAdapterService.adapterForTypedObjectArray((Object[]) value, fragmentType);
         return arrayGetter.getFragment(eventBean);
     }
+
+    public boolean handleNestedValueExists(Object value) {
+        if (!(value instanceof Object[]))
+        {
+            if (value instanceof EventBean) {
+                return arrayGetter.isExistsProperty((EventBean) value);
+            }
+            return false;
+        }
+        return arrayGetter.isObjectArrayExistsProperty((Object[]) value);
+    }
 }

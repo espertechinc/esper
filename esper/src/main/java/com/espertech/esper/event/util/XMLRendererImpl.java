@@ -446,7 +446,7 @@ public class XMLRendererImpl implements XMLEventRenderer
                             }
                         }
 
-                        buf.append('<');
+                        buf.append("</");
                         buf.append(entry.getKey());
                         buf.append('>');
                         localDelimiter = NEWLINE;

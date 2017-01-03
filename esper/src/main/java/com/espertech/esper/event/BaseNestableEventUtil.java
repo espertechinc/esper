@@ -58,6 +58,26 @@ public class BaseNestableEventUtil
         return getter.getMap((Map<String, Object>) valueMap);
     }
 
+    public static boolean handleNestedValueArrayWithMapExists(Object value, int index, MapEventPropertyGetter getter) {
+        if (!value.getClass().isArray())
+        {
+            return false;
+        }
+        if (Array.getLength(value) <= index)
+        {
+            return false;
+        }
+        Object valueMap = Array.get(value, index);
+        if (!(valueMap instanceof Map))
+        {
+            if (valueMap instanceof EventBean) {
+                return getter.isExistsProperty((EventBean) valueMap);
+            }
+            return false;
+        }
+        return getter.isMapExistsProperty((Map<String, Object>) valueMap);
+    }
+
     public static Object handleNestedValueArrayWithMapFragment(Object value, int index, MapEventPropertyGetter getter, EventAdapterService eventAdapterService, EventType fragmentType) {
         if (!value.getClass().isArray())
         {
@@ -99,6 +119,24 @@ public class BaseNestableEventUtil
             return null;
         }
         return getter.getObjectArray((Object[]) valueArray);
+    }
+
+    public static boolean handleNestedValueArrayWithObjectArrayExists(Object value, int index, ObjectArrayEventPropertyGetter getter) {
+        if (!value.getClass().isArray()) {
+            return false;
+        }
+        if (Array.getLength(value) <= index) {
+            return false;
+        }
+        Object valueArray = Array.get(value, index);
+        if (!(valueArray instanceof Object[]))
+        {
+            if (valueArray instanceof EventBean) {
+                return getter.isExistsProperty((EventBean) valueArray);
+            }
+            return false;
+        }
+        return getter.isObjectArrayExistsProperty((Object[]) valueArray);
     }
 
     public static Object handleNestedValueArrayWithObjectArrayFragment(Object value, int index, ObjectArrayEventPropertyGetter getter, EventType fragmentType, EventAdapterService eventAdapterService) {

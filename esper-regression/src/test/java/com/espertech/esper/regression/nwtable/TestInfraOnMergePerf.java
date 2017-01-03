@@ -52,7 +52,7 @@ public class TestInfraOnMergePerf extends TestCase {
             outputType.getAnnotationText() + " create window MyWindow#keepall as (c1 string, c2 int)" :
             "create table MyWindow(c1 string primary key, c2 int)";
         EPStatement stmtNamedWindow = epService.getEPAdministrator().createEPL(eplCreate);
-        assertEquals(outputType.getOutputClass(), stmtNamedWindow.getEventType().getUnderlyingType());
+        assertTrue(outputType.matchesClass(stmtNamedWindow.getEventType().getUnderlyingType()));
 
         // preload events
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into MyWindow select theString as c1, intPrimitive as c2 from SupportBean");

@@ -54,4 +54,15 @@ public class ObjectArrayNestedEntryPropertyGetterMap extends ObjectArrayNestedEn
         EventBean eventBean = eventAdapterService.adapterForTypedMap((Map<String, Object>) value, fragmentType);
         return mapGetter.getFragment(eventBean);
     }
+
+    public boolean handleNestedValueExists(Object value) {
+        if (!(value instanceof Map))
+        {
+            if (value instanceof EventBean) {
+                return mapGetter.isExistsProperty((EventBean) value);
+            }
+            return false;
+        }
+        return mapGetter.isMapExistsProperty((Map<String, Object>) value);
+    }
 }

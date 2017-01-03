@@ -268,34 +268,6 @@ public class TestObjectArrayEvent extends TestCase
         }
     }
 
-    public void testSendMapNative()
-    {
-        String statementText = "select * from MyObjectArrayEvent#length(5)";
-        EPStatement statement = epService.getEPAdministrator().createEPL(statementText);
-        SupportUpdateListener listener = new SupportUpdateListener();
-        statement.addListener(listener);
-
-        // send event
-        Object[] theEvent = new Object[] {3, "some string", SupportBeanComplexProps.makeDefaultBean()};
-        epService.getEPRuntime().sendEvent(theEvent, "MyObjectArrayEvent");
-
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());
-        assertEquals(3, listener.getLastNewData()[0].get("myInt"));
-        assertEquals("some string", listener.getLastNewData()[0].get("myString"));
-
-        // send event
-        theEvent = new Object[] {4, "string2", null};
-        epService.getEPRuntime().sendEvent(theEvent, "MyObjectArrayEvent");
-
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(theEvent, listener.getLastNewData()[0].getUnderlying());
-        assertEquals(4, listener.getLastNewData()[0].get("myInt"));
-        assertEquals("string2", listener.getLastNewData()[0].get("myString"));
-    }
-
     public void testPerformanceOutput() {
 
         /**

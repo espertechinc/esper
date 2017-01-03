@@ -73,7 +73,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL("insert into NodePlus select 'E1' as npid, n1 as node from NodeWindow n1");
         stmt.addListener(listener);
 
-        if (type.getOutputClass() == Object[].class) {
+        if (type.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"n1"}, "Node");
         }
         else {
@@ -133,7 +133,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
                                                  "select c as myEvent, 'test' as class, false as reverse " +
                                                  "from MyEvent(myId=1) c");
         stmtOne.addListener(listener);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtOne.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtOne.getEventType().getUnderlyingType()));
 
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("insert into SuspectMyEvent " +
                                                  "select c.myEvent as myEvent, class " +

@@ -14,6 +14,9 @@ package com.espertech.esper.core.support;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventAdapterServiceImpl;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
+import com.espertech.esper.event.avro.EventAdapterAvroHandler;
+import com.espertech.esper.event.avro.EventAdapterAvroHandlerUnsupported;
+import com.espertech.esper.util.JavaClassHelper;
 
 public class SupportEventAdapterService
 {
@@ -21,15 +24,26 @@ public class SupportEventAdapterService
 
     static
     {
-        eventAdapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5);
+        eventAdapterService = allocate();
     }
 
     public static void reset()
     {
-        eventAdapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5);
+        eventAdapterService = allocate();
     }
+
     public static EventAdapterService getService()
     {
         return eventAdapterService;
+    }
+
+    private static EventAdapterService allocate() {
+        EventAdapterAvroHandler avroHandler = EventAdapterAvroHandlerUnsupported.INSTANCE;
+        try {
+            avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL);
+        }
+        catch (Throwable t) {
+        }
+        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, avroHandler);
     }
 }

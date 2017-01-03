@@ -19,6 +19,7 @@ import com.espertech.esper.plugin.PlugInEventBeanReflectorContext;
 import com.espertech.esper.plugin.PlugInEventRepresentationContext;
 import com.espertech.esper.plugin.PlugInEventTypeHandlerContext;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.event.SupportEventRepresentation;
 import junit.framework.TestCase;
 
 import java.net.URI;

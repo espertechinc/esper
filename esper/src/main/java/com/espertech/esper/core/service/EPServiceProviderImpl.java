@@ -804,6 +804,13 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
                 }
             }
 
+            // Avro schemas are not serializable
+            Map<String, ConfigurationEventTypeAvro> avroSchemas = null;
+            if (!configuration.getEventTypesAvro().isEmpty()) {
+                avroSchemas = new HashMap<>(configuration.getEventTypesAvro());
+                configuration.getEventTypesAvro().clear();
+            }
+
             Configuration copy = (Configuration) SerializableObjectCopier.copy(configuration);
             copy.setTransientConfiguration(configuration.getTransientConfiguration());
 
@@ -813,6 +820,11 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
                     ConfigurationVariable config = copy.getVariables().get(entry.getKey());
                     config.setInitializationValue(entry.getValue());
                 }
+            }
+
+            // Restore Avro schemas
+            if (avroSchemas != null) {
+                copy.getEventTypesAvro().putAll(avroSchemas);
             }
 
             return copy;

@@ -121,19 +121,12 @@ public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter
             {
                 continue;
             }
-
-            String elementName = childNode.getLocalName();
-            if (elementName == null)
-            {
-                elementName = childNode.getNodeName();
-            }
-
-            if (!(propertyMap.equals(elementName)))
+            if (!(childNode.getNodeName().equals(propertyMap)))
             {
                 continue;
             }
 
-            Node attribute = childNode.getAttributes().getNamedItem(mapKey);
+            Node attribute = childNode.getAttributes().getNamedItem("id");
             if (attribute == null)
             {
                 continue;

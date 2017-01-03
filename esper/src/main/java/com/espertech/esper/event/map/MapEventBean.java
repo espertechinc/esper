@@ -91,9 +91,8 @@ public class MapEventBean implements EventBeanSPI, MappedEventBean
     public Object getFragment(String propertyExpression)
     {
         EventPropertyGetter getter = eventType.getGetter(propertyExpression);
-        if (getter == null)
-        {
-            throw new PropertyAccessException("Property named '" + propertyExpression + "' is not a valid property name for this type");
+        if (getter == null) {
+            throw PropertyAccessException.notAValidProperty(propertyExpression);
         }
         return getter.getFragment(this);
     }

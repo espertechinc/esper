@@ -66,6 +66,17 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
 
     public boolean isExistsProperty(EventBean eventBean)
     {
-        return true; // Property exists as the property is not dynamic (unchecked)
+        Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
+        Object value = array[propertyIndex];
+
+        if (value == null){
+            return false;
+        }
+
+        // Object within the map
+        if (value instanceof EventBean) {
+            return entryGetter.isExistsProperty((EventBean)value);
+        }
+        return entryGetter.isBeanExistsProperty(value);
     }
 }

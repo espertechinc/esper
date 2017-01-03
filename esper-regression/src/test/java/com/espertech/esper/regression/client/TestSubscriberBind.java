@@ -215,7 +215,7 @@ public class TestSubscriberBind extends TestCase
         String stmtText = eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from " + SupportBean.class.getName() + "#length_batch(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         subscriber.assertNoneReceived();
@@ -237,7 +237,7 @@ public class TestSubscriberBind extends TestCase
         String stmtText = eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from " + SupportBean.class.getName() + "#length_batch(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         subscriber.assertNoneReceived();
@@ -258,7 +258,7 @@ public class TestSubscriberBind extends TestCase
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select bytePrimitive, intPrimitive, longPrimitive, floatPrimitive from SupportBean(theString='E1')");
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         SupportBean bean = new SupportBean();
         bean.setTheString("E1");
@@ -276,7 +276,7 @@ public class TestSubscriberBind extends TestCase
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select theString, intPrimitive from SupportBean#unique(theString)");
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         subscriber.assertOneAndReset(stmt, new Object[]{"E1", 1});
@@ -291,7 +291,7 @@ public class TestSubscriberBind extends TestCase
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from SupportBean#unique(theString)");
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         subscriber.assertIRStreamAndReset(stmt, fields, new Object[]{"E1", 1}, null);
@@ -386,7 +386,7 @@ public class TestSubscriberBind extends TestCase
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select theString, intPrimitive from SupportBean output every 2 events");
         stmt.setSubscriber(subscriber);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         subscriber.assertNoneReceived();

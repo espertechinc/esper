@@ -29,7 +29,7 @@ import java.util.Map;
  * <p>
  * Dynamic properties always exist, have an Object type and are resolved to a method during runtime.
  */
-public class DynamicMappedProperty extends PropertyBase implements DynamicProperty
+public class DynamicMappedProperty extends PropertyBase implements DynamicProperty, PropertyWithKey
 {
     private final String key;
 

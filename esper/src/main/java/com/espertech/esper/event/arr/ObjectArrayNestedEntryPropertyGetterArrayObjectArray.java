@@ -33,4 +33,8 @@ public class ObjectArrayNestedEntryPropertyGetterArrayObjectArray extends Object
     public Object handleNestedValueFragment(Object value) {
         return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragment(value, index, getter, fragmentType, eventAdapterService);
     }
+
+    public boolean handleNestedValueExists(Object value) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayExists(value, index, getter);
+    }
 }

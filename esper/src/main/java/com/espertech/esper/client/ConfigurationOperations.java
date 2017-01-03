@@ -604,4 +604,6 @@ public interface ConfigurationOperations
     public void updateObjectArrayEventType(String myEvent, String[] namesNew, Object[] typesNew);
 
     public Map<String, Object> getTransientConfiguration();
+
+    void addEventTypeAvro(String eventTypeName, ConfigurationEventTypeAvro avro);
 }

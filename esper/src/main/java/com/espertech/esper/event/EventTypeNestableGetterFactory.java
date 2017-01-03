@@ -47,6 +47,8 @@ public interface EventTypeNestableGetterFactory {
     public EventPropertyGetter getGetterNestedMapProp(String propertyName, MapEventPropertyGetter getterNestedMap);
     public EventPropertyGetter getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class nestedReturnType, Class nestedComponentType);
     public EventPropertyGetter getGetterNestedEventBean(String propertyName, EventPropertyGetter nestedGetter);
+    public EventPropertyGetter getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventAdapterService eventAdapterService);
 
     public EventPropertyGetter getGetterNestedEntryBean(String propertyName, EventPropertyGetter innerGetter, EventType innerType, EventAdapterService eventAdapterService);
+
 }

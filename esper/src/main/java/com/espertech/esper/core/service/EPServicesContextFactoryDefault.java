@@ -42,6 +42,8 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.epl.variable.VariableTypeException;
 import com.espertech.esper.event.*;
+import com.espertech.esper.event.avro.EventAdapterAvroHandler;
+import com.espertech.esper.event.avro.EventAdapterAvroHandlerUnsupported;
 import com.espertech.esper.event.vaevent.ValueAddEventService;
 import com.espertech.esper.event.vaevent.ValueAddEventServiceImpl;
 import com.espertech.esper.event.xml.SchemaModel;
@@ -98,7 +100,15 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         }
 
         // Make services that depend on snapshot config entries
-        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize());
+        // TODO configure allow-avro
+        EventAdapterAvroHandler avroHandler = EventAdapterAvroHandlerUnsupported.INSTANCE;
+        try {
+            avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL);
+        }
+        catch (Throwable t) {
+            log.debug("Avro provider {} not instantiated, not enabling Avro support: {}", EventAdapterAvroHandler.HANDLER_IMPL, t.getMessage());
+        }
+        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler);
         init(eventAdapterService, configSnapshot);
 
         // New read-write lock for concurrent event processing
@@ -361,6 +371,17 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             }
             catch (EventAdapterException ex)
             {
+                throw new ConfigurationException("Error configuring engine: " + ex.getMessage(), ex);
+            }
+        }
+
+        // Add from the configuration the Java event class names
+        Map<String, ConfigurationEventTypeAvro> avroNames = configSnapshot.getEventTypesAvro();
+        for (Map.Entry<String, ConfigurationEventTypeAvro> entry : avroNames.entrySet()) {
+            try {
+                eventAdapterService.addAvroType(entry.getKey(), entry.getValue(), true, true, true);
+            }
+            catch (EventAdapterException ex) {
                 throw new ConfigurationException("Error configuring engine: " + ex.getMessage(), ex);
             }
         }

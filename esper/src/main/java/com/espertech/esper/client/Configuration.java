@@ -11,6 +11,7 @@ package com.espertech.esper.client;
 import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.dataflow.ops.BeaconSource;
 import com.espertech.esper.event.EventTypeUtility;
+import com.espertech.esper.util.EventRepresentationEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -58,6 +59,11 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      * Map of event type name and XML DOM configuration.
      */
 	protected Map<String, ConfigurationEventTypeXMLDOM> eventTypesXMLDOM;
+
+    /**
+     * Map of event type name and XML DOM configuration.
+     */
+    protected Map<String, ConfigurationEventTypeAvro> eventTypesAvro;
 
     /**
      * Map of event type name and Legacy-type event configuration.
@@ -313,7 +319,8 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
                 || mapNames.containsKey(eventTypeName)
                 || nestableMapNames.containsKey(eventTypeName)
                 || nestableObjectArrayNames.containsKey(eventTypeName)
-                || eventTypesXMLDOM.containsKey(eventTypeName);
+                || eventTypesXMLDOM.containsKey(eventTypeName)
+                || eventTypesAvro.containsKey(eventTypeName);
         //note: no need to check legacy as they get added as class event type
     }
 
@@ -568,6 +575,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
     public Map<String, ConfigurationEventTypeXMLDOM> getEventTypesXMLDOM()
     {
         return eventTypesXMLDOM;
+    }
+
+    public Map<String, ConfigurationEventTypeAvro> getEventTypesAvro() {
+        return eventTypesAvro;
     }
 
     public Map<String, ConfigurationEventTypeLegacy> getEventTypesLegacy()
@@ -1056,6 +1067,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
     {
         eventClasses.remove(eventTypeName);
         eventTypesXMLDOM.remove(eventTypeName);
+        eventTypesAvro.remove(eventTypeName);
         eventTypesLegacy.remove(eventTypeName);
         mapNames.remove(eventTypeName);
         nestableMapNames.remove(eventTypeName);
@@ -1072,6 +1084,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
 
     public boolean removeVariable(String name, boolean force) throws ConfigurationException {
         return this.variables.remove(name) != null;
+    }
+
+    public void addEventTypeAvro(String eventTypeName, ConfigurationEventTypeAvro avro) {
+        eventTypesAvro.put(eventTypeName, avro);
     }
 
     /**
@@ -1142,12 +1158,13 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
      */
     protected void reset()
     {
-        eventClasses = new HashMap<String, String>();
-        mapNames = new HashMap<String, Properties>();
-        nestableMapNames = new HashMap<String, Map<String, Object>>();
-        nestableObjectArrayNames = new HashMap<String, Map<String, Object>>();
-        eventTypesXMLDOM = new HashMap<String, ConfigurationEventTypeXMLDOM>();
-        eventTypesLegacy = new HashMap<String, ConfigurationEventTypeLegacy>();
+        eventClasses = new LinkedHashMap<String, String>();
+        mapNames = new LinkedHashMap<String, Properties>();
+        nestableMapNames = new LinkedHashMap<String, Map<String, Object>>();
+        nestableObjectArrayNames = new LinkedHashMap<String, Map<String, Object>>();
+        eventTypesXMLDOM = new LinkedHashMap<String, ConfigurationEventTypeXMLDOM>();
+        eventTypesAvro = new LinkedHashMap<String, ConfigurationEventTypeAvro>();
+        eventTypesLegacy = new LinkedHashMap<String, ConfigurationEventTypeLegacy>();
         databaseReferences = new HashMap<String, ConfigurationDBRef>();
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
@@ -1163,9 +1180,9 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         eventTypeAutoNamePackages = new LinkedHashSet<String>();
         variables = new HashMap<String, ConfigurationVariable>();
         methodInvocationReferences = new HashMap<String, ConfigurationMethodRef>();
-        plugInEventRepresentation = new HashMap<URI, ConfigurationPlugInEventRepresentation>();
-        plugInEventTypes = new HashMap<String, ConfigurationPlugInEventType>();
-        revisionEventTypes = new HashMap<String, ConfigurationRevisionEventType>();
+        plugInEventRepresentation = new LinkedHashMap<URI, ConfigurationPlugInEventRepresentation>();
+        plugInEventTypes = new LinkedHashMap<String, ConfigurationPlugInEventType>();
+        revisionEventTypes = new LinkedHashMap<String, ConfigurationRevisionEventType>();
         variantStreams = new HashMap<String, ConfigurationVariantStream>();
         mapTypeConfigurations = new HashMap<String, ConfigurationEventTypeMap>();
         objectArrayTypeConfigurations = new HashMap<String, ConfigurationEventTypeObjectArray>();
@@ -1234,7 +1251,24 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         /**
          * Event representation is Map (any java.util.Map interface implementation).
          */
-        MAP;
+        MAP,
+
+        /**
+         * Event representation is Avro (GenericData.Record).
+         */
+        AVRO;
+
+        private final static String OA_TYPE_NAME = Object[].class.getName();
+        private final static String MAP_TYPE_NAME = Map.class.getName();
+        private final static String AVRO_TYPE_NAME = "org.apache.avro.generic.GenericData$Record";
+
+        static {
+            OBJECTARRAY.underlyingClassName = OA_TYPE_NAME;
+            MAP.underlyingClassName = MAP_TYPE_NAME;
+            AVRO.underlyingClassName = AVRO_TYPE_NAME;
+        }
+
+        private String underlyingClassName;
 
         /**
          * Returns the default property resolution style.
@@ -1243,6 +1277,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         public static EventRepresentation getDefault()
         {
             return MAP;
+        }
+
+        public String getUnderlyingClassName() {
+            return underlyingClassName;
         }
     }
 

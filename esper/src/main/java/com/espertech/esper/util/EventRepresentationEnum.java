@@ -19,34 +19,34 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public enum EventRepresentationEnum {
-    OBJECTARRAY("@EventRepresentation(array=true)", Object[].class, " objectarray"),
-    MAP("@EventRepresentation(array=false)", Map.class, " map"),
-    DEFAULT(null, null, "");
+    OBJECTARRAY(Configuration.EventRepresentation.OBJECTARRAY, "@EventRepresentation(array=true)", " objectarray"),
+    MAP(Configuration.EventRepresentation.MAP, "@EventRepresentation(array=false)", " map"),
+    AVRO(Configuration.EventRepresentation.AVRO, "@EventRepresentation(avro=true)", " objectarray"),
+    DEFAULT(Configuration.EventRepresentation.getDefault(), "", "");
 
     private final String annotationText;
-    private final Class outputType;
     private final String outputTypeCreateSchemaName;
+    private final String outputTypeClassName;
 
-    EventRepresentationEnum(String annotationText, Class outputType, String outputTypeCreateSchemaName) {
-
-        if (annotationText == null) {
-            this.annotationText = "";
-            this.outputType = Configuration.EventRepresentation.getDefault() == Configuration.EventRepresentation.OBJECTARRAY ? Object[].class : Map.class;
-        }
-        else {
-            this.annotationText = annotationText;
-            this.outputType = outputType;
-        }
+    EventRepresentationEnum(Configuration.EventRepresentation eventRepresentation, String annotationText, String outputTypeCreateSchemaName) {
+        this.annotationText = annotationText;
         this.outputTypeCreateSchemaName = outputTypeCreateSchemaName;
+        this.outputTypeClassName = eventRepresentation.getUnderlyingClassName();
     }
 
     public static EventRepresentationEnum getEngineDefault(EPServiceProvider engine) {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) engine;
-        if (spi.getConfigurationInformation().getEngineDefaults().getEventMeta().getDefaultEventRepresentation() == Configuration.EventRepresentation.OBJECTARRAY) {
+        Configuration.EventRepresentation configured = spi.getConfigurationInformation().getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
+        if (configured == Configuration.EventRepresentation.OBJECTARRAY) {
             return OBJECTARRAY;
+        }
+        else if (configured == Configuration.EventRepresentation.AVRO) {
+            return AVRO;
         }
         return MAP;
     }
@@ -55,8 +55,8 @@ public enum EventRepresentationEnum {
         return annotationText;
     }
 
-    public Class getOutputClass() {
-        return outputType;
+    public String getOutputTypeClassName() {
+        return outputTypeClassName;
     }
 
     public String getOutputTypeCreateSchemaName() {
@@ -64,19 +64,43 @@ public enum EventRepresentationEnum {
     }
 
     public boolean matchesClass(Class representationType) {
-        return JavaClassHelper.isSubclassOrImplementsInterface(representationType, this.outputType);
+        Set<Class> supers = new HashSet<>();
+        JavaClassHelper.getSuper(representationType, supers);
+        supers.add(representationType);
+        for (Class clazz : supers) {
+            if (clazz.getName().equals(outputTypeClassName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isObjectArrayEvent() {
-        return outputType == Object[].class;
+        return this == OBJECTARRAY;
     }
 
-    public void addAnnotation(EPStatementObjectModel model) {
-        if (this == DEFAULT) {
+    public String getAnnotationTextForNonMap() {
+        if (this == DEFAULT || this == MAP) {
+            return "";
+        }
+        return annotationText;
+    }
+
+    public void addAnnotationForNonMap(EPStatementObjectModel model) {
+        if (this == DEFAULT || this == MAP) {
             return;
         }
         AnnotationPart part = new AnnotationPart(EventRepresentation.class.getSimpleName());
-        part.addValue("array", this == OBJECTARRAY);
+        if (this == OBJECTARRAY) {
+            part.addValue("array", true);
+        }
+        if (this == AVRO) {
+            part.addValue("avro", true);
+        }
         model.setAnnotations(Collections.singletonList(part));
+    }
+
+    public boolean isAvro() {
+        return this == AVRO;
     }
 }

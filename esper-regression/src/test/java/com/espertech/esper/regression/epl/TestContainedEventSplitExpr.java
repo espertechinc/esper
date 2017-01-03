@@ -77,7 +77,7 @@ public class TestContainedEventSplitExpr extends TestCase
         stmt = epService.getEPAdministrator().createEPL(stmtText);
         stmt.addListener(listener);
         assertEquals("WordEvent", stmt.getEventType().getName());
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmt.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         sendSentenceEvent(eventRepresentationEnum, "I am testing this code");
         EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}, {"code"}});

@@ -233,10 +233,10 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     private void runAssertionInnerJoinLateStart(EventRepresentationEnum eventRepresentationEnum) {
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema Product (product string, size int)");
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtOne.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtOne.getEventType().getUnderlyingType()));
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema Portfolio (portfolio string, product string)");
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window ProductWin#keepall as Product");
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtTwo.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtTwo.getEventType().getUnderlyingType()));
 
         epService.getEPAdministrator().createEPL("insert into ProductWin select * from Product");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window PortfolioWin#keepall as Portfolio");

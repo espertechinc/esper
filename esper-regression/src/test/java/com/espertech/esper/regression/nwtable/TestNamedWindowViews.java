@@ -122,7 +122,7 @@ public class TestNamedWindowViews extends TestCase
 
         EPStatement stmtW = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall as (bean " + SupportBean_S0.class.getName() + ")");
         stmtW.addListener(listenerWindow);
-        assertEquals(eventRepresentationEnum.getOutputClass(), stmtW.getEventType().getUnderlyingType());
+        assertTrue(eventRepresentationEnum.matchesClass(stmtW.getEventType().getUnderlyingType()));
         epService.getEPAdministrator().createEPL("insert into MyWindowTwo select bean.* as bean from " + SupportBean_S0.class.getName() + " as bean");
         
         epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));

@@ -653,7 +653,7 @@ public class EventTypeUtility {
             }
             else
             {
-                return null;
+                return isRootedDynamic ? Object.class : null;
             }
         }
 
@@ -661,13 +661,13 @@ public class EventTypeUtility {
         if (nestedType == Map.class)
         {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
-            return prop.getPropertyTypeMap(null, eventAdapterService);   // we don't have a definition of the nested props
+            return isRootedDynamic ? Object.class : prop.getPropertyTypeMap(null, eventAdapterService);   // we don't have a definition of the nested props
         }
         else if (nestedType instanceof Map)
         {
             Property prop = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
             Map nestedTypes = (Map) nestedType;
-            return prop.getPropertyTypeMap(nestedTypes, eventAdapterService);
+            return isRootedDynamic ? Object.class : prop.getPropertyTypeMap(nestedTypes, eventAdapterService);
         }
         else if (nestedType instanceof Class)
         {
@@ -680,12 +680,12 @@ public class EventTypeUtility {
                 return null;
             }
             EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
-            return nestedEventType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : nestedEventType.getPropertyType(propertyNested);
         }
         else if (nestedType instanceof EventType)
         {
             EventType innerType = (EventType) nestedType;
-            return innerType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : innerType.getPropertyType(propertyNested);
         }
         else if (nestedType instanceof EventType[])
         {
@@ -703,7 +703,7 @@ public class EventTypeUtility {
             {
                 return null;
             }
-            return innerType.getPropertyType(propertyNested);
+            return isRootedDynamic ? Object.class : innerType.getPropertyType(propertyNested);
         }
         else
         {
@@ -716,7 +716,10 @@ public class EventTypeUtility {
     public static EventPropertyGetter getNestableGetter(String propertyName,
                                                         Map<String, PropertySetDescriptorItem> propertyGetters,
                                                         Map<String, EventPropertyGetter> propertyGetterCache,
-                                                        Map<String, Object> nestableTypes, EventAdapterService eventAdapterService, EventTypeNestableGetterFactory factory) {
+                                                        Map<String, Object> nestableTypes,
+                                                        EventAdapterService eventAdapterService,
+                                                        EventTypeNestableGetterFactory factory,
+                                                        boolean isObjectArray) {
         EventPropertyGetter cachedGetter = propertyGetterCache.get(propertyName);
         if (cachedGetter != null)
         {
@@ -911,6 +914,16 @@ public class EventTypeUtility {
             }
             else
             {
+                if (isRootedDynamic) {
+                    Property prop = PropertyParser.parseAndWalk(propertyNested, true);
+                    if (!isObjectArray) {
+                        EventPropertyGetter getterNested = prop.getGetterMap(null, eventAdapterService);
+                        EventPropertyGetter dynamicGetter = factory.getGetterNestedPropertyProvidedGetterDynamic(nestableTypes, propertyMap, getterNested, eventAdapterService);
+                        propertyGetterCache.put(propertyName, dynamicGetter);
+                        return dynamicGetter;
+                    }
+                    return null;
+                }
                 return null;
             }
         }

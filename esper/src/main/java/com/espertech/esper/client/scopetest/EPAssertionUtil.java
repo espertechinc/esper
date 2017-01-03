@@ -1441,7 +1441,7 @@ public class EPAssertionUtil
     }
 
     private static EventAdapterService getEventAdapterService() {
-        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0);
+        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0, null);
     }
 
     /**

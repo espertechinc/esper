@@ -13,6 +13,7 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
@@ -44,7 +45,8 @@ public class TestObjectArrayEventBean extends TestCase
 
         testValues = new Object[] {"test", 10, supportBean};
 
-        eventType = new ObjectArrayEventType(null, "", 1, SupportEventAdapterService.getService(), typeRep, null, null, null);
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.OBJECTARR, "testtype", true, true, true, false, false);
+        eventType = new ObjectArrayEventType(metadata, "", 1, SupportEventAdapterService.getService(), typeRep, null, null, null);
         eventBean = new ObjectArrayEventBean(testValues, eventType);
     }
 

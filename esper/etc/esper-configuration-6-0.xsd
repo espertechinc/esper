@@ -52,6 +52,7 @@
 			<xs:sequence minOccurs="0" maxOccurs="unbounded">
 				<xs:choice>
 					<xs:element ref="esper:xml-dom" minOccurs="0"/>
+					<xs:element ref="esper:avro" minOccurs="0"/>
 					<xs:element ref="esper:java-util-map" minOccurs="0"/>
 					<xs:element ref="esper:objectarray" minOccurs="0"/>
 					<xs:element ref="esper:legacy-type" minOccurs="0"/>
@@ -114,6 +115,11 @@
 			<xs:attribute name="supertype-names" type="xs:string" use="optional"/>
 			<xs:attribute name="start-timestamp-property-name" type="xs:string" use="optional"/>
 			<xs:attribute name="end-timestamp-property-name" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="avro">
+		<xs:complexType>
+			<xs:attribute name="schema-text" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="objectarray">

@@ -7,6 +7,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>esper</module>
+		<module>esper-avro</module>
 		<module>esper-regression</module>
 		<module>esperio-amqp</module>
 		<module>esperio-csv</module>
@@ -25,5 +26,6 @@
 		<antlr4-runtime.version>4.5.3</antlr4-runtime.version>
 		<cglib-nodep.version>3.2.4</cglib-nodep.version>
 		<mysql-connector-java.version>5.1.28</mysql-connector-java.version>
+		<avro.version>1.8.1</avro.version>
 	</properties>
 </project>

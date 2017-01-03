@@ -623,4 +623,16 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     public Map<String, Object> getTransientConfiguration() {
         return transientConfiguration;
     }
+
+    public void addEventTypeAvro(String eventTypeName, ConfigurationEventTypeAvro avro) {
+        checkTableExists(eventTypeName);
+        try
+        {
+            eventAdapterService.addAvroType(eventTypeName, avro, false, true, true);
+        }
+        catch (EventAdapterException t)
+        {
+            throw new ConfigurationException(t.getMessage(), t);
+        }
+    }
 }
