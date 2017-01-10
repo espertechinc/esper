@@ -20,6 +20,7 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
 import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -30,12 +31,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
 import static com.espertech.esper.supportregression.event.SupportEventInfra.*;
 import static com.espertech.esper.supportregression.event.SupportEventInfra.AVRO_TYPENAME;
 import static com.espertech.esper.supportregression.event.ValueWithExistsFlag.exists;
 import static com.espertech.esper.supportregression.event.ValueWithExistsFlag.notExists;
 
-public class TestEventInfraNestedDynamicPropery extends TestCase {
+public class TestEventInfraPropertyNestedDynamic extends TestCase {
     private final static String BEAN_TYPENAME = SupportBeanDynRoot.class.getName();
 
     private static final FunctionSendEvent FAVRO = (epService, value) -> {
@@ -73,7 +76,7 @@ public class TestEventInfraNestedDynamicPropery extends TestCase {
     public void testDynamicProp() {
         runAssertion(EventRepresentationEnum.OBJECTARRAY, "");
         runAssertion(EventRepresentationEnum.MAP, "");
-        runAssertion(EventRepresentationEnum.AVRO, "@AvroField(name='myid',types='string,int,null')");
+        runAssertion(EventRepresentationEnum.AVRO, "@AvroField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
         runAssertion(EventRepresentationEnum.DEFAULT, "");
     }
 
@@ -110,7 +113,7 @@ public class TestEventInfraNestedDynamicPropery extends TestCase {
                 new Pair<>("<item id=\"101\"/>", exists("101")),
                 new Pair<>("<item/>", notExists()),
         };
-        if (!outputEventRep.isAvro()) {
+        if (!outputEventRep.isAvroEvent()) {
             runAssertion(outputEventRep, additionalAnnotations, XML_TYPENAME, FXML, XML_TO_VALUE, xmlTests, Node.class);
         }
 
@@ -144,7 +147,8 @@ public class TestEventInfraNestedDynamicPropery extends TestCase {
 
         for (Pair pair : tests) {
             send.apply(epService, pair.getFirst());
-            SupportEventInfra.assertValueMayConvert(listener.assertOneGetNewAndReset(), "myid", (ValueWithExistsFlag) pair.getSecond(), optionalValueConversion);
+            EventBean event = listener.assertOneGetNewAndReset();
+            SupportEventInfra.assertValueMayConvert(event, "myid", (ValueWithExistsFlag) pair.getSecond(), optionalValueConversion);
         }
 
         stmt.destroy();
@@ -191,7 +195,7 @@ public class TestEventInfraNestedDynamicPropery extends TestCase {
                 .name("id").type().unionOf()
                 .intBuilder().endInt()
                 .and()
-                .stringBuilder().prop("avro.java.string", "String").endString()
+                .stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString()
                 .and()
                 .nullType()
                 .endUnion().noDefault()

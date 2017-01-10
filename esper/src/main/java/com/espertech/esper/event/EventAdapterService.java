@@ -376,7 +376,8 @@ public interface EventAdapterService
     public EventBeanSPI getShellForType(EventType eventType);
     public EventBeanAdapterFactory getAdapterFactoryForType(EventType eventType);
     public EventType createAnonymousBeanType(String schemaName, Class clazz);
-    public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured) throws EventAdapterException;
+    public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto) throws EventAdapterException;
+    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config) throws EventAdapterException;
     public EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName);
     public EventAdapterAvroHandler getEventAdapterAvroHandler();
     public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType);

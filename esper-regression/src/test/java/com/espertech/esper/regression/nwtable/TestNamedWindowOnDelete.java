@@ -87,9 +87,9 @@ public class TestNamedWindowOnDelete extends TestCase
 
     public void testStaggeredNamedWindow() throws Exception
     {
-        runAssertionStaggered(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionStaggered(EventRepresentationEnum.DEFAULT);
-        runAssertionStaggered(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionStaggered(rep);
+        }
     }
 
     private void runAssertionStaggered(EventRepresentationEnum outputType) throws Exception {

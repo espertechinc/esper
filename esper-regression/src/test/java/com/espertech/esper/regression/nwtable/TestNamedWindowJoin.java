@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -23,6 +24,9 @@ import com.espertech.esper.supportregression.util.IndexAssertionEventSend;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,9 +229,9 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     }
 
     public void testInnerJoinLateStart() {
-        runAssertionInnerJoinLateStart(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInnerJoinLateStart(EventRepresentationEnum.MAP);
-        runAssertionInnerJoinLateStart(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInnerJoinLateStart(rep);
+        }
     }
 
     private void runAssertionInnerJoinLateStart(EventRepresentationEnum eventRepresentationEnum) {
@@ -265,26 +269,46 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     }
 
     private void sendProduct(EventRepresentationEnum eventRepresentationEnum, String product, int size) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("product", product);
-        theEvent.put("size", size);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "Product");
+            epService.getEPRuntime().sendEvent(new Object[] {product, size}, "Product");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("product", product);
+            theEvent.put("size", size);
+            epService.getEPRuntime().sendEvent(theEvent, "Product");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Product")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("product", product);
+            theEvent.put("size", size);
+            epService.getEPRuntime().sendEventAvro(theEvent, "Product");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "Product");
+            fail();
         }
     }
 
     private void sendPortfolio(EventRepresentationEnum eventRepresentationEnum, String portfolio, String product) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("portfolio", portfolio);
-        theEvent.put("product", product);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "Portfolio");
+            epService.getEPRuntime().sendEvent(new Object[] {portfolio, product}, "Portfolio");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("portfolio", portfolio);
+            theEvent.put("product", product);
+            epService.getEPRuntime().sendEvent(theEvent, "Portfolio");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Portfolio")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("portfolio", portfolio);
+            theEvent.put("product", product);
+            epService.getEPRuntime().sendEventAvro(theEvent, "Portfolio");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "Portfolio");
+            fail();
         }
     }
 

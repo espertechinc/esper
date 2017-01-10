@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
+
 public class AvroTypeUtil {
 
     private final static AvroTypeDesc[] TYPES_PER_AVRO_ORD;
@@ -45,9 +48,6 @@ public class AvroTypeUtil {
             }
             else if (type == Schema.Type.BOOLEAN) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(boolean.class);
-            }
-            else if (type == Schema.Type.STRING) {
-                TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(CharSequence.class);
             }
             else if (type == Schema.Type.BYTES) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(ByteBuffer.class);
@@ -108,13 +108,17 @@ public class AvroTypeUtil {
         else if (fieldSchema.getType() == Schema.Type.ENUM) {
             return GenericEnumSymbol.class;
         }
+        else if (fieldSchema.getType() == Schema.Type.STRING) {
+            String prop = fieldSchema.getProp(PROP_JAVA_STRING_KEY);
+            return prop == null || !prop.equals(PROP_JAVA_STRING_VALUE) ? CharSequence.class : String.class;
+        }
         return getTypePrimitive(fieldSchema);
     }
 
     private static Class getTypePrimitive(Schema schema) {
         if (schema.getType() == Schema.Type.STRING) {
-            String value = schema.getProp("avro.java.string");
-            if (value != null && value.toLowerCase().trim().equals("string")) {
+            String value = schema.getProp(PROP_JAVA_STRING_KEY);
+            if (value != null && value.trim().equals(PROP_JAVA_STRING_VALUE)) {
                 return String.class;
             }
         }

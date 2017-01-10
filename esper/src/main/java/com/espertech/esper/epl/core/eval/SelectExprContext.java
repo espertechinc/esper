@@ -15,7 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.event.EventAdapterService;
 
 public class SelectExprContext {
-    private final ExprEvaluator[] expressionNodes;
+    private ExprEvaluator[] expressionNodes;
     private final String[] columnNames;
     private final EventAdapterService eventAdapterService;
 
@@ -35,5 +35,9 @@ public class SelectExprContext {
 
     public EventAdapterService getEventAdapterService() {
         return eventAdapterService;
+    }
+
+    public void setExpressionNodes(ExprEvaluator[] expressionNodes) {
+        this.expressionNodes = expressionNodes;
     }
 }

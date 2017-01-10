@@ -119,7 +119,7 @@ public class TableOnMergeHelper
         List<SelectClauseElementCompiled> selectNoWildcard = NamedWindowOnMergeHelper.compileSelectNoWildcard(triggeringStreamName, desc.getSelectClauseCompiled());
 
         // Set up event types for select-clause evaluation: The first type does not contain anything as its the named window row which is not present for insert
-        EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert"), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
+        EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert", EventTypeMetadata.ApplicationType.MAP), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
         EventType[] eventTypes = new EventType[] {dummyTypeNoProperties, triggeringEventType};
         String[] streamNames = new String[] {UuidGenerator.generate(), triggeringStreamName};
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[1], statementContext.getEngineURI(), false);

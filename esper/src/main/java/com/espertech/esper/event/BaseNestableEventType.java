@@ -510,7 +510,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI
     {
         if (!(otherType instanceof BaseNestableEventType))
         {
-            return "Type by name '" + otherType.getName() + "' is not a compatible type (target type underlying is '" + otherType.getUnderlyingType().getSimpleName() + "')";
+            return "Type by name '" + otherType.getName() + "' is not a compatible type (target type underlying is '" + otherType.getUnderlyingType().getName() + "')";
         }
 
         BaseNestableEventType other = (BaseNestableEventType) otherType;

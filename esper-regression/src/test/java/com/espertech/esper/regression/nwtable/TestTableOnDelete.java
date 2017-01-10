@@ -22,8 +22,8 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 public class TestTableOnDelete extends TestCase {
@@ -100,7 +100,7 @@ public class TestTableOnDelete extends TestCase {
         EPStatement stmtDeleteAll = epService.getEPAdministrator().createEPL("on SupportBean_S1(id = 2) delete from varagg");
 
         Object[][] expectedType = new Object[][]{{"key", String.class},{"thesum", Integer.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtDeleteAll.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtDeleteAll.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         stmtDeleteFiltered.addListener(listenerDeleteFiltered);
         stmtDeleteAll.addListener(listenerDeleteAll);

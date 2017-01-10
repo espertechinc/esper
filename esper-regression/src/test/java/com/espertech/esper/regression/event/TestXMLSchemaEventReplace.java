@@ -15,7 +15,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Node;
 
@@ -51,7 +51,7 @@ public class TestXMLSchemaEventReplace extends TestCase
         String stmtSelectWild = "select * from TestXMLSchemaType";
         EPStatement wildStmt = epService.getEPAdministrator().createEPL(stmtSelectWild);
         EventType type = wildStmt.getEventType();
-        EventTypeAssertionUtil.assertConsistency(type);
+        SupportEventTypeAssertionUtil.assertConsistency(type);
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),
@@ -68,7 +68,7 @@ public class TestXMLSchemaEventReplace extends TestCase
 
         wildStmt = epService.getEPAdministrator().createEPL(stmtSelectWild);
         type = wildStmt.getEventType();
-        EventTypeAssertionUtil.assertConsistency(type);
+        SupportEventTypeAssertionUtil.assertConsistency(type);
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, true),

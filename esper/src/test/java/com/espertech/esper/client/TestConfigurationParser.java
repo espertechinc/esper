@@ -27,15 +27,8 @@ import java.util.*;
 
 public class TestConfigurationParser extends TestCase
 {
-    private Configuration config;
-
-    public void setUp()
-    {
-        config = new Configuration();
-    }
-
-    public void testConfigureFromStream() throws Exception
-    {
+    public void testRegressionFileConfig() throws Exception {
+        Configuration config = new Configuration();
         URL url = this.getClass().getClassLoader().getResource(TestConfiguration.ESPER_TEST_CONFIG);
         ConfigurationParser.doConfigure(config, url.openStream(), url.toString());
         assertFileConfig(config);
@@ -43,7 +36,7 @@ public class TestConfigurationParser extends TestCase
 
     public void testEngineDefaults()
     {
-        config = new Configuration();
+        Configuration config = new Configuration();
 
         assertTrue(config.getEngineDefaults().getThreading().isInsertIntoDispatchPreserveOrder());
         assertEquals(100, config.getEngineDefaults().getThreading().getInsertIntoDispatchTimeout());
@@ -75,6 +68,8 @@ public class TestConfigurationParser extends TestCase
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
         assertEquals(Configuration.EventRepresentation.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
         assertEquals(5, config.getEngineDefaults().getEventMeta().getAnonymousCacheSize());
+        assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
+        assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
 
         assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
         assertFalse(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
@@ -413,6 +408,8 @@ public class TestConfigurationParser extends TestCase
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.PUBLIC, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
         assertEquals(Configuration.EventRepresentation.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
         assertEquals(100, config.getEngineDefaults().getEventMeta().getAnonymousCacheSize());
+        assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
+        assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
         assertTrue(config.getEngineDefaults().getLogging().isEnableExecutionDebug());
         assertFalse(config.getEngineDefaults().getLogging().isEnableTimerDebug());
         assertTrue(config.getEngineDefaults().getLogging().isEnableQueryPlan());

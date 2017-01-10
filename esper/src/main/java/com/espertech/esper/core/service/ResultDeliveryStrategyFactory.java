@@ -377,7 +377,7 @@ public class ResultDeliveryStrategyFactory
             return null;
         }
         try {
-            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum);
+            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false);
         }
         catch (ExprValidationException e) {
             throw new EPException("Unexpected exception assigning select clause columns to subscriber method " + method + ": " + e.getMessage(), e);

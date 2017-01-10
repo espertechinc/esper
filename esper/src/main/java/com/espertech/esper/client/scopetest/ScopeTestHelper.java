@@ -133,6 +133,15 @@ public class ScopeTestHelper {
     }
 
     /**
+     * Assert that a value is not null.
+     * @param object the object to check
+     * @param message message
+     */
+    public static void assertNotNull(String message, Object object) {
+        assertTrue(message, object != null);
+    }
+
+    /**
      * Assert that a value is null.
      * @param object the object to check
      */

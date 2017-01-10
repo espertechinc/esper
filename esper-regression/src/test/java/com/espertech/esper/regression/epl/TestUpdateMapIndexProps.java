@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
@@ -22,11 +23,15 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+
+import static org.apache.avro.SchemaBuilder.array;
+import static org.apache.avro.SchemaBuilder.map;
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestUpdateMapIndexProps extends TestCase
 {
@@ -48,13 +53,18 @@ public class TestUpdateMapIndexProps extends TestCase
     }
 
     public void testSetMapProps() throws Exception {
-        runAssertionSetMapProps(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionSetMapProps(EventRepresentationEnum.MAP);
-        runAssertionSetMapProps(EventRepresentationEnum.DEFAULT);
+        runAssertionSetMapPropsBean();
+
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionUpdateIStreamSetMapProps(rep);
+        }
+
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionNamedWindowSetMapProps(rep);
+        }
     }
 
-    private void runAssertionSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
-
+    private void runAssertionSetMapPropsBean() {
         // test update-istream with bean
         epService.getEPAdministrator().getConfiguration().addEventType(MyMapPropEvent.class);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
@@ -63,33 +73,60 @@ public class TestUpdateMapIndexProps extends TestCase
 
         EPStatement stmtUpdOne = epService.getEPAdministrator().createEPL("update istream MyStream set props('abc') = 1, array[2] = 10");
         stmtUpdOne.addListener(listener);
-        
+
         epService.getEPRuntime().sendEvent(new MyMapPropEvent());
         EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), "props('abc'),array[2]".split(","), new Object[]{1, 10}, new Object[]{null, null});
-        
+    }
+
+    private void runAssertionUpdateIStreamSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
+
         // test update-istream with map
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyMapType(simple String, myarray java.lang.Object[], mymap java.util.Map)");
-        EPStatement stmtUpdTwo = epService.getEPAdministrator().createEPL("update istream MyMapType set simple='A', mymap('abc') = 1, myarray[2] = 10");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInfraType(simple String, myarray int[], mymap java.util.Map)");
+        EPStatement stmtUpdTwo = epService.getEPAdministrator().createEPL("update istream MyInfraType set simple='A', mymap('abc') = 1, myarray[2] = 10");
         stmtUpdTwo.addListener(listener);
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(new Object[] {null, new Object[10], new HashMap<String, Object>()}, "MyMapType");
+            epService.getEPRuntime().sendEvent(new Object[] {null, new int[10], new HashMap<String, Object>()}, "MyInfraType");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<>(), new int[10]), "MyInfraType");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record event = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType("MyInfraType")).getSchemaAvro());
+            event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
+            event.put("mymap", new HashMap());
+            epService.getEPRuntime().sendEventAvro(event, "MyInfraType");
         }
         else {
-            epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<String, Object>(), new Object[10]), "MyMapType");
+            fail();
         }
-        EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), "simple,mymap('abc'),myarray[2]".split(","), new Object[]{"A", 1, 10}, new Object[]{null, null, null});
+        EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), "simple,mymap('abc'),myarray[2]".split(","), new Object[]{"A", 1, 10}, new Object[]{null, null, 0});
+
+        epService.initialize();
+    }
+
+    private void runAssertionNamedWindowSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
 
         // test named-window update
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyNWMapType(simple String, myarray java.lang.Object[], mymap java.util.Map)");
-        EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window MyWindow#keepall as MyNWMapType");
-        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " insert into MyWindow select * from MyNWMapType");
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyNWInfraType(simple String, myarray int[], mymap java.util.Map)");
+        EPStatement stmtWin = epService.getEPAdministrator().createEPL("create window MyWindow#keepall as MyNWInfraType");
+        epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " insert into MyWindow select * from MyNWInfraType");
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(new Object[] {null, new Object[10], new HashMap<String, Object>()}, "MyNWMapType");
+            epService.getEPRuntime().sendEvent(new Object[] {null, new int[10], new HashMap<String, Object>()}, "MyNWInfraType");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<>(), new int[10]), "MyNWInfraType");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record event = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType("MyNWInfraType")).getSchemaAvro());
+            event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
+            event.put("mymap", new HashMap());
+            epService.getEPRuntime().sendEventAvro(event, "MyNWInfraType");
         }
         else {
-            epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<String, Object>(), new Object[10]), "MyNWMapType");
+            fail();
         }
         epService.getEPAdministrator().createEPL("on SupportBean update MyWindow set simple='A', mymap('abc') = intPrimitive, myarray[2] = intPrimitive");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
@@ -97,10 +134,23 @@ public class TestUpdateMapIndexProps extends TestCase
 
         // test null and array too small
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(new Object[] {null, new Object[2], null}, "MyNWMapType");
+            epService.getEPRuntime().sendEvent(new Object[] {null, new int[2], null}, "MyNWInfraType");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            epService.getEPRuntime().sendEvent(makeMapEvent(null, new int[2]), "MyNWInfraType");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record event = new GenericData.Record(record("name").fields()
+                    .optionalString("simple")
+                    .name("myarray").type(array().items().longType()).noDefault()
+                    .name("mymap").type(map().values().stringType()).noDefault()
+                    .endRecord());
+            event.put("myarray", Arrays.asList(0, 0));
+            event.put("mymap", null);
+            epService.getEPRuntime().sendEventAvro(event, "MyNWInfraType");
         }
         else {
-            epService.getEPRuntime().sendEvent(makeMapEvent(null, new Object[2]), "MyNWMapType");
+            fail();
         }
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 20));
         EPAssertionUtil.assertPropsPerRowAnyOrder(stmtWin.iterator(), "simple,mymap('abc'),myarray[2]".split(","), new Object[][]{{"A", 20, 20}, {"A", null, null}});
@@ -108,13 +158,13 @@ public class TestUpdateMapIndexProps extends TestCase
         epService.initialize();
     }
 
-    private Map<String, Object> makeMapEvent(Map<String, Object> mymap, Object[] myarray) {
+    private Map<String, Object> makeMapEvent(Map<String, Object> mymap, int[] myarray) {
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("mymap", mymap);
         map.put("myarray", myarray);
         return map;
     }
-    
+
     public static class MyMapPropEvent implements Serializable {
         private Map props = new HashMap();
         private Object[] array = new Object[10];

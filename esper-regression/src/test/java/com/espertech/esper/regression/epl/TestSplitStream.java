@@ -26,11 +26,14 @@ import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.generic.GenericData;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestSplitStream extends TestCase
 {
@@ -82,9 +85,9 @@ public class TestSplitStream extends TestCase
     }
 
     public void testSplitPremptiveNamedWindow() {
-        runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.MAP);
-        runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionSplitPremptiveNamedWindow(rep);
+        }
     }
 
     public void test1SplitDefault()
@@ -404,8 +407,15 @@ public class TestSplitStream extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new Object[] {null});
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new HashMap());
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            GenericData.Record event = new GenericData.Record(record("name").fields().optionalInt("trigger").endRecord());
+            epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(event);
+        }
+        else {
+            fail();
         }
 
         assertEquals(2, listener.assertOneGetNewAndReset().get("col2"));

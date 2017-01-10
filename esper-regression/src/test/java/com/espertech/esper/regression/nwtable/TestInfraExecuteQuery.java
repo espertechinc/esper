@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.client.deploy.DeploymentOptions;
@@ -30,6 +31,9 @@ import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import sun.net.www.content.text.Generic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,10 +132,10 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
     }
 
     public void test3StreamInnerJoin() throws Exception {
-        runAssertion3StreamInnerJoin(EventRepresentationEnum.OBJECTARRAY, true);
-        runAssertion3StreamInnerJoin(EventRepresentationEnum.MAP, true);
-        runAssertion3StreamInnerJoin(EventRepresentationEnum.DEFAULT, true);
-        runAssertion3StreamInnerJoin(EventRepresentationEnum.OBJECTARRAY, false);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertion3StreamInnerJoin(rep, true);
+            runAssertion3StreamInnerJoin(rep, false);
+        }
     }
 
     public void testInvalid() {
@@ -1024,19 +1028,36 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
     }
 
     private void sendEvent(EventRepresentationEnum eventRepresentationEnum, EPServiceProvider epService, String eventName, String[] attributes) {
-        Map<String, Object> eventMap = new HashMap<String, Object>();
-        List<Object> eventObjectArray = new ArrayList<Object>();
-        for (String attribute: attributes) {
-            String key = attribute.split("=")[0];
-            String value = attribute.split("=")[1];
-            eventMap.put(key, value);
-            eventObjectArray.add(value);
-        }
+
         if (eventRepresentationEnum.isObjectArrayEvent()) {
+            List<Object> eventObjectArray = new ArrayList<Object>();
+            for (String attribute: attributes) {
+                String value = attribute.split("=")[1];
+                eventObjectArray.add(value);
+            }
             epService.getEPRuntime().sendEvent(eventObjectArray.toArray(), eventName);
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> eventMap = new HashMap<String, Object>();
+            for (String attribute: attributes) {
+                String key = attribute.split("=")[0];
+                String value = attribute.split("=")[1];
+                eventMap.put(key, value);
+            }
             epService.getEPRuntime().sendEvent(eventMap, eventName);
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(eventName)).getSchemaAvro();
+            GenericData.Record record = new GenericData.Record(schema);
+            for (String attribute: attributes) {
+                String key = attribute.split("=")[0];
+                String value = attribute.split("=")[1];
+                record.put(key, value);
+            }
+            epService.getEPRuntime().sendEventAvro(record, eventName);
+        }
+        else {
+            fail();
         }
     }
 

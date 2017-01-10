@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -18,6 +19,8 @@ import com.espertech.esper.epl.table.mgmt.TableServiceUtil;
 import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
+import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.EventRepresentationUtil;
 
@@ -46,7 +49,7 @@ public class SelectExprJoinWildcardProcessorFactory
         }
 
         // Create EventType of result join events
-        Map<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> selectProperties = new LinkedHashMap<String, Object>();
         EventType[] streamTypesWTables = new EventType[streamTypes.length];
         boolean hasTables = false;
         for (int i = 0; i < streamTypes.length; i++)
@@ -57,11 +60,11 @@ public class SelectExprJoinWildcardProcessorFactory
                 hasTables = true;
                 streamTypesWTables[i] = tableService.getTableMetadata(tableName).getPublicEventType();
             }
-            eventTypeMap.put(streamNames[i], streamTypesWTables[i]);
+            selectProperties.put(streamNames[i], streamTypesWTables[i]);
         }
 
         // If we have a name for this type, add it
-        boolean useMap = EventRepresentationUtil.isMap(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+        Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
         EventType resultEventType;
 
         SelectExprProcessor processor = null;
@@ -75,31 +78,46 @@ public class SelectExprJoinWildcardProcessorFactory
         if (processor == null) {
             if (insertIntoDesc != null) {
                 try {
-                    if (useMap) {
-                        resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), eventTypeMap, null, false, false, false, false, true);
+                    if (representation == Configuration.EventRepresentation.MAP) {
+                        resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true);
+                    }
+                    else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                        resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true, false, null);
+                    }
+                    else if (representation == Configuration.EventRepresentation.AVRO) {
+                        resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selectProperties, false, false, false, false, true, annotations, null);
                     }
                     else {
-                        resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), eventTypeMap, null, false, false, false, false, true, false, null);
+                        throw new IllegalStateException("Unrecognized code " + representation);
                     }
                     selectExprEventTypeRegistry.add(resultEventType);
                 }
                 catch (EventAdapterException ex) {
-                    throw new ExprValidationException(ex.getMessage());
+                    throw new ExprValidationException(ex.getMessage(), ex);
                 }
             }
             else {
-                if (useMap) {
-                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap, true);
+                if (representation == Configuration.EventRepresentation.MAP) {
+                    resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, true);
+                }
+                else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                    resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties);
+                }
+                else if (representation == Configuration.EventRepresentation.AVRO) {
+                    resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, annotations);
                 }
                 else {
-                    resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventTypeMap);
+                    throw new IllegalStateException("Unrecognized enum " + representation);
                 }
             }
             if (resultEventType instanceof ObjectArrayEventType) {
                 processor = new SelectExprJoinWildcardProcessorObjectArray(streamNames, resultEventType, eventAdapterService);
             }
-            else {
+            else if (resultEventType instanceof MapEventType){
                 processor = new SelectExprJoinWildcardProcessorMap(streamNames, resultEventType, eventAdapterService);
+            }
+            else if (resultEventType instanceof AvroSchemaEventType){
+                processor = eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeJoinWildcard(streamNames, resultEventType, eventAdapterService);
             }
         }
 

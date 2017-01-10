@@ -9,13 +9,13 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.supportunit.event;
+package com.espertech.esper.util.support;
 
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 
-public enum EventTypeAssertionEnum
+public enum SupportEventTypeAssertionEnum
 {
     NAME(new Extractor() {
         public Object extract(EventPropertyDescriptor desc, EventType eventType) {
@@ -48,7 +48,7 @@ public enum EventTypeAssertionEnum
 
     private Extractor extractor;
 
-    private EventTypeAssertionEnum(Extractor extractor) {
+    private SupportEventTypeAssertionEnum(Extractor extractor) {
         this.extractor = extractor;
     }
 
@@ -60,7 +60,7 @@ public enum EventTypeAssertionEnum
         public Object extract(EventPropertyDescriptor desc, EventType eventType);
     }
 
-    public static EventTypeAssertionEnum[] getSetWithFragment() {
-        return new EventTypeAssertionEnum[] {NAME, TYPE, FRAGEMENT_TYPE_NAME, FRAGMENT_IS_INDEXED};
+    public static SupportEventTypeAssertionEnum[] getSetWithFragment() {
+        return new SupportEventTypeAssertionEnum[] {NAME, TYPE, FRAGEMENT_TYPE_NAME, FRAGMENT_IS_INDEXED};
     }
 }

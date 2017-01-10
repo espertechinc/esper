@@ -11,41 +11,62 @@
 
 package com.espertech.esper.avro.core;
 
+import com.espertech.esper.avro.getter.AvroEventBeanGetterIndexedRuntimeKeyed;
+import com.espertech.esper.avro.getter.AvroEventBeanGetterMappedRuntimeKeyed;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterSimple;
+import com.espertech.esper.avro.writer.*;
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.*;
-import com.espertech.esper.event.avro.AvroMarkerEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.property.*;
+import com.espertech.esper.util.CollectionUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
+import static com.espertech.esper.avro.core.AvroFragmentTypeUtil.getFragmentEventTypeForField;
+
+public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
     private final EventTypeMetadata metadata;
     private final String eventTypeName;
     private final int typeId;
     private final EventAdapterService eventAdapterService;
     private final Schema avroSchema;
     private final Map<String, PropertySetDescriptorItem> propertyItems;
+    private final String startTimestampPropertyName;
+    private final String endTimestampPropertyName;
+    private final EventType[] optionalSuperTypes;
+    private final Set<EventType> deepSupertypes;
 
     private EventPropertyDescriptor[] propertyDescriptors;
     private String[] propertyNames;
     private HashMap<String, EventPropertyGetter> propertyGetterCache;
 
-    public AvroEventType(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, Schema avroSchema) {
+    public AvroEventType(EventTypeMetadata metadata,
+                         String eventTypeName,
+                         int typeId,
+                         EventAdapterService eventAdapterService,
+                         Schema avroSchema,
+                         String startTimestampPropertyName,
+                         String endTimestampPropertyName,
+                         EventType[] optionalSuperTypes,
+                         Set<EventType> deepSupertypes) {
         this.metadata = metadata;
         this.eventTypeName = eventTypeName;
         this.typeId = typeId;
         this.eventAdapterService = eventAdapterService;
         this.avroSchema = avroSchema;
+        this.optionalSuperTypes = optionalSuperTypes;
+        this.deepSupertypes = deepSupertypes == null ? Collections.emptySet() : deepSupertypes;
 
         propertyItems = new LinkedHashMap<>();
         init();
+
+        EventTypeUtility.TimestampPropertyDesc desc = EventTypeUtility.validatedDetermineTimestampProps(this, startTimestampPropertyName, endTimestampPropertyName, optionalSuperTypes);
+        this.startTimestampPropertyName = desc.getStart();
+        this.endTimestampPropertyName = desc.getEnd();
     }
 
     public Class getUnderlyingType() {
@@ -81,7 +102,7 @@ public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
     }
 
     public FragmentEventType getFragmentType(String propertyExpression) {
-        return AvroPropertyUtil.getFragmentType(propertyExpression, propertyItems);
+        return AvroFragmentTypeUtil.getFragmentType(avroSchema, propertyExpression, propertyItems, eventAdapterService);
     }
 
     public String[] getPropertyNames() {
@@ -101,12 +122,11 @@ public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
     }
 
     public EventType[] getSuperTypes() {
-        return null;
+        return optionalSuperTypes;
     }
 
     public Iterator<EventType> getDeepSuperTypes() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return deepSupertypes.iterator();
     }
 
     public String getName() {
@@ -114,28 +134,145 @@ public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
-        // TODO
-        throw new UnsupportedOperationException();
+        PropertySetDescriptorItem desc = propertyItems.get(mappedPropertyName);
+        if (desc == null || !desc.getPropertyDescriptor().isMapped()) {
+            return null;
+        }
+        Schema.Field field = avroSchema.getField(mappedPropertyName);
+        return new AvroEventBeanGetterMappedRuntimeKeyed(field.pos());
     }
 
     public EventPropertyGetterIndexed getGetterIndexed(String indexedPropertyName) {
-        // TODO
-        throw new UnsupportedOperationException();
+        PropertySetDescriptorItem desc = propertyItems.get(indexedPropertyName);
+        if (desc == null || !desc.getPropertyDescriptor().isIndexed()) {
+            return null;
+        }
+        Schema.Field field = avroSchema.getField(indexedPropertyName);
+        return new AvroEventBeanGetterIndexedRuntimeKeyed(field.pos());
     }
 
     public int getEventTypeId() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return typeId;
     }
 
     public String getStartTimestampPropertyName() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return startTimestampPropertyName;
     }
 
     public String getEndTimestampPropertyName() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return endTimestampPropertyName;
+    }
+
+    public EventTypeMetadata getMetadata() {
+        return metadata;
+    }
+
+    public AvroEventBeanPropertyWriter getWriter(String propertyName) {
+        PropertySetDescriptorItem desc = propertyItems.get(propertyName);
+        if (desc != null) {
+            int pos = avroSchema.getField(propertyName).pos();
+            return new AvroEventBeanPropertyWriter(pos);
+        }
+
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
+        if (property instanceof MappedProperty) {
+            MappedProperty mapProp = (MappedProperty) property;
+            int pos = avroSchema.getField(property.getPropertyNameAtomic()).pos();
+            return new AvroEventBeanPropertyWriterMapProp(pos, mapProp.getKey());
+        }
+
+        if (property instanceof IndexedProperty) {
+            IndexedProperty indexedProp = (IndexedProperty) property;
+            int pos = avroSchema.getField(property.getPropertyNameAtomic()).pos();
+            return new AvroEventBeanPropertyWriterIndexedProp(pos, indexedProp.getIndex());
+        }
+
+        return null;
+    }
+
+    public EventPropertyDescriptor[] getWriteableProperties() {
+        return propertyDescriptors;
+    }
+
+    public EventPropertyDescriptor getWritableProperty(String propertyName) {
+        for (EventPropertyDescriptor desc : propertyDescriptors) {
+            if (desc.getPropertyName().equals(propertyName)) {
+                return desc;
+            }
+        }
+
+        Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
+        if (property instanceof MappedProperty) {
+            EventPropertyWriter writer = getWriter(propertyName);
+            if (writer == null) {
+                return null;
+            }
+            MappedProperty mapProp = (MappedProperty) property;
+            return new EventPropertyDescriptor(mapProp.getPropertyNameAtomic(), Object.class, null, false, true, false, true, false);
+        }
+        if (property instanceof IndexedProperty) {
+            EventPropertyWriter writer = getWriter(propertyName);
+            if (writer == null) {
+                return null;
+            }
+            IndexedProperty indexedProp = (IndexedProperty) property;
+            return new EventPropertyDescriptor(indexedProp.getPropertyNameAtomic(), Object.class, null, true, false, true, false, false);
+        }
+        return null;
+    }
+
+    public EventBeanCopyMethod getCopyMethod(String[] properties) {
+        return new AvroEventBeanCopyMethod(this, eventAdapterService);
+    }
+
+    public EventBeanWriter getWriter(String[] properties) {
+        boolean allSimpleProps = true;
+        AvroEventBeanPropertyWriter[] writers = new AvroEventBeanPropertyWriter[properties.length];
+        List<Integer> indexes = new ArrayList<Integer>();
+
+        for (int i = 0; i < properties.length; i++)
+        {
+            AvroEventBeanPropertyWriter writer = getWriter(properties[i]);
+            if (propertyItems.containsKey(properties[i])) {
+                writers[i] = writer;
+                indexes.add(avroSchema.getField(properties[i]).pos());
+            }
+            else {
+                writers[i] = getWriter(properties[i]);
+                if (writers[i] == null) {
+                    return null;
+                }
+                allSimpleProps = false;
+            }
+        }
+
+        if (allSimpleProps) {
+            return new AvroEventBeanWriterSimpleProps(CollectionUtil.intArray(indexes));
+        }
+        return new AvroEventBeanWriterPerProp(writers);
+    }
+
+    public EventBeanReader getReader() {
+        return null; // use the default reader
+    }
+
+    public boolean equalsCompareType(EventType other) {
+        if (!(other instanceof AvroEventType)) {
+            return false;
+        }
+        AvroEventType otherAvro = (AvroEventType) other;
+        if (!otherAvro.getName().equals(metadata.getPrimaryName())) {
+            return false;
+        }
+        return otherAvro.avroSchema.equals(avroSchema);
+    }
+
+    public Object getSchema() {
+        return avroSchema;
+    }
+
+    public Schema getSchemaAvro() {
+        return avroSchema;
     }
 
     private void init() {
@@ -150,17 +287,20 @@ public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
             Class componentType = null;
             boolean indexed = false;
             boolean mapped = false;
-            FragmentEventType fragmentEventType = AvroPropertyUtil.getFragmentEventTypeForField(eventTypeName, field.schema(), eventAdapterService);
+            FragmentEventType fragmentEventType = null;
 
             if (field.schema().getType() == Schema.Type.ARRAY) {
                 componentType = AvroTypeUtil.propertyType(field.schema().getElementType());
                 indexed = true;
                 if (field.schema().getElementType().getType() == Schema.Type.RECORD) {
-                    // TODO fragment = true;
+                    fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);
                 }
             }
             else if (field.schema().getType() == Schema.Type.MAP) {
                 mapped = true;
+            }
+            else {
+                fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);
             }
             AvroEventBeanGetterSimple getter = new AvroEventBeanGetterSimple(field.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService);
 
@@ -171,54 +311,5 @@ public class AvroEventType implements AvroMarkerEventType, EventTypeSPI {
 
             fieldNum++;
         }
-    }
-
-    public EventTypeMetadata getMetadata() {
-        return metadata;
-    }
-
-    public EventPropertyWriter getWriter(String propertyName) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public EventPropertyDescriptor[] getWriteableProperties() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public EventPropertyDescriptor getWritableProperty(String propertyName) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public EventBeanCopyMethod getCopyMethod(String[] properties) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public EventBeanWriter getWriter(String[] properties) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public EventBeanReader getReader() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean equalsCompareType(EventType other) {
-        if (!(other instanceof AvroEventType)) {
-            return false;
-        }
-        AvroEventType otherAvro = (AvroEventType) other;
-        if (!otherAvro.getName().equals(metadata.getPrimaryName())) {
-            return false;
-        }
-        return otherAvro.avroSchema.equals(avroSchema);
-    }
-
-    public Schema getSchema() {
-        return avroSchema;
     }
 }

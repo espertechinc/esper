@@ -13,5 +13,5 @@ package com.espertech.esper.client.annotation;
 
 public @interface AvroField {
     String name();
-    String types();
+    String schema();
 }

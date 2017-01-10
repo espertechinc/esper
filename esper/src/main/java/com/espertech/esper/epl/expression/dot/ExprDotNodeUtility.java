@@ -224,7 +224,7 @@ public class ExprDotNodeUtility
         Map<String, Object> propsResult = new HashMap<String, Object>();
         propsResult.put(propertyName, type);
         String typeName = enumMethod + "__" + propertyName;
-        return new ObjectArrayEventType(EventTypeMetadata.createAnonymous(typeName), typeName, 0, eventAdapterService, propsResult, null, null, null);
+        return new ObjectArrayEventType(EventTypeMetadata.createAnonymous(typeName, EventTypeMetadata.ApplicationType.OBJECTARR), typeName, 0, eventAdapterService, propsResult, null, null, null);
     }
 
     public static EventType[] getSingleLambdaParamEventType(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, EventAdapterService eventAdapterService) {

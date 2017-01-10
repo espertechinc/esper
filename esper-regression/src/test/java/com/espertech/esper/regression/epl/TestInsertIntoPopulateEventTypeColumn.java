@@ -19,7 +19,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -224,7 +224,7 @@ public class TestInsertIntoPopulateEventTypeColumn extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EventBean event = listener.assertOneGetNewAndReset();
         EPAssertionUtil.assertProps(event, fields, new Object[] {"E1", "x1", "y1", null, null});
-        EventTypeAssertionUtil.assertConsistency(event);
+        SupportEventTypeAssertionUtil.assertConsistency(event);
 
         epService.getEPRuntime().sendEvent(new SupportBean_S0(2, "x2", "y2"));
         epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));

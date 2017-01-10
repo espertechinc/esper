@@ -923,6 +923,7 @@ public class ConfigurationEngineDefaults implements Serializable
         private ConfigurationEventTypeLegacy.AccessorStyle defaultAccessorStyle;
         private Configuration.EventRepresentation defaultEventRepresentation;
         private int anonymousCacheSize = 5;
+        private AvroSettings avroSettings;
 
         /**
          * Ctor.
@@ -932,6 +933,7 @@ public class ConfigurationEngineDefaults implements Serializable
             this.classPropertyResolutionStyle = Configuration.PropertyResolutionStyle.getDefault();
             this.defaultAccessorStyle = ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN;
             this.defaultEventRepresentation = Configuration.EventRepresentation.getDefault();
+            this.avroSettings = new AvroSettings();
         }
 
         /**
@@ -1002,6 +1004,36 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void setAnonymousCacheSize(int anonymousCacheSize) {
             this.anonymousCacheSize = anonymousCacheSize;
+        }
+
+        public AvroSettings getAvroSettings() {
+            return avroSettings;
+        }
+
+        public void setAvroSettings(AvroSettings avroSettings) {
+            this.avroSettings = avroSettings;
+        }
+
+        public static class AvroSettings implements Serializable
+        {
+            private boolean enableAvro = true;
+            private boolean enableNativeString = true;
+
+            public boolean isEnableAvro() {
+                return enableAvro;
+            }
+
+            public void setEnableAvro(boolean enableAvro) {
+                this.enableAvro = enableAvro;
+            }
+
+            public boolean isEnableNativeString() {
+                return enableNativeString;
+            }
+
+            public void setEnableNativeString(boolean enableNativeString) {
+                this.enableNativeString = enableNativeString;
+            }
         }
     }
 

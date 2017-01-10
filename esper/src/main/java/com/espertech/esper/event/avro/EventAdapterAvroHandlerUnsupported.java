@@ -11,15 +11,14 @@
 
 package com.espertech.esper.event.avro;
 
-import com.espertech.esper.client.ConfigurationEventTypeAvro;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.event.EventAdapterServiceImpl;
-import com.espertech.esper.event.EventTypeMetadata;
+import com.espertech.esper.client.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.event.*;
 import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.Set;
 
 public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandler {
     public final static EventAdapterAvroHandlerUnsupported INSTANCE = new EventAdapterAvroHandlerUnsupported();
@@ -27,19 +26,43 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
     private EventAdapterAvroHandlerUnsupported() {
     }
 
-    public EventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro avro) {
-        throw new UnsupportedOperationException();
+    public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
+        throw getUnsupported();
     }
 
     public EventBean adapterForTypeAvro(Object avroGenericDataDotRecord, EventType existingType) {
-        throw new UnsupportedOperationException();
+        throw getUnsupported();
     }
 
-    public EventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations) {
-        throw new UnsupportedOperationException();
+    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes) {
+        throw getUnsupported();
+    }
+
+    public EventBeanManufacturer getEventBeanManufacturer(AvroSchemaEventType avroSchemaEventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties) {
+        throw getUnsupported();
+    }
+
+    public EventBeanFactory getEventBeanFactory(EventType type, EventAdapterService eventAdapterService) {
+        throw getUnsupported();
+    }
+
+    public void validateExistingType(EventType existingType, AvroSchemaEventType proposedType) {
+        throw getUnsupported();
     }
 
     public SelectExprProcessorRepresentationFactory getOutputFactory() {
-        throw new UnsupportedOperationException();
+        throw getUnsupported();
+    }
+
+    public ExprEvaluator[] avroCompat(EventType existingType, Map<String, Object> selPropertyTypes, ExprEvaluator[] exprEvaluators) {
+        throw getUnsupported();
+    }
+
+    public Object convertEvent(EventBean theEvent, AvroSchemaEventType targetType) {
+        throw getUnsupported();
+    }
+
+    private UnsupportedOperationException getUnsupported() {
+        throw new UnsupportedOperationException("Esper-Avro is not part of your classpath");
     }
 }

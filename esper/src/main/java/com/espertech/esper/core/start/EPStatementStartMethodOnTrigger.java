@@ -598,7 +598,7 @@ public class EPStatementStartMethodOnTrigger extends EPStatementStartMethodBase
 
         for (OnTriggerMergeMatched matchedItem : mergeDesc.getItems()) {
 
-            EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert"), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
+            EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert", EventTypeMetadata.ApplicationType.MAP), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
             StreamTypeServiceImpl twoStreamTypeSvc = new StreamTypeServiceImpl(new EventType[] {namedWindowType, triggerStreamType},
                     new String[] {namedWindowName, triggerStreamName}, new boolean[] {true, true}, statementContext.getEngineURI(), true);
             StreamTypeService insertOnlyTypeSvc = new StreamTypeServiceImpl(new EventType[] {dummyTypeNoProperties, triggerStreamType},

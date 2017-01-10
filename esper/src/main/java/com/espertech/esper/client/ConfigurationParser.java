@@ -1677,6 +1677,19 @@ class ConfigurationParser {
                     configuration.getEngineDefaults().getEventMeta().setAnonymousCacheSize(Integer.parseInt(sizeNode.getTextContent()));
                 }
             }
+
+            if (subElement.getNodeName().equals("avro-settings"))
+            {
+                String enableAvroStr = getOptionalAttribute(subElement, "enable-avro");
+                if (enableAvroStr != null) {
+                    configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableAvro(Boolean.parseBoolean(enableAvroStr));
+                }
+
+                String enableNativeStringStr = getOptionalAttribute(subElement, "enable-native-string");
+                if (enableNativeStringStr != null) {
+                    configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableNativeString(Boolean.parseBoolean(enableNativeStringStr));
+                }
+            }
         }
     }
 

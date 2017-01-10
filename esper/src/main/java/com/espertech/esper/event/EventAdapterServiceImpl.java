@@ -15,7 +15,7 @@ import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
-import com.espertech.esper.event.avro.AvroMarkerEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.event.bean.BeanEventAdapter;
 import com.espertech.esper.event.bean.BeanEventBean;
@@ -65,13 +65,16 @@ public class EventAdapterServiceImpl implements EventAdapterService
     private final EventTypeIdGenerator eventTypeIdGenerator;
     private final EventAdapterServiceAnonymousTypeCache anonymousTypeCache;
     private final EventAdapterAvroHandler avroHandler;
+    private final ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings;
 
     public EventAdapterServiceImpl(EventTypeIdGenerator eventTypeIdGenerator,
                                    int anonymousTypeCacheSize,
-                                   EventAdapterAvroHandler avroHandler)
+                                   EventAdapterAvroHandler avroHandler,
+                                   ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings)
     {
         this.eventTypeIdGenerator = eventTypeIdGenerator;
         this.avroHandler = avroHandler;
+        this.avroSettings = avroSettings;
 
         nameToTypeMap = new HashMap<String, EventType>();
         xmldomRootElementNames = new HashMap<String, EventType>();
@@ -109,7 +112,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     public EventBeanManufacturer getManufacturer(EventType eventType, WriteablePropertyDescriptor[] properties, EngineImportService engineImportService, boolean allowAnyType)
             throws EventBeanManufactureException
     {
-        return EventAdapterServiceHelper.getManufacturer(this, eventType, properties, engineImportService, allowAnyType);
+        return EventAdapterServiceHelper.getManufacturer(this, eventType, properties, engineImportService, allowAnyType, avroHandler);
     }
 
     public EventType[] getAllTypes()
@@ -229,7 +232,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         {
             return new EventSenderXMLDOM(runtimeEventSender, (BaseXMLEventType) eventType, this, threadingService);
         }
-        if (eventType instanceof AvroMarkerEventType)
+        if (eventType instanceof AvroSchemaEventType)
         {
             return new EventSenderAvro(runtimeEventSender, eventType, this, threadingService);
         }
@@ -503,7 +506,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
 
     public synchronized EventType addNestableMapType(String eventTypeName, Map<String, Object> propertyTypes, ConfigurationEventTypeMap optionalConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto) throws EventAdapterException
     {
-        Pair<EventType[], Set<EventType>> mapSuperTypes = getSuperTypesDepthFirst(optionalConfig != null ? optionalConfig.getSuperTypes() : null, true);
+        Pair<EventType[], Set<EventType>> mapSuperTypes = getSuperTypesDepthFirst(optionalConfig != null ? optionalConfig.getSuperTypes() : null, Configuration.EventRepresentation.MAP);
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, namedWindow, insertInto);
 
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
@@ -534,7 +537,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         if (optionalConfig != null && optionalConfig.getSuperTypes().size() > 1) {
             throw new EventAdapterException(ConfigurationEventTypeObjectArray.SINGLE_SUPERTYPE_MSG);
         }
-        Pair<EventType[], Set<EventType>> mapSuperTypes = getSuperTypesDepthFirst(optionalConfig != null ? optionalConfig.getSuperTypes() : null, false);
+        Pair<EventType[], Set<EventType>> mapSuperTypes = getSuperTypesDepthFirst(optionalConfig != null ? optionalConfig.getSuperTypes() : null, Configuration.EventRepresentation.OBJECTARRAY);
         EventTypeMetadata metadata;
         if (table) {
             metadata = EventTypeMetadata.createTable(tableName);
@@ -800,7 +803,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     public final EventType createAnonymousMapType(String typeName, Map<String, Object> propertyTypes, boolean isTransient) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
-        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName);
+        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.MAP);
         MapEventType mapEventType = new MapEventType(metadata, assignedTypeName, eventTypeIdGenerator.getTypeId(assignedTypeName), this, propertyTypes, null, null, null);
         return anonymousTypeCache.addReturnExistingAnonymousType(mapEventType);
     }
@@ -808,7 +811,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     public final EventType createAnonymousObjectArrayType(String typeName, Map<String, Object> propertyTypes) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
-        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName);
+        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.OBJECTARR);
         ObjectArrayEventType oaEventType = new ObjectArrayEventType(metadata, assignedTypeName, eventTypeIdGenerator.getTypeId(assignedTypeName), this, propertyTypes, null, null, null);
         return anonymousTypeCache.addReturnExistingAnonymousType(oaEventType);
     }
@@ -816,9 +819,9 @@ public class EventAdapterServiceImpl implements EventAdapterService
     public final EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
-        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName); // TODO why no application type?
+        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.AVRO);
         int typeId = eventTypeIdGenerator.getTypeId(assignedTypeName);
-        EventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, assignedTypeName, typeId, this, properties, annotations);
+        EventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, assignedTypeName, typeId, this, properties, annotations, avroSettings, null, null, null);
         return anonymousTypeCache.addReturnExistingAnonymousType(newEventType);
     }
 
@@ -839,7 +842,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
     public final EventType createAnonymousWrapperType(String typeName, EventType underlyingEventType, Map<String, Object> propertyTypes) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
-        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName);
+        EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.WRAPPER);
 
         // If we are wrapping an underlying type that is itself a wrapper, then this is a special case: unwrap
         if (underlyingEventType instanceof WrapperEventType)
@@ -889,7 +892,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return anonymousTypeCache.addReturnExistingAnonymousType(beanEventType);
     }
 
-    private Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(Set<String> superTypesSet, boolean expectMapType)
+    private Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(Set<String> superTypesSet, Configuration.EventRepresentation representation)
             throws EventAdapterException
     {
         if (superTypesSet == null || superTypesSet.isEmpty())
@@ -908,17 +911,23 @@ public class EventAdapterServiceImpl implements EventAdapterService
             {
                 throw new EventAdapterException("Supertype by name '" + superName + "' could not be found");
             }
-            if (expectMapType) {
-                if (!(type instanceof MapEventType))
-                {
+            if (representation == Configuration.EventRepresentation.MAP) {
+                if (!(type instanceof MapEventType)) {
                     throw new EventAdapterException("Supertype by name '" + superName + "' is not a Map, expected a Map event type as a supertype");
                 }
             }
-            else {
-                if (!(type instanceof ObjectArrayEventType))
-                {
+            else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                if (!(type instanceof ObjectArrayEventType)) {
                     throw new EventAdapterException("Supertype by name '" + superName + "' is not an Object-array type, expected a Object-array event type as a supertype");
                 }
+            }
+            else if (representation == Configuration.EventRepresentation.AVRO) {
+                if (!(type instanceof AvroSchemaEventType)) {
+                    throw new EventAdapterException("Supertype by name '" + superName + "' is not an Avro type, expected a Avro event type as a supertype");
+                }
+            }
+            else {
+                throw new IllegalStateException("Unrecognized enum " + representation);
             }
             superTypes[count++] = type;
             deepSuperTypes.add(type);
@@ -928,7 +937,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         List<EventType> superTypesListDepthFirst = new ArrayList<EventType>(deepSuperTypes);
         Collections.reverse(superTypesListDepthFirst);
 
-        return new Pair<EventType[], Set<EventType>>(superTypes,new LinkedHashSet<EventType>(superTypesListDepthFirst));
+        return new Pair<>(superTypes,new LinkedHashSet<EventType>(superTypesListDepthFirst));
     }
 
     private static void addRecursiveSupertypes(Set<EventType> superTypes, EventType child)
@@ -974,28 +983,36 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return EventAdapterServiceHelper.getAdapterFactoryForType(eventType);
     }
 
-    public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured) throws EventAdapterException {
-        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, false, false);
+    public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto) throws EventAdapterException {
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, isNamedWindow, isInsertInto);
 
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
-        EventType newEventType = avroHandler.newEventTypeFromSchema(metadata, eventTypeName, typeId, this, avro);
+        Pair<EventType[], Set<EventType>> avroSuperTypes = getSuperTypesDepthFirst(avro != null ? avro.getSuperTypes() : null, Configuration.EventRepresentation.AVRO);
+        AvroSchemaEventType newEventType = avroHandler.newEventTypeFromSchema(metadata, eventTypeName, typeId, this, avro, avroSuperTypes.getFirst(), avroSuperTypes.getSecond());
 
-        /* TODO
         EventType existingType = nameToTypeMap.get(eventTypeName);
-        if (existingType != null)
-        {
-            // The existing type must be the same as the type createdStatement
-            if (!newEventTypeFromSchema.equalsCompareType(existingType))
-            {
-                String message = newEventTypeFromSchema.getEqualsMessage(existingType);
-                throw new EventAdapterException("Event type named '" + eventTypeName +
-                        "' has already been declared with differing column name or type information: " + message);
-            }
-
-            // Since it's the same, return the existing type
+        if (existingType != null) {
+            avroHandler.validateExistingType(existingType, newEventType);
             return existingType;
         }
-        */
+
+        nameToTypeMap.put(eventTypeName, newEventType);
+
+        return newEventType;
+    }
+
+    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config) throws EventAdapterException {
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, isNamedWindow, isInsertInto);
+
+        int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
+        Pair<EventType[], Set<EventType>> avroSuperTypes = getSuperTypesDepthFirst(config != null ? config.getSuperTypes() : null, Configuration.EventRepresentation.AVRO);
+        AvroSchemaEventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, eventTypeName, typeId, this, types, annotations, avroSettings, config, avroSuperTypes.getFirst(), avroSuperTypes.getSecond());
+
+        EventType existingType = nameToTypeMap.get(eventTypeName);
+        if (existingType != null) {
+            avroHandler.validateExistingType(existingType, newEventType);
+            return existingType;
+        }
 
         nameToTypeMap.put(eventTypeName, newEventType);
 
@@ -1004,7 +1021,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
 
     public EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName) {
         EventType existingType = nameToTypeMap.get(eventTypeName);
-        if (!(existingType instanceof AvroMarkerEventType)) {
+        if (!(existingType instanceof AvroSchemaEventType)) {
             throw new EPException(EventAdapterServiceHelper.getMessageExpecting(eventTypeName, existingType, "Avro"));
         }
         return avroHandler.adapterForTypeAvro(avroGenericDataDotRecord, existingType);

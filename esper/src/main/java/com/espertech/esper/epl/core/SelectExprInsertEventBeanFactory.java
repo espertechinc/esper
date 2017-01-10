@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.event.*;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.EventBeanManufacturerCtor;
 import com.espertech.esper.event.bean.InstanceManufacturerUtil;
@@ -37,10 +38,17 @@ import java.util.Set;
 
 public class SelectExprInsertEventBeanFactory
 {
-    public static SelectExprProcessor getInsertUnderlyingNonJoin(EventAdapterService eventAdapterService, EventType eventType,
-                            boolean isUsingWildcard, StreamTypeService typeService, ExprEvaluator[] expressionNodes, String[] columnNames, Object[] expressionReturnTypes, EngineImportService engineImportService,
-                            InsertIntoDesc insertIntoDesc, String[] columnNamesAsProvided,
-                            boolean allowNestableTargetFragmentTypes)
+    public static SelectExprProcessor getInsertUnderlyingNonJoin(EventAdapterService eventAdapterService,
+                                                                 EventType eventType,
+                                                                 boolean isUsingWildcard,
+                                                                 StreamTypeService typeService,
+                                                                 ExprEvaluator[] expressionNodes,
+                                                                 String[] columnNames,
+                                                                 Object[] expressionReturnTypes,
+                                                                 EngineImportService engineImportService,
+                                                                 InsertIntoDesc insertIntoDesc,
+                                                                 String[] columnNamesAsProvided,
+                                                                 boolean allowNestableTargetFragmentTypes)
             throws ExprValidationException
     {
         // handle single-column coercion to underlying, i.e. "insert into MapDefinedEvent select doSomethingReturnMap() from MyEvent"
@@ -179,13 +187,13 @@ public class SelectExprInsertEventBeanFactory
                 Object columnType = expressionReturnTypes[i];
                 if (columnType == null)
                 {
-                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName());
+                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false);
                 }
                 else if (columnType instanceof EventType)
                 {
                     EventType columnEventType = (EventType) columnType;
                     final Class returnType = columnEventType.getUnderlyingType();
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName());
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false);
 
                     // handle evaluator returning an event
                     if (JavaClassHelper.isSubclassOrImplementsInterface(returnType, desc.getType())) {
@@ -237,7 +245,8 @@ public class SelectExprInsertEventBeanFactory
                     final Class componentReturnType = columnEventType.getUnderlyingType();
                     final Class arrayReturnType = Array.newInstance(componentReturnType, 0).getClass();
 
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName());
+                    boolean allowObjectArrayToCollectionConversion = eventType instanceof AvroSchemaEventType;
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion);
                     final ExprEvaluator inner = evaluator;
                     evaluator = new ExprEvaluator() {
                         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
@@ -272,7 +281,7 @@ public class SelectExprInsertEventBeanFactory
                 }
                 else
                 {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName());
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false);
                 }
 
                 selectedWritable = desc;
@@ -314,7 +323,7 @@ public class SelectExprInsertEventBeanFactory
                         continue;
                     }
 
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName());
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false);
                     selectedWritable = writableDesc;
 
                     final String propertyName = eventPropDescriptor.getPropertyName();
@@ -398,7 +407,7 @@ public class SelectExprInsertEventBeanFactory
                     continue;
                 }
 
-                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName());
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false);
                 selectedWritable = desc;
                 break;
             }
@@ -482,6 +491,20 @@ public class SelectExprInsertEventBeanFactory
                 return null;
             }
             return eventAdapterService.adapterForTypedMap((Map) result, eventType);
+        }
+    }
+
+    public static class SelectExprInsertNativeExpressionCoerceAvro extends SelectExprInsertNativeExpressionCoerceBase {
+        protected SelectExprInsertNativeExpressionCoerceAvro(EventType eventType, ExprEvaluator exprEvaluator, EventAdapterService eventAdapterService) {
+            super(eventType, exprEvaluator, eventAdapterService);
+        }
+
+        public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+            Object result = exprEvaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+            if (result == null) {
+                return null;
+            }
+            return eventAdapterService.adapterForTypedAvro(result, eventType);
         }
     }
 

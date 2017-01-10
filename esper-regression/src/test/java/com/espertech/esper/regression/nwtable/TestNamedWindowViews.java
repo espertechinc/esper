@@ -68,9 +68,9 @@ public class TestNamedWindowViews extends TestCase
 
     public void testBeanBacked()
     {
-        runAssertionBeanBacked(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionBeanBacked(EventRepresentationEnum.MAP);
-        runAssertionBeanBacked(EventRepresentationEnum.DEFAULT);
+        runAssertionBeanContained(EventRepresentationEnum.OBJECTARRAY);
+        runAssertionBeanContained(EventRepresentationEnum.MAP);
+        runAssertionBeanContained(EventRepresentationEnum.DEFAULT);
     }
 
     public void testIntersection() throws Exception {
@@ -94,7 +94,7 @@ public class TestNamedWindowViews extends TestCase
         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.assertInvokedAndReset(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
     }
 
-    private void runAssertionBeanBacked(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionBeanContained(EventRepresentationEnum eventRepresentationEnum) {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 

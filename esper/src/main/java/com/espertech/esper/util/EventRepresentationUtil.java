@@ -21,31 +21,6 @@ import java.lang.annotation.Annotation;
 
 public class EventRepresentationUtil {
 
-    // TODO
-    @Deprecated
-    public static boolean isMap(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
-        // assigned type has priority
-        if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {
-            return false;
-        }
-        if (assignedType == CreateSchemaDesc.AssignedType.MAP) {
-            return true;
-        }
-        if (assignedType == CreateSchemaDesc.AssignedType.VARIANT || assignedType != CreateSchemaDesc.AssignedType.NONE) {
-            throw new IllegalStateException("Not handled by event representation: " + assignedType);
-        }
-
-        // annotation has second priority
-        Annotation annotation = AnnotationUtil.findAnnotation(annotations, EventRepresentation.class);
-        if (annotation != null) {
-            EventRepresentation eventRepresentation = (EventRepresentation) annotation;
-            return !eventRepresentation.array();
-        }
-
-        // use engine-wide default
-        return configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation() == Configuration.EventRepresentation.MAP;
-    }
-
     public static Configuration.EventRepresentation getRepresentation(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
         // assigned type has priority
         if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {

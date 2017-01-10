@@ -481,6 +481,7 @@
 					<xs:element ref="esper:class-property-resolution" minOccurs="0"/>
 					<xs:element ref="esper:event-representation" minOccurs="0"/>
 					<xs:element ref="esper:anonymous-cache" minOccurs="0"/>
+					<xs:element ref="esper:avro-settings" minOccurs="0"/>
 				</xs:sequence>
 			</xs:choice>
 		</xs:complexType>
@@ -554,6 +555,12 @@
 	<xs:element name="anonymous-cache">
 		<xs:complexType>
 			<xs:attribute name="size" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="avro-settings">
+		<xs:complexType>
+			<xs:attribute name="enable-avro" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-native-string" type="xs:boolean" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="view-resources">

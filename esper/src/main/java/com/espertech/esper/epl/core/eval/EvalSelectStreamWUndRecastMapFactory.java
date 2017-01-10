@@ -75,7 +75,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
             }
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
-                    writable.getType(), columnName);
+                    writable.getType(), columnName, false);
             items.add(new Item(count, null, evaluator, widener));
             written.add(writable);
             count++;

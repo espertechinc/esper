@@ -18,7 +18,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanCombinedProps;
 import com.espertech.esper.supportregression.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -64,9 +64,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //System.out.println(EventTypeAssertionUtil.print(eventBean));    //comment me in
+        //System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    //comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertNull(eventType.getFragmentType("p0int"));
@@ -92,9 +92,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //System.out.println(EventTypeAssertionUtil.print(eventBean));    //comment me in
+        //System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    //comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertNull(eventType.getFragmentType("p0int"));
@@ -128,9 +128,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());
@@ -156,9 +156,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         epService.getEPRuntime().sendEvent(new Object[] {new Object[]{10}, SupportBeanComplexProps.makeDefaultBean()}, "TypeRoot");
 
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());
@@ -183,8 +183,8 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // assert nested fragments
         epService.getEPRuntime().sendEvent(SupportBeanComplexProps.makeDefaultBean());
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        EventTypeAssertionUtil.assertConsistency(eventBean.getEventType());
-        //System.out.println(EventTypeAssertionUtil.print(eventBean));
+        SupportEventTypeAssertionUtil.assertConsistency(eventBean.getEventType());
+        //System.out.println(SupportEventTypeAssertionUtil.print(eventBean));
 
         assertTrue(eventBean.getEventType().getPropertyDescriptor("nested").isFragment());
         EventBean eventNested = (EventBean) eventBean.getFragment("nested");
@@ -203,8 +203,8 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         SupportBeanCombinedProps eventObject = SupportBeanCombinedProps.makeDefaultBean();
         epService.getEPRuntime().sendEvent(eventObject);
         eventBean = listener.assertOneGetNewAndReset();
-        EventTypeAssertionUtil.assertConsistency(eventBean.getEventType());
-        //System.out.println(EventTypeAssertionUtil.print(eventBean));
+        SupportEventTypeAssertionUtil.assertConsistency(eventBean.getEventType());
+        //System.out.println(SupportEventTypeAssertionUtil.print(eventBean));
 
         assertTrue(eventBean.getEventType().getPropertyDescriptor("array").isFragment());
         assertTrue(eventBean.getEventType().getPropertyDescriptor("array").isIndexed());
@@ -241,9 +241,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());
@@ -278,9 +278,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         epService.getEPRuntime().sendEvent(new Object[] {new Object[] {10}, new Object[] {new Object[] {20}, new Object[] {21}}}, "TypeRoot");
 
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // resolve property via fragment
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());
@@ -324,9 +324,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertFalse(eventType.getPropertyDescriptor("p0simple").isFragment());
         assertNull(eventBean.getFragment("p0simple"));
@@ -379,9 +379,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         epService.getEPRuntime().sendEvent(dataMapThree, "TypeMapTwo");
 
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        // System.out.println(EventTypeAssertionUtil.print(eventBean));
+        // System.out.println(SupportEventTypeAssertionUtil.print(eventBean));
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
         
         assertEquals(1, ((EventBean)eventBean.getFragment("one[0]")).get("id"));
         assertEquals(2, ((EventBean)eventBean.getFragment("one[1]")).get("id"));
@@ -440,9 +440,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         epService.getEPRuntime().sendEvent(dataArrayThree, "TypeMapTwo");
 
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        // System.out.println(EventTypeAssertionUtil.print(eventBean));
+        // System.out.println(SupportEventTypeAssertionUtil.print(eventBean));
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertEquals(1, ((EventBean) eventBean.getFragment("one[0]")).get("id"));
         assertEquals(2, ((EventBean) eventBean.getFragment("one[1]")).get("id"));
@@ -498,9 +498,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertEquals(11, ((EventBean) eventBean.getFragment("p0simple.p1simple")).get("intPrimitive"));
         assertEquals("A2", ((EventBean) eventBean.getFragment("p0simple.p1array[1]")).get("theString"));
@@ -547,9 +547,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertEquals(11, ((EventBean) eventBean.getFragment("p0simple.p1simple")).get("intPrimitive"));
         assertEquals("A2", ((EventBean) eventBean.getFragment("p0simple.p1array[1]")).get("theString"));
@@ -608,9 +608,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertEquals(10, ((EventBean)eventBean.getFragment("p0simple.p1simple")).get("p2id"));
         assertEquals(10, ((EventBean)eventBean.getFragment("p0array[1].p1simple")).get("p2id"));
@@ -656,9 +656,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataRoot, "TypeRoot");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        //  System.out.println(EventTypeAssertionUtil.print(eventBean));    comment me in
+        //  System.out.println(SupportEventTypeAssertionUtil.print(eventBean));    comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         assertEquals(10, ((EventBean)eventBean.getFragment("p0simple.p1simple")).get("p2id"));
         assertEquals(10, ((EventBean)eventBean.getFragment("p0array[1].p1simple")).get("p2id"));
@@ -725,9 +725,9 @@ public class TestBeanPropertyResolutionFragment extends TestCase
         // send event
         epService.getEPRuntime().sendEvent(dataOuter, "OuterMap");
         EventBean eventBean = listener.assertOneGetNewAndReset();
-        // System.out.println(EventTypeAssertionUtil.print(eventBean));     comment me in
+        // System.out.println(SupportEventTypeAssertionUtil.print(eventBean));     comment me in
         EventType eventType = eventBean.getEventType();
-        EventTypeAssertionUtil.assertConsistency(eventType);
+        SupportEventTypeAssertionUtil.assertConsistency(eventType);
 
         // Fragment-to-simple
         assertTrue(eventType.getPropertyDescriptor("p0simple").isFragment());

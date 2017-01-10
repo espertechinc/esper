@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.datetime;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -26,6 +27,7 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.timer.SupportDateTimeFieldType;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.generic.GenericData;
 
 import javax.xml.xpath.XPathConstants;
 import java.util.LinkedHashMap;
@@ -56,9 +58,9 @@ public class TestDTIntervalOps extends TestCase {
     }
 
     public void testCreateSchema() {
-        runAssertionCreateSchema(EventRepresentationEnum.DEFAULT);
-        runAssertionCreateSchema(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionCreateSchema(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionCreateSchema(rep);
+        }
     }
 
     private void runAssertionCreateSchema(EventRepresentationEnum eventRepresentationEnum) {
@@ -74,24 +76,32 @@ public class TestDTIntervalOps extends TestCase {
                 DateTime.parseDefaultMSec(startB), DateTime.parseDefaultMSec(endB));
 
         // test Map type Calendar-type timestamps
-        runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.util.Calendar",
-                DateTime.parseDefaultCal(startA), DateTime.parseDefaultCal(endA),
-                DateTime.parseDefaultCal(startB), DateTime.parseDefaultCal(endB));
+        if (!eventRepresentationEnum.isAvroEvent()) {
+            runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.util.Calendar",
+                    DateTime.parseDefaultCal(startA), DateTime.parseDefaultCal(endA),
+                    DateTime.parseDefaultCal(startB), DateTime.parseDefaultCal(endB));
+        }
 
         // test Map type Date-type timestamps
-        runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.util.Date",
-                DateTime.parseDefaultDate(startA), DateTime.parseDefaultDate(endA),
-                DateTime.parseDefaultDate(startB), DateTime.parseDefaultDate(endB));
+        if (!eventRepresentationEnum.isAvroEvent()) {
+            runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.util.Date",
+                    DateTime.parseDefaultDate(startA), DateTime.parseDefaultDate(endA),
+                    DateTime.parseDefaultDate(startB), DateTime.parseDefaultDate(endB));
+        }
 
         // test Map type LocalDateTime-type timestamps
-        runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.time.LocalDateTime",
-                DateTime.parseDefaultLocalDateTime(startA), DateTime.parseDefaultLocalDateTime(endA),
-                DateTime.parseDefaultLocalDateTime(startB), DateTime.parseDefaultLocalDateTime(endB));
+        if (!eventRepresentationEnum.isAvroEvent()) {
+            runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.time.LocalDateTime",
+                    DateTime.parseDefaultLocalDateTime(startA), DateTime.parseDefaultLocalDateTime(endA),
+                    DateTime.parseDefaultLocalDateTime(startB), DateTime.parseDefaultLocalDateTime(endB));
+        }
 
         // test Map type ZonedDateTime-type timestamps
-        runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.time.ZonedDateTime",
-                DateTime.parseDefaultZonedDateTime(startA), DateTime.parseDefaultZonedDateTime(endA),
-                DateTime.parseDefaultZonedDateTime(startB), DateTime.parseDefaultZonedDateTime(endB));
+        if (!eventRepresentationEnum.isAvroEvent()) {
+            runAssertionCreateSchemaWTypes(eventRepresentationEnum, "java.time.ZonedDateTime",
+                    DateTime.parseDefaultZonedDateTime(startA), DateTime.parseDefaultZonedDateTime(endA),
+                    DateTime.parseDefaultZonedDateTime(startB), DateTime.parseDefaultZonedDateTime(endB));
+        }
 
         // test Bean-type Date-type timestamps
         String epl = eventRepresentationEnum.getAnnotationText() + " create schema SupportBean as " + SupportBean.class.getName() + " starttimestamp longPrimitive endtimestamp longBoxed";
@@ -1171,14 +1181,23 @@ public class TestDTIntervalOps extends TestCase {
     }
 
     private void makeSendEvent(String typeName, EventRepresentationEnum eventRepresentationEnum, Object startTs, Object endTs) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("startts", startTs);
-        theEvent.put("endts", endTs);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), typeName);
+            epService.getEPRuntime().sendEvent(new Object[] {startTs, endTs}, typeName);
+        }
+        else if (eventRepresentationEnum.isMapEvent()){
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("startts", startTs);
+            theEvent.put("endts", endTs);
+            epService.getEPRuntime().sendEvent(theEvent, typeName);
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            GenericData.Record record = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro());
+            record.put("startts", startTs);
+            record.put("endts", endTs);
+            epService.getEPRuntime().sendEventAvro(record, typeName);
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, typeName);
+            throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
     }
 

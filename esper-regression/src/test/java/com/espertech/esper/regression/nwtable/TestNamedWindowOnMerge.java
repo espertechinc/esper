@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -23,6 +24,8 @@ import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -105,9 +108,9 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     public void testDocExample() throws Exception {
-        runAssertionDocExample(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionDocExample(EventRepresentationEnum.MAP);
-        runAssertionDocExample(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionDocExample(rep);
+        }
     }
 
     public void runAssertionDocExample(EventRepresentationEnum eventRepresentationEnum) throws Exception {
@@ -165,17 +168,30 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     private void sendOrderEvent(EventRepresentationEnum eventRepresentationEnum, String orderId, String productId, double price, int quantity, boolean deletedFlag) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("orderId", orderId);
-        theEvent.put("productId", productId);
-        theEvent.put("price", price);
-        theEvent.put("quantity", quantity);
-        theEvent.put("deletedFlag", deletedFlag);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "OrderEvent");
+            epService.getEPRuntime().sendEvent(new Object[] {orderId, productId, price, quantity, deletedFlag}, "OrderEvent");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("orderId", orderId);
+            theEvent.put("productId", productId);
+            theEvent.put("price", price);
+            theEvent.put("quantity", quantity);
+            theEvent.put("deletedFlag", deletedFlag);
+            epService.getEPRuntime().sendEvent(theEvent, "OrderEvent");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("OrderEvent")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("orderId", orderId);
+            theEvent.put("productId", productId);
+            theEvent.put("price", price);
+            theEvent.put("quantity", quantity);
+            theEvent.put("deletedFlag", deletedFlag);
+            epService.getEPRuntime().sendEventAvro(theEvent, "OrderEvent");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "OrderEvent");
+            fail();
         }
     }
 
@@ -235,9 +251,9 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     public void testSubselect() {
-        runAssertionSubselect(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionSubselect(EventRepresentationEnum.MAP);
-        runAssertionSubselect(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionSubselect(rep);
+        }
     }
 
     private void runAssertionSubselect(EventRepresentationEnum eventRepresentationEnum) {
@@ -309,14 +325,24 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     private void sendMyEvent(EventRepresentationEnum eventRepresentationEnum, String in1, int in2) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("in1", in1);
-        theEvent.put("in2", in2);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "MyEvent");
+            epService.getEPRuntime().sendEvent(new Object[] {in1, in2}, "MyEvent");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("in1", in1);
+            theEvent.put("in2", in2);
+            epService.getEPRuntime().sendEvent(theEvent, "MyEvent");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyEvent")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("in1", in1);
+            theEvent.put("in2", in2);
+            epService.getEPRuntime().sendEventAvro(theEvent, "MyEvent");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "MyEvent");
+            fail();
         }
     }
 

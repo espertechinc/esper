@@ -36,7 +36,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
         ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
         String[] columnNames = selectExprContext.getColumnNames();
 
-        GenericData.Record record = new GenericData.Record(resultEventType.getSchema());
+        GenericData.Record record = new GenericData.Record(resultEventType.getSchemaAvro());
 
         // Evaluate all expressions and build a map of name-value pairs
         for (int i = 0; i < expressionNodes.length; i++)

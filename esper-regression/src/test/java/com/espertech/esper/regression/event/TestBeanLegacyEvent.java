@@ -267,7 +267,7 @@ public class TestBeanLegacyEvent extends TestCase
         assertEquals(legacyBean.readMapByKey("key2"), listener.getLastNewData()[0].get("explicitMMapped('key2')"));
 
         EventTypeSPI stmtType = (EventTypeSPI) statement.getEventType();
-        assertEquals(null, stmtType.getMetadata().getOptionalApplicationType());
+        assertEquals(EventTypeMetadata.ApplicationType.MAP, stmtType.getMetadata().getOptionalApplicationType());
         assertEquals(null, stmtType.getMetadata().getOptionalSecondaryNames());
         assertNotNull(stmtType.getMetadata().getPrimaryName());
         assertNotNull(stmtType.getMetadata().getPublicName());

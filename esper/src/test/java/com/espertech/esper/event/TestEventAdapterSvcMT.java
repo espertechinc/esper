@@ -11,6 +11,7 @@
 
 package com.espertech.esper.event;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
@@ -35,7 +36,7 @@ public class TestEventAdapterSvcMT extends TestCase
 
     public void setUp()
     {
-        service = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null);
+        service = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null, new ConfigurationEngineDefaults.EventMeta.AvroSettings());
     }
 
     public void testAddBeanTypeClass() throws Exception

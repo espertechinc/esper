@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.event.SupportXML;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -62,8 +62,8 @@ public class TestXMLNoSchemaEventTranspose extends TestCase
 
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into Nested3Stream select nested1simple, nested4array from MyXMLEvent");
         EPStatement stmtWildcard = epService.getEPAdministrator().createEPL("select * from MyXMLEvent");
-        EventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
-        EventTypeAssertionUtil.assertConsistency(stmtWildcard.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtWildcard.getEventType());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1simple", Node.class, null, false, false, false, false, true),
                 new EventPropertyDescriptor("nested4array", Node[].class, Node.class, false, false, true, false, true),
@@ -72,12 +72,12 @@ public class TestXMLNoSchemaEventTranspose extends TestCase
         FragmentEventType fragmentTypeNested1 = stmtInsert.getEventType().getFragmentType("nested1simple");
         assertFalse(fragmentTypeNested1.isIndexed());
         assertEquals(0, fragmentTypeNested1.getFragmentType().getPropertyDescriptors().length);
-        EventTypeAssertionUtil.assertConsistency(fragmentTypeNested1.getFragmentType());
+        SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested1.getFragmentType());
 
         FragmentEventType fragmentTypeNested4 = stmtInsert.getEventType().getFragmentType("nested4array");
         assertTrue(fragmentTypeNested4.isIndexed());
         assertEquals(0, fragmentTypeNested4.getFragmentType().getPropertyDescriptors().length);
-        EventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
+        SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
 
         SupportXML.sendDefaultEvent(epService.getEPRuntime(), "ABC");
 
@@ -87,7 +87,7 @@ public class TestXMLNoSchemaEventTranspose extends TestCase
 
         // assert event and fragments alone
         EventBean wildcardStmtEvent = stmtWildcard.iterator().next();
-        EventTypeAssertionUtil.assertConsistency(wildcardStmtEvent);
+        SupportEventTypeAssertionUtil.assertConsistency(wildcardStmtEvent);
 
         FragmentEventType eventType = wildcardStmtEvent.getEventType().getFragmentType("nested1simple");
         assertFalse(eventType.isIndexed());
@@ -119,18 +119,18 @@ public class TestXMLNoSchemaEventTranspose extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", String.class, null, false, false, false, false, false),
         }, stmtInsert.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
 
         EPStatement stmtSelectWildcard = epService.getEPAdministrator().createEPL("select * from TestXMLSchemaType");
         EPAssertionUtil.assertEqualsAnyOrder(new Object[0], stmtSelectWildcard.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmtSelectWildcard.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtSelectWildcard.getEventType());
 
         SupportXML.sendDefaultEvent(epService.getEPRuntime(), "test");
         EventBean stmtInsertWildcardBean = stmtInsert.iterator().next();
         EventBean stmtSelectWildcardBean = stmtSelectWildcard.iterator().next();
         assertNotNull(stmtInsertWildcardBean.get("nested1"));
-        EventTypeAssertionUtil.assertConsistency(stmtSelectWildcardBean);
-        EventTypeAssertionUtil.assertConsistency(stmtInsert.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtSelectWildcardBean);
+        SupportEventTypeAssertionUtil.assertConsistency(stmtInsert.iterator().next());
         
         assertEquals(0, stmtSelectWildcardBean.getEventType().getPropertyNames().length);
     }
@@ -154,14 +154,14 @@ public class TestXMLNoSchemaEventTranspose extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{
                 new EventPropertyDescriptor("nested1", Node.class, null, false, false, false, false, false),
         }, stmtInsert.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtInsert.getEventType());
 
         EventType type = ((EPServiceProviderSPI)epService).getEventAdapterService().getExistsTypeByName("TestXMLSchemaType");
-        EventTypeAssertionUtil.assertConsistency(type);
+        SupportEventTypeAssertionUtil.assertConsistency(type);
         assertNull(type.getFragmentType("nested1"));
         assertNull(type.getFragmentType("nested1.nested2"));
 
         SupportXML.sendDefaultEvent(epService.getEPRuntime(), "ABC");
-        EventTypeAssertionUtil.assertConsistency(stmtInsert.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtInsert.iterator().next());
     }
 }

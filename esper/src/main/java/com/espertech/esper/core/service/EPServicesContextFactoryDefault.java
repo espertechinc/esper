@@ -85,30 +85,29 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 {
     private static final Logger log = LoggerFactory.getLogger(EPServicesContextFactoryDefault.class);
 
-    public EPServicesContext createServicesContext(EPServiceProvider epServiceProvider, ConfigurationInformation configSnapshot)
-    {
+    public EPServicesContext createServicesContext(EPServiceProvider epServiceProvider, ConfigurationInformation configSnapshot) {
         // JNDI context for binding resources
         EngineEnvContext jndiContext = new EngineEnvContext();
 
         EventTypeIdGenerator eventTypeIdGenerator;
         if (configSnapshot.getEngineDefaults().getAlternativeContext() == null || configSnapshot.getEngineDefaults().getAlternativeContext().getEventTypeIdGeneratorFactory() == null) {
             eventTypeIdGenerator = new EventTypeIdGeneratorImpl();
-        }
-        else {
+        } else {
             EventTypeIdGeneratorFactory eventTypeIdGeneratorFactory = (EventTypeIdGeneratorFactory) JavaClassHelper.instantiate(EventTypeIdGeneratorFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getEventTypeIdGeneratorFactory());
             eventTypeIdGenerator = eventTypeIdGeneratorFactory.create(new EventTypeIdGeneratorContext(epServiceProvider.getURI()));
         }
 
         // Make services that depend on snapshot config entries
-        // TODO configure allow-avro
         EventAdapterAvroHandler avroHandler = EventAdapterAvroHandlerUnsupported.INSTANCE;
-        try {
-            avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL);
+        if (configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro()) {
+            try {
+                avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL);
+            }
+            catch(Throwable t){
+                log.debug("Avro provider {} not instantiated, not enabling Avro support: {}", EventAdapterAvroHandler.HANDLER_IMPL, t.getMessage());
+            }
         }
-        catch (Throwable t) {
-            log.debug("Avro provider {} not instantiated, not enabling Avro support: {}", EventAdapterAvroHandler.HANDLER_IMPL, t.getMessage());
-        }
-        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler);
+        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler, configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings());
         init(eventAdapterService, configSnapshot);
 
         // New read-write lock for concurrent event processing
@@ -379,7 +378,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         Map<String, ConfigurationEventTypeAvro> avroNames = configSnapshot.getEventTypesAvro();
         for (Map.Entry<String, ConfigurationEventTypeAvro> entry : avroNames.entrySet()) {
             try {
-                eventAdapterService.addAvroType(entry.getKey(), entry.getValue(), true, true, true);
+                eventAdapterService.addAvroType(entry.getKey(), entry.getValue(), true, true, true, false, false);
             }
             catch (EventAdapterException ex) {
                 throw new ConfigurationException("Error configuring engine: " + ex.getMessage(), ex);

@@ -27,6 +27,8 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroConstantsNoDep;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
@@ -483,8 +485,6 @@ public class SelectExprProcessorHelper
         EventPropertyGetter underlyingPropertyEventGetter = null;
         ExprEvaluator underlyingExprEvaluator = null;
         Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
-        // TODO remove useMapOutput
-        boolean useMapOutput = EventRepresentationUtil.isMap(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
 
         if (!selectedStreams.isEmpty()) {
             // Resolve underlying event type in the case of wildcard or non-named stream select.
@@ -654,6 +654,9 @@ public class SelectExprProcessorHelper
                     else if (insertIntoTargetType instanceof BeanEventType && JavaClassHelper.isSubclassOrImplementsInterface(returnType, insertIntoTargetType.getUnderlyingType())) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceNative(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
                     }
+                    else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME)) {
+                        return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceAvro(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
+                    }
                     else if (insertIntoTargetType instanceof WrapperEventType) {
                         // for native event types as they got renamed, they become wrappers
                         // check if the proposed wrapper is compatible with the existing wrapper
@@ -682,6 +685,11 @@ public class SelectExprProcessorHelper
                     // recast as a Object-array-type
                     if (underlyingEventType instanceof ObjectArrayEventType && insertIntoTargetType instanceof ObjectArrayEventType) {
                         return EvalSelectStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService);
+                    }
+
+                    // recast as a Avro-type
+                    if (underlyingEventType instanceof AvroSchemaEventType && insertIntoTargetType instanceof AvroSchemaEventType) {
+                        return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeRecast(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), (AvroSchemaEventType) insertIntoTargetType, exprNodes, engineImportService);
                     }
 
                     // recast as a Bean-type
@@ -758,6 +766,9 @@ public class SelectExprProcessorHelper
                             }
                             if (insertIntoTargetType instanceof MapEventType && eventType instanceof MapEventType) {
                                 return new EvalInsertCoercionMap(insertIntoTargetType, eventAdapterService);
+                            }
+                            if (insertIntoTargetType instanceof AvroSchemaEventType && eventType instanceof AvroSchemaEventType) {
+                                return new EvalInsertCoercionAvro(insertIntoTargetType, eventAdapterService);
                             }
                             if (insertIntoTargetType instanceof WrapperEventType && eventType instanceof BeanEventType) {
                                 WrapperEventType wrapperType = (WrapperEventType) insertIntoTargetType;
@@ -933,13 +944,24 @@ public class SelectExprProcessorHelper
                         if (optionalInsertIntoOverrideType != null) {
                             resultEventType = insertIntoTargetType;
                         }
+                        else if (existingType instanceof AvroSchemaEventType) {
+                            ExprEvaluator[] compat = eventAdapterService.getEventAdapterAvroHandler().avroCompat(existingType, selPropertyTypes, exprEvaluators);
+                            selectExprContext.setExpressionNodes(compat);
+                            resultEventType = existingType;
+                        }
                         else {
-                            boolean useMap = EventRepresentationUtil.isMap(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
-                            if (useMap) {
+                            Configuration.EventRepresentation out = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+                            if (out == Configuration.EventRepresentation.MAP) {
                                 resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true);
                             }
-                            else {
+                            else if (out == Configuration.EventRepresentation.OBJECTARRAY) {
                                 resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true, false, null);
+                            }
+                            else if (out == Configuration.EventRepresentation.AVRO) {
+                                resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selPropertyTypes, false, false, false, false, true, annotations, null);
+                            }
+                            else {
+                                throw new IllegalStateException("Unrecognized code " + out);
                             }
                         }
                     }
@@ -957,8 +979,14 @@ public class SelectExprProcessorHelper
                 if (resultEventType instanceof MapEventType) {
                     return new EvalInsertNoWildcardMap(selectExprContext, resultEventType);
                 }
-                else {
+                else if (resultEventType instanceof ObjectArrayEventType) {
                     return makeObjectArrayConsiderReorder(selectExprContext, (ObjectArrayEventType) resultEventType);
+                }
+                else if (resultEventType instanceof AvroSchemaEventType) {
+                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeNoWildcard(selectExprContext, resultEventType);
+                }
+                else {
+                    throw new IllegalStateException("Unrecognized output type " + resultEventType);
                 }
             }
             else {
@@ -1018,7 +1046,7 @@ public class SelectExprProcessorHelper
             }
             Class sourceColumnType = selectExprContext.getExpressionNodes()[i].getType();
             Class targetPropType = resultEventType.getPropertyType(colName);
-            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName);
+            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName, false);
         }
 
         if (!needRemap) {
@@ -1325,7 +1353,7 @@ public class SelectExprProcessorHelper
             Map.Entry<String, Object> provided = writtenOffered.get(i);
             if (provided.getValue() instanceof Class) {
                 wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(provided.getKey(), (Class) provided.getValue(),
-                        expected, written.get(i).getPropertyName());
+                        expected, written.get(i).getPropertyName(), false);
             }
         }
         final boolean hasWideners = !CollectionUtil.isAllNullArray(wideners);

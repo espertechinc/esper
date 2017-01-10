@@ -39,7 +39,7 @@ public class ExcludePlanHintExprUtil {
         properties.put("to_streamname", String.class);
         properties.put("opname", String.class);
         properties.put("exprs", String[].class);
-        OAEXPRESSIONTYPE = new ObjectArrayEventType(EventTypeMetadata.createAnonymous(ExcludePlanHintExprUtil.class.getSimpleName()),
+        OAEXPRESSIONTYPE = new ObjectArrayEventType(EventTypeMetadata.createAnonymous(ExcludePlanHintExprUtil.class.getSimpleName(), EventTypeMetadata.ApplicationType.OBJECTARR),
                 ExcludePlanHintExprUtil.class.getSimpleName(), 0, null, properties, null, null, null);
     }
 

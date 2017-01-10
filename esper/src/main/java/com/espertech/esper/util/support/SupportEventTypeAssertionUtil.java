@@ -9,20 +9,32 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.supportunit.event;
+package com.espertech.esper.util.support;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.scopetest.ScopeTestHelper;
 import com.espertech.esper.util.JavaClassHelper;
-import org.junit.Assert;
 import org.w3c.dom.NodeList;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class EventTypeAssertionUtil
+public class SupportEventTypeAssertionUtil
 {
+    public static void assertFragments(EventBean event, boolean isNative, boolean array, String propertyExpressions) {
+        String[] names = propertyExpressions.split(",");
+        for (String name : names) {
+            if (!array) {
+                assertFragmentNonArray(event, isNative, name);
+            }
+            else {
+                assertFragmentArray(event, isNative, name);
+            }
+        }
+    }
+
     public static void assertConsistency(EventBean eventBean)
     {
         assertConsistencyRecusive(eventBean, new HashSet<EventType>());
@@ -288,24 +300,24 @@ public class EventTypeAssertionUtil
                 }
                 else if (resultGet instanceof NodeList)
                 {
-                    Assert.assertEquals(failedMessage, ((NodeList)resultGet).getLength(), ((NodeList)resultGetter).getLength());
+                    ScopeTestHelper.assertEquals(failedMessage, ((NodeList)resultGet).getLength(), ((NodeList)resultGetter).getLength());
                 }
                 else if (resultGet.getClass().isArray())
                 {
-                    Assert.assertEquals(failedMessage, Array.getLength(resultGet), Array.getLength(resultGetter));
+                    ScopeTestHelper.assertEquals(failedMessage, Array.getLength(resultGet), Array.getLength(resultGetter));
                 }
                 else
                 {
-                    Assert.assertEquals(failedMessage, resultGet, resultGetter);
+                    ScopeTestHelper.assertEquals(failedMessage, resultGet, resultGetter);
                 }
 
                 if (resultGet != null)
                 {
                     if (resultGet instanceof EventBean[] || resultGet instanceof EventBean) {
-                        Assert.assertTrue(properties[i].isFragment());
+                        ScopeTestHelper.assertTrue(properties[i].isFragment());
                     }
                     else {
-                        Assert.assertTrue(failedMessage, JavaClassHelper.isSubclassOrImplementsInterface(resultGet.getClass(), properties[i].getPropertyType()));
+                        ScopeTestHelper.assertTrue(failedMessage, JavaClassHelper.isSubclassOrImplementsInterface(resultGet.getClass(), JavaClassHelper.getBoxedType(properties[i].getPropertyType())));
                     }
                 }
             }
@@ -313,27 +325,27 @@ public class EventTypeAssertionUtil
             // fragment
             if (!properties[i].isFragment())
             {
-                Assert.assertNull(failedMessage, eventBean.getFragment(propertyName));
+                ScopeTestHelper.assertNull(failedMessage, eventBean.getFragment(propertyName));
                 continue;
             }
 
             Object fragment = eventBean.getFragment(propertyName);
-            Assert.assertNotNull(failedMessage, fragment);
+            ScopeTestHelper.assertNotNull(failedMessage, fragment);
 
             FragmentEventType fragmentType = eventBean.getEventType().getFragmentType(propertyName);
-            Assert.assertNotNull(failedMessage, fragmentType);
+            ScopeTestHelper.assertNotNull(failedMessage, fragmentType);
 
             if (!fragmentType.isIndexed())
             {
-                Assert.assertTrue(failedMessage, fragment instanceof EventBean);
+                ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean);
                 EventBean fragmentEvent = (EventBean) fragment;
                 assertConsistencyRecusive(fragmentEvent, alreadySeenTypes);
             }
             else
             {
-                Assert.assertTrue(failedMessage, fragment instanceof EventBean[]);
+                ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean[]);
                 EventBean[] events = (EventBean[]) fragment;
-                Assert.assertTrue(failedMessage, events.length > 0);
+                ScopeTestHelper.assertTrue(failedMessage, events.length > 0);
                 for (EventBean theEvent : events)
                 {
                     assertConsistencyRecusive(theEvent, alreadySeenTypes);
@@ -358,25 +370,25 @@ public class EventTypeAssertionUtil
             String failedMessage = "failed assertion for property '" + descriptor.getPropertyName() + "' ";
             if (!descriptor.isFragment())
             {
-                Assert.assertNull(failedMessage, eventType.getFragmentType(descriptor.getPropertyName()));
+                ScopeTestHelper.assertNull(failedMessage, eventType.getFragmentType(descriptor.getPropertyName()));
                 continue;
             }
 
             FragmentEventType fragment = eventType.getFragmentType(descriptor.getPropertyName());
             if (!descriptor.isRequiresIndex())
             {
-                Assert.assertNotNull(failedMessage, fragment);
+                ScopeTestHelper.assertNotNull(failedMessage, fragment);
                 if (fragment.isIndexed())
                 {
-                    Assert.assertTrue(descriptor.isIndexed());
+                    ScopeTestHelper.assertTrue(descriptor.isIndexed());
                 }
                 assertConsistencyRecursive(fragment.getFragmentType(), alreadySeenTypes);
             }
             else
             {
                 fragment = eventType.getFragmentType(descriptor.getPropertyName() + "[0]");
-                Assert.assertNotNull(failedMessage, fragment);
-                Assert.assertTrue(descriptor.isIndexed());
+                ScopeTestHelper.assertNotNull(failedMessage, fragment);
+                ScopeTestHelper.assertTrue(descriptor.isIndexed());
                 assertConsistencyRecursive(fragment.getFragmentType(), alreadySeenTypes);
             }
         }
@@ -394,43 +406,43 @@ public class EventTypeAssertionUtil
             String failedMessage = "failed assertion for property '" + propertyName + "' ";
 
             // assert presence of descriptor
-            Assert.assertSame(properties[i], eventType.getPropertyDescriptor(propertyName));
+            ScopeTestHelper.assertSame(properties[i], eventType.getPropertyDescriptor(propertyName));
 
             // test properties that can simply be in a property expression
             if ((!properties[i].isRequiresIndex()) && (!properties[i].isRequiresMapkey()))
             {
-                Assert.assertTrue(failedMessage, eventType.isProperty(propertyName));
-                Assert.assertSame(failedMessage, eventType.getPropertyType(propertyName), properties[i].getPropertyType());
-                Assert.assertNotNull(failedMessage, eventType.getGetter(propertyName));
+                ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyName));
+                ScopeTestHelper.assertSame(failedMessage, eventType.getPropertyType(propertyName), properties[i].getPropertyType());
+                ScopeTestHelper.assertNotNull(failedMessage, eventType.getGetter(propertyName));
             }
             
             // test indexed property
             if (properties[i].isIndexed())
             {
                 String propertyNameIndexed = propertyName + "[0]";
-                Assert.assertTrue(failedMessage, eventType.isProperty(propertyNameIndexed));
-                Assert.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameIndexed));
-                Assert.assertNotNull(failedMessage, eventType.getGetter(propertyNameIndexed));
+                ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyNameIndexed));
+                ScopeTestHelper.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameIndexed));
+                ScopeTestHelper.assertNotNull(failedMessage, eventType.getGetter(propertyNameIndexed));
             }
 
             // test mapped property
             if (properties[i].isRequiresMapkey())
             {
                 String propertyNameMapped = propertyName + "('a')";
-                Assert.assertTrue(failedMessage, eventType.isProperty(propertyNameMapped));
-                Assert.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameMapped));
-                Assert.assertNotNull(failedMessage, eventType.getGetter(propertyNameMapped));
+                ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyNameMapped));
+                ScopeTestHelper.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameMapped));
+                ScopeTestHelper.assertNotNull(failedMessage, eventType.getGetter(propertyNameMapped));
             }
 
             // consistent flags
-            Assert.assertFalse(failedMessage, properties[i].isIndexed() && properties[i].isMapped());
+            ScopeTestHelper.assertFalse(failedMessage, properties[i].isIndexed() && properties[i].isMapped());
             if (properties[i].isRequiresIndex())
             {
-                Assert.assertTrue(failedMessage, properties[i].isIndexed());
+                ScopeTestHelper.assertTrue(failedMessage, properties[i].isIndexed());
             }
             if (properties[i].isRequiresMapkey())
             {
-                Assert.assertTrue(failedMessage, properties[i].isMapped());
+                ScopeTestHelper.assertTrue(failedMessage, properties[i].isMapped());
             }
         }
 
@@ -474,17 +486,35 @@ public class EventTypeAssertionUtil
         }
     }
 
-    public static void assertEventTypeProperties(Object[][] expectedArr, EventType eventType, EventTypeAssertionEnum... assertions) {
+    public static void assertEventTypeProperties(Object[][] expectedArr, EventType eventType, SupportEventTypeAssertionEnum... assertions) {
         for (int propNum = 0; propNum < expectedArr.length; propNum++) {
             String message = "Failed assertion for property " + propNum;
             EventPropertyDescriptor prop = eventType.getPropertyDescriptors()[propNum];
 
             for (int i = 0; i < assertions.length; i++) {
-                EventTypeAssertionEnum assertion = assertions[i];
+                SupportEventTypeAssertionEnum assertion = assertions[i];
                 Object expected = expectedArr[propNum][i];
                 Object value = assertion.getExtractor().extract(prop, eventType);
-                Assert.assertEquals(message + " at assertion " + assertion, expected, value);
+                ScopeTestHelper.assertEquals(message + " at assertion " + assertion, expected, value);
             }
         }
+    }
+
+    private static void assertFragmentNonArray(EventBean event, boolean isNative, String propertyExpression) {
+        EventBean fragmentBean = (EventBean) event.getFragment(propertyExpression);
+        FragmentEventType fragmentType = event.getEventType().getFragmentType(propertyExpression);
+        ScopeTestHelper.assertFalse("failed for " + propertyExpression, fragmentType.isIndexed());
+        ScopeTestHelper.assertEquals("failed for " + propertyExpression, isNative, fragmentType.isNative());
+        ScopeTestHelper.assertSame("failed for " + propertyExpression, fragmentBean.getEventType(), fragmentType.getFragmentType());
+        SupportEventTypeAssertionUtil.assertConsistency(fragmentBean);
+    }
+
+    private static void assertFragmentArray(EventBean event, boolean isNative, String propertyExpression) {
+        EventBean[] fragmentBean = (EventBean[]) event.getFragment(propertyExpression);
+        FragmentEventType fragmentType = event.getEventType().getFragmentType(propertyExpression);
+        ScopeTestHelper.assertTrue("failed for " + propertyExpression, fragmentType.isIndexed());
+        ScopeTestHelper.assertEquals("failed for " + propertyExpression, isNative, fragmentType.isNative());
+        ScopeTestHelper.assertSame("failed for " + propertyExpression, fragmentBean[0].getEventType(), fragmentType.getFragmentType());
+        SupportEventTypeAssertionUtil.assertConsistency(fragmentBean[0]);
     }
 }

@@ -48,7 +48,7 @@ public class TestWrapperEventType extends TestCase
     public void testTypeUpdate() {
         Map<String, Object> typeOne = new HashMap<String, Object>();
         typeOne.put("field1", String.class);
-        MapEventType underlying = new MapEventType(EventTypeMetadata.createAnonymous("noname"), "noname", 1, eventAdapterService, typeOne, null, null, null);
+        MapEventType underlying = new MapEventType(EventTypeMetadata.createAnonymous("noname", EventTypeMetadata.ApplicationType.MAP), "noname", 1, eventAdapterService, typeOne, null, null, null);
         EventTypeMetadata meta = EventTypeMetadata.createWrapper("test", true, false, false);
         eventType = new WrapperEventType(meta, "mytype", 1, underlying, properties, eventAdapterService);
 

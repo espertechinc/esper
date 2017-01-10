@@ -37,14 +37,48 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
         return null;
     }
 
-    protected static Object getAvroFieldValuePoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
+    public Object getAvroFragment(GenericData.Record record) {
+        return null;
+    }
+
+    public boolean isExistsPropertyAvro(GenericData.Record record) {
+        return getAvroFieldValuePolyExists(record, getters);
+    }
+
+    static boolean getAvroFieldValuePolyExists(GenericData.Record record, AvroEventPropertyGetter[] getters) {
+        if (record == null) {
+            return false;
+        }
+        record = navigatePoly(record, getters);
+        return record != null && getters[getters.length - 1].isExistsPropertyAvro(record);
+    }
+
+    static Object getAvroFieldValuePoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
         if (record == null) {
             return null;
         }
+        record = navigatePoly(record, getters);
+        if (record == null) {
+            return null;
+        }
+        return getters[getters.length - 1].getAvroFieldValue(record);
+    }
+
+    static Object getAvroFieldFragmentPoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
+        if (record == null) {
+            return null;
+        }
+        record = navigatePoly(record, getters);
+        if (record == null) {
+            return null;
+        }
+        return getters[getters.length - 1].getAvroFragment(record);
+    }
+
+    private static GenericData.Record navigatePoly(GenericData.Record record, AvroEventPropertyGetter[] getters) {
         for (int i = 0; i < getters.length - 1; i++) {
             Object value = getters[i].getAvroFieldValue(record);
             if (!(value instanceof GenericData.Record)) {
@@ -52,24 +86,6 @@ public class AvroEventBeanGetterDynamicPoly implements AvroEventPropertyGetter {
             }
             record = (GenericData.Record) value;
         }
-        return getters[getters.length - 1].getAvroFieldValue(record);
-    }
-
-    public boolean isExistsPropertyAvro(GenericData.Record record) {
-        return getAvroFieldValuePolyExists(record, getters);
-    }
-
-    protected static boolean getAvroFieldValuePolyExists(GenericData.Record record, AvroEventPropertyGetter[] getters) {
-        if (record == null) {
-            return false;
-        }
-        for (int i = 0; i < getters.length - 1; i++) {
-            Object value = getters[i].getAvroFieldValue(record);
-            if (!(value instanceof GenericData.Record)) {
-                return false;
-            }
-            record = (GenericData.Record) value;
-        }
-        return getters[getters.length - 1].isExistsPropertyAvro(record);
+        return record;
     }
 }

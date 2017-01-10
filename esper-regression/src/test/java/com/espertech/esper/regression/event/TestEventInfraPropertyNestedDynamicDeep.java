@@ -20,6 +20,8 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -34,7 +36,7 @@ import java.util.function.Function;
 import static com.espertech.esper.supportregression.event.SupportEventInfra.*;
 import static com.espertech.esper.supportregression.event.ValueWithExistsFlag.*;
 
-public class TestEventInfraNestedDynamicDeepPropery extends TestCase {
+public class TestEventInfraPropertyNestedDynamicDeep extends TestCase {
     private final static String BEAN_TYPENAME = SupportBeanDynRoot.class.getName();
 
     private static final SupportEventInfra.FunctionSendEvent FAVRO = (epService, value) -> {
@@ -96,8 +98,8 @@ public class TestEventInfraNestedDynamicDeepPropery extends TestCase {
         mapOneL0.put("nested", mapOneL1);
         Map<String,Object> mapOne = Collections.singletonMap("item", mapOneL0);
         Pair[] mapTests = new Pair[]{
-                new Pair<>(Collections.emptyMap(), NOT_EXISTS),
                 new Pair<>(mapOne, allExist(100, 100, 101, 101, 101, 101)),
+                new Pair<>(Collections.emptyMap(), NOT_EXISTS),
         };
         runAssertion(MAP_TYPENAME, FMAP, null, mapTests, Object.class);
 
@@ -135,14 +137,39 @@ public class TestEventInfraNestedDynamicDeepPropery extends TestCase {
         nestedDatum.put("nestedNested", nestedNestedDatum);
         GenericData.Record emptyDatum = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
         Pair[] avroTests = new Pair[]{
+                new Pair<>(nestedDatum, allExist(100, 100, 101, 101, 101, 101)),
                 new Pair<>(emptyDatum, NOT_EXISTS),
-                new Pair<>(null, NOT_EXISTS),
-                new Pair<>(nestedDatum, allExist(100, 100, 101, 101, 101, 101))
+                new Pair<>(null, NOT_EXISTS)
         };
         runAssertion(AVRO_TYPENAME, FAVRO, null, avroTests, Object.class);
     }
 
     private void runAssertion(String typename,
+                              FunctionSendEvent send,
+                              Function<Object, Object> optionalValueConversion,
+                              Pair[] tests,
+                              Class expectedPropertyType) {
+        runAssertionSelectNested(typename, send, optionalValueConversion, tests, expectedPropertyType);
+        runAssertionBeanNav(typename, send, tests[0].getFirst());
+    }
+
+    private void runAssertionBeanNav(String typename,
+                                          FunctionSendEvent send,
+                                          Object underlyingComplete) {
+        String stmtText = "select * from " + typename;
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        send.apply(epService, underlyingComplete);
+        EventBean event = listener.assertOneGetNewAndReset();
+        SupportEventTypeAssertionUtil.assertConsistency(event);
+
+        stmt.destroy();
+    }
+
+    private void runAssertionSelectNested(String typename,
                               FunctionSendEvent send,
                               Function<Object, Object> optionalValueConversion,
                               Pair[] tests,
@@ -175,7 +202,8 @@ public class TestEventInfraNestedDynamicDeepPropery extends TestCase {
 
         for (Pair pair : tests) {
             send.apply(epService, pair.getFirst());
-            SupportEventInfra.assertValuesMayConvert(listener.assertOneGetNewAndReset(), propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion);
+            EventBean event = listener.assertOneGetNewAndReset();
+            SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion);
         }
 
         stmt.destroy();

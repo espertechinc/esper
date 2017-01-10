@@ -23,9 +23,9 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -131,7 +131,7 @@ public class TestTableAccessDotMethod extends TestCase {
                 (grouped ? " group by theString" : "");
         EPStatement stmtInto = SupportModelHelper.createByCompileOrParse(epService, soda, eplInto);
         Object[][] expectedAggType = new Object[][]{{"a1", long.class}, {"a2", SupportBean[].class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtInto.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtInto.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String key = grouped ? "[\"E1\"]" : "";
         String eplGet = "select varagg" + key + ".a1.after(150L) as c0, " +
@@ -139,7 +139,7 @@ public class TestTableAccessDotMethod extends TestCase {
         EPStatement stmtGet = SupportModelHelper.createByCompileOrParse(epService, soda, eplGet);
         stmtGet.addListener(listener);
         Object[][] expectedGetType = new Object[][]{{"c0", Boolean.class}, {"c1", Integer.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedGetType, stmtGet.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedGetType, stmtGet.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String[] fields = "c0,c1".split(",");
         makeSendBean("E1", 10, 100);
@@ -183,7 +183,7 @@ public class TestTableAccessDotMethod extends TestCase {
         EPStatement stmtSelect = SupportModelHelper.createByCompileOrParse(epService, soda, eplSelect);
         stmtSelect.addListener(listener);
         Object[][] expectedAggType = new Object[][]{{"c0", Integer.class}, {"c1", Integer.class}, {"c2", Collection.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtSelect.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtSelect.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String[] fields = "c0,c1,c2".split(",");
         makeSendBean("E1", 10, 0);

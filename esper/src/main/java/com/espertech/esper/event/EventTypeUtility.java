@@ -462,7 +462,9 @@ public class EventTypeUtility {
                 Class underlyingType = eventType.getUnderlyingType();
                 if (isArray)
                 {
-                    underlyingType = Array.newInstance(underlyingType, 0).getClass();
+                    if (underlyingType != Object[].class) {
+                        underlyingType = Array.newInstance(underlyingType, 0).getClass();
+                    }
                 }
                 EventPropertyGetter getter;
                 if (!isArray)
@@ -1072,24 +1074,31 @@ public class EventTypeUtility {
 
         EventType eventType;
         if (spec.getTypes().isEmpty()) {
-            boolean useMap = EventRepresentationUtil.isMap(annotations, configSnapshot, spec.getAssignedType());
+            Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configSnapshot, spec.getAssignedType());
             Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), eventAdapterService, spec.getCopyFrom(), engineImportService);
             Map<String, Object> compiledTyping = EventTypeUtility.compileMapTypeProperties(typing, eventAdapterService);
 
             ConfigurationEventTypeWithSupertype config;
-            if (useMap) {
+            if (representation == Configuration.EventRepresentation.MAP) {
                 config = new ConfigurationEventTypeMap();
             }
-            else {
+            else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
                 config = new ConfigurationEventTypeObjectArray();
             }
+            else if (representation == Configuration.EventRepresentation.AVRO) {
+                config = new ConfigurationEventTypeAvro();
+            }
+            else {
+                throw new IllegalStateException("Unrecognized representation '" + representation + "'");
+            }
+
             if (spec.getInherits() != null) {
                 config.getSuperTypes().addAll(spec.getInherits());
             }
             config.setStartTimestampPropertyName(spec.getStartTimestampProperty());
             config.setEndTimestampPropertyName(spec.getEndTimestampProperty());
 
-            if (useMap) {
+            if (representation == Configuration.EventRepresentation.MAP) {
                 if (isAnonymous) {
                     eventType = eventAdapterService.createAnonymousMapType(spec.getSchemaName(), compiledTyping, true);
                 }
@@ -1097,13 +1106,24 @@ public class EventTypeUtility {
                     eventType = eventAdapterService.addNestableMapType(spec.getSchemaName(), compiledTyping, (ConfigurationEventTypeMap) config, false, false, true, false, false);
                 }
             }
-            else {
+            else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
                 if (isAnonymous) {
                     eventType = eventAdapterService.createAnonymousObjectArrayType(spec.getSchemaName(), compiledTyping);
                 }
                 else {
                     eventType = eventAdapterService.addNestableObjectArrayType(spec.getSchemaName(), compiledTyping, (ConfigurationEventTypeObjectArray) config, false, false, true, false, false, false, null);
                 }
+            }
+            else if (representation == Configuration.EventRepresentation.AVRO) {
+                if (isAnonymous) {
+                    eventType = eventAdapterService.createAnonymousAvroType(spec.getSchemaName(), compiledTyping, annotations);
+                }
+                else {
+                    eventType = eventAdapterService.addAvroType(spec.getSchemaName(), compiledTyping, false, false, true, false, false, annotations, (ConfigurationEventTypeAvro) config);
+                }
+            }
+            else {
+                throw new IllegalStateException("Unrecognized representation " + representation);
             }
         }
         else {

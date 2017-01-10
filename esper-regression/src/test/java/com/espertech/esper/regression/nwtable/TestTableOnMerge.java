@@ -22,9 +22,9 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -138,7 +138,7 @@ public class TestTableOnMerge extends TestCase {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", String.class}, {"c1", Integer.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // assert no row
         epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
@@ -194,7 +194,7 @@ public class TestTableOnMerge extends TestCase {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", String.class}, {"c1", Integer.class}, {"c2", Integer[].class}, {"c3", Integer.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // assert no row
         epService.getEPRuntime().sendEvent(new SupportBean_S0(10));
@@ -257,7 +257,7 @@ public class TestTableOnMerge extends TestCase {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", Integer.class}, {"c1", String.class}, {"c2", String.class},};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtRead.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // assert no row
         epService.getEPRuntime().sendEvent(new SupportBean_S0(10, "A"));
@@ -274,7 +274,7 @@ public class TestTableOnMerge extends TestCase {
                 " delete";
         EPStatement stmtMerge = SupportModelHelper.createByCompileOrParse(epService, soda, eplMerge);
         Object[][] expectedType = new Object[][]{{"keyOne", Integer.class},{"keyTwo", String.class},{"prop", String.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtMerge.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtMerge.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
 
         // merge for varagg[10, "A"]

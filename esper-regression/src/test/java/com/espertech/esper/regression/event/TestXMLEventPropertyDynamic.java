@@ -16,8 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.event.SupportXML;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -87,7 +87,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
                 new EventPropertyDescriptor("nested.nes2?", Node.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("map('a')?", Node.class, null, false, false, false, false, false),
         }, stmt.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmt.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmt.getEventType());
 
         EventSender sender = epService.getEPRuntime().getEventSender("MyEvent");
         Document root = SupportXML.sendEvent(sender, SCHEMA_XML);
@@ -97,7 +97,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
         assertSame(root.getDocumentElement().getChildNodes().item(4), theEvent.get("dyn[1]?"));
         assertSame(root.getDocumentElement().getChildNodes().item(6).getChildNodes().item(1), theEvent.get("nested.nes2?"));
         assertSame(root.getDocumentElement().getChildNodes().item(8), theEvent.get("map('a')?"));
-        EventTypeAssertionUtil.assertConsistency(theEvent);
+        SupportEventTypeAssertionUtil.assertConsistency(theEvent);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -129,7 +129,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
                 new EventPropertyDescriptor("nested.nes2?", Node.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("map('a')?", Node.class, null, false, false, false, false, false),
         }, stmt.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmt.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmt.getEventType());
 
         EventSender sender = epService.getEPRuntime().getEventSender("MyEvent");
         Document root = SupportXML.sendEvent(sender, SCHEMA_XML);
@@ -139,7 +139,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
         assertSame(root.getDocumentElement().getChildNodes().item(4), theEvent.get("dyn[1]?"));
         assertSame(root.getDocumentElement().getChildNodes().item(6).getChildNodes().item(1), theEvent.get("nested.nes2?"));
         assertSame(root.getDocumentElement().getChildNodes().item(8), theEvent.get("map('a')?"));
-        EventTypeAssertionUtil.assertConsistency(theEvent);
+        SupportEventTypeAssertionUtil.assertConsistency(theEvent);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -167,7 +167,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
                 new EventPropertyDescriptor("map('a')?", Node.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("other?", Node.class, null, false, false, false, false, false),
         }, stmt.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmt.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmt.getEventType());
 
         Document root = SupportXML.sendEvent(epService.getEPRuntime(), NOSCHEMA_XML);
         EventBean theEvent = listener.assertOneGetNewAndReset();
@@ -176,7 +176,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
         assertSame(root.getDocumentElement().getChildNodes().item(7).getChildNodes().item(1), theEvent.get("nested.nes2?"));
         assertSame(root.getDocumentElement().getChildNodes().item(9), theEvent.get("map('a')?"));
         assertNull(theEvent.get("other?"));
-        EventTypeAssertionUtil.assertConsistency(theEvent);
+        SupportEventTypeAssertionUtil.assertConsistency(theEvent);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
@@ -202,7 +202,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
                 new EventPropertyDescriptor("nested.nes2?", Node.class, null, false, false, false, false, false),
                 new EventPropertyDescriptor("map('a')?", Node.class, null, false, false, false, false, false),
         }, stmt.getEventType().getPropertyDescriptors());
-        EventTypeAssertionUtil.assertConsistency(stmt.getEventType());
+        SupportEventTypeAssertionUtil.assertConsistency(stmt.getEventType());
 
         Document root = SupportXML.sendEvent(epService.getEPRuntime(), NOSCHEMA_XML);
         EventBean theEvent = listener.assertOneGetNewAndReset();
@@ -210,7 +210,7 @@ public class TestXMLEventPropertyDynamic extends TestCase
         assertSame(root.getDocumentElement().getChildNodes().item(5), theEvent.get("dyn[1]?"));
         assertSame(root.getDocumentElement().getChildNodes().item(7).getChildNodes().item(1), theEvent.get("nested.nes2?"));
         assertSame(root.getDocumentElement().getChildNodes().item(9), theEvent.get("map('a')?"));
-        EventTypeAssertionUtil.assertConsistency(theEvent);
+        SupportEventTypeAssertionUtil.assertConsistency(theEvent);
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }

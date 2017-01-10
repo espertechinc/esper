@@ -12,6 +12,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
+import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.event.bean.BeanEventBean;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.EventBeanManufacturerBean;
@@ -60,6 +62,9 @@ public class EventAdapterServiceHelper
         if (type instanceof BaseXMLEventType) {
             return new EventBeanFactoryXML(type, eventAdapterService);
         }
+        if (type instanceof AvroSchemaEventType) {
+            return eventAdapterService.getEventAdapterAvroHandler().getEventBeanFactory(type, eventAdapterService);
+        }
         throw new IllegalArgumentException("Cannot create event bean factory for event type '" + type.getName() + "': " + type.getClass().getName() + " is not a recognized event type or supported wrap event type");
     }
 
@@ -103,6 +108,14 @@ public class EventAdapterServiceHelper
                         writables.add(new WriteablePropertyDescriptor(types.getKey(), clazz, null));
                     }                    
                 }
+            }
+            return writables;
+        }
+        else if (eventType instanceof AvroSchemaEventType) {
+            Set<WriteablePropertyDescriptor> writables = new LinkedHashSet<WriteablePropertyDescriptor>();
+            EventPropertyDescriptor[] desc = typeSPI.getWriteableProperties();
+            for (EventPropertyDescriptor prop : desc) {
+                writables.add(new WriteablePropertyDescriptor(prop.getPropertyName(), prop.getPropertyType(), null));
             }
             return writables;
         }
@@ -150,6 +163,10 @@ public class EventAdapterServiceHelper
         {
             return eventAdapterService.adapterForTypedDOM((Node) theEvent, eventType);
         }
+        else if (eventType instanceof AvroSchemaEventType)
+        {
+            return eventAdapterService.adapterForTypedAvro(theEvent, eventType);
+        }
         else
         {
             return null;
@@ -158,15 +175,16 @@ public class EventAdapterServiceHelper
 
     /**
      * Returns a factory for creating and populating event object instances for the given type.
+     * @param eventAdapterService fatory for event
      * @param eventType to create underlying objects for
      * @param properties to write
      * @param engineImportService for resolving methods
-     * @param eventAdapterService fatory for event
      * @param allowAnyType whether any type property can be populated
+     * @param avroHandler
      * @return factory
      * @throws EventBeanManufactureException if a factory cannot be created for the type
      */
-    public static EventBeanManufacturer getManufacturer(EventAdapterService eventAdapterService, EventType eventType, WriteablePropertyDescriptor[] properties, EngineImportService engineImportService, boolean allowAnyType)
+    public static EventBeanManufacturer getManufacturer(EventAdapterService eventAdapterService, EventType eventType, WriteablePropertyDescriptor[] properties, EngineImportService engineImportService, boolean allowAnyType, EventAdapterAvroHandler avroHandler)
             throws EventBeanManufactureException
     {
         if (!(eventType instanceof EventTypeSPI))
@@ -191,6 +209,11 @@ public class EventAdapterServiceHelper
         {
             ObjectArrayEventType objectArrayEventType = (ObjectArrayEventType) eventType;
             return new EventBeanManufacturerObjectArray(objectArrayEventType, eventAdapterService, properties);
+        }
+        if (eventType instanceof AvroSchemaEventType)
+        {
+            AvroSchemaEventType avroSchemaEventType = (AvroSchemaEventType) eventType;
+            return avroHandler.getEventBeanManufacturer(avroSchemaEventType, eventAdapterService, properties);
         }
         return null;
     }
@@ -235,6 +258,10 @@ public class EventAdapterServiceHelper
             else if (theEvent.getEventType() instanceof ObjectArrayEventType && targetType instanceof ObjectArrayEventType) {
                 Object[] convertedObjectArray = ObjectArrayEventType.convertEvent(theEvent, (ObjectArrayEventType) targetType);
                 converted = eventAdapterService.adapterForTypedObjectArray(convertedObjectArray, targetType);
+            }
+            else if (theEvent.getEventType() instanceof AvroSchemaEventType && targetType instanceof AvroSchemaEventType) {
+                Object convertedGenericRecord = eventAdapterService.getEventAdapterAvroHandler().convertEvent(theEvent, (AvroSchemaEventType) targetType);
+                converted = eventAdapterService.adapterForTypedAvro(convertedGenericRecord, targetType);
             }
             else
             {

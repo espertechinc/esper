@@ -58,4 +58,8 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
     }
+
+    public Object getAvroFragment(GenericData.Record record) {
+        return null;
+    }
 }

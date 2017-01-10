@@ -17,7 +17,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBean implements EventBean {
+public class AvroEventBean implements EventBean, AvroBackedEventBean {
     private final GenericData.Record record;
     private final EventType eventType;
 
@@ -43,7 +43,14 @@ public class AvroEventBean implements EventBean {
     }
 
     public Object getFragment(String propertyExpression) throws PropertyAccessException {
-        // TODO
-        throw new UnsupportedOperationException();
+        EventPropertyGetter getter = eventType.getGetter(propertyExpression);
+        if (getter == null) {
+            throw PropertyAccessException.notAValidProperty(propertyExpression);
+        }
+        return getter.getFragment(this);
+    }
+
+    public GenericData.Record getProperties() {
+        return record;
     }
 }

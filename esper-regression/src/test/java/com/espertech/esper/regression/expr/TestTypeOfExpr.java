@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.expr;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
@@ -23,6 +24,9 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,9 +112,10 @@ public class TestTypeOfExpr extends TestCase
     }
 
     public void testVariantStream() {
-        runAssertionVariantStream(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionVariantStream(EventRepresentationEnum.MAP);
-        runAssertionVariantStream(EventRepresentationEnum.DEFAULT);
+        runAssertionVariantStream(EventRepresentationEnum.AVRO);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionVariantStream(rep);
+        }
     }
 
     private void runAssertionVariantStream(EventRepresentationEnum eventRepresentationEnum)
@@ -134,16 +139,32 @@ public class TestTypeOfExpr extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"value"}, "EventOne");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             epService.getEPRuntime().sendEvent(Collections.singletonMap("key", "value"), "EventOne");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventOne").fields().requiredString("key").endRecord());
+            record.put("key", "value");
+            epService.getEPRuntime().sendEventAvro(record, "EventOne");
+        }
+        else {
+            fail();
         }
         assertEquals("EventOne", listener.assertOneGetNewAndReset().get("t0"));
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"value"}, "EventTwo");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             epService.getEPRuntime().sendEvent(Collections.singletonMap("key", "value"), "EventTwo");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record record = new GenericData.Record(SchemaBuilder.record("EventTwo").fields().requiredString("key").endRecord());
+            record.put("key", "value");
+            epService.getEPRuntime().sendEventAvro(record, "EventTwo");
+        }
+        else {
+            fail();
         }
         assertEquals("EventTwo", listener.assertOneGetNewAndReset().get("t0"));
 
@@ -167,9 +188,21 @@ public class TestTypeOfExpr extends TestCase
             epService.getEPRuntime().sendEvent(new Object[] {"value"}, "EventOne");
             epService.getEPRuntime().sendEvent(new Object[] {"value"}, "EventTwo");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().sendEvent(Collections.singletonMap("key", "value"), "EventOne");
             epService.getEPRuntime().sendEvent(Collections.singletonMap("key", "value"), "EventTwo");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = SchemaBuilder.record("EventTwo").fields().requiredString("key").endRecord();
+            GenericData.Record eventOne = new GenericData.Record(schema);
+            eventOne.put("key", "value");
+            GenericData.Record eventTwo = new GenericData.Record(schema);
+            eventTwo.put("key", "value");
+            epService.getEPRuntime().sendEventAvro(eventOne, "EventOne");
+            epService.getEPRuntime().sendEventAvro(eventTwo, "EventTwo");
+        }
+        else {
+            fail();
         }
         assertTrue(listener.getAndClearIsInvoked());
 
@@ -194,9 +227,9 @@ public class TestTypeOfExpr extends TestCase
     }
 
     public void testFragment() {
-        runAssertionFragment(EventRepresentationEnum.DEFAULT);
-        runAssertionFragment(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionFragment(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionFragment(rep);
+        }
     }
 
     public void runAssertionFragment(EventRepresentationEnum eventRepresentationEnum) {
@@ -211,28 +244,54 @@ public class TestTypeOfExpr extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[2], "MySchema");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().sendEvent(new HashMap<String, Object>(), "MySchema");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
+            epService.getEPRuntime().sendEventAvro(new GenericData.Record(schema), "MySchema");
+        }
+        else {
+            fail();
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{null, null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {new Object[2], null}, "MySchema");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             Map<String, Object> theEvent = new HashMap<String, Object>();
             theEvent.put("inside", new HashMap<String, Object>());
             epService.getEPRuntime().sendEvent(theEvent, "MySchema");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            Schema mySchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
+            Schema innerSchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("InnerSchema")).getSchemaAvro();
+            GenericData.Record event = new GenericData.Record(mySchema);
+            event.put("inside", new GenericData.Record(innerSchema));
+            epService.getEPRuntime().sendEventAvro(event, "MySchema");
+        }
+        else {
+            fail();
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"InnerSchema", null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {null, new Object[2][]}, "MySchema");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             Map<String, Object> theEvent = new HashMap<String, Object>();
             theEvent.put("insidearr", new Map[0]);
             epService.getEPRuntime().sendEvent(theEvent, "MySchema");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            Schema mySchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
+            GenericData.Record event = new GenericData.Record(mySchema);
+            event.put("insidearr", Collections.emptyList());
+            epService.getEPRuntime().sendEventAvro(event, "MySchema");
+        }
+        else {
+            fail();
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{null, "InnerSchema[]"});
         

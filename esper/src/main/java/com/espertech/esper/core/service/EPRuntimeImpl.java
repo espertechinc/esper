@@ -202,7 +202,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
         if ((ThreadingOption.isThreadingEnabled) && (services.getThreadingService().isInboundThreading()))
         {
-            // TODO services.getThreadingService().submitInbound(new InboundUnitSendObjectArray(propertyValues, objectArrayEventTypeName, services, this));
+            services.getThreadingService().submitInbound(new InboundUnitSendAvro(avroGenericDataDotRecord, avroEventTypeName, services, this));
         }
         else
         {

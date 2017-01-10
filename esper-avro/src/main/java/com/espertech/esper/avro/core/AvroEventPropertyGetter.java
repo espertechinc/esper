@@ -16,5 +16,6 @@ import org.apache.avro.generic.GenericData;
 
 public interface AvroEventPropertyGetter extends EventPropertyGetter {
     Object getAvroFieldValue(GenericData.Record record);
+    Object getAvroFragment(GenericData.Record record);
     boolean isExistsPropertyAvro(GenericData.Record record);
 }

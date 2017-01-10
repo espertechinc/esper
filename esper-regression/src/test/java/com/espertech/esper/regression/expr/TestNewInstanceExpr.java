@@ -20,10 +20,10 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Map;
@@ -89,7 +89,7 @@ public class TestNewInstanceExpr extends TestCase
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, epl);
         stmt.addListener(listener);
         Object[][] expectedAggType = new Object[][]{{"c0", SupportBean.class}, {"new SupportBean(\"B\",intPrimitive+10)", SupportBean.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmt.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmt.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String[] fields = "theString,intPrimitive".split(",");
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));

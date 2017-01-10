@@ -23,6 +23,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.generic.GenericData;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -74,10 +75,10 @@ public class TestDataFlowOpBeaconSource extends TestCase {
     }
 
     public void testBeaconFields() throws Exception {
-        runAssertionFields(EventRepresentationEnum.MAP, true);
-        runAssertionFields(EventRepresentationEnum.OBJECTARRAY, true);
-        runAssertionFields(EventRepresentationEnum.MAP, false);
-        runAssertionFields(EventRepresentationEnum.OBJECTARRAY, false);
+        for (EventRepresentationEnum rep : new EventRepresentationEnum[] {EventRepresentationEnum.AVRO}) {
+            runAssertionFields(rep, true);
+            runAssertionFields(rep, false);
+        }
 
         // test doc samples
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("generateTagId", this.getClass().getName(), "generateTagId");
@@ -161,8 +162,15 @@ public class TestDataFlowOpBeaconSource extends TestCase {
                     assertTrue("val=" + val, val >= 0 && val <= 11);
                     assertEquals(1d, row[2]);
                 }
-                else {
+                else if (representationEnum.isMapEvent()) {
                     Map row = (Map) output[i];
+                    assertEquals("abc", row.get("p0"));
+                    long val = (Long) row.get("p1");
+                    assertTrue("val=" + val, val >= 0 && val <= 11);
+                    assertEquals(1d, row.get("p2"));
+                }
+                else {
+                    GenericData.Record row = (GenericData.Record) output[i];
                     assertEquals("abc", row.get("p0"));
                     long val = (Long) row.get("p1");
                     assertTrue("val=" + val, val >= 0 && val <= 11);

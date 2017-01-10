@@ -13,12 +13,15 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
+import java.util.Collection;
+
 /**
  * Factory for type widening.
  */
 public class TypeWidenerFactory
 {
     private static TypeWidenerStringToCharCoercer stringToCharCoercer = new TypeWidenerStringToCharCoercer();
+    private static TypeWidenerObjectArrayToCollectionCoercer objectarrayToCollectionCoercer = new TypeWidenerObjectArrayToCollectionCoercer();
 
     /**
      * Returns the widener.
@@ -29,7 +32,7 @@ public class TypeWidenerFactory
      * @return type widender
      * @throws ExprValidationException if type validation fails
      */
-    public static TypeWidener getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName)
+    public static TypeWidener getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion)
             throws ExprValidationException
     {
         Class columnClassBoxed = JavaClassHelper.getBoxedType(columnType);
@@ -51,6 +54,10 @@ public class TypeWidenerFactory
             if (columnClassBoxed == String.class && targetClassBoxed == Character.class)
             {
                 return stringToCharCoercer;
+            }
+            else if (allowObjectArrayToCollectionConversion && !columnClassBoxed.getComponentType().isPrimitive() && columnClassBoxed.isArray() && JavaClassHelper.isImplementsInterface(targetClassBoxed, Collection.class))
+            {
+                return objectarrayToCollectionCoercer;
             }
             else if (!JavaClassHelper.isAssignmentCompatible(columnClassBoxed, targetClassBoxed))
             {

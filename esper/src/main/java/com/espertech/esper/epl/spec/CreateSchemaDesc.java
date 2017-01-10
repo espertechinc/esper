@@ -110,7 +110,7 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
         VARIANT,
         MAP,
         OBJECTARRAY,
-        AVRO,   // TODO
+        AVRO,
         NONE;
 
         public CreateSchemaClauseTypeDef mapToSoda() {
@@ -123,19 +123,26 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
             else if (this == OBJECTARRAY) {
                 return CreateSchemaClauseTypeDef.OBJECTARRAY;
             }
+            else if (this == AVRO) {
+                return CreateSchemaClauseTypeDef.AVRO;
+            }
             else {
                 return CreateSchemaClauseTypeDef.NONE;
             }
         }
 
         public static AssignedType parseKeyword(String keywordNodeText) {
-            if (keywordNodeText.toLowerCase().equals("variant")) {
+            String lower = keywordNodeText.toLowerCase();
+            if (lower.equals("variant")) {
                 return VARIANT;
             }
-            if (keywordNodeText.toLowerCase().equals("map")) {
+            if (lower.equals("map")) {
                 return MAP;
             }
-            if (keywordNodeText.toLowerCase().equals("objectarray")) {
+            if (lower.equals("avro")) {
+                return AVRO;
+            }
+            if (lower.equals("objectarray")) {
                 return OBJECTARRAY;
             }
             throw new EPException("Expected 'variant', 'map' or 'objectarray' keyword after create-schema clause but encountered '" + keywordNodeText + "'");
@@ -150,6 +157,9 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
             }
             if (CreateSchemaClauseTypeDef.OBJECTARRAY == typeDefinition) {
                 return OBJECTARRAY;
+            }
+            if (CreateSchemaClauseTypeDef.AVRO == typeDefinition) {
+                return AVRO;
             }
             return VARIANT;
         }

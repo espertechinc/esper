@@ -259,7 +259,7 @@ annotationEnum : ATCHAR classIdentifier ( '(' ( elementValuePairsEnum | elementV
     
 elementValuePairsEnum : elementValuePairEnum (COMMA elementValuePairEnum)*;
     
-elementValuePairEnum : i=IDENT '=' elementValueEnum;
+elementValuePairEnum : keywordAllowedIdent '=' elementValueEnum;
     
 elementValueEnum : annotationEnum
 		| elementValueArrayEnum 
@@ -1015,6 +1015,7 @@ keywordAllowedIdent : i1=IDENT
 		| COUNT
 		| ESCAPE
     		| EVERY_EXPR
+		| SCHEMA
 		| SUM
 		| AVG
 		| MAX

@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -23,6 +24,8 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -184,8 +187,9 @@ public class TestTableInsertInto extends TestCase {
 
     public void testInsertIntoWildcard() {
         runAssertionWildcard(true, null);
-        runAssertionWildcard(false, EventRepresentationEnum.MAP);
-        runAssertionWildcard(false, EventRepresentationEnum.OBJECTARRAY);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionWildcard(false, rep);
+        }
     }
 
     private void runAssertionWildcard(boolean bean, EventRepresentationEnum rep) {
@@ -202,14 +206,21 @@ public class TestTableInsertInto extends TestCase {
         if (bean) {
             epService.getEPRuntime().sendEvent(new MyP0P1Event("a", "b"));
         }
-        else if (rep == EventRepresentationEnum.MAP) {
+        else if (rep.isMapEvent()) {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("p0", "a");
             map.put("p1", "b");
             epService.getEPRuntime().sendEvent(map, "MySchema");
         }
-        else {
+        else if (rep.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"a", "b"}, "MySchema");
+        }
+        else if (rep.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("p0", "a");
+            theEvent.put("p1", "b");
+            epService.getEPRuntime().sendEventAvro(theEvent, "MySchema");
         }
         EPAssertionUtil.assertProps(stmtTheTable.iterator().next(), "p0,p1".split(","), new Object[] {"a", "b"});
         epService.getEPAdministrator().destroyAllStatements();

@@ -44,7 +44,6 @@ public class AvroEventBeanGetterNestedMapped implements EventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
         return null;
     }
 }

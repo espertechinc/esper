@@ -11,21 +11,25 @@
 
 package com.espertech.esper.event.avro;
 
-import com.espertech.esper.client.ConfigurationEventTypeAvro;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.event.EventAdapterServiceImpl;
-import com.espertech.esper.event.EventTypeMetadata;
+import com.espertech.esper.client.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.event.*;
 import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.Set;
 
 public interface EventAdapterAvroHandler {
     String HANDLER_IMPL = "com.espertech.esper.avro.core.EventAdapterAvroHandlerImpl";
 
     SelectExprProcessorRepresentationFactory getOutputFactory();
-    EventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro avro);
-    EventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations);
+    AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] superTypes, Set<EventType> deepSuperTypes);
+    AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes);
     EventBean adapterForTypeAvro(Object avroGenericDataDotRecord, EventType existingType);
+    EventBeanManufacturer getEventBeanManufacturer(AvroSchemaEventType avroSchemaEventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties);
+    EventBeanFactory getEventBeanFactory(EventType type, EventAdapterService eventAdapterService);
+    void validateExistingType(EventType existingType, AvroSchemaEventType proposedType);
+    ExprEvaluator[] avroCompat(EventType existingType, Map<String, Object> selPropertyTypes, ExprEvaluator[] exprEvaluators);
+    Object convertEvent(EventBean theEvent, AvroSchemaEventType targetType);
 }

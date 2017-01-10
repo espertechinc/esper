@@ -131,22 +131,6 @@ public class TestBeanPropertyResolution extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
     }
 
-    private void tryEnumWithKeyword() {
-        epService.getEPAdministrator().getConfiguration().addEventType(LocalEventWithEnum.class);
-        epService.getEPAdministrator().getConfiguration().addImport(LocalEventEnum.class);
-        epService.getEPAdministrator().createEPL("select * from LocalEventWithEnum(localEventEnum=LocalEventEnum.`NEW`)");
-    }
-
-    private void tryInvalidControlCharacter(EventBean eventBean) {
-        try {
-            eventBean.get("a\u008F");
-            fail();
-        }
-        catch (PropertyAccessException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, "Property named 'a\u008F' is not a valid property name for this type");
-        }
-    }
-
     public void testWriteOnly()
     {
         epService = EPServiceProviderManager.getDefaultProvider(SupportConfigFactory.getConfiguration());
@@ -320,6 +304,22 @@ public class TestBeanPropertyResolution extends TestCase
         assertEquals("A", result.get(propOneName));
         assertEquals(10, result.get(propTwoName));
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    private void tryEnumWithKeyword() {
+        epService.getEPAdministrator().getConfiguration().addEventType(LocalEventWithEnum.class);
+        epService.getEPAdministrator().getConfiguration().addImport(LocalEventEnum.class);
+        epService.getEPAdministrator().createEPL("select * from LocalEventWithEnum(localEventEnum=LocalEventEnum.`NEW`)");
+    }
+
+    private void tryInvalidControlCharacter(EventBean eventBean) {
+        try {
+            eventBean.get("a\u008F");
+            fail();
+        }
+        catch (PropertyAccessException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, "Property named 'a\u008F' is not a valid property name for this type");
+        }
     }
 
     private void tryEnumItselfReserved() {

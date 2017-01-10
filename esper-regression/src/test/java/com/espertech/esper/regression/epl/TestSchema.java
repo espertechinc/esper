@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -19,20 +20,24 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.EventTypeSPI;
+import com.espertech.esper.event.avro.AvroConstantsNoDep;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
-import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+
+import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestSchema extends TestCase
 {
@@ -57,16 +62,16 @@ public class TestSchema extends TestCase
         runAssertionSchemaArrayPrimitiveType(true);
         runAssertionSchemaArrayPrimitiveType(false);
 
-        SupportMessageAssertUtil.tryInvalid(epService, "create schema Invalid (x dummy[primitive])",
+        tryInvalid(epService, "create schema Invalid (x dummy[primitive])",
                 "Error starting statement: Type 'dummy' is not a primitive type [create schema Invalid (x dummy[primitive])]");
-        SupportMessageAssertUtil.tryInvalid(epService, "create schema Invalid (x int[dummy])",
+        tryInvalid(epService, "create schema Invalid (x int[dummy])",
                 "Column type keyword 'dummy' not recognized, expecting '[primitive]'");
     }
 
     private void runAssertionSchemaArrayPrimitiveType(boolean soda) {
         SupportModelHelper.createByCompileOrParse(epService, soda, "create schema MySchema as (c0 int[primitive], c1 int[])");
         Object[][] expectedType = new Object[][]{{"c0", int[].class}, {"c1", Integer[].class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, epService.getEPAdministrator().getConfiguration().getEventType("MySchema"), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, epService.getEPAdministrator().getConfiguration().getEventType("MySchema"), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
         epService.getEPAdministrator().getConfiguration().removeEventType("MySchema", true);
     }
 
@@ -121,9 +126,9 @@ public class TestSchema extends TestCase
     }
 
     public void testSchemaCopyProperties() {
-        runAssertionSchemaCopyProperties(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionSchemaCopyProperties(EventRepresentationEnum.DEFAULT);
-        runAssertionSchemaCopyProperties(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionSchemaCopyProperties(rep);
+        }
     }
 
     private void runAssertionSchemaCopyProperties(EventRepresentationEnum eventRepresentationEnum) {
@@ -138,14 +143,23 @@ public class TestSchema extends TestCase
         assertEquals(String.class, stmtOne.getEventType().getPropertyType("prop1"));
         assertEquals(Integer.class, stmtOne.getEventType().getPropertyType("prop2"));
 
-        Map<String, Object> eventE1 = new LinkedHashMap<String, Object>();
-        eventE1.put("prop1", "v1");
-        eventE1.put("prop2", 2);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(eventE1.values().toArray(), "E1");
+            epService.getEPRuntime().sendEvent(new Object[] {"v1", 2}, "E1");
+        }
+        else if (eventRepresentationEnum.isMapEvent()){
+            Map<String, Object> event = new LinkedHashMap<String, Object>();
+            event.put("prop1", "v1");
+            event.put("prop2", 2);
+            epService.getEPRuntime().sendEvent(event, "E1");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record event = new GenericData.Record(record("name").fields().requiredString("prop1").requiredInt("prop2").endRecord());
+            event.put("prop1", "v1");
+            event.put("prop2", 2);
+            epService.getEPRuntime().sendEventAvro(event, "E1");
         }
         else {
-            epService.getEPRuntime().sendEvent(eventE1, "E1");
+            fail();
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "prop1,prop2".split(","), new Object[]{"v1", 2});
 
@@ -157,12 +171,17 @@ public class TestSchema extends TestCase
         assertEquals(Long.class, stmtTwo.getEventType().getPropertyType("prop3"));
 
         // test API-defined type
-        Map<String, Object> def = new HashMap<String, Object>();
-        def.put("a", "string");
-        def.put("b", String.class);
-        def.put("c", "BaseOne");
-        def.put("d", "BaseTwo[]");
-        epService.getEPAdministrator().getConfiguration().addEventType("MyType", def);
+        if (eventRepresentationEnum.isMapEvent() || eventRepresentationEnum.isObjectArrayEvent()) {
+            Map<String, Object> def = new HashMap<String, Object>();
+            def.put("a", "string");
+            def.put("b", String.class);
+            def.put("c", "BaseOne");
+            def.put("d", "BaseTwo[]");
+            epService.getEPAdministrator().getConfiguration().addEventType("MyType", def);
+        }
+        else {
+            epService.getEPAdministrator().createEPL("create avro schema MyType(a string, b string, c BaseOne, d BaseTwo[])");
+        }
 
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema E3(e long, f BaseOne) copyfrom MyType");
         EPStatement stmtThree = epService.getEPAdministrator().createEPL("select * from E3");
@@ -173,23 +192,31 @@ public class TestSchema extends TestCase
             assertEquals(Object[][].class, stmtThree.getEventType().getPropertyType("d"));
             assertEquals(Object[].class, stmtThree.getEventType().getPropertyType("f"));
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             assertEquals(Map.class, stmtThree.getEventType().getPropertyType("c"));
             assertEquals(Map[].class, stmtThree.getEventType().getPropertyType("d"));
             assertEquals(Map.class, stmtThree.getEventType().getPropertyType("f"));
         }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            assertEquals(GenericData.Record.class, stmtThree.getEventType().getPropertyType("c"));
+            assertEquals(Collection.class, stmtThree.getEventType().getPropertyType("d"));
+            assertEquals(GenericData.Record.class, stmtThree.getEventType().getPropertyType("f"));
+        }
+        else {
+            fail();
+        }
         assertEquals(Long.class, stmtThree.getEventType().getPropertyType("e"));
 
         // invalid tests
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema E4(a long) copyFrom MyType",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(a long) copyFrom MyType",
                 "Error starting statement: Type by name 'MyType' contributes property 'a' defined as 'java.lang.String' which overides the same property of type 'java.lang.Long' [");
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom MyType",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom MyType",
                 "Error starting statement: Property by name 'c' is defined twice by adding type 'MyType' [");
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom XYZ",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(c BaseTwo) copyFrom XYZ",
                 "Error starting statement: Type by name 'XYZ' could not be located [");
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema E4 as " + SupportBean.class.getName() + " copyFrom XYZ",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4 as " + SupportBean.class.getName() + " copyFrom XYZ",
                 "Error starting statement: Copy-from types are not allowed with class-provided types [");
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create variant schema E4(c BaseTwo) copyFrom XYZ",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create variant schema E4(c BaseTwo) copyFrom XYZ",
                 "Error starting statement: Copy-from types are not allowed with variant types [");
 
         // test SODA
@@ -237,29 +264,33 @@ public class TestSchema extends TestCase
     }
 
     public void testInvalid() {
-        runAssertionInvalid(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInvalid(EventRepresentationEnum.MAP);
-        runAssertionInvalid(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInvalid(rep);
+        }
     }
 
     private void runAssertionInvalid(EventRepresentationEnum eventRepresentationEnum) {
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 xxxx)",
-                    "Error starting statement: Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type [");
+        String expectedOne = !eventRepresentationEnum.isAvroEvent() ?
+                "Error starting statement: Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type [" :
+                "Error starting statement: Type definition encountered an unexpected property type name 'xxxx' for property 'col1', expected the name of a previously-declared Avro type";
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 xxxx)", expectedOne);
 
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 int, col1 string)",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 int, col1 string)",
                     "Error starting statement: Duplicate column name 'col1' [");
 
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 string)");
-        tryInvalid("create schema MyEventType as (col1 string, col2 string)",
-                    "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' expects 1 properties but receives 2 properties [");
+        String expectedTwo = !eventRepresentationEnum.isAvroEvent() ?
+                "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' expects 1 properties but receives 2 properties [" :
+                "Error starting statement: Event type named 'MyEventType' has already been declared with differing column name or type information: Type by name 'MyEventType' is not a compatible type (target type underlying is '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "')";
+        tryInvalid(epService, "create schema MyEventType as (col1 string, col2 string)", expectedTwo);
 
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as () inherit ABC",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventTypeT1 as () inherit ABC",
                     "Error in expression: Expected 'inherits', 'starttimestamp', 'endtimestamp' or 'copyfrom' keyword after create-schema clause but encountered 'inherit' [");
 
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as () inherits ABC",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventTypeT2 as () inherits ABC",
                     "Error starting statement: Supertype by name 'ABC' could not be found [");
 
-        tryInvalid(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as () inherits",
+        tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema MyEventTypeT3 as () inherits",
                     "Incorrect syntax near end-of-input expecting an identifier but found end-of-input at line 1 column ");
 
         epService.getEPAdministrator().getConfiguration().removeEventType("MyEventType", true);
@@ -279,9 +310,9 @@ public class TestSchema extends TestCase
     }
 
     public void testColDefPlain() throws Exception {
-        runAssertionColDefPlain(EventRepresentationEnum.DEFAULT);
-        runAssertionColDefPlain(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionColDefPlain(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionColDefPlain(rep);
+        }
 
         // test property classname, either simple or fully-qualified.
         epService.getEPAdministrator().getConfiguration().addImport("java.beans.EventHandler");
@@ -297,7 +328,7 @@ public class TestSchema extends TestCase
 
     private void runAssertionColDefPlain(EventRepresentationEnum eventRepresentationEnum) throws Exception
     {
-        EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 string, col2 int, sbean " + SupportBean.class.getName() + ", col3.col4 int)");
+        EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 string, col2 int, col3_col4 int)");
         assertTypeColDef(stmtCreate.getEventType());
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select * from MyEventType");
         assertTypeColDef(stmtSelect.getEventType());
@@ -322,14 +353,21 @@ public class TestSchema extends TestCase
         assertTrue(eventRepresentationEnum.matchesClass(stmtSelect.getEventType().getUnderlyingType()));
 
         // send event
-        Map<String, Object> data = new LinkedHashMap<String, Object>();
-        data.put("col5", "abc");
-        data.put("col6", 1);
-        if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(data.values().toArray(), "MyEventType");
-        }
-        else {
+        if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> data = new LinkedHashMap<String, Object>();
+            data.put("col5", "abc");
+            data.put("col6", 1);
             epService.getEPRuntime().sendEvent(data, "MyEventType");
+        }
+        else if (eventRepresentationEnum.isObjectArrayEvent()) {
+            epService.getEPRuntime().sendEvent(new Object[] {"abc", 1}, "MyEventType");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = (Schema) ((AvroSchemaEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyEventType")).getSchema();
+            GenericData.Record event = new GenericData.Record(schema);
+            event.put("col5", "abc");
+            event.put("col6", 1);
+            epService.getEPRuntime().sendEventAvro(event, "MyEventType");
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "col5,col6".split(","), new Object[]{"abc", 1});
         
@@ -343,7 +381,7 @@ public class TestSchema extends TestCase
         assertEquals(typeSPI.getName(), typeSPI.getMetadata().getPrimaryName());
 
         // test non-enum create-schema
-        String epl = "create" + eventRepresentationEnum.getOutputTypeCreateSchemaName() + " schema MyEventTypeTwo as (col1 string, col2 int, sbean " + SupportBean.class.getName() + ", col3.col4 int)";
+        String epl = "create" + eventRepresentationEnum.getOutputTypeCreateSchemaName() + " schema MyEventTypeTwo as (col1 string, col2 int, col3_col4 int)";
         EPStatement stmtCreateTwo = epService.getEPAdministrator().createEPL(epl);
         assertTypeColDef(stmtCreateTwo.getEventType());
         assertTrue(eventRepresentationEnum.matchesClass(stmtCreateTwo.getEventType().getUnderlyingType()));
@@ -388,26 +426,26 @@ public class TestSchema extends TestCase
         assertEquals(typeSPI.getName(), typeSPI.getMetadata().getPrimaryName());
 
         // test keyword
-        tryInvalid("create schema MySchema as com.mycompany.event.ABC",
-                   "Error starting statement: Event type or class named 'com.mycompany.event.ABC' was not found [create schema MySchema as com.mycompany.event.ABC]");
-        tryInvalid("create schema MySchema as com.mycompany.events.ABC",
-                "Error starting statement: Event type or class named 'com.mycompany.events.ABC' was not found [create schema MySchema as com.mycompany.events.ABC]");
+        tryInvalid(epService, "create schema MySchema as com.mycompany.event.ABC",
+                   "Error starting statement: Event type or class named 'com.mycompany.event.ABC' was not found");
+        tryInvalid(epService, "create schema MySchema as com.mycompany.events.ABC",
+                "Error starting statement: Event type or class named 'com.mycompany.events.ABC' was not found");
     }
 
     public void testNestableMapArray() throws Exception {
-        runAssertionNestableMapArray(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionNestableMapArray(EventRepresentationEnum.MAP);
-        runAssertionNestableMapArray(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionNestableMapArray(rep);
+        }
     }
 
     public void runAssertionNestableMapArray(EventRepresentationEnum eventRepresentationEnum) throws Exception
     {
-        EPStatement stmtInner = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInnerType as (col1 string[], col2 int[])");
+        EPStatement stmtInner = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInnerType as (inn1 string[], inn2 int[])");
         EventType inner = stmtInner.getEventType();
-        assertEquals(String[].class, inner.getPropertyType("col1"));
-        assertTrue(inner.getPropertyDescriptor("col1").isIndexed());
-        assertEquals(Integer[].class, inner.getPropertyType("col2"));
-        assertTrue(inner.getPropertyDescriptor("col2").isIndexed());
+        assertEquals(eventRepresentationEnum.isAvroEvent() ? Collection.class : String[].class, inner.getPropertyType("inn1"));
+        assertTrue(inner.getPropertyDescriptor("inn1").isIndexed());
+        assertEquals(eventRepresentationEnum.isAvroEvent() ? Collection.class : Integer[].class, inner.getPropertyType("inn2"));
+        assertTrue(inner.getPropertyDescriptor("inn2").isIndexed());
         assertTrue(eventRepresentationEnum.matchesClass(inner.getUnderlyingType()));
 
         EPStatement stmtOuter = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyOuterType as (col1 MyInnerType, col2 MyInnerType[])");
@@ -429,16 +467,28 @@ public class TestSchema extends TestCase
             Object[] outerData = new Object[] {innerData, new Object[] {innerData, innerData}};
             epService.getEPRuntime().sendEvent(outerData, "MyOuterType");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             Map<String, Object> innerData = new HashMap<String, Object>();
-            innerData.put("col1", "abc,def".split(","));
-            innerData.put("col2", new int[] {1, 2});
+            innerData.put("inn1", "abc,def".split(","));
+            innerData.put("inn2", new int[] {1, 2});
             Map<String, Object> outerData = new HashMap<String, Object>();
             outerData.put("col1", innerData);
             outerData.put("col2", new Map[]{innerData, innerData});
             epService.getEPRuntime().sendEvent(outerData, "MyOuterType");
         }
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "col1.col1[1],col2[1].col2[1]".split(","), new Object[]{"def", 2});
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            GenericData.Record innerData = new GenericData.Record(((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyInnerType")).getSchemaAvro());
+            innerData.put("inn1", Arrays.asList("abc", "def"));
+            innerData.put("inn2", Arrays.asList(1, 2));
+            GenericData.Record outerData = new GenericData.Record(((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyOuterType")).getSchemaAvro());
+            outerData.put("col1", innerData);
+            outerData.put("col2", Arrays.asList(innerData, innerData));
+            epService.getEPRuntime().sendEventAvro(outerData, "MyOuterType");
+        }
+        else {
+            fail();
+        }
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "col1.inn1[1],col2[1].inn2[1]".split(","), new Object[]{"def", 2});
 
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInnerType", true);
         epService.getEPAdministrator().getConfiguration().removeEventType("MyOuterType", true);
@@ -508,16 +558,6 @@ public class TestSchema extends TestCase
         }
     }
 
-    private void tryInvalid(String epl, String message) {
-        try {
-            epService.getEPAdministrator().createEPL(epl);
-            fail();
-        }
-        catch (EPStatementException ex) {
-            assertTrue("Expected:\n" + message + "\nActual:\n" + ex.getMessage(), ex.getMessage().startsWith(message));
-        }
-    }
-
     private void assertTypeSupportBean(EventType eventType) {
         assertEquals(SupportBean.class, eventType.getUnderlyingType());
     }
@@ -525,9 +565,8 @@ public class TestSchema extends TestCase
     private void assertTypeColDef(EventType eventType) {
         assertEquals(String.class, eventType.getPropertyType("col1"));
         assertEquals(Integer.class, eventType.getPropertyType("col2"));
-        assertEquals(SupportBean.class, eventType.getPropertyType("sbean"));
-        assertEquals(Integer.class, eventType.getPropertyType("col3.col4"));
-        assertEquals(4, eventType.getPropertyDescriptors().length);
+        assertEquals(Integer.class, eventType.getPropertyType("col3_col4"));
+        assertEquals(3, eventType.getPropertyDescriptors().length);
     }
 
     public static class BeanSourceEvent {

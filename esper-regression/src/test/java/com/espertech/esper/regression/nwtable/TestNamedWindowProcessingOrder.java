@@ -22,8 +22,11 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestNamedWindowProcessingOrder extends TestCase
 {
@@ -46,9 +49,9 @@ public class TestNamedWindowProcessingOrder extends TestCase
     }
 
     public void testDispatchBackQueue() {
-        runAssertionDispatchBackQueue(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionDispatchBackQueue(EventRepresentationEnum.DEFAULT);
-        runAssertionDispatchBackQueue(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionDispatchBackQueue(rep);
+        }
     }
 
     public void runAssertionDispatchBackQueue(EventRepresentationEnum eventRepresentationEnum) {
@@ -70,8 +73,14 @@ public class TestNamedWindowProcessingOrder extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"dummyValue"}, "StartValueEvent");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().sendEvent(new HashMap<String, String>(), "StartValueEvent");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            epService.getEPRuntime().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "StartValueEvent");
+        }
+        else {
+            fail();
         }
 
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"V1", "O1"});
@@ -79,9 +88,16 @@ public class TestNamedWindowProcessingOrder extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"dummyValue"}, "TestInputEvent");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().sendEvent(new HashMap<String, String>(), "TestInputEvent");
         }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            epService.getEPRuntime().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "TestInputEvent");
+        }
+        else {
+            fail();
+        }
+
         EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"V1", "O1"});
         EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], fields, new Object[]{"V1", "U1"});
 

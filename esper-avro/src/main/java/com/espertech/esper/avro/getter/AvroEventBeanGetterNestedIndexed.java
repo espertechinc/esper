@@ -13,7 +13,9 @@ package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Collection;
@@ -22,11 +24,15 @@ public class AvroEventBeanGetterNestedIndexed implements EventPropertyGetter {
     private final int top;
     private final int pos;
     private final int index;
+    private final EventType fragmentEventType;
+    private final EventAdapterService eventAdapterService;
 
-    public AvroEventBeanGetterNestedIndexed(int top, int pos, int index) {
+    public AvroEventBeanGetterNestedIndexed(int top, int pos, int index, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         this.top = top;
         this.pos = pos;
         this.index = index;
+        this.fragmentEventType = fragmentEventType;
+        this.eventAdapterService = eventAdapterService;
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -44,7 +50,13 @@ public class AvroEventBeanGetterNestedIndexed implements EventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
-        return null;
+        if (fragmentEventType == null) {
+            return null;
+        }
+        Object value = get(eventBean);
+        if (value == null) {
+            return null;
+        }
+        return eventAdapterService.adapterForTypedAvro(value, fragmentEventType);
     }
 }

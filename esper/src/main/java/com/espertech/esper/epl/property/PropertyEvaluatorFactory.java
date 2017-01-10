@@ -121,7 +121,7 @@ public class PropertyEvaluatorFactory
                     Set<WriteablePropertyDescriptor> writables = eventAdapterService.getWriteableProperties(streamEventType, false);
                     if (!writables.isEmpty()) {
                         try {
-                            EventBeanManufacturer manufacturer = EventAdapterServiceHelper.getManufacturer(eventAdapterService, streamEventType, new WriteablePropertyDescriptor[] {writables.iterator().next()}, engineImportService,false);
+                            EventBeanManufacturer manufacturer = EventAdapterServiceHelper.getManufacturer(eventAdapterService, streamEventType, new WriteablePropertyDescriptor[] {writables.iterator().next()}, engineImportService,false, eventAdapterService.getEventAdapterAvroHandler());
                             containedEventEval = new ContainedEventEvalArrayToEvent(evaluator, manufacturer);
                         }
                         catch (EventBeanManufactureException e) {

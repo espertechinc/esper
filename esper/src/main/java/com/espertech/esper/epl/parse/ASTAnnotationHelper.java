@@ -79,7 +79,7 @@ public class ASTAnnotationHelper
 
     private static Pair<String, Object> walkValuePair(EsperEPL2GrammarParser.ElementValuePairEnumContext ctx, EngineImportService engineImportService)
     {
-        String name = ctx.i.getText();
+        String name = ctx.keywordAllowedIdent().getText();
         Object value = walkValue(ctx.elementValueEnum(), engineImportService);
         return new Pair<String, Object>(name, value);
     }

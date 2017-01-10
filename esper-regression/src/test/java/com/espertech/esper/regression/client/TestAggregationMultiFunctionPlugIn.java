@@ -22,8 +22,8 @@ import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -59,7 +59,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
         stmtScalar.addListener(listener);
 
         Object[][] expectedScalar = new Object[][]{{"c0", String.class, null, null}, {"c1", int.class, null, null}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, stmtScalar.getEventType(), EventTypeAssertionEnum.getSetWithFragment());
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, stmtScalar.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsScalar, new Object[]{"E1", 1});
@@ -83,7 +83,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
                 {"c0", String[].class, null, null}, {"c1", int[].class, null, null},
                 {"c2", Boolean.class, null, null}, {"c3", Boolean.class, null, null},
         };
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, stmtScalarArray.getEventType(), EventTypeAssertionEnum.getSetWithFragment());
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, stmtScalarArray.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsScalarArray, new Object[]{
@@ -109,7 +109,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
                 {"c0", Collection.class, null, null}, {"c1", Collection.class, null, null},
                 {"c2", Boolean.class, null, null}, {"c3", Boolean.class, null, null},
         };
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedScalarColl, stmtScalarColl.getEventType(), EventTypeAssertionEnum.getSetWithFragment());
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarColl, stmtScalarColl.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
         EPAssertionUtil.assertEqualsExactOrder(new Object[] {"E1"}, (Collection)listener.assertOneGetNew().get("c0"));
@@ -139,7 +139,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
                 {"c1", Boolean.class, null, null}, {"c2", Boolean.class, null, null},
                 {"c3", String.class, null, null}, {"c4", Integer.class, null, null},
         };
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedSingleEvent, stmtSingleEvent.getEventType(), EventTypeAssertionEnum.getSetWithFragment());
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedSingleEvent, stmtSingleEvent.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         SupportBean eventOne = new SupportBean("E1", 1);
         epService.getEPRuntime().sendEvent(eventOne);
@@ -164,7 +164,7 @@ public class TestAggregationMultiFunctionPlugIn extends TestCase
                 {"c0", SupportBean[].class, "SupportBean", true},
                 {"c1", Boolean.class, null, null}, {"c2", Boolean.class, null, null}
         };
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedEnumEvent, stmtEnumEvent.getEventType(), EventTypeAssertionEnum.getSetWithFragment());
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedEnumEvent, stmtEnumEvent.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
         SupportBean eventEnumOne = new SupportBean("E1", 1);
         epService.getEPRuntime().sendEvent(eventEnumOne);

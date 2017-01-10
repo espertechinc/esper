@@ -17,10 +17,10 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 public class TestInfraEventType extends TestCase
@@ -62,7 +62,7 @@ public class TestInfraEventType extends TestCase
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, false, eplCreate);
 
         Object[][] expectedType = new Object[][]{{"c0", Integer[].class}, {"c1", int[].class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmt.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmt.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);

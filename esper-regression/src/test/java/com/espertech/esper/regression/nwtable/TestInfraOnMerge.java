@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -26,6 +27,9 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,9 +84,9 @@ public class TestInfraOnMerge extends TestCase
     }
 
     private void runAssertionInsertOtherStream(boolean namedWindow) throws Exception {
-        runAssertionInsertOtherStream(namedWindow, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInsertOtherStream(namedWindow, EventRepresentationEnum.MAP);
-        runAssertionInsertOtherStream(namedWindow, EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInsertOtherStream(namedWindow, rep);
+        }
     }
 
     public void testUpdateOrderOfFields() throws Exception {
@@ -113,12 +117,12 @@ public class TestInfraOnMerge extends TestCase
     }
 
     public void testInnerTypeAndVariable() {
-        runAssertionInnerTypeAndVariable(true, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInnerTypeAndVariable(true, EventRepresentationEnum.MAP);
-        runAssertionInnerTypeAndVariable(true, EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInnerTypeAndVariable(true, rep);
+        }
 
-        runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.OBJECTARRAY);
         runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.MAP);
+        runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.OBJECTARRAY);
         runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.DEFAULT);
     }
 
@@ -527,10 +531,16 @@ public class TestInfraOnMerge extends TestCase
             EventBean theEvent = (EventBean) row[1];
             assertEquals("Y4", theEvent.get("in1"));
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             Map map = (Map) result[0][0];
             assertEquals("X4", map.get("c1"));
             EventBean theEvent = (EventBean) map.get("c2");
+            assertEquals("Y4", theEvent.get("in1"));
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            GenericData.Record avro = (GenericData.Record) result[0][0];
+            assertEquals("X4", avro.get("c1"));
+            GenericData.Record theEvent = (GenericData.Record) avro.get("c2");
             assertEquals("Y4", theEvent.get("in1"));
         }
 
@@ -776,14 +786,24 @@ public class TestInfraOnMerge extends TestCase
     }
 
     private void makeSendNameValueEvent(EPServiceProvider engine, EventRepresentationEnum eventRepresentationEnum, String typeName, String name, double value) {
-        Map<String, Object> theEvent = new HashMap<String, Object>();
-        theEvent.put("name", name);
-        theEvent.put("value", value);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            engine.getEPRuntime().sendEvent(theEvent.values().toArray(), typeName);
+            engine.getEPRuntime().sendEvent(new Object[] {name, value}, typeName);
+        }
+        else if (eventRepresentationEnum.isMapEvent()){
+            Map<String, Object> theEvent = new HashMap<String, Object>();
+            theEvent.put("name", name);
+            theEvent.put("value", value);
+            engine.getEPRuntime().sendEvent(theEvent, typeName);
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("name", name);
+            record.put("value", value);
+            engine.getEPRuntime().sendEventAvro(record, typeName);
         }
         else {
-            engine.getEPRuntime().sendEvent(theEvent, typeName);
+            fail();
         }
     }
 
@@ -844,7 +864,7 @@ public class TestInfraOnMerge extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {col1, new Object[] {col2in1, col2in2}}, "MyEventSchema");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             Map<String, Object> inner = new HashMap<String, Object>();
             inner.put("in1", col2in1);
             inner.put("in2", col2in2);
@@ -852,6 +872,20 @@ public class TestInfraOnMerge extends TestCase
             theEvent.put("col1", col1);
             theEvent.put("col2", inner);
             epService.getEPRuntime().sendEvent(theEvent, "MyEventSchema");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyEventSchema")).getSchemaAvro();
+            Schema innerSchema = schema.getField("col2").schema();
+            GenericData.Record innerRecord = new GenericData.Record(innerSchema);
+            innerRecord.put("in1", col2in1);
+            innerRecord.put("in2", col2in2);
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("col1", col1);
+            record.put("col2", innerRecord);
+            epService.getEPRuntime().sendEventAvro(record, "MyEventSchema");
+        }
+        else {
+            fail();
         }
     }
 

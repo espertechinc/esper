@@ -25,8 +25,7 @@ public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
         this.propertyName = propertyName;
     }
 
-    public Object getAvroFieldValue(GenericData.Record record) throws PropertyAccessException
-    {
+    public Object getAvroFieldValue(GenericData.Record record) throws PropertyAccessException {
         return record.get(propertyName);
     }
 
@@ -35,8 +34,7 @@ public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
         return getAvroFieldValue((GenericData.Record) theEvent.getUnderlying());
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return isExistsPropertyAvro((GenericData.Record) eventBean.getUnderlying());
     }
 
@@ -44,9 +42,11 @@ public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
         return record.getSchema().getField(propertyName) != null;
     }
 
-    public Object getFragment(EventBean obj)
-    {
-        // TODO
+    public Object getFragment(EventBean obj) {
+        return null;
+    }
+
+    public Object getAvroFragment(GenericData.Record record) {
         return null;
     }
 }

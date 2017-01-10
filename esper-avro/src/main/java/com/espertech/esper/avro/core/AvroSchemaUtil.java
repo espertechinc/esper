@@ -11,8 +11,14 @@
 
 package com.espertech.esper.avro.core;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AvroField;
+import com.espertech.esper.event.BaseNestableEventType;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventTypeUtility;
+import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.util.JavaClassHelper;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -20,7 +26,20 @@ import org.apache.avro.SchemaBuilder;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
+import static org.apache.avro.SchemaBuilder.*;
+
 public class AvroSchemaUtil {
+
+    public static String toSchemaStringSafe(Schema schema) {
+        try {
+            return schema.toString();
+        }
+        catch (Throwable t) {
+            return "[Invalid schema: " + t.getClass().getName() + ": " + t.getMessage() + "]";
+        }
+    }
 
     public static Schema findUnionRecordSchemaSingle(Schema schema) {
         if (schema.getType() != Schema.Type.UNION) {
@@ -40,84 +59,183 @@ public class AvroSchemaUtil {
         return found;
     }
 
-    public static void assembleField(Map.Entry<String, Object> prop, SchemaBuilder.FieldAssembler<Schema> assembler, Annotation[] annotations) {
-        Object type = prop.getValue();
-        if (type == Object.class) {
-            assembleFieldObject(prop.getKey(), assembler, annotations, Object.class);
+    public static void assembleField(String propertyName, Object propertyType, SchemaBuilder.FieldAssembler<Schema> assembler, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventAdapterService eventAdapterService) {
+        if (propertyName.contains(".")) {
+            throw new EPException("Invalid property name as Avro does not allow dot '.' in field names (property '" + propertyName + "')");
         }
-        else if (type == Boolean.class) { {
-            assembler.optionalBoolean(prop.getKey());
-        }}
+        Schema schema = getAnnotationSchema(propertyName, annotations);
+        if (schema != null) {
+            assembler.name(propertyName).type(schema).noDefault();
+        }
+        else if (propertyType == null) {
+            assembler.name(propertyName).type("null");
+        }
+        else if (propertyType == Boolean.class) {
+            assembler.optionalBoolean(propertyName);
+        }
+        else if (propertyType == boolean.class) {
+            assembler.requiredBoolean(propertyName);
+        }
+        else if (propertyType == Integer.class) {
+            assembler.optionalInt(propertyName);
+        }
+        else if (propertyType == int.class) {
+            assembler.requiredInt(propertyName);
+        }
+        else if (propertyType == Byte.class) {
+            assembler.optionalInt(propertyName);
+        }
+        else if (propertyType == byte.class) {
+            assembler.requiredInt(propertyName);
+        }
+        else if (propertyType == Long.class) {
+            assembler.optionalLong(propertyName);
+        }
+        else if (propertyType == long.class) {
+            assembler.requiredLong(propertyName);
+        }
+        else if (propertyType == Float.class) {
+            assembler.optionalFloat(propertyName);
+        }
+        else if (propertyType == float.class) {
+            assembler.requiredFloat(propertyName);
+        }
+        else if (propertyType == Double.class) {
+            assembler.optionalDouble(propertyName);
+        }
+        else if (propertyType == double.class) {
+            assembler.requiredDouble(propertyName);
+        }
+        else if (propertyType == String.class || propertyType == CharSequence.class) {
+            if (avroSettings.isEnableNativeString()) {
+                assembler.name(propertyName).type().unionOf()
+                        .nullType()
+                        .and()
+                        .stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString()
+                        .endUnion().noDefault();
+            }
+            else {
+                assembler.optionalString(propertyName);
+            }
+        }
+        else if (propertyType instanceof String) {
+            String propertyTypeName = propertyType.toString();
+            boolean isArray = EventTypeUtility.isPropertyArray(propertyTypeName);
+            if (isArray) {
+                propertyTypeName = EventTypeUtility.getPropertyRemoveArray(propertyTypeName);
+            }
+
+            // Add EventType itself as a property
+            EventType eventType = eventAdapterService.getExistsTypeByName(propertyTypeName);
+            if (!(eventType instanceof AvroEventType)) {
+                throw new EPException("Type definition encountered an unexpected property type name '"
+                        + propertyType + "' for property '" + propertyName + "', expected the name of a previously-declared Avro type");
+            }
+            schema = ((AvroEventType) eventType).getSchemaAvro();
+
+            if (!isArray) {
+                assembler.name(propertyName).type(schema).noDefault();
+            }
+            else {
+                assembler.name(propertyName).type(array().items(schema)).noDefault();
+            }
+        }
+        else if (propertyType == Boolean[].class) {
+            Schema opt = unionOf().nullType().and().booleanType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == boolean[].class) {
+            assembler.name(propertyName).type(array().items().booleanType()).noDefault();
+        }
+        else if (propertyType == Integer[].class) {
+            Schema opt = unionOf().nullType().and().intType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == int[].class) {
+            assembler.name(propertyName).type(array().items().intType()).noDefault();
+        }
+        else if (propertyType == byte[].class) {
+            assembler.requiredBytes(propertyName);
+        }
+        else if (propertyType == Long[].class) {
+            Schema opt = unionOf().nullType().and().longType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == long[].class) {
+            assembler.name(propertyName).type(array().items().longType()).noDefault();
+        }
+        else if (propertyType == Float[].class) {
+            Schema opt = unionOf().nullType().and().floatType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == float[].class) {
+            assembler.name(propertyName).type(array().items().floatType()).noDefault();
+        }
+        else if (propertyType == Byte[].class) {
+            Schema opt = unionOf().nullType().and().intType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == Double[].class) {
+            Schema opt = unionOf().nullType().and().doubleType().endUnion();
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType == double[].class) {
+            assembler.name(propertyName).type(array().items().doubleType()).noDefault();
+        }
+        else if (propertyType == String[].class || propertyType == CharSequence[].class) {
+            Schema opt;
+            if (avroSettings.isEnableNativeString()) {
+                opt = unionOf().nullType().and().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().endUnion();
+            }
+            else {
+                opt = unionOf().nullType().and().stringBuilder().endString().endUnion();
+            }
+            assembler.name(propertyName).type(array().items(opt)).noDefault();
+        }
+        else if (propertyType instanceof EventType){
+            EventType eventType = (EventType) propertyType;
+            checkAvroType(eventType);
+            schema = ((AvroEventType) eventType).getSchemaAvro();
+            assembler.name(propertyName).type(schema).noDefault();
+        }
+        else if (propertyType instanceof EventType[]) {
+            EventType eventType = ((EventType[]) propertyType)[0];
+            checkAvroType(eventType);
+            schema = ((AvroEventType) eventType).getSchemaAvro();
+            assembler.name(propertyName).type(array().items(schema)).noDefault();
+        }
+        else if (propertyType instanceof Class && JavaClassHelper.isImplementsInterface((Class)propertyType, Map.class)) {
+            assembler.name(propertyName).type(map().values().stringBuilder().endString()).noDefault();
+        }
         else {
-            // TODO
-            throw new UnsupportedOperationException();
+            throw new EPException("Property '" + propertyName + "' type '" + propertyType + "' does not have a mapping to an Avro type (consider using the AvroField annotation)");
         }
     }
 
-    private static void assembleFieldObject(String key, SchemaBuilder.FieldAssembler<Schema> assembler, Annotation[] annotations, Class outputType) {
-        Set<Schema.Type> schemaTypes = null;
+    private static Schema getAnnotationSchema(String propertyName, Annotation[] annotations) {
+        if (annotations == null) {
+            return null;
+        }
         for (Annotation annotation : annotations) {
             if (annotation instanceof AvroField) {
                 AvroField avroField = (AvroField) annotation;
-                if (avroField.name().equals(key)) {
-                    String[] types = avroField.types().split(",");
-                    for (String type : types) {
-                        try {
-                            if (schemaTypes == null) {
-                                schemaTypes = new LinkedHashSet<>();
-                            }
-                            Schema.Type schemaType = Schema.Type.valueOf(type.toUpperCase());
-                            schemaTypes.add(schemaType);
-                        }
-                        catch (RuntimeException ex) {
-                            throw new EPException("Failed to resolve Avro schema type '" + type + "' to a known Avro type");
-                        }
+                if (avroField.name().equals(propertyName)) {
+                    String schema = avroField.schema();
+                    try {
+                        return new Schema.Parser().parse(schema);
+                    }
+                    catch (RuntimeException ex) {
+                        throw new EPException("Failed to parse Avro schema for property '" + propertyName + "': " + ex.getMessage(), ex);
                     }
                 }
             }
         }
-        if (schemaTypes == null) {
-            throw new EPException("Failed to determine Avro field schema type for field '" + key + "' typed '" + outputType.getName() + "', please use the " + AvroField.class.getName() + " annotation to assign type or union");
+        return null;
+    }
+
+    private static void checkAvroType(EventType eventType) {
+        if (!(eventType instanceof AvroEventType)) {
+            throw new EPException("Property type cannot be an event type with an underlying of type '" + eventType.getUnderlyingType().getName() + "'");
         }
-        if (schemaTypes.size() == 1) {
-            assembler.name(key).type(Schema.create(schemaTypes.iterator().next()));
-            return;
-        }
-        SchemaBuilder.UnionFieldTypeBuilder<Schema> unionOf = assembler.name(key).type().unionOf();
-        int count = 0;
-        SchemaBuilder.UnionAccumulator accumulator = null;
-        SchemaBuilder.BaseTypeBuilder<SchemaBuilder.UnionAccumulator<?>> builder = null;
-        for (Schema.Type type : schemaTypes) {
-            if (type == Schema.Type.STRING) {
-                if (accumulator == null) {
-                    accumulator = unionOf.stringBuilder().prop("avro.java.string", "String").endString();
-                }
-                else {
-                    accumulator = builder.stringBuilder().prop("avro.java.string", "String").endString();
-                }
-            }
-            else if (type == Schema.Type.INT) {
-                if (accumulator == null) {
-                    accumulator = unionOf.intBuilder().endInt();
-                }
-                else {
-                    accumulator = builder.intBuilder().endInt();
-                }
-            }
-            else if (type == Schema.Type.NULL) {
-                if (accumulator == null) {
-                    accumulator = unionOf.nullBuilder().endNull();
-                }
-                else {
-                    accumulator = builder.nullBuilder().endNull();
-                }
-            }
-            // TODO more types
-            if (count < schemaTypes.size()) {
-                builder = accumulator.and();
-            }
-            count++;
-        }
-        ((SchemaBuilder.FieldDefault) accumulator.endUnion()).noDefault();
     }
 }

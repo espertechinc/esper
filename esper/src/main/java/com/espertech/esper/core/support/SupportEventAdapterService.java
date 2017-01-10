@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.support;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventAdapterServiceImpl;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
@@ -44,6 +45,6 @@ public class SupportEventAdapterService
         }
         catch (Throwable t) {
         }
-        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, avroHandler);
+        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, avroHandler, new ConfigurationEngineDefaults.EventMeta.AvroSettings());
     }
 }

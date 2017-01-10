@@ -19,6 +19,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanSimple;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportXML;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -29,9 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
 import static com.espertech.esper.supportregression.event.SupportEventInfra.*;
 
-public class TestEventInfraUnderlyingAndSimpleProp extends TestCase {
+public class TestEventInfraPropertyUnderlyingAndSimple extends TestCase {
     private final static String BEAN_TYPENAME = SupportBeanSimple.class.getSimpleName();
 
     private static final FunctionSendEventIntString FMAP = (epService, a, b) -> {
@@ -125,6 +128,7 @@ public class TestEventInfraUnderlyingAndSimpleProp extends TestCase {
         Object eventOne = send.apply(epService, 3, "some string");
 
         EventBean event = listener.assertOneGetNewAndReset();
+        SupportEventTypeAssertionUtil.assertConsistency(event);
         assertEquals(eventOne, event.getUnderlying());
         EPAssertionUtil.assertProps(event, fields, new Object[] {3, "some string"});
 
@@ -197,7 +201,7 @@ public class TestEventInfraUnderlyingAndSimpleProp extends TestCase {
         return SchemaBuilder.record(AVRO_TYPENAME)
                 .fields()
                 .name("myInt").type().intType().noDefault()
-                .name("myString").type().stringBuilder().prop("avro.java.string", "String").endString().noDefault()
+                .name("myString").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .endRecord();
     }
 

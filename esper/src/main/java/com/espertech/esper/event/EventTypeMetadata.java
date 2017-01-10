@@ -114,9 +114,9 @@ public class EventTypeMetadata
      * @param associationName what the type is associated with
      * @return instance
      */
-    public static EventTypeMetadata createAnonymous(String associationName)
+    public static EventTypeMetadata createAnonymous(String associationName, ApplicationType applicationType)
     {
-        return new EventTypeMetadata(associationName, null, TypeClass.ANONYMOUS, false, false, false, null, false);
+        return new EventTypeMetadata(associationName, null, TypeClass.ANONYMOUS, false, false, false, applicationType, false);
     }
 
     /**
@@ -354,6 +354,11 @@ public class EventTypeMetadata
         /**
          * Avro type.
          */
-        AVRO
+        AVRO,
+
+        /**
+         * Wrapper type.
+         */
+        WRAPPER
     }
 }

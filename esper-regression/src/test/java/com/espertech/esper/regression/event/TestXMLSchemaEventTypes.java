@@ -14,7 +14,7 @@ package com.espertech.esper.regression.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class TestXMLSchemaEventTypes extends TestCase
         String stmtSelectWild = "select * from TestTypesEvent";
         EPStatement wildStmt = epService.getEPAdministrator().createEPL(stmtSelectWild);
         EventType type = wildStmt.getEventType();
-        EventTypeAssertionUtil.assertConsistency(type);
+        SupportEventTypeAssertionUtil.assertConsistency(type);
 
         Object[][] types = new Object[][] {
                 {"attrNonPositiveInteger", Integer.class},

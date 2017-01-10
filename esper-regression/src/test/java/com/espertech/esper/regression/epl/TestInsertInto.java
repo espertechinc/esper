@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -29,10 +30,15 @@ import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestInsertInto extends TestCase
 {
@@ -60,8 +66,10 @@ public class TestInsertInto extends TestCase
 
     public void testAssertionWildcardRecast() {
         // bean to OA/Map/bean
-        runAssertionWildcardRecast(true, null, false, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionWildcardRecast(true, null, false, EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionWildcardRecast(true, null, false, rep);
+        }
+
         try {
             runAssertionWildcardRecast(true, null, true, null);
             fail();
@@ -70,15 +78,23 @@ public class TestInsertInto extends TestCase
             SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Expression-returned event type 'SourceSchema' with underlying type 'com.espertech.esper.regression.epl.TestInsertInto$MyP0P1EventSource' cannot be converted to target event type 'TargetSchema' with underlying type ");
         }
 
-        // OA to OA/Map/bean
+        // OA
         runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.OBJECTARRAY);
         runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.AVRO);
         runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, true, null);
 
-        // Map to OA/Map/bean
+        // Map
         runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.OBJECTARRAY);
         runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.AVRO);
         runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, true, null);
+
+        // Avro
+        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.OBJECTARRAY);
+        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.AVRO);
+        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, true, null);
     }
 
     private void runAssertionWildcardRecast(boolean sourceBean, EventRepresentationEnum sourceType,
@@ -124,14 +140,24 @@ public class TestInsertInto extends TestCase
         if (sourceBean) {
             epService.getEPRuntime().sendEvent(new MyP0P1EventSource("a", 10));
         }
-        else if (sourceType == EventRepresentationEnum.MAP) {
+        else if (sourceType.isMapEvent()) {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("p0", "a");
             map.put("p1", 10);
             epService.getEPRuntime().sendEvent(map, "SourceSchema");
         }
-        else {
+        else if (sourceType.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"a", 10}, "SourceSchema");
+        }
+        else if (sourceType.isAvroEvent()) {
+            Schema schema = record("schema").fields().requiredString("p0").requiredString("p1").requiredString("c0").endRecord();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("p0", "a");
+            record.put("p1", 10);
+            epService.getEPRuntime().sendEventAvro(record, "SourceSchema");
+        }
+        else {
+            fail();
         }
 
         // assert
@@ -361,13 +387,39 @@ public class TestInsertInto extends TestCase
         assertEquals(false, type.getMetadata().isApplicationPreConfiguredStatic());
     }
 
-    public void testVariantTwoJoinWildcard()
+    public void testJoinWildcard() {
+        runAssertionJoinWildcard(true, null);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionJoinWildcard(false, rep);
+        }
+    }
+
+    private void runAssertionJoinWildcard(boolean bean, EventRepresentationEnum rep)
     {
-        String textOne = "insert into event2 select * " +
-        		          "from " + SupportBean.class.getName() + "#length(100) as s0, " +
-        		          SupportBean_A.class.getName() + "#length(5) as s1 " +
+        if (bean) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean.class);
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", SupportBean_A.class);
+        }
+        else if (rep.isMapEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", Collections.singletonMap("theString", String.class));
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", Collections.singletonMap("id", String.class));
+        }
+        else if (rep.isObjectArrayEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", new String[] {"theString"}, new Object[] {String.class});
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", new String[] {"id"}, new Object[] {String.class});
+        }
+        else if (rep.isAvroEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S0", new ConfigurationEventTypeAvro().setAvroSchema(record("S0").fields().requiredString("theString").endRecord()));
+            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S1", new ConfigurationEventTypeAvro().setAvroSchema(record("S1").fields().requiredString("id").endRecord()));
+        }
+        else {
+            fail();
+        }
+
+        String textOne = (bean ? "" : rep.getAnnotationText()) + "insert into event2 select * " +
+        		          "from S0#length(100) as s0, S1#length(5) as s1 " +
         		          "where s0.theString = s1.id";
-        String textTwo = "select * from event2#length(10)";
+        String textTwo = (bean ? "" : rep.getAnnotationText()) + "select * from event2#length(10)";
 
         // Attach listener to feed
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
@@ -378,25 +430,62 @@ public class TestInsertInto extends TestCase
         stmtTwo.addListener(listenerTwo);
 
         // send event for joins to match on
-        SupportBean_A eventA = new SupportBean_A("myId");
-        epService.getEPRuntime().sendEvent(eventA);
+        Object eventS1;
+        if (bean) {
+            eventS1 = new SupportBean_A("myId");
+            epService.getEPRuntime().sendEvent(eventS1);
+        }
+        else if (rep.isMapEvent()) {
+            eventS1 = Collections.singletonMap("id", "myId");
+            epService.getEPRuntime().sendEvent((Map)eventS1, "S1");
+        }
+        else if (rep.isObjectArrayEvent()) {
+            eventS1 = new Object[] {"myId"};
+            epService.getEPRuntime().sendEvent((Object[]) eventS1, "S1");
+        }
+        else if (rep.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("S1")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("id", "myId");
+            eventS1 = theEvent;
+            epService.getEPRuntime().sendEventAvro(theEvent, "S1");
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
 
-        SupportBean eventOne = sendEvent(10, 11);
-        assertTrue(listenerOne.getAndClearIsInvoked());
-        assertEquals(1, listenerOne.getLastNewData().length);
-        assertEquals(2, listenerOne.getLastNewData()[0].getEventType().getPropertyNames().length);
-        assertTrue(listenerOne.getLastNewData()[0].getEventType().isProperty("s0"));
-        assertTrue(listenerOne.getLastNewData()[0].getEventType().isProperty("s1"));
-        assertSame(eventOne, listenerOne.getLastNewData()[0].get("s0"));
-        assertSame(eventA, listenerOne.getLastNewData()[0].get("s1"));
+        Object eventS0;
+        if (bean) {
+            eventS0 = new SupportBean("myId", -1);
+            epService.getEPRuntime().sendEvent(eventS0);
+        }
+        else if (rep.isMapEvent()) {
+            eventS0 = Collections.singletonMap("theString", "myId");
+            epService.getEPRuntime().sendEvent((Map) eventS0, "S0");
+        }
+        else if (rep.isObjectArrayEvent()) {
+            eventS0 = new Object[] {"myId"};
+            epService.getEPRuntime().sendEvent((Object[]) eventS0, "S0");
+        }
+        else if (rep.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("S0")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("theString", "myId");
+            eventS0 = theEvent;
+            epService.getEPRuntime().sendEventAvro(theEvent, "S0");
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
 
-        assertTrue(listenerTwo.getAndClearIsInvoked());
-        assertEquals(1, listenerTwo.getLastNewData().length);
-        assertEquals(2, listenerTwo.getLastNewData()[0].getEventType().getPropertyNames().length);
-        assertTrue(listenerTwo.getLastNewData()[0].getEventType().isProperty("s0"));
-        assertTrue(listenerTwo.getLastNewData()[0].getEventType().isProperty("s1"));
-        assertSame(eventOne, listenerOne.getLastNewData()[0].get("s0"));
-        assertSame(eventA, listenerOne.getLastNewData()[0].get("s1"));
+        assertJoinWildcard(rep, listenerOne, eventS0, eventS1);
+        assertJoinWildcard(rep, listenerTwo, eventS0, eventS1);
+
+        stmtOne.destroy();
+        stmtTwo.destroy();
+        epService.getEPAdministrator().getConfiguration().removeEventType("S0", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("S1", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("event2", false);
     }
 
     public void testInvalidStreamUsed()
@@ -677,6 +766,17 @@ public class TestInsertInto extends TestCase
         assertEquals(delta, feedListener.getLastNewData()[0].get("delta"));
         assertEquals(product, feedListener.getLastNewData()[0].get("product"));
         feedListener.reset();
+    }
+
+    private void assertJoinWildcard(EventRepresentationEnum rep, SupportUpdateListener listener, Object eventS0, Object eventS1) {
+        assertTrue(listener.getAndClearIsInvoked());
+        assertEquals(1, listener.getLastNewData().length);
+        assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
+        assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s0"));
+        assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s1"));
+        assertSame(eventS0, listener.getLastNewData()[0].get("s0"));
+        assertSame(eventS1, listener.getLastNewData()[0].get("s1"));
+        assertTrue(rep == null || rep.matchesClass(listener.getLastNewData()[0].getUnderlying().getClass()));
     }
 
     private SupportBean sendEvent(int intPrimitive, int intBoxed)

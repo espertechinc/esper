@@ -143,7 +143,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
             }
 
             wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getExprEvaluator().getType(),
-                    writableProperty.getPropertyType(), assignmentPair.getFirst());
+                    writableProperty.getPropertyType(), assignmentPair.getFirst(), false);
             properties.add(assignmentPair.getFirst());
         }
 

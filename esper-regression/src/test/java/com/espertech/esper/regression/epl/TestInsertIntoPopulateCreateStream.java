@@ -18,9 +18,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 
 import java.util.Collections;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestInsertIntoPopulateCreateStream extends TestCase
 {
@@ -42,13 +47,13 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
     }
 
     public void testCreateStream() {
-        runAssertionCreateStream(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionCreateStream(EventRepresentationEnum.MAP);
-        runAssertionCreateStream(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionCreateStream(rep);
+        }
 
-        runAssertPopulateFromNamedWindow(EventRepresentationEnum.OBJECTARRAY);
-        runAssertPopulateFromNamedWindow(EventRepresentationEnum.MAP);
-        runAssertPopulateFromNamedWindow(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertPopulateFromNamedWindow(rep);
+        }
 
         runAssertionObjectArrPropertyReorder();
     }
@@ -76,8 +81,16 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         if (type.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"n1"}, "Node");
         }
-        else {
+        else if (type.isMapEvent()){
             epService.getEPRuntime().sendEvent(Collections.singletonMap("nid", "n1"), "Node");
+        }
+        else if (type.isAvroEvent()){
+            GenericRecord genericRecord = new GenericData.Record(record("name").fields().requiredString("nid").endRecord());
+            genericRecord.put("nid", "n1");
+            epService.getEPRuntime().sendEventAvro(genericRecord, "Node");
+        }
+        else {
+            fail();
         }
         EventBean event = listener.assertOneGetNewAndReset();
         assertEquals("E1", event.get("npid"));
@@ -89,6 +102,12 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         epService.getEPAdministrator().getConfiguration().removeEventType("Node", true);
         epService.getEPAdministrator().getConfiguration().removeEventType("NodePlus", true);
         epService.getEPAdministrator().getConfiguration().removeEventType("NodeWindow", true);
+    }
+
+    public void testCreateStreamTwo() {
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionCreateStreamTwo(rep);
+        }
     }
 
     private void runAssertionCreateStream(EventRepresentationEnum eventRepresentationEnum)
@@ -105,9 +124,16 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
             epService.getEPRuntime().sendEvent(makeEvent(10).values().toArray(), "MyEvent");
             epService.getEPRuntime().sendEvent(makeEvent(11).values().toArray(), "MyEvent");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             epService.getEPRuntime().sendEvent(makeEvent(10), "MyEvent");
             epService.getEPRuntime().sendEvent(makeEvent(11), "MyEvent");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            epService.getEPRuntime().sendEventAvro(makeEventAvro(10), "MyEvent");
+            epService.getEPRuntime().sendEventAvro(makeEventAvro(11), "MyEvent");
+        }
+        else {
+            fail();
         }
         EventBean theEvent = listener.assertOneGetNewAndReset();
         assertEquals(10, theEvent.get("c1.myId"));
@@ -115,12 +141,6 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         assertEquals("4", theEvent.get("rule"));
 
         epService.initialize();
-    }
-
-    public void testCreateStreamTwo() {
-        runAssertionCreateStreamTwo(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionCreateStreamTwo(EventRepresentationEnum.MAP);
-        runAssertionCreateStreamTwo(EventRepresentationEnum.DEFAULT);
     }
 
     private void runAssertionCreateStreamTwo(EventRepresentationEnum eventRepresentationEnum)
@@ -144,24 +164,41 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(makeEvent(1).values().toArray(), "MyEvent");
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()){
             epService.getEPRuntime().sendEvent(makeEvent(1), "MyEvent");
         }
-        
-        EventBean resultOne = listener.assertOneGetNewAndReset();
-        assertTrue(resultOne.get("myEvent") instanceof EventBean);
-        assertEquals(1, ((EventBean)resultOne.get("myEvent")).get("myId"));
-        assertNotNull(stmtOne.getEventType().getFragmentType("myEvent"));
+        else if (eventRepresentationEnum.isAvroEvent()){
+            epService.getEPRuntime().sendEventAvro(makeEventAvro(1), "MyEvent");
+        }
+        else {
+            fail();
+        }
 
-        EventBean resultTwo = listenerTwo.assertOneGetNewAndReset();
-        assertTrue(resultTwo.get("myEvent") instanceof EventBean);
-        assertEquals(1, ((EventBean)resultTwo.get("myEvent")).get("myId"));
-        assertNotNull(stmtTwo.getEventType().getFragmentType("myEvent"));
+        assertCreateStreamTwo(eventRepresentationEnum, listener.assertOneGetNewAndReset(), stmtOne);
+        assertCreateStreamTwo(eventRepresentationEnum, listenerTwo.assertOneGetNewAndReset(), stmtTwo);
 
         epService.initialize();
     }
 
+    private void assertCreateStreamTwo(EventRepresentationEnum eventRepresentationEnum, EventBean eventBean, EPStatement statement) {
+        if (eventRepresentationEnum.isAvroEvent()) {
+            assertEquals(1, eventBean.get("myEvent.myId"));
+        }
+        else {
+            assertTrue(eventBean.get("myEvent") instanceof EventBean);
+            assertEquals(1, ((EventBean)eventBean.get("myEvent")).get("myId"));
+        }
+        assertNotNull(statement.getEventType().getFragmentType("myEvent"));
+    }
+
     private Map<String, Object> makeEvent(int myId) {
         return Collections.<String, Object>singletonMap("myId", myId);
+    }
+
+    private GenericData.Record makeEventAvro(int myId) {
+        Schema schema = record("schema").fields().requiredInt("myId").endRecord();
+        GenericData.Record record = new GenericData.Record(schema);
+        record.put("myId", myId);
+        return record;
     }
 }

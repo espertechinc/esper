@@ -14,8 +14,8 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.supportunit.bean.*;
-import com.espertech.esper.supportunit.event.EventTypeAssertionUtil;
 import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
@@ -90,8 +90,8 @@ public class TestBeanEventType extends TestCase
         assertEquals(SupportBeanCombinedProps.NestedLevOne.class.getName(), nestedType.getName());
         assertEquals(Map.class, nestedType.getPropertyType("mapprop"));
 
-        EventTypeAssertionUtil.assertConsistency(eventTypeComplex);
-        EventTypeAssertionUtil.assertConsistency(eventTypeNested);
+        SupportEventTypeAssertionUtil.assertConsistency(eventTypeComplex);
+        SupportEventTypeAssertionUtil.assertConsistency(eventTypeNested);
     }
 
     public void testGetPropertyNames()

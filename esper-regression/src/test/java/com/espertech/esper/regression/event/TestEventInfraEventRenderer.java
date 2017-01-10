@@ -31,6 +31,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
 import static com.espertech.esper.supportregression.event.SupportEventInfra.*;
 
 public class TestEventInfraEventRenderer extends TestCase {
@@ -164,7 +166,7 @@ public class TestEventInfraEventRenderer extends TestCase {
     }
 
     private static Schema getAvroSchema() {
-        Schema inner = SchemaBuilder.record(AVRO_TYPENAME)
+        Schema inner = SchemaBuilder.record(AVRO_TYPENAME +"_inside")
                 .fields()
                 .name("myInsideInt").type().intType().noDefault()
                 .endRecord();
@@ -172,7 +174,7 @@ public class TestEventInfraEventRenderer extends TestCase {
         return SchemaBuilder.record(AVRO_TYPENAME)
                 .fields()
                 .name("myInt").type().intType().noDefault()
-                .name("myString").type().stringBuilder().prop("avro.java.string", "String").endString().noDefault()
+                .name("myString").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .name("nested").type(inner).noDefault()
                 .endRecord();
     }

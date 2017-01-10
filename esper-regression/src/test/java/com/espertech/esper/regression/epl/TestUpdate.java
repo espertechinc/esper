@@ -255,9 +255,9 @@ public class TestUpdate extends TestCase
     }
 
     public void testFieldsWithPriority() throws Exception {
-        runAssertionFieldsWithPriority(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionFieldsWithPriority(EventRepresentationEnum.MAP);
-        runAssertionFieldsWithPriority(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionFieldsWithPriority(rep);
+        }
     }
 
     private void runAssertionFieldsWithPriority(EventRepresentationEnum eventRepresentationEnum) throws Exception

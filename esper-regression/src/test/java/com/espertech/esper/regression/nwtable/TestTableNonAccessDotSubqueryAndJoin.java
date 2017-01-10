@@ -18,10 +18,10 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 public class TestTableNonAccessDotSubqueryAndJoin extends TestCase {
@@ -93,7 +93,7 @@ public class TestTableNonAccessDotSubqueryAndJoin extends TestCase {
                 {"c3_1", Integer.class}, {"c3_2", Integer.class},
                 {"c4_1", SupportBean[].class}
         };
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtSelect.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtSelect.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         makeSendSupportBean(null, -1);
         EventBean event = listener.assertOneGetNewAndReset();
@@ -110,7 +110,7 @@ public class TestTableNonAccessDotSubqueryAndJoin extends TestCase {
         EPStatement stmtSelectUnnamed = epService.getEPAdministrator().createEPL(eplSelectUnnamed);
         Object[][] expectedTypeUnnamed = new Object[][]{{"col2.sorted().firstOf()", SupportBean.class},
                 {"mt.col2.sorted().firstOf()", SupportBean.class},};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedTypeUnnamed, stmtSelectUnnamed.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedTypeUnnamed, stmtSelectUnnamed.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // invalid: ambiguous resolution
         SupportMessageAssertUtil.tryInvalid(epService, "" +

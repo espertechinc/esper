@@ -13,9 +13,9 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.supportunit.bean.*;
-import com.espertech.esper.supportunit.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +110,7 @@ public class TestBeanEventBean extends TestCase
         assertNull(eventBean.getFragment("array[4]?"));
         assertNull(eventBean.getFragment("array[5]?"));
 
-        String eventText = EventTypeAssertionUtil.print(eventBean);
+        String eventText = SupportEventTypeAssertionUtil.print(eventBean);
         //System.out.println(eventText);
 
         SupportBeanComplexProps eventComplex = SupportBeanComplexProps.makeDefaultBean();
@@ -122,7 +122,7 @@ public class TestBeanEventBean extends TestCase
     {
         SupportBeanIterableProps eventComplex = SupportBeanIterableProps.makeDefaultBean();
         EventBean eventBean = SupportEventBeanFactory.createObject(eventComplex);
-        EventTypeAssertionUtil.assertConsistency(eventBean);
+        SupportEventTypeAssertionUtil.assertConsistency(eventBean);
 
         // generic interogation : iterable, List and Map
         assertEquals(Iterable.class, eventBean.getEventType().getPropertyType("iterableNested"));

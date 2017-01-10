@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
+import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
 import static com.espertech.esper.avro.support.SupportEventTypeUtil.makeEventType;
 import static org.apache.avro.SchemaBuilder.record;
 
@@ -40,22 +42,22 @@ public class TestAvroEventType extends TestCase
     public void testGetPropertyType()
     {
         Schema lvl2Schema = record("lvl2Schema").fields()
-                .name("nestedValue").type().stringBuilder().prop("avro.java.string", "String").endString().noDefault()
+                .name("nestedValue").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .name("nestedIndexed").type().array().items().intBuilder().endInt().arrayDefault(Collections.emptyList())
-                .name("nestedMapped").type().map().prop("avro.java.string", "String").values().stringBuilder().prop("avro.java.string", "String").endString().mapDefault(null)
+                .name("nestedMapped").type().map().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).values().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().mapDefault(null)
                 .endRecord();
 
         Schema lvl1Schema = record("lvl1Schema").fields()
                 .name("lvl2").type(lvl2Schema).noDefault()
                 .requiredInt("intPrimitive")
                 .name("indexed").type().array().items().intBuilder().endInt().arrayDefault(Collections.emptyList())
-                .name("mapped").type().map().prop("avro.java.string", "String").values().stringBuilder().prop("avro.java.string", "String").endString().mapDefault(null)
+                .name("mapped").type().map().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).values().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().mapDefault(null)
                 .endRecord();
 
         Schema schema = record("typename").fields()
                 .requiredInt("myInt")
                 .optionalInt("myIntBoxed")
-                .name("myString").type().stringBuilder().prop("avro.java.string", "String").endString().noDefault()
+                .name("myString").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .name("lvl1").type(lvl1Schema).noDefault()
                 .name("myNullValue").type().nullType().noDefault()
                 .endRecord();
@@ -119,7 +121,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .requiredInt("myInt")
                 .requiredString("myCharSeq")
-                .name("myString").type().stringBuilder().prop("avro.java.string", "String").endString().noDefault()
+                .name("myString").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .requiredBoolean("myBoolean")
                 .requiredBytes("myBytes")
                 .requiredDouble("myDouble")
@@ -157,7 +159,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .optionalInt("myInt")
                 .optionalString("myCharSeq")
-                .name("myString").type().optional().stringBuilder().prop("avro.java.string", "String").endString()
+                .name("myString").type().optional().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString()
                 .optionalBoolean("myBoolean")
                 .optionalBytes("myBytes")
                 .optionalDouble("myDouble")
@@ -171,7 +173,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .nullableInt("myInt", Integer.MIN_VALUE)
                 .nullableString("myCharSeq", null)
-                .name("myString").type().nullable().stringBuilder().prop("avro.java.string", "String").endString().stringDefault(null)
+                .name("myString").type().nullable().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().stringDefault(null)
                 .nullableBoolean("myBoolean", false)
                 .nullableBytes("myBytes", new byte[0])
                 .nullableDouble("myDouble", Double.MIN_VALUE)
@@ -244,7 +246,7 @@ public class TestAvroEventType extends TestCase
 
     public void testMapOfString() {
         Schema schema = record("typename").fields()
-                .name("anMap").type().map().prop("avro.java.string", "String").values().stringBuilder().prop("avro.java.string", "String").endString().mapDefault(null)
+                .name("anMap").type().map().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).values().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().mapDefault(null)
                 .endRecord();
         EventType eventType = makeEventType(schema);
 
@@ -313,7 +315,7 @@ public class TestAvroEventType extends TestCase
                 .name("anUnion").type().unionOf()
                 .intBuilder().endInt()
                 .and()
-                .stringBuilder().prop("avro.java.string", "String").endString()
+                .stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString()
                 .and()
                 .nullType()
                 .endUnion().noDefault()

@@ -21,8 +21,8 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public class TestTableOnUpdate extends TestCase {
         stmtUpdate.addListener(listenerUpdate);
 
         Object[][] expectedType = new Object[][]{{"keyOne", String.class},{"keyTwo", Integer.class},{"p0", Long.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtUpdate.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtUpdate.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         epService.getEPRuntime().sendEvent(new SupportBean("G1", 10));
         assertValues(new Object[][] {{"G1", 10}}, new Long[] {1L});

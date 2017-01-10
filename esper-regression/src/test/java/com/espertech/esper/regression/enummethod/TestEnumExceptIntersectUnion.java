@@ -224,9 +224,11 @@ public class TestEnumExceptIntersectUnion extends TestCase {
     }
 
     public void testInheritance() {
-        runAssertionInheritance(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInheritance(EventRepresentationEnum.MAP);
-        runAssertionInheritance(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            if (rep.isMapEvent() || rep.isObjectArrayEvent()) {
+                runAssertionInheritance(rep);
+            }
+        }
     }
 
     public void runAssertionInheritance(EventRepresentationEnum eventRepresentationEnum) {

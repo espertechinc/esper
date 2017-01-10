@@ -26,7 +26,7 @@ import java.util.Set;
 public enum EventRepresentationEnum {
     OBJECTARRAY(Configuration.EventRepresentation.OBJECTARRAY, "@EventRepresentation(array=true)", " objectarray"),
     MAP(Configuration.EventRepresentation.MAP, "@EventRepresentation(array=false)", " map"),
-    AVRO(Configuration.EventRepresentation.AVRO, "@EventRepresentation(avro=true)", " objectarray"),
+    AVRO(Configuration.EventRepresentation.AVRO, "@EventRepresentation(avro=true)", " avro"),
     DEFAULT(Configuration.EventRepresentation.getDefault(), "", "");
 
     private final String annotationText;
@@ -79,6 +79,10 @@ public enum EventRepresentationEnum {
         return this == OBJECTARRAY;
     }
 
+    public boolean isMapEvent() {
+        return this == DEFAULT || this == MAP;
+    }
+
     public String getAnnotationTextForNonMap() {
         if (this == DEFAULT || this == MAP) {
             return "";
@@ -100,7 +104,7 @@ public enum EventRepresentationEnum {
         model.setAnnotations(Collections.singletonList(part));
     }
 
-    public boolean isAvro() {
+    public boolean isAvroEvent() {
         return this == AVRO;
     }
 }

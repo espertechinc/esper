@@ -9,9 +9,17 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.event.avro;
+package com.espertech.esper.util;
 
-import com.espertech.esper.client.EventType;
+import java.util.Arrays;
 
-public interface AvroMarkerEventType extends EventType {
+/**
+ * Type widner that coerces from String to char if required.
+ */
+public class TypeWidenerObjectArrayToCollectionCoercer implements TypeWidener
+{
+    public Object widen(Object input)
+    {
+        return input == null ? null : Arrays.asList((Object[]) input);
+    }
 }

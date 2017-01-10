@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.nwtable;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -25,10 +26,15 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestNamedWindowTypes extends TestCase
 {
@@ -63,9 +69,9 @@ public class TestNamedWindowTypes extends TestCase
     }
 
     public void testEventTypeColumnDef() {
-        runAssertionEventTypeColumnDef(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionEventTypeColumnDef(EventRepresentationEnum.MAP);
-        runAssertionEventTypeColumnDef(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionEventTypeColumnDef(rep);
+        }
     }
 
     public void runAssertionEventTypeColumnDef(EventRepresentationEnum eventRepresentationEnum) {
@@ -78,14 +84,24 @@ public class TestNamedWindowTypes extends TestCase
         stmt.addListener(listenerWindow);
         epService.getEPAdministrator().createEPL("insert into SchemaWindow (s1) select sone from SchemaOne as sone");
         
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("col1", 10);
-        theEvent.put("col2", 11);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "SchemaOne");
+            epService.getEPRuntime().sendEvent(new Object[] {10, 11}, "SchemaOne");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("col1", 10);
+            theEvent.put("col2", 11);
+            epService.getEPRuntime().sendEvent(theEvent, "SchemaOne");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("SchemaOne")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("col1", 10);
+            theEvent.put("col2", 11);
+            epService.getEPRuntime().sendEventAvro(theEvent, "SchemaOne");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "SchemaOne");
+            fail();
         }
         EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), "s1.col1,s1.col2".split(","), new Object[]{10, 11});
 
@@ -270,9 +286,9 @@ public class TestNamedWindowTypes extends TestCase
     }
 
     public void testCreateSchemaModelAfter() {
-        runAssertionCreateSchemaModelAfter(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionCreateSchemaModelAfter(EventRepresentationEnum.MAP);
-        runAssertionCreateSchemaModelAfter(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionCreateSchemaModelAfter(rep);
+        }
 
         // test model-after for POJO with inheritance
         epService.getEPAdministrator().createEPL("create window ParentWindow#keepall as select * from " + NWTypesParentClass.class.getName());
@@ -295,13 +311,20 @@ public class TestNamedWindowTypes extends TestCase
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window NamedWindow#unique(event.hsi) as EventTypeTwo");
         epService.getEPAdministrator().createEPL("on EventTypeOne as ev insert into NamedWindow select ev as event");
 
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("hsi", 10);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "EventTypeOne");
+            epService.getEPRuntime().sendEvent(new Object[] {10}, "EventTypeOne");
+        }
+        else if (eventRepresentationEnum.isMapEvent()){
+            epService.getEPRuntime().sendEvent(Collections.singletonMap("hsi", 10), "EventTypeOne");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()){
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("EventTypeOne")).getSchemaAvro();
+            GenericData.Record theEvent = new GenericData.Record(schema);
+            theEvent.put("hsi", 10);
+            epService.getEPRuntime().sendEventAvro(theEvent, "EventTypeOne");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "EventTypeOne");
+            fail();
         }
         EventBean result = stmt.iterator().next();
         EventPropertyGetter getter = result.getEventType().getGetter("event.hsi");

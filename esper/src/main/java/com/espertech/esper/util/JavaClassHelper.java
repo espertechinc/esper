@@ -16,6 +16,7 @@ import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterException;
+import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.type.*;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -1287,6 +1288,10 @@ public class JavaClassHelper
             return false;
         }
         if (propertyType == java.sql.Timestamp.class)
+        {
+            return false;
+        }
+        if (propertyType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME))
         {
             return false;
         }

@@ -32,6 +32,11 @@ public enum CreateSchemaClauseTypeDef implements Serializable
     OBJECTARRAY,
 
     /**
+     * Avro-array underlying type.
+     */
+    AVRO,
+
+    /**
      * Undefined (system default) underlying type.
      */
     NONE;
@@ -49,6 +54,9 @@ public enum CreateSchemaClauseTypeDef implements Serializable
         }
         else if (this == OBJECTARRAY) {
             writer.write(" objectarray");
+        }
+        else if (this == AVRO) {
+            writer.write(" avro");
         }
     }
 }

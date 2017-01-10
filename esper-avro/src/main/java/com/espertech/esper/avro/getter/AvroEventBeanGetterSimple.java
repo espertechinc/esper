@@ -18,6 +18,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
 
+import java.util.Collection;
+
 public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter
 {
     private final int propertyIndex;
@@ -48,10 +50,31 @@ public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter
 
     public Object getFragment(EventBean obj) {
         Object value = get(obj);
-        if (value == null || !(value instanceof GenericData.Record)) {
+        return getFragmentInternal(value);
+    }
+
+    public Object getAvroFragment(GenericData.Record record) {
+        Object value = getAvroFieldValue(record);
+        return getFragmentInternal(value);
+    }
+
+    private Object getFragmentInternal(Object value) {
+        if (fragmentType == null) {
             return null;
         }
-        return eventAdapterService.adapterForTypedAvro(value, fragmentType);
+        if (value instanceof GenericData.Record) {
+            return eventAdapterService.adapterForTypedAvro(value, fragmentType);
+        }
+        if (value instanceof Collection) {
+            Collection coll = (Collection) value;
+            EventBean[] events = new EventBean[coll.size()];
+            int index = 0;
+            for (Object item : coll) {
+                events[index++] = eventAdapterService.adapterForTypedAvro(item, fragmentType);
+            }
+            return events;
+        }
+        return null;
     }
 }
 

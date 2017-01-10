@@ -74,12 +74,12 @@ public class TestSubscriberBind extends TestCase
         stmtNullSelected.destroy();
 
         // widening
-        runAssertionWidening(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionWidening(EventRepresentationEnum.MAP, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionWidening(EventRepresentationEnum.DEFAULT, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionWidening(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberRowByRowSpecificWStmt());
-        runAssertionWidening(EventRepresentationEnum.MAP, new SupportSubscriberRowByRowSpecificWStmt());
-        runAssertionWidening(EventRepresentationEnum.DEFAULT, new SupportSubscriberRowByRowSpecificWStmt());
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionWidening(rep, new SupportSubscriberRowByRowSpecificNStmt());
+        }
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionWidening(rep, new SupportSubscriberRowByRowSpecificWStmt());
+        }
 
         // r-stream select
         runAssertionRStreamSelect(new SupportSubscriberRowByRowSpecificNStmt());
@@ -98,39 +98,39 @@ public class TestSubscriberBind extends TestCase
         runAssertionBindWildcardJoin(new SupportSubscriberRowByRowSpecificWStmt());
 
         // output limit
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.MAP, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.DEFAULT, new SupportSubscriberRowByRowSpecificNStmt());
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberRowByRowSpecificWStmt());
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.MAP, new SupportSubscriberRowByRowSpecificWStmt());
-        runAssertionOutputLimitNoJoin(EventRepresentationEnum.DEFAULT, new SupportSubscriberRowByRowSpecificWStmt());
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionOutputLimitNoJoin(rep, new SupportSubscriberRowByRowSpecificNStmt());
+        }
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionOutputLimitNoJoin(rep, new SupportSubscriberRowByRowSpecificWStmt());
+        }
 
         // output limit join
         runAssertionOutputLimitJoin(new SupportSubscriberRowByRowSpecificNStmt());
         runAssertionOutputLimitJoin(new SupportSubscriberRowByRowSpecificWStmt());
 
         // binding-to-map
-        runAssertionBindMap(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberMultirowMapNStmt());
-        runAssertionBindMap(EventRepresentationEnum.MAP, new SupportSubscriberMultirowMapNStmt());
-        runAssertionBindMap(EventRepresentationEnum.DEFAULT, new SupportSubscriberMultirowMapNStmt());
-        runAssertionBindMap(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberMultirowMapWStmt());
-        runAssertionBindMap(EventRepresentationEnum.MAP, new SupportSubscriberMultirowMapWStmt());
-        runAssertionBindMap(EventRepresentationEnum.DEFAULT, new SupportSubscriberMultirowMapWStmt());
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionBindMap(rep, new SupportSubscriberMultirowMapNStmt());
+        }
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionBindMap(rep, new SupportSubscriberMultirowMapWStmt());
+        }
 
         // binding-to-objectarray
-        runAssertionBindObjectArr(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberMultirowObjectArrayNStmt());
-        runAssertionBindObjectArr(EventRepresentationEnum.MAP, new SupportSubscriberMultirowObjectArrayNStmt());
-        runAssertionBindObjectArr(EventRepresentationEnum.DEFAULT, new SupportSubscriberMultirowObjectArrayNStmt());
-        runAssertionBindObjectArr(EventRepresentationEnum.OBJECTARRAY, new SupportSubscriberMultirowObjectArrayWStmt());
-        runAssertionBindObjectArr(EventRepresentationEnum.MAP, new SupportSubscriberMultirowObjectArrayWStmt());
-        runAssertionBindObjectArr(EventRepresentationEnum.DEFAULT, new SupportSubscriberMultirowObjectArrayWStmt());
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionBindObjectArr(rep, new SupportSubscriberMultirowObjectArrayNStmt());
+        }
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionBindObjectArr(rep, new SupportSubscriberMultirowObjectArrayWStmt());
+        }
 
         // binding-to-underlying-array
         runAssertionBindWildcardIRStream(new SupportSubscriberMultirowUnderlyingNStmt());
         runAssertionBindWildcardIRStream(new SupportSubscriberMultirowUnderlyingWStmt());
 
         // Object[] and "Object..." binding
-        for (EventRepresentationEnum rep : new EventRepresentationEnum[] {EventRepresentationEnum.OBJECTARRAY, EventRepresentationEnum.DEFAULT, EventRepresentationEnum.MAP}) {
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayPlainNStmt());
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayPlainWStmt());
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayVarargNStmt());
@@ -138,7 +138,7 @@ public class TestSubscriberBind extends TestCase
         }
 
         // Map binding
-        for (EventRepresentationEnum rep : new EventRepresentationEnum[] {EventRepresentationEnum.OBJECTARRAY, EventRepresentationEnum.DEFAULT, EventRepresentationEnum.MAP}) {
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
             runAssertionRowMapDelivery(rep, new SupportSubscriberRowByRowMapNStmt());
             runAssertionRowMapDelivery(rep, new SupportSubscriberRowByRowMapWStmt());
         }

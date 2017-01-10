@@ -21,10 +21,14 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestInsertIntoTransposeStream extends TestCase
 {
@@ -39,6 +43,7 @@ public class TestInsertIntoTransposeStream extends TestCase
 
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("generateMap", this.getClass().getName(), "localGenerateMap");
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("generateOA", this.getClass().getName(), "localGenerateOA");
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("generateAvro", this.getClass().getName(), "localGenerateAvro");
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
         listener = new SupportUpdateListener();
@@ -52,8 +57,9 @@ public class TestInsertIntoTransposeStream extends TestCase
     public void testTransposeMapAndObjectArray() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
-        runTransposeMapAndObjectArray(EventRepresentationEnum.OBJECTARRAY);
-        runTransposeMapAndObjectArray(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runTransposeMapAndObjectArray(rep);
+        }
     }
 
     private void runTransposeMapAndObjectArray(EventRepresentationEnum representation) {
@@ -61,7 +67,19 @@ public class TestInsertIntoTransposeStream extends TestCase
         String[] fields = "p0,p1".split(",");
         epService.getEPAdministrator().createEPL("create " + representation.getOutputTypeCreateSchemaName() + " schema MySchema(p0 string, p1 int)");
 
-        String generateFunction = representation == EventRepresentationEnum.MAP ? "generateMap" : "generateOA";
+        String generateFunction;
+        if (representation.isObjectArrayEvent()) {
+            generateFunction = "generateOA";
+        }
+        else if (representation.isMapEvent()) {
+            generateFunction = "generateMap";
+        }
+        else if (representation.isAvroEvent()) {
+            generateFunction = "generateAvro";
+        }
+        else {
+            throw new IllegalStateException("Unrecognized code " + representation);
+        }
         String epl = "insert into MySchema select transpose(" + generateFunction + "(theString, intPrimitive)) from SupportBean";
         epService.getEPAdministrator().createEPL(epl, "first").addListener(listener);
 
@@ -319,6 +337,14 @@ public class TestInsertIntoTransposeStream extends TestCase
 
     public static Object[] localGenerateOA(String string, int intPrimitive) {
         return new Object[] {string, intPrimitive};
+    }
+
+    public static GenericData.Record localGenerateAvro(String string, int intPrimitive) {
+        Schema schema = record("name").fields().requiredString("p0").requiredInt("p1").endRecord();
+        GenericData.Record record = new GenericData.Record(schema);
+        record.put("p0", string);
+        record.put("p1", intPrimitive);
+        return record;
     }
 
     private Map<String, Object> makeMap(Object[][] entries)

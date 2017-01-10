@@ -172,9 +172,9 @@ public class TestNamedWindowInsertFrom extends TestCase
 
     public void testInsertWhereOMStaggered()
     {
-        runAssertionInsertWhereOMStaggered(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInsertWhereOMStaggered(EventRepresentationEnum.DEFAULT);
-        runAssertionInsertWhereOMStaggered(EventRepresentationEnum.MAP);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInsertWhereOMStaggered(rep);
+        }
     }
 
     private void runAssertionInsertWhereOMStaggered(EventRepresentationEnum eventRepresentationEnum) {

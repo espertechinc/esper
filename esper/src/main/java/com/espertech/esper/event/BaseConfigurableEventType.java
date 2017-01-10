@@ -155,6 +155,10 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {
+        EventPropertyGetter getter = getGetter(mappedProperty);
+        if (getter instanceof EventPropertyGetterMapped) {
+            return (EventPropertyGetterMapped) getter;
+        }
         return null;
     }
 

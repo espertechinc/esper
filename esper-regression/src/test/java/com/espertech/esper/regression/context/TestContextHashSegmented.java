@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.context;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -26,6 +27,8 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.AgentInstanceAssertionUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.util.*;
 
@@ -55,9 +58,9 @@ public class TestContextHashSegmented extends TestCase {
     }
 
     public void testScoringUseCase() throws Exception {
-        runAssertionScoringUseCase(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionScoringUseCase(EventRepresentationEnum.MAP);
-        runAssertionScoringUseCase(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionScoringUseCase(rep);
+        }
     }
 
     private void runAssertionScoringUseCase(EventRepresentationEnum eventRepresentationEnum) throws Exception {
@@ -460,16 +463,28 @@ public class TestContextHashSegmented extends TestCase {
     }
 
     private void makeSendScoreEvent(String typeName, EventRepresentationEnum eventRepresentationEnum, String userId, String keyword, String productId, long score) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("userId", userId);
-        theEvent.put("keyword", keyword);
-        theEvent.put("productId", productId);
-        theEvent.put("score", score);
-        if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), typeName);
+        if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("userId", userId);
+            theEvent.put("keyword", keyword);
+            theEvent.put("productId", productId);
+            theEvent.put("score", score);
+            epService.getEPRuntime().sendEvent(theEvent, typeName);
+        }
+        else if (eventRepresentationEnum.isObjectArrayEvent()) {
+            epService.getEPRuntime().sendEvent(new Object[] {userId, keyword, productId, score}, typeName);
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("userId", userId);
+            record.put("keyword", keyword);
+            record.put("productId", productId);
+            record.put("score", score);
+            epService.getEPRuntime().sendEventAvro(record, typeName);
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, typeName);
+            fail();
         }
     }
 

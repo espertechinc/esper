@@ -11,6 +11,7 @@
 
 package com.espertech.esper.event;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
 import junit.framework.TestCase;
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
 import com.espertech.esper.client.EventBean;
@@ -32,7 +33,7 @@ public class TestEventAdapterServiceImpl extends TestCase
 
     public void setUp()
     {
-        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null);
+        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null, new ConfigurationEngineDefaults.EventMeta.AvroSettings());
     }
 
     public void testSelfRefEvent()

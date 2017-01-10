@@ -17,8 +17,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import org.apache.avro.generic.GenericData;
 
-import static com.espertech.esper.avro.getter.AvroEventBeanGetterDynamicPoly.getAvroFieldValuePoly;
-import static com.espertech.esper.avro.getter.AvroEventBeanGetterDynamicPoly.getAvroFieldValuePolyExists;
+import static com.espertech.esper.avro.getter.AvroEventBeanGetterDynamicPoly.*;
 
 public class AvroEventBeanGetterNestedPoly implements EventPropertyGetter {
     private final int top;
@@ -42,7 +41,8 @@ public class AvroEventBeanGetterNestedPoly implements EventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
-        return null;
+        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+        GenericData.Record inner = (GenericData.Record) record.get(top);
+        return getAvroFieldFragmentPoly(inner, getters);
     }
 }

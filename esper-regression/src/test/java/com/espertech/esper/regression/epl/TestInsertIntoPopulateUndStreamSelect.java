@@ -11,15 +11,24 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import sun.net.www.content.text.Generic;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestInsertIntoPopulateUndStreamSelect extends TestCase
 {
@@ -66,132 +75,156 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         EPAssertionUtil.assertEqualsExactOrder(new Object[] {"ID1", "INSERT"}, underlyingInner);
     }
 
-    public void testNamedWindowOA() {
-        runAssertionNamedWindow(TypeTested.OA);
-    }
-
-    public void testNamedWindowMap() {
-        runAssertionNamedWindow(TypeTested.MAP);
+    public void testNamedWindowRep() {
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionNamedWindow(rep);
+        }
     }
 
     public void testStreamInsertWWidenOA() {
-        runAssertionStreamInsertWWidenMap(TypeTested.OA);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionStreamInsertWWidenMap(rep);
+        }
     }
 
-    public void testStreamInsertWWidenMap() {
-        runAssertionStreamInsertWWidenMap(TypeTested.MAP);
+    public void testInvalid() {
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionInvalid(rep);
+        }
     }
 
-    public void testInvalidOA() {
-        runAssertionInvalid(TypeTested.OA);
-    }
-
-    public void testInvalidMap() {
-        runAssertionInvalid(TypeTested.MAP);
-    }
-
-    private void runAssertionNamedWindow(TypeTested typeTested) {
-        if (typeTested == TypeTested.MAP) {
+    private void runAssertionNamedWindow(EventRepresentationEnum rep) {
+        if (rep.isMapEvent()) {
             Map<String, Object> typeinfo = new HashMap<String, Object>();
             typeinfo.put("myint", int.class);
             typeinfo.put("mystr", String.class);
             epService.getEPAdministrator().getConfiguration().addEventType("A", typeinfo);
-            epService.getEPAdministrator().createEPL("create map schema C as (addprop int) inherits A");
+            epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema C as (addprop int) inherits A");
         }
-        else if (typeTested == TypeTested.OA) {
+        else if (rep.isObjectArrayEvent()) {
             epService.getEPAdministrator().getConfiguration().addEventType("A", new String[]{"myint", "mystr"}, new Object[]{int.class, String.class});
             epService.getEPAdministrator().createEPL("create objectarray schema C as (addprop int) inherits A");
         }
+        else if (rep.isAvroEvent()) {
+            Schema schemaA = record("A").fields().requiredInt("myint").requiredString("mystr").endRecord();
+            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("A", new ConfigurationEventTypeAvro().setAvroSchema(schemaA));
+            epService.getEPAdministrator().createEPL("create avro schema C as (addprop int) inherits A");
+        }
+        else {
+            fail();
+        }
 
         epService.getEPAdministrator().createEPL("create window MyWindow#time(5 days) as C");
-
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from MyWindow");
         stmt.addListener(listener);
 
         // select underlying
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL("insert into MyWindow select mya.* from A as mya");
-        if (typeTested == TypeTested.MAP) {
+        if (rep.isMapEvent()) {
             epService.getEPRuntime().sendEvent(makeMap(123, "abc"), "A");
         }
-        else if (typeTested == TypeTested.OA) {
+        else if (rep.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[]{123, "abc"}, "A");
+        }
+        else if (rep.isAvroEvent()) {
+            epService.getEPRuntime().sendEventAvro(makeAvro(123, "abc"), "A");
+        }
+        else {
+            fail();
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "myint,mystr,addprop".split(","), new Object[]{123, "abc", null});
         stmtInsert.destroy();
 
         // select underlying plus property
         epService.getEPAdministrator().createEPL("insert into MyWindow select mya.*, 1 as addprop from A as mya");
-        if (typeTested == TypeTested.MAP) {
+        if (rep.isMapEvent()) {
             epService.getEPRuntime().sendEvent(makeMap(456, "def"), "A");
         }
-        else if (typeTested == TypeTested.OA) {
+        else if (rep.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {456, "def"}, "A");
         }
+        else if (rep.isAvroEvent()) {
+            epService.getEPRuntime().sendEventAvro(makeAvro(456, "def"), "A");
+        }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
+
+        epService.getEPAdministrator().destroyAllStatements();
+        epService.getEPAdministrator().getConfiguration().removeEventType("MyWindow", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("A", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("C", false);
     }
 
-    private void runAssertionStreamInsertWWidenMap(TypeTested typeTested) {
+    private void runAssertionStreamInsertWWidenMap(EventRepresentationEnum rep) {
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider();
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema Src as (myint int, mystr string)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema Src as (myint int, mystr string)");
 
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema D1 as (myint int, mystr string, addprop long)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema D1 as (myint int, mystr string, addprop long)");
         String eplOne = "insert into D1 select 1 as addprop, mysrc.* from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplOne, "myint,mystr,addprop", new Object[]{123, "abc", 1L});
+        runStreamInsertAssertion(rep, eplOne, "myint,mystr,addprop", new Object[]{123, "abc", 1L});
 
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema D2 as (mystr string, myint int, addprop double)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema D2 as (mystr string, myint int, addprop double)");
         String eplTwo = "insert into D2 select 1 as addprop, mysrc.* from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplTwo, "myint,mystr,addprop", new Object[]{123, "abc", 1d});
+        runStreamInsertAssertion(rep, eplTwo, "myint,mystr,addprop", new Object[]{123, "abc", 1d});
 
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema D3 as (mystr string, addprop int)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema D3 as (mystr string, addprop int)");
         String eplThree = "insert into D3 select 1 as addprop, mysrc.* from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplThree, "mystr,addprop", new Object[]{"abc", 1});
+        runStreamInsertAssertion(rep, eplThree, "mystr,addprop", new Object[]{"abc", 1});
 
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema D4 as (myint int, mystr string)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema D4 as (myint int, mystr string)");
         String eplFour = "insert into D4 select mysrc.* from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplFour, "myint,mystr", new Object[]{123, "abc"});
+        runStreamInsertAssertion(rep, eplFour, "myint,mystr", new Object[]{123, "abc"});
 
         String eplFive = "insert into D4 select mysrc.*, 999 as myint, 'xxx' as mystr from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplFive, "myint,mystr", new Object[]{999, "xxx"});
+        runStreamInsertAssertion(rep, eplFive, "myint,mystr", new Object[]{999, "xxx"});
         String eplSix = "insert into D4 select 999 as myint, 'xxx' as mystr, mysrc.* from Src as mysrc";
-        runStreamInsertAssertion(typeTested, eplSix, "myint,mystr", new Object[]{999, "xxx"});
+        runStreamInsertAssertion(rep, eplSix, "myint,mystr", new Object[]{999, "xxx"});
+
+        epService.getEPAdministrator().destroyAllStatements();
+        for (String name : Arrays.asList("Src", "D1", "D2", "D3", "D4")) {
+            epService.getEPAdministrator().getConfiguration().removeEventType(name, false);
+        }
     }
 
-    public void runAssertionInvalid(TypeTested typeTested) {
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema Src as (myint int, mystr string)");
+    private void runAssertionInvalid(EventRepresentationEnum rep) {
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema Src as (myint int, mystr string)");
 
         // mismatch in type
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema E1 as (myint long)");
-        tryInvalid("insert into E1 select mysrc.* from Src as mysrc",
-                "Error starting statement: Type by name 'E1' in property 'myint' expected class java.lang.Integer but receives class java.lang.Long [insert into E1 select mysrc.* from Src as mysrc]");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema E1 as (myint long)");
+        String message = !rep.isAvroEvent() ?
+                "Error starting statement: Type by name 'E1' in property 'myint' expected class java.lang.Integer but receives class java.lang.Long" :
+                "Error starting statement: Type by name 'E1' in property 'myint' expected schema '[\"null\",\"long\"]' but received schema '[\"null\",\"int\"]'";
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into E1 select mysrc.* from Src as mysrc", message);
 
         // mismatch in column name
-        epService.getEPAdministrator().createEPL("create " + typeTested.getText() + " schema E2 as (someprop long)");
-        tryInvalid("insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc",
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema E2 as (someprop long)");
+        SupportMessageAssertUtil.tryInvalid(epService, "insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc",
                 "Error starting statement: Failed to find column 'otherprop' in target type 'E2' [insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc]");
+
+        epService.getEPAdministrator().destroyAllStatements();
+        for (String name : Arrays.asList("Src", "E1", "E2")) {
+            epService.getEPAdministrator().getConfiguration().removeEventType(name, false);
+        }
     }
 
-    private void runStreamInsertAssertion(TypeTested typeTested, String epl, String fields, Object[] expected) {
+    private void runStreamInsertAssertion(EventRepresentationEnum rep, String epl, String fields, Object[] expected) {
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
-        if (TypeTested.MAP == typeTested) {
+        if (rep.isMapEvent()) {
             epService.getEPRuntime().sendEvent(makeMap(123, "abc"), "Src");
         }
-        else {
+        else if (rep.isObjectArrayEvent()){
             epService.getEPRuntime().sendEvent(new Object[] {123, "abc"}, "Src");
+        }
+        else if (rep.isAvroEvent()) {
+            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Src")).getSchemaAvro();
+            GenericData.Record event = new GenericData.Record(schema);
+            event.put("myint", 123);
+            event.put("mystr", "abc");
+            epService.getEPRuntime().sendEventAvro(event, "Src");
         }
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields.split(","), expected);
         stmt.destroy();
-    }
-
-    private void tryInvalid(String epl, String message) {
-        try {
-            epService.getEPAdministrator().createEPL(epl);
-            fail();
-        }
-        catch (EPStatementException ex) {
-            assertEquals(message, ex.getMessage());
-        }
     }
 
     private Map<String, Object> makeMap(int myint, String mystr) {
@@ -201,18 +234,11 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         return event;
     }
 
-    private static enum TypeTested {
-        MAP("map"),
-        OA("objectarray");
-        
-        private final String text;
-
-        private TypeTested(String text) {
-            this.text = text;
-        }
-
-        public String getText() {
-            return text;
-        }
+    private GenericData.Record makeAvro(int myint, String mystr) {
+        Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("A")).getSchemaAvro();
+        GenericData.Record record = new GenericData.Record(schema);
+        record.put("myint", myint);
+        record.put("mystr", mystr);
+        return record;
     }
 }

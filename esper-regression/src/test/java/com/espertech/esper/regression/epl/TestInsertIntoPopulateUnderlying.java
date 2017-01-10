@@ -16,16 +16,24 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportSubscriber;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.collection.Pair;
+import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.w3c.dom.Node;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestInsertIntoPopulateUnderlying extends TestCase
 {
@@ -257,10 +265,10 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
 
         epService.getEPAdministrator().createEPL("insert into ABCStream select *, 1+1 from SupportBean");
         text = "insert into ABCStream(string) select 'E1' from MyMap";
-        tryInvalid("Error starting statement: Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is 'Pair') [insert into ABCStream(string) select 'E1' from MyMap]", text);
+        tryInvalid("Error starting statement: Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is '" + Pair.class.getName() + "') [insert into ABCStream(string) select 'E1' from MyMap]", text);
 
         text = "insert into xmltype select 1 from SupportBean";
-        tryInvalid("Error starting statement: Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is 'Node') [insert into xmltype select 1 from SupportBean]", text);
+        tryInvalid("Error starting statement: Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is '" + Node.class.getName() + "') [insert into xmltype select 1 from SupportBean]", text);
 
         text = "insert into MyMap(dummy) select 1 from SupportBean";
         tryInvalid("Error starting statement: Event type named 'MyMap' has already been declared with differing column name or type information: Type by name 'MyMap' expects 10 properties but receives 1 properties [insert into MyMap(dummy) select 1 from SupportBean]", text);
@@ -620,9 +628,9 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
     }
 
     public void testArrayMapInsert() {
-        runAssertionArrayMapInsert(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionArrayMapInsert(EventRepresentationEnum.MAP);
-        runAssertionArrayMapInsert(EventRepresentationEnum.DEFAULT);
+        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+            runAssertionArrayMapInsert(rep);
+        }
     }
 
     private void runAssertionArrayMapInsert(EventRepresentationEnum eventRepresentationEnum) {
@@ -655,11 +663,21 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             endEventOne = ((EventBean[]) outArray[1])[0];
             endEventTwo = ((EventBean[]) outArray[1])[1];
         }
-        else {
+        else if (eventRepresentationEnum.isMapEvent()) {
             Map outMap = ((Map) listener.assertOneGetNewAndReset().getUnderlying());
             startEventOne = (EventBean) outMap.get("startEvent");
             endEventOne = ((EventBean[]) outMap.get("endEvent"))[0];
             endEventTwo = ((EventBean[]) outMap.get("endEvent"))[1];
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            EventBean received = listener.assertOneGetNewAndReset();
+            startEventOne = (EventBean) received.getFragment("startEvent");
+            EventBean[] endEvents = (EventBean[]) received.getFragment("endEvent");
+            endEventOne = endEvents[0];
+            endEventTwo = endEvents[1];
+        }
+        else {
+            throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
         assertEquals("G1", startEventOne.get("id"));
         assertEquals(2, endEventOne.get("val"));
@@ -673,7 +691,14 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             fail();
         }
         catch (EPException ex) {
-            assertEquals("Error starting statement: Event type named 'FinalEventInvalidNonArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidNonArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]' [INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]]", ex.getMessage());
+            String expected;
+            if (eventRepresentationEnum.isAvroEvent()) {
+                expected = "Error starting statement: Invalid assignment of column 'endEvent' of type '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "[]' to event property 'endEvent' typed as '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "', column and parameter types mismatch";
+            }
+            else {
+                expected = "Error starting statement: Event type named 'FinalEventInvalidNonArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidNonArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]'";
+            }
+            SupportMessageAssertUtil.assertMessage(ex, expected);
         }
 
         // Test invalid case of array destination insert from non-array var
@@ -684,32 +709,58 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             fail();
         }
         catch (EPException ex) {
-            assertEquals("Error starting statement: Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]' [INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]]", ex.getMessage());
+            String expected;
+            if (eventRepresentationEnum.isAvroEvent()) {
+                expected = "Error starting statement: Invalid assignment of column 'endEvent' of type '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "[]' to event property 'endEvent' typed as '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "', column and parameter types mismatch";
+            }
+            else {
+                expected = "Error starting statement: Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]'";
+            }
+            SupportMessageAssertUtil.assertMessage(ex, expected);
         }
 
         epService.initialize();
     }
 
     private void sendEventTwo(EPServiceProvider epService, EventRepresentationEnum eventRepresentationEnum, String id, int val) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("id", id);
-        theEvent.put("val", val);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "EventTwo");
+            epService.getEPRuntime().sendEvent(new Object[] {id, val}, "EventTwo");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("id", id);
+            theEvent.put("val", val);
+            epService.getEPRuntime().sendEvent(theEvent, "EventTwo");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = record("name").fields().requiredString("id").requiredInt("val").endRecord();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("id", id);
+            record.put("val", val);
+            epService.getEPRuntime().sendEventAvro(record, "EventTwo");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "EventTwo");
+            fail();
         }
     }
 
     private void sendEventOne(EPServiceProvider epService, EventRepresentationEnum eventRepresentationEnum, String id) {
-        Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
-        theEvent.put("id", id);
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "EventOne");
+            epService.getEPRuntime().sendEvent(new Object[] {id}, "EventOne");
+        }
+        else if (eventRepresentationEnum.isMapEvent()) {
+            Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
+            theEvent.put("id", id);
+            epService.getEPRuntime().sendEvent(theEvent, "EventOne");
+        }
+        else if (eventRepresentationEnum.isAvroEvent()) {
+            Schema schema = record("name").fields().requiredString("id").endRecord();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("id", id);
+            epService.getEPRuntime().sendEventAvro(record, "EventOne");
         }
         else {
-            epService.getEPRuntime().sendEvent(theEvent, "EventOne");
+            fail();
         }
     }
 

@@ -73,7 +73,7 @@ public class WrapperEventType implements EventTypeSPI
 
         this.metadata = metadata;
 		this.underlyingEventType = eventType;
-        EventTypeMetadata metadataMapType = EventTypeMetadata.createAnonymous(typeName);
+        EventTypeMetadata metadataMapType = EventTypeMetadata.createAnonymous(typeName, EventTypeMetadata.ApplicationType.MAP);
         this.underlyingMapType = new MapEventType(metadataMapType, typeName, 0, eventAdapterService, properties, null, null, null);
         this.isNoMapProperties = properties.isEmpty();
         this.eventAdapterService = eventAdapterService;

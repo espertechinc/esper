@@ -15,8 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.event.SupportXML;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 
@@ -73,11 +73,11 @@ public class TestXMLSchemaEventForObservation extends TestCase
         EventSender sender = epService.getEPRuntime().getEventSender("SensorEvent");
         sender.sendEvent(doc);
 
-        EventTypeAssertionUtil.assertConsistency(stmtExampleOne.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_0.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_1.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleThree_0.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleThree_1.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleOne.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_0.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_1.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleThree_0.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleThree_1.iterator().next());
 
         EPAssertionUtil.assertProps(stmtExampleTwo_1.iterator().next(), "Observation.Command,Observation.Tag[0].ID".split(","), new Object[]{"READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
         EPAssertionUtil.assertProps(stmtExampleThree_1.iterator().next(), "sensorId,Command,Tag[0].ID".split(","), new Object[]{"urn:epc:1:4.16.36", "READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
@@ -131,11 +131,11 @@ public class TestXMLSchemaEventForObservation extends TestCase
         Document doc = SupportXML.getDocument(XML);
         epService.getEPRuntime().sendEvent(doc);
 
-        EventTypeAssertionUtil.assertConsistency(stmtExampleOne.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_0.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_1.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_2.iterator().next());
-        EventTypeAssertionUtil.assertConsistency(stmtExampleTwo_3.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleOne.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_0.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_1.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_2.iterator().next());
+        SupportEventTypeAssertionUtil.assertConsistency(stmtExampleTwo_3.iterator().next());
 
         Object resultArray = stmtExampleOne.iterator().next().get("idarray");
         EPAssertionUtil.assertEqualsExactOrder((Object[]) resultArray, new String[]{"urn:epc:1:2.24.400", "urn:epc:1:2.24.401"});

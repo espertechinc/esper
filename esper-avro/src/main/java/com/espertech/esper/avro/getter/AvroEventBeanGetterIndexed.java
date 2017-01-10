@@ -13,7 +13,9 @@ package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Collection;
@@ -22,10 +24,14 @@ import java.util.List;
 public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     private final int pos;
     private final int index;
+    private final EventType fragmentEventType;
+    private final EventAdapterService eventAdapterService;
 
-    public AvroEventBeanGetterIndexed(int pos, int index) {
+    public AvroEventBeanGetterIndexed(int pos, int index, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         this.pos = pos;
         this.index = index;
+        this.fragmentEventType = fragmentEventType;
+        this.eventAdapterService = eventAdapterService;
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -48,8 +54,19 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
-        throw new UnsupportedOperationException();
+        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+        return getAvroFragment(record);
+    }
+
+    public Object getAvroFragment(GenericData.Record record) {
+        if (fragmentEventType == null) {
+            return null;
+        }
+        Object value = getAvroFieldValue(record);
+        if (value == null) {
+            return null;
+        }
+        return eventAdapterService.adapterForTypedAvro(value, fragmentEventType);
     }
 
     protected static Object getIndexedValue(Collection values, int index) {
@@ -57,7 +74,8 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
             return null;
         }
         if (values instanceof List) {
-            return ((List) values).get(index);
+            List list = (List) values;
+            return list.size() > index ? list.get(index) : null;
         }
         return values.toArray()[index];
     }

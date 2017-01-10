@@ -42,6 +42,7 @@ import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.filter.FilterNonPropertyRegisteryService;
@@ -1464,12 +1465,18 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             if (hasProperties && !isOnlyWildcard)
             {
                 Map<String, Object> compiledProperties = EventTypeUtility.compileMapTypeProperties(properties, statementContext.getEventAdapterService());
-                boolean mapType = EventRepresentationUtil.isMap(statementContext.getAnnotations(), servicesContext.getConfigSnapshot(), CreateSchemaDesc.AssignedType.NONE);
-                if (mapType) {
+                Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(statementContext.getAnnotations(), servicesContext.getConfigSnapshot(), CreateSchemaDesc.AssignedType.NONE);
+                if (representation == Configuration.EventRepresentation.MAP) {
                     targetType = statementContext.getEventAdapterService().addNestableMapType(typeName, compiledProperties, null, false, false, false, true, false);
                 }
-                else {
+                else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
                     targetType = statementContext.getEventAdapterService().addNestableObjectArrayType(typeName, compiledProperties, null, false, false, false, true, false, false, null);
+                }
+                else if (representation == Configuration.EventRepresentation.AVRO) {
+                    targetType = statementContext.getEventAdapterService().addAvroType(typeName, compiledProperties, false, false, false, true, false, statementContext.getAnnotations(), null);
+                }
+                else {
+                    throw new IllegalStateException("Unrecognized representation " + representation);
                 }
             }
             else
@@ -1479,6 +1486,13 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                 {
                     ObjectArrayEventType objectArrayEventType = (ObjectArrayEventType) selectFromType;
                     targetType = statementContext.getEventAdapterService().addNestableObjectArrayType(typeName, objectArrayEventType.getTypes(), null, false, false, false, true, false, false, null);
+                }
+                else if (selectFromType instanceof AvroSchemaEventType)
+                {
+                    AvroSchemaEventType avroSchemaEventType = (AvroSchemaEventType) selectFromType;
+                    ConfigurationEventTypeAvro avro = new ConfigurationEventTypeAvro();
+                    avro.setAvroSchema(avroSchemaEventType.getSchema());
+                    targetType = statementContext.getEventAdapterService().addAvroType(typeName, avro, false, false, false, true, false);
                 }
                 else if (selectFromType instanceof MapEventType)
                 {

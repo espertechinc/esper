@@ -22,9 +22,9 @@ import com.espertech.esper.filter.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -202,10 +202,10 @@ public class TestVariables extends TestCase
         // test array of primitives
         EPStatement stmtArrayOne = epService.getEPAdministrator().createEPL("create variable byte[] myBytesBoxed");
         Object[][] expectedType = new Object[][]{{"myBytesBoxed", Byte[].class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtArrayOne.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtArrayOne.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
         EPStatement stmtArrayTwo = epService.getEPAdministrator().createEPL("create variable byte[primitive] myBytesPrimitive");
         expectedType = new Object[][]{{"myBytesPrimitive", byte[].class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtArrayTwo.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, stmtArrayTwo.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // test enum constant
         epService.getEPAdministrator().destroyAllStatements();

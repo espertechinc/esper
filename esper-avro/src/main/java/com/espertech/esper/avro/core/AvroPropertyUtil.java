@@ -12,7 +12,6 @@
 package com.espertech.esper.avro.core;
 
 import com.espertech.esper.avro.getter.*;
-import com.espertech.esper.client.ConfigurationEventTypeAvro;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
@@ -25,82 +24,28 @@ import org.apache.avro.Schema;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.espertech.esper.avro.core.AvroFragmentTypeUtil.getFragmentEventTypeForField;
+
 public class AvroPropertyUtil {
-    public static Class propertyType(Schema fieldSchema, Property property) {
-        if (property instanceof SimpleProperty) {
-            Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
-            if (fieldNested == null) {
-                return null;
-            }
-            return AvroTypeUtil.propertyType(fieldNested.schema());
+    protected static Class propertyType(Schema fieldSchema, Property property) {
+        AvroFieldDescriptor desc = AvroFieldUtil.fieldForProperty(fieldSchema, property);
+        if (desc == null) {
+            return null;
         }
-
-        else if (property instanceof IndexedProperty) {
-            Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
-            if (fieldNested == null || fieldNested.schema().getType() != Schema.Type.ARRAY) {
-                return null;
-            }
-            return AvroTypeUtil.propertyType(fieldNested.schema().getElementType());
+        if (desc.isDynamic()) {
+            return Object.class;
         }
-
-        else if (property instanceof MappedProperty) {
-            Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
-            if (fieldNested == null || fieldNested.schema().getType() != Schema.Type.MAP) {
-                return null;
-            }
-            return AvroTypeUtil.propertyType(fieldNested.schema().getValueType());
+        Schema typeSchema = desc.getField().schema();
+        if (desc.isAccessedByIndex()) {
+            typeSchema = desc.getField().schema().getElementType();
         }
-
-        else if (property instanceof DynamicProperty) {
-            Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
-            if (fieldNested == null) {
-                return Object.class;
-            }
-            return AvroTypeUtil.propertyType(fieldNested.schema());
+        else if (desc.isAccessedByKey()) {
+            typeSchema = desc.getField().schema().getValueType();
         }
-
-        NestedProperty nested = (NestedProperty) property;
-        Schema current = fieldSchema;
-        for (int index = 0; index < nested.getProperties().size(); index++) {
-            Property levelProperty = nested.getProperties().get(index);
-            if (levelProperty instanceof SimpleProperty) {
-                Schema.Field fieldNested = current.getField(levelProperty.getPropertyNameAtomic());
-                if (fieldNested == null) {
-                    return null;
-                }
-                current = fieldNested.schema();
-            }
-            else if (levelProperty instanceof IndexedProperty) {
-                Schema.Field fieldIndexed = current.getField(levelProperty.getPropertyNameAtomic());
-                if (fieldIndexed == null || fieldIndexed.schema().getType() != Schema.Type.ARRAY) {
-                    return null;
-                }
-                current = fieldIndexed.schema().getElementType();
-            }
-            else if (levelProperty instanceof MappedProperty){
-                Schema.Field fieldMapped = current.getField(levelProperty.getPropertyNameAtomic());
-                if (fieldMapped == null || fieldMapped.schema().getType() != Schema.Type.MAP) {
-                    return null;
-                }
-                current = fieldMapped.schema().getValueType();
-            }
-            else if (levelProperty instanceof DynamicProperty){
-                return Object.class;
-            }
-        }
-        return AvroTypeUtil.propertyType(current);
+        return AvroTypeUtil.propertyType(typeSchema);
     }
 
-    public static FragmentEventType getFragmentType(String propertyName, Map<String, PropertySetDescriptorItem> propertyItems) {
-        String unescapePropName = ASTUtil.unescapeDot(propertyName);
-        PropertySetDescriptorItem item = propertyItems.get(unescapePropName);
-        if (item != null) {
-            return item.getFragmentEventType();
-        }
-        return null;
-    }
-
-    public static EventPropertyGetter getGetter(String eventTypeName, Schema avroSchema, HashMap<String, EventPropertyGetter> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
+    protected static EventPropertyGetter getGetter(String eventTypeName, Schema avroSchema, HashMap<String, EventPropertyGetter> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
         EventPropertyGetter getter = propertyGetterCache.get(propertyName);
         if (getter != null) {
             return getter;
@@ -126,7 +71,8 @@ public class AvroPropertyUtil {
                 if (field == null || field.schema().getType() != Schema.Type.ARRAY) {
                     return null;
                 }
-                getter = new AvroEventBeanGetterIndexed(field.pos(), indexedProp.getIndex());
+                FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(field.schema(), eventAdapterService);
+                getter = new AvroEventBeanGetterIndexed(field.pos(), indexedProp.getIndex(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService);
                 mayAddToGetterCache(propertyName, propertyGetterCache, getter, addToCache);
                 return getter;
             }
@@ -176,12 +122,23 @@ public class AvroPropertyUtil {
             isRootedDynamic = true;
         }
 
-        Schema.Field fieldMap = avroSchema.getField(propertyTop);
+        Property propTop = PropertyParser.parseAndWalkLaxToSimple(propertyTop);
+        Schema.Field fieldTop = avroSchema.getField(propTop.getPropertyNameAtomic());
 
         // field is known and is a record
-        if (fieldMap != null && fieldMap.schema().getType() == Schema.Type.RECORD) {
+        if (fieldTop != null && fieldTop.schema().getType() == Schema.Type.RECORD && propTop instanceof SimpleProperty) {
+            GetterNestedFactoryRootedSimple factory = new GetterNestedFactoryRootedSimple(eventAdapterService, fieldTop.pos());
             Property property = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
-            getter = AvroPropertyUtil.propertyGetterNested(eventTypeName, fieldMap.pos(), fieldMap.schema(), property, eventAdapterService);
+            getter = propertyGetterNested(factory, fieldTop.schema(), property, eventAdapterService);
+            mayAddToGetterCache(propertyName, propertyGetterCache, getter, addToCache);
+            return getter;
+        }
+
+        // field is known and is a record
+        if (fieldTop != null && fieldTop.schema().getType() == Schema.Type.ARRAY && propTop instanceof IndexedProperty) {
+            GetterNestedFactoryRootedIndexed factory = new GetterNestedFactoryRootedIndexed(eventAdapterService, fieldTop.pos(), ((IndexedProperty) propTop).getIndex());
+            Property property = PropertyParser.parseAndWalk(propertyNested, isRootedDynamic);
+            getter = propertyGetterNested(factory, fieldTop.schema().getElementType(), property, eventAdapterService);
             mayAddToGetterCache(propertyName, propertyGetterCache, getter, addToCache);
             return getter;
         }
@@ -197,23 +154,14 @@ public class AvroPropertyUtil {
         return getter;
     }
 
-    public static FragmentEventType getFragmentEventTypeForField(String eventTypeName, Schema schema, EventAdapterService eventAdapterService) {
-        if (schema.getType() != Schema.Type.RECORD) {
-            return null;
-        }
-        String fragmentName = eventTypeName + "$" + schema.getName();
-        EventType fragmentType = eventAdapterService.addAvroType(fragmentName, new ConfigurationEventTypeAvro().setAvroSchema(schema), false, false, false);
-        return new FragmentEventType(fragmentType, false, false);
-        // TODO support for indexed
-    }
-
-    private static EventPropertyGetter propertyGetterNested(String eventTypeName, int fieldPos, Schema fieldSchema, Property property, EventAdapterService eventAdapterService) {
+    private static EventPropertyGetter propertyGetterNested(GetterNestedFactory factory, Schema fieldSchema, Property property, EventAdapterService eventAdapterService) {
         if (property instanceof SimpleProperty) {
             Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
             if (fieldNested == null) {
                 return null;
             }
-            return new AvroEventBeanGetterNestedSimple(fieldPos, fieldNested.pos());
+            FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(fieldNested.schema(), eventAdapterService);
+            return factory.makeSimple(fieldNested.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType());
         }
 
         if (property instanceof IndexedProperty) {
@@ -222,7 +170,8 @@ public class AvroPropertyUtil {
             if (fieldNested == null || fieldNested.schema().getType() != Schema.Type.ARRAY) {
                 return null;
             }
-            return new AvroEventBeanGetterNestedIndexed(fieldPos, fieldNested.pos(), indexed.getIndex());
+            FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(fieldNested.schema(), eventAdapterService);
+            return factory.makeIndexed(fieldNested.pos(), indexed.getIndex(), fragmentEventType == null ? null : fragmentEventType.getFragmentType());
         }
 
         if (property instanceof MappedProperty) {
@@ -231,12 +180,12 @@ public class AvroPropertyUtil {
             if (fieldNested == null || fieldNested.schema().getType() != Schema.Type.MAP) {
                 return null;
             }
-            return new AvroEventBeanGetterNestedMapped(fieldPos, fieldNested.pos(), mapped.getKey());
+            return factory.makeMapped(fieldNested.pos(), mapped.getKey());
         }
 
         if (property instanceof DynamicProperty) {
             if (property instanceof DynamicSimpleProperty) {
-                return new AvroEventBeanGetterNestedDynamicSimple(fieldPos, property.getPropertyNameAtomic());
+                return factory.makeDynamicSimple(property.getPropertyNameAtomic());
             }
             throw new UnsupportedOperationException();
         }
@@ -262,7 +211,8 @@ public class AvroPropertyUtil {
                 path[count] = fieldNested.pos();
                 count++;
             }
-            return new AvroEventBeanGetterNestedMultiLevel(fieldPos, path);
+            FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(currentSchema, eventAdapterService);
+            return factory.makeNestedSimpleMultiLevel(path, fragmentEventType == null ? null : fragmentEventType.getFragmentType());
         }
 
         AvroEventPropertyGetter[] getters = new AvroEventPropertyGetter[nested.getProperties().size()];
@@ -278,7 +228,7 @@ public class AvroPropertyUtil {
                 if (fieldNested == null) {
                     return null;
                 }
-                FragmentEventType fragmentEventType = getFragmentEventTypeForField(eventTypeName, fieldNested.schema(), eventAdapterService);
+                FragmentEventType fragmentEventType = getFragmentEventTypeForField(fieldNested.schema(), eventAdapterService);
                 getters[count] = new AvroEventBeanGetterSimple(fieldNested.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService);
                 currentSchema = fieldNested.schema();
             }
@@ -288,8 +238,9 @@ public class AvroPropertyUtil {
                 if (fieldIndexed == null || fieldIndexed.schema().getType() != Schema.Type.ARRAY) {
                     return null;
                 }
-                getters[count] = new AvroEventBeanGetterIndexed(fieldIndexed.pos(), indexed.getIndex());
-                currentSchema = fieldIndexed.schema();
+                FragmentEventType fragmentEventType = AvroFragmentTypeUtil.getFragmentEventTypeForField(fieldIndexed.schema(), eventAdapterService);
+                getters[count] = new AvroEventBeanGetterIndexed(fieldIndexed.pos(), indexed.getIndex(), fragmentEventType == null ? null :fragmentEventType.getFragmentType(), eventAdapterService);
+                currentSchema = fieldIndexed.schema().getElementType();
             }
             else if (levelProperty instanceof MappedProperty) {
                 MappedProperty mapped = (MappedProperty) levelProperty;
@@ -315,7 +266,7 @@ public class AvroPropertyUtil {
             }
             count++;
         }
-        return new AvroEventBeanGetterNestedPoly(fieldPos, getters);
+        return factory.makeNestedPolyMultiLevel(getters);
     }
 
     private static AvroEventPropertyGetter getDynamicGetter(Property property) {
@@ -346,5 +297,88 @@ public class AvroPropertyUtil {
             return;
         }
         propertyGetterCache.put(propertyName, getter);
+    }
+
+    private interface GetterNestedFactory {
+        EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType);
+        EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType);
+        EventPropertyGetter makeMapped(int posNested, String key);
+        EventPropertyGetter makeDynamicSimple(String propertyName);
+        EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType);
+        EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters);
+    }
+
+    private static class GetterNestedFactoryRootedSimple implements GetterNestedFactory {
+        private final EventAdapterService eventAdapterService;
+        private final int posTop;
+
+        public GetterNestedFactoryRootedSimple(EventAdapterService eventAdapterService, int posTop) {
+            this.eventAdapterService = eventAdapterService;
+            this.posTop = posTop;
+        }
+
+        public EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType) {
+            return new AvroEventBeanGetterNestedSimple(posTop, posNested, fragmentEventType, eventAdapterService);
+        }
+
+        public EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType) {
+            return new AvroEventBeanGetterNestedIndexed(posTop, posNested, index, fragmentEventType, eventAdapterService);
+        }
+
+        public EventPropertyGetter makeMapped(int posNested, String key) {
+            return new AvroEventBeanGetterNestedMapped(posTop, posNested, key);
+        }
+
+        public EventPropertyGetter makeDynamicSimple(String propertyName) {
+            return new AvroEventBeanGetterNestedDynamicSimple(posTop, propertyName);
+        }
+
+        public EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
+            return new AvroEventBeanGetterNestedMultiLevel(posTop, path, fragmentEventType, eventAdapterService);
+        }
+
+        public EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
+            return new AvroEventBeanGetterNestedPoly(posTop, getters);
+        }
+    }
+
+    private static class GetterNestedFactoryRootedIndexed implements GetterNestedFactory {
+        private final EventAdapterService eventAdapterService;
+        private final int pos;
+        private final int index;
+
+        public GetterNestedFactoryRootedIndexed(EventAdapterService eventAdapterService, int pos, int index) {
+            this.eventAdapterService = eventAdapterService;
+            this.pos = pos;
+            this.index = index;
+        }
+
+        public EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType) {
+            return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimple(posNested, fragmentEventType, eventAdapterService));
+        }
+
+        public EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType) {
+            return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterIndexed(posNested, index, fragmentEventType, eventAdapterService));
+        }
+
+        public EventPropertyGetter makeMapped(int posNested, String key) {
+            return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterMapped(posNested, key));
+        }
+
+        public EventPropertyGetter makeDynamicSimple(String propertyName) {
+            return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimpleDynamic(propertyName));
+        }
+
+        public EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
+            AvroEventPropertyGetter getters[] = new AvroEventPropertyGetter[path.length];
+            for (int i = 0; i < path.length; i++) {
+                getters[i] = new AvroEventBeanGetterSimple(path[i], fragmentEventType, eventAdapterService);
+            }
+            return new AvroEventBeanGetterNestedIndexRootedMultilevel(pos, index, getters);
+        }
+
+        public EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
+            return new AvroEventBeanGetterNestedIndexRootedMultilevel(pos, index, getters);
+        }
     }
 }

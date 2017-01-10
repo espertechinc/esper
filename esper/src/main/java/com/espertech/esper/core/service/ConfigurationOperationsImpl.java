@@ -628,7 +628,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         checkTableExists(eventTypeName);
         try
         {
-            eventAdapterService.addAvroType(eventTypeName, avro, false, true, true);
+            eventAdapterService.addAvroType(eventTypeName, avro, false, true, true, false, false);
         }
         catch (EventAdapterException t)
         {

@@ -47,8 +47,11 @@ public class AvroEventBeanGetterMapped implements AvroEventPropertyGetter {
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        // TODO
-        throw new UnsupportedOperationException();
+        return null;
+    }
+
+    public Object getAvroFragment(GenericData.Record record) {
+        return null;
     }
 
     protected static Object getMappedValue(Map map, String key) {

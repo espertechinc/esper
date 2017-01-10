@@ -21,9 +21,9 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.supportregression.event.EventTypeAssertionEnum;
-import com.espertech.esper.supportregression.event.EventTypeAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 public class TestTableAccessAggregationState extends TestCase {
@@ -77,7 +77,7 @@ public class TestTableAccessAggregationState extends TestCase {
         Object[][] expectedAggType = new Object[][]{
                 {"c0", SupportBean.class}, {"c1", SupportBean[].class}, {"c2", SupportBean.class},
                 {"c3", int.class}, {"c4", int[].class}, {"c5", int.class}};
-        EventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtSelect.getEventType(), EventTypeAssertionEnum.NAME, EventTypeAssertionEnum.TYPE);
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, stmtSelect.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
         SupportBean b1 = makeSendBean("E1", 10);

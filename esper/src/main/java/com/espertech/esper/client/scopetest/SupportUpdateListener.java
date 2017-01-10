@@ -402,4 +402,12 @@ public class SupportUpdateListener implements UpdateListener
         reset();
         return pair;
     }
+
+    public static boolean[] getInvokedFlagsAndReset(SupportUpdateListener[] listeners) {
+        boolean[] invoked = new boolean[listeners.length];
+        for (int i = 0; i < listeners.length; i++) {
+            invoked[i] = listeners[i].getIsInvokedAndReset();
+        }
+        return invoked;
+    }
 }

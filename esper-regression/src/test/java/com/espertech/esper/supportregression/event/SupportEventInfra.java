@@ -14,6 +14,7 @@ package com.espertech.esper.supportregression.event;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 import org.w3c.dom.Attr;
@@ -30,6 +31,7 @@ public class SupportEventInfra {
     public static final String AVRO_TYPENAME = "MyAvroEvent";
 
     public static void assertValuesMayConvert(EventBean eventBean, String[] propertyNames, ValueWithExistsFlag[] expected, Function<Object, Object> optionalValueConversion) {
+        SupportEventTypeAssertionUtil.assertConsistency(eventBean);
         Object[] receivedValues = new Object[propertyNames.length];
         Object[] expectedValues = new Object[propertyNames.length];
         for (int i = 0; i < receivedValues.length; i++) {
@@ -49,6 +51,7 @@ public class SupportEventInfra {
     }
 
     public static void assertValueMayConvert(EventBean eventBean, String propertyName, ValueWithExistsFlag expected, Function<Object, Object> optionalValueConversion) {
+        SupportEventTypeAssertionUtil.assertConsistency(eventBean);
         Object value = eventBean.get(propertyName);
         if (optionalValueConversion != null) {
             value = optionalValueConversion.apply(value);
@@ -85,6 +88,29 @@ public class SupportEventInfra {
         GenericData.Record record = (GenericData.Record) event;
         GenericData.get().validate(record.getSchema(), record);
         epService.getEPRuntime().sendEventAvro(event, AVRO_TYPENAME);
+    };
+
+    @FunctionalInterface
+    public static interface FunctionSendEventWType {
+        public void apply(EPServiceProvider epService, Object value, String typeName);
+    }
+
+    public static final FunctionSendEventWType FMAPWTYPE = (epService, event, typeName) -> {
+        epService.getEPRuntime().sendEvent((Map) event, typeName);
+    };
+
+    public static final FunctionSendEventWType FOAWTYPE = (epService, event, typeName) -> {
+        epService.getEPRuntime().sendEvent((Object[]) event, typeName);
+    };
+
+    public static final FunctionSendEventWType FBEANWTYPE = (epService, event, typeName) -> {
+        epService.getEPRuntime().sendEvent(event);
+    };
+
+    public static final FunctionSendEventWType FAVROWTYPE = (epService, event, typeName) -> {
+        GenericData.Record record = (GenericData.Record) event;
+        GenericData.get().validate(record.getSchema(), record);
+        epService.getEPRuntime().sendEventAvro(event, typeName);
     };
 
     public static final FunctionSendEvent FXML = (epService, event) -> {
