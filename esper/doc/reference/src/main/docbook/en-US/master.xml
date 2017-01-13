@@ -113,7 +113,7 @@
 		</orderedlist>
 	</preface>
 
-    <xi:include href="modules/technology_overview.xml" />
+    <xi:include href="modules/gettingstarted.xml" />
 
     <xi:include href="modules/event_representation.xml" />
 
