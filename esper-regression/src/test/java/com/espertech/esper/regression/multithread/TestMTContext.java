@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.multithread;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMTUpdateListener;
@@ -33,7 +34,7 @@ public class TestMTContext extends TestCase
     public void setUp()
     {
         Configuration configuration = SupportConfigFactory.getConfiguration();
-        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.MAP); // use Map-type events for testing
+        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.MAP); // use Map-type events for testing
         engine = EPServiceProviderManager.getDefaultProvider(configuration);
         engine.initialize();
     }

@@ -16,10 +16,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
 import junit.framework.TestCase;
-
-import java.util.Map;
 
 public class TestBeanEventPropertyDynamic extends TestCase
 {

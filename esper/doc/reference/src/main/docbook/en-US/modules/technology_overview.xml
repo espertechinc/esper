@@ -118,7 +118,7 @@
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					ANTLR is the parser generator used for parsing and parse tree walking of the pattern and EPL syntax. Credit goes to Terence Parr at http://www.antlr.org. The ANTLR license is in the lib directory. The library is required for compile-time only.
+					ANTLR is the parser generator used for parsing and parse tree walking of the pattern and EPL syntax. Credit goes to Terence Parr at http://www.antlr.org. The ANTLR license is in the lib directory. The <literal>antlr-runtime</literal> runtime library is required for runtime.
 				</para>
 			</listitem>
 			<listitem>
@@ -128,7 +128,7 @@
 			</listitem>
 			<listitem>
 				<para>
-					Apache commons logging is a logging API that works together with LOG4J and other logging APIs. While Apache commons logging is required, the LOG4J log component is not required and can be replaced with SLF4J or other loggers. This open source software is under the Apache license. The Apache 2.0 license is in the lib directory.
+					SLF4J is a logging API that can works together with LOG4J and other logging APIs. While SLF4J is required, the LOG4J log component is not required and can be replaced with other loggers. This open source software is under the Apache license. The Apache 2.0 license is in the lib directory.
 				</para>
 			</listitem>
 		</itemizedlist>

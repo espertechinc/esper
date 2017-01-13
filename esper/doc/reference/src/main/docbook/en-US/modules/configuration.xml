@@ -48,11 +48,9 @@ EPServiceProvider epService = EPServiceProviderManager.getProvider("sample", con
 			Note that <literal>Configuration</literal> is meant only as an initialization-time object. The Esper engine represented by an <literal>EPServiceProvider</literal> does not retain any association back to the <literal>Configuration</literal>.
         </para>
         
-        <para>
-			The <literal>ConfigurationOperations</literal> interface provides runtime configuration options as further described in <xref linkend="api-admin-runtime-config"/>. Through this interface applications can, for example, add new event types at runtime and then create new statements
-			that rely on the additional configuration. The <literal>getConfiguration</literal> method on <literal>EPAdministrator</literal> allows access to <literal>ConfigurationOperations</literal>.
-        </para>
-
+		<para>
+			 For adding a type at runtime please use either EPL <literal>create schema</literal> or <literal>epServiceProvider.getEPAdministrator().getConfiguration().addEventType(...)</literal>.
+		</para>
     </sect1>
 
 	<sect1 xml:id="configuration-via-xml" revision="1">
@@ -437,7 +435,7 @@ config.addEventType("MyLegacyEvent", MyLegacyEventClass.class.getName(), legacyD
 			<title>Events represented by <literal>java.util.Map</literal></title>
 			
 			<para>
-				The engine can process <literal>java.util.Map</literal> events via the <literal>sendEvent(Map map, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Entries in the Map represent event properties. Keys must be of type <literal>java.util.String</literal> for the engine to be able to look up event property names in pattern or EPL statements. Values can be of any type. JavaBean-style objects as values in a <literal>Map</literal> can be processed by the engine, and strongly-typed nested maps are also supported. Please see the <xref linkend="event_representation"/> section for details on how to use <literal>Map</literal> events with the engine.
+				The engine can process <literal>java.util.Map</literal> events via the <literal>sendEvent(Map map, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Entries in the Map represent event properties. Please see the <xref linkend="appendix_eventrepmap"/> section for details on how to use <literal>Map</literal> events with the engine.
 			</para>
 			
 			<para>
@@ -445,7 +443,7 @@ config.addEventType("MyLegacyEvent", MyLegacyEventClass.class.getName(), legacyD
 			</para>
 			
 			<para>
-				The below snippet of XML configuration configures an event named <literal>MyMapEvent</literal>.
+				The below snippet of XML configuration configures an event type named <literal>MyMapEvent</literal>.
 			</para>
 
 			<programlisting><![CDATA[<event-type name="MyMapEvent">
@@ -506,13 +504,17 @@ configuration.addEventType("MyMapEvent", properties);]]></programlisting>
 			<programlisting><![CDATA[<event-type name="AccountUpdate">
 <java-util-map start-timestamp-property-name="startts" end-timestamp-property-name="endts">
 ...]]></programlisting>			
+
+			<para>
+				 For adding a type at runtime please use either EPL <literal>create map schema</literal> or <literal>epServiceProvider.getEPAdministrator().getConfiguration().addEventType(...)</literal>.
+			</para>
 		</sect2>
 		
 		<sect2 xml:id="config-objectarray" revision="1">
 			<title>Events represented by <literal>Object[]</literal> (Object-array)</title>
 			
 			<para>
-				The engine can process Object-array (<literal>Object[]</literal>) events via the <literal>sendEvent(Object[] array, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Elements in the Object array represent event properties. Values can be of any type. JavaBean-style objects as values in an <literal>Object[]</literal> can be processed by the engine, and strongly-typed nested map or object-array event types are also supported. Please see the <xref linkend="event_representation"/> section for details on how to use <literal>Object[]</literal> events with the engine.
+				The engine can process Object-array (<literal>Object[]</literal>) events via the <literal>sendEvent(Object[] array, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Elements in the Object array represent event properties. Please see the <xref linkend="appendix_eventrepoa"/> section for details on how to use <literal>Object[]</literal> events with the engine.
 			</para>
 			
 			<para>
@@ -520,7 +522,7 @@ configuration.addEventType("MyMapEvent", properties);]]></programlisting>
 			</para>
 			
 			<para>
-				The below snippet of XML configuration configures an event named <literal>MyObjectArrayEvent</literal>.
+				The below snippet of XML configuration configures an event type named <literal>MyObjectArrayEvent</literal>.
 			</para>
 
 			<programlisting><![CDATA[<event-type name="MyObjectArrayEvent">
@@ -571,6 +573,92 @@ configuration.addEventType("MyObjectArrayEvent", propertyNames, propertyTypes);]
 			<programlisting><![CDATA[<event-type name="AccountUpdate">
 <objectarray start-timestamp-property-name="startts" end-timestamp-property-name="endts">
 ...]]></programlisting>			
+
+			<para>
+				 For adding a type at runtime please use either EPL <literal>create objectarray schema</literal> or <literal>epServiceProvider.getEPAdministrator().getConfiguration().addEventType(...)</literal>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="config-avro" revision="1">
+			<title>Events represented by Avro <literal>GenericData.Record</literal></title>
+			
+			<para>
+				The engine can process Avro <literal>GenericData.Record</literal> events via the <literal>sendEventAvro(GenericData.Record event, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Please see the <xref linkend="appendix_eventrepavro"/> section for details on how to use Avro events with the engine.
+			</para>
+			
+			<para>
+				Via configuration you can provide an event type name for Avro events for use in statements, and the Avro schema enabling the engine to validate properties in statements.
+			</para>
+			
+			<para>
+				The below snippet of XML configuration configures an event type named <literal>MyAvroEvent</literal>.
+			</para>
+
+			<programlisting><![CDATA[<event-type name="MyAvroEvent">
+  <avro schema-text='{"type":"record","name":"MyAvroEvent","fields":[{"name":"carId","type":"int"},{"name":"carType","type":{"type":"string","avro.java.string":"String"}}]}'/>
+</event-type>]]></programlisting>
+
+			<para>
+				The sample Avro schema above in pretty-print is:
+			</para>
+			<programlisting><![CDATA[{
+  "type" : "record",
+  "name" : "MyAvroEvent",
+  "fields" : [ {
+    "name" : "carId",
+    "type" : "int"
+  }, {
+    "name" : "carType",
+    "type" : {
+      "type" : "string",
+      "avro.java.string" : "String"
+    }
+  } ]
+}]]></programlisting>
+
+			<para>
+				This schema defines:
+			</para>
+			<orderedlist>
+				<ns:listitem>
+					<para>A <literal>carId</literal> property of type <literal>int</literal>.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>A <literal>carType</literal> property of type <literal>string</literal>. Note: We use the Avro-provided <literal>avro.java.string</literal> property to ensure is is a <literal>java.lang.String</literal> instance and not a <literal>java.lang.CharSequence</literal>) instance.</para>
+				</ns:listitem>
+			</orderedlist>
+						
+			<para>
+			  Note that the engine does not verify that Avro events are valid or that they actually match the schema provided for the Avro event type.
+			</para>
+			
+			<para>
+				 You can also use the configuration API to configure Avro event types, as the short code snippet below demonstrates:
+			</para>
+
+			<programlisting><![CDATA[Configuration configuration = new Configuration();
+ConfigurationEventTypeAvro avroType = new ConfigurationEventTypeAvro();
+avroType.setAvroSchema(schema);
+configuration.addEventTypeAvro("MyAvroType", avroType);]]></programlisting>
+
+			<para>
+				 For adding a type at runtime please use either EPL <literal>create avro schema</literal> or <literal>epServiceProvider.getEPAdministrator().getConfiguration().addEventTypeAvro(...)</literal>.
+			</para>
+
+			<para>
+				Finally, here is a sample EPL statement that uses the configured <literal>MyAvroEvent</literal> Avro event:
+			</para>
+			<programlisting>select carType, count(distinct carId) from MyAvroEvent</programlisting>
+
+			<para>
+				An Avro event type may also become a subtype of one supertype that must also be an Avro event type. The <literal>avro</literal> element provides the optional attribute <literal>supertype-names</literal> that accepts a single name of an Avro event type that is the supertype to the type:
+			</para>
+			<programlisting><![CDATA[<avro supertype-names="BaseUpdate" ....>]]></programlisting>			
+
+			<para>
+				An Avro event type may declare a start and end timestamp property name. The XML shown next instructs the engine that the <literal>startts</literal> property carries the event start timestamp and the <literal>endts</literal> property carries the event end timestamp:
+			</para>
+			<programlisting><![CDATA[<avro start-timestamp-property-name="startts" end-timestamp-property-name="endts" ...>]]></programlisting>			
 		</sect2>
 
 		<sect2 xml:id="config-xml-dom" revision="1">
@@ -578,7 +666,7 @@ configuration.addEventType("MyObjectArrayEvent", propertyNames, propertyTypes);]
 			
 			<para>
 				Via this configuration item the Esper engine can natively process <literal>org.w3c.dom.Node</literal> instances, i.e. XML document object model (DOM) nodes.
-				Please see the <xref linkend="event_representation"/> section for details on how to use <literal>Node</literal> events with the engine.
+				Please see the <xref linkend="appendix_eventrepxml"/> section for details on how to use <literal>Node</literal> events with the engine.
 			</para>
 			
 			<para>
@@ -1653,7 +1741,7 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 				<title>Default Event Representation</title>
 				
 				<para>
-				  The default event representation is the Map event representation. In a future release the default event representation is likely to switch to Object-array.
+				  The default event representation is the Map event representation.
 				</para>
 				
 				<para>
@@ -1671,7 +1759,7 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 				<programlisting><![CDATA[select propertyOne, propertyTwo from MyEvent]]></programlisting>
 				
 				<para>
-				  Listeners to the statement above currently receive a Map-type event. By setting the configuration flag to object-array as described herein, listeners to the statement receive an Object-array-type event instead.
+				  Listeners to the statement above currently receive a Map-type event. By setting the configuration flag to object-array or Avro as described herein, listeners to the statement receive an Object-array-type event or an Avro-type event instead.
 				</para>
 
 				<para>The XML snippet below is an example of setting the default event representation to Object-array:</para>
@@ -1679,7 +1767,7 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
   <engine-settings>
     <defaults>
       <event-meta>
-        <event-representation type="objectarray"/>
+        <event-representation type="objectarray"/> <!-- use "avro" for Avro -->
       </event-meta>
     </defaults>
   </engine-settings>
@@ -1688,6 +1776,45 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 				<para>The code snippet shown next sets the default event representation to Object-array in the configuration object:</para>
 				<programlisting><![CDATA[configuration.getEngineDefaults().getEventMeta().
     setDefaultEventRepresentation(Configuration.EventRepresentation.OBJECTARRAY);]]></programlisting>
+			</sect3>
+
+			<sect3 xml:id="config-engine-eventmeta-avro" revision="1">
+				<title>Avro Settings</title>
+				
+				<para>
+					This configuration controls engine settings in respect to Avro.
+				</para>
+
+				<para>
+					The <literal>enable-avro</literal> setting is boolean-typed and is true by default. It controls whether Avro is enabled or disabled.
+					If disabled the engine disallows registering Avro event types or using an Avro event representation.
+				</para>
+
+				<para>
+					The <literal>enable-native-string</literal> setting is boolean-typed and is true by default. It controls whether for String-type values,
+					when the engine generates an Avro schema, such field schema adds the property <literal>avro.java.string</literal> of value <literal>String</literal>.
+				</para>
+
+				<para>
+					The <literal>enable-schema-default-nonnull</literal> setting is boolean-typed and is true by default. It controls whether the engine 
+					assembles non-null Avro schemas (true) or nullable (union) Avro schemas (false).
+				</para>
+
+				<para>The XML snippet below is an example of Avro settings that configures the same as the default values:</para>
+				<programlisting><![CDATA[<esper-configuration
+  <engine-settings>
+    <defaults>
+      <event-meta>
+        <avro-settings enable-avro="true" enable-native-string="true" enable-schema-default-nonnull="true"/>
+      </event-meta>
+    </defaults>
+  </engine-settings>
+</esper-configuration>]]></programlisting>
+				
+				<para>The code snippet shown next sets the default event representation to Object-array in the configuration object:</para>
+				<programlisting><![CDATA[configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableAvro(true);
+configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableNativeString(true);
+configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableSchemaDefaultNonNull(true);]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="config-engine-eventmeta-propertyreso" revision="1">

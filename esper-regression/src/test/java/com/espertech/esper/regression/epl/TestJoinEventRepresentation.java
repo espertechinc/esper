@@ -15,7 +15,7 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
@@ -58,17 +58,17 @@ public class TestJoinEventRepresentation extends TestCase
 
     public void testJoinEventRepresentations() {
         String eplOne = "select S0.id as S0_id, S1.id as S1_id, S0.p00 as S0_p00, S1.p00 as S1_p00 from S0#keepall as S0, S1#keepall as S1 where S0.id = S1.id";
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertion(eplOne, rep, "S0_id,S1_id,S0_p00,S1_p00");
         }
 
         String eplTwo = "select * from S0#keepall as S0, S1#keepall as S1 where S0.id = S1.id";
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertion(eplTwo, rep, "S0.id,S1.id,S0.p00,S1.p00");
         }
     }
 
-    private void runAssertion(String epl, EventRepresentationEnum rep, String columnNames)
+    private void runAssertion(String epl, EventRepresentationChoice rep, String columnNames)
     {
         if (rep.isMapEvent()) {
             Map<String, Object> typeInfo = new HashMap<>();
@@ -156,7 +156,7 @@ public class TestJoinEventRepresentation extends TestCase
         epService.getEPRuntime().sendEvent(theEvent, name);
     }
 
-    private void sendRepEvent(EventRepresentationEnum rep, String name, String id, int p00)
+    private void sendRepEvent(EventRepresentationChoice rep, String name, String id, int p00)
     {
         if (rep.isMapEvent()) {
             Map<String, Object> theEvent = new HashMap<String, Object>();

@@ -26,7 +26,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanTwo;
 import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.bean.SupportBean_ST0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.LinkedList;
@@ -87,12 +87,12 @@ public class TestNamedWindowOnDelete extends TestCase
 
     public void testStaggeredNamedWindow() throws Exception
     {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionStaggered(rep);
         }
     }
 
-    private void runAssertionStaggered(EventRepresentationEnum outputType) throws Exception {
+    private void runAssertionStaggered(EventRepresentationChoice outputType) throws Exception {
 
         String[] fieldsOne = new String[] {"a1", "b1"};
         String[] fieldsTwo = new String[] {"a2", "b2"};

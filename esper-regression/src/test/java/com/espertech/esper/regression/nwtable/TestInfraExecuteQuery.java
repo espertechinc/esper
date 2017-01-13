@@ -29,11 +29,10 @@ import com.espertech.esper.supportregression.bean.SupportEnum;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import sun.net.www.content.text.Generic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,7 +131,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
     }
 
     public void test3StreamInnerJoin() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertion3StreamInnerJoin(rep, true);
             runAssertion3StreamInnerJoin(rep, false);
         }
@@ -252,7 +251,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         }
     }
 
-    private void runAssertion3StreamInnerJoin(EventRepresentationEnum eventRepresentationEnum, boolean isNamedWindow) throws Exception {
+    private void runAssertion3StreamInnerJoin(EventRepresentationChoice eventRepresentationEnum, boolean isNamedWindow) throws Exception {
         String eplEvents = eventRepresentationEnum.getAnnotationText() + " create schema Product (productId string, categoryId string);" +
                 eventRepresentationEnum.getAnnotationText() + " create schema Category (categoryId string, owner string);" +
                 eventRepresentationEnum.getAnnotationText() + " create schema ProductOwnerDetails (productId string, owner string);";
@@ -336,10 +335,10 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
     private void runAssertionJoinWhere(boolean isNamedWindow) throws Exception
     {
         String eplCreateOne = isNamedWindow ?
-                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra1#keepall (key String, keyJoin String)") :
+                (EventRepresentationChoice.MAP.getAnnotationText() + " create window Infra1#keepall (key String, keyJoin String)") :
                 "create table Infra1 (key String primary key, keyJoin String)";
         String eplCreateTwo = isNamedWindow ?
-                (EventRepresentationEnum.MAP.getAnnotationText() + " create window Infra2#keepall (keyJoin String, value double)") :
+                (EventRepresentationChoice.MAP.getAnnotationText() + " create window Infra2#keepall (keyJoin String, value double)") :
                 "create table Infra2 (keyJoin String primary key, value double primary key)";
         epService.getEPAdministrator().createEPL(eplCreateOne);
         epService.getEPAdministrator().createEPL(eplCreateTwo);
@@ -1027,7 +1026,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
         }
     }
 
-    private void sendEvent(EventRepresentationEnum eventRepresentationEnum, EPServiceProvider epService, String eventName, String[] attributes) {
+    private void sendEvent(EventRepresentationChoice eventRepresentationEnum, EPServiceProvider epService, String eventName, String[] attributes) {
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             List<Object> eventObjectArray = new ArrayList<Object>();

@@ -23,7 +23,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -68,9 +68,9 @@ public class TestNamedWindowViews extends TestCase
 
     public void testBeanBacked()
     {
-        runAssertionBeanContained(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionBeanContained(EventRepresentationEnum.MAP);
-        runAssertionBeanContained(EventRepresentationEnum.DEFAULT);
+        runAssertionBeanContained(EventRepresentationChoice.ARRAY);
+        runAssertionBeanContained(EventRepresentationChoice.MAP);
+        runAssertionBeanContained(EventRepresentationChoice.DEFAULT);
     }
 
     public void testIntersection() throws Exception {
@@ -94,7 +94,7 @@ public class TestNamedWindowViews extends TestCase
         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.assertInvokedAndReset(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
     }
 
-    private void runAssertionBeanContained(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionBeanContained(EventRepresentationChoice eventRepresentationEnum) {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
@@ -190,7 +190,7 @@ public class TestNamedWindowViews extends TestCase
         epService.getEPRuntime().sendEvent(new SupportBean("E1", 9));
 
         // fire trigger
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().getEventSender("TypeTrigger").sendEvent(new Object[0]);
         }
         else {

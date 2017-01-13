@@ -1333,7 +1333,7 @@ Long count= (Long) newEvents[0].get("mycount");]]></programlisting>
 			</para>
 			
 			<para>
-			  Use <literal>statement.getEventType().getUnderlyingType()</literal> to inspect the underlying type for all events delivered to listeners. Whether the engine delivers Map or Object-array events to listeners can be specified as follows. If the statement provides the <literal>@EventRepresentation(array=true)</literal> annotation the engine delivers the output events as object array. If the statement provides the <literal>@EventRepresentation(array=false)</literal> annotation the engine delivers output events as a Map. If neither annotation is provided, the engine delivers the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
+			  Use <literal>statement.getEventType().getUnderlyingType()</literal> to inspect the underlying type for all events delivered to listeners. Whether the engine delivers Map or Object-array events to listeners can be specified as follows. If the statement provides the <literal>@EventRepresentation(objectarray)</literal> annotation the engine delivers the output events as object array. If the statement provides the <literal>@EventRepresentation(map)</literal> annotation the engine delivers output events as a Map. If neither annotation is provided, the engine delivers the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
 			</para>
 	
 			<para>

@@ -21,9 +21,8 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -55,11 +54,11 @@ public class TestUpdateMapIndexProps extends TestCase
     public void testSetMapProps() throws Exception {
         runAssertionSetMapPropsBean();
 
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionUpdateIStreamSetMapProps(rep);
         }
 
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionNamedWindowSetMapProps(rep);
         }
     }
@@ -78,7 +77,7 @@ public class TestUpdateMapIndexProps extends TestCase
         EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), "props('abc'),array[2]".split(","), new Object[]{1, 10}, new Object[]{null, null});
     }
 
-    private void runAssertionUpdateIStreamSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
+    private void runAssertionUpdateIStreamSetMapProps(EventRepresentationChoice eventRepresentationEnum) throws Exception {
 
         // test update-istream with map
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInfraType(simple String, myarray int[], mymap java.util.Map)");
@@ -105,7 +104,7 @@ public class TestUpdateMapIndexProps extends TestCase
         epService.initialize();
     }
 
-    private void runAssertionNamedWindowSetMapProps(EventRepresentationEnum eventRepresentationEnum) throws Exception {
+    private void runAssertionNamedWindowSetMapProps(EventRepresentationChoice eventRepresentationEnum) throws Exception {
 
         // test named-window update
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);

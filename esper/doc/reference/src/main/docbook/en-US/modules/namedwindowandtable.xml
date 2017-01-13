@@ -304,13 +304,13 @@ create window <emphasis>window_name</emphasis>.<emphasis>view_specifications</em
     (ipAddress string, userId String, secData SecurityData, historySecData SecurityData[])]]></programlisting>
     
 				<para>
-				  Whether the named window uses a Map or Object-array event representation for the rows can be specified as follows. If the create-window statement provides the <literal>@EventRepresentation(array=true)</literal> annotation the engine maintains named window rows as object array. If the statement provides the <literal>@EventRepresentation(array=false)</literal> annotation the engine maintains named window rows using Map objects. If neither annotation is provided, the engine uses the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
+				  Whether the named window uses a Map, Object-array or Avro event representation for the rows can be specified as follows. If the create-window statement provides the <literal>@EventRepresentation(objectarray)</literal> annotation the engine maintains named window rows as object array. If the statement provides the <literal>@EventRepresentation(map)</literal> annotation the engine maintains named window rows using Map objects. If neither annotation is provided, the engine uses the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
 				</para>
 	
 				 <para>
 					The following EPL statement instructs the engine to represent FooWindow rows as object arrays:
 				 </para>
-				 <programlisting><![CDATA[@EventRepresentation(array=true) create window FooWindow#time(5 sec) as (string prop1)]]></programlisting>
+				 <programlisting><![CDATA[@EventRepresentation(objectarray) create window FooWindow#time(5 sec) as (string prop1)]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="named_create_drop" revision="1">

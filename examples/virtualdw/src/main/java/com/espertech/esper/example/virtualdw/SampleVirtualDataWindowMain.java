@@ -1,6 +1,7 @@
 package com.espertech.esper.example.virtualdw;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class SampleVirtualDataWindowMain
         log.info("Setting up engine instance.");
 
         Configuration config = new Configuration();
-        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.MAP); // use Map-type events for testing
+        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.MAP); // use Map-type events for testing
         config.addPlugInVirtualDataWindow("sample", "samplevdw", SampleVirtualDataWindowFactory.class.getName());
         config.addEventTypeAutoName(SampleVirtualDataWindowMain.class.getPackage().getName());    // import all event classes
 

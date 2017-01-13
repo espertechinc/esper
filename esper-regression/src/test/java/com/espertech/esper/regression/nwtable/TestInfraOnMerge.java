@@ -25,11 +25,10 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,7 +83,7 @@ public class TestInfraOnMerge extends TestCase
     }
 
     private void runAssertionInsertOtherStream(boolean namedWindow) throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInsertOtherStream(namedWindow, rep);
         }
     }
@@ -117,13 +116,13 @@ public class TestInfraOnMerge extends TestCase
     }
 
     public void testInnerTypeAndVariable() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInnerTypeAndVariable(true, rep);
         }
 
-        runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.MAP);
-        runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionInnerTypeAndVariable(false, EventRepresentationEnum.DEFAULT);
+        runAssertionInnerTypeAndVariable(false, EventRepresentationChoice.MAP);
+        runAssertionInnerTypeAndVariable(false, EventRepresentationChoice.ARRAY);
+        runAssertionInnerTypeAndVariable(false, EventRepresentationChoice.DEFAULT);
     }
 
     public void testInvalid() {
@@ -341,22 +340,22 @@ public class TestInfraOnMerge extends TestCase
         EPStatement merged = epService.getEPAdministrator().createEPL(epl);
         merged.addListener(mergeListener);
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "E1", 0);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "E1", 0);
         assertFalse(mergeListener.isInvoked());
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "A1", 1);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "A1", 1);
         EPAssertionUtil.assertProps(mergeListener.assertOneGetNewAndReset(), fields, new Object[]{"A1", 1});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "B1", 2);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "B1", 2);
         EPAssertionUtil.assertProps(mergeListener.assertOneGetNewAndReset(), fields, new Object[]{"B1", 2});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "C1", 3);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "C1", 3);
         EPAssertionUtil.assertProps(mergeListener.assertOneGetNewAndReset(), fields, new Object[]{"Z", -1});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "D1", 4);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "D1", 4);
         EPAssertionUtil.assertProps(mergeListener.assertOneGetNewAndReset(), fields, new Object[]{"xD1x", -4});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "B1", 2);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "B1", 2);
         assertFalse(mergeListener.isInvoked());
 
         EPStatementObjectModel model = epService.getEPAdministrator().compileEPL(epl);
@@ -393,28 +392,28 @@ public class TestInfraOnMerge extends TestCase
                 "insert select \"x\" || me.in1 || \"x\" as col1, me.in2 * -1 as col2 ";
         epService.getEPAdministrator().createEPL(epl);
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "E1", 2);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "E1", 2);
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"xE1x", -2}});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "A1", 3);   // matched : no where clause
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "A1", 3);   // matched : no where clause
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"xE1x", -2}});
 
         epService.getEPRuntime().sendEvent(new SupportBean_A("Ax1"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, null);
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "A1", 4);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "A1", 4);
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"A1", 4}});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "B1", 5);   // matched : no where clause
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "B1", 5);   // matched : no where clause
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"A1", 4}});
 
         epService.getEPRuntime().sendEvent(new SupportBean_A("Ax1"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, null);
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "B1", 5);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "B1", 5);
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"B1", 5}});
 
-        sendMyEvent(EventRepresentationEnum.getEngineDefault(epService), "C", 6);
+        sendMyEvent(EventRepresentationChoice.getEngineDefault(epService), "C", 6);
         EPAssertionUtil.assertPropsPerRowAnyOrder(namedWindowStmt.iterator(), fields, new Object[][]{{"Z", -1}});
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -478,7 +477,7 @@ public class TestInfraOnMerge extends TestCase
         }
     }
 
-    private void runAssertionInnerTypeAndVariable(boolean namedWindow, EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionInnerTypeAndVariable(boolean namedWindow, EventRepresentationChoice eventRepresentationEnum) {
 
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInnerSchema(in1 string, in2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventSchema(col1 string, col2 MyInnerSchema)");
@@ -749,7 +748,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);
     }
 
-    private void runAssertionInsertOtherStream(boolean namedWindow, EventRepresentationEnum eventRepresentationEnum) throws Exception {
+    private void runAssertionInsertOtherStream(boolean namedWindow, EventRepresentationChoice eventRepresentationEnum) throws Exception {
         String epl = eventRepresentationEnum.getAnnotationText() + " create schema MyEvent as (name string, value double);\n" +
                 (namedWindow ? 
                     eventRepresentationEnum.getAnnotationText() + " create window MyInfra#unique(name) as MyEvent;\n":
@@ -785,7 +784,7 @@ public class TestInfraOnMerge extends TestCase
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", true);
     }
 
-    private void makeSendNameValueEvent(EPServiceProvider engine, EventRepresentationEnum eventRepresentationEnum, String typeName, String name, double value) {
+    private void makeSendNameValueEvent(EPServiceProvider engine, EventRepresentationChoice eventRepresentationEnum, String typeName, String name, double value) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             engine.getEPRuntime().sendEvent(new Object[] {name, value}, typeName);
         }
@@ -860,7 +859,7 @@ public class TestInfraOnMerge extends TestCase
         return sb;
     }
 
-    private void sendMyInnerSchemaEvent(EventRepresentationEnum eventRepresentationEnum, String col1, String col2in1, int col2in2) {
+    private void sendMyInnerSchemaEvent(EventRepresentationChoice eventRepresentationEnum, String col1, String col2in1, int col2in2) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {col1, new Object[] {col2in1, col2in2}}, "MyEventSchema");
         }
@@ -889,7 +888,7 @@ public class TestInfraOnMerge extends TestCase
         }
     }
 
-    private void sendMyEvent(EventRepresentationEnum eventRepresentationEnum, String in1, int in2) {
+    private void sendMyEvent(EventRepresentationChoice eventRepresentationEnum, String in1, int in2) {
         Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
         theEvent.put("in1", in1);
         theEvent.put("in2", in2);

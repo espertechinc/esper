@@ -11,9 +11,9 @@
 
 package com.espertech.esper.util;
 
-import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.annotation.EventRepresentation;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
 
@@ -21,16 +21,16 @@ import java.lang.annotation.Annotation;
 
 public class EventRepresentationUtil {
 
-    public static Configuration.EventRepresentation getRepresentation(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
+    public static EventUnderlyingType getRepresentation(Annotation[] annotations, ConfigurationInformation configs, CreateSchemaDesc.AssignedType assignedType) {
         // assigned type has priority
         if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {
-            return Configuration.EventRepresentation.OBJECTARRAY;
+            return EventUnderlyingType.OBJECTARRAY;
         }
         else if (assignedType == CreateSchemaDesc.AssignedType.MAP) {
-            return Configuration.EventRepresentation.MAP;
+            return EventUnderlyingType.MAP;
         }
         else if (assignedType == CreateSchemaDesc.AssignedType.AVRO) {
-            return Configuration.EventRepresentation.AVRO;
+            return EventUnderlyingType.AVRO;
         }
         if (assignedType == CreateSchemaDesc.AssignedType.VARIANT || assignedType != CreateSchemaDesc.AssignedType.NONE) {
             throw new IllegalStateException("Not handled by event representation: " + assignedType);
@@ -40,26 +40,31 @@ public class EventRepresentationUtil {
         Annotation annotation = AnnotationUtil.findAnnotation(annotations, EventRepresentation.class);
         if (annotation != null) {
             EventRepresentation eventRepresentation = (EventRepresentation) annotation;
-            if (eventRepresentation.avro()) {
-                return Configuration.EventRepresentation.AVRO;
+            if (eventRepresentation.value() == EventUnderlyingType.AVRO) {
+                return EventUnderlyingType.AVRO;
             }
-            else if (eventRepresentation.array()) {
-                return Configuration.EventRepresentation.OBJECTARRAY;
+            else if (eventRepresentation.value() == EventUnderlyingType.OBJECTARRAY) {
+                return EventUnderlyingType.OBJECTARRAY;
             }
-            return Configuration.EventRepresentation.MAP;
+            else if (eventRepresentation.value() == EventUnderlyingType.MAP) {
+                return EventUnderlyingType.MAP;
+            }
+            else {
+                throw new IllegalStateException("Unrecognized enum " + eventRepresentation.value());
+            }
         }
 
         // use engine-wide default
-        Configuration.EventRepresentation configured = configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
-        if (configured == Configuration.EventRepresentation.OBJECTARRAY) {
-            return Configuration.EventRepresentation.OBJECTARRAY;
+        EventUnderlyingType configured = configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
+        if (configured == EventUnderlyingType.OBJECTARRAY) {
+            return EventUnderlyingType.OBJECTARRAY;
         }
-        else if (configured == Configuration.EventRepresentation.MAP) {
-            return Configuration.EventRepresentation.MAP;
+        else if (configured == EventUnderlyingType.MAP) {
+            return EventUnderlyingType.MAP;
         }
-        else if (configured == Configuration.EventRepresentation.AVRO) {
-            return Configuration.EventRepresentation.AVRO;
+        else if (configured == EventUnderlyingType.AVRO) {
+            return EventUnderlyingType.AVRO;
         }
-        return Configuration.EventRepresentation.MAP;
+        return EventUnderlyingType.MAP;
     }
 }

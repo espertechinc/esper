@@ -28,7 +28,7 @@ import com.espertech.esper.supportregression.client.SupportAuditCallback;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.AuditContext;
 import com.espertech.esper.util.AuditPath;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class TestAudit extends TestCase {
         String epl = "@Name('All-Order-Events') @Audit('stream,property') select price from OrderEvent";
         epService.getEPAdministrator().createEPL(epl).addListener(listener);
         
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {100d}, "OrderEvent");
         }
         else {

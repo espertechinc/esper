@@ -1140,11 +1140,11 @@ select * from PersonEvent(department=VAR_DEPARTMENT)]]></programlisting>
 			</para>
 
 			<para>
-			    First, we recommend that your application sends object-array events into the engine, instead of Map-type events. See <xref linkend="eventrep-objectarray"/> for more information.
+			    First, we recommend that your application sends object-array events into the engine, instead of Map-type events. See <xref linkend="appendix_eventrepoa"/> for more information.
 			</para>
 			
 			<para>
-			    Second, we recommend that your application sets the engine-wide configuration of the default event representation to object array, as described in <xref linkend="config-engine-eventmeta-representation"/>. Alternatively you can use the <literal>@EventRepresentation(array=true)</literal> annotation with individual statements.
+			    Second, we recommend that your application sets the engine-wide configuration of the default event representation to object array, as described in <xref linkend="config-engine-eventmeta-representation"/>. Alternatively you can use the <literal>@EventRepresentation(objectarray)</literal> annotation with individual statements.
 			</para>
 		</sect2>
 

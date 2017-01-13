@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_A;
 import com.espertech.esper.supportregression.bean.SupportBean_B;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -172,12 +172,12 @@ public class TestNamedWindowInsertFrom extends TestCase
 
     public void testInsertWhereOMStaggered()
     {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInsertWhereOMStaggered(rep);
         }
     }
 
-    private void runAssertionInsertWhereOMStaggered(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionInsertWhereOMStaggered(EventRepresentationChoice eventRepresentationEnum) {
 
         Map<String, Object> dataType = makeMap(new Object[][] {{"a", String.class}, {"b", int.class}});
         epService.getEPAdministrator().getConfiguration().addEventType("MyMap", dataType);

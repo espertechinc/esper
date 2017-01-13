@@ -232,6 +232,10 @@ public class AnnotationUtil
                             return constant;
                         }
                     }
+
+                    throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires an enum-value '" +
+                            annotationAttribute.getType().getSimpleName() + "' for attribute '" + annotationAttribute.getName() +
+                            "' but received '" + value + "' which is not one of the enum choices");
                 }
 
                 // cast as required

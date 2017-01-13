@@ -13,6 +13,7 @@ package com.espertech.esper.regression.multithread;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import junit.framework.TestCase;
@@ -53,7 +54,7 @@ public class TestMTStmtNamedWindowSubqueryAgg extends TestCase
         Configuration config = SupportConfigFactory.getConfiguration();
         config.addEventType("SupportBean", SupportBean.class);
         config.addPlugInAggregationFunctionFactory("intListAgg", MyIntListAggregationFactory.class.getName());
-        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.MAP); // use Map-type events for testing
+        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.MAP); // use Map-type events for testing
         engine = EPServiceProviderManager.getDefaultProvider(config);
         engine.initialize();
 

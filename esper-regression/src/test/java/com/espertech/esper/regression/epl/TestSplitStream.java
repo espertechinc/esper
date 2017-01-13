@@ -24,7 +24,7 @@ import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.generic.GenericData;
 
@@ -85,7 +85,7 @@ public class TestSplitStream extends TestCase
     }
 
     public void testSplitPremptiveNamedWindow() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionSplitPremptiveNamedWindow(rep);
         }
     }
@@ -385,7 +385,7 @@ public class TestSplitStream extends TestCase
         stmtTwo.destroy();
     }
 
-    private void runAssertionSplitPremptiveNamedWindow(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionSplitPremptiveNamedWindow(EventRepresentationChoice eventRepresentationEnum)
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTwo(col2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeTrigger(trigger int)");

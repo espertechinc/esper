@@ -19,7 +19,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -57,12 +57,12 @@ public class TestInsertIntoTransposeStream extends TestCase
     public void testTransposeMapAndObjectArray() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runTransposeMapAndObjectArray(rep);
         }
     }
 
-    private void runTransposeMapAndObjectArray(EventRepresentationEnum representation) {
+    private void runTransposeMapAndObjectArray(EventRepresentationChoice representation) {
 
         String[] fields = "p0,p1".split(",");
         epService.getEPAdministrator().createEPL("create " + representation.getOutputTypeCreateSchemaName() + " schema MySchema(p0 string, p1 int)");

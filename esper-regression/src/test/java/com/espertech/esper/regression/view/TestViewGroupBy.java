@@ -23,7 +23,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanTimestamp;
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -84,7 +84,7 @@ public class TestViewGroupBy extends TestCase
 
     public void testSelfJoin() {
         // ESPER-528
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create schema Product (product string, productsize int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.MAP.getAnnotationText() + " create schema Product (product string, productsize int)");
 
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         String query =

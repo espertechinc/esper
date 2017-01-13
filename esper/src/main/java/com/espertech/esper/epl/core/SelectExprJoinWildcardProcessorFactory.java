@@ -8,9 +8,9 @@
  **************************************************************************************/
 package com.espertech.esper.epl.core;
 
-import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
@@ -64,7 +64,7 @@ public class SelectExprJoinWildcardProcessorFactory
         }
 
         // If we have a name for this type, add it
-        Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+        EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
         EventType resultEventType;
 
         SelectExprProcessor processor = null;
@@ -78,13 +78,13 @@ public class SelectExprJoinWildcardProcessorFactory
         if (processor == null) {
             if (insertIntoDesc != null) {
                 try {
-                    if (representation == Configuration.EventRepresentation.MAP) {
+                    if (representation == EventUnderlyingType.MAP) {
                         resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true);
                     }
-                    else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                    else if (representation == EventUnderlyingType.OBJECTARRAY) {
                         resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true, false, null);
                     }
-                    else if (representation == Configuration.EventRepresentation.AVRO) {
+                    else if (representation == EventUnderlyingType.AVRO) {
                         resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selectProperties, false, false, false, false, true, annotations, null);
                     }
                     else {
@@ -97,13 +97,13 @@ public class SelectExprJoinWildcardProcessorFactory
                 }
             }
             else {
-                if (representation == Configuration.EventRepresentation.MAP) {
+                if (representation == EventUnderlyingType.MAP) {
                     resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, true);
                 }
-                else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                else if (representation == EventUnderlyingType.OBJECTARRAY) {
                     resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties);
                 }
-                else if (representation == Configuration.EventRepresentation.AVRO) {
+                else if (representation == EventUnderlyingType.AVRO) {
                     resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, annotations);
                 }
                 else {

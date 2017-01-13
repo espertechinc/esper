@@ -20,7 +20,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.generic.GenericData;
 
@@ -49,12 +49,12 @@ public class TestNamedWindowProcessingOrder extends TestCase
     }
 
     public void testDispatchBackQueue() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionDispatchBackQueue(rep);
         }
     }
 
-    public void runAssertionDispatchBackQueue(EventRepresentationEnum eventRepresentationEnum) {
+    public void runAssertionDispatchBackQueue(EventRepresentationChoice eventRepresentationEnum) {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema StartValueEvent as (dummy string)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TestForwardEvent as (prop1 string)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TestInputEvent as (dummy string)");

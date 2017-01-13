@@ -16,7 +16,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -47,11 +47,11 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
     }
 
     public void testCreateStream() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionCreateStream(rep);
         }
 
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertPopulateFromNamedWindow(rep);
         }
 
@@ -69,7 +69,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "p0,p1".split(","), new Object[] {"p0value", "p1value"});
     }
 
-    private void runAssertPopulateFromNamedWindow(EventRepresentationEnum type) {
+    private void runAssertPopulateFromNamedWindow(EventRepresentationChoice type) {
         epService.getEPAdministrator().createEPL("create " + type.getOutputTypeCreateSchemaName() + " schema Node(nid string)");
         epService.getEPAdministrator().createEPL("create window NodeWindow#unique(nid) as Node");
         epService.getEPAdministrator().createEPL("insert into NodeWindow select * from Node");
@@ -105,12 +105,12 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
     }
 
     public void testCreateStreamTwo() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionCreateStreamTwo(rep);
         }
     }
 
-    private void runAssertionCreateStream(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionCreateStream(EventRepresentationChoice eventRepresentationEnum)
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEvent(myId int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string)");
@@ -143,7 +143,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         epService.initialize();
     }
 
-    private void runAssertionCreateStreamTwo(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionCreateStreamTwo(EventRepresentationChoice eventRepresentationEnum)
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEvent(myId int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema AllMyEvent as (myEvent MyEvent, class String, reverse boolean)");
@@ -180,7 +180,7 @@ public class TestInsertIntoPopulateCreateStream extends TestCase
         epService.initialize();
     }
 
-    private void assertCreateStreamTwo(EventRepresentationEnum eventRepresentationEnum, EventBean eventBean, EPStatement statement) {
+    private void assertCreateStreamTwo(EventRepresentationChoice eventRepresentationEnum, EventBean eventBean, EPStatement statement) {
         if (eventRepresentationEnum.isAvroEvent()) {
             assertEquals(1, eventBean.get("myEvent.myId"));
         }

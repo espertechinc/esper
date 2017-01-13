@@ -22,7 +22,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -187,12 +187,12 @@ public class TestTableInsertInto extends TestCase {
 
     public void testInsertIntoWildcard() {
         runAssertionWildcard(true, null);
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionWildcard(false, rep);
         }
     }
 
-    private void runAssertionWildcard(boolean bean, EventRepresentationEnum rep) {
+    private void runAssertionWildcard(boolean bean, EventRepresentationChoice rep) {
         if (bean) {
             epService.getEPAdministrator().createEPL("create schema MySchema as " + MyP0P1Event.class.getName());
         }

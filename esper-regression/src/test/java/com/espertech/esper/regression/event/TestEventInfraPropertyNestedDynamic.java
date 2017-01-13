@@ -19,8 +19,7 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
-import com.espertech.esper.util.EventRepresentationEnum;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -74,13 +73,13 @@ public class TestEventInfraPropertyNestedDynamic extends TestCase {
     }
 
     public void testDynamicProp() {
-        runAssertion(EventRepresentationEnum.OBJECTARRAY, "");
-        runAssertion(EventRepresentationEnum.MAP, "");
-        runAssertion(EventRepresentationEnum.AVRO, "@AvroField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
-        runAssertion(EventRepresentationEnum.DEFAULT, "");
+        runAssertion(EventRepresentationChoice.ARRAY, "");
+        runAssertion(EventRepresentationChoice.MAP, "");
+        runAssertion(EventRepresentationChoice.AVRO, "@AvroField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
+        runAssertion(EventRepresentationChoice.DEFAULT, "");
     }
 
-    private void runAssertion(EventRepresentationEnum outputEventRep, String additionalAnnotations) {
+    private void runAssertion(EventRepresentationChoice outputEventRep, String additionalAnnotations) {
 
         // Bean
         Pair[] beanTests = new Pair[]{
@@ -126,7 +125,7 @@ public class TestEventInfraPropertyNestedDynamic extends TestCase {
         runAssertion(outputEventRep, additionalAnnotations, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class);
     }
 
-    private void runAssertion(EventRepresentationEnum eventRepresentationEnum,
+    private void runAssertion(EventRepresentationChoice eventRepresentationEnum,
                               String additionalAnnotations,
                               String typename,
                               FunctionSendEvent send,

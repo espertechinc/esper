@@ -20,7 +20,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBeanRange;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,7 +331,7 @@ public class TestPerfNamedWindowSubquery extends TestCase
         theEvent.put("e0", e0);
         theEvent.put("e1", e1);
         theEvent.put("e2", e2);
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "EventSchema");
         }
         else {

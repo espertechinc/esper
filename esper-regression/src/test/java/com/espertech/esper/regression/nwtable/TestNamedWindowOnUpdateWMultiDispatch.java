@@ -16,7 +16,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -85,7 +85,7 @@ public class TestNamedWindowOnUpdateWMultiDispatch extends TestCase
         map.put("company", company);
         map.put("value", value);
         map.put("total", total);
-        if (EventRepresentationEnum.getEngineDefault(engine).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(engine).isObjectArrayEvent()) {
             engine.getEPRuntime().sendEvent(map.values().toArray(), typeName);
         }
         else {

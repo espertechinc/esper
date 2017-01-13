@@ -11,41 +11,40 @@
 
 package com.espertech.esper.util;
 
-import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.annotation.EventRepresentation;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-public enum EventRepresentationEnum {
-    OBJECTARRAY(Configuration.EventRepresentation.OBJECTARRAY, "@EventRepresentation(array=true)", " objectarray"),
-    MAP(Configuration.EventRepresentation.MAP, "@EventRepresentation(array=false)", " map"),
-    AVRO(Configuration.EventRepresentation.AVRO, "@EventRepresentation(avro=true)", " avro"),
-    DEFAULT(Configuration.EventRepresentation.getDefault(), "", "");
+public enum EventRepresentationChoice {
+    ARRAY(EventUnderlyingType.OBJECTARRAY, "@EventRepresentation('objectarray')", " objectarray"),
+    MAP(EventUnderlyingType.MAP, "@EventRepresentation('map')", " map"),
+    AVRO(EventUnderlyingType.AVRO, "@EventRepresentation('avro')", " avro"),
+    DEFAULT(EventUnderlyingType.getDefault(), "", "");
 
     private final String annotationText;
     private final String outputTypeCreateSchemaName;
     private final String outputTypeClassName;
 
-    EventRepresentationEnum(Configuration.EventRepresentation eventRepresentation, String annotationText, String outputTypeCreateSchemaName) {
+    EventRepresentationChoice(EventUnderlyingType eventRepresentation, String annotationText, String outputTypeCreateSchemaName) {
         this.annotationText = annotationText;
         this.outputTypeCreateSchemaName = outputTypeCreateSchemaName;
         this.outputTypeClassName = eventRepresentation.getUnderlyingClassName();
     }
 
-    public static EventRepresentationEnum getEngineDefault(EPServiceProvider engine) {
+    public static EventRepresentationChoice getEngineDefault(EPServiceProvider engine) {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) engine;
-        Configuration.EventRepresentation configured = spi.getConfigurationInformation().getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
-        if (configured == Configuration.EventRepresentation.OBJECTARRAY) {
-            return OBJECTARRAY;
+        EventUnderlyingType configured = spi.getConfigurationInformation().getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
+        if (configured == EventUnderlyingType.OBJECTARRAY) {
+            return ARRAY;
         }
-        else if (configured == Configuration.EventRepresentation.AVRO) {
+        else if (configured == EventUnderlyingType.AVRO) {
             return AVRO;
         }
         return MAP;
@@ -53,10 +52,6 @@ public enum EventRepresentationEnum {
 
     public String getAnnotationText() {
         return annotationText;
-    }
-
-    public String getOutputTypeClassName() {
-        return outputTypeClassName;
     }
 
     public String getOutputTypeCreateSchemaName() {
@@ -76,7 +71,7 @@ public enum EventRepresentationEnum {
     }
 
     public boolean isObjectArrayEvent() {
-        return this == OBJECTARRAY;
+        return this == ARRAY;
     }
 
     public boolean isMapEvent() {
@@ -95,11 +90,11 @@ public enum EventRepresentationEnum {
             return;
         }
         AnnotationPart part = new AnnotationPart(EventRepresentation.class.getSimpleName());
-        if (this == OBJECTARRAY) {
-            part.addValue("array", true);
+        if (this == ARRAY) {
+            part.addValue("objectarray");
         }
         if (this == AVRO) {
-            part.addValue("avro", true);
+            part.addValue("avro");
         }
         model.setAnnotations(Collections.singletonList(part));
     }

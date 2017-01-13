@@ -22,7 +22,7 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -67,7 +67,7 @@ public class TestTypeOfExpr extends TestCase
     }
 
     public void testDynamicProps() {
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create schema MySchema as (key string)");
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.MAP.getAnnotationText() + " create schema MySchema as (key string)");
 
         String stmtText = "select typeof(prop?), typeof(key) from MySchema as s0";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -103,7 +103,7 @@ public class TestTypeOfExpr extends TestCase
         theEvent.put("prop", prop);
         theEvent.put("key", key);
 
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(theEvent, "MySchema");
         }
         else {
@@ -112,13 +112,13 @@ public class TestTypeOfExpr extends TestCase
     }
 
     public void testVariantStream() {
-        runAssertionVariantStream(EventRepresentationEnum.AVRO);
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        runAssertionVariantStream(EventRepresentationChoice.AVRO);
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionVariantStream(rep);
         }
     }
 
-    private void runAssertionVariantStream(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionVariantStream(EventRepresentationChoice eventRepresentationEnum)
     {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         
@@ -227,12 +227,12 @@ public class TestTypeOfExpr extends TestCase
     }
 
     public void testFragment() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionFragment(rep);
         }
     }
 
-    public void runAssertionFragment(EventRepresentationEnum eventRepresentationEnum) {
+    public void runAssertionFragment(EventRepresentationChoice eventRepresentationEnum) {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema InnerSchema as (key string)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MySchema as (inside InnerSchema, insidearr InnerSchema[])");
 

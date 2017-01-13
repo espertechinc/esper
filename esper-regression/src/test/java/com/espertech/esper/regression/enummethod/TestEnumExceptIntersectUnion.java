@@ -20,7 +20,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_ST0_Container;
 import com.espertech.esper.supportregression.bean.SupportCollection;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -224,14 +224,14 @@ public class TestEnumExceptIntersectUnion extends TestCase {
     }
 
     public void testInheritance() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             if (rep.isMapEvent() || rep.isObjectArrayEvent()) {
                 runAssertionInheritance(rep);
             }
         }
     }
 
-    public void runAssertionInheritance(EventRepresentationEnum eventRepresentationEnum) {
+    public void runAssertionInheritance(EventRepresentationChoice eventRepresentationEnum) {
 
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema BaseEvent as (b1 string)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema SubEvent as (s1 string) inherits BaseEvent");

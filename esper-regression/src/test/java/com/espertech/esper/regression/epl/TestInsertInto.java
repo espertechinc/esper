@@ -27,7 +27,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
@@ -66,7 +66,7 @@ public class TestInsertInto extends TestCase
 
     public void testAssertionWildcardRecast() {
         // bean to OA/Map/bean
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionWildcardRecast(true, null, false, rep);
         }
 
@@ -79,26 +79,26 @@ public class TestInsertInto extends TestCase
         }
 
         // OA
-        runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.MAP);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, false, EventRepresentationEnum.AVRO);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.OBJECTARRAY, true, null);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.ARRAY);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.ARRAY, false, EventRepresentationChoice.AVRO);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.ARRAY, true, null);
 
         // Map
-        runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.MAP);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, false, EventRepresentationEnum.AVRO);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.MAP, true, null);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.ARRAY);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.MAP, false, EventRepresentationChoice.AVRO);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.MAP, true, null);
 
         // Avro
-        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.MAP);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, false, EventRepresentationEnum.AVRO);
-        runAssertionWildcardRecast(false, EventRepresentationEnum.AVRO, true, null);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.ARRAY);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
+        runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, true, null);
     }
 
-    private void runAssertionWildcardRecast(boolean sourceBean, EventRepresentationEnum sourceType,
-                                            boolean targetBean, EventRepresentationEnum targetType) {
+    private void runAssertionWildcardRecast(boolean sourceBean, EventRepresentationChoice sourceType,
+                                            boolean targetBean, EventRepresentationChoice targetType) {
         try {
             runAssertionWildcardRecastInternal(sourceBean, sourceType, targetBean, targetType);
         }
@@ -111,8 +111,8 @@ public class TestInsertInto extends TestCase
         }
     }
 
-    private void runAssertionWildcardRecastInternal(boolean sourceBean, EventRepresentationEnum sourceType,
-                                            boolean targetBean, EventRepresentationEnum targetType) {
+    private void runAssertionWildcardRecastInternal(boolean sourceBean, EventRepresentationChoice sourceType,
+                                            boolean targetBean, EventRepresentationChoice targetType) {
         // declare source type
         if (sourceBean) {
             epService.getEPAdministrator().createEPL("create schema SourceSchema as " + MyP0P1EventSource.class.getName());
@@ -389,12 +389,12 @@ public class TestInsertInto extends TestCase
 
     public void testJoinWildcard() {
         runAssertionJoinWildcard(true, null);
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionJoinWildcard(false, rep);
         }
     }
 
-    private void runAssertionJoinWildcard(boolean bean, EventRepresentationEnum rep)
+    private void runAssertionJoinWildcard(boolean bean, EventRepresentationChoice rep)
     {
         if (bean) {
             epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean.class);
@@ -768,7 +768,7 @@ public class TestInsertInto extends TestCase
         feedListener.reset();
     }
 
-    private void assertJoinWildcard(EventRepresentationEnum rep, SupportUpdateListener listener, Object eventS0, Object eventS1) {
+    private void assertJoinWildcard(EventRepresentationChoice rep, SupportUpdateListener listener, Object eventS0, Object eventS1) {
         assertTrue(listener.getAndClearIsInvoked());
         assertEquals(1, listener.getLastNewData().length);
         assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);

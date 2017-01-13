@@ -17,11 +17,10 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import com.espertech.esperio.dataflow.FileSourceFactory;
 import junit.framework.TestCase;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,8 +57,8 @@ public class TestFileSourceGraphs extends TestCase
     }
 
     public void testCSVGraph() throws Exception {
-        runAssertionCSVGraphSchema(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionCSVGraphSchema(EventRepresentationEnum.MAP);
+        runAssertionCSVGraphSchema(EventRepresentationChoice.ARRAY);
+        runAssertionCSVGraphSchema(EventRepresentationChoice.MAP);
     }
 
     public void testPropertyOrderWLoop() throws Exception
@@ -270,7 +269,7 @@ public class TestFileSourceGraphs extends TestCase
         EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "myInt,myDouble,myString".split(","), new Object[][]{{1, 1.1, "one"}, {3, 3.3, "three"}, {5, 5.5, "five"}});
     }
 
-    private void runAssertionCSVGraphSchema(EventRepresentationEnum representationEnum) throws Exception {
+    private void runAssertionCSVGraphSchema(EventRepresentationChoice representationEnum) throws Exception {
 
         String[] fields = "myString,myInt,timestamp, myDouble".split(",");
         epService.getEPAdministrator().createEPL(representationEnum.getAnnotationText() + " create schema MyEvent(myString string, myInt int, timestamp long, myDouble double)");

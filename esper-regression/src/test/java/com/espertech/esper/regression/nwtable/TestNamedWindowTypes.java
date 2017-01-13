@@ -24,7 +24,7 @@ import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -33,8 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.apache.avro.SchemaBuilder.record;
 
 public class TestNamedWindowTypes extends TestCase
 {
@@ -69,12 +67,12 @@ public class TestNamedWindowTypes extends TestCase
     }
 
     public void testEventTypeColumnDef() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionEventTypeColumnDef(rep);
         }
     }
 
-    public void runAssertionEventTypeColumnDef(EventRepresentationEnum eventRepresentationEnum) {
+    public void runAssertionEventTypeColumnDef(EventRepresentationChoice eventRepresentationEnum) {
         EPStatement stmtSchema = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema SchemaOne(col1 int, col2 int)");
         assertTrue(eventRepresentationEnum.matchesClass(stmtSchema.getEventType().getUnderlyingType()));
 
@@ -112,12 +110,12 @@ public class TestNamedWindowTypes extends TestCase
 
     public void testMapTranspose()
     {
-        runAssertionMapTranspose(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionMapTranspose(EventRepresentationEnum.MAP);
-        runAssertionMapTranspose(EventRepresentationEnum.DEFAULT);
+        runAssertionMapTranspose(EventRepresentationChoice.ARRAY);
+        runAssertionMapTranspose(EventRepresentationChoice.MAP);
+        runAssertionMapTranspose(EventRepresentationChoice.DEFAULT);
     }
 
-    private void runAssertionMapTranspose(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionMapTranspose(EventRepresentationChoice eventRepresentationEnum) {
 
         Map<String, Object> innerTypeOne = new HashMap<String, Object>();
         innerTypeOne.put("i1", int.class);
@@ -286,7 +284,7 @@ public class TestNamedWindowTypes extends TestCase
     }
 
     public void testCreateSchemaModelAfter() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionCreateSchemaModelAfter(rep);
         }
 
@@ -304,7 +302,7 @@ public class TestNamedWindowTypes extends TestCase
         assertEquals(1, listener.getNewDataListFlattened().length);
     }
 
-    public void runAssertionCreateSchemaModelAfter(EventRepresentationEnum eventRepresentationEnum)
+    public void runAssertionCreateSchemaModelAfter(EventRepresentationChoice eventRepresentationEnum)
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventTypeOne (hsi int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventTypeTwo (event EventTypeOne)");

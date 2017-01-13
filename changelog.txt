@@ -8,7 +8,10 @@ Changes in version 6.0.0
     - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.5.3.jar)
     - CGLIB version is now 3.2.4 (cglib-nodep-3.2.4.jar) (previously cglib-nodep-3.1.jar)
     - SLF4J is now required (slf4j-api-1.7.21.jar) (commons-logging is no longer used) (optionally use with Log4J by adding slf4j-log4j12-1.7.21.jar)
+  - Support for Avro
   - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
+  - New EsperIO Kafka input adapter
+  - The @EventRepresentation annotation changed: it now takes a default parameter i.e. @EventRepresentation(map)
 
 Changes in version 5.5.0
 ------------------------

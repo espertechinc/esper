@@ -27,7 +27,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
@@ -126,12 +126,12 @@ public class TestSchema extends TestCase
     }
 
     public void testSchemaCopyProperties() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionSchemaCopyProperties(rep);
         }
     }
 
-    private void runAssertionSchemaCopyProperties(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionSchemaCopyProperties(EventRepresentationChoice eventRepresentationEnum) {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema BaseOne (prop1 String, prop2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema BaseTwo (prop3 long)");
 
@@ -264,12 +264,12 @@ public class TestSchema extends TestCase
     }
 
     public void testInvalid() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInvalid(rep);
         }
     }
 
-    private void runAssertionInvalid(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionInvalid(EventRepresentationChoice eventRepresentationEnum) {
         String expectedOne = !eventRepresentationEnum.isAvroEvent() ?
                 "Error starting statement: Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared Map or ObjectArray type [" :
                 "Error starting statement: Type definition encountered an unexpected property type name 'xxxx' for property 'col1', expected the name of a previously-declared Avro type";
@@ -310,7 +310,7 @@ public class TestSchema extends TestCase
     }
 
     public void testColDefPlain() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionColDefPlain(rep);
         }
 
@@ -326,7 +326,7 @@ public class TestSchema extends TestCase
         assertEquals(null, eventType.getPropertyType("f4"));
     }
 
-    private void runAssertionColDefPlain(EventRepresentationEnum eventRepresentationEnum) throws Exception
+    private void runAssertionColDefPlain(EventRepresentationChoice eventRepresentationEnum) throws Exception
     {
         EPStatement stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col1 string, col2 int, col3_col4 int)");
         assertTypeColDef(stmtCreate.getEventType());
@@ -433,12 +433,12 @@ public class TestSchema extends TestCase
     }
 
     public void testNestableMapArray() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionNestableMapArray(rep);
         }
     }
 
-    public void runAssertionNestableMapArray(EventRepresentationEnum eventRepresentationEnum) throws Exception
+    public void runAssertionNestableMapArray(EventRepresentationChoice eventRepresentationEnum) throws Exception
     {
         EPStatement stmtInner = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyInnerType as (inn1 string[], inn2 int[])");
         EventType inner = stmtInner.getEventType();

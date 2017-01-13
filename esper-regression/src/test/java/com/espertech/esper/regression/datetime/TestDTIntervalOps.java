@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.bean.SupportTimeStartEndB;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.timer.SupportDateTimeFieldType;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.generic.GenericData;
 
@@ -58,12 +58,12 @@ public class TestDTIntervalOps extends TestCase {
     }
 
     public void testCreateSchema() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionCreateSchema(rep);
         }
     }
 
-    private void runAssertionCreateSchema(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionCreateSchema(EventRepresentationChoice eventRepresentationEnum) {
 
         String startA = "2002-05-30T09:00:00.000";
         String endA = "2002-05-30T09:00:01.000";
@@ -1164,7 +1164,7 @@ public class TestDTIntervalOps extends TestCase {
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), configBean);
     }
 
-    private void runAssertionCreateSchemaWTypes(EventRepresentationEnum eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB) {
+    private void runAssertionCreateSchemaWTypes(EventRepresentationChoice eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB) {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts");
 
@@ -1180,7 +1180,7 @@ public class TestDTIntervalOps extends TestCase {
         epService.getEPAdministrator().getConfiguration().removeEventType("TypeB", true);
     }
 
-    private void makeSendEvent(String typeName, EventRepresentationEnum eventRepresentationEnum, Object startTs, Object endTs) {
+    private void makeSendEvent(String typeName, EventRepresentationChoice eventRepresentationEnum, Object startTs, Object endTs) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {startTs, endTs}, typeName);
         }

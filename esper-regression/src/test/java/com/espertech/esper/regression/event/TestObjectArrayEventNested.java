@@ -14,6 +14,7 @@ package com.espertech.esper.regression.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -29,7 +30,7 @@ public class TestObjectArrayEventNested extends TestCase
 {
     public void testConfiguredViaPropsAndXML() {
         Configuration configuration = SupportConfigFactory.getConfiguration();
-        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.OBJECTARRAY);
+        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.OBJECTARRAY);
         configuration.addEventType("MyOAType", "bean,theString,map".split(","), new Object[] {SupportBean.class.getName(), "string", "java.util.Map"});
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
@@ -57,7 +58,7 @@ public class TestObjectArrayEventNested extends TestCase
     public void testObjectArrayTypeUpdate()
     {
         Configuration configuration = SupportConfigFactory.getConfiguration();
-        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.OBJECTARRAY);
+        configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.OBJECTARRAY);
 
         String[] names = {"base1", "base2"};
         Object[] types = {String.class, makeMap(new Object[][] {{"n1", int.class}})};

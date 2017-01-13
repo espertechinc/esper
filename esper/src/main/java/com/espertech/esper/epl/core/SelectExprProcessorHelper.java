@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
 import com.espertech.esper.epl.core.eval.*;
@@ -484,7 +485,7 @@ public class SelectExprProcessorHelper
         boolean underlyingIsFragmentEvent = false;
         EventPropertyGetter underlyingPropertyEventGetter = null;
         ExprEvaluator underlyingExprEvaluator = null;
-        Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+        EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
 
         if (!selectedStreams.isEmpty()) {
             // Resolve underlying event type in the case of wildcard or non-named stream select.
@@ -603,10 +604,10 @@ public class SelectExprProcessorHelper
             }
 
             EventType resultEventType;
-            if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+            if (representation == EventUnderlyingType.OBJECTARRAY) {
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
             }
-            else if (representation == Configuration.EventRepresentation.AVRO) {
+            else if (representation == EventUnderlyingType.AVRO) {
                 resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, annotations);
             }
             else {
@@ -617,10 +618,10 @@ public class SelectExprProcessorHelper
                 return new EvalSelectNoWildcardEmptyProps(selectExprContext, resultEventType);
             }
             else {
-                if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                if (representation == EventUnderlyingType.OBJECTARRAY) {
                     return new EvalSelectNoWildcardObjectArray(selectExprContext, resultEventType);
                 }
-                else if (representation == Configuration.EventRepresentation.AVRO) {
+                else if (representation == EventUnderlyingType.AVRO) {
                     return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeNoWildcard(selectExprContext, resultEventType);
                 }
                 return new EvalSelectNoWildcardMap(selectExprContext, resultEventType);
@@ -950,14 +951,14 @@ public class SelectExprProcessorHelper
                             resultEventType = existingType;
                         }
                         else {
-                            Configuration.EventRepresentation out = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
-                            if (out == Configuration.EventRepresentation.MAP) {
+                            EventUnderlyingType out = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
+                            if (out == EventUnderlyingType.MAP) {
                                 resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true);
                             }
-                            else if (out == Configuration.EventRepresentation.OBJECTARRAY) {
+                            else if (out == EventUnderlyingType.OBJECTARRAY) {
                                 resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true, false, null);
                             }
-                            else if (out == Configuration.EventRepresentation.AVRO) {
+                            else if (out == EventUnderlyingType.AVRO) {
                                 resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selPropertyTypes, false, false, false, false, true, annotations, null);
                             }
                             else {

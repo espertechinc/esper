@@ -15,7 +15,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.Iterator;
@@ -40,13 +40,13 @@ public class TestInfraOnMergePerf extends TestCase {
     }
 
     public void testPerformance() {
-        runAssertionPerformance(true, EventRepresentationEnum.OBJECTARRAY);
-        runAssertionPerformance(true, EventRepresentationEnum.MAP);
-        runAssertionPerformance(true, EventRepresentationEnum.DEFAULT);
-        runAssertionPerformance(false, EventRepresentationEnum.OBJECTARRAY);
+        runAssertionPerformance(true, EventRepresentationChoice.ARRAY);
+        runAssertionPerformance(true, EventRepresentationChoice.MAP);
+        runAssertionPerformance(true, EventRepresentationChoice.DEFAULT);
+        runAssertionPerformance(false, EventRepresentationChoice.ARRAY);
     }
 
-    private void runAssertionPerformance(boolean namedWindow, EventRepresentationEnum outputType) {
+    private void runAssertionPerformance(boolean namedWindow, EventRepresentationChoice outputType) {
 
         String eplCreate = namedWindow ?
             outputType.getAnnotationText() + " create window MyWindow#keepall as (c1 string, c2 int)" :

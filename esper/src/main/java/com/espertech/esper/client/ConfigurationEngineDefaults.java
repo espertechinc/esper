@@ -9,6 +9,7 @@
 package com.espertech.esper.client;
 
 import com.espertech.esper.client.soda.StreamSelector;
+import com.espertech.esper.client.util.EventUnderlyingType;
 
 import java.io.Serializable;
 import java.math.MathContext;
@@ -921,7 +922,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         private Configuration.PropertyResolutionStyle classPropertyResolutionStyle;
         private ConfigurationEventTypeLegacy.AccessorStyle defaultAccessorStyle;
-        private Configuration.EventRepresentation defaultEventRepresentation;
+        private EventUnderlyingType defaultEventRepresentation;
         private int anonymousCacheSize = 5;
         private AvroSettings avroSettings;
 
@@ -932,7 +933,7 @@ public class ConfigurationEngineDefaults implements Serializable
         {
             this.classPropertyResolutionStyle = Configuration.PropertyResolutionStyle.getDefault();
             this.defaultAccessorStyle = ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN;
-            this.defaultEventRepresentation = Configuration.EventRepresentation.getDefault();
+            this.defaultEventRepresentation = EventUnderlyingType.getDefault();
             this.avroSettings = new AvroSettings();
         }
 
@@ -978,7 +979,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Sets the default event representation.
          * @param defaultEventRepresentation to set
          */
-        public void setDefaultEventRepresentation(Configuration.EventRepresentation defaultEventRepresentation) {
+        public void setDefaultEventRepresentation(EventUnderlyingType defaultEventRepresentation) {
             this.defaultEventRepresentation = defaultEventRepresentation;
         }
 
@@ -986,7 +987,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns the default event representation.
          * @return setting
          */
-        public Configuration.EventRepresentation getDefaultEventRepresentation() {
+        public EventUnderlyingType getDefaultEventRepresentation() {
             return defaultEventRepresentation;
         }
 
@@ -1018,6 +1019,7 @@ public class ConfigurationEngineDefaults implements Serializable
         {
             private boolean enableAvro = true;
             private boolean enableNativeString = true;
+            private boolean enableSchemaDefaultNonNull = true;
 
             public boolean isEnableAvro() {
                 return enableAvro;
@@ -1033,6 +1035,14 @@ public class ConfigurationEngineDefaults implements Serializable
 
             public void setEnableNativeString(boolean enableNativeString) {
                 this.enableNativeString = enableNativeString;
+            }
+
+            public boolean isEnableSchemaDefaultNonNull() {
+                return enableSchemaDefaultNonNull;
+            }
+
+            public void setEnableSchemaDefaultNonNull(boolean enableSchemaDefaultNonNull) {
+                this.enableSchemaDefaultNonNull = enableSchemaDefaultNonNull;
             }
         }
     }

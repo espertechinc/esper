@@ -161,6 +161,15 @@
 
     <xi:include href="modules/appendix_keywords.xml" />
 
+    <xi:include href="modules/appendix_eventrepbean.xml" />
+
+    <xi:include href="modules/appendix_eventrepmap.xml" />
+
+    <xi:include href="modules/appendix_eventrepoa.xml" />
+
+    <xi:include href="modules/appendix_eventrepavro.xml" />
+
+    <xi:include href="modules/appendix_eventrepxml.xml" />
     <xi:include href="modules/appendix_dotnet.xml" />
 
     <index/>

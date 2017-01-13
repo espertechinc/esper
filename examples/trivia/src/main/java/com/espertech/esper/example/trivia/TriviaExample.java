@@ -3,6 +3,7 @@ package com.espertech.esper.example.trivia;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.util.EventUnderlyingType;
 
 import java.io.InputStream;
 
@@ -14,7 +15,7 @@ public class TriviaExample {
         config.getEngineDefaults().getExecution().setPrioritized(true);
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         // using Map-event representations by default
-        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(Configuration.EventRepresentation.MAP);
+        config.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.MAP);
 
         EPServiceProvider engine = EPServiceProviderManager.getDefaultProvider(config);
         engine.initialize();

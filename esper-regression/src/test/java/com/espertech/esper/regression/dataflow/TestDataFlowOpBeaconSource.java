@@ -21,7 +21,7 @@ import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.generic.GenericData;
 
@@ -75,7 +75,7 @@ public class TestDataFlowOpBeaconSource extends TestCase {
     }
 
     public void testBeaconFields() throws Exception {
-        for (EventRepresentationEnum rep : new EventRepresentationEnum[] {EventRepresentationEnum.AVRO}) {
+        for (EventRepresentationChoice rep : new EventRepresentationChoice[] {EventRepresentationChoice.AVRO}) {
             runAssertionFields(rep, true);
             runAssertionFields(rep, false);
         }
@@ -131,7 +131,7 @@ public class TestDataFlowOpBeaconSource extends TestCase {
                 "Failed to instantiate data flow 'DF1': Failed initialization for operator 'BeaconSource': BeaconSource operator requires one output stream but produces 0 streams");
     }
 
-    private void runAssertionFields(EventRepresentationEnum representationEnum, boolean eventbean) throws Exception {
+    private void runAssertionFields(EventRepresentationChoice representationEnum, boolean eventbean) throws Exception {
         EPDataFlowInstantiationOptions options;
 
         epService.getEPAdministrator().createEPL("create " + representationEnum.getOutputTypeCreateSchemaName() + " schema MyEvent(p0 string, p1 long, p2 double)");

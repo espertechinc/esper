@@ -22,11 +22,10 @@ import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
 import com.espertech.esper.supportregression.util.IndexAssertion;
 import com.espertech.esper.supportregression.util.IndexAssertionEventSend;
 import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,12 +228,12 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
     }
 
     public void testInnerJoinLateStart() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInnerJoinLateStart(rep);
         }
     }
 
-    private void runAssertionInnerJoinLateStart(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionInnerJoinLateStart(EventRepresentationChoice eventRepresentationEnum) {
 
         EPStatement stmtOne = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema Product (product string, size int)");
         assertTrue(eventRepresentationEnum.matchesClass(stmtOne.getEventType().getUnderlyingType()));
@@ -268,7 +267,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         epService.initialize();
     }
 
-    private void sendProduct(EventRepresentationEnum eventRepresentationEnum, String product, int size) {
+    private void sendProduct(EventRepresentationChoice eventRepresentationEnum, String product, int size) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {product, size}, "Product");
         }
@@ -290,7 +289,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
         }
     }
 
-    private void sendPortfolio(EventRepresentationEnum eventRepresentationEnum, String portfolio, String product) {
+    private void sendPortfolio(EventRepresentationChoice eventRepresentationEnum, String portfolio, String product) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {portfolio, product}, "Portfolio");
         }

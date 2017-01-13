@@ -23,7 +23,7 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificNStmt;
 import com.espertech.esper.supportregression.subscriber.SupportSubscriberRowByRowSpecificWStmt;
 import com.espertech.esper.supportregression.util.SupportStmtAwareUpdateListener;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -95,10 +95,10 @@ public class TestSubscriberMgmt extends TestCase
     }
 
     public void testNamedWindow() {
-        runAssertionNamedWindow(EventRepresentationEnum.MAP);
+        runAssertionNamedWindow(EventRepresentationChoice.MAP);
     }
 
-    private void runAssertionNamedWindow(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionNamedWindow(EventRepresentationChoice eventRepresentationEnum)
     {
         String fields[] = "key,value".split(",");
         SubscriberMap subscriberNamedWindow = new SubscriberMap();

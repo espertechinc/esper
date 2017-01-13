@@ -9,6 +9,7 @@
 package com.espertech.esper.client;
 
 import com.espertech.esper.client.soda.StreamSelector;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.type.StringPatternSet;
 import com.espertech.esper.type.StringPatternSetLike;
@@ -425,13 +426,24 @@ class ConfigurationParser {
         }
     }
 
-    private static void handleAvro(String name, Configuration configuration, Element xmldomElement)
+    private static void handleAvro(String name, Configuration configuration, Element element)
     {
-        String schemaText = getOptionalAttribute(xmldomElement, "schema-text");
+        String schemaText = getOptionalAttribute(element, "schema-text");
 
         ConfigurationEventTypeAvro avroEventTypeDesc = new ConfigurationEventTypeAvro();
         avroEventTypeDesc.setAvroSchemaText(schemaText);
         configuration.addEventTypeAvro(name, avroEventTypeDesc);
+
+        avroEventTypeDesc.setStartTimestampPropertyName(getOptionalAttribute(element, "start-timestamp-property-name"));
+        avroEventTypeDesc.setEndTimestampPropertyName(getOptionalAttribute(element, "end-timestamp-property-name"));
+
+        String names = getOptionalAttribute(element, "supertype-names");
+        if (names != null) {
+            String[] split = names.split(",");
+            for (int i = 0; i < split.length; i++) {
+                avroEventTypeDesc.getSuperTypes().add(split[i].trim());
+            }
+        }
     }
 
     private static void handleLegacy(String name, String className, Configuration configuration, Element xmldomElement)
@@ -1665,7 +1677,7 @@ class ConfigurationParser {
                 Node typeNode = subElement.getAttributes().getNamedItem("type");
                 if (typeNode != null) {
                     String typeText = typeNode.getTextContent();
-                    Configuration.EventRepresentation value = Configuration.EventRepresentation.valueOf(typeText.toUpperCase());
+                    EventUnderlyingType value = EventUnderlyingType.valueOf(typeText.toUpperCase());
                     configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(value);
                 }
             }
@@ -1688,6 +1700,11 @@ class ConfigurationParser {
                 String enableNativeStringStr = getOptionalAttribute(subElement, "enable-native-string");
                 if (enableNativeStringStr != null) {
                     configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableNativeString(Boolean.parseBoolean(enableNativeStringStr));
+                }
+
+                String enableSchemaDefaultNonNullStr = getOptionalAttribute(subElement, "enable-schema-default-nonnull");
+                if (enableSchemaDefaultNonNullStr != null) {
+                    configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableSchemaDefaultNonNull(Boolean.parseBoolean(enableSchemaDefaultNonNullStr));
                 }
             }
         }

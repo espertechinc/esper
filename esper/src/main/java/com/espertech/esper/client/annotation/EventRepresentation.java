@@ -11,20 +11,16 @@
 
 package com.espertech.esper.client.annotation;
 
+import com.espertech.esper.client.util.EventUnderlyingType;
+
 /**
  * Annotation that can be attached to specify which underlying event representation to use for events.
  */
 public @interface EventRepresentation
 {
     /**
-     * True for object-array, false for Map. May not be used with Avro flag.
-     * @return array indicator
+     * Define the event underlying type
+     * @return event underlying type
      */
-    public boolean array() default false;
-
-    /**
-     * True for Avro. May not be used with array flag.
-     * @return avro indicator
-     */
-    public boolean avro() default false;
+    EventUnderlyingType value();
 }

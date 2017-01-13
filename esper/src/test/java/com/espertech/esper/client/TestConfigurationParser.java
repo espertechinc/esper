@@ -13,6 +13,7 @@ package com.espertech.esper.client;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.soda.StreamSelector;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.type.StringPatternSet;
 import com.espertech.esper.type.StringPatternSetLike;
@@ -66,10 +67,11 @@ public class TestConfigurationParser extends TestCase
 
         assertEquals(Configuration.PropertyResolutionStyle.CASE_SENSITIVE, config.getEngineDefaults().getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
-        assertEquals(Configuration.EventRepresentation.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
+        assertEquals(EventUnderlyingType.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
         assertEquals(5, config.getEngineDefaults().getEventMeta().getAnonymousCacheSize());
         assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
         assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
+        assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
 
         assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
         assertFalse(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
@@ -204,10 +206,18 @@ public class TestConfigurationParser extends TestCase
         assertEquals("endts", config.getObjectArrayTypeConfigurations().get("MyObjectArrayEvent").getEndTimestampPropertyName());
 
         // assert avro events
-        assertEquals(1, config.getEventTypesAvro().size());
-        ConfigurationEventTypeAvro avro = config.getEventTypesAvro().get("MyAvroEvent");
-        assertEquals("{\"type\":\"record\",\"name\":\"typename\",\"fields\":[{\"name\":\"num\",\"type\":\"int\"}]}", avro.getAvroSchemaText());
-        assertNull(avro.getAvroSchema());
+        assertEquals(2, config.getEventTypesAvro().size());
+        ConfigurationEventTypeAvro avroOne = config.getEventTypesAvro().get("MyAvroEvent");
+        assertEquals("{\"type\":\"record\",\"name\":\"typename\",\"fields\":[{\"name\":\"num\",\"type\":\"int\"}]}", avroOne.getAvroSchemaText());
+        assertNull(avroOne.getAvroSchema());
+        assertNull(avroOne.getStartTimestampPropertyName());
+        assertNull(avroOne.getEndTimestampPropertyName());
+        assertTrue(avroOne.getSuperTypes().isEmpty());
+        ConfigurationEventTypeAvro avroTwo = config.getEventTypesAvro().get("MyAvroEventTwo");
+        assertEquals("{\"type\":\"record\",\"name\":\"MyAvroEvent\",\"fields\":[{\"name\":\"carId\",\"type\":\"int\"},{\"name\":\"carType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}", avroTwo.getAvroSchemaText());
+        assertEquals("startts", avroTwo.getStartTimestampPropertyName());
+        assertEquals("endts", avroTwo.getEndTimestampPropertyName());
+        assertEquals("[SomeSuperAvro, SomeSuperAvroTwo]", avroTwo.getSuperTypes().toString());
 
         // assert legacy type declaration
         assertEquals(1, config.getEventTypesLegacy().size());
@@ -406,10 +416,11 @@ public class TestConfigurationParser extends TestCase
         assertTrue(config.getEngineDefaults().getViewResources().isIterableUnbound());
         assertEquals(Configuration.PropertyResolutionStyle.DISTINCT_CASE_INSENSITIVE, config.getEngineDefaults().getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(ConfigurationEventTypeLegacy.AccessorStyle.PUBLIC, config.getEngineDefaults().getEventMeta().getDefaultAccessorStyle());
-        assertEquals(Configuration.EventRepresentation.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
+        assertEquals(EventUnderlyingType.MAP, config.getEngineDefaults().getEventMeta().getDefaultEventRepresentation());
         assertEquals(100, config.getEngineDefaults().getEventMeta().getAnonymousCacheSize());
         assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
         assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
+        assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
         assertTrue(config.getEngineDefaults().getLogging().isEnableExecutionDebug());
         assertFalse(config.getEngineDefaults().getLogging().isEnableTimerDebug());
         assertTrue(config.getEngineDefaults().getLogging().isEnableQueryPlan());

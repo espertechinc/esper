@@ -12,6 +12,7 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -1074,18 +1075,18 @@ public class EventTypeUtility {
 
         EventType eventType;
         if (spec.getTypes().isEmpty()) {
-            Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(annotations, configSnapshot, spec.getAssignedType());
+            EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(annotations, configSnapshot, spec.getAssignedType());
             Map<String, Object> typing = EventTypeUtility.buildType(spec.getColumns(), eventAdapterService, spec.getCopyFrom(), engineImportService);
             Map<String, Object> compiledTyping = EventTypeUtility.compileMapTypeProperties(typing, eventAdapterService);
 
             ConfigurationEventTypeWithSupertype config;
-            if (representation == Configuration.EventRepresentation.MAP) {
+            if (representation == EventUnderlyingType.MAP) {
                 config = new ConfigurationEventTypeMap();
             }
-            else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+            else if (representation == EventUnderlyingType.OBJECTARRAY) {
                 config = new ConfigurationEventTypeObjectArray();
             }
-            else if (representation == Configuration.EventRepresentation.AVRO) {
+            else if (representation == EventUnderlyingType.AVRO) {
                 config = new ConfigurationEventTypeAvro();
             }
             else {
@@ -1098,7 +1099,7 @@ public class EventTypeUtility {
             config.setStartTimestampPropertyName(spec.getStartTimestampProperty());
             config.setEndTimestampPropertyName(spec.getEndTimestampProperty());
 
-            if (representation == Configuration.EventRepresentation.MAP) {
+            if (representation == EventUnderlyingType.MAP) {
                 if (isAnonymous) {
                     eventType = eventAdapterService.createAnonymousMapType(spec.getSchemaName(), compiledTyping, true);
                 }
@@ -1106,7 +1107,7 @@ public class EventTypeUtility {
                     eventType = eventAdapterService.addNestableMapType(spec.getSchemaName(), compiledTyping, (ConfigurationEventTypeMap) config, false, false, true, false, false);
                 }
             }
-            else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+            else if (representation == EventUnderlyingType.OBJECTARRAY) {
                 if (isAnonymous) {
                     eventType = eventAdapterService.createAnonymousObjectArrayType(spec.getSchemaName(), compiledTyping);
                 }
@@ -1114,7 +1115,7 @@ public class EventTypeUtility {
                     eventType = eventAdapterService.addNestableObjectArrayType(spec.getSchemaName(), compiledTyping, (ConfigurationEventTypeObjectArray) config, false, false, true, false, false, false, null);
                 }
             }
-            else if (representation == Configuration.EventRepresentation.AVRO) {
+            else if (representation == EventUnderlyingType.AVRO) {
                 if (isAnonymous) {
                     eventType = eventAdapterService.createAnonymousAvroType(spec.getSchemaName(), compiledTyping, annotations);
                 }

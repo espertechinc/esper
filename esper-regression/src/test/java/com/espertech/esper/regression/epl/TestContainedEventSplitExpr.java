@@ -24,7 +24,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.regression.script.SupportScriptUtil;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -52,12 +52,12 @@ public class TestContainedEventSplitExpr extends TestCase
     }
 
     public void testSingleRowSplitAndType() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionSingleRowSplitAndType(rep);
         }
     }
 
-    private void runAssertionSingleRowSplitAndType(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionSingleRowSplitAndType(EventRepresentationChoice eventRepresentationEnum) {
         String[] methods;
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             methods = "splitSentenceMethodReturnObjectArray,splitSentenceBeanMethodReturnObjectArray,splitWordMethodReturnObjectArray".split(",");
@@ -248,7 +248,7 @@ public class TestContainedEventSplitExpr extends TestCase
         epService.initialize();
     }
 
-    private void sendSentenceEvent(EventRepresentationEnum eventRepresentationEnum, String sentence) {
+    private void sendSentenceEvent(EventRepresentationChoice eventRepresentationEnum, String sentence) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {sentence}, "SentenceEvent");
         }

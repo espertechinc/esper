@@ -23,7 +23,7 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -628,12 +628,12 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
     }
 
     public void testArrayMapInsert() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionArrayMapInsert(rep);
         }
     }
 
-    private void runAssertionArrayMapInsert(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionArrayMapInsert(EventRepresentationChoice eventRepresentationEnum) {
 
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventOne(id string)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema EventTwo(id string, val int)");
@@ -722,7 +722,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         epService.initialize();
     }
 
-    private void sendEventTwo(EPServiceProvider epService, EventRepresentationEnum eventRepresentationEnum, String id, int val) {
+    private void sendEventTwo(EPServiceProvider epService, EventRepresentationChoice eventRepresentationEnum, String id, int val) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {id, val}, "EventTwo");
         }
@@ -744,7 +744,7 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         }
     }
 
-    private void sendEventOne(EPServiceProvider epService, EventRepresentationEnum eventRepresentationEnum, String id) {
+    private void sendEventOne(EPServiceProvider epService, EventRepresentationChoice eventRepresentationEnum, String id) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {id}, "EventOne");
         }

@@ -1,0 +1,264 @@
+<appendix xml:id="appendix_eventrepoa" version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="./" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
+
+   <title>Event Representation: Object-array (<literal>Object[]</literal>) Events</title>
+	<indexterm><primary>object-array event representation</primary></indexterm>
+	<indexterm><primary>event</primary><secondary>Object-array representation</secondary></indexterm>
+
+    <para>
+		This section provides information for using Object-array (<literal>Object[]</literal>) to represent events. 
+    </para>
+
+	<sect1 xml:id="appendix_eventrepoa_overview">
+	   <title>Overview</title>
+		<para>
+			An event can also be represented by an array of objects. Event properties of <literal>Object[]</literal> events are the array element values. 
+		</para>
+
+		<para>
+			Similar to the Map event type, the object-array event type takes part in the comprehensive type system that can eliminate the need to use Java classes as event types, thereby making it easier to change types at runtime or generate type information from another source.
+		</para>
+
+		<para>
+			A given Object-array event type can have only a single supertype that must also be an Object-array event type. All properties available on the Object-array supertype is also available on the type itself. In addition, anywhere within EPL that an event type name of an Object-array supertype is used, any of its Object-array subtypes and their subtypes match that expression.
+		</para>
+
+		<para>
+			Your application can add properties to an existing Object-array event type during runtime using the configuration operation <literal>updateObjectArrayEventType</literal>. Properties may not be updated or deleted - properties can only be added, and nested properties can be added as well. The runtime configuration also allows removing Object-array event types and adding them back with new type information.
+		</para>
+
+		<para>
+			After your application configures an Object-array event type by providing a type name, the type name can be used when defining further Object-array or Map event types by specifying the type name as a property type or an array property type.
+		</para>
+
+		<para>
+			One-to-Many relationships in Object-array event types are represented via arrays. A property in an Object-array event type may be an array of primitive, an array of Java object, an array of Map or an array of Object-array.
+		</para>
+
+		<para>
+			The engine can process <literal>Object[]</literal> events via the <literal>sendEvent(Object[] array, String eventTypeName)</literal> method on the <literal>EPRuntime</literal> interface. Entries in the Object array represent event properties.
+		</para>
+		
+		<para>
+			The engine does not validate Object array length or value types. Your application must ensure that Object array values match the declaration of the event type: The type and position of property values must match property names and types in the same exact order and object array length must match the number of properties declared via <literal>create schema</literal> or the static or runtime configuration.
+		</para>
+	</sect1>
+			
+	<sect1 xml:id="appendix_eventrepoa_properties">
+	   <title>Object-Array Properties</title>
+		<para>
+			Object-array event properties can be of any type. Object-array event properties that are Java application objects or that are of type <literal>java.util.Map</literal> (or arrays thereof)  or that are of type <literal>Object-array</literal> (or arrays thereof) offer additional power:
+		</para>
+
+		<itemizedlist spacing="compact">
+			<listitem>
+				<para>
+					Properties that are Java application objects can be queried via the nested, indexed, mapped and dynamic property syntax as outlined earlier. 
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Properties that are of type <literal>Object[]</literal> allow object-arrays to be nested arbitrarily deep and thus can be used to represent complex domain information. The nested, indexed, mapped and dynamic property syntax can be used to query object-array within object-arrays and arrays of object-arrays within object-arrays. 					
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Properties that are of type <literal>Map</literal> allow Maps to be nested in object-array events and arbitrarily deep. The nested, indexed, mapped and dynamic property syntax can be used to query nested Maps and object-arrays alike.
+				</para>
+			</listitem>
+		</itemizedlist>
+
+		<para>
+			In order to use <literal>Object[]</literal> (object-array) events, the event type name and property names and types, in a well-defined order that must match object-array event properties, must be made known to the engine via configuration or <literal>create schema</literal> EPL syntax. Please see examples in <xref linkend="epl_createschema"/> and <xref linkend="config-objectarray"/>.
+		</para>
+										
+		<para>
+			The code snippet below defines an Object-array event type, creates an Object-array event and sends the event into the engine. The sample defines the <literal>CarLocUpdateEvent</literal> event type via the runtime configuration interface (<literal>create schema</literal> or static configuration could have been used instead).
+		</para>
+
+		<programlisting><![CDATA[// Define CarLocUpdateEvent event type (example for runtime-configuration interface)
+String[] propertyNames = {"carId", "direction"};   // order is important
+Object[] propertyTypes = {String.class, int.class};  // type order matches name order
+
+epService.getEPAdministrator().getConfiguration().
+  addEventType("CarLocUpdateEvent", propertyNames, propertyTypes);]]></programlisting>
+	
+		<para>
+			The <literal>CarLocUpdateEvent</literal> can now be used in a statement:
+		</para>
+		<programlisting>select carId from CarLocUpdateEvent(direction = 1)#time(1 min)</programlisting> 
+		
+		<programlisting><![CDATA[// Send an event
+Object[] event = {carId, direction};
+epRuntime.sendEvent(event, "CarLocUpdateEvent");]]></programlisting>
+	
+		<para>
+			The engine can also query Java objects as values in an <literal>Object[]</literal> event via the nested property syntax. Thus <literal>Object[]</literal> events can be used to 
+			aggregate multiple data structures into a single event and query the composite information in a convenient way. The example below demonstrates a <literal>Object[]</literal> event with a transaction and an account object.
+		</para>
+		<programlisting><![CDATA[epRuntime.sendEvent(new Object[] {txn, account}, "TxnEvent");]]></programlisting>
+
+		<para>
+			An example statement could look as follows:
+		</para>
+		<programlisting>select account.id, account.rate * txn.amount 
+from TxnEvent#time(60 sec) 
+group by account.id</programlisting> 		
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepoa_supertype">
+	   <title>Object-Array Supertype</title>
+	   
+	   <para>
+		   Your <literal>Object[]</literal> (object-array) event type may declare one supertype when configuring the type at engine initialization time or at runtime through the administrative interface. 
+	   </para>
+
+	   <para>
+		   The supertype of a <literal>Object[]</literal> event type must also be an object-array event type. All property names and types of a supertype are also available on a subtype and override such same-name properties of the subtype. In addition, anywhere within EPL that an event type name of an Object-array supertype is used, any of its Object-array subtypes also matches that expression (similar to the concept of interface or superclass).
+	   </para>
+	   
+	   <para>
+		 The properties provided by the top-most supertype must occur first in the object array. Subtypes each append to the object array. The number of values appended must match the 
+		 number of properties declared by the subtype.
+	   </para>
+	   
+		<para>
+		  For example, assume your application declares the following two types:
+		</para>
+		<programlisting><![CDATA[create objectarray schema SuperType (p0 string)]]></programlisting>
+		<programlisting><![CDATA[create objectarray schema SubType (p1 string) inherits SuperType]]></programlisting>
+
+		<para>
+		  The object array event objects that your application can send into the engine are shown by the next code snippet:
+		</para>
+		<programlisting><![CDATA[epRuntime.sendEvent(new Object[] {"p0_value", "p1_value"}, "SubType");
+epRuntime.sendEvent(new Object[] {"p0_value"}, "SuperType");]]></programlisting>		   
+   </sect1>
+
+	<sect1 xml:id="appendix_eventrepoa_advanced">
+	   <title>Advanced Object-Array Property Types</title>
+
+		<sect2 xml:id="appendix_eventrepoa_arraynested">
+		   <title>Nested Properties</title>
+		   
+		   <para>
+			   Strongly-typed nested <literal>Object[]</literal>-within-<literal>Object[]</literal> events can be used to build rich, type-safe event types on the fly. Use the <literal>addEventType</literal> method on <literal>Configuration</literal> or <literal>ConfigurationOperations</literal> for initialization-time and runtime-time type definition, or the <literal>create schema</literal> EPL syntax.
+		   </para>
+
+		   <para>
+			   Noteworthy points are:
+		   </para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						JavaBean (POJO) objects can appear as properties in <literal>Object[]</literal> event types. 
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						One may represent Object-array within Object-array and Object-Array-Array within Object-array (same for Map event types) using the name of a previously registered Object-array (or Map) event type.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						There is no limit to the number of nesting levels.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Dynamic properties can be used to query <literal>Object[]</literal>-within-<literal>Object[]</literal> values that may not be known in advance. 
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The engine returns a <literal>null</literal> value for properties for which the access path into the nested structure cannot be followed where entries do not exist.
+					</para>
+				</listitem>
+			</itemizedlist>
+
+		   <para>
+			   For demonstration, in this example our top-level event type is an <literal>AccountUpdate</literal> event, which has an <literal>UpdatedFieldType</literal> structure as a property. Inside the <literal>UpdatedFieldType</literal> structure the example defines various fields, as well as a property by name 'history' that holds a JavaBean class <literal>UpdateHistory</literal> to represent the update history for the account. The code snippet to define the event type is thus:
+		   </para>
+
+		<programlisting><![CDATA[String[] propertyNamesUpdField = {"name", "addressLine1", "history"};
+Object[] propertyTypesUpdField = {String.class, String.class, UpdateHistory.class};
+epService.getEPAdministrator().getConfiguration().
+    addEventType("UpdatedFieldType", propertyNamesUpdField, propertyTypesUpdField);
+
+String[] propertyNamesAccountUpdate = {"accountId", "fields"};
+Object[] propertyTypesAccountUpdate = {long.class, "UpdatedFieldType"};
+epService.getEPAdministrator().getConfiguration().
+    addEventType("AccountUpdate", propertyNamesAccountUpdate, propertyTypesAccountUpdate);]]></programlisting>
+
+		   <para>
+			   The next code snippet populates a sample event and sends the event into the engine:
+		   </para>
+	
+			<programlisting><![CDATA[Object[] updatedField = {"Joe Doe", "40 Popular Street", new UpdateHistory()};
+Object[] accountUpdate = {10009901, updatedField};
+
+epService.getEPRuntime().sendEvent(accountUpdate, "AccountUpdate");]]></programlisting>
+
+		   <para>
+			   Last, a sample query to interrogate <literal>AccountUpdate</literal> events is as follows:
+		   </para>
+			<programlisting><![CDATA[select accountId, fields.name, fields.addressLine1, fields.history.lastUpdate
+from AccountUpdate]]></programlisting>
+	   </sect2>
+	
+		<sect2 xml:id="appendix_eventrepoa_array">
+		   <title>One-to-Many Relationships</title>
+		   
+		   <para>
+			   To model repeated properties within an Object-array, you may use arrays as properties in an Object-array. You may use an array of primitive types or an array of JavaBean objects or an array of a previously declared Object-array or Map event type.
+		   </para>
+
+		   <para>
+			   When using a previously declared Object-array event type as an array property, the literal <literal>[]</literal> must be appended after the event type name.
+		   </para>
+
+		   <para>
+			   This following example defines an Object-array event type by name <literal>Sale</literal> to hold array properties of the various types. It assumes a <literal>SalesPerson</literal> Java class exists and an Object-array event type by name <literal>OrderItem</literal> was declared:
+		   </para>
+
+		<programlisting><![CDATA[String[] propertyNames = {"userids", "salesPersons", "items"};
+Object[] propertyTypes = {int[].class, SalesPerson[].class, "OrderItem[]");
+
+epService.getEPAdministrator().getConfiguration().
+    addEventType("SaleEvent", propertyNames, propertyTypes);]]></programlisting>
+
+		   <para>
+			   The three properties that the above example declares are:
+		   </para>
+		   <itemizedlist>
+			   <listitem>
+				   <para>
+					 An integer array of user ids.
+				   </para>
+			   </listitem>
+			   <listitem>
+				   <para>
+					 An array of <literal>SalesPerson</literal> Java objects.
+				   </para>
+			   </listitem>
+			   <listitem>
+				   <para>
+					 An array of Object-array for order items.
+				   </para>
+			   </listitem>			   
+		   </itemizedlist>
+		   
+		   <para>
+			   The next EPL statement is a sample query asking for property values held by arrays:
+		   </para>
+
+		<programlisting><![CDATA[select userids[0], salesPersons[1].name, 
+    items[1], items[1].price.amount from SaleEvent]]></programlisting>
+
+	   </sect2>
+	</sect1>
+</appendix>

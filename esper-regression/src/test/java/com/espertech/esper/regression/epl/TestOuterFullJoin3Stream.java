@@ -23,7 +23,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.bean.SupportBean_S2;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.ArrayHandlingUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 public class TestOuterFullJoin3Stream extends TestCase
@@ -50,12 +50,12 @@ public class TestOuterFullJoin3Stream extends TestCase
     }
 
     public void testFullJoin_2sides_multicolumn() {
-        runAssertionFullJoin_2sides_multicolumn(EventRepresentationEnum.OBJECTARRAY);
-        runAssertionFullJoin_2sides_multicolumn(EventRepresentationEnum.MAP);
-        runAssertionFullJoin_2sides_multicolumn(EventRepresentationEnum.DEFAULT);
+        runAssertionFullJoin_2sides_multicolumn(EventRepresentationChoice.ARRAY);
+        runAssertionFullJoin_2sides_multicolumn(EventRepresentationChoice.MAP);
+        runAssertionFullJoin_2sides_multicolumn(EventRepresentationChoice.DEFAULT);
     }
 
-    private void runAssertionFullJoin_2sides_multicolumn(EventRepresentationEnum eventRepresentationEnum)
+    private void runAssertionFullJoin_2sides_multicolumn(EventRepresentationChoice eventRepresentationEnum)
     {
         String fields[] = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11, s2.id, s2.p20, s2.p21".split(",");
 

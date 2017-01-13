@@ -24,7 +24,7 @@ import com.espertech.esper.supportregression.bean.SupportBeanCopyMethod;
 import com.espertech.esper.supportregression.bean.SupportBeanErrorTestingOne;
 import com.espertech.esper.supportregression.bean.SupportBeanReadOnly;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -255,12 +255,12 @@ public class TestUpdate extends TestCase
     }
 
     public void testFieldsWithPriority() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionFieldsWithPriority(rep);
         }
     }
 
-    private void runAssertionFieldsWithPriority(EventRepresentationEnum eventRepresentationEnum) throws Exception
+    private void runAssertionFieldsWithPriority(EventRepresentationChoice eventRepresentationEnum) throws Exception
     {
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " insert into MyStream select theString, intPrimitive from SupportBean(theString not like 'Z%')");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " insert into MyStream select 'AX'||theString as theString, intPrimitive from SupportBean(theString like 'Z%')");

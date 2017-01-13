@@ -18,11 +18,10 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import sun.net.www.content.text.Generic;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,24 +75,24 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
     }
 
     public void testNamedWindowRep() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionNamedWindow(rep);
         }
     }
 
     public void testStreamInsertWWidenOA() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionStreamInsertWWidenMap(rep);
         }
     }
 
     public void testInvalid() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionInvalid(rep);
         }
     }
 
-    private void runAssertionNamedWindow(EventRepresentationEnum rep) {
+    private void runAssertionNamedWindow(EventRepresentationChoice rep) {
         if (rep.isMapEvent()) {
             Map<String, Object> typeinfo = new HashMap<String, Object>();
             typeinfo.put("myint", int.class);
@@ -154,7 +153,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         epService.getEPAdministrator().getConfiguration().removeEventType("C", false);
     }
 
-    private void runAssertionStreamInsertWWidenMap(EventRepresentationEnum rep) {
+    private void runAssertionStreamInsertWWidenMap(EventRepresentationChoice rep) {
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider();
         epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema Src as (myint int, mystr string)");
@@ -186,7 +185,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         }
     }
 
-    private void runAssertionInvalid(EventRepresentationEnum rep) {
+    private void runAssertionInvalid(EventRepresentationChoice rep) {
         epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema Src as (myint int, mystr string)");
 
         // mismatch in type
@@ -207,7 +206,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         }
     }
 
-    private void runStreamInsertAssertion(EventRepresentationEnum rep, String epl, String fields, Object[] expected) {
+    private void runStreamInsertAssertion(EventRepresentationChoice rep, String epl, String fields, Object[] expected) {
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
         if (rep.isMapEvent()) {

@@ -40,6 +40,7 @@
 		<xs:restriction base="xs:token">
 			<xs:enumeration value="map"/>
 			<xs:enumeration value="objectarray"/>
+			<xs:enumeration value="avro"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:element name="event-type-auto-name">
@@ -120,6 +121,9 @@
 	<xs:element name="avro">
 		<xs:complexType>
 			<xs:attribute name="schema-text" type="xs:string" use="optional"/>
+			<xs:attribute name="supertype-names" type="xs:string" use="optional"/>
+			<xs:attribute name="start-timestamp-property-name" type="xs:string" use="optional"/>
+			<xs:attribute name="end-timestamp-property-name" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="objectarray">
@@ -561,6 +565,7 @@
 		<xs:complexType>
 			<xs:attribute name="enable-avro" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-native-string" type="xs:boolean" use="optional"/>
+			<xs:attribute name="enable-schema-default-nonnull" type="xs:boolean" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="view-resources">

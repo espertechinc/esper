@@ -14,6 +14,7 @@ import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.client.hook.ExceptionHandlerExceptionType;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
+import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.NameParameterCountKey;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
@@ -1465,14 +1466,14 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             if (hasProperties && !isOnlyWildcard)
             {
                 Map<String, Object> compiledProperties = EventTypeUtility.compileMapTypeProperties(properties, statementContext.getEventAdapterService());
-                Configuration.EventRepresentation representation = EventRepresentationUtil.getRepresentation(statementContext.getAnnotations(), servicesContext.getConfigSnapshot(), CreateSchemaDesc.AssignedType.NONE);
-                if (representation == Configuration.EventRepresentation.MAP) {
+                EventUnderlyingType representation = EventRepresentationUtil.getRepresentation(statementContext.getAnnotations(), servicesContext.getConfigSnapshot(), CreateSchemaDesc.AssignedType.NONE);
+                if (representation == EventUnderlyingType.MAP) {
                     targetType = statementContext.getEventAdapterService().addNestableMapType(typeName, compiledProperties, null, false, false, false, true, false);
                 }
-                else if (representation == Configuration.EventRepresentation.OBJECTARRAY) {
+                else if (representation == EventUnderlyingType.OBJECTARRAY) {
                     targetType = statementContext.getEventAdapterService().addNestableObjectArrayType(typeName, compiledProperties, null, false, false, false, true, false, false, null);
                 }
-                else if (representation == Configuration.EventRepresentation.AVRO) {
+                else if (representation == EventUnderlyingType.AVRO) {
                     targetType = statementContext.getEventAdapterService().addAvroType(typeName, compiledProperties, false, false, false, true, false, statementContext.getAnnotations(), null);
                 }
                 else {

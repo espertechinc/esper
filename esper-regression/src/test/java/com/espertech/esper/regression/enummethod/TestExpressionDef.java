@@ -20,7 +20,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.bean.lambda.LambdaAssertionUtil;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -370,7 +370,7 @@ public class TestExpressionDef extends TestCase {
         String[] fieldsSelected = "c0,c1".split(",");
         String[] fieldsInside = "val0".split(",");
 
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean");
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
@@ -426,7 +426,7 @@ public class TestExpressionDef extends TestCase {
         runAssertionSubqNWCorrelated(epl);
 
         // test ambiguous property names
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindowTwo#keepall as (id string, p00 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindowTwo#keepall as (id string, p00 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindowTwo (id, p00) select theString, intPrimitive from SupportBean");
         epl =    "expression subqnamedwin {" +
                         "  x => MyWindowTwo(MyWindowTwo.id = x.id).where(y => y.p00 > 10)" +
@@ -439,7 +439,7 @@ public class TestExpressionDef extends TestCase {
         String[] fieldSelected = "c0".split(",");
         String[] fieldInside = "val0".split(",");
 
-        epService.getEPAdministrator().createEPL(EventRepresentationEnum.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
+        epService.getEPAdministrator().createEPL(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)");
         epService.getEPAdministrator().createEPL("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean");
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);

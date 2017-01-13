@@ -21,7 +21,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -134,7 +134,7 @@ public class TestInfraSubqCorrelCoerce extends TestCase
         theEvent.put("col0", col0);
         theEvent.put("col1", col1);
         theEvent.put("col2", col2);
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "WindowSchema");
         }
         else {
@@ -147,7 +147,7 @@ public class TestInfraSubqCorrelCoerce extends TestCase
         theEvent.put("e0", e0);
         theEvent.put("e1", e1);
         theEvent.put("e2", e2);
-        if (EventRepresentationEnum.getEngineDefault(epService).isObjectArrayEvent()) {
+        if (EventRepresentationChoice.getEngineDefault(epService).isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(theEvent.values().toArray(), "EventSchema");
         }
         else {

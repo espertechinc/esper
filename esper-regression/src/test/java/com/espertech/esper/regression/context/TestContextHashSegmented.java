@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.AgentInstanceAssertionUtil;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -58,12 +58,12 @@ public class TestContextHashSegmented extends TestCase {
     }
 
     public void testScoringUseCase() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionScoringUseCase(rep);
         }
     }
 
-    private void runAssertionScoringUseCase(EventRepresentationEnum eventRepresentationEnum) throws Exception {
+    private void runAssertionScoringUseCase(EventRepresentationChoice eventRepresentationEnum) throws Exception {
         String[] fields = "userId,keyword,sumScore".split(",");
         String epl =
                 eventRepresentationEnum.getAnnotationText() + " create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
@@ -462,7 +462,7 @@ public class TestContextHashSegmented extends TestCase {
         return text;
     }
 
-    private void makeSendScoreEvent(String typeName, EventRepresentationEnum eventRepresentationEnum, String userId, String keyword, String productId, long score) {
+    private void makeSendScoreEvent(String typeName, EventRepresentationChoice eventRepresentationEnum, String userId, String keyword, String productId, long score) {
         if (eventRepresentationEnum.isMapEvent()) {
             Map<String, Object> theEvent = new LinkedHashMap<String, Object>();
             theEvent.put("userId", userId);

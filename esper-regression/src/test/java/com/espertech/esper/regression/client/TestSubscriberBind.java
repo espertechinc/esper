@@ -19,7 +19,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.subscriber.*;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 
 public class TestSubscriberBind extends TestCase
@@ -74,10 +74,10 @@ public class TestSubscriberBind extends TestCase
         stmtNullSelected.destroy();
 
         // widening
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionWidening(rep, new SupportSubscriberRowByRowSpecificNStmt());
         }
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionWidening(rep, new SupportSubscriberRowByRowSpecificWStmt());
         }
 
@@ -98,10 +98,10 @@ public class TestSubscriberBind extends TestCase
         runAssertionBindWildcardJoin(new SupportSubscriberRowByRowSpecificWStmt());
 
         // output limit
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionOutputLimitNoJoin(rep, new SupportSubscriberRowByRowSpecificNStmt());
         }
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionOutputLimitNoJoin(rep, new SupportSubscriberRowByRowSpecificWStmt());
         }
 
@@ -110,18 +110,18 @@ public class TestSubscriberBind extends TestCase
         runAssertionOutputLimitJoin(new SupportSubscriberRowByRowSpecificWStmt());
 
         // binding-to-map
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionBindMap(rep, new SupportSubscriberMultirowMapNStmt());
         }
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionBindMap(rep, new SupportSubscriberMultirowMapWStmt());
         }
 
         // binding-to-objectarray
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionBindObjectArr(rep, new SupportSubscriberMultirowObjectArrayNStmt());
         }
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionBindObjectArr(rep, new SupportSubscriberMultirowObjectArrayWStmt());
         }
 
@@ -130,7 +130,7 @@ public class TestSubscriberBind extends TestCase
         runAssertionBindWildcardIRStream(new SupportSubscriberMultirowUnderlyingWStmt());
 
         // Object[] and "Object..." binding
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayPlainNStmt());
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayPlainWStmt());
             runAssertionObjectArrayDelivery(rep, new SupportSubscriberRowByRowObjectArrayVarargNStmt());
@@ -138,7 +138,7 @@ public class TestSubscriberBind extends TestCase
         }
 
         // Map binding
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionRowMapDelivery(rep, new SupportSubscriberRowByRowMapNStmt());
             runAssertionRowMapDelivery(rep, new SupportSubscriberRowByRowMapWStmt());
         }
@@ -210,7 +210,7 @@ public class TestSubscriberBind extends TestCase
         subscriber.assertOneReceivedAndReset(stmt, 2, 2, new Object[][]{{"E3", 3}, {"E4", 4}}, new Object[][]{{"E1", 1}, {"E2", 2}});
     }
 
-    private void runAssertionBindObjectArr(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberMultirowObjectArrayBase subscriber)
+    private void runAssertionBindObjectArr(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberMultirowObjectArrayBase subscriber)
     {
         String stmtText = eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from " + SupportBean.class.getName() + "#length_batch(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -232,7 +232,7 @@ public class TestSubscriberBind extends TestCase
         stmt.destroy();
     }
 
-    private void runAssertionBindMap(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberMultirowMapBase subscriber)
+    private void runAssertionBindMap(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberMultirowMapBase subscriber)
     {
         String stmtText = eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from " + SupportBean.class.getName() + "#length_batch(2)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -254,7 +254,7 @@ public class TestSubscriberBind extends TestCase
         stmt.destroy();
     }
 
-    private void runAssertionWidening(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber)
+    private void runAssertionWidening(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber)
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select bytePrimitive, intPrimitive, longPrimitive, floatPrimitive from SupportBean(theString='E1')");
         stmt.setSubscriber(subscriber);
@@ -272,7 +272,7 @@ public class TestSubscriberBind extends TestCase
         stmt.destroy();
     }
 
-    private void runAssertionObjectArrayDelivery(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberRowByRowObjectArrayBase subscriber)
+    private void runAssertionObjectArrayDelivery(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowObjectArrayBase subscriber)
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select theString, intPrimitive from SupportBean#unique(theString)");
         stmt.setSubscriber(subscriber);
@@ -287,7 +287,7 @@ public class TestSubscriberBind extends TestCase
         stmt.destroy();
     }
 
-    private void runAssertionRowMapDelivery(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberRowByRowMapBase subscriber)
+    private void runAssertionRowMapDelivery(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowMapBase subscriber)
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select irstream theString, intPrimitive from SupportBean#unique(theString)");
         stmt.setSubscriber(subscriber);
@@ -382,7 +382,7 @@ public class TestSubscriberBind extends TestCase
         subscriber.assertOneReceivedAndReset(stmt, new Object[]{s0, 102, "xE1x"});
     }
 
-    private void runAssertionOutputLimitNoJoin(EventRepresentationEnum eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber)
+    private void runAssertionOutputLimitNoJoin(EventRepresentationChoice eventRepresentationEnum, SupportSubscriberRowByRowSpecificBase subscriber)
     {
         EPStatement stmt = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select theString, intPrimitive from SupportBean output every 2 events");
         stmt.setSubscriber(subscriber);

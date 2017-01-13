@@ -22,7 +22,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.bean.bookexample.OrderBean;
 import com.espertech.esper.supportregression.bean.bookexample.OrderBeanFactory;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import com.espertech.esper.util.EventRepresentationEnum;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -108,12 +108,12 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     public void testDocExample() throws Exception {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionDocExample(rep);
         }
     }
 
-    public void runAssertionDocExample(EventRepresentationEnum eventRepresentationEnum) throws Exception {
+    public void runAssertionDocExample(EventRepresentationChoice eventRepresentationEnum) throws Exception {
 
         String baseModule = eventRepresentationEnum.getAnnotationText() + " create schema OrderEvent as (orderId string, productId string, price double, quantity int, deletedFlag boolean)";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(baseModule, null, null, null);
@@ -167,7 +167,7 @@ public class TestNamedWindowOnMerge extends TestCase {
         }
     }
 
-    private void sendOrderEvent(EventRepresentationEnum eventRepresentationEnum, String orderId, String productId, double price, int quantity, boolean deletedFlag) {
+    private void sendOrderEvent(EventRepresentationChoice eventRepresentationEnum, String orderId, String productId, double price, int quantity, boolean deletedFlag) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {orderId, productId, price, quantity, deletedFlag}, "OrderEvent");
         }
@@ -251,12 +251,12 @@ public class TestNamedWindowOnMerge extends TestCase {
     }
 
     public void testSubselect() {
-        for (EventRepresentationEnum rep : EventRepresentationEnum.values()) {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionSubselect(rep);
         }
     }
 
-    private void runAssertionSubselect(EventRepresentationEnum eventRepresentationEnum) {
+    private void runAssertionSubselect(EventRepresentationChoice eventRepresentationEnum) {
         String[] fields = "col1,col2".split(",");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEvent as (in1 string, in2 int)");
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MySchema as (col1 string, col2 int)");
@@ -324,7 +324,7 @@ public class TestNamedWindowOnMerge extends TestCase {
         return sb;
     }
 
-    private void sendMyEvent(EventRepresentationEnum eventRepresentationEnum, String in1, int in2) {
+    private void sendMyEvent(EventRepresentationChoice eventRepresentationEnum, String in1, int in2) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {in1, in2}, "MyEvent");
         }
