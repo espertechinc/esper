@@ -12,6 +12,7 @@ Changes in version 6.0.0
   - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
   - New EsperIO Kafka input adapter
   - The @EventRepresentation annotation changed: it now takes a default parameter i.e. @EventRepresentation(map)
+  - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment (inconsistent with other types)
 
 Changes in version 5.5.0
 ------------------------

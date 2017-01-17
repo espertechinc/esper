@@ -693,28 +693,10 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         catch (EPException ex) {
             String expected;
             if (eventRepresentationEnum.isAvroEvent()) {
-                expected = "Error starting statement: Invalid assignment of column 'endEvent' of type '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "[]' to event property 'endEvent' typed as '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "', column and parameter types mismatch";
+                expected = "Error starting statement: Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
             }
             else {
                 expected = "Error starting statement: Event type named 'FinalEventInvalidNonArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidNonArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]'";
-            }
-            SupportMessageAssertUtil.assertMessage(ex, expected);
-        }
-
-        // Test invalid case of array destination insert from non-array var
-        String invalidEplTwo = "INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
-                "every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]";
-        try {
-            epService.getEPAdministrator().createEPL(invalidEplTwo);
-            fail();
-        }
-        catch (EPException ex) {
-            String expected;
-            if (eventRepresentationEnum.isAvroEvent()) {
-                expected = "Error starting statement: Invalid assignment of column 'endEvent' of type '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "[]' to event property 'endEvent' typed as '" + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + "', column and parameter types mismatch";
-            }
-            else {
-                expected = "Error starting statement: Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]'";
             }
             SupportMessageAssertUtil.assertMessage(ex, expected);
         }

@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -216,8 +217,7 @@ public class TestTableInsertInto extends TestCase {
             epService.getEPRuntime().sendEvent(new Object[] {"a", "b"}, "MySchema");
         }
         else if (rep.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MySchema"));
             theEvent.put("p0", "a");
             theEvent.put("p1", "b");
             epService.getEPRuntime().sendEventAvro(theEvent, "MySchema");

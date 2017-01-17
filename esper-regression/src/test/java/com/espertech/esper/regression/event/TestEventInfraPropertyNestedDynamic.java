@@ -20,6 +20,7 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
 import com.espertech.esper.supportregression.event.ValueWithExistsFlag;
 import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.util.JavaClassHelper;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -141,7 +142,7 @@ public class TestEventInfraPropertyNestedDynamic extends TestCase {
         stmt.addListener(listener);
 
         assertEquals(expectedPropertyType, stmt.getEventType().getPropertyType("myid"));
-        assertEquals(Boolean.class, stmt.getEventType().getPropertyType("exists_myid"));
+        assertEquals(Boolean.class, JavaClassHelper.getBoxedType(stmt.getEventType().getPropertyType("exists_myid")));
         assertTrue(eventRepresentationEnum.matchesClass(stmt.getEventType().getUnderlyingType()));
 
         for (Pair pair : tests) {

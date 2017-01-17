@@ -17,7 +17,7 @@ import org.apache.avro.generic.GenericData;
 /**
  * For events that are array of properties.
  */
-public interface AvroBackedEventBean extends EventBean
+public interface AvroGenericDataBackedEventBean extends EventBean
 {
     public GenericData.Record getProperties();
 }

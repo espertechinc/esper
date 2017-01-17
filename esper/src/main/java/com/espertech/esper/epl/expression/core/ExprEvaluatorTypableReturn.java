@@ -14,6 +14,7 @@ package com.espertech.esper.epl.expression.core;
 import com.espertech.esper.client.EventBean;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Interface for evaluators that select possible multi-valued results in a single select column,

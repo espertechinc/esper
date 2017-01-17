@@ -13,6 +13,7 @@ package com.espertech.esper.event.avro;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
 
@@ -54,7 +55,7 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
         throw getUnsupported();
     }
 
-    public ExprEvaluator[] avroCompat(EventType existingType, Map<String, Object> selPropertyTypes, ExprEvaluator[] exprEvaluators) {
+    public void avroCompat(EventType existingType, Map<String, Object> selPropertyTypes) throws ExprValidationException {
         throw getUnsupported();
     }
 

@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
@@ -168,8 +169,7 @@ public class TestJoinEventRepresentation extends TestCase
             epService.getEPRuntime().sendEvent(new Object[] {id, p00}, name);
         }
         else if (rep.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(name)).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, name));
             theEvent.put("id", id);
             theEvent.put("p00", p00);
             epService.getEPRuntime().sendEventAvro(theEvent, name);

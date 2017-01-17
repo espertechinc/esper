@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.event.*;
+import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.bean.EventBeanManufacturerCtor;
@@ -54,7 +55,7 @@ public class SelectExprInsertEventBeanFactory
         // handle single-column coercion to underlying, i.e. "insert into MapDefinedEvent select doSomethingReturnMap() from MyEvent"
         if (expressionReturnTypes.length == 1 &&
                 expressionReturnTypes[0] instanceof Class &&
-                eventType instanceof BaseNestableEventType &&
+                (eventType instanceof BaseNestableEventType || eventType instanceof AvroSchemaEventType) &&
                 JavaClassHelper.isSubclassOrImplementsInterface((Class) expressionReturnTypes[0], eventType.getUnderlyingType()) &&
                 insertIntoDesc.getColumnNames().isEmpty() &&
                 columnNamesAsProvided[0] == null) {
@@ -62,7 +63,15 @@ public class SelectExprInsertEventBeanFactory
             if (eventType instanceof MapEventType) {
                 return new SelectExprInsertNativeExpressionCoerceMap(eventType, expressionNodes[0], eventAdapterService);
             }
-            return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, expressionNodes[0], eventAdapterService);
+            else if (eventType instanceof ObjectArrayEventType) {
+                return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, expressionNodes[0], eventAdapterService);
+            }
+            else if (eventType instanceof AvroSchemaEventType) {
+                return new SelectExprInsertNativeExpressionCoerceAvro(eventType, expressionNodes[0], eventAdapterService);
+            }
+            else {
+                throw new IllegalStateException("Unrecognied event type " + eventType);
+            }
         }
 
         // handle special case where the target type has no properties and there is a single "null" value selected
@@ -152,7 +161,7 @@ public class SelectExprInsertEventBeanFactory
         }
 
         // For map event types this class does not handle fragment inserts; all fragments are required however and must be explicit
-        if (!allowNestableTargetFragmentTypes && eventType instanceof BaseNestableEventType) {
+        if (!allowNestableTargetFragmentTypes && (eventType instanceof BaseNestableEventType || eventType instanceof AvroSchemaEventType)) {
             for (EventPropertyDescriptor prop : eventType.getPropertyDescriptors()) {
                 if (prop.isFragment()) {
                     return false;
@@ -187,13 +196,13 @@ public class SelectExprInsertEventBeanFactory
                 Object columnType = expressionReturnTypes[i];
                 if (columnType == null)
                 {
-                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false);
+                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, false);
                 }
                 else if (columnType instanceof EventType)
                 {
                     EventType columnEventType = (EventType) columnType;
                     final Class returnType = columnEventType.getUnderlyingType();
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, false);
 
                     // handle evaluator returning an event
                     if (JavaClassHelper.isSubclassOrImplementsInterface(returnType, desc.getType())) {
@@ -246,7 +255,7 @@ public class SelectExprInsertEventBeanFactory
                     final Class arrayReturnType = Array.newInstance(componentReturnType, 0).getClass();
 
                     boolean allowObjectArrayToCollectionConversion = eventType instanceof AvroSchemaEventType;
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, false);
                     final ExprEvaluator inner = evaluator;
                     evaluator = new ExprEvaluator() {
                         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
@@ -281,7 +290,7 @@ public class SelectExprInsertEventBeanFactory
                 }
                 else
                 {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, eventType instanceof AvroSchemaEventType);
                 }
 
                 selectedWritable = desc;
@@ -323,7 +332,7 @@ public class SelectExprInsertEventBeanFactory
                         continue;
                     }
 
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false, false);
                     selectedWritable = writableDesc;
 
                     final String propertyName = eventPropDescriptor.getPropertyName();
@@ -407,7 +416,7 @@ public class SelectExprInsertEventBeanFactory
                     continue;
                 }
 
-                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false);
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, false);
                 selectedWritable = desc;
                 break;
             }

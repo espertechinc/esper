@@ -931,6 +931,10 @@ sender.sendEvent(myEvent);]]></programlisting>
 			</para>
 
 			<para>
+				For events backed by a Apache Avro <literal>GenericData.Record</literal>, the event sender does not perform any checking other than checking that the event object is a GenericData.Record. The schema associated to the record should match the event type's Avro schema.
+			</para>
+
+			<para>
 				For events backed by a org.w3c.Node (XML DOM events), the event sender checks that the root element name equals the root element name for the event type.
 			</para>
 

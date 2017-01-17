@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.datetime;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -1191,7 +1192,7 @@ public class TestDTIntervalOps extends TestCase {
             epService.getEPRuntime().sendEvent(theEvent, typeName);
         }
         else if (eventRepresentationEnum.isAvroEvent()){
-            GenericData.Record record = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro());
+            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, typeName));
             record.put("startts", startTs);
             record.put("endts", endTs);
             epService.getEPRuntime().sendEventAvro(record, typeName);

@@ -14,6 +14,7 @@ package com.espertech.esper.supportregression.epl;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.supportregression.bean.*;
+import org.apache.avro.generic.GenericData;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -335,6 +336,16 @@ public class SupportStaticMethodLib
     public static Object[] convertEventObjectArray(Object[] values)
     {
         return new Object[] {values[0], "|" + values[1] + "|"};
+    }
+
+    public static GenericData.Record convertEventAvro(GenericData.Record row)
+    {
+        String val1 = row.get("one").toString();
+        String val2 = row.get("two").toString();
+        GenericData.Record upd = new GenericData.Record(row.getSchema());
+        upd.put("one", val1);
+        upd.put("two", "|" + val2 + "|");
+        return upd;
     }
 
     public static SupportBean convertEvent(SupportMarketDataBean bean)

@@ -11,6 +11,8 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -18,16 +20,20 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class TestSelectExprEventBeanAnnotation extends TestCase {
 
     private EPServiceProvider epService;
-    private SupportUpdateListener listener;
 
     public void setUp()
     {
-        listener = new SupportUpdateListener();
         Configuration config = SupportConfigFactory.getConfiguration();
         config.addEventType("SupportBean", SupportBean.class);
         epService = EPServiceProviderManager.getDefaultProvider(config);
@@ -37,18 +43,25 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
 
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
-        listener = null;
     }
 
-    public void testEventAggregationAndPrevWindow()
+    public void testEventBeanAnnotation() {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            runAssertionEventBeanAnnotation(rep);
+        }
+    }
+
+    private void runAssertionEventBeanAnnotation(EventRepresentationChoice rep)
     {
-        epService.getEPAdministrator().createEPL("create objectarray schema MyEvent(col1 string)");
+        epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema MyEvent(col1 string)");
+        SupportUpdateListener listenerInsert = new SupportUpdateListener();
         String eplInsert = "insert into DStream select " +
                 "last(*) @eventbean as c0, " +
                 "window(*) @eventbean as c1, " +
                 "prevwindow(s0) @eventbean as c2 " +
                 "from MyEvent#length(2) as s0";
         EPStatement stmtInsert = epService.getEPAdministrator().createEPL(eplInsert);
+        stmtInsert.addListener(listenerInsert);
 
         for (String prop : "c0,c1,c2".split(",")){
             assertFragment(prop, stmtInsert.getEventType(), "MyEvent", prop.equals("c1") || prop.equals("c2"));
@@ -56,6 +69,7 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
 
         // test consuming statement
         String[] fields = "f0,f1,f2,f3,f4,f5".split(",");
+        SupportUpdateListener listenerProps = new SupportUpdateListener();
         epService.getEPAdministrator().createEPL("select " +
                 "c0 as f0, " +
                 "c0.col1 as f1, " +
@@ -63,17 +77,14 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
                 "c1.lastOf().col1 as f3, " +
                 "c1 as f4, " +
                 "c1.lastOf().col1 as f5 " +
-                "from DStream").addListener(listener);
+                "from DStream").addListener(listenerProps);
 
-        Object[] eventOne = new Object[] {"E1"};
-        epService.getEPRuntime().sendEvent(eventOne, "MyEvent");
-        EventBean out = listener.assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(out, fields, new Object[] {eventOne, "E1", new Object[] {eventOne}, "E1", new Object[] {eventOne}, "E1"});
+        Object eventOne = sendEvent(rep, "E1");
+        assertTrue(((Map)listenerInsert.assertOneGetNewAndReset().getUnderlying()).get("c0") instanceof EventBean);
+        EPAssertionUtil.assertProps(listenerProps.assertOneGetNewAndReset(), fields, new Object[] {eventOne, "E1", new Object[] {eventOne}, "E1", new Object[] {eventOne}, "E1"});
 
-        Object[] eventTwo = new Object[] {"E2"};
-        epService.getEPRuntime().sendEvent(eventTwo, "MyEvent");
-        out = listener.assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(out, fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
+        Object eventTwo = sendEvent(rep, "E2");
+        EPAssertionUtil.assertProps(listenerProps.assertOneGetNewAndReset(), fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
 
         // test SODA
         SupportModelHelper.compileCreate(epService, eplInsert);
@@ -86,7 +97,12 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
         catch (EPStatementException ex) {
             assertEquals("Failed to recognize select-expression annotation 'xxx', expected 'eventbean' in text 'last(*) @xxx' [select last(*) @xxx from MyEvent]", ex.getMessage());
         }
+
+        epService.getEPAdministrator().destroyAllStatements();
+        epService.getEPAdministrator().getConfiguration().removeEventType("DStream", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("MyEvent", false);
     }
+
 
     public void testSubquery()
     {
@@ -104,6 +120,7 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
 
         // test consuming statement
         String[] fields = "f0,f1".split(",");
+        SupportUpdateListener listener = new SupportUpdateListener();
         epService.getEPAdministrator().createEPL("select " +
                 "c0 as f0, " +
                 "c0.lastOf().col1 as f1 " +
@@ -129,5 +146,31 @@ public class TestSelectExprEventBeanAnnotation extends TestCase {
         assertEquals(fragmentTypeName, fragment.getFragmentType().getName());
         assertEquals(false, fragment.isNative());
         assertEquals(indexed, fragment.isIndexed());
+    }
+
+    private Object sendEvent(EventRepresentationChoice rep, String value) {
+        Object eventOne;
+        if (rep.isMapEvent()) {
+            Map<String, Object> event = Collections.singletonMap("col1", value);
+            epService.getEPRuntime().sendEvent(event, "MyEvent");
+            eventOne = event;
+        }
+        else if (rep.isObjectArrayEvent()) {
+            Object[] event = new Object[] {value};
+            epService.getEPRuntime().sendEvent(event, "MyEvent");
+            eventOne = event;
+
+        }
+        else if (rep.isAvroEvent()) {
+            Schema schema = SupportAvroUtil.getAvroSchema(epService, "MyEvent");
+            GenericData.Record event = new GenericData.Record(schema);
+            event.put("col1", value);
+            epService.getEPRuntime().sendEventAvro(event, "MyEvent");
+            eventOne = event;
+        }
+        else {
+            throw new IllegalStateException();
+        }
+        return eventOne;
     }
 }

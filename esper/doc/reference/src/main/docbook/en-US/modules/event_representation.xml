@@ -493,113 +493,264 @@ public class InnerType {
 			</tgroup>
 		</table>        
 		        
-        <para>
-			Each of the event representations of Java object, Map, Object-array, Avro and XML document has advantages and disadvantages that are summarized in the table below:
-        </para>
-        
-		<table frame="topbot">
-			<title>Comparing Event Representations</title>
-			<tgroup cols="6">
-				<colspec colwidth="1.5*"/>
-				<colspec colwidth="1.5*"/>
-				<colspec colwidth="1.5*"/>
-				<colspec colwidth="1.5*"/>
-				<colspec colwidth="1.5*"/>
-				<colspec colwidth="1.5*"/>
-				<thead>
-					<row>
-						<entry></entry>
-						<entry>Java Object (POJO/Bean or other)</entry>
-						<entry>Map</entry>
-						<entry>Object-array</entry>
-						<entry>Avro</entry>
-						<entry>XML Document</entry>
-					</row>
-				</thead>
-				<tbody>
-					<row>
-						<entry>Performance</entry>
-						<entry>Good</entry>
-						<entry>Good</entry>
-						<entry>Very Good</entry>
-						<entry>Very Good</entry>
-						<entry>Not comparable and depending on use of XPath</entry>
-					</row>
-					<row>
-						<entry>Memory Use</entry>
-						<entry>Small</entry>
-						<entry>Medium</entry>
-						<entry>Small</entry>
-						<entry>Small</entry>
-						<entry>Depends on DOM and XPath implementation used, can be large</entry>
-					</row>
-					<row>
-						<entry>Call Method on Event</entry>
-						<entry>Yes</entry>
-						<entry>Yes, if contains Object(s)</entry>
-						<entry>Yes, if contains Object(s)</entry>
-						<entry>No</entry>
-						<entry>No</entry>
-					</row>
-					<row>
-						<entry>Nested, Indexed, Mapped and Dynamic Properties</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-					</row>
-					<row>
-						<entry>Course-grained event syntax</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-					</row>
-					<row>
-						<entry>Insert-into that Representation</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>No</entry>
-					</row>
-					<row>
-						<entry>Runtime Type Change</entry>
-						<entry>Reload class, yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-					</row>
-					<row>
-						<entry>Create-schema Syntax</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>No, runtime and static configuration</entry>
-					</row>
-					<row>
-						<entry>Object is Self-Descriptive</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-						<entry>No</entry>
-						<entry>Yes</entry>
-						<entry>Yes</entry>
-					</row>
-					<row>
-						<entry>Supertypes</entry>
-						<entry>Multiple</entry>
-						<entry>Multiple</entry>
-						<entry>Single</entry>
-						<entry>Single</entry>
-						<entry>No</entry>
-					</row>
-				</tbody>
-			</tgroup>
-		</table>        
+		<sect2 xml:id="eventrep_comparing_incoming">
+			<title>Incoming Events</title>
+			<para>
+				For sending incoming events into the engine for processing, your application uses one of the send-event methods on the <literal>EPRuntime</literal> interface: 
+			</para>
+			<table frame="topbot">
+				<title>EPRuntime Send-event Methods</title>
+				<tgroup cols="2">
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Event Representation</entry>
+							<entry>Method for Processing Events</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Java Object (POJO/Bean or other)</entry>
+							<entry><programlisting>sendEvent(Object event)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Map</entry>
+							<entry><programlisting>sendEvent(Map map, String mapEventTypeName)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Object-array</entry>
+							<entry><programlisting>sendEvent(Object[] objectarray, String objectArrayEventTypeName)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Avro</entry>
+							<entry><programlisting>sendEvent(Object avroGenericDataDotRecord, String avroEventTypeName)</programlisting></entry>
+						</row>
+						<row>
+							<entry>XML Document</entry>
+							<entry><programlisting>sendEvent(org.w3c.dom.Node node)</programlisting></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>        
+
+			<para>
+				Please find an example in the respective appendix.
+			</para>
+  		</sect2>
+
+		<sect2 xml:id="eventrep_comparing_outgoing">
+			<title>Outgoing Events</title>
+			<para>
+				The <literal>StatementUpdateListener</literal> interface receives EPL statement output. The output events can be either of the representations
+			</para>
+			<table frame="topbot">
+				<title>Annotation for Receiving Events</title>
+				<tgroup cols="2">
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Event Representation</entry>
+							<entry>Annotation</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Java Object (POJO/Bean or other)</entry>
+							<entry><programlisting>N/A</programlisting></entry>
+						</row>
+						<row>
+							<entry>Map</entry>
+							<entry><programlisting>@EventRepresentation(map)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Object-array</entry>
+							<entry><programlisting>@EventRepresentation(objectarray)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Avro</entry>
+							<entry><programlisting>@EventRepresentation(avro)</programlisting></entry>
+						</row>
+						<row>
+							<entry>XML Document</entry>
+							<entry><programlisting>N/A</programlisting></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>        
+			
+			<para>
+				Please find an example in the respective appendix.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="eventrep_comparing_schema">
+			<title>Schema</title>
+			<para>
+				The create-schema clause can be used to define an event type and its event representation.
+			</para>
+			<table frame="topbot">
+				<title>Create-Schema</title>
+				<tgroup cols="2">
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry>Event Representation</entry>
+							<entry>Annotation</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Java Object (POJO/Bean or other)</entry>
+							<entry><programlisting>create schema <emphasis>name</emphasis> as <emphasis>class_name</emphasis></programlisting></entry>
+						</row>
+						<row>
+							<entry>Map</entry>
+							<entry><programlisting>create map schema <emphasis>name</emphasis> as (...)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Object-array</entry>
+							<entry><programlisting>create objectarray schema <emphasis>name</emphasis> as (...)</programlisting></entry>
+						</row>
+						<row>
+							<entry>Avro</entry>
+							<entry><programlisting>create avro schema <emphasis>name</emphasis> as (...)</programlisting></entry>
+						</row>
+						<row>
+							<entry>XML Document</entry>
+							<entry><programlisting>N/A</programlisting></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>        
+			
+			<para>
+				Your EPL statements can use <literal>create schema</literal> and <literal>insert into</literal> to define an event type and to produce events of the type.
+			</para>
+
+			<para>
+				In the following example the first statement declares a schema and the second statement inserts events according to the schema:
+			</para>
+			<programlisting><![CDATA[create map schema ParkingEvent as (carId string, driverName string)]]></programlisting>		
+			<programlisting><![CDATA[insert into ParkingEvent select carId, 'jim' as driverName from CarArrivalEvent]]></programlisting>		
+
+			<para>
+				Please find additional examples in <xref linkend="epl_createschema"/>.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="eventrep_comparing_advantages">
+			<title>Side-By-Side</title>
+			<para>
+				Each of the event representations of Java object, Map, Object-array, Avro and XML document has advantages and disadvantages that are summarized in the table below:
+			</para>
+			
+			<table frame="topbot">
+				<title>Comparing Event Representations</title>
+				<tgroup cols="6">
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="1.5*"/>
+					<thead>
+						<row>
+							<entry></entry>
+							<entry>Java Object (POJO/Bean or other)</entry>
+							<entry>Map</entry>
+							<entry>Object-array</entry>
+							<entry>Avro</entry>
+							<entry>XML Document</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Performance</entry>
+							<entry>Good</entry>
+							<entry>Good</entry>
+							<entry>Very Good</entry>
+							<entry>Very Good</entry>
+							<entry>Not comparable and depending on use of XPath</entry>
+						</row>
+						<row>
+							<entry>Memory Use</entry>
+							<entry>Small</entry>
+							<entry>Medium</entry>
+							<entry>Small</entry>
+							<entry>Small</entry>
+							<entry>Depends on DOM and XPath implementation used, can be large</entry>
+						</row>
+						<row>
+							<entry>Call Method on Event</entry>
+							<entry>Yes</entry>
+							<entry>Yes, if contains Object(s)</entry>
+							<entry>Yes, if contains Object(s)</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>Nested, Indexed, Mapped and Dynamic Properties</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>Course-grained event syntax</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>Insert-into that Representation</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>Runtime Type Change</entry>
+							<entry>Reload class, yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>Create-schema Syntax</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No, runtime and static configuration</entry>
+						</row>
+						<row>
+							<entry>Object is Self-Descriptive</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>Supertypes</entry>
+							<entry>Multiple</entry>
+							<entry>Multiple</entry>
+							<entry>Single</entry>
+							<entry>Single</entry>
+							<entry>No</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>        
+		 </sect2>
      </sect1>
        
 	<sect1 xml:id="eventrep-plug-in">

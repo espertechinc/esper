@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.expr;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
@@ -248,8 +249,7 @@ public class TestTypeOfExpr extends TestCase
             epService.getEPRuntime().sendEvent(new HashMap<String, Object>(), "MySchema");
         }
         else if (eventRepresentationEnum.isAvroEvent()){
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
-            epService.getEPRuntime().sendEventAvro(new GenericData.Record(schema), "MySchema");
+            epService.getEPRuntime().sendEventAvro(new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MySchema")), "MySchema");
         }
         else {
             fail();
@@ -265,8 +265,8 @@ public class TestTypeOfExpr extends TestCase
             epService.getEPRuntime().sendEvent(theEvent, "MySchema");
         }
         else if (eventRepresentationEnum.isAvroEvent()){
-            Schema mySchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
-            Schema innerSchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("InnerSchema")).getSchemaAvro();
+            Schema mySchema = SupportAvroUtil.getAvroSchema(epService, "MySchema");
+            Schema innerSchema = SupportAvroUtil.getAvroSchema(epService, "InnerSchema");
             GenericData.Record event = new GenericData.Record(mySchema);
             event.put("inside", new GenericData.Record(innerSchema));
             epService.getEPRuntime().sendEventAvro(event, "MySchema");
@@ -285,8 +285,7 @@ public class TestTypeOfExpr extends TestCase
             epService.getEPRuntime().sendEvent(theEvent, "MySchema");
         }
         else if (eventRepresentationEnum.isAvroEvent()){
-            Schema mySchema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MySchema")).getSchemaAvro();
-            GenericData.Record event = new GenericData.Record(mySchema);
+            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MySchema"));
             event.put("insidearr", Collections.emptyList());
             epService.getEPRuntime().sendEventAvro(event, "MySchema");
         }

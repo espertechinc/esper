@@ -17,6 +17,7 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
+import com.espertech.esper.event.AvroBackedBean;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
@@ -24,9 +25,13 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestStreamExpr extends TestCase
 {
@@ -280,145 +285,6 @@ public class TestStreamExpr extends TestCase
         stmtOne.destroy();
     }
 
-    public void testStreamSelectConversionFunctionObject()
-    {
-        String textOne = "insert into EventStream select * from " + SupportBean.class.getName() + "#length(100)";
-        String textTwo = "insert into EventStream select " + SupportStaticMethodLib.class.getName() + ".convertEvent(s0) from " + SupportMarketDataBean.class.getName() + "#length(100) as s0";
-
-        // Attach listener to feed
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
-        SupportUpdateListener listenerOne = new SupportUpdateListener();
-        stmtOne.addListener(listenerOne);
-        EventType type = stmtOne.getEventType();
-        assertEquals(SupportBean.class, type.getUnderlyingType());
-
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(textTwo);
-        SupportUpdateListener listenerTwo = new SupportUpdateListener();
-        stmtTwo.addListener(listenerTwo);
-        type = stmtTwo.getEventType();
-        assertEquals(SupportBean.class, type.getUnderlyingType());
-
-        // send event for joins to match on
-        SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 0, 0L, null);
-        epService.getEPRuntime().sendEvent(eventA);
-        EventBean theEvent = listenerTwo.assertOneGetNewAndReset();
-        assertTrue(theEvent.getEventType() instanceof BeanEventType);
-        assertTrue (theEvent.getUnderlying() instanceof SupportBean);
-        assertEquals("ACME", theEvent.get("theString"));
-
-        epService.getEPAdministrator().destroyAllStatements();
-    }
-
-    public void testStreamSelectConversionFunctionMap()
-    {
-        // try the same with a map
-        Map<String, Object> types = new HashMap<String, Object>();
-        types.put("one", String.class);
-        types.put("two", String.class);
-        epService.getEPAdministrator().getConfiguration().addEventType("MapOne", types);
-        epService.getEPAdministrator().getConfiguration().addEventType("MapTwo", types);
-
-        // test wrapped
-        String textOne = "insert into Stream0 select * from MapOne";
-        String textTwo = "insert into Stream0 select " + SupportStaticMethodLib.class.getName() + ".convertEventMap(s0) from MapTwo as s0";
-
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
-        SupportUpdateListener listenerOne = new SupportUpdateListener();
-        stmtOne.addListener(listenerOne);
-        EventType type = stmtOne.getEventType();
-        assertEquals(Map.class, type.getUnderlyingType());
-
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(textTwo);
-        SupportUpdateListener listenerTwo = new SupportUpdateListener();
-        stmtTwo.addListener(listenerTwo);
-        type = stmtTwo.getEventType();
-        assertEquals(Map.class, type.getUnderlyingType());
-
-        Map<String, Object> values = new HashMap<String, Object>();
-        values.put("one", "1");
-        values.put("two", "2");
-        epService.getEPRuntime().sendEvent(values, "MapTwo");
-
-        EventBean theEvent = listenerTwo.assertOneGetNewAndReset();
-        assertTrue (theEvent.getUnderlying() instanceof Map);
-        assertEquals("1", theEvent.get("one"));
-        assertEquals("|2|", theEvent.get("two"));
-
-        epService.getEPAdministrator().destroyAllStatements();
-
-        // test native
-        epService.getEPAdministrator().createEPL("insert into MapOne select " + SupportStaticMethodLib.class.getName() + ".convertEventMap(s0) from MapTwo as s0");
-        EPStatement stmtThree = epService.getEPAdministrator().createEPL("select * from MapOne");
-        stmtThree.addListener(listener);
-
-        Map<String, Object> valuesTwo = new HashMap<String, Object>();
-        valuesTwo.put("one", "3");
-        valuesTwo.put("two", "4");
-        epService.getEPRuntime().sendEvent(valuesTwo, "MapTwo");
-        EventBean eventTwo = listener.assertOneGetNewAndReset();
-        assertTrue (eventTwo.getUnderlying() instanceof Map);
-        assertTrue (eventTwo instanceof MappedEventBean);
-        assertEquals("3", eventTwo.get("one"));
-        assertEquals("|4|", eventTwo.get("two"));
-    }
-
-    public void testStreamSelectConversionFunctionObjectArray()
-    {
-        String[] props = {"one", "two"};
-        Object[] types = {String.class, String.class};
-        epService.getEPAdministrator().getConfiguration().addEventType("OAOne", props, types);
-        epService.getEPAdministrator().getConfiguration().addEventType("OATwo", props, types);
-        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
-
-        // test wrapped
-        String textOne = "insert into Stream0 select * from OAOne";
-        String textTwo = "insert into Stream0 select " + SupportStaticMethodLib.class.getName() + ".convertEventObjectArray(s0) from OATwo as s0";
-
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
-        SupportUpdateListener listenerOne = new SupportUpdateListener();
-        stmtOne.addListener(listenerOne);
-        EventType type = stmtOne.getEventType();
-        assertEquals(Object[].class, type.getUnderlyingType());
-
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(textTwo);
-        SupportUpdateListener listenerTwo = new SupportUpdateListener();
-        stmtTwo.addListener(listenerTwo);
-        type = stmtTwo.getEventType();
-        assertEquals(Object[].class, type.getUnderlyingType());
-
-        epService.getEPRuntime().sendEvent(new Object[] {"1", "2"}, "OATwo");
-
-        EventBean theEvent = listenerTwo.assertOneGetNewAndReset();
-        assertTrue (theEvent.getUnderlying() instanceof Object[]);
-        assertEquals("1", theEvent.get("one"));
-        assertEquals("|2|", theEvent.get("two"));
-
-        epService.getEPAdministrator().destroyAllStatements();
-
-        // test native
-        epService.getEPAdministrator().createEPL("insert into OAOne select " + SupportStaticMethodLib.class.getName() + ".convertEventObjectArray(s0) from OATwo as s0");
-        EPStatement stmtThree = epService.getEPAdministrator().createEPL("select * from OAOne");
-        stmtThree.addListener(listener);
-
-        epService.getEPRuntime().sendEvent(new Object[] {"3", "4"}, "OATwo");
-        EventBean eventTwo = listener.assertOneGetNewAndReset();
-        assertTrue (eventTwo instanceof ObjectArrayBackedEventBean);
-        assertTrue (eventTwo.getUnderlying() instanceof Object[]);
-        assertEquals("3", eventTwo.get("one"));
-        assertEquals("|4|", eventTwo.get("two"));
-
-        epService.getEPAdministrator().destroyAllStatements();
-
-        // test Object-array with single object-array property, should not convert
-        epService.getEPAdministrator().getConfiguration().addEventType("OAInner", new String[] {"id"}, new Object[] {String.class});
-        epService.getEPAdministrator().getConfiguration().addEventType("OAOuter", new String[] {"inside"}, new Object[] {"OAInner"});
-
-        epService.getEPAdministrator().createEPL("insert into OAOuter select " + this.getClass().getName() + ".getObjectArray() as id from SupportBean").addListener(listener);
-        epService.getEPRuntime().sendEvent(new SupportBean());
-        assertEquals("OAOuter", listener.assertOneGetNew().getEventType().getName());
-        assertEquals("id1", listener.assertOneGetNew().get("inside.id"));
-    }
-
     public void testInvalidSelect()
     {
         tryInvalid("select s0.getString(1,2,3) from " + SupportBean.class.getName() + " as s0", null);
@@ -429,10 +295,6 @@ public class TestStreamExpr extends TestCase
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         tryInvalid("select s.theString from pattern [every [2] s=SupportBean] ee",
                 "Error starting statement: Failed to validate select-clause expression 's.theString': Failed to resolve property 's.theString' (property 's' is an indexed property and requires an index or enumeration method to access values) [select s.theString from pattern [every [2] s=SupportBean] ee]");
-    }
-
-    public static Object[] getObjectArray() {
-        return new Object[] {"id1"};
     }
 
     private void tryInvalid(String clause, String message)
@@ -449,13 +311,6 @@ public class TestStreamExpr extends TestCase
                 SupportMessageAssertUtil.assertMessage(ex, message);
             }
         }
-    }
-
-    private SupportMarketDataBean sendMarketEvent(String s)
-    {
-        SupportMarketDataBean bean = new SupportMarketDataBean(s, 0d, 0L, "");
-        epService.getEPRuntime().sendEvent(bean);
-        return bean;
     }
 
     private static class MyTestEvent {

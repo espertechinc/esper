@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.expr;
 
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -18,9 +19,13 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.util.JavaClassHelper;
 import junit.framework.TestCase;
+import org.apache.avro.generic.GenericData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.net.www.content.text.Generic;
 
 import java.util.Map;
 
@@ -43,22 +48,10 @@ public class TestNewStructExpr extends TestCase
         listener = null;
     }
 
-    public void testNewAlone() {
-        String epl = "select new { theString = 'x' || theString || 'x', intPrimitive = intPrimitive + 2} as val0 from SupportBean as sb";
-
-        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
-        stmt.addListener(listener);
-
-        assertEquals(Map.class, stmt.getEventType().getPropertyType("val0"));
-        FragmentEventType fragType = stmt.getEventType().getFragmentType("val0");
-        assertFalse(fragType.isIndexed());
-        assertFalse(fragType.isNative());
-        assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
-        assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("intPrimitive"));
-
-        String[] fieldsInner = "theString,intPrimitive".split(",");
-        epService.getEPRuntime().sendEvent(new SupportBean("E1", -5));
-        EPAssertionUtil.assertPropsMap((Map) listener.assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[]{"xE1x", -3});
+    public void testNewWRepresentation() {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            runAssertionNewWRepresentation(rep);
+        }
     }
 
     public void testDefaultColumnsAndSODA()
@@ -179,6 +172,35 @@ public class TestNewStructExpr extends TestCase
 
         epl = "select case when true then new { col1 = 'a', col1 = 'b' } end from SupportBean";
         tryInvalid(epl, "Error starting statement: Failed to validate select-clause expression 'case when true then new{col1=\"a\",co...(46 chars)': Failed to validate new-keyword property names, property 'col1' has already been declared [select case when true then new { col1 = 'a', col1 = 'b' } end from SupportBean]");
+    }
+
+    private void runAssertionNewWRepresentation(EventRepresentationChoice rep) {
+        String epl = rep.getAnnotationText() + "select new { theString = 'x' || theString || 'x', intPrimitive = intPrimitive + 2} as val0 from SupportBean as sb";
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        assertEquals(rep.isAvroEvent() ? GenericData.Record.class : Map.class, stmt.getEventType().getPropertyType("val0"));
+        FragmentEventType fragType = stmt.getEventType().getFragmentType("val0");
+        assertFalse(fragType.isIndexed());
+        assertFalse(fragType.isNative());
+        assertEquals(String.class, fragType.getFragmentType().getPropertyType("theString"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(fragType.getFragmentType().getPropertyType("intPrimitive")));
+
+        String[] fieldsInner = "theString,intPrimitive".split(",");
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", -5));
+        EventBean event = listener.assertOneGetNewAndReset();
+        if (rep.isAvroEvent()) {
+            SupportAvroUtil.avroToJson(event);
+            GenericData.Record inner = (GenericData.Record) event.get("val0");
+            assertEquals("xE1x", inner.get("theString"));
+            assertEquals(-3, inner.get("intPrimitive"));
+        }
+        else {
+            EPAssertionUtil.assertPropsMap((Map) event.get("val0"), fieldsInner, new Object[]{"xE1x", -3});
+        }
+
+        stmt.destroy();
     }
 
     private void tryInvalid(String epl, String message) {

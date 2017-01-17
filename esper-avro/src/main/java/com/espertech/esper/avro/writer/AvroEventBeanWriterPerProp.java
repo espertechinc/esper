@@ -11,7 +11,7 @@
 
 package com.espertech.esper.avro.writer;
 
-import com.espertech.esper.avro.core.AvroBackedEventBean;
+import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventBeanWriter;
 import org.apache.avro.generic.GenericData;
@@ -39,7 +39,7 @@ public class AvroEventBeanWriterPerProp implements EventBeanWriter
      */
     public void write(Object[] values, EventBean theEvent)
     {
-        AvroBackedEventBean arrayEvent = (AvroBackedEventBean) theEvent;
+        AvroGenericDataBackedEventBean arrayEvent = (AvroGenericDataBackedEventBean) theEvent;
         GenericData.Record arr = arrayEvent.getProperties();
 
         for (int i = 0; i < writers.length; i++)

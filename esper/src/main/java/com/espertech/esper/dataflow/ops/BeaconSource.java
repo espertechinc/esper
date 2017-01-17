@@ -95,7 +95,7 @@ public class BeaconSource implements DataFlowSourceOperator {
                     ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
                     final ExprEvaluator exprEvaluator = validated.getExprEvaluator();
                     final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated), exprEvaluator.getType(),
-                            writeable.getType(), writeable.getPropertyName(), false);
+                            writeable.getType(), writeable.getPropertyName(), false, false);
                     if (widener != null) {
                         evaluators[index] = new ExprEvaluator() {
                             public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

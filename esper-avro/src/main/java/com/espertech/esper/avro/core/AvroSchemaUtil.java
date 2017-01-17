@@ -17,12 +17,15 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.AvroField;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
+import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.JavaClassHelper;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 
 import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
@@ -93,15 +96,35 @@ public class AvroSchemaUtil {
         }
         else if (propertyType instanceof EventType){
             EventType eventType = (EventType) propertyType;
-            checkAvroType(eventType);
-            schema = ((AvroEventType) eventType).getSchemaAvro();
-            assembler.name(propertyName).type(schema).noDefault();
+            checkCompatibleType(eventType);
+            if (eventType instanceof AvroEventType) {
+                schema = ((AvroEventType) eventType).getSchemaAvro();
+                assembler.name(propertyName).type(schema).noDefault();
+            }
+            else if (eventType instanceof MapEventType) {
+                MapEventType mapEventType = (MapEventType) eventType;
+                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService);
+                assembler.name(propertyName).type(nestedSchema).noDefault();
+            }
+            else {
+                throw new IllegalStateException("Unrecognized event type " + eventType);
+            }
         }
         else if (propertyType instanceof EventType[]) {
             EventType eventType = ((EventType[]) propertyType)[0];
-            checkAvroType(eventType);
-            schema = ((AvroEventType) eventType).getSchemaAvro();
-            assembler.name(propertyName).type(array().items(schema)).noDefault();
+            checkCompatibleType(eventType);
+            if (eventType instanceof AvroEventType) {
+                schema = ((AvroEventType) eventType).getSchemaAvro();
+                assembler.name(propertyName).type(array().items(schema)).noDefault();
+            }
+            else if (eventType instanceof MapEventType) {
+                MapEventType mapEventType = (MapEventType) eventType;
+                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService);
+                assembler.name(propertyName).type(array().items(nestedSchema)).noDefault();
+            }
+            else {
+                throw new IllegalStateException("Unrecognized event type " + eventType);
+            }
         }
         else if (propertyType instanceof Class) {
             Class propertyClass = (Class) propertyType;
@@ -212,6 +235,14 @@ public class AvroSchemaUtil {
         }
     }
 
+    private static Schema assembleNestedSchema(MapEventType mapEventType, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, Annotation[] annotations, EventAdapterService eventAdapterService) {
+        SchemaBuilder.FieldAssembler<Schema> assembler = record(mapEventType.getName()).fields();
+        for (Map.Entry<String, Object> prop : mapEventType.getTypes().entrySet()) {
+            AvroSchemaUtil.assembleField(prop.getKey(), prop.getValue(), assembler, annotations, avroSettings, eventAdapterService);
+        }
+        return assembler.endRecord();
+    }
+
     private static Schema getAnnotationSchema(String propertyName, Annotation[] annotations) {
         if (annotations == null) {
             return null;
@@ -233,8 +264,8 @@ public class AvroSchemaUtil {
         return null;
     }
 
-    private static void checkAvroType(EventType eventType) {
-        if (!(eventType instanceof AvroEventType)) {
+    private static void checkCompatibleType(EventType eventType) {
+        if (!(eventType instanceof AvroEventType) && !(eventType instanceof MapEventType)) {
             throw new EPException("Property type cannot be an event type with an underlying of type '" + eventType.getUnderlyingType().getName() + "'");
         }
     }

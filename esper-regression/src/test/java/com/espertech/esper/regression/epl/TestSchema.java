@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -28,6 +29,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
@@ -141,7 +143,7 @@ public class TestSchema extends TestCase
         stmtOne.addListener(listener);
         assertTrue(eventRepresentationEnum.matchesClass(stmtOne.getEventType().getUnderlyingType()));
         assertEquals(String.class, stmtOne.getEventType().getPropertyType("prop1"));
-        assertEquals(Integer.class, stmtOne.getEventType().getPropertyType("prop2"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(stmtOne.getEventType().getPropertyType("prop2")));
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             epService.getEPRuntime().sendEvent(new Object[] {"v1", 2}, "E1");
@@ -167,8 +169,8 @@ public class TestSchema extends TestCase
         epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema E2 () copyfrom BaseOne, BaseTwo");
         EPStatement stmtTwo = epService.getEPAdministrator().createEPL("select * from E2");
         assertEquals(String.class, stmtTwo.getEventType().getPropertyType("prop1"));
-        assertEquals(Integer.class, stmtTwo.getEventType().getPropertyType("prop2"));
-        assertEquals(Long.class, stmtTwo.getEventType().getPropertyType("prop3"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(stmtTwo.getEventType().getPropertyType("prop2")));
+        assertEquals(Long.class, JavaClassHelper.getBoxedType(stmtTwo.getEventType().getPropertyType("prop3")));
 
         // test API-defined type
         if (eventRepresentationEnum.isMapEvent() || eventRepresentationEnum.isObjectArrayEvent()) {
@@ -205,7 +207,7 @@ public class TestSchema extends TestCase
         else {
             fail();
         }
-        assertEquals(Long.class, stmtThree.getEventType().getPropertyType("e"));
+        assertEquals(Long.class, JavaClassHelper.getBoxedType(stmtThree.getEventType().getPropertyType("e")));
 
         // invalid tests
         tryInvalid(epService, eventRepresentationEnum.getAnnotationText() + " create schema E4(a long) copyFrom MyType",
@@ -338,7 +340,7 @@ public class TestSchema extends TestCase
 
         // destroy and create differently 
         stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col3 string, col4 int)");
-        assertEquals(Integer.class, stmtCreate.getEventType().getPropertyType("col4"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(stmtCreate.getEventType().getPropertyType("col4")));
         assertEquals(2, stmtCreate.getEventType().getPropertyDescriptors().length);
 
         stmtCreate.stop();
@@ -346,7 +348,7 @@ public class TestSchema extends TestCase
         // destroy and create differently
         stmtCreate = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create schema MyEventType as (col5 string, col6 int)");
         assertTrue(eventRepresentationEnum.matchesClass(stmtCreate.getEventType().getUnderlyingType()));
-        assertEquals(Integer.class, stmtCreate.getEventType().getPropertyType("col6"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(stmtCreate.getEventType().getPropertyType("col6")));
         assertEquals(2, stmtCreate.getEventType().getPropertyDescriptors().length);
         stmtSelect = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " select * from MyEventType");
         stmtSelect.addListener(listener);
@@ -477,10 +479,10 @@ public class TestSchema extends TestCase
             epService.getEPRuntime().sendEvent(outerData, "MyOuterType");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record innerData = new GenericData.Record(((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyInnerType")).getSchemaAvro());
+            GenericData.Record innerData = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MyInnerType"));
             innerData.put("inn1", Arrays.asList("abc", "def"));
             innerData.put("inn2", Arrays.asList(1, 2));
-            GenericData.Record outerData = new GenericData.Record(((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyOuterType")).getSchemaAvro());
+            GenericData.Record outerData = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MyOuterType"));
             outerData.put("col1", innerData);
             outerData.put("col2", Arrays.asList(innerData, innerData));
             epService.getEPRuntime().sendEventAvro(outerData, "MyOuterType");
@@ -564,8 +566,8 @@ public class TestSchema extends TestCase
 
     private void assertTypeColDef(EventType eventType) {
         assertEquals(String.class, eventType.getPropertyType("col1"));
-        assertEquals(Integer.class, eventType.getPropertyType("col2"));
-        assertEquals(Integer.class, eventType.getPropertyType("col3_col4"));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("col2")));
+        assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("col3_col4")));
         assertEquals(3, eventType.getPropertyDescriptors().length);
     }
 

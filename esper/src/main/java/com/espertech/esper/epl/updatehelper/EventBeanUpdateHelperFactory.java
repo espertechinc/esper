@@ -65,7 +65,7 @@ public class EventBeanUpdateHelperFactory
 
                 properties.add(propertyName);
                 TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getExprEvaluator().getType(),
-                        writableProperty.getPropertyType(), propertyName, false);
+                        writableProperty.getPropertyType(), propertyName, false, false);
 
                 // check event type assignment
                 if (optionalTriggeringEventType != null && possibleAssignment.getSecond() instanceof ExprIdentNode) {

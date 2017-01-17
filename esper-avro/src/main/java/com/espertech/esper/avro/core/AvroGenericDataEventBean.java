@@ -15,13 +15,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.AvroBackedBean;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBean implements EventBean, AvroBackedEventBean {
-    private final GenericData.Record record;
+public class AvroGenericDataEventBean implements EventBean, AvroGenericDataBackedEventBean, AvroBackedBean {
+    private GenericData.Record record;
     private final EventType eventType;
 
-    public AvroEventBean(GenericData.Record record, EventType eventType) {
+    public AvroGenericDataEventBean(GenericData.Record record, EventType eventType) {
         this.record = record;
         this.eventType = eventType;
     }
@@ -52,5 +53,13 @@ public class AvroEventBean implements EventBean, AvroBackedEventBean {
 
     public GenericData.Record getProperties() {
         return record;
+    }
+
+    public Object getGenericRecordDotData() {
+        return record;
+    }
+
+    public void setGenericRecordDotData(Object genericRecordDotData) {
+        this.record = (GenericData.Record) genericRecordDotData;
     }
 }

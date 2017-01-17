@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -95,73 +96,6 @@ public class TestInsertInto extends TestCase
         runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
         runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
         runAssertionWildcardRecast(false, EventRepresentationChoice.AVRO, true, null);
-    }
-
-    private void runAssertionWildcardRecast(boolean sourceBean, EventRepresentationChoice sourceType,
-                                            boolean targetBean, EventRepresentationChoice targetType) {
-        try {
-            runAssertionWildcardRecastInternal(sourceBean, sourceType, targetBean, targetType);
-        }
-        finally {
-            // cleanup
-            epService.getEPAdministrator().destroyAllStatements();
-            epService.getEPAdministrator().getConfiguration().removeEventType("TargetSchema", false);
-            epService.getEPAdministrator().getConfiguration().removeEventType("SourceSchema", false);
-            epService.getEPAdministrator().getConfiguration().removeEventType("TargetContainedSchema", false);
-        }
-    }
-
-    private void runAssertionWildcardRecastInternal(boolean sourceBean, EventRepresentationChoice sourceType,
-                                            boolean targetBean, EventRepresentationChoice targetType) {
-        // declare source type
-        if (sourceBean) {
-            epService.getEPAdministrator().createEPL("create schema SourceSchema as " + MyP0P1EventSource.class.getName());
-        }
-        else {
-            epService.getEPAdministrator().createEPL("create " + sourceType.getOutputTypeCreateSchemaName() + " schema SourceSchema as (p0 string, p1 int)");
-        }
-
-        // declare target type
-        if (targetBean) {
-            epService.getEPAdministrator().createEPL("create schema TargetSchema as " + MyP0P1EventTarget.class.getName());
-        }
-        else {
-            epService.getEPAdministrator().createEPL("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetContainedSchema as (c0 int)");
-            epService.getEPAdministrator().createEPL("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)");
-        }
-
-        // insert-into and select
-        epService.getEPAdministrator().createEPL("insert into TargetSchema select * from SourceSchema");
-        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from TargetSchema");
-        SupportUpdateListener listener = new SupportUpdateListener();
-        stmt.addListener(listener);
-
-        // send event
-        if (sourceBean) {
-            epService.getEPRuntime().sendEvent(new MyP0P1EventSource("a", 10));
-        }
-        else if (sourceType.isMapEvent()) {
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("p0", "a");
-            map.put("p1", 10);
-            epService.getEPRuntime().sendEvent(map, "SourceSchema");
-        }
-        else if (sourceType.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(new Object[] {"a", 10}, "SourceSchema");
-        }
-        else if (sourceType.isAvroEvent()) {
-            Schema schema = record("schema").fields().requiredString("p0").requiredString("p1").requiredString("c0").endRecord();
-            GenericData.Record record = new GenericData.Record(schema);
-            record.put("p0", "a");
-            record.put("p1", 10);
-            epService.getEPRuntime().sendEventAvro(record, "SourceSchema");
-        }
-        else {
-            fail();
-        }
-
-        // assert
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "p0,p1,c0".split(","), new Object[]{"a", 10, null});
     }
 
     public void testVariantRStreamOMToStmt() throws Exception
@@ -392,100 +326,6 @@ public class TestInsertInto extends TestCase
         for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
             runAssertionJoinWildcard(false, rep);
         }
-    }
-
-    private void runAssertionJoinWildcard(boolean bean, EventRepresentationChoice rep)
-    {
-        if (bean) {
-            epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean.class);
-            epService.getEPAdministrator().getConfiguration().addEventType("S1", SupportBean_A.class);
-        }
-        else if (rep.isMapEvent()) {
-            epService.getEPAdministrator().getConfiguration().addEventType("S0", Collections.singletonMap("theString", String.class));
-            epService.getEPAdministrator().getConfiguration().addEventType("S1", Collections.singletonMap("id", String.class));
-        }
-        else if (rep.isObjectArrayEvent()) {
-            epService.getEPAdministrator().getConfiguration().addEventType("S0", new String[] {"theString"}, new Object[] {String.class});
-            epService.getEPAdministrator().getConfiguration().addEventType("S1", new String[] {"id"}, new Object[] {String.class});
-        }
-        else if (rep.isAvroEvent()) {
-            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S0", new ConfigurationEventTypeAvro().setAvroSchema(record("S0").fields().requiredString("theString").endRecord()));
-            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S1", new ConfigurationEventTypeAvro().setAvroSchema(record("S1").fields().requiredString("id").endRecord()));
-        }
-        else {
-            fail();
-        }
-
-        String textOne = (bean ? "" : rep.getAnnotationText()) + "insert into event2 select * " +
-        		          "from S0#length(100) as s0, S1#length(5) as s1 " +
-        		          "where s0.theString = s1.id";
-        String textTwo = (bean ? "" : rep.getAnnotationText()) + "select * from event2#length(10)";
-
-        // Attach listener to feed
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
-        SupportUpdateListener listenerOne = new SupportUpdateListener();
-        stmtOne.addListener(listenerOne);
-        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(textTwo);
-        SupportUpdateListener listenerTwo = new SupportUpdateListener();
-        stmtTwo.addListener(listenerTwo);
-
-        // send event for joins to match on
-        Object eventS1;
-        if (bean) {
-            eventS1 = new SupportBean_A("myId");
-            epService.getEPRuntime().sendEvent(eventS1);
-        }
-        else if (rep.isMapEvent()) {
-            eventS1 = Collections.singletonMap("id", "myId");
-            epService.getEPRuntime().sendEvent((Map)eventS1, "S1");
-        }
-        else if (rep.isObjectArrayEvent()) {
-            eventS1 = new Object[] {"myId"};
-            epService.getEPRuntime().sendEvent((Object[]) eventS1, "S1");
-        }
-        else if (rep.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("S1")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
-            theEvent.put("id", "myId");
-            eventS1 = theEvent;
-            epService.getEPRuntime().sendEventAvro(theEvent, "S1");
-        }
-        else {
-            throw new IllegalArgumentException();
-        }
-
-        Object eventS0;
-        if (bean) {
-            eventS0 = new SupportBean("myId", -1);
-            epService.getEPRuntime().sendEvent(eventS0);
-        }
-        else if (rep.isMapEvent()) {
-            eventS0 = Collections.singletonMap("theString", "myId");
-            epService.getEPRuntime().sendEvent((Map) eventS0, "S0");
-        }
-        else if (rep.isObjectArrayEvent()) {
-            eventS0 = new Object[] {"myId"};
-            epService.getEPRuntime().sendEvent((Object[]) eventS0, "S0");
-        }
-        else if (rep.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("S0")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
-            theEvent.put("theString", "myId");
-            eventS0 = theEvent;
-            epService.getEPRuntime().sendEventAvro(theEvent, "S0");
-        }
-        else {
-            throw new IllegalArgumentException();
-        }
-
-        assertJoinWildcard(rep, listenerOne, eventS0, eventS1);
-        assertJoinWildcard(rep, listenerTwo, eventS0, eventS1);
-
-        stmtOne.destroy();
-        stmtTwo.destroy();
-        epService.getEPAdministrator().getConfiguration().removeEventType("S0", false);
-        epService.getEPAdministrator().getConfiguration().removeEventType("S1", false);
-        epService.getEPAdministrator().getConfiguration().removeEventType("event2", false);
     }
 
     public void testInvalidStreamUsed()
@@ -779,6 +619,98 @@ public class TestInsertInto extends TestCase
         assertTrue(rep == null || rep.matchesClass(listener.getLastNewData()[0].getUnderlying().getClass()));
     }
 
+    private void runAssertionJoinWildcard(boolean bean, EventRepresentationChoice rep)
+    {
+        if (bean) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", SupportBean.class);
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", SupportBean_A.class);
+        }
+        else if (rep.isMapEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", Collections.singletonMap("theString", String.class));
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", Collections.singletonMap("id", String.class));
+        }
+        else if (rep.isObjectArrayEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventType("S0", new String[] {"theString"}, new Object[] {String.class});
+            epService.getEPAdministrator().getConfiguration().addEventType("S1", new String[] {"id"}, new Object[] {String.class});
+        }
+        else if (rep.isAvroEvent()) {
+            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S0", new ConfigurationEventTypeAvro().setAvroSchema(record("S0").fields().requiredString("theString").endRecord()));
+            epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S1", new ConfigurationEventTypeAvro().setAvroSchema(record("S1").fields().requiredString("id").endRecord()));
+        }
+        else {
+            fail();
+        }
+
+        String textOne = (bean ? "" : rep.getAnnotationText()) + "insert into event2 select * " +
+                "from S0#length(100) as s0, S1#length(5) as s1 " +
+                "where s0.theString = s1.id";
+        String textTwo = (bean ? "" : rep.getAnnotationText()) + "select * from event2#length(10)";
+
+        // Attach listener to feed
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
+        SupportUpdateListener listenerOne = new SupportUpdateListener();
+        stmtOne.addListener(listenerOne);
+        EPStatement stmtTwo = epService.getEPAdministrator().createEPL(textTwo);
+        SupportUpdateListener listenerTwo = new SupportUpdateListener();
+        stmtTwo.addListener(listenerTwo);
+
+        // send event for joins to match on
+        Object eventS1;
+        if (bean) {
+            eventS1 = new SupportBean_A("myId");
+            epService.getEPRuntime().sendEvent(eventS1);
+        }
+        else if (rep.isMapEvent()) {
+            eventS1 = Collections.singletonMap("id", "myId");
+            epService.getEPRuntime().sendEvent((Map)eventS1, "S1");
+        }
+        else if (rep.isObjectArrayEvent()) {
+            eventS1 = new Object[] {"myId"};
+            epService.getEPRuntime().sendEvent((Object[]) eventS1, "S1");
+        }
+        else if (rep.isAvroEvent()) {
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "S1"));
+            theEvent.put("id", "myId");
+            eventS1 = theEvent;
+            epService.getEPRuntime().sendEventAvro(theEvent, "S1");
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+
+        Object eventS0;
+        if (bean) {
+            eventS0 = new SupportBean("myId", -1);
+            epService.getEPRuntime().sendEvent(eventS0);
+        }
+        else if (rep.isMapEvent()) {
+            eventS0 = Collections.singletonMap("theString", "myId");
+            epService.getEPRuntime().sendEvent((Map) eventS0, "S0");
+        }
+        else if (rep.isObjectArrayEvent()) {
+            eventS0 = new Object[] {"myId"};
+            epService.getEPRuntime().sendEvent((Object[]) eventS0, "S0");
+        }
+        else if (rep.isAvroEvent()) {
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "S0"));
+            theEvent.put("theString", "myId");
+            eventS0 = theEvent;
+            epService.getEPRuntime().sendEventAvro(theEvent, "S0");
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+
+        assertJoinWildcard(rep, listenerOne, eventS0, eventS1);
+        assertJoinWildcard(rep, listenerTwo, eventS0, eventS1);
+
+        stmtOne.destroy();
+        stmtTwo.destroy();
+        epService.getEPAdministrator().getConfiguration().removeEventType("S0", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("S1", false);
+        epService.getEPAdministrator().getConfiguration().removeEventType("event2", false);
+    }
+
     private SupportBean sendEvent(int intPrimitive, int intBoxed)
     {
         SupportBean bean = new SupportBean();
@@ -787,6 +719,73 @@ public class TestInsertInto extends TestCase
         bean.setIntBoxed(intBoxed);
         epService.getEPRuntime().sendEvent(bean);
         return bean;
+    }
+
+    private void runAssertionWildcardRecast(boolean sourceBean, EventRepresentationChoice sourceType,
+                                            boolean targetBean, EventRepresentationChoice targetType) {
+        try {
+            runAssertionWildcardRecastInternal(sourceBean, sourceType, targetBean, targetType);
+        }
+        finally {
+            // cleanup
+            epService.getEPAdministrator().destroyAllStatements();
+            epService.getEPAdministrator().getConfiguration().removeEventType("TargetSchema", false);
+            epService.getEPAdministrator().getConfiguration().removeEventType("SourceSchema", false);
+            epService.getEPAdministrator().getConfiguration().removeEventType("TargetContainedSchema", false);
+        }
+    }
+
+    private void runAssertionWildcardRecastInternal(boolean sourceBean, EventRepresentationChoice sourceType,
+                                                    boolean targetBean, EventRepresentationChoice targetType) {
+        // declare source type
+        if (sourceBean) {
+            epService.getEPAdministrator().createEPL("create schema SourceSchema as " + MyP0P1EventSource.class.getName());
+        }
+        else {
+            epService.getEPAdministrator().createEPL("create " + sourceType.getOutputTypeCreateSchemaName() + " schema SourceSchema as (p0 string, p1 int)");
+        }
+
+        // declare target type
+        if (targetBean) {
+            epService.getEPAdministrator().createEPL("create schema TargetSchema as " + MyP0P1EventTarget.class.getName());
+        }
+        else {
+            epService.getEPAdministrator().createEPL("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetContainedSchema as (c0 int)");
+            epService.getEPAdministrator().createEPL("create " + targetType.getOutputTypeCreateSchemaName() + " schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)");
+        }
+
+        // insert-into and select
+        epService.getEPAdministrator().createEPL("insert into TargetSchema select * from SourceSchema");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from TargetSchema");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        // send event
+        if (sourceBean) {
+            epService.getEPRuntime().sendEvent(new MyP0P1EventSource("a", 10));
+        }
+        else if (sourceType.isMapEvent()) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("p0", "a");
+            map.put("p1", 10);
+            epService.getEPRuntime().sendEvent(map, "SourceSchema");
+        }
+        else if (sourceType.isObjectArrayEvent()) {
+            epService.getEPRuntime().sendEvent(new Object[] {"a", 10}, "SourceSchema");
+        }
+        else if (sourceType.isAvroEvent()) {
+            Schema schema = record("schema").fields().requiredString("p0").requiredString("p1").requiredString("c0").endRecord();
+            GenericData.Record record = new GenericData.Record(schema);
+            record.put("p0", "a");
+            record.put("p1", 10);
+            epService.getEPRuntime().sendEventAvro(record, "SourceSchema");
+        }
+        else {
+            fail();
+        }
+
+        // assert
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "p0,p1,c0".split(","), new Object[]{"a", 10, null});
     }
 
     private static class MyP0P1EventSource {

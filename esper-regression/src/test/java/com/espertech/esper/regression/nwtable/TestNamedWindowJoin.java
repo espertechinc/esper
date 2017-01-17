@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -278,8 +279,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
             epService.getEPRuntime().sendEvent(theEvent, "Product");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Product")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "Product"));
             theEvent.put("product", product);
             theEvent.put("size", size);
             epService.getEPRuntime().sendEventAvro(theEvent, "Product");
@@ -300,8 +300,7 @@ public class TestNamedWindowJoin extends TestCase implements IndexBackingTableIn
             epService.getEPRuntime().sendEvent(theEvent, "Portfolio");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Portfolio")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "Portfolio"));
             theEvent.put("portfolio", portfolio);
             theEvent.put("product", product);
             epService.getEPRuntime().sendEventAvro(theEvent, "Portfolio");

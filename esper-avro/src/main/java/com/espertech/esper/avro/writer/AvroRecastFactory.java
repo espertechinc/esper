@@ -11,7 +11,7 @@
 
 package com.espertech.esper.avro.writer;
 
-import com.espertech.esper.avro.core.AvroBackedEventBean;
+import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
@@ -25,7 +25,6 @@ import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +84,7 @@ public class AvroRecastFactory {
             Schema.Field resultTypeField = resultType.getSchemaAvro().getField(writable.getPropertyName());
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
-                    writable.getType(), columnName, false);
+                    writable.getType(), columnName, false, true);
             items.add(new Item(resultTypeField.pos(), -1, evaluator, widener));
             written.add(writable);
         }
@@ -120,7 +119,7 @@ public class AvroRecastFactory {
         }
 
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-            AvroBackedEventBean theEvent = (AvroBackedEventBean) eventsPerStream[underlyingStreamNumber];
+            AvroGenericDataBackedEventBean theEvent = (AvroGenericDataBackedEventBean) eventsPerStream[underlyingStreamNumber];
             return selectExprContext.getEventAdapterService().adapterForTypedAvro(theEvent.getProperties(), resultType);
         }
     }
@@ -146,7 +145,7 @@ public class AvroRecastFactory {
 
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
 
-            GenericData.Record source = ((AvroBackedEventBean) eventsPerStream[underlyingStreamNumber]).getProperties();
+            GenericData.Record source = ((AvroGenericDataBackedEventBean) eventsPerStream[underlyingStreamNumber]).getProperties();
             GenericData.Record target = new GenericData.Record(resultSchema);
             for (Item item : items) {
                 Object value;

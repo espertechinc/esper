@@ -34,7 +34,7 @@ public class TestAvroEventBean extends TestCase
 
         GenericData.Record record = new GenericData.Record(schema);
         record.put("myInt", 99);
-        AvroEventBean eventBean = new AvroEventBean(record, eventType);
+        AvroGenericDataEventBean eventBean = new AvroGenericDataEventBean(record, eventType);
 
         assertEquals(eventType, eventBean.getEventType());
         assertEquals(record, eventBean.getUnderlying());

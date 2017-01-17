@@ -16,7 +16,8 @@ import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import org.apache.avro.Schema;
 
-public class SupportEventTypeUtil {
+public class
+SupportEventTypeUtil {
     public static AvroEventType makeEventType(Schema schema) {
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, "typename", true, true, true, false, false);
         return new AvroEventType(metadata, "typename", 1, SupportEventAdapterService.getService(), schema, null, null, null, null);

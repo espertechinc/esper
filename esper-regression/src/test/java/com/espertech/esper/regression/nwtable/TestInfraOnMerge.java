@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -795,8 +796,7 @@ public class TestInfraOnMerge extends TestCase
             engine.getEPRuntime().sendEvent(theEvent, typeName);
         }
         else if (eventRepresentationEnum.isAvroEvent()){
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro();
-            GenericData.Record record = new GenericData.Record(schema);
+            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, typeName));
             record.put("name", name);
             record.put("value", value);
             engine.getEPRuntime().sendEventAvro(record, typeName);
@@ -873,7 +873,7 @@ public class TestInfraOnMerge extends TestCase
             epService.getEPRuntime().sendEvent(theEvent, "MyEventSchema");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyEventSchema")).getSchemaAvro();
+            Schema schema = SupportAvroUtil.getAvroSchema(epService, "MyEventSchema");
             Schema innerSchema = schema.getField("col2").schema();
             GenericData.Record innerRecord = new GenericData.Record(innerSchema);
             innerRecord.put("in1", col2in1);

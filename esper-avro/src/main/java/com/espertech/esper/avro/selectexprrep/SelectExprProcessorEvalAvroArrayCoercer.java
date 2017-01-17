@@ -9,27 +9,30 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.core.eval;
+package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.util.TypeWidener;
 
-public class EvalInsertNoWildcardObjectArray extends EvalBase implements SelectExprProcessor {
+import java.util.Collection;
 
-    public EvalInsertNoWildcardObjectArray(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+public class SelectExprProcessorEvalAvroArrayCoercer implements ExprEvaluator {
+    private final ExprEvaluator eval;
+    private final TypeWidener widener;
+
+    public SelectExprProcessorEvalAvroArrayCoercer(ExprEvaluator eval, TypeWidener widener) {
+        this.eval = eval;
+        this.widener = widener;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        Object[] result = new Object[super.getExprNodes().length];
-        for (int i = 0; i < super.getExprNodes().length; i++)
-        {
-            result[i] = super.getExprNodes()[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        Object result = eval.evaluate(eventsPerStream, isNewData, context);
+        return widener.widen(result);
+    }
 
-        return super.getEventAdapterService().adapterForTypedObjectArray(result, super.getResultEventType());
+    public Class getType() {
+        return Collection.class;
     }
 }

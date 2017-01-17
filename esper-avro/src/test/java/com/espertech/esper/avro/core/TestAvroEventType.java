@@ -11,7 +11,7 @@
 
 package com.espertech.esper.avro.core;
 
-import com.espertech.esper.avro.support.SupportJsonUtil;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventPropertyGetter;
@@ -103,7 +103,7 @@ public class TestAvroEventType extends TestCase
         record.put("myString", "hugo");
         record.put("myNullValue", null);
 
-        AvroEventBean eventBean = new AvroEventBean(record, eventType);
+        AvroGenericDataEventBean eventBean = new AvroGenericDataEventBean(record, eventType);
         assertEquals(99, eventBean.get("myInt"));
         assertEquals(554, eventBean.get("myIntBoxed"));
         assertEquals("hugo", eventBean.get("myString"));
@@ -148,11 +148,11 @@ public class TestAvroEventType extends TestCase
         }
 
         GenericData.Record datum = getRecordWithValues(schema);
-        assertValuesRequired(new AvroEventBean(datum, eventType));
+        assertValuesRequired(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'myInt': 10, 'myCharSeq': 'x', 'myString': 'y', 'myBoolean': true, 'myBytes': '\\u00AA\'," +
                 "'myDouble' : 50, 'myFloat':100, 'myLong':20}";
-        assertValuesRequired(new AvroEventBean(SupportJsonUtil.parseQuoted(schema, jsonWValues), eventType));
+        assertValuesRequired(new AvroGenericDataEventBean(SupportAvroUtil.parseQuoted(schema, jsonWValues), eventType));
     }
 
     public void testOptionalType() {
@@ -213,11 +213,11 @@ public class TestAvroEventType extends TestCase
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("innerEvent", datumInner);
 
-        assertValuesNested(datum, new AvroEventBean(datum, eventType));
+        assertValuesNested(datum, new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'innerEvent': {'innerValue' : 'i1'}}}";
-        datum = SupportJsonUtil.parseQuoted(schema, jsonWValues);
-        assertValuesNested(datum, new AvroEventBean(datum, eventType));
+        datum = SupportAvroUtil.parseQuoted(schema, jsonWValues);
+        assertValuesNested(datum, new AvroGenericDataEventBean(datum, eventType));
     }
 
     public void testArrayOfPrimitive() {
@@ -237,11 +237,11 @@ public class TestAvroEventType extends TestCase
 
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("intArray", Arrays.asList(1, 2));
-        asserter.accept(new AvroEventBean(datum, eventType));
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'intArray':[1,2]}}";
-        datum = SupportJsonUtil.parseQuoted(schema, jsonWValues);
-        asserter.accept(new AvroEventBean(datum, eventType));
+        datum = SupportAvroUtil.parseQuoted(schema, jsonWValues);
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
     }
 
     public void testMapOfString() {
@@ -259,11 +259,11 @@ public class TestAvroEventType extends TestCase
 
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("anMap", Collections.singletonMap("myKey", "myValue"));
-        asserter.accept(new AvroEventBean(datum, eventType));
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'anMap':{'myKey':'myValue'}}";
-        datum = SupportJsonUtil.parseQuoted(schema, jsonWValues);
-        asserter.accept(new AvroEventBean(datum, eventType));
+        datum = SupportAvroUtil.parseQuoted(schema, jsonWValues);
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
     }
 
     public void testFixed() {
@@ -281,11 +281,11 @@ public class TestAvroEventType extends TestCase
 
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("aFixed", new GenericData.Fixed(schema.getField("aFixed").schema(), new byte[] {1, 2}));
-        asserter.accept(new AvroEventBean(datum, eventType));
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'aFixed': '\\u0001\\u0002\'}";
-        datum = SupportJsonUtil.parseQuoted(schema, jsonWValues);
-        asserter.accept(new AvroEventBean(datum, eventType));
+        datum = SupportAvroUtil.parseQuoted(schema, jsonWValues);
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
     }
 
     public void testEnumSymbol() {
@@ -303,11 +303,11 @@ public class TestAvroEventType extends TestCase
 
         GenericData.Record datum = new GenericData.Record(schema);
         datum.put("aEnum", new GenericData.EnumSymbol(schema.getField("aEnum").schema(), "b"));
-        asserter.accept(new AvroEventBean(datum, eventType));
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'aEnum': 'b'}";
-        datum = SupportJsonUtil.parseQuoted(schema, jsonWValues);
-        asserter.accept(new AvroEventBean(datum, eventType));
+        datum = SupportAvroUtil.parseQuoted(schema, jsonWValues);
+        asserter.accept(new AvroGenericDataEventBean(datum, eventType));
     }
 
     public void testUnionResultingInObject() {
@@ -327,15 +327,15 @@ public class TestAvroEventType extends TestCase
         Consumer<Object> asserterFromDatum = (value) -> {
             GenericData.Record datum = new GenericData.Record(schema);
             datum.put("anUnion", value);
-            assertEquals(value, new AvroEventBean(datum, eventType).get("anUnion"));
+            assertEquals(value, new AvroGenericDataEventBean(datum, eventType).get("anUnion"));
         };
         asserterFromDatum.accept("a");
         asserterFromDatum.accept(1);
         asserterFromDatum.accept(null);
 
         BiConsumer<String, Object> asserterFromJson = (json, value) -> {
-            GenericData.Record datum = SupportJsonUtil.parseQuoted(schema, json);
-            assertEquals(value, new AvroEventBean(datum, eventType).get("anUnion"));
+            GenericData.Record datum = SupportAvroUtil.parseQuoted(schema, json);
+            assertEquals(value, new AvroGenericDataEventBean(datum, eventType).get("anUnion"));
         };
         asserterFromJson.accept("{'anUnion':{'int':1}}", 1);
         asserterFromJson.accept("{'anUnion':{'string':'abc'}}", "abc");
@@ -357,20 +357,20 @@ public class TestAvroEventType extends TestCase
         Consumer<Object> asserterFromDatum = (value) -> {
             GenericData.Record datum = new GenericData.Record(schema);
             datum.put("anUnion", value);
-            assertEquals(value, new AvroEventBean(datum, eventType).get("anUnion"));
+            assertEquals(value, new AvroGenericDataEventBean(datum, eventType).get("anUnion"));
         };
         asserterFromDatum.accept(1);
         asserterFromDatum.accept(2f);
 
         BiConsumer<String, Object> asserterFromJson = (json, value) -> {
-            GenericData.Record datum = SupportJsonUtil.parseQuoted(schema, json);
-            assertEquals(value, new AvroEventBean(datum, eventType).get("anUnion"));
+            GenericData.Record datum = SupportAvroUtil.parseQuoted(schema, json);
+            assertEquals(value, new AvroGenericDataEventBean(datum, eventType).get("anUnion"));
         };
         asserterFromJson.accept("{'anUnion':{'int':1}}", 1);
         asserterFromJson.accept("{'anUnion':{'float':2}}", 2f);
     }
 
-    private void assertValuesNested(GenericData.Record datum, AvroEventBean bean) {
+    private void assertValuesNested(GenericData.Record datum, AvroGenericDataEventBean bean) {
         assertEquals("i1", bean.get("innerEvent.innerValue"));
         assertEquals("i1", bean.getEventType().getGetter("innerEvent.innerValue").get(bean));
 
@@ -384,20 +384,20 @@ public class TestAvroEventType extends TestCase
         assertTypesBoxed(eventType);
 
         GenericData.Record datum = getRecordWithValues(schema);
-        assertValuesRequired(new AvroEventBean(datum, eventType));
+        assertValuesRequired(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'myInt': {'int': 10}, 'myCharSeq': {'string': 'x'}, 'myString':{'string': 'y'}," +
                 "'myBoolean': {'boolean': true}, 'myBytes': {'bytes': '\\u00AA\'}, " +
                 "'myDouble': {'double': 50}, 'myFloat': {'float': 100}, 'myLong': {'long': 20}}";
-        assertValuesRequired(new AvroEventBean(SupportJsonUtil.parseQuoted(schema, jsonWValues), eventType));
+        assertValuesRequired(new AvroGenericDataEventBean(SupportAvroUtil.parseQuoted(schema, jsonWValues), eventType));
 
         String jsonWNull = "{'myInt': null, 'myCharSeq': null, 'myString':null," +
                 "'myBoolean': null, 'myBytes': null, " +
                 "'myDouble': null, 'myFloat': null, 'myLong': null}";
-        assertValuesNull(new AvroEventBean(SupportJsonUtil.parseQuoted(schema, jsonWNull), eventType));
+        assertValuesNull(new AvroGenericDataEventBean(SupportAvroUtil.parseQuoted(schema, jsonWNull), eventType));
     }
 
-    private void assertValuesRequired(AvroEventBean bean) {
+    private void assertValuesRequired(AvroGenericDataEventBean bean) {
         assertValue(10, bean, "myInt");
         assertValue(new Utf8("x"), bean, "myCharSeq");
         assertValue("y", bean, "myString");
@@ -408,7 +408,7 @@ public class TestAvroEventType extends TestCase
         assertValue(20L, bean, "myLong");
     }
 
-    private void assertValuesNull(AvroEventBean bean) {
+    private void assertValuesNull(AvroGenericDataEventBean bean) {
         assertValue(null, bean, "myInt");
         assertValue(null, bean, "myCharSeq");
         assertValue(null, bean, "myString");
@@ -419,7 +419,7 @@ public class TestAvroEventType extends TestCase
         assertValue(null, bean, "myLong");
     }
 
-    private void assertValue(Object expected, AvroEventBean bean, String propertyName) {
+    private void assertValue(Object expected, AvroGenericDataEventBean bean, String propertyName) {
         if (expected instanceof ByteBuffer) {
             assertEqualsByteBuf((ByteBuffer) expected, (ByteBuffer) bean.get(propertyName));
             EventPropertyGetter getter = bean.getEventType().getGetter(propertyName);

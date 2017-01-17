@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.client.deploy.DeploymentOptions;
@@ -1046,8 +1047,7 @@ public class TestInfraExecuteQuery extends TestCase implements IndexBackingTable
             epService.getEPRuntime().sendEvent(eventMap, eventName);
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(eventName)).getSchemaAvro();
-            GenericData.Record record = new GenericData.Record(schema);
+            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, eventName));
             for (String attribute: attributes) {
                 String key = attribute.split("=")[0];
                 String value = attribute.split("=")[1];

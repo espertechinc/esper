@@ -14,22 +14,21 @@ package com.espertech.esper.epl.core.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EvalInsertNoWildcardObjectArray extends EvalBase implements SelectExprProcessor {
+import java.util.Collections;
 
-    public EvalInsertNoWildcardObjectArray(SelectExprContext selectExprContext, EventType resultEventType) {
+public class EvalInsertNoWildcardSingleColCoercionAvroWrap extends EvalBaseFirstProp implements SelectExprProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionAvroWrap.class);
+
+    public EvalInsertNoWildcardSingleColCoercionAvroWrap(SelectExprContext selectExprContext, EventType resultEventType) {
         super(selectExprContext, resultEventType);
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
-        Object[] result = new Object[super.getExprNodes().length];
-        for (int i = 0; i < super.getExprNodes().length; i++)
-        {
-            result[i] = super.getExprNodes()[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        }
-
-        return super.getEventAdapterService().adapterForTypedObjectArray(result, super.getResultEventType());
+    public EventBean processFirstCol(Object result) {
+        EventBean wrappedEvent = super.getEventAdapterService().adapterForTypedAvro(result, super.getResultEventType());
+        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.EMPTY_MAP, super.getResultEventType());
     }
 }

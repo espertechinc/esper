@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.context;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.context.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -475,8 +476,7 @@ public class TestContextHashSegmented extends TestCase {
             epService.getEPRuntime().sendEvent(new Object[] {userId, keyword, productId, score}, typeName);
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(typeName)).getSchemaAvro();
-            GenericData.Record record = new GenericData.Record(schema);
+            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, typeName));
             record.put("userId", userId);
             record.put("keyword", keyword);
             record.put("productId", productId);

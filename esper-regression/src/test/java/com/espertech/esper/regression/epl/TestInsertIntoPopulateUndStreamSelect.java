@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -192,7 +193,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
         epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema E1 as (myint long)");
         String message = !rep.isAvroEvent() ?
                 "Error starting statement: Type by name 'E1' in property 'myint' expected class java.lang.Integer but receives class java.lang.Long" :
-                "Error starting statement: Type by name 'E1' in property 'myint' expected schema '[\"null\",\"long\"]' but received schema '[\"null\",\"int\"]'";
+                "Error starting statement: Type by name 'E1' in property 'myint' expected schema '\"long\"' but received schema '\"int\"'";
         SupportMessageAssertUtil.tryInvalid(epService, "insert into E1 select mysrc.* from Src as mysrc", message);
 
         // mismatch in column name
@@ -216,8 +217,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
             epService.getEPRuntime().sendEvent(new Object[] {123, "abc"}, "Src");
         }
         else if (rep.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("Src")).getSchemaAvro();
-            GenericData.Record event = new GenericData.Record(schema);
+            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "Src"));
             event.put("myint", 123);
             event.put("mystr", "abc");
             epService.getEPRuntime().sendEventAvro(event, "Src");
@@ -234,8 +234,7 @@ public class TestInsertIntoPopulateUndStreamSelect extends TestCase
     }
 
     private GenericData.Record makeAvro(int myint, String mystr) {
-        Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("A")).getSchemaAvro();
-        GenericData.Record record = new GenericData.Record(schema);
+        GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "A"));
         record.put("myint", myint);
         record.put("mystr", mystr);
         return record;

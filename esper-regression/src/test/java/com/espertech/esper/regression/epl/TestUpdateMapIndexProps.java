@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
@@ -91,7 +92,7 @@ public class TestUpdateMapIndexProps extends TestCase
             epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<>(), new int[10]), "MyInfraType");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record event = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType("MyInfraType")).getSchemaAvro());
+            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MyInfraType"));
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             epService.getEPRuntime().sendEventAvro(event, "MyInfraType");
@@ -119,7 +120,7 @@ public class TestUpdateMapIndexProps extends TestCase
             epService.getEPRuntime().sendEvent(makeMapEvent(new HashMap<>(), new int[10]), "MyNWInfraType");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record event = new GenericData.Record(((AvroEventType)epService.getEPAdministrator().getConfiguration().getEventType("MyNWInfraType")).getSchemaAvro());
+            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MyNWInfraType"));
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             epService.getEPRuntime().sendEventAvro(event, "MyNWInfraType");

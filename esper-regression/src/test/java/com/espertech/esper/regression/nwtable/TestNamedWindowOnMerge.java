@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -181,8 +182,7 @@ public class TestNamedWindowOnMerge extends TestCase {
             epService.getEPRuntime().sendEvent(theEvent, "OrderEvent");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("OrderEvent")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "OrderEvent"));
             theEvent.put("orderId", orderId);
             theEvent.put("productId", productId);
             theEvent.put("price", price);
@@ -335,8 +335,7 @@ public class TestNamedWindowOnMerge extends TestCase {
             epService.getEPRuntime().sendEvent(theEvent, "MyEvent");
         }
         else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType("MyEvent")).getSchemaAvro();
-            GenericData.Record theEvent = new GenericData.Record(schema);
+            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(epService, "MyEvent"));
             theEvent.put("in1", in1);
             theEvent.put("in2", in2);
             epService.getEPRuntime().sendEventAvro(theEvent, "MyEvent");

@@ -15,6 +15,7 @@ import com.espertech.esper.avro.selectexprrep.SelectExprProcessorRepresentationF
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.avro.EventAdapterAvroHandler;
@@ -96,7 +97,7 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
         }
 
         GenericData.Record record = (GenericData.Record) avroGenericDataDotRecord;
-        return new AvroEventBean(record, existingType);
+        return new AvroGenericDataEventBean(record, existingType);
     }
 
     public SelectExprProcessorRepresentationFactory getOutputFactory() {
@@ -128,32 +129,40 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
         }
     }
 
-    public ExprEvaluator[] avroCompat(EventType existingType, Map<String, Object> selPropertyTypes, ExprEvaluator[] exprEvaluators) {
-        ExprEvaluator[] evals = new ExprEvaluator[exprEvaluators.length];
+    public void avroCompat(EventType existingType, Map<String, Object> selPropertyTypes) throws ExprValidationException {
+        Schema schema = ((AvroEventType) existingType).getSchemaAvro();
+
         int index = -1;
         for (Map.Entry<String, Object> selected : selPropertyTypes.entrySet()) {
             index++;
-            evals[index] = exprEvaluators[index];
+            String propertyName = selected.getKey();
+            Schema.Field targetField = schema.getField(selected.getKey());
+
+            if (targetField == null) {
+                throw new ExprValidationException("Property '" + propertyName + "' is not found among the fields for event type '" +  existingType.getName() + "'");
+            }
 
             if (selected.getValue() instanceof EventType) {
-                final ExprEvaluator inner = exprEvaluators[index];
-                evals[index] = new ExprEvaluator() {
-                    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-                        EventBean bean = (EventBean) inner.evaluate(eventsPerStream, isNewData, context);
-                        return bean.getUnderlying();
-                    }
-
-                    public Class getType() {
-                        return GenericData.Record.class;
-                    }
-                };
+                EventType targetEventType = (EventType) selected.getValue();
+                AvroEventType targetAvro = checkAvroEventTpe(selected.getKey(), targetEventType);
+                if (targetField.schema().getType() != Schema.Type.RECORD || !targetField.schema().equals(targetAvro.getSchemaAvro())) {
+                    throw new ExprValidationException("Property '" + propertyName + "' is incompatible, expecting a compatible schema '" + targetField.schema().getName() + "' but received schema '" + targetAvro.getSchemaAvro().getName() + "'");
+                }
+            }
+            else if (selected.getValue() instanceof EventType[]) {
+                EventType targetEventType = ((EventType[]) selected.getValue())[0];
+                AvroEventType targetAvro = checkAvroEventTpe(selected.getKey(), targetEventType);
+                if (targetField.schema().getType() != Schema.Type.ARRAY ||
+                        targetField.schema().getElementType().getType() != Schema.Type.RECORD ||
+                        !targetField.schema().getElementType().equals(targetAvro.getSchemaAvro())) {
+                    throw new ExprValidationException("Property '" + propertyName + "' is incompatible, expecting an array of compatible schema '" + targetField.schema().getName() + "' but received schema '" + targetAvro.getSchemaAvro().getName() + "'");
+                }
             }
         }
-        return evals;
     }
 
     public Object convertEvent(EventBean theEvent, AvroSchemaEventType targetType) {
-        GenericData.Record original = ((AvroEventBean) theEvent).getProperties();
+        GenericData.Record original = ((AvroGenericDataEventBean) theEvent).getProperties();
         Schema targetSchema = (Schema) targetType.getSchema();
         GenericData.Record target = new GenericData.Record(targetSchema);
 
@@ -186,5 +195,12 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
 
     private AvroSchemaEventType makeType(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Schema schema, ConfigurationEventTypeAvro optionalConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
         return new AvroEventType(metadata, eventTypeName, typeId, eventAdapterService, schema, optionalConfig == null ? null : optionalConfig.getStartTimestampPropertyName(), optionalConfig == null ? null : optionalConfig.getEndTimestampPropertyName(), supertypes, deepSupertypes);
+    }
+
+    private AvroEventType checkAvroEventTpe(String propertyName, EventType eventType) throws ExprValidationException {
+        if (!(eventType instanceof AvroEventType)) {
+            throw new ExprValidationException("Property '" + propertyName + "' is incompatible with event type '" + eventType.getName() + "' underlying type " + eventType.getUnderlyingType().getSimpleName());
+        }
+        return (AvroEventType) eventType;
     }
 }

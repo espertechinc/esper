@@ -16,6 +16,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.regression.expr.TestArrayExpression;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.util.EventRepresentationChoice;
 import junit.framework.TestCase;
@@ -33,6 +35,8 @@ import java.io.InputStream;
 
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
+import static org.apache.avro.SchemaBuilder.array;
+import static org.apache.avro.SchemaBuilder.builder;
 import static org.apache.avro.SchemaBuilder.record;
 
 public class TestAvroEvent extends TestCase {
@@ -86,7 +90,7 @@ public class TestAvroEvent extends TestCase {
         assertEquals(1L, listener.assertOneGetNewAndReset().get("count(*)"));
     }
 
-    public void testWithSchema() throws IOException {
+    public void testJsonWithSchema() throws IOException {
         String schemaText =
                 "{\"namespace\": \"example.avro\",\n" +
                 " \"type\": \"record\",\n" +
