@@ -22,7 +22,7 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 
 public interface SelectExprProcessorRepresentationFactory {
-    SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService);
-    SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, EngineImportService engineImportService) throws ExprValidationException;
+    SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException;
+    SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException;
     SelectExprProcessor makeJoinWildcard(String[] streamNames, EventType resultEventType, EventAdapterService eventAdapterService);
 }

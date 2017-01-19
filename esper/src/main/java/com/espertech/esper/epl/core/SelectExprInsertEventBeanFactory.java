@@ -28,6 +28,7 @@ import com.espertech.esper.event.bean.InstanceManufacturerUtil;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 import net.sf.cglib.reflect.FastConstructor;
 
@@ -49,7 +50,8 @@ public class SelectExprInsertEventBeanFactory
                                                                  EngineImportService engineImportService,
                                                                  InsertIntoDesc insertIntoDesc,
                                                                  String[] columnNamesAsProvided,
-                                                                 boolean allowNestableTargetFragmentTypes)
+                                                                 boolean allowNestableTargetFragmentTypes,
+                                                                 String statementName)
             throws ExprValidationException
     {
         // handle single-column coercion to underlying, i.e. "insert into MapDefinedEvent select doSomethingReturnMap() from MyEvent"
@@ -99,7 +101,7 @@ public class SelectExprInsertEventBeanFactory
         }
 
         try {
-            return initializeSetterManufactor(eventType, writableProps, isUsingWildcard, typeService, expressionNodes, columnNames, expressionReturnTypes, engineImportService, eventAdapterService);
+            return initializeSetterManufactor(eventType, writableProps, isUsingWildcard, typeService, expressionNodes, columnNames, expressionReturnTypes, engineImportService, eventAdapterService, statementName);
         }
         catch (ExprValidationException ex) {
             if (!(eventType instanceof BeanEventType)) {
@@ -119,7 +121,7 @@ public class SelectExprInsertEventBeanFactory
     }
 
     public static SelectExprProcessor getInsertUnderlyingJoinWildcard(EventAdapterService eventAdapterService, EventType eventType,
-                            String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService)
+                            String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, String statementName, String engineURI)
         throws ExprValidationException
     {
         Set<WriteablePropertyDescriptor> writableProps = eventAdapterService.getWriteableProperties(eventType, false);
@@ -129,7 +131,7 @@ public class SelectExprInsertEventBeanFactory
         }
 
         try {
-            return initializeJoinWildcardInternal(eventType, writableProps, streamNames, streamTypes, engineImportService, eventAdapterService);
+            return initializeJoinWildcardInternal(eventType, writableProps, streamNames, streamTypes, engineImportService, eventAdapterService, statementName, engineURI);
         }
         catch (ExprValidationException ex) {
             if (!(eventType instanceof BeanEventType)) {
@@ -172,9 +174,10 @@ public class SelectExprInsertEventBeanFactory
         return true;
     }
 
-    private static SelectExprProcessor initializeSetterManufactor(EventType eventType, Set<WriteablePropertyDescriptor> writables, boolean isUsingWildcard, StreamTypeService typeService, ExprEvaluator[] expressionNodes, String[] columnNames, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService)
+    private static SelectExprProcessor initializeSetterManufactor(EventType eventType, Set<WriteablePropertyDescriptor> writables, boolean isUsingWildcard, StreamTypeService typeService, ExprEvaluator[] expressionNodes, String[] columnNames, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName)
             throws ExprValidationException
     {
+        TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprEvaluator> evaluatorsList = new ArrayList<ExprEvaluator>();
         List<TypeWidener> widenersList = new ArrayList<TypeWidener>();
@@ -196,13 +199,13 @@ public class SelectExprInsertEventBeanFactory
                 Object columnType = expressionReturnTypes[i];
                 if (columnType == null)
                 {
-                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, false);
+                    TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                 }
                 else if (columnType instanceof EventType)
                 {
                     EventType columnEventType = (EventType) columnType;
                     final Class returnType = columnEventType.getUnderlyingType();
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
 
                     // handle evaluator returning an event
                     if (JavaClassHelper.isSubclassOrImplementsInterface(returnType, desc.getType())) {
@@ -255,7 +258,7 @@ public class SelectExprInsertEventBeanFactory
                     final Class arrayReturnType = Array.newInstance(componentReturnType, 0).getClass();
 
                     boolean allowObjectArrayToCollectionConversion = eventType instanceof AvroSchemaEventType;
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                     final ExprEvaluator inner = evaluator;
                     evaluator = new ExprEvaluator() {
                         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
@@ -290,7 +293,7 @@ public class SelectExprInsertEventBeanFactory
                 }
                 else
                 {
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, eventType instanceof AvroSchemaEventType);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                 }
 
                 selectedWritable = desc;
@@ -332,7 +335,7 @@ public class SelectExprInsertEventBeanFactory
                         continue;
                     }
 
-                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false, false);
+                    widener = TypeWidenerFactory.getCheckPropertyAssignType(eventPropDescriptor.getPropertyName(), eventPropDescriptor.getPropertyType(), writableDesc.getType(), writableDesc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                     selectedWritable = writableDesc;
 
                     final String propertyName = eventPropDescriptor.getPropertyName();
@@ -396,9 +399,10 @@ public class SelectExprInsertEventBeanFactory
         return new SelectExprInsertNativeNoWiden(beanEventType, eventManufacturer, pair.getSecond());
     }
 
-    private static SelectExprProcessor initializeJoinWildcardInternal(EventType eventType, Set<WriteablePropertyDescriptor> writables, String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService)
+    private static SelectExprProcessor initializeJoinWildcardInternal(EventType eventType, Set<WriteablePropertyDescriptor> writables, String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName, String engineURI)
             throws ExprValidationException
-        {
+    {
+        TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprEvaluator> evaluatorsList = new ArrayList<ExprEvaluator>();
         List<TypeWidener> widenersList = new ArrayList<TypeWidener>();
@@ -416,7 +420,7 @@ public class SelectExprInsertEventBeanFactory
                     continue;
                 }
 
-                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, false);
+                widener = TypeWidenerFactory.getCheckPropertyAssignType(streamNames[i], streamTypes[i].getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, engineURI);
                 selectedWritable = desc;
                 break;
             }

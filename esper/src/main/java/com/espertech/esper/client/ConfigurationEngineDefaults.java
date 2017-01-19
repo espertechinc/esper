@@ -1020,6 +1020,8 @@ public class ConfigurationEngineDefaults implements Serializable
             private boolean enableAvro = true;
             private boolean enableNativeString = true;
             private boolean enableSchemaDefaultNonNull = true;
+            private String typeRepresentationMapperClass;
+            private String objectValueTypeWidenerFactoryClass;
 
             public boolean isEnableAvro() {
                 return enableAvro;
@@ -1043,6 +1045,22 @@ public class ConfigurationEngineDefaults implements Serializable
 
             public void setEnableSchemaDefaultNonNull(boolean enableSchemaDefaultNonNull) {
                 this.enableSchemaDefaultNonNull = enableSchemaDefaultNonNull;
+            }
+
+            public void setTypeRepresentationMapperClass(String typeRepresentationMapperClass) {
+                this.typeRepresentationMapperClass = typeRepresentationMapperClass;
+            }
+
+            public String getTypeRepresentationMapperClass() {
+                return typeRepresentationMapperClass;
+            }
+
+            public String getObjectValueTypeWidenerFactoryClass() {
+                return objectValueTypeWidenerFactoryClass;
+            }
+
+            public void setObjectValueTypeWidenerFactoryClass(String objectValueTypeWidenerFactoryClass) {
+                this.objectValueTypeWidenerFactoryClass = objectValueTypeWidenerFactoryClass;
             }
         }
     }

@@ -25,6 +25,7 @@ import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class BeaconSource implements DataFlowSourceOperator {
 
             int index = 0;
             evaluators = new ExprEvaluator[writables.length];
+            TypeWidenerCustomizer typeWidenerCustomizer = context.getServicesContext().getEventAdapterService().getTypeWidenerCustomizer(outputEventType);
             for (WriteablePropertyDescriptor writeable : writables) {
 
                 final Object providedProperty = allProperties.get(writeable.getPropertyName());
@@ -95,7 +97,7 @@ public class BeaconSource implements DataFlowSourceOperator {
                     ExprNode validated = ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.DATAFLOWBEACON, exprNode, context.getStatementContext(), null, false);
                     final ExprEvaluator exprEvaluator = validated.getExprEvaluator();
                     final TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated), exprEvaluator.getType(),
-                            writeable.getType(), writeable.getPropertyName(), false, false);
+                            writeable.getType(), writeable.getPropertyName(), false, typeWidenerCustomizer, context.getStatementContext().getStatementName(), context.getEngine().getURI());
                     if (widener != null) {
                         evaluators[index] = new ExprEvaluator() {
                             public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

@@ -66,7 +66,7 @@ public class TableOnMergeHelper
                     }
                     else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
-                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), tableMetadata.getInternalEventType(), updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, false);
+                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), tableMetadata.getInternalEventType(), updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, false, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
                         ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
                         TableUpdateStrategy tableUpdateStrategy = statementContext.getTableService().getTableUpdateStrategy(tableMetadata, updateHelper, true);
                         TableOnMergeActionUpd upd = new TableOnMergeActionUpd(filterEval, tableUpdateStrategy);

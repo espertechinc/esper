@@ -76,7 +76,7 @@ public class TestEventInfraPropertyNestedDynamic extends TestCase {
     public void testDynamicProp() {
         runAssertion(EventRepresentationChoice.ARRAY, "");
         runAssertion(EventRepresentationChoice.MAP, "");
-        runAssertion(EventRepresentationChoice.AVRO, "@AvroField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
+        runAssertion(EventRepresentationChoice.AVRO, "@AvroSchemaField(name='myid',schema='[\"int\",{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]')");
         runAssertion(EventRepresentationChoice.DEFAULT, "");
     }
 

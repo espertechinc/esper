@@ -23,7 +23,7 @@ import java.util.Collection;
 public class TypeWidenerFactory
 {
     private static final TypeWidenerStringToCharCoercer stringToCharCoercer = new TypeWidenerStringToCharCoercer();
-    private static final TypeWidenerObjectArrayToCollectionCoercer objectarrayToCollectionCoercer = new TypeWidenerObjectArrayToCollectionCoercer();
+    public static final TypeWidenerObjectArrayToCollectionCoercer OBJECT_ARRAY_TO_COLLECTION_COERCER = new TypeWidenerObjectArrayToCollectionCoercer();
     private static final TypeWidenerByteArrayToCollectionCoercer byteArrayToCollectionCoercer = new TypeWidenerByteArrayToCollectionCoercer();
     private static final TypeWidenerShortArrayToCollectionCoercer shortArrayToCollectionCoercer = new TypeWidenerShortArrayToCollectionCoercer();
     private static final TypeWidenerIntArrayToCollectionCoercer intArrayToCollectionCoercer = new TypeWidenerIntArrayToCollectionCoercer();
@@ -43,11 +43,18 @@ public class TypeWidenerFactory
      * @return type widender
      * @throws ExprValidationException if type validation fails
      */
-    public static TypeWidener getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion, boolean avroCompat)
+    public static TypeWidener getCheckPropertyAssignType(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, boolean allowObjectArrayToCollectionConversion, TypeWidenerCustomizer customizer, String statementName, String engineURI)
             throws ExprValidationException
     {
         Class columnClassBoxed = JavaClassHelper.getBoxedType(columnType);
         Class targetClassBoxed = JavaClassHelper.getBoxedType(writeablePropertyType);
+
+        if (customizer != null) {
+            TypeWidener custom = customizer.widenerFor(columnName, columnType, writeablePropertyType, writeablePropertyName, statementName, engineURI);
+            if (custom != null) {
+                return custom;
+            }
+        }
 
         if (columnType == null) {
             if (writeablePropertyType.isPrimitive()) {
@@ -62,20 +69,11 @@ public class TypeWidenerFactory
             if (columnClassBoxed == String.class && targetClassBoxed == Character.class) {
                 return stringToCharCoercer;
             }
-            else if (avroCompat && columnType == byte[].class && targetClassBoxed == ByteBuffer.class) {
-                return BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
-            }
-            else if ((avroCompat || allowObjectArrayToCollectionConversion) &&
+            else if (allowObjectArrayToCollectionConversion &&
                     columnClassBoxed.isArray() &&
                     !columnClassBoxed.getComponentType().isPrimitive() &&
-                    JavaClassHelper.isImplementsInterface(targetClassBoxed, Collection.class))
-            {
-                return objectarrayToCollectionCoercer;
-            }
-            else if (avroCompat &&
-                    columnType.isArray() &&
                     JavaClassHelper.isImplementsInterface(targetClassBoxed, Collection.class)) {
-                return getArrayToCollectionCoercer(columnType.getComponentType());
+                return OBJECT_ARRAY_TO_COLLECTION_COERCER;
             }
             else if (!JavaClassHelper.isAssignmentCompatible(columnClassBoxed, targetClassBoxed)) {
                 String writablePropName = writeablePropertyType.getName();
@@ -106,7 +104,7 @@ public class TypeWidenerFactory
 
     public static TypeWidener getArrayToCollectionCoercer(Class componentType) {
         if (!componentType.isPrimitive()) {
-            return objectarrayToCollectionCoercer;
+            return OBJECT_ARRAY_TO_COLLECTION_COERCER;
         }
         else if (componentType == byte.class) {
             return byteArrayToCollectionCoercer;

@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroConstant;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
@@ -28,6 +29,7 @@ import org.apache.avro.generic.GenericData;
 import java.util.Map;
 import java.util.HashMap;
 
+import static org.apache.avro.SchemaBuilder.builder;
 import static org.apache.avro.SchemaBuilder.record;
 
 public class TestJoinEventRepresentation extends TestCase
@@ -85,7 +87,9 @@ public class TestJoinEventRepresentation extends TestCase
             epService.getEPAdministrator().getConfiguration().addEventType("S1", names, types);
         }
         else if (rep.isAvroEvent()) {
-            Schema schema = record("name").fields().requiredString("id").requiredInt("p00").endRecord();
+            Schema schema = record("name").fields()
+                    .name("id").type(builder().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
+                    .requiredInt("p00").endRecord();
             epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S0", new ConfigurationEventTypeAvro().setAvroSchema(schema));
             epService.getEPAdministrator().getConfiguration().addEventTypeAvro("S1", new ConfigurationEventTypeAvro().setAvroSchema(schema));
         }

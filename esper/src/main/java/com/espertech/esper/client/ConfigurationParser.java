@@ -1706,6 +1706,14 @@ class ConfigurationParser {
                 if (enableSchemaDefaultNonNullStr != null) {
                     configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableSchemaDefaultNonNull(Boolean.parseBoolean(enableSchemaDefaultNonNullStr));
                 }
+
+                String objectvalueTypewidenerFactoryClass = getOptionalAttribute(subElement, "objectvalue-typewidener-factory-class");
+                if (objectvalueTypewidenerFactoryClass != null && objectvalueTypewidenerFactoryClass.trim().length() > 0) {
+                    configuration.getEngineDefaults().getEventMeta().getAvroSettings().setObjectValueTypeWidenerFactoryClass(objectvalueTypewidenerFactoryClass.trim());
+                }
+
+                String typeRepresentationMapperClass = getOptionalAttribute(subElement, "type-representation-mapper-class");
+                configuration.getEngineDefaults().getEventMeta().getAvroSettings().setTypeRepresentationMapperClass(typeRepresentationMapperClass);
             }
         }
     }

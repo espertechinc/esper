@@ -72,6 +72,8 @@ public class TestConfigurationParser extends TestCase
         assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
         assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
         assertTrue(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
+        assertNull(config.getEngineDefaults().getEventMeta().getAvroSettings().getObjectValueTypeWidenerFactoryClass());
+        assertNull(config.getEngineDefaults().getEventMeta().getAvroSettings().getTypeRepresentationMapperClass());
 
         assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
         assertFalse(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
@@ -421,6 +423,8 @@ public class TestConfigurationParser extends TestCase
         assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro());
         assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableNativeString());
         assertFalse(config.getEngineDefaults().getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
+        assertEquals("myObjectValueTypeWidenerFactoryClass", config.getEngineDefaults().getEventMeta().getAvroSettings().getObjectValueTypeWidenerFactoryClass());
+        assertEquals("myTypeToRepresentationMapperClass", config.getEngineDefaults().getEventMeta().getAvroSettings().getTypeRepresentationMapperClass());
         assertTrue(config.getEngineDefaults().getLogging().isEnableExecutionDebug());
         assertFalse(config.getEngineDefaults().getLogging().isEnableTimerDebug());
         assertTrue(config.getEngineDefaults().getLogging().isEnableQueryPlan());

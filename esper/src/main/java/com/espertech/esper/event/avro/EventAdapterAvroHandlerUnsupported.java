@@ -16,6 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -27,6 +28,17 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
     private EventAdapterAvroHandlerUnsupported() {
     }
 
+    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
+    }
+
+    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
+        return null;
+    }
+
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType eventType) {
+        return null;
+    }
+
     public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
         throw getUnsupported();
     }
@@ -35,7 +47,7 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
         throw getUnsupported();
     }
 
-    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes) {
+    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
         throw getUnsupported();
     }
 
@@ -60,6 +72,10 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
     }
 
     public Object convertEvent(EventBean theEvent, AvroSchemaEventType targetType) {
+        throw getUnsupported();
+    }
+
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventType eventType) {
         throw getUnsupported();
     }
 

@@ -33,6 +33,7 @@ public class SelectExprJoinWildcardProcessorFactory
 {
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
                                                   int statementId,
+                                                  String statementName,
                                                   String[] streamNames,
                                                   EventType[] streamTypes,
                                                   EventAdapterService eventAdapterService,
@@ -41,7 +42,8 @@ public class SelectExprJoinWildcardProcessorFactory
                                                   EngineImportService engineImportService,
                                                   Annotation[] annotations,
                                                   ConfigurationInformation configuration,
-                                                  TableService tableService) throws ExprValidationException
+                                                  TableService tableService,
+                                                  String engineURI) throws ExprValidationException
     {
         if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length))
         {
@@ -71,7 +73,7 @@ public class SelectExprJoinWildcardProcessorFactory
         if (insertIntoDesc != null) {
             EventType existingType = eventAdapterService.getExistsTypeByName(insertIntoDesc.getEventTypeName());
             if (existingType != null) {
-                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, engineImportService);
+                processor = SelectExprInsertEventBeanFactory.getInsertUnderlyingJoinWildcard(eventAdapterService, existingType, streamNames, streamTypesWTables, engineImportService, statementName, engineURI);
             }
         }
 
@@ -85,7 +87,7 @@ public class SelectExprJoinWildcardProcessorFactory
                         resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true, false, null);
                     }
                     else if (representation == EventUnderlyingType.AVRO) {
-                        resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selectProperties, false, false, false, false, true, annotations, null);
+                        resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selectProperties, false, false, false, false, true, annotations, null, statementName, engineURI);
                     }
                     else {
                         throw new IllegalStateException("Unrecognized code " + representation);
@@ -104,7 +106,7 @@ public class SelectExprJoinWildcardProcessorFactory
                     resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties);
                 }
                 else if (representation == EventUnderlyingType.AVRO) {
-                    resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, annotations);
+                    resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, annotations, statementName, engineURI);
                 }
                 else {
                     throw new IllegalStateException("Unrecognized enum " + representation);

@@ -22,6 +22,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -32,7 +33,7 @@ import java.util.Set;
 
 public class AvroRecastFactory {
 
-    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService)
+    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType targetType, ExprNode[] exprNodes, String statementName, String engineURI)
             throws ExprValidationException
     {
         AvroEventType resultType = (AvroEventType) targetType;
@@ -72,6 +73,7 @@ public class AvroRecastFactory {
         }
 
         // find the properties coming from the expressions of the select clause
+        TypeWidenerCustomizer typeWidenerCustomizer = selectExprContext.getEventAdapterService().getTypeWidenerCustomizer(targetType);
         for (int i = 0; i < selectExprContext.getExpressionNodes().length; i++) {
             String columnName = selectExprContext.getColumnNames()[i];
             ExprEvaluator evaluator = selectExprContext.getExpressionNodes()[i];
@@ -84,7 +86,7 @@ public class AvroRecastFactory {
             Schema.Field resultTypeField = resultType.getSchemaAvro().getField(writable.getPropertyName());
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
-                    writable.getType(), columnName, false, true);
+                    writable.getType(), columnName, false, typeWidenerCustomizer, statementName, engineURI);
             items.add(new Item(resultTypeField.pos(), -1, evaluator, widener));
             written.add(writable);
         }

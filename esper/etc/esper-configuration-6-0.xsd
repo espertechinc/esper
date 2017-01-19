@@ -566,6 +566,8 @@
 			<xs:attribute name="enable-avro" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-native-string" type="xs:boolean" use="optional"/>
 			<xs:attribute name="enable-schema-default-nonnull" type="xs:boolean" use="optional"/>
+			<xs:attribute name="objectvalue-typewidener-factory-class" type="xs:string" use="optional"/>
+			<xs:attribute name="type-representation-mapper-class" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="view-resources">

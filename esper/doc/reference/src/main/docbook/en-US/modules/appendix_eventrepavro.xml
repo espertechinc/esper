@@ -15,7 +15,7 @@
 	<sect1 xml:id="appendix_eventrepavro_overview">
 	   <title>Overview</title>
 		<para>
-			An event can be represented by an Avro <literal>GenericData.Record</literal> instance. Event properties of Avro events are the fields in the record schema. 
+			An event can be represented by an Avro <literal>GenericData.Record</literal> instance. Event properties of Avro events are the field values of a <literal>GenericData.Record</literal>. The top level schema must always be a record.
 		</para>
 		
 		<para>
@@ -46,7 +46,7 @@
 			</ns:listitem>
 			<ns:listitem>
 				<para>Avro does not require code generation so EPL can be written generically for any data stream. Type information can be made available at runtime while still providing type-safety.
-				There is no need to generate Java code beforehand, therefore there is no need to manage generated classes, or to reload classes or to restart the process to reload classes.</para>
+				There is no need to generate code, therefore there is no need to manage generated classes, or to reload classes or to restart the process to reload classes.</para>
 			</ns:listitem>
 			<ns:listitem>
 				<para>Avro has the notion of schema compatibility for evolving your event data over time.</para>
@@ -72,13 +72,10 @@
 	</sect1>
 			
 	<sect1 xml:id="appendix_eventrepavro_properties">
-	   <title>Avro Event Properties</title>
-		<para>
-			Event properties can be of any Avro schema type.
-		</para>
+	   <title>Avro Event Type</title>
 		
 		<para>
-			In order to use Avro events, the event type name and Avro schema must be made known to the engine via configuration or <literal>create avro schema</literal> EPL syntax. Please see examples in <xref linkend="epl_createschema"/> and <xref linkend="config-avro"/>.
+			In order to use Avro for incoming events, the event type name and Avro schema must be made known to the engine via configuration or <literal>create avro schema</literal> EPL syntax. Please see examples in <xref linkend="epl_createschema"/> and <xref linkend="config-avro"/>.
 		</para>
 										
 		<para>
@@ -105,10 +102,124 @@ epService.getEPAdministrator().getConfiguration().addEventTypeAvro("CarLocUpdate
 event.put("carId", "A123456");
 event.put("direction", 1);
 epService.getEPRuntime().sendEventAvro(event, "CarLocUpdateEvent");]]></programlisting>
+
+		<para>
+			Use the <literal>@EventRepresentation(avro)</literal> annotation to obtain Avro output events.
+		</para>
 	</sect1>
 	
-	<sect1 xml:id="appendix_eventrepavro_typemapping">
-	   <title>Avro Type Mapping</title>
+	<sect1 xml:id="appendix_eventrepavro_schematoprop">
+	   <title>Avro Field Schema to Property Type Mapping</title>
+	   
+	   <para>
+			Upon registering an Avro event type, the engine determines property names and property types.
+			The Avro record field schema determines the property type.
+	   </para>
+	   
+	   <para>
+		   The table below describes Avro field schema to property type mapping:
+	   </para>
+	   
+		<table frame="topbot">
+			<title>Avro Field Schema to Property Type Mapping</title>
+			<tgroup cols="2">
+				<colspec colwidth="1*"/>
+				<colspec colwidth="1*"/>
+				<thead>
+					<row>
+						<entry>Schema</entry>
+						<entry>Property Type</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry><literal>"int"</literal> (Schema.Type.INT)</entry>
+						<entry><literal>int</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"long"</literal> (Schema.Type.LONG)</entry>
+						<entry><literal>long</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"double"</literal> (Schema.Type.DOUBLE)</entry>
+						<entry><literal>double</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"float"</literal> (Schema.Type.FLOAT)</entry>
+						<entry><literal>float</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"boolean"</literal> (Schema.Type.BOOLEAN)</entry>
+						<entry><literal>boolean</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"bytes"</literal> (Schema.Type.BYTES)</entry>
+						<entry><literal>ByteBuffer</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"null"</literal> (Schema.Type.NULL)</entry>
+						<entry><literal>null</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"string"</literal> (Schema.Type.STRING)</entry>
+						<entry>
+							<para>
+								If the field has the property <literal>avro.java.string</literal> as <literal>String</literal>, then the property type is <literal>String</literal> otherwise it is <literal>CharSequence</literal>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry><literal>"union"</literal> (Schema.Type.UNION)</entry>
+						<entry>See below.</entry>
+					</row>
+					<row>
+						<entry><literal>"array"</literal> (Schema.Type.ARRAY)</entry>
+						<entry><literal>java.util.Collection</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"map"</literal> (Schema.Type.MAP)</entry>
+						<entry><literal>java.util.Map</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"record"</literal> (Schema.Type.RECORD)</entry>
+						<entry><literal>GenericData.Record</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"fixed"</literal> (Schema.Type.FIXED)</entry>
+						<entry><literal>GenericFixed</literal></entry>
+					</row>
+					<row>
+						<entry><literal>"enum"</literal> (Schema.Type.ENUM)</entry>
+						<entry><literal>GenericEnumSymbol</literal></entry>
+					</row>
+				</tbody>
+			</tgroup>				
+		</table>
+
+		<para>
+			For unions: 
+		</para>
+		<orderedlist>
+			<ns:listitem>
+				<para>
+					If the union contains <literal>null</literal> and any of the primitive types, the property type is the boxed type. For example <literal>unionOf().nullType().and().intType().endUnion()</literal> is <literal>Integer.class</literal>.
+				</para>
+			</ns:listitem>
+			<ns:listitem>
+				<para>
+					If the union contains <literal>null</literal> and numeric types only, the property type is <literal>Number.class</literal>. For example <literal>unionOf().longType().and().intType().endUnion()</literal> is <literal>Number.class</literal>.
+				</para>
+			</ns:listitem>
+			<ns:listitem>
+				<para>
+					Otherwise the property type is <literal>Object.class</literal>.
+				</para>
+			</ns:listitem>
+		</orderedlist>			
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepavro_typetoschema">
+	   <title>Primitive Data Type and Class to Avro Schema Mapping</title>
 	   
 	   <para>
 			This section lists for each JVM type the default Avro schema that the engine uses when assembling an Avro schema from a <literal>select</literal>-clause.
@@ -160,7 +271,7 @@ Schema schema = (Schema) ((AvroSchemaEventType) stmt.getEventType()).getSchema()
 		</para>
 		
 		<table frame="topbot">
-			<title>Primitive and String Mapping</title>
+			<title>Primitive Data Type and String Mapping</title>
 			<tgroup cols="3">
 				<colspec colwidth="0.30*"/>
 				<colspec colwidth="1*"/>
@@ -359,7 +470,154 @@ Schema schema = (Schema) ((AvroSchemaEventType) stmt.getEventType()).getSchema()
 					</row>
 				</tbody>
 			</tgroup>				
-		</table>
-		
+		</table>		
+	</sect1>
+	
+	<sect1 xml:id="appendix_eventrepavro_avroschemafieldannotation">
+	   <title>Customizing Avro Schema Assignment</title>
+	   
+	   <para>
+		   Esper provides the <literal>@AvroSchemaField</literal> annotation to assign a schema to a given property. The annotation requires the <literal>name</literal> attribute for the property name and the <literal>schema</literal> attributed for the Avro schema text.		
+	   </para>
+	   
+	   <para>
+		   The schema provided via <literal>@AvroSchemaField</literal> for a given property replaces the Avro schema that is otherwise assigned according to the above mapping.
+	   </para>
+	   
+	   <para> 
+		   The annotation can be used with <literal>create-schema</literal> or with <literal>@EventRepresentation(avro)</literal>.
+	   </para>
+
+	   <para>
+		   In this example the <literal>carId</literal> property is a union of int-type and string-type.
+	   </para>
+	   <programlisting>@AvroSchemaField(name='carId',schema='["int","string"]') create avro schema MyEvent(carId object)</programlisting>
+	   
+	   <para>
+		The engine determines the property type from the Avro field schema according to the rules listed above.
+	   </para>
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepavro_classtoavroschema">
+	   <title>Customizing Class-to-Avro Schema</title>
+	   
+	   <para>
+			In the default configuration only the primitive data types and the abovementioned classes have a corresponding Avro schema.
+			When the engine encounters a class for which is does not know the Avro schema that is should use, it fails the EPL statement validation.
+	   </para>
+
+	   <para>
+		   For example, the below EPL is invalid:
+	   </para>
+	   <programlisting>// Invalid since LocalDateTime has no equivalent Avro schema (by default)
+create avro schema MyEvent(ldt as java.time.LocalDateTime)</programlisting>
+
+		<para>
+			Instead of using <literal>@AvroSchemaField</literal> your application can configure a type-representation mapper class that can return the Avro schema to use.
+			For configuration information please see <xref linkend="config-engine-eventmeta-avro"/> and the JavaDoc.
+		 </para>	   
+		 
+	   <para>
+			Your application can implement the <literal>com.espertech.esper.client.hook.TypeRepresentationMapper</literal> interface. The engine invokes the provided mapper to determine the Avro schema for a given field.
+	   </para>
+
+	   <para>
+			For example, the following type mapper implementation maps <literal>LocalDateTime</literal> to the Avro string type.
+	   </para>
+	   <programlisting>public class MyTypeRepresentationMapper implements TypeRepresentationMapper {
+  public Object map(TypeRepresentationMapperContext context) {
+    if (context.getClazz() == LocalDateTime.class) {
+      return builder().stringBuilder().endString();
+    }
+    return null;
+  }
+}</programlisting>
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepavro_typemapping">
+	   <title>Customizing Object-to-Avro Field Value Assignment</title>
+	   
+	   <para>
+		   The engine can automatically widen and assign values to Avro fields. In the case when your application requires a custom logic to convert, widen, coerce or transform a value before assigment to an Avro field,
+		   please use the mechanism below.
+	   </para>
+
+	   <para>
+			Your application can implement the <literal>com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory</literal> interface. The engine invokes the provided factory to determine a widener for values.
+	   </para>
+
+	   <para>
+			For example, the factory implementation below returns a type widener that converts <literal>LocalDateTime</literal> instances to Avro string-type values by using the date-time formatter:
+	   </para>
+	   <programlisting>public static class MyObjectValueTypeWidenerFactory implements ObjectValueTypeWidenerFactory {
+
+  public TypeWidener make(ObjectValueTypeWidenerFactoryContext context) {
+    if (context.getClazz() == LocalDateTime.class) {
+      return new TypeWidener() {
+        public Object widen(Object input) {
+          LocalDateTime ldt = (LocalDateTime) input;
+          return DateTimeFormatter.ISO_DATE_TIME.format(ldt);
+        }
+      };
+    }
+    return null;
+  }
+}</programlisting>
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepavro_apiexamples">
+	   <title>API Examples</title>
+		<para>
+			To obtain the Avro schema for a given event type, use:
+		</para>
+		<programlisting><![CDATA[public static Schema getAvroSchema(EventType eventType) {
+  return ((AvroEventType) eventType).getSchemaAvro();
+}]]></programlisting>
+
+		<para>
+			To obtain the Avro schema for a registered event type, you may use:
+		</para>
+		<programlisting><![CDATA[public static Schema getAvroSchema(EPServiceProvider epService, String eventTypeName) {
+  return getAvroSchema(epService.getEPAdministrator().getConfiguration().getEventType(eventTypeName));
+}]]></programlisting>
+
+		<para>
+			To obtain the Avro schema for a given event, you may use:
+		</para>
+		<programlisting><![CDATA[public static Schema getAvroSchema(EventBean event) {
+  return getAvroSchema(event.getEventType());
+}]]></programlisting>
+
+		<para>
+			To obtain the <literal>GenericData.Record</literal> for a given event, you may use:
+		</para>
+		<programlisting><![CDATA[public static Schema getAvroRecord(EventBean event) {
+  return (GenericData.Record) event.getunderlying());
+}]]></programlisting>
+	</sect1>
+
+	<sect1 xml:id="appendix_eventrepavro_limitations">
+	   <title>Limitations</title>
+		<para>
+			The following limitations apply: 
+		</para>
+		<orderedlist>
+			<ns:listitem>
+				<para>
+					An Avro <literal>GenericData.Record</literal> cannot contain <literal>EventBean</literal> instances. 
+				</para>
+			</ns:listitem>
+			<ns:listitem>
+				<para>
+					There is no implicit translation from other event representations to Avro schemas.
+				</para>
+			</ns:listitem>
+			<ns:listitem>
+				<para>
+					While the engine performs best-effort assignment checking and widening, it does not actually itself verify that the <literal>GenericData.Record</literal> contains valid data, for both production 
+					of <literal>GenericData.Record</literal> and consumption of <literal>GenericData.Record</literal>.
+					</para>
+			</ns:listitem>
+		</orderedlist>			
 	</sect1>
 </appendix>

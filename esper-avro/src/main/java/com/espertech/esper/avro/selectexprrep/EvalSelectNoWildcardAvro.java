@@ -20,7 +20,9 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 import org.apache.avro.generic.GenericData;
 
@@ -32,11 +34,12 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
     private final AvroEventType resultEventType;
     private final ExprEvaluator evaluator[];
 
-    public EvalSelectNoWildcardAvro(SelectExprContext selectExprContext, EventType resultEventType) {
+    public EvalSelectNoWildcardAvro(SelectExprContext selectExprContext, EventType resultEventType, String statementName, String engineURI) throws ExprValidationException {
         this.selectExprContext = selectExprContext;
         this.resultEventType = (AvroEventType) resultEventType;
 
         this.evaluator = new ExprEvaluator[selectExprContext.getExpressionNodes().length];
+        TypeWidenerCustomizer typeWidenerCustomizer = selectExprContext.getEventAdapterService().getTypeWidenerCustomizer(resultEventType);
         for (int i = 0; i < evaluator.length; i++) {
             ExprEvaluator eval = selectExprContext.getExpressionNodes()[i];
             evaluator[i] = eval;
@@ -85,6 +88,14 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
                     widener = TypeWidenerFactory.BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
                 }
                 evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(eval, widener);
+            }
+            else {
+                String propertyName = selectExprContext.getColumnNames()[i];
+                Class propertyType = resultEventType.getPropertyType(propertyName);
+                TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, eval.getType(), propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
+                if (widener != null) {
+                    evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(eval, widener);
+                }
             }
         }
     }

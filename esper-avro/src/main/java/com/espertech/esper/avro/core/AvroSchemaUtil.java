@@ -14,7 +14,9 @@ package com.espertech.esper.avro.core;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.annotation.AvroField;
+import com.espertech.esper.client.annotation.AvroSchemaField;
+import com.espertech.esper.client.hook.TypeRepresentationMapper;
+import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.map.MapEventType;
@@ -23,9 +25,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
@@ -61,15 +61,26 @@ public class AvroSchemaUtil {
         return found;
     }
 
-    static void assembleField(String propertyName, Object propertyType, SchemaBuilder.FieldAssembler<Schema> assembler, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventAdapterService eventAdapterService) {
+    static void assembleField(String propertyName, Object propertyType, SchemaBuilder.FieldAssembler<Schema> assembler, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventAdapterService eventAdapterService, String statementName, String engineURI, TypeRepresentationMapper optionalMapper) {
         if (propertyName.contains(".")) {
             throw new EPException("Invalid property name as Avro does not allow dot '.' in field names (property '" + propertyName + "')");
         }
+
         Schema schema = getAnnotationSchema(propertyName, annotations);
         if (schema != null) {
             assembler.name(propertyName).type(schema).noDefault();
+            return;
         }
-        else if (propertyType == null) {
+
+        if (optionalMapper != null && propertyType instanceof Class) {
+            Schema result = (Schema) optionalMapper.map(new TypeRepresentationMapperContext((Class) propertyType, propertyName, statementName, engineURI));
+            if (result != null) {
+                assembler.name(propertyName).type(result).noDefault();
+                return;
+            }
+        }
+
+        if (propertyType == null) {
             assembler.name(propertyName).type("null");
         }
         else if (propertyType instanceof String) {
@@ -103,7 +114,7 @@ public class AvroSchemaUtil {
             }
             else if (eventType instanceof MapEventType) {
                 MapEventType mapEventType = (MapEventType) eventType;
-                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService);
+                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService, statementName, engineURI, optionalMapper);
                 assembler.name(propertyName).type(nestedSchema).noDefault();
             }
             else {
@@ -119,7 +130,7 @@ public class AvroSchemaUtil {
             }
             else if (eventType instanceof MapEventType) {
                 MapEventType mapEventType = (MapEventType) eventType;
-                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService);
+                Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService, statementName, engineURI, optionalMapper);
                 assembler.name(propertyName).type(array().items(nestedSchema)).noDefault();
             }
             else {
@@ -235,10 +246,11 @@ public class AvroSchemaUtil {
         }
     }
 
-    private static Schema assembleNestedSchema(MapEventType mapEventType, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, Annotation[] annotations, EventAdapterService eventAdapterService) {
+    private static Schema assembleNestedSchema(MapEventType mapEventType, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, Annotation[] annotations, EventAdapterService eventAdapterService, String statementName, String engineURI, TypeRepresentationMapper optionalMapper) {
         SchemaBuilder.FieldAssembler<Schema> assembler = record(mapEventType.getName()).fields();
+
         for (Map.Entry<String, Object> prop : mapEventType.getTypes().entrySet()) {
-            AvroSchemaUtil.assembleField(prop.getKey(), prop.getValue(), assembler, annotations, avroSettings, eventAdapterService);
+            AvroSchemaUtil.assembleField(prop.getKey(), prop.getValue(), assembler, annotations, avroSettings, eventAdapterService, statementName, engineURI, optionalMapper);
         }
         return assembler.endRecord();
     }
@@ -248,10 +260,10 @@ public class AvroSchemaUtil {
             return null;
         }
         for (Annotation annotation : annotations) {
-            if (annotation instanceof AvroField) {
-                AvroField avroField = (AvroField) annotation;
-                if (avroField.name().equals(propertyName)) {
-                    String schema = avroField.schema();
+            if (annotation instanceof AvroSchemaField) {
+                AvroSchemaField avroSchemaField = (AvroSchemaField) annotation;
+                if (avroSchemaField.name().equals(propertyName)) {
+                    String schema = avroSchemaField.schema();
                     try {
                         return new Schema.Parser().parse(schema);
                     }
@@ -307,7 +319,7 @@ public class AvroSchemaUtil {
     }
 
     private static EPException makeEPException(String propertyName, Object propertyType) {
-        return new EPException("Property '" + propertyName + "' type '" + propertyType + "' does not have a mapping to an Avro type (consider using the AvroField annotation)");
+        return new EPException("Property '" + propertyName + "' type '" + propertyType + "' does not have a mapping to an Avro type");
     }
 
     private final static BiConsumer<SchemaBuilder.FieldAssembler<Schema>, String> REQ_BOOLEAN = FieldAssembler::requiredBoolean;

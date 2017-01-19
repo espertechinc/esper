@@ -11,15 +11,17 @@
 
 package com.espertech.esper.avro.core;
 
+import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.avro.selectexprrep.SelectExprProcessorRepresentationFactoryAvro;
 import com.espertech.esper.client.*;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.client.hook.TypeRepresentationMapper;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
@@ -30,7 +32,23 @@ import java.util.*;
 import static org.apache.avro.SchemaBuilder.record;
 
 public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
-    private final static SelectExprProcessorRepresentationFactoryAvro factory = new SelectExprProcessorRepresentationFactoryAvro();
+    private final static SelectExprProcessorRepresentationFactoryAvro FACTORY_SELECT = new SelectExprProcessorRepresentationFactoryAvro();
+
+    private ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings;
+    private TypeRepresentationMapper optionalTypeMapper;
+    private ObjectValueTypeWidenerFactory optionalWidenerFactory;
+
+    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
+        this.avroSettings = avroSettings;
+
+        if (avroSettings.getTypeRepresentationMapperClass() != null) {
+            optionalTypeMapper = (TypeRepresentationMapper) JavaClassHelper.instantiate(TypeRepresentationMapper.class, avroSettings.getTypeRepresentationMapperClass());
+        }
+
+        if (avroSettings.getObjectValueTypeWidenerFactoryClass() != null) {
+            optionalWidenerFactory = (ObjectValueTypeWidenerFactory) JavaClassHelper.instantiate(ObjectValueTypeWidenerFactory.class, avroSettings.getObjectValueTypeWidenerFactoryClass());
+        }
+    }
 
     public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
         Object avroSchemaObj = requiredConfig.getAvroSchema();
@@ -62,7 +80,7 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
         return makeType(metadata, eventTypeName, typeId, eventAdapterService, schema, requiredConfig, supertypes, deepSupertypes);
     }
 
-    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] optionalSuperTypes, Set<EventType> deepSuperTypes) {
+    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEventTypeAvro optionalConfig, EventType[] optionalSuperTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
         SchemaBuilder.FieldAssembler<Schema> assembler = record(eventTypeName).fields();
 
         // add supertypes first so the positions are comparable
@@ -82,7 +100,7 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
 
         for (Map.Entry<String, Object> prop : properties.entrySet()) {
             if (!added.contains(prop.getKey())) {
-                AvroSchemaUtil.assembleField(prop.getKey(), prop.getValue(), assembler, annotations, avroSettings, eventAdapterService);
+                AvroSchemaUtil.assembleField(prop.getKey(), prop.getValue(), assembler, annotations, avroSettings, eventAdapterService, statementName, engineURI, optionalTypeMapper);
                 added.add(prop.getKey());
             }
         }
@@ -101,7 +119,7 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
     }
 
     public SelectExprProcessorRepresentationFactory getOutputFactory() {
-        return factory;
+        return FACTORY_SELECT;
     }
 
     public EventBeanManufacturer getEventBeanManufacturer(AvroSchemaEventType avroSchemaEventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties) {
@@ -132,9 +150,7 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
     public void avroCompat(EventType existingType, Map<String, Object> selPropertyTypes) throws ExprValidationException {
         Schema schema = ((AvroEventType) existingType).getSchemaAvro();
 
-        int index = -1;
         for (Map.Entry<String, Object> selected : selPropertyTypes.entrySet()) {
-            index++;
             String propertyName = selected.getKey();
             Schema.Field targetField = schema.getField(selected.getKey());
 
@@ -191,6 +207,10 @@ public class EventAdapterAvroHandlerImpl implements EventAdapterAvroHandler {
             }
         }
         return target;
+    }
+
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType eventType) {
+        return optionalWidenerFactory == null ? AvroTypeWidenerCustomizerDefault.INSTANCE : new AvroTypeWidenerCustomizerWHook(optionalWidenerFactory, eventType);
     }
 
     private AvroSchemaEventType makeType(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Schema schema, ConfigurationEventTypeAvro optionalConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {

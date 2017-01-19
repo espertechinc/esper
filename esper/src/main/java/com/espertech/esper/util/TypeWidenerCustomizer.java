@@ -9,9 +9,11 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.client.annotation;
+package com.espertech.esper.util;
 
-public @interface AvroField {
-    String name();
-    String schema();
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+
+public interface TypeWidenerCustomizer
+{
+    public TypeWidener widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName, String engineURI) throws ExprValidationException;
 }

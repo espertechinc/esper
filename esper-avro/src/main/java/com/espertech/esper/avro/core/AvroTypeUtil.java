@@ -74,7 +74,7 @@ public class AvroTypeUtil {
                 }
             }
             if (unionTypes.isEmpty()) {
-                return Object.class;
+                return null;
             }
             if (unionTypes.size() == 1) {
                 if (hasNull) {
@@ -112,17 +112,7 @@ public class AvroTypeUtil {
             String prop = fieldSchema.getProp(PROP_JAVA_STRING_KEY);
             return prop == null || !prop.equals(PROP_JAVA_STRING_VALUE) ? CharSequence.class : String.class;
         }
-        return getTypePrimitive(fieldSchema);
-    }
-
-    private static Class getTypePrimitive(Schema schema) {
-        if (schema.getType() == Schema.Type.STRING) {
-            String value = schema.getProp(PROP_JAVA_STRING_KEY);
-            if (value != null && value.trim().equals(PROP_JAVA_STRING_VALUE)) {
-                return String.class;
-            }
-        }
-        AvroTypeDesc desc = TYPES_PER_AVRO_ORD[schema.getType().ordinal()];
+        AvroTypeDesc desc = TYPES_PER_AVRO_ORD[fieldSchema.getType().ordinal()];
         return desc == null ? null : desc.getType();
     }
 }

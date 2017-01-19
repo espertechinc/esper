@@ -59,7 +59,7 @@ public class NamedWindowOnMergeHelper
                     }
                     else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
-                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, namedWindowType, updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, true);
+                        EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, namedWindowType, updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
                         ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
                         actions.add(new NamedWindowOnMergeActionUpd(filterEval, updateHelper));
                     }

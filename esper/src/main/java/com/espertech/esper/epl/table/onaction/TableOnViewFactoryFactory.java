@@ -52,7 +52,7 @@ public class TableOnViewFactoryFactory
         }
         else if (onTriggerDesc.getOnTriggerType() == OnTriggerType.ON_UPDATE) {
             OnTriggerWindowUpdateDesc updateDesc = (OnTriggerWindowUpdateDesc) onTriggerDesc;
-            EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), (EventTypeSPI) tableMetadata.getInternalEventType(), updateDesc.getAssignments(), updateDesc.getOptionalAsName(), filterEventType, false);
+            EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), (EventTypeSPI) tableMetadata.getInternalEventType(), updateDesc.getAssignments(), updateDesc.getOptionalAsName(), filterEventType, false, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
             TableUpdateStrategy updateStrategy = statementContext.getTableService().getTableUpdateStrategy(tableMetadata, updateHelper, false);
             TableOnUpdateViewFactory onUpdateViewFactory = new TableOnUpdateViewFactory(statementContext.getStatementResultService(), tableMetadata, updateHelper, updateStrategy);
             statementContext.getTableService().addTableUpdateStrategyReceiver(tableMetadata, statementContext.getStatementName(), onUpdateViewFactory, updateHelper, false);

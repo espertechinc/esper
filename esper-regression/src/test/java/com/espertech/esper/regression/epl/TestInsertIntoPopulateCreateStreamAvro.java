@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroConstant;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.avro.util.support.SupportAvroUtil;
 import com.espertech.esper.client.*;
@@ -26,6 +27,8 @@ import org.apache.avro.Schema;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import static org.apache.avro.SchemaBuilder.*;
 
@@ -54,13 +57,15 @@ public class TestInsertIntoPopulateCreateStreamAvro extends TestCase {
 
         String epl = "insert into AvroExistingType select 1 as myLong," +
                 "{1L, 2L} as myLongArray," +
-                this.getClass().getName() + ".makeByteArray() as myByteArray " +
+                this.getClass().getName() + ".makeByteArray() as myByteArray, " +
+                this.getClass().getName() + ".makeMapStringString() as myMap " +
                 "from SupportBean";
 
         Schema schema = record("name").fields()
                 .requiredLong("myLong")
                 .name("myLongArray").type(array().items(builder().longType())).noDefault()
                 .name("myByteArray").type("bytes").noDefault()
+                .name("myMap").type(map().values().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
                 .endRecord();
         epService.getEPAdministrator().getConfiguration().addEventTypeAvro("AvroExistingType", new ConfigurationEventTypeAvro(schema));
 
@@ -74,6 +79,7 @@ public class TestInsertIntoPopulateCreateStreamAvro extends TestCase {
         assertEquals(1L, event.get("myLong"));
         EPAssertionUtil.assertEqualsExactOrder(new Long[] {1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
         assertTrue(Arrays.equals(new byte[] {1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
+        assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
 
         statement.destroy();
     }
@@ -82,7 +88,8 @@ public class TestInsertIntoPopulateCreateStreamAvro extends TestCase {
 
         String epl = EventRepresentationChoice.AVRO.getAnnotationText() + " select 1 as myInt," +
                 "{1L, 2L} as myLongArray," +
-                this.getClass().getName() + ".makeByteArray() as myByteArray " +
+                this.getClass().getName() + ".makeByteArray() as myByteArray, " +
+                this.getClass().getName() + ".makeMapStringString() as myMap " +
                 "from SupportBean";
 
         EPStatement statement = epService.getEPAdministrator().createEPL(epl);
@@ -91,15 +98,18 @@ public class TestInsertIntoPopulateCreateStreamAvro extends TestCase {
 
         epService.getEPRuntime().sendEvent(new SupportBean());
         EventBean event = listener.assertOneGetNewAndReset();
-        SupportAvroUtil.avroToJson(event);
+        String json = SupportAvroUtil.avroToJson(event);
+        System.out.println(json);
         assertEquals(1, event.get("myInt"));
         EPAssertionUtil.assertEqualsExactOrder(new Long[] {1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
         assertTrue(Arrays.equals(new byte[] {1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
+        assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
 
         Schema designSchema = record("name").fields()
                 .requiredInt("myInt")
                 .name("myLongArray").type(array().items(unionOf().nullType().and().longType().endUnion())).noDefault()
                 .name("myByteArray").type("bytes").noDefault()
+                .name("myMap").type(map().values().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
                 .endRecord();
         Schema assembledSchema = ((AvroEventType) event.getEventType()).getSchemaAvro();
         String compareMsg = SupportAvroUtil.compareSchemas(designSchema, assembledSchema);
@@ -110,5 +120,9 @@ public class TestInsertIntoPopulateCreateStreamAvro extends TestCase {
 
     public static byte[] makeByteArray() {
         return new byte[] {1, 2, 3};
+    }
+
+    public static Map<String, String> makeMapStringString() {
+        return Collections.singletonMap("k1", "v1");
     }
 }

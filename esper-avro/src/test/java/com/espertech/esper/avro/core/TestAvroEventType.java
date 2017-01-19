@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
-import static com.espertech.esper.avro.support.SupportEventTypeUtil.makeEventType;
+import static com.espertech.esper.avro.util.support.SupportAvroUtil.makeAvroSupportEventType;
 import static org.apache.avro.SchemaBuilder.record;
 
 public class TestAvroEventType extends TestCase
@@ -62,7 +62,7 @@ public class TestAvroEventType extends TestCase
                 .name("myNullValue").type().nullType().noDefault()
                 .endRecord();
 
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(int.class, null, eventType, "myInt");
         assertPropertyType(Integer.class, null, eventType, "myIntBoxed");
@@ -129,7 +129,7 @@ public class TestAvroEventType extends TestCase
                 .requiredLong("myLong")
                 .endRecord();
         String[] propNames = "myInt,myCharSeq,myString,myBoolean,myBytes,myDouble,myFloat,myLong".split(",");
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
         EPAssertionUtil.assertEqualsExactOrder(eventType.getPropertyNames(), propNames);
         assertEquals(GenericData.Record.class, eventType.getUnderlyingType());
         assertNull(eventType.getSuperTypes());
@@ -200,7 +200,7 @@ public class TestAvroEventType extends TestCase
                 "  }]" +
                 "}";
         Schema schema = new Schema.Parser().parse(schemaText.replace("'", "\""));
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(GenericData.Record.class, null, eventType, "innerEvent");
 
@@ -224,7 +224,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .name("intArray").type().array().items().intBuilder().endInt().arrayDefault(Collections.emptyList())
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(Collection.class, int.class, eventType, "intArray");
 
@@ -248,7 +248,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .name("anMap").type().map().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).values().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().mapDefault(null)
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(Map.class, null, eventType, "anMap");
 
@@ -270,7 +270,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .name("aFixed").type().fixed("abc").size(2).fixedDefault(ByteBuffer.wrap(new byte[0]))
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(GenericFixed.class, null, eventType, "aFixed");
 
@@ -292,7 +292,7 @@ public class TestAvroEventType extends TestCase
         Schema schema = record("typename").fields()
                 .name("aEnum").type().enumeration("myEnum").symbols("a", "b").enumDefault("x")
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(GenericEnumSymbol.class, null, eventType, "aEnum");
 
@@ -320,7 +320,7 @@ public class TestAvroEventType extends TestCase
                 .nullType()
                 .endUnion().noDefault()
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(Object.class, null, eventType, "anUnion");
 
@@ -350,7 +350,7 @@ public class TestAvroEventType extends TestCase
                 .floatBuilder().endFloat()
                 .endUnion().noDefault()
                 .endRecord();
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertPropertyType(Number.class, null, eventType, "anUnion");
 
@@ -379,7 +379,7 @@ public class TestAvroEventType extends TestCase
     }
 
     private void runAssertionNullableOrOptTypes(Schema schema) {
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         assertTypesBoxed(eventType);
 

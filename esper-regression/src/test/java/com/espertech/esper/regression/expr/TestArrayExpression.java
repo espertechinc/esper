@@ -143,9 +143,9 @@ public class TestArrayExpression extends TestCase
         Schema nullArraySchema = array().items(builder().nullType());
 
         String stmtText =
-                "@AvroField(name='emptyArray', schema='" + intArraySchema.toString() + "')" +
-                "@AvroField(name='mixedArray', schema='" + mixedArraySchema.toString() + "')" +
-                "@AvroField(name='nullArray', schema='" + nullArraySchema.toString() + "')" +
+                "@AvroSchemaField(name='emptyArray', schema='" + intArraySchema.toString() + "')" +
+                "@AvroSchemaField(name='mixedArray', schema='" + mixedArraySchema.toString() + "')" +
+                "@AvroSchemaField(name='nullArray', schema='" + nullArraySchema.toString() + "')" +
                 EventRepresentationChoice.AVRO.getAnnotationText() +
                 "select {'a', 'b'} as stringArray," +
                 "{} as emptyArray," +

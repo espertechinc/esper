@@ -1474,7 +1474,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
                     targetType = statementContext.getEventAdapterService().addNestableObjectArrayType(typeName, compiledProperties, null, false, false, false, true, false, false, null);
                 }
                 else if (representation == EventUnderlyingType.AVRO) {
-                    targetType = statementContext.getEventAdapterService().addAvroType(typeName, compiledProperties, false, false, false, true, false, statementContext.getAnnotations(), null);
+                    targetType = statementContext.getEventAdapterService().addAvroType(typeName, compiledProperties, false, false, false, true, false, statementContext.getAnnotations(), null, statementContext.getStatementName(), statementContext.getEngineURI());
                 }
                 else {
                     throw new IllegalStateException("Unrecognized representation " + representation);

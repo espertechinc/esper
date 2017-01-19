@@ -40,6 +40,7 @@ import java.util.*;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
 import static org.apache.avro.SchemaBuilder.record;
+import static org.apache.avro.SchemaBuilder.unionOf;
 
 public class TestSchema extends TestCase
 {
@@ -309,6 +310,13 @@ public class TestSchema extends TestCase
         stmtTwo.destroy();
         assertEquals(0, epService.getEPAdministrator().getConfiguration().getEventTypeNameUsedBy("MyEventType").size());
         assertFalse(epService.getEPAdministrator().getConfiguration().isEventTypeExists("MyEventType"));
+    }
+
+    public void testAvroSchemaWAnnotation() {
+        Schema schema = unionOf().intType().and().stringType().endUnion();
+        String epl = "@AvroSchemaField(name='carId',schema='" + schema.toString() + "') create avro schema MyEvent(carId object)";
+        epService.getEPAdministrator().createEPL(epl);
+        System.out.println(schema);
     }
 
     public void testColDefPlain() throws Exception {

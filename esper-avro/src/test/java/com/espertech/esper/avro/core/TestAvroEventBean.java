@@ -19,7 +19,7 @@ import org.apache.avro.generic.GenericData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.espertech.esper.avro.support.SupportEventTypeUtil.makeEventType;
+import static com.espertech.esper.avro.util.support.SupportAvroUtil.makeAvroSupportEventType;
 import static org.apache.avro.SchemaBuilder.record;
 
 public class TestAvroEventBean extends TestCase
@@ -30,7 +30,7 @@ public class TestAvroEventBean extends TestCase
                 .requiredInt("myInt")
                 .endRecord();
 
-        EventType eventType = makeEventType(schema);
+        EventType eventType = makeAvroSupportEventType(schema);
 
         GenericData.Record record = new GenericData.Record(schema);
         record.put("myInt", 99);

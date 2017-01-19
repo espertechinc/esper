@@ -14,6 +14,7 @@ package com.espertech.esper.avro.core;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterIndexedRuntimeKeyed;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterMappedRuntimeKeyed;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterSimple;
+import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.avro.writer.*;
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.parse.ASTUtil;

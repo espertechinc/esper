@@ -12,6 +12,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.annotation.EventRepresentation;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportSubscriber;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
@@ -478,53 +479,38 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         assertEquals(20, received.getIntPrimitive());
     }
 
-    public void testPopulateMap()
-    {
+    public void testPopulateUnderlying() {
         Map<String, Object> defMap = new HashMap<String, Object>();
         defMap.put("intVal", int.class);
         defMap.put("stringVal", String.class);
         defMap.put("doubleVal", Double.class);
         defMap.put("nullVal", null);
         epService.getEPAdministrator().getConfiguration().addEventType("MyMapType", defMap);
-        EPStatement stmtOrig = epService.getEPAdministrator().createEPL("select * from MyMapType");
 
-        String stmtTextOne = "insert into MyMapType select intPrimitive as intVal, theString as stringVal, doubleBoxed as doubleVal from SupportBean";
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
-        stmtOne.addListener(listener);
-        assertSame(stmtOrig.getEventType(), stmtOne.getEventType());
-
-        SupportBean bean = new SupportBean();
-        bean.setIntPrimitive(1000);
-        bean.setTheString("E1");
-        bean.setDoubleBoxed(1001d);
-        epService.getEPRuntime().sendEvent(bean);
-        
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
-
-        // test type compatible
-        epService.getEPAdministrator().createEPL("create schema ConcreteType as (value java.lang.CharSequence)");
-        epService.getEPAdministrator().createEPL("insert into ConcreteType select \"Test\" as value from pattern[every timer:interval(1 second)]");
-    }
-
-    public void testPopulateObjectArray()
-    {
         String[] props = new String[] {"intVal", "stringVal", "doubleVal", "nullVal"};
         Object[] types = new Object[] {int.class, String.class, Double.class, null};
         epService.getEPAdministrator().getConfiguration().addEventType("MyOAType", props, types);
-        EPStatement stmtOrig = epService.getEPAdministrator().createEPL("select * from MyOAType");
 
-        String stmtTextOne = "insert into MyOAType select intPrimitive as intVal, theString as stringVal, doubleBoxed as doubleVal from SupportBean";
-        EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
-        stmtOne.addListener(listener);
-        assertSame(stmtOrig.getEventType(), stmtOne.getEventType());
+        Schema schema = record("MyAvroType").fields()
+                .requiredInt("intVal")
+                .requiredString("stringVal")
+                .requiredDouble("doubleVal")
+                .name("nullVal").type("null").noDefault()
+                .endRecord();
+        epService.getEPAdministrator().getConfiguration().addEventTypeAvro("MyAvroType", new ConfigurationEventTypeAvro(schema));
 
-        SupportBean bean = new SupportBean();
-        bean.setIntPrimitive(1000);
-        bean.setTheString("E1");
-        bean.setDoubleBoxed(1001d);
-        epService.getEPRuntime().sendEvent(bean);
+        runAssertionPopulateUnderlying("MyMapType");
+        runAssertionPopulateUnderlying("MyOAType");
+        runAssertionPopulateUnderlying("MyAvroType");
+    }
 
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "intVal,stringVal,doubleVal,nullVal".split(","), new Object[]{1000, "E1", 1001d, null});
+    public void testCharSequenceCompat() {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            epService.getEPAdministrator().createEPL("create " + rep.getOutputTypeCreateSchemaName() + " schema ConcreteType as (value java.lang.CharSequence)");
+            epService.getEPAdministrator().createEPL("insert into ConcreteType select \"Test\" as value from SupportBean");
+            epService.getEPAdministrator().destroyAllStatements();
+            epService.getEPAdministrator().getConfiguration().removeEventType("ConcreteType", false);
+        }
     }
 
     public void testBeanFactoryMethod()
@@ -701,6 +687,24 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
             SupportMessageAssertUtil.assertMessage(ex, expected);
         }
 
+        // Test invalid case of array destination insert from non-array var
+        invalidEpl = "INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
+                "every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]";
+        try {
+            epService.getEPAdministrator().createEPL(invalidEpl);
+            fail();
+        }
+        catch (EPException ex) {
+            String expected;
+            if (eventRepresentationEnum.isAvroEvent()) {
+                expected = "Error starting statement: Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
+            }
+            else {
+                expected = "Error starting statement: Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type 'EventTwo[]'";
+            }
+            SupportMessageAssertUtil.assertMessage(ex, expected);
+        }
+
         epService.initialize();
     }
 
@@ -856,6 +860,25 @@ public class TestInsertIntoPopulateUnderlying extends TestCase
         assertEquals(intBoxed, theEvent.getIntBoxed());
         assertEquals(boolPrimitive, theEvent.isBoolPrimitive());
         assertEquals(intPrimitive, theEvent.getIntPrimitive());
+    }
+
+    private void runAssertionPopulateUnderlying(String typeName)
+    {
+        EPStatement stmtOrig = epService.getEPAdministrator().createEPL("select * from " + typeName);
+
+        String stmtTextOne = "insert into " + typeName + " select intPrimitive as intVal, theString as stringVal, doubleBoxed as doubleVal from SupportBean";
+        EPStatement stmtOne = epService.getEPAdministrator().createEPL(stmtTextOne);
+        stmtOne.addListener(listener);
+        assertSame(stmtOrig.getEventType(), stmtOne.getEventType());
+
+        SupportBean bean = new SupportBean();
+        bean.setIntPrimitive(1000);
+        bean.setTheString("E1");
+        bean.setDoubleBoxed(1001d);
+        epService.getEPRuntime().sendEvent(bean);
+
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     public static class MyEventWithMapFieldSetter {

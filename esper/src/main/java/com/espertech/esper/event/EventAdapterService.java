@@ -13,10 +13,12 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.EPRuntimeEventSender;
 import com.espertech.esper.core.thread.ThreadingService;
 import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.event.avro.EventAdapterAvroHandler;
 import com.espertech.esper.event.bean.BeanEventTypeFactory;
 import com.espertech.esper.event.xml.SchemaModel;
 import com.espertech.esper.plugin.PlugInEventRepresentation;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
@@ -370,15 +372,16 @@ public interface EventAdapterService
 
     public EventBean adapterForTypedObjectArray(Object[] props, EventType resultEventType);
     public EventType createAnonymousObjectArrayType(String typeName, Map<String, Object> propertyTypes);
-    public EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations);
+    public EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations, String statementName, String engineURI);
     public EventType addNestableObjectArrayType(String eventTypeName, Map<String, Object> propertyTypes, ConfigurationEventTypeObjectArray typeConfig, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean namedWindow, boolean insertInto, boolean table, String tableName) throws EventAdapterException;
     public void updateObjectArrayEventType(String objectArrayEventTypeName, Map<String, Object> typeMap);
     public EventBeanSPI getShellForType(EventType eventType);
     public EventBeanAdapterFactory getAdapterFactoryForType(EventType eventType);
     public EventType createAnonymousBeanType(String schemaName, Class clazz);
     public EventType addAvroType(String eventTypeName, ConfigurationEventTypeAvro avro, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto) throws EventAdapterException;
-    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config) throws EventAdapterException;
+    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config, String statementName, String engineURI) throws EventAdapterException;
     public EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName);
     public EventAdapterAvroHandler getEventAdapterAvroHandler();
     public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType);
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType resultEventType);
 }

@@ -1800,12 +1800,24 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 					assembles non-null Avro schemas (true) or nullable (union) Avro schemas (false).
 				</para>
 
+				<para>
+					The <literal>objectvalue-typewidener-factory-class</literal> setting is a fully-qualified class name of the class implementing the <literal>com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory</literal> interface and is null by default. 
+					If specified the factory can provide a type widener for widening, coercing or transforming any object value to a Avro field value.
+				</para>
+
+				<para>
+					The <literal>type-representation-mapper-class</literal> setting is a fully-qualified class name of the class implementing the <literal>com.espertech.esper.client.hook.TypeRepresentationMapper</literal> interface and is null by default. 
+					If specified the implementation can provide for a given class the Avro schema for the field.
+				</para>
+
 				<para>The XML snippet below is an example of Avro settings that configures the same as the default values:</para>
 				<programlisting><![CDATA[<esper-configuration
   <engine-settings>
     <defaults>
       <event-meta>
-        <avro-settings enable-avro="true" enable-native-string="true" enable-schema-default-nonnull="true"/>
+        <avro-settings enable-avro="true" enable-native-string="true" enable-schema-default-nonnull="true"
+            objectvalue-typewidener-factory-class=""
+            type-representation-mapper-class=""/>
       </event-meta>
     </defaults>
   </engine-settings>
@@ -1814,7 +1826,9 @@ config.getEngineDefaults().getThreading().setEngineFairlock(true);]]></programli
 				<para>The code snippet shown next sets the default event representation to Object-array in the configuration object:</para>
 				<programlisting><![CDATA[configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableAvro(true);
 configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableNativeString(true);
-configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableSchemaDefaultNonNull(true);]]></programlisting>
+configuration.getEngineDefaults().getEventMeta().getAvroSettings().setEnableSchemaDefaultNonNull(true);
+configuration.getEngineDefaults().getEventMeta().getAvroSettings().setObjectValueTypeWidenerFactoryClass(null);
+configuration.getEngineDefaults().getEventMeta().getAvroSettings().setTypeRepresentationMapperClass(null);]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="config-engine-eventmeta-propertyreso" revision="1">

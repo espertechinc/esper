@@ -79,7 +79,7 @@ public class SelectExprProcessorFactory
             return new SelectExprProcessorWDeliveryCallback(eventType, bindProcessor, selectExprProcessorCallback);
         }
 
-        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
+        SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
 
         // Handle table as an optional service
         if (statementResultService != null)
@@ -138,6 +138,7 @@ public class SelectExprProcessorFactory
                                                    SelectExprEventTypeRegistry selectExprEventTypeRegistry,
                                                    EngineImportService engineImportService,
                                                    int statementId,
+                                                   String statementName,
                                                    Annotation[] annotations,
                                                    ConfigurationInformation configuration,
                                                    NamedWindowMgmtService namedWindowMgmtService,
@@ -158,7 +159,7 @@ public class SelectExprProcessorFactory
             if (typeService.getStreamNames().length > 1)
             {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
-                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService);
+                return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
             }
             // Single-table selects with no insert-into
             // don't need extra processing
@@ -181,7 +182,7 @@ public class SelectExprProcessorFactory
         // Construct processor
         SelectExprBuckets buckets = getSelectExpressionBuckets(selectionList);
 
-        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
+        SelectExprProcessorHelper factory = new SelectExprProcessorHelper(assignedTypeNumberStack, buckets.expressions, buckets.selectedStreams, insertIntoDesc, optionalInsertIntoEventType, isUsingWildcard, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
         SelectExprProcessor processor = factory.getEvaluator();
 
         // add reference to the type obtained

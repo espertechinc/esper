@@ -16,11 +16,9 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisitor;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
-import com.espertech.esper.event.EventBeanCopyMethod;
-import com.espertech.esper.event.EventPropertyWriter;
-import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.event.EventTypeUtility;
+import com.espertech.esper.event.*;
 import com.espertech.esper.util.TypeWidener;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 
 import java.util.*;
@@ -28,16 +26,20 @@ import java.util.*;
 public class EventBeanUpdateHelperFactory
 {
     public static EventBeanUpdateHelper make(String updatedWindowOrTableName,
-                                               EventTypeSPI eventTypeSPI,
-                                               List<OnTriggerSetAssignment> assignments,
-                                               String updatedAlias,
-                                               EventType optionalTriggeringEventType,
-                                               boolean isCopyOnWrite)
+                                             EventTypeSPI eventTypeSPI,
+                                             List<OnTriggerSetAssignment> assignments,
+                                             String updatedAlias,
+                                             EventType optionalTriggeringEventType,
+                                             boolean isCopyOnWrite,
+                                             String statementName,
+                                             String engineURI,
+                                             EventAdapterService eventAdapterService)
             throws ExprValidationException
     {
         List<EventBeanUpdateItem> updateItems = new ArrayList<EventBeanUpdateItem>();
         List<String> properties = new ArrayList<String>();
 
+        TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventTypeSPI);
         for (int i = 0; i < assignments.size(); i++)
         {
             OnTriggerSetAssignment assignment = assignments.get(i);
@@ -65,7 +67,7 @@ public class EventBeanUpdateHelperFactory
 
                 properties.add(propertyName);
                 TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(possibleAssignment.getSecond()), possibleAssignment.getSecond().getExprEvaluator().getType(),
-                        writableProperty.getPropertyType(), propertyName, false, false);
+                        writableProperty.getPropertyType(), propertyName, false, typeWidenerCustomizer, statementName, engineURI);
 
                 // check event type assignment
                 if (optionalTriggeringEventType != null && possibleAssignment.getSecond() instanceof ExprIdentNode) {

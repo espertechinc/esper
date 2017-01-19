@@ -158,7 +158,7 @@ public class TestAvroSchemaUtil extends TestCase {
 
     private Schema assemble(Object value, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventAdapterService eventAdapterService) {
         SchemaBuilder.FieldAssembler<Schema> assembler = SchemaBuilder.record("myrecord").fields();
-        AvroSchemaUtil.assembleField("somefield", value, assembler, annotations, avroSettings, eventAdapterService);
+        AvroSchemaUtil.assembleField("somefield", value, assembler, annotations, avroSettings, eventAdapterService, "stmtname", "default", null);
         Schema schema = assembler.endRecord();
         return schema.getField("somefield").schema();
     }

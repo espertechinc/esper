@@ -25,12 +25,12 @@ import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.util.CollectionUtil;
 
 public class SelectExprProcessorRepresentationFactoryAvro implements SelectExprProcessorRepresentationFactory {
-    public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService) {
-        return new EvalSelectNoWildcardAvro(selectExprContext, resultEventType);
+    public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
+        return new EvalSelectNoWildcardAvro(selectExprContext, resultEventType, statementName, engineURI);
     }
 
-    public SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, EngineImportService engineImportService) throws ExprValidationException {
-        return AvroRecastFactory.make(eventTypes, selectExprContext, streamNumber, insertIntoTargetType, exprNodes, engineImportService);
+    public SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException {
+        return AvroRecastFactory.make(eventTypes, selectExprContext, streamNumber, insertIntoTargetType, exprNodes, statementName, engineURI);
     }
 
     public SelectExprProcessor makeJoinWildcard(String[] streamNames, EventType resultEventType, EventAdapterService eventAdapterService) {

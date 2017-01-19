@@ -1117,10 +1117,10 @@ public class EventTypeUtility {
             }
             else if (representation == EventUnderlyingType.AVRO) {
                 if (isAnonymous) {
-                    eventType = eventAdapterService.createAnonymousAvroType(spec.getSchemaName(), compiledTyping, annotations);
+                    eventType = eventAdapterService.createAnonymousAvroType(spec.getSchemaName(), compiledTyping, annotations, null, null);
                 }
                 else {
-                    eventType = eventAdapterService.addAvroType(spec.getSchemaName(), compiledTyping, false, false, true, false, false, annotations, (ConfigurationEventTypeAvro) config);
+                    eventType = eventAdapterService.addAvroType(spec.getSchemaName(), compiledTyping, false, false, true, false, false, annotations, (ConfigurationEventTypeAvro) config, null, null);
                 }
             }
             else {

@@ -106,6 +106,12 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             catch(Throwable t){
                 log.debug("Avro provider {} not instantiated, not enabling Avro support: {}", EventAdapterAvroHandler.HANDLER_IMPL, t.getMessage());
             }
+            try {
+                avroHandler.init(configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings());
+            }
+            catch(Throwable t){
+                throw new ConfigurationException("Failed to initialize Esper-Avro: " + t.getMessage(), t);
+            }
         }
         EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler, configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings());
         init(eventAdapterService, configSnapshot);
@@ -170,7 +176,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
 
         ThreadingService threadingService = new ThreadingServiceImpl(configSnapshot.getEngineDefaults().getThreading());
 
-        InternalEventRouterImpl internalEventRouterImpl = new InternalEventRouterImpl();
+        InternalEventRouterImpl internalEventRouterImpl = new InternalEventRouterImpl(epServiceProvider.getURI());
 
         StatementIsolationServiceImpl statementIsolationService = new StatementIsolationServiceImpl();
 

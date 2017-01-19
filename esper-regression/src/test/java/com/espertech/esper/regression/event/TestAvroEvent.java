@@ -58,6 +58,7 @@ public class TestAvroEvent extends TestCase {
     }
 
     public void testSampleConfigDocOutputSchema() {
+
         // schema from statement
         String epl = EventRepresentationChoice.AVRO.getAnnotationText() + "select 1 as carId, 'abc' as carType from java.lang.Object";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);

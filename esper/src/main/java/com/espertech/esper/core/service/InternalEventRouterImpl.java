@@ -43,6 +43,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
 {
     private static final Logger log = LoggerFactory.getLogger(InternalEventRouterImpl.class);
 
+    private final String engineURI;
     private final ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>> preprocessors;
     private final Map<UpdateDesc, IRDescEntry> descriptors;
     private boolean hasPreprocessing = false;
@@ -51,8 +52,9 @@ public class InternalEventRouterImpl implements InternalEventRouter
     /**
      * Ctor.
      */
-    public InternalEventRouterImpl()
+    public InternalEventRouterImpl(String engineURI)
     {
+        this.engineURI = engineURI;
         this.preprocessors = new ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>>();
         this.descriptors = new LinkedHashMap<UpdateDesc, IRDescEntry>();
     }
@@ -143,7 +145,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
             }
 
             wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(assignmentPair.getSecond()), assignmentPair.getSecond().getExprEvaluator().getType(),
-                    writableProperty.getPropertyType(), assignmentPair.getFirst(), false, false);
+                    writableProperty.getPropertyType(), assignmentPair.getFirst(), false, null, null, engineURI);
             properties.add(assignmentPair.getFirst());
         }
 

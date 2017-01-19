@@ -51,7 +51,8 @@ public class ResultDeliveryStrategyFactory
      */
     public static ResultDeliveryStrategy create(EPStatement statement, Object subscriber, String methodName,
                                                         Class[] selectClauseTypes,
-                                                        String[] selectClauseColumns)
+                                                        String[] selectClauseColumns,
+                                                String engineURI)
             throws EPSubscriberException
     {
         if (selectClauseTypes == null) {
@@ -334,7 +335,7 @@ public class ResultDeliveryStrategyFactory
         {
             if (checkWidening) {
                 Class[] normalizedParameters = updateMethods.get(subscriptionMethod);
-                convertor = determineWideningDeliveryConvertor(firstParameterIsEPStatement, statement, selectClauseTypes, normalizedParameters, subscriptionMethod);
+                convertor = determineWideningDeliveryConvertor(firstParameterIsEPStatement, statement, selectClauseTypes, normalizedParameters, subscriptionMethod, engineURI);
             }
             else {
                 convertor = firstParameterIsEPStatement ?
@@ -346,10 +347,10 @@ public class ResultDeliveryStrategyFactory
         return new ResultDeliveryStrategyImpl(statement, subscriber, convertor, subscriptionMethod, startMethod, endMethod, rStreamMethod);
     }
 
-    private static DeliveryConvertor determineWideningDeliveryConvertor(boolean firstParameterIsEPStatement, EPStatement statement, Class[] selectClauseTypes, Class[] parameterTypes, Method method) {
+    private static DeliveryConvertor determineWideningDeliveryConvertor(boolean firstParameterIsEPStatement, EPStatement statement, Class[] selectClauseTypes, Class[] parameterTypes, Method method, String engineURI) {
         boolean needWidener = false;
         for (int i = 0; i < selectClauseTypes.length; i++) {
-            TypeWidener optionalWidener = getWidener(i, selectClauseTypes[i], parameterTypes[i], method);
+            TypeWidener optionalWidener = getWidener(i, selectClauseTypes[i], parameterTypes[i], method, statement.getName(), engineURI);
             if (optionalWidener != null) {
                 needWidener = true;
                 break;
@@ -362,14 +363,14 @@ public class ResultDeliveryStrategyFactory
         }
         TypeWidener[] wideners = new TypeWidener[selectClauseTypes.length];
         for (int i = 0; i < selectClauseTypes.length; i++) {
-            wideners[i] = getWidener(i, selectClauseTypes[i], parameterTypes[i], method);
+            wideners[i] = getWidener(i, selectClauseTypes[i], parameterTypes[i], method, statement.getName(), engineURI);
         }
         return firstParameterIsEPStatement ?
                 new DeliveryConvertorWidenerWStatement(wideners, statement) :
                 new DeliveryConvertorWidener(wideners);
     }
 
-    private static TypeWidener getWidener(int columnNum, Class selectClauseType, Class parameterType, Method method) {
+    private static TypeWidener getWidener(int columnNum, Class selectClauseType, Class parameterType, Method method, String statementName, String engineURI) {
         if (selectClauseType == null || parameterType == null) {
             return null;
         }
@@ -377,7 +378,7 @@ public class ResultDeliveryStrategyFactory
             return null;
         }
         try {
-            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false, false);
+            return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false, null, statementName, engineURI);
         }
         catch (ExprValidationException e) {
             throw new EPException("Unexpected exception assigning select clause columns to subscriber method " + method + ": " + e.getMessage(), e);

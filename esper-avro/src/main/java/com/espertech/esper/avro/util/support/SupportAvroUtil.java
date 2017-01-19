@@ -14,7 +14,10 @@ package com.espertech.esper.avro.util.support;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -88,12 +91,25 @@ public class SupportAvroUtil {
     }
 
     public static Schema getAvroSchema(EPServiceProvider epService, String eventTypeName) {
-        return ((AvroEventType) epService.getEPAdministrator().getConfiguration().getEventType(eventTypeName)).getSchemaAvro();
+        return getAvroSchema(epService.getEPAdministrator().getConfiguration().getEventType(eventTypeName));
+    }
+
+    public static AvroEventType makeAvroSupportEventType(Schema schema) {
+        EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, "typename", true, true, true, false, false);
+        return new AvroEventType(metadata, "typename", 1, SupportEventAdapterService.getService(), schema, null, null, null, null);
     }
 
     private static void addSchemaFieldNames(Set<String> names, Schema schema) {
         for (Schema.Field field : schema.getFields()) {
             names.add(field.name());
         }
+    }
+
+    public static Schema getAvroSchema(EventBean event) {
+        return getAvroSchema(event.getEventType());
+    }
+
+    public static Schema getAvroSchema(EventType eventType) {
+        return ((AvroEventType) eventType).getSchemaAvro();
     }
 }

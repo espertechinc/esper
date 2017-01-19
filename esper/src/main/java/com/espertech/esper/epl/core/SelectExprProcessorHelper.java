@@ -62,6 +62,7 @@ public class SelectExprProcessorHelper
     private final SelectExprEventTypeRegistry selectExprEventTypeRegistry;
     private final EngineImportService engineImportService;
     private final int statementId;
+    private final String statementName;
     private final Annotation[] annotations;
     private final ConfigurationInformation configuration;
     private final NamedWindowMgmtService namedWindowMgmtService;
@@ -80,6 +81,7 @@ public class SelectExprProcessorHelper
                                      SelectExprEventTypeRegistry selectExprEventTypeRegistry,
                                      EngineImportService engineImportService,
                                      int statementId,
+                                     String statementName,
                                      Annotation[] annotations,
                                      ConfigurationInformation configuration,
                                      NamedWindowMgmtService namedWindowMgmtService,
@@ -98,6 +100,7 @@ public class SelectExprProcessorHelper
         this.selectExprEventTypeRegistry = selectExprEventTypeRegistry;
         this.engineImportService = engineImportService;
         this.statementId = statementId;
+        this.statementName = statementName;
         this.annotations = annotations;
         this.configuration = configuration;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -157,7 +160,7 @@ public class SelectExprProcessorHelper
         SelectExprProcessor joinWildcardProcessor = null;
         if(typeService.getStreamNames().length > 1 && isUsingWildcard)
         {
-            joinWildcardProcessor = SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, null, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService);
+            joinWildcardProcessor = SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, null, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
         }
 
         // Resolve underlying event type in the case of wildcard select
@@ -550,7 +553,7 @@ public class SelectExprProcessorHelper
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
             }
             else if (representation == EventUnderlyingType.AVRO) {
-                resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, annotations);
+                resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, annotations, statementName, typeService.getEngineURIQualifier());
             }
             else {
                 resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
@@ -564,7 +567,7 @@ public class SelectExprProcessorHelper
                     return new EvalSelectNoWildcardObjectArray(selectExprContext, resultEventType);
                 }
                 else if (representation == EventUnderlyingType.AVRO) {
-                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService);
+                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService, statementName, typeService.getEngineURIQualifier());
                 }
                 return new EvalSelectNoWildcardMap(selectExprContext, resultEventType);
             }
@@ -622,17 +625,17 @@ public class SelectExprProcessorHelper
                 {
                     // recast as a Map-type
                     if (underlyingEventType instanceof MapEventType && insertIntoTargetType instanceof MapEventType) {
-                        return EvalSelectStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService);
+                        return EvalSelectStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService, statementName, typeService.getEngineURIQualifier());
                     }
 
                     // recast as a Object-array-type
                     if (underlyingEventType instanceof ObjectArrayEventType && insertIntoTargetType instanceof ObjectArrayEventType) {
-                        return EvalSelectStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService);
+                        return EvalSelectStreamWUndRecastObjectArrayFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService, statementName, typeService.getEngineURIQualifier());
                     }
 
                     // recast as a Avro-type
                     if (underlyingEventType instanceof AvroSchemaEventType && insertIntoTargetType instanceof AvroSchemaEventType) {
-                        return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeRecast(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), (AvroSchemaEventType) insertIntoTargetType, exprNodes, engineImportService);
+                        return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeRecast(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), (AvroSchemaEventType) insertIntoTargetType, exprNodes, statementName, typeService.getEngineURIQualifier());
                     }
 
                     // recast as a Bean-type
@@ -722,7 +725,7 @@ public class SelectExprProcessorHelper
                         }
 
                         // handle insert-into by generating the writer with possible additional properties
-                        SelectExprProcessor existingTypeProcessor = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, insertIntoTargetType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, true);
+                        SelectExprProcessor existingTypeProcessor = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, insertIntoTargetType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, true, statementName);
                         if (existingTypeProcessor != null) {
                             return existingTypeProcessor;
                         }
@@ -879,7 +882,7 @@ public class SelectExprProcessorHelper
 
                     SelectExprProcessor selectExprInsertEventBean = null;
                     if (existingType != null) {
-                        selectExprInsertEventBean = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, existingType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, false);
+                        selectExprInsertEventBean = SelectExprInsertEventBeanFactory.getInsertUnderlyingNonJoin(eventAdapterService, existingType, isUsingWildcard, typeService, exprEvaluators, columnNames, expressionReturnTypes, engineImportService, insertIntoDesc, columnNamesAsProvided, false, statementName);
                     }
                     if (selectExprInsertEventBean != null) {
                         return selectExprInsertEventBean;
@@ -903,7 +906,7 @@ public class SelectExprProcessorHelper
                                 resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true, false, null);
                             }
                             else if (out == EventUnderlyingType.AVRO) {
-                                resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selPropertyTypes, false, false, false, false, true, annotations, null);
+                                resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selPropertyTypes, false, false, false, false, true, annotations, null, statementName, typeService.getEngineURIQualifier());
                             }
                             else {
                                 throw new IllegalStateException("Unrecognized code " + out);
@@ -925,10 +928,10 @@ public class SelectExprProcessorHelper
                     return new EvalInsertNoWildcardMap(selectExprContext, resultEventType);
                 }
                 else if (resultEventType instanceof ObjectArrayEventType) {
-                    return makeObjectArrayConsiderReorder(selectExprContext, (ObjectArrayEventType) resultEventType);
+                    return makeObjectArrayConsiderReorder(selectExprContext, (ObjectArrayEventType) resultEventType, statementName, typeService.getEngineURIQualifier());
                 }
                 else if (resultEventType instanceof AvroSchemaEventType) {
-                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService);
+                    return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService, statementName, typeService.getEngineURIQualifier());
                 }
                 else {
                     throw new IllegalStateException("Unrecognized output type " + resultEventType);
@@ -966,7 +969,7 @@ public class SelectExprProcessorHelper
         return false;
     }
 
-    private SelectExprProcessor makeObjectArrayConsiderReorder(SelectExprContext selectExprContext, ObjectArrayEventType resultEventType)
+    private SelectExprProcessor makeObjectArrayConsiderReorder(SelectExprContext selectExprContext, ObjectArrayEventType resultEventType, String statementName, String engineURI)
             throws ExprValidationException
     {
         TypeWidener[] wideners = new TypeWidener[selectExprContext.getColumnNames().length];
@@ -984,7 +987,7 @@ public class SelectExprProcessorHelper
             }
             Class sourceColumnType = selectExprContext.getExpressionNodes()[i].getType();
             Class targetPropType = resultEventType.getPropertyType(colName);
-            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName, false, resultEventType instanceof AvroSchemaEventType);
+            wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(colName, sourceColumnType, targetPropType, colName, false, eventAdapterService.getTypeWidenerCustomizer(resultEventType), statementName, engineURI);
         }
 
         if (!needRemap) {
@@ -1228,12 +1231,13 @@ public class SelectExprProcessorHelper
 
         // determine widening and column type compatibility
         final TypeWidener[] wideners = new TypeWidener[written.size()];
+        TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(targetType);
         for (int i = 0; i < written.size(); i++) {
             Class expected = written.get(i).getType();
             Map.Entry<String, Object> provided = writtenOffered.get(i);
             if (provided.getValue() instanceof Class) {
                 wideners[i] = TypeWidenerFactory.getCheckPropertyAssignType(provided.getKey(), (Class) provided.getValue(),
-                        expected, written.get(i).getPropertyName(), false, targetType instanceof AvroSchemaEventType);
+                        expected, written.get(i).getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
             }
         }
         final boolean hasWideners = !CollectionUtil.isAllNullArray(wideners);

@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class EvalSelectStreamWUndRecastMapFactory {
 
-    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService)
+    public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService, String statementName, String engineURI)
             throws ExprValidationException
     {
         MapEventType mapResultType = (MapEventType) targetType;
@@ -75,7 +75,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
             }
 
             TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode), exprNode.getExprEvaluator().getType(),
-                    writable.getType(), columnName, false, false);
+                    writable.getType(), columnName, false, null, statementName, engineURI);
             items.add(new Item(count, null, evaluator, widener));
             written.add(writable);
             count++;

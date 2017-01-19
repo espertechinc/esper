@@ -26,6 +26,7 @@ import com.espertech.esper.event.map.MapEventBean;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.xml.*;
 import com.espertech.esper.plugin.*;
+import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -817,12 +818,12 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return anonymousTypeCache.addReturnExistingAnonymousType(oaEventType);
     }
 
-    public final EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations) throws EventAdapterException
+    public final EventType createAnonymousAvroType(String typeName, Map<String, Object> properties, Annotation[] annotations, String statementName, String engineURI) throws EventAdapterException
     {
         String assignedTypeName = EventAdapterService.ANONYMOUS_TYPE_NAME_PREFIX + typeName;
         EventTypeMetadata metadata = EventTypeMetadata.createAnonymous(assignedTypeName, EventTypeMetadata.ApplicationType.AVRO);
         int typeId = eventTypeIdGenerator.getTypeId(assignedTypeName);
-        EventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, assignedTypeName, typeId, this, properties, annotations, avroSettings, null, null, null);
+        EventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, assignedTypeName, typeId, this, properties, annotations, null, null, null, statementName, engineURI);
         return anonymousTypeCache.addReturnExistingAnonymousType(newEventType);
     }
 
@@ -1002,12 +1003,12 @@ public class EventAdapterServiceImpl implements EventAdapterService
         return newEventType;
     }
 
-    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config) throws EventAdapterException {
+    public EventType addAvroType(String eventTypeName, Map<String, Object> types, boolean isPreconfiguredStatic, boolean isPreconfigured, boolean isConfigured, boolean isNamedWindow, boolean isInsertInto, Annotation[] annotations, ConfigurationEventTypeAvro config, String statementName, String engineURI) throws EventAdapterException {
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.AVRO, eventTypeName, isPreconfiguredStatic, isPreconfigured, isConfigured, isNamedWindow, isInsertInto);
 
         int typeId = eventTypeIdGenerator.getTypeId(eventTypeName);
         Pair<EventType[], Set<EventType>> avroSuperTypes = getSuperTypesDepthFirst(config != null ? config.getSuperTypes() : null, EventUnderlyingType.AVRO);
-        AvroSchemaEventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, eventTypeName, typeId, this, types, annotations, avroSettings, config, avroSuperTypes.getFirst(), avroSuperTypes.getSecond());
+        AvroSchemaEventType newEventType = avroHandler.newEventTypeFromNormalized(metadata, eventTypeName, typeId, this, types, annotations, config, avroSuperTypes.getFirst(), avroSuperTypes.getSecond(), statementName, engineURI);
 
         EventType existingType = nameToTypeMap.get(eventTypeName);
         if (existingType != null) {
@@ -1034,5 +1035,9 @@ public class EventAdapterServiceImpl implements EventAdapterService
 
     public EventAdapterAvroHandler getEventAdapterAvroHandler() {
         return avroHandler;
+    }
+
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType resultEventType) {
+        return resultEventType instanceof AvroSchemaEventType ? avroHandler.getTypeWidenerCustomizer(resultEventType) : null;
     }
 }
