@@ -9,7 +9,7 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.core;
+package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;

@@ -12,8 +12,7 @@
 package com.espertech.esper.event.avro;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.util.TypeWidenerCustomizer;

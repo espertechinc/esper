@@ -15,7 +15,7 @@ import com.espertech.esper.avro.selectexprrep.SelectExprProcessorRepresentationF
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.client.hook.TypeRepresentationMapper;
-import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
+import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.avro.AvroSchemaEventType;

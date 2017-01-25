@@ -13,8 +13,7 @@ package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.avro.writer.AvroRecastFactory;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.SelectExprProcessorRepresentationFactory;
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -22,7 +21,6 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
-import com.espertech.esper.util.CollectionUtil;
 
 public class SelectExprProcessorRepresentationFactoryAvro implements SelectExprProcessorRepresentationFactory {
     public SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException {
