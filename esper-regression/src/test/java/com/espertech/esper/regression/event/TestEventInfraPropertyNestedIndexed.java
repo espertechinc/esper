@@ -17,13 +17,19 @@ import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportXML;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
+import org.w3c.dom.Node;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -129,16 +135,18 @@ public class TestEventInfraPropertyNestedIndexed extends TestCase  {
     }
 
     public void testNested() {
-        runAssertion(BEAN_TYPENAME, FBEAN);
-        runAssertion(MAP_TYPENAME, FMAP);
-        runAssertion(OA_TYPENAME, FOA);
-        runAssertion(XML_TYPENAME, FXML);
-        runAssertion(AVRO_TYPENAME, FAVRO);
+        runAssertion(BEAN_TYPENAME, FBEAN, InfraNestedIndexedPropLvl1.class, InfraNestedIndexedPropLvl1.class.getName());
+        runAssertion(MAP_TYPENAME, FMAP, Map.class, MAP_TYPENAME + "_1");
+        runAssertion(OA_TYPENAME, FOA, Object[].class, OA_TYPENAME + "_1");
+        runAssertion(XML_TYPENAME, FXML, Node.class, "MyXMLEvent.l1");
+        runAssertion(AVRO_TYPENAME, FAVRO, GenericData.Record.class, AVRO_TYPENAME + "_1");
     }
 
-    private void runAssertion(String typename, FunctionSendEvent4Int send) {
+    private void runAssertion(String typename, FunctionSendEvent4Int send, Class nestedClass, String fragmentTypeName) {
         runAssertionSelectNested(typename, send);
         runAssertionBeanNav(typename, send);
+        runAssertionTypeValidProp(typename, send, nestedClass, fragmentTypeName);
+        runAssertionTypeInvalidProp(typename);
     }
 
     private void runAssertionBeanNav(String typename, FunctionSendEvent4Int send) {
@@ -154,6 +162,8 @@ public class TestEventInfraPropertyNestedIndexed extends TestCase  {
         boolean isNative = typename.equals(BEAN_TYPENAME);
         SupportEventTypeAssertionUtil.assertFragments(event, isNative, true, "l1,l1[0].l2,l1[0].l2[0].l3,l1[0].l2[0].l3[0].l4");
         SupportEventTypeAssertionUtil.assertFragments(event, isNative, false, "l1[0],l1[0].l2[0],l1[0].l2[0].l3[0],l1[0].l2[0].l3[0].l4[0]");
+
+        runAssertionEventInvalidProp(event);
 
         statement.destroy();
     }
@@ -284,6 +294,55 @@ public class TestEventInfraPropertyNestedIndexed extends TestCase  {
                 .requiredInt("lvl1")
                 .endRecord();
         return SchemaBuilder.record(AVRO_TYPENAME).fields().name("l1").type(array().items(s1)).noDefault().endRecord();
+    }
+
+    private void runAssertionEventInvalidProp(EventBean event) {
+        for (String prop : Arrays.asList("l2", "l2[0]", "l1[0].l3", "l1[0].l2[0].l3[0].x")) {
+            SupportMessageAssertUtil.tryInvalidProperty(event, prop);
+            SupportMessageAssertUtil.tryInvalidGetFragment(event, prop);
+        }
+    }
+
+    private void runAssertionTypeValidProp(String typeName, FunctionSendEvent4Int send, Class nestedClass, String fragmentTypeName) {
+        EventType eventType = epService.getEPAdministrator().getConfiguration().getEventType(typeName);
+
+        Class arrayType = nestedClass == Object[].class ? nestedClass : JavaClassHelper.getArrayType(nestedClass);
+        arrayType = arrayType == GenericData.Record[].class ? Collection.class : arrayType;
+        Object[][] expectedType = new Object[][]{{"l1", arrayType, fragmentTypeName, true}};
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
+
+        EPAssertionUtil.assertEqualsAnyOrder(new String[] {"l1"}, eventType.getPropertyNames());
+
+        for (String prop : Arrays.asList("l1[0]", "l1[0].lvl1", "l1[0].l2", "l1[0].l2[0]", "l1[0].l2[0].lvl2")) {
+            assertNotNull(eventType.getGetter(prop));
+            assertTrue(eventType.isProperty(prop));
+        }
+
+        assertEquals(arrayType, eventType.getPropertyType("l1"));
+        for (String prop : Arrays.asList("l1[0].lvl1", "l1[0].l2[0].lvl2", "l1[0].l2[0].l3[0].lvl3")) {
+            assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(prop)));
+        }
+
+        FragmentEventType lvl1Fragment = eventType.getFragmentType("l1");
+        assertTrue(lvl1Fragment.isIndexed());
+        assertEquals(send == FBEAN, lvl1Fragment.isNative());
+        assertEquals(fragmentTypeName, lvl1Fragment.getFragmentType().getName());
+
+        FragmentEventType lvl2Fragment = eventType.getFragmentType("l1[0].l2");
+        assertTrue(lvl2Fragment.isIndexed());
+        assertEquals(send == FBEAN, lvl2Fragment.isNative());
+
+        assertEquals(new EventPropertyDescriptor("l1", arrayType, nestedClass, false, false, true, false, true), eventType.getPropertyDescriptor("l1"));
+    }
+
+    private void runAssertionTypeInvalidProp(String typeName) {
+        EventType eventType = epService.getEPAdministrator().getConfiguration().getEventType(typeName);
+
+        for (String prop : Arrays.asList("l2[0]", "l1[0].l3", "l1[0].lvl1.lvl1", "l1[0].l2.l4", "l1[0].l2[0].xx", "l1[0].l2[0].l3[0].lvl5")) {
+            assertEquals(false, eventType.isProperty(prop));
+            assertEquals(null, eventType.getPropertyType(prop));
+            assertNull(eventType.getPropertyDescriptor(prop));
+        }
     }
 
     @FunctionalInterface

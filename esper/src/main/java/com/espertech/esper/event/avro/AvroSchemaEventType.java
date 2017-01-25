@@ -14,5 +14,5 @@ package com.espertech.esper.event.avro;
 import com.espertech.esper.client.EventType;
 
 public interface AvroSchemaEventType extends EventType {
-    public Object getSchema();
+    Object getSchema();
 }

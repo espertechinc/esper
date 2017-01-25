@@ -671,7 +671,7 @@ public class SelectExprProcessorHelper
                             return new EvalSelectStreamNoUndWEventBeanToObj(selectExprContext, resultEventType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
                     }
-                    else {
+                    else if (insertIntoTargetType instanceof ObjectArrayEventType){
                         Set<String> propertiesToUnwrap = getEventBeanToObjectProps(selPropertyTypes, insertIntoTargetType);
                         if (propertiesToUnwrap.isEmpty()) {
                             return new EvalSelectStreamNoUnderlyingObjectArray(selectExprContext, insertIntoTargetType, namedStreams, isUsingWildcard);
@@ -679,6 +679,12 @@ public class SelectExprProcessorHelper
                         else {
                             return new EvalSelectStreamNoUndWEventBeanToObjObjArray(selectExprContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
+                    }
+                    else if (insertIntoTargetType instanceof AvroSchemaEventType){
+                        throw new ExprValidationException("Avro event type does not allow contained beans");
+                    }
+                    else {
+                        throw new IllegalStateException("Unrecognized event type " + insertIntoTargetType);
                     }
                 }
             }
@@ -836,17 +842,24 @@ public class SelectExprProcessorHelper
                     }
                 }
                 else {
-                    if (resultEventType instanceof MapEventType) {
-                        return new EvalInsertNoWildcardSingleColCoercionRevisionMap(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
-                    }
-                    else if (resultEventType instanceof ObjectArrayEventType) {
-                        return new EvalInsertNoWildcardSingleColCoercionRevisionObjectArray(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
-                    }
-                    else if (resultEventType instanceof BeanEventType) {
+                    if (resultEventType instanceof BeanEventType) {
                         return new EvalInsertNoWildcardSingleColCoercionRevisionBean(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
                     }
                     else {
-                        return new EvalInsertNoWildcardSingleColCoercionRevisionBeanWrap(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
+                        TriFunction<EventAdapterService, Object, EventType, EventBean> func;
+                        if (resultEventType instanceof MapEventType) {
+                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedMap((Map) und, type);
+                        }
+                        else if (resultEventType instanceof ObjectArrayEventType) {
+                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedObjectArray((Object[]) und, type);
+                        }
+                        else if (resultEventType instanceof AvroSchemaEventType) {
+                            func = EventAdapterService::adapterForTypedAvro;
+                        }
+                        else {
+                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForBean(und);
+                        }
+                        return new EvalInsertNoWildcardSingleColCoercionRevisionFunc(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType, func);
                     }
                 }
             }

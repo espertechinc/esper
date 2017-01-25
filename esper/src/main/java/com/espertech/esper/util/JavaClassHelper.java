@@ -631,6 +631,10 @@ public class JavaClassHelper
         {
             return true;
         }
+        if (clazzBoxed.equals(CharSequence.class))
+        {
+            return true;
+        }
         if ((clazzBoxed.equals(char.class)) ||
             (clazzBoxed.equals(Character.class)))
         {

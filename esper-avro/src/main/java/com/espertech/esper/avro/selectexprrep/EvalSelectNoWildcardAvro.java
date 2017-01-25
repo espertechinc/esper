@@ -113,7 +113,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
             record.put(columnNames[i], evalResult);
         }
 
-        return new AvroGenericDataEventBean(record, resultEventType);
+        return selectExprContext.getEventAdapterService().adapterForTypedAvro(record, resultEventType);
     }
 
     public EventType getResultEventType()

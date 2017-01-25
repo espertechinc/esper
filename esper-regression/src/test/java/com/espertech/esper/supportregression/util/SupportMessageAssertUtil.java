@@ -11,9 +11,8 @@
 
 package com.espertech.esper.supportregression.util;
 
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EPStatementException;
+import com.espertech.esper.client.*;
+import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Assert;
@@ -56,13 +55,13 @@ public class SupportMessageAssertUtil {
             return; // skip message validation
         }
         if (message.length() > 10) {
-            log.error("Exception: " + ex.getMessage(), ex);
+            // Comment-in for logging: log.error("Exception: " + ex.getMessage(), ex);
             if (!ex.getMessage().startsWith(message)) {
                 Assert.fail("\nExpected:" + message + "\nReceived:" + ex.getMessage());
             }
         }
         else {
-            log.error("Exception: " + ex.getMessage(), ex);
+            // Comment-in for logging: log.error("Exception: " + ex.getMessage(), ex);
             Assert.fail("No assertion provided, received: " + ex.getMessage());
         }
     }
@@ -77,5 +76,27 @@ public class SupportMessageAssertUtil {
             assertMessage(ex, message);
         }
         stmt.destroy();
+    }
+
+    public static void tryInvalidProperty(EventBean event, String propertyName) {
+        try {
+            event.get(propertyName);
+            Assert.fail();
+        }
+        catch (PropertyAccessException ex) {
+            // expected
+            assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");
+        }
+    }
+
+    public static void tryInvalidGetFragment(EventBean event, String propertyName) {
+        try {
+            event.getFragment(propertyName);
+            Assert.fail();
+        }
+        catch (PropertyAccessException ex) {
+            // expected
+            assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");
+        }
     }
 }

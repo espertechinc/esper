@@ -52,6 +52,9 @@ public class AvroFieldUtil {
         for (int index = 0; index < nested.getProperties().size(); index++) {
             Property levelProperty = nested.getProperties().get(index);
             if (levelProperty instanceof SimpleProperty) {
+                if (current.getType() != Schema.Type.RECORD) {
+                    return null;
+                }
                 currentField = current.getField(levelProperty.getPropertyNameAtomic());
                 if (currentField == null) {
                     return null;
@@ -59,6 +62,9 @@ public class AvroFieldUtil {
                 current = currentField.schema();
             }
             else if (levelProperty instanceof IndexedProperty) {
+                if (current.getType() != Schema.Type.RECORD) {
+                    return null;
+                }
                 currentField = current.getField(levelProperty.getPropertyNameAtomic());
                 if (currentField == null || currentField.schema().getType() != Schema.Type.ARRAY) {
                     return null;
@@ -66,6 +72,9 @@ public class AvroFieldUtil {
                 current = currentField.schema().getElementType();
             }
             else if (levelProperty instanceof MappedProperty){
+                if (current.getType() != Schema.Type.RECORD) {
+                    return null;
+                }
                 currentField = current.getField(levelProperty.getPropertyNameAtomic());
                 if (currentField == null || currentField.schema().getType() != Schema.Type.MAP) {
                     return null;

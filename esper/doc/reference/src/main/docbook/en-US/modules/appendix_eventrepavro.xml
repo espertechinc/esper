@@ -108,6 +108,36 @@ epService.getEPRuntime().sendEventAvro(event, "CarLocUpdateEvent");]]></programl
 		</para>
 	</sect1>
 	
+	<sect1 xml:id="appendix_eventrepavro_schemanamerequirement">
+	   <title>Avro Schema Name Requirement</title>
+		<para>
+			Avro schemas can contain further Avro schemas. The engine tracks nested schema based on the schema name. The engine implicitly registers an event type for each schema using the schema name, for nested simple and indexed properties.
+			Therefore the engine requires schema names to match the initially-registered schema of the same name. 
+		</para>
+		<para>
+			For example, the schema:
+		</para>
+		<programlisting><![CDATA[{
+  "type" : "record",
+  "name" : "MyEvent",
+  "fields" : [ {
+    "name" : "nested",
+    "type" : {
+      "type" : "record",
+      "name" : "MyNestedEvent",
+      "fields" : [ {
+        "name" : "value",
+        "type" : "int"
+      } ]
+    }
+  } ]
+}]]></programlisting>
+
+		<para>
+			For the above schema, upon registration of the schema as an event type, the engine creates an event type <literal>MyNestedEvent</literal> and associates it to the <literal>MyNestedEvent</literal> schema.
+		</para>
+	</sect1>
+
 	<sect1 xml:id="appendix_eventrepavro_schematoprop">
 	   <title>Avro Field Schema to Property Type Mapping</title>
 	   
@@ -571,7 +601,7 @@ create avro schema MyEvent(ldt as java.time.LocalDateTime)</programlisting>
 			To obtain the Avro schema for a given event type, use:
 		</para>
 		<programlisting><![CDATA[public static Schema getAvroSchema(EventType eventType) {
-  return ((AvroEventType) eventType).getSchemaAvro();
+  return (Schema) ((AvroSchemaEventType) eventType).getSchema();
 }]]></programlisting>
 
 		<para>
@@ -592,7 +622,7 @@ create avro schema MyEvent(ldt as java.time.LocalDateTime)</programlisting>
 			To obtain the <literal>GenericData.Record</literal> for a given event, you may use:
 		</para>
 		<programlisting><![CDATA[public static Schema getAvroRecord(EventBean event) {
-  return (GenericData.Record) event.getunderlying());
+  return (GenericData.Record) event.getUnderlying();
 }]]></programlisting>
 	</sect1>
 

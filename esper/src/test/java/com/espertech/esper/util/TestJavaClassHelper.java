@@ -633,7 +633,7 @@ public class TestJavaClassHelper extends TestCase
     public void testIsJavaBuiltinDataType()
     {
         Class[] classesDataType = new Class[] {int.class, Long.class, double.class, boolean.class, Boolean.class,
-                char.class, Character.class, String.class};
+                char.class, Character.class, String.class, CharSequence.class};
         Class[] classesNotDataType = new Class[] {SupportBean.class, Math.class, Class.class, Object.class};
 
         for (int i = 0; i < classesDataType.length; i++)

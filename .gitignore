@@ -23,3 +23,6 @@
 /intellij
 
 /esperio-kafka/lib/*.jar
+/install.cmd
+/target/esper-parent-6.0.0.jar
+/target/maven-archiver/pom.properties

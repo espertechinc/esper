@@ -14,21 +14,23 @@ package com.espertech.esper.regression.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import com.espertech.esper.collection.Pair;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBeanSimple;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.event.SupportXML;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_KEY;
 import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
@@ -100,19 +102,21 @@ public class TestEventInfraPropertyUnderlyingAndSimple extends TestCase {
     }
 
     public void testPassUnderlyingGetViaPropertyExpression() {
-        runAssertionPassUnderlying(MAP_TYPENAME, FMAP);
-        runAssertionPassUnderlying(OA_TYPENAME, FOA);
-        runAssertionPassUnderlying(BEAN_TYPENAME, FBEAN);
-        runAssertionPassUnderlying(XML_TYPENAME, FXML);
-        runAssertionPassUnderlying(AVRO_TYPENAME, FAVRO);
-    }
 
-    public void testPropertiesWGetter() {
-        runAssertionPropertiesWGetter(MAP_TYPENAME, FMAP);
-        runAssertionPropertiesWGetter(OA_TYPENAME, FOA);
-        runAssertionPropertiesWGetter(BEAN_TYPENAME, FBEAN);
-        runAssertionPropertiesWGetter(XML_TYPENAME, FXML);
-        runAssertionPropertiesWGetter(AVRO_TYPENAME, FAVRO);
+        Pair<String, FunctionSendEventIntString>[] pairs = new Pair[]{
+                new Pair<>(MAP_TYPENAME, FMAP),
+                new Pair<>(OA_TYPENAME, FOA),
+                new Pair<>(BEAN_TYPENAME, FBEAN),
+                new Pair<>(XML_TYPENAME, FXML),
+                new Pair<>(AVRO_TYPENAME, FAVRO)
+        };
+
+        for (Pair<String, FunctionSendEventIntString> pair : pairs) {
+            runAssertionPassUnderlying(pair.getFirst(), pair.getSecond());
+            runAssertionPropertiesWGetter(pair.getFirst(), pair.getSecond());
+            runAssertionTypeValidProp(pair.getFirst(), (pair.getSecond() == FMAP || pair.getSecond() == FXML || pair.getSecond() == FOA));
+            runAssertionTypeInvalidProp(pair.getFirst(), pair.getSecond() == FXML);
+        }
     }
 
     private void runAssertionPassUnderlying(String typename, FunctionSendEventIntString send) {
@@ -155,6 +159,7 @@ public class TestEventInfraPropertyUnderlyingAndSimple extends TestCase {
         send.apply(epService, 3, "some string");
 
         EventBean event = listener.assertOneGetNewAndReset();
+        runAssertionEventInvalidProp(event);
         EPAssertionUtil.assertProps(event, fields, new Object[] {3, true, "some string", true});
 
         send.apply(epService, 4, "other string");
@@ -162,6 +167,47 @@ public class TestEventInfraPropertyUnderlyingAndSimple extends TestCase {
         EPAssertionUtil.assertProps(event, fields, new Object[] {4, true, "other string", true});
 
         statement.destroy();
+    }
+
+    private void runAssertionEventInvalidProp(EventBean event) {
+        for (String prop : Arrays.asList("xxxx", "myString[1]", "myString('a')", "x.y", "myString.x")) {
+            SupportMessageAssertUtil.tryInvalidProperty(event, prop);
+            SupportMessageAssertUtil.tryInvalidGetFragment(event, prop);
+        }
+    }
+
+    private void runAssertionTypeValidProp(String typeName, boolean boxed) {
+        EventType eventType = epService.getEPAdministrator().getConfiguration().getEventType(typeName);
+
+        Object[][] expectedType = new Object[][]{{"myInt", boxed ? Integer.class : int.class, null, null}, {"myString", String.class, null, null}};
+        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
+
+        EPAssertionUtil.assertEqualsAnyOrder(new String[] {"myString", "myInt"}, eventType.getPropertyNames());
+
+        assertNotNull(eventType.getGetter("myInt"));
+        assertTrue(eventType.isProperty("myInt"));
+        assertEquals(boxed ? Integer.class : int.class, eventType.getPropertyType("myInt"));
+        assertEquals(new EventPropertyDescriptor("myString", String.class, null, false, false, false, false, false), eventType.getPropertyDescriptor("myString"));
+    }
+
+    private void runAssertionTypeInvalidProp(String typeName, boolean xml) {
+        EventType eventType = epService.getEPAdministrator().getConfiguration().getEventType(typeName);
+
+        for (String prop : Arrays.asList("xxxx", "myString[0]", "myString('a')", "myString.x", "myString.x.y", "myString.x")) {
+            assertEquals(false, eventType.isProperty(prop));
+            Class expected = null;
+            if (xml) {
+                if (prop.equals("myString[0]")) {
+                    expected = String.class;
+                }
+                if (prop.equals("myString.x?")) {
+                    expected = Node.class;
+                }
+            }
+            assertEquals(expected, eventType.getPropertyType(prop));
+            assertNull(eventType.getPropertyDescriptor(prop));
+            assertNull(eventType.getFragmentType(prop));
+        }
     }
 
     private void addMapEventType(Configuration configuration) {

@@ -203,6 +203,9 @@ public class AvroPropertyUtil {
             int count = 0;
             int[] path = new int[nested.getProperties().size()];
             for (Property levelProperty : nested.getProperties()) {
+                if (currentSchema.getType() != Schema.Type.RECORD) {
+                    return null;
+                }
                 Schema.Field fieldNested = currentSchema.getField(levelProperty.getPropertyNameAtomic());
                 if (fieldNested == null) {
                     return null;
@@ -252,6 +255,9 @@ public class AvroPropertyUtil {
                 currentSchema = fieldMapped.schema();
             }
             else if (levelProperty instanceof DynamicSimpleProperty) {
+                if (currentSchema.getType() != Schema.Type.RECORD) {
+                    return null;
+                }
                 Schema.Field fieldDynamic = currentSchema.getField(levelProperty.getPropertyNameAtomic());
                 getters[count] = new AvroEventBeanGetterSimpleDynamic(levelProperty.getPropertyNameAtomic());
                 if (fieldDynamic.schema().getType() == Schema.Type.RECORD) {

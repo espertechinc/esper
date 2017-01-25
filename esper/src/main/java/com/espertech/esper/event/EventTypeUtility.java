@@ -13,15 +13,19 @@ package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.util.EventUnderlyingType;
+import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.epl.spec.ColumnDesc;
 import com.espertech.esper.epl.spec.CreateSchemaDesc;
+import com.espertech.esper.event.arr.ObjectArrayEventType;
+import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
+import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.EventRepresentationUtil;
 import com.espertech.esper.util.JavaClassHelper;
@@ -35,6 +39,56 @@ import java.util.*;
 public class EventTypeUtility {
 
     private static final Logger log = LoggerFactory.getLogger(EventTypeUtility.class);
+
+    public static Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(ConfigurationEventTypeWithSupertype optionalConfig, EventUnderlyingType representation, Map<String, ? extends EventType> nameToTypeMap) {
+        return getSuperTypesDepthFirst(optionalConfig == null ? null : optionalConfig.getSuperTypes(), representation, nameToTypeMap);
+    }
+
+    public static Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(Set<String> superTypesSet, EventUnderlyingType representation, Map<String, ? extends EventType> nameToTypeMap)
+            throws EventAdapterException
+    {
+        if (superTypesSet == null || superTypesSet.isEmpty()) {
+            return new Pair<>(null,null);
+        }
+
+        EventType[] superTypes = new EventType[superTypesSet.size()];
+        Set<EventType> deepSuperTypes = new LinkedHashSet<>();
+
+        int count = 0;
+        for (String superName : superTypesSet)
+        {
+            EventType type = nameToTypeMap.get(superName);
+            if (type == null) {
+                throw new EventAdapterException("Supertype by name '" + superName + "' could not be found");
+            }
+            if (representation == EventUnderlyingType.MAP) {
+                if (!(type instanceof MapEventType)) {
+                    throw new EventAdapterException("Supertype by name '" + superName + "' is not a Map, expected a Map event type as a supertype");
+                }
+            }
+            else if (representation == EventUnderlyingType.OBJECTARRAY) {
+                if (!(type instanceof ObjectArrayEventType)) {
+                    throw new EventAdapterException("Supertype by name '" + superName + "' is not an Object-array type, expected a Object-array event type as a supertype");
+                }
+            }
+            else if (representation == EventUnderlyingType.AVRO) {
+                if (!(type instanceof AvroSchemaEventType)) {
+                    throw new EventAdapterException("Supertype by name '" + superName + "' is not an Avro type, expected a Avro event type as a supertype");
+                }
+            }
+            else {
+                throw new IllegalStateException("Unrecognized enum " + representation);
+            }
+            superTypes[count++] = type;
+            deepSuperTypes.add(type);
+            addRecursiveSupertypes(deepSuperTypes, type);
+        }
+
+        List<EventType> superTypesListDepthFirst = new ArrayList<>(deepSuperTypes);
+        Collections.reverse(superTypesListDepthFirst);
+
+        return new Pair<>(superTypes,new LinkedHashSet<>(superTypesListDepthFirst));
+    }
 
     public static EventPropertyDescriptor getNestablePropertyDescriptor(EventType target, String propertyName) {
         EventPropertyDescriptor descriptor = target.getPropertyDescriptor(propertyName);
@@ -288,6 +342,21 @@ public class EventTypeUtility {
         return name.trim().endsWith("[]");
     }
 
+    public static boolean isTypeOrSubTypeOf(String typeName, EventType sameTypeOrSubtype) {
+        if (sameTypeOrSubtype.getName().equals(typeName)) {
+            return true;
+        }
+        if (sameTypeOrSubtype.getSuperTypes() == null) {
+            return false;
+        }
+        for (EventType superType : sameTypeOrSubtype.getSuperTypes()) {
+            if (superType.getName().equals(typeName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns the property name without the array type extension, if present.
      * @param name property name
@@ -461,8 +530,10 @@ public class EventTypeUtility {
                 }
 
                 Class underlyingType = eventType.getUnderlyingType();
+                Class propertyComponentType = null;
                 if (isArray)
                 {
+                    propertyComponentType = underlyingType;
                     if (underlyingType != Object[].class) {
                         underlyingType = Array.newInstance(underlyingType, 0).getClass();
                     }
@@ -476,7 +547,7 @@ public class EventTypeUtility {
                 {
                     getter = factory.getGetterBeanNestedArray(name, eventType, eventAdapterService);
                 }
-                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, null, false, false, isArray, false, true);
+                EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, propertyComponentType, false, false, isArray, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, isArray, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, underlyingType, getter, fragmentEventType);
                 propertyNameList.add(name);
@@ -869,7 +940,11 @@ public class EventTypeUtility {
                     }
                     else
                     {
-                        typeGetter = factory.getGetterNestedEntryBeanArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), innerType.getGetter(propertyNested), innerType, eventAdapterService);
+                        EventPropertyGetter innerGetter = innerType.getGetter(propertyNested);
+                        if (innerGetter == null) {
+                            return null;
+                        }
+                        typeGetter = factory.getGetterNestedEntryBeanArray(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), innerGetter, innerType, eventAdapterService);
                     }
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
@@ -1225,19 +1300,14 @@ public class EventTypeUtility {
         return new EPException(message);
     }
 
-    public static boolean isTypeOrSubTypeOf(String typeName, EventType sameTypeOrSubtype) {
-        if (sameTypeOrSubtype.getName().equals(typeName)) {
-            return true;
-        }
-        if (sameTypeOrSubtype.getSuperTypes() == null) {
-            return false;
-        }
-        for (EventType superType : sameTypeOrSubtype.getSuperTypes()) {
-            if (superType.getName().equals(typeName)) {
-                return true;
+    private static void addRecursiveSupertypes(Set<EventType> superTypes, EventType child)
+    {
+        if (child.getSuperTypes() != null) {
+            for (int i = 0; i < child.getSuperTypes().length; i++) {
+                superTypes.add(child.getSuperTypes()[i]);
+                addRecursiveSupertypes(superTypes, child.getSuperTypes()[i]);
             }
         }
-        return false;
     }
 
     public static class TimestampPropertyDesc {

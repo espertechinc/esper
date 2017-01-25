@@ -62,12 +62,12 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         this.optionalSuperTypes = optionalSuperTypes;
         this.deepSupertypes = deepSupertypes == null ? Collections.emptySet() : deepSupertypes;
 
-        propertyItems = new LinkedHashMap<>();
-        init();
-
         EventTypeUtility.TimestampPropertyDesc desc = EventTypeUtility.validatedDetermineTimestampProps(this, startTimestampPropertyName, endTimestampPropertyName, optionalSuperTypes);
         this.startTimestampPropertyName = desc.getStart();
         this.endTimestampPropertyName = desc.getEnd();
+
+        propertyItems = new LinkedHashMap<>();
+        init();
     }
 
     public Class getUnderlyingType() {
@@ -299,6 +299,7 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
             }
             else if (field.schema().getType() == Schema.Type.MAP) {
                 mapped = true;
+                componentType = AvroTypeUtil.propertyType(field.schema().getValueType());
             }
             else {
                 fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);

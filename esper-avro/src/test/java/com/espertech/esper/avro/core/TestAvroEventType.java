@@ -250,7 +250,7 @@ public class TestAvroEventType extends TestCase
                 .endRecord();
         EventType eventType = makeAvroSupportEventType(schema);
 
-        assertPropertyType(Map.class, null, eventType, "anMap");
+        assertPropertyType(Map.class, String.class, eventType, "anMap");
 
         Consumer<EventBean> asserter = eventBean -> {
             assertEquals("myValue", eventBean.get("anMap('myKey')"));

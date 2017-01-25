@@ -83,6 +83,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
         {
             String propertyName = complex.getName();
             Class returnType = Node.class;
+            Class propertyComponentType = null;
 
             if (complex.getOptionalSimpleType() != null)
             {
@@ -91,6 +92,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
             if (complex.isArray())
             {
                 returnType = Node[].class;      // We use Node[] for arrays and NodeList for XPath-Expressions returning Nodeset
+                propertyComponentType = Node.class;
             }
 
             boolean isFragment = false;
@@ -100,7 +102,7 @@ public class SchemaXMLEventType extends BaseXMLEventType
             }
 
             EventPropertyGetter getter = doResolvePropertyGetter(propertyName, true);
-            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, null, false, false, complex.isArray(), false, isFragment);
+            EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, propertyComponentType, false, false, complex.isArray(), false, isFragment);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
         }

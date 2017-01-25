@@ -25,21 +25,13 @@ import java.util.Set;
 public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandler {
     public final static EventAdapterAvroHandlerUnsupported INSTANCE = new EventAdapterAvroHandlerUnsupported();
 
-    private EventAdapterAvroHandlerUnsupported() {
+    public EventAdapterAvroHandlerUnsupported() {
     }
 
     public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
     }
 
-    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
-        return null;
-    }
-
-    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType eventType) {
-        return null;
-    }
-
-    public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
+    public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {
         throw getUnsupported();
     }
 
@@ -47,7 +39,7 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
         throw getUnsupported();
     }
 
-    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterServiceImpl eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
+    public AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI) {
         throw getUnsupported();
     }
 
@@ -75,7 +67,7 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
         throw getUnsupported();
     }
 
-    public TypeWidenerCustomizer getTypeWidenerCustomizer(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EventType eventType) {
+    public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType eventType) {
         throw getUnsupported();
     }
 

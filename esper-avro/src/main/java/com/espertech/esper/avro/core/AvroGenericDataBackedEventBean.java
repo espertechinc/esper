@@ -12,12 +12,13 @@
 package com.espertech.esper.avro.core;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.event.AvroBackedBean;
 import org.apache.avro.generic.GenericData;
 
 /**
  * For events that are array of properties.
  */
-public interface AvroGenericDataBackedEventBean extends EventBean
+public interface AvroGenericDataBackedEventBean extends EventBean, AvroBackedBean
 {
-    public GenericData.Record getProperties();
+    GenericData.Record getProperties();
 }

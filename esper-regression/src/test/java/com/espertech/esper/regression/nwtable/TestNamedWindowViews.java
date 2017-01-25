@@ -12,6 +12,11 @@
 package com.espertech.esper.regression.nwtable;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.annotation.EventRepresentation;
+import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
+import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactoryContext;
+import com.espertech.esper.client.hook.TypeRepresentationMapper;
+import com.espertech.esper.client.hook.TypeRepresentationMapperContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -24,10 +29,15 @@ import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.EventRepresentationChoice;
+import com.espertech.esper.util.TypeWidener;
 import junit.framework.TestCase;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.avro.SchemaBuilder.record;
 
 public class TestNamedWindowViews extends TestCase
 {
@@ -46,6 +56,8 @@ public class TestNamedWindowViews extends TestCase
 
         Configuration config = SupportConfigFactory.getConfiguration();
         config.addEventType("MyMap", types);
+        config.getEngineDefaults().getEventMeta().getAvroSettings().setObjectValueTypeWidenerFactoryClass(MyAvroTypeWidenerFactory.class.getName());
+        config.getEngineDefaults().getEventMeta().getAvroSettings().setTypeRepresentationMapperClass(MyAvroTypeRepMapper.class.getName());
 
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
@@ -68,9 +80,44 @@ public class TestNamedWindowViews extends TestCase
 
     public void testBeanBacked()
     {
-        runAssertionBeanContained(EventRepresentationChoice.ARRAY);
-        runAssertionBeanContained(EventRepresentationChoice.MAP);
-        runAssertionBeanContained(EventRepresentationChoice.DEFAULT);
+        runAssertionBeanBacked(EventRepresentationChoice.ARRAY);
+        runAssertionBeanBacked(EventRepresentationChoice.MAP);
+        runAssertionBeanBacked(EventRepresentationChoice.DEFAULT);
+
+        try {
+            runAssertionBeanBacked(EventRepresentationChoice.AVRO);
+        }
+        catch (EPStatementException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Avro event type does not allow contained beans");
+        }
+    }
+
+    public void testBeanContained() {
+        for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+            if (!rep.isAvroEvent()) {
+                runAssertionBeanContained(rep);
+            }
+        }
+
+        try {
+            runAssertionBeanContained(EventRepresentationChoice.AVRO);
+        }
+        catch (EPStatementException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, "Error starting statement: Avro event type does not allow contained beans");
+        }
+    }
+
+    private void runAssertionBeanContained(EventRepresentationChoice rep) {
+        EPStatement stmtW = epService.getEPAdministrator().createEPL(rep.getAnnotationText() + " create window MyWindow#keepall as (bean " + SupportBean_S0.class.getName() + ")");
+        stmtW.addListener(listenerWindow);
+        assertTrue(rep.matchesClass(stmtW.getEventType().getUnderlyingType()));
+        epService.getEPAdministrator().createEPL("insert into MyWindow select bean.* as bean from " + SupportBean_S0.class.getName() + " as bean");
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));
+        EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), "bean.p00".split(","), new Object[] {"E1"});
+
+        epService.getEPAdministrator().destroyAllStatements();
+        epService.getEPAdministrator().getConfiguration().removeEventType("MyWindow", true);
     }
 
     public void testIntersection() throws Exception {
@@ -94,7 +141,7 @@ public class TestNamedWindowViews extends TestCase
         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.assertInvokedAndReset(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
     }
 
-    private void runAssertionBeanContained(EventRepresentationChoice eventRepresentationEnum) {
+    private void runAssertionBeanBacked(EventRepresentationChoice eventRepresentationEnum) {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean_A", SupportBean_A.class);
 
@@ -118,19 +165,8 @@ public class TestNamedWindowViews extends TestCase
         
         // test bean-property
         epService.getEPAdministrator().destroyAllStatements();
-        listenerWindow.reset();
-
-        EPStatement stmtW = epService.getEPAdministrator().createEPL(eventRepresentationEnum.getAnnotationText() + " create window MyWindowTwo#keepall as (bean " + SupportBean_S0.class.getName() + ")");
-        stmtW.addListener(listenerWindow);
-        assertTrue(eventRepresentationEnum.matchesClass(stmtW.getEventType().getUnderlyingType()));
-        epService.getEPAdministrator().createEPL("insert into MyWindowTwo select bean.* as bean from " + SupportBean_S0.class.getName() + " as bean");
-        
-        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "E1"));
-        EPAssertionUtil.assertProps(listenerWindow.assertOneGetNewAndReset(), "bean.p00".split(","), new Object[] {"E1"});
-
-        epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyWindowOne", true);
-        epService.getEPAdministrator().getConfiguration().removeEventType("MyWindowTwo", true);
+        listenerWindow.reset();
         listenerStmtOne.reset();
     }
 
@@ -2191,5 +2227,31 @@ public class TestNamedWindowViews extends TestCase
         CurrentTimeEvent theEvent = new CurrentTimeEvent(timeInMSec);
         EPRuntime runtime = epService.getEPRuntime();
         runtime.sendEvent(theEvent);
+    }
+
+    public static class MyAvroTypeWidenerFactory implements ObjectValueTypeWidenerFactory {
+        public TypeWidener make(ObjectValueTypeWidenerFactoryContext context) {
+            if (context.getClazz() == SupportBean_S0.class) {
+                return (val) -> {
+                    GenericData.Record row = new GenericData.Record(getSupportBeanS0Schema());
+                    row.put("p00", ((SupportBean_S0) val).getP00());
+                    return row;
+                };
+            }
+            return null;
+        }
+    }
+
+    public static class MyAvroTypeRepMapper implements TypeRepresentationMapper {
+        public Object map(TypeRepresentationMapperContext context) {
+            if (context.getClazz() == SupportBean_S0.class) {
+                return getSupportBeanS0Schema();
+            }
+            return null;
+        }
+    }
+
+    public static Schema getSupportBeanS0Schema() {
+        return record("SupportBean_S0").fields().requiredString("p00").endRecord();
     }
 }

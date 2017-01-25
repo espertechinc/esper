@@ -113,7 +113,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 throw new ConfigurationException("Failed to initialize Esper-Avro: " + t.getMessage(), t);
             }
         }
-        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler, configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings());
+        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler);
         init(eventAdapterService, configSnapshot);
 
         // New read-write lock for concurrent event processing
