@@ -11,6 +11,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.NaturalEventBean;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
@@ -40,11 +41,11 @@ public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy
      * @param columnNames the column names for the map
      * @param statement statement
      */
-    public ResultDeliveryStrategyMap(EPStatement statement, Object subscriber, Method method, String[] columnNames)
+    public ResultDeliveryStrategyMap(EPStatement statement, Object subscriber, Method method, String[] columnNames, EngineImportService engineImportService)
     {
         this.statement = statement;
         this.subscriber = subscriber;
-        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
+        FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(subscriber.getClass()), subscriber.getClass());
         this.fastMethod = fastClass.getMethod(method);
         this.columnNames = columnNames;
     }

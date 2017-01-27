@@ -805,7 +805,7 @@ public class ExprNodeUtility {
             else {
                 method = engineImportService.resolveMethodOverloadChecked(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
             }
-            FastClass declaringClass = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
+            FastClass declaringClass = FastClass.create(engineImportService.getFastClassClassLoader(method.getDeclaringClass()), method.getDeclaringClass());
             staticMethod = declaringClass.getMethod(method);
         }
         catch(Exception e)

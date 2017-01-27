@@ -14,6 +14,7 @@ package com.espertech.esper.client.scopetest;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventAdapterServiceImpl;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
@@ -1440,7 +1441,7 @@ public class EPAssertionUtil
     }
 
     private static EventAdapterService getEventAdapterService() {
-        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0, null);
+        return new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0, null, SupportEngineImportServiceFactory.make());
     }
 
     /**

@@ -83,7 +83,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
             });
         }
         SubordinateQueryPlannerUtil.queryPlanLogOnExpr(processor.getRootView().isQueryPlanLogging(), NamedWindowRootView.getQueryPlanLog(),
-                queryPlan, statementContext.getAnnotations());
+                queryPlan, statementContext.getAnnotations(), statementContext.getEngineImportService());
     }
 
     public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {

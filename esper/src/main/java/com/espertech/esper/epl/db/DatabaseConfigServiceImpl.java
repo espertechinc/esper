@@ -10,8 +10,10 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.ConfigurationDataCache;
+import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.ScheduleBucket;
 
@@ -28,6 +30,7 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
     private final Map<String, DatabaseConnectionFactory> connectionFactories;
     private final SchedulingService schedulingService;
     private final ScheduleBucket scheduleBucket;
+    private final EngineImportService engineImportService;
 
     /**
      * Ctor.
@@ -37,12 +40,14 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
      */
     public DatabaseConfigServiceImpl(Map<String, ConfigurationDBRef> mapDatabaseRef,
                                      SchedulingService schedulingService,
-                                     ScheduleBucket scheduleBucket)
+                                     ScheduleBucket scheduleBucket,
+                                     EngineImportService engineImportService)
     {
         this.mapDatabaseRef = mapDatabaseRef;
         this.connectionFactories = new HashMap<String, DatabaseConnectionFactory>();
         this.schedulingService = schedulingService;
         this.scheduleBucket = scheduleBucket;
+        this.engineImportService = engineImportService;
     }
 
     public ConnectionCache getConnectionCache(String databaseName, String preparedStatementText) throws DatabaseConfigException
@@ -85,7 +90,7 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
         if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DriverManagerConnection)
         {
             ConfigurationDBRef.DriverManagerConnection dmConfig = (ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc();
-            factory = new DatabaseDMConnFactory(dmConfig, settings);
+            factory = new DatabaseDMConnFactory(dmConfig, settings, engineImportService);
         }
         else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceConnection)
         {
@@ -95,7 +100,7 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
         else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceFactory)
         {
             ConfigurationDBRef.DataSourceFactory dsConfig = (ConfigurationDBRef.DataSourceFactory) config.getConnectionFactoryDesc();
-            factory = new DatabaseDSFactoryConnFactory(dsConfig, settings);
+            factory = new DatabaseDSFactoryConnFactory(dsConfig, settings, engineImportService);
         }
         else if (config.getConnectionFactoryDesc() == null)
         {

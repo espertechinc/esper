@@ -15,6 +15,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.ExecutionPathDebugLog;
@@ -230,7 +231,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 			this.firstRow = firstRow;
 		}
 
-		propertyTypes = resolvePropertyTypes(givenPropertyTypes);
+		propertyTypes = resolvePropertyTypes(givenPropertyTypes, spi.getEngineImportService());
 		if(givenPropertyTypes == null)
 		{
 			spi.getEventAdapterService().addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypes), null, true, true, true, false, false);
@@ -430,7 +431,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 		}
 	}
 
-	private Map<String, Object> resolvePropertyTypes(Map<String, Object> propertyTypes)
+	private Map<String, Object> resolvePropertyTypes(Map<String, Object> propertyTypes, EngineImportService engineImportService)
 	{
 		if(propertyTypes != null)
 		{
@@ -446,7 +447,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
                 String[] typeAndName = name.split("\\s");
                 try {
                     name = typeAndName[1];
-                    type = JavaClassHelper.getClassForName(JavaClassHelper.getBoxedClassName(typeAndName[0]));
+                    type = JavaClassHelper.getClassForName(JavaClassHelper.getBoxedClassName(typeAndName[0]), engineImportService.getClassForNameProvider());
                     propertyOrder[i] = name;
                 } catch (Throwable e) {
                     log.warn("Unable to use given type for property, will default to String: " + propertyOrder[i], e);

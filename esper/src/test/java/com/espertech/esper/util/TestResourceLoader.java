@@ -23,12 +23,12 @@ public class TestResourceLoader extends TestCase
 
     public void testResolveResourceAsURL()
     {
-        URL url = ResourceLoader.getClasspathResourceAsURL("somefile", TEST_RESOURCE);
+        URL url = ResourceLoader.getClasspathResourceAsURL("somefile", TEST_RESOURCE, Thread.currentThread().getContextClassLoader());
         assertNotNull(url);
 
         try
         {
-            ResourceLoader.getClasspathResourceAsURL("somefile", "xxx");
+            ResourceLoader.getClasspathResourceAsURL("somefile", "xxx", Thread.currentThread().getContextClassLoader());
             fail();
         }
         catch (EPException ex)
@@ -40,15 +40,15 @@ public class TestResourceLoader extends TestCase
     public void testClasspathOrURL()
     {
         URL url = this.getClass().getClassLoader().getResource(TEST_RESOURCE);
-        URL urlAfterResolve = ResourceLoader.resolveClassPathOrURLResource("a", url.toString());
+        URL urlAfterResolve = ResourceLoader.resolveClassPathOrURLResource("a", url.toString(), Thread.currentThread().getContextClassLoader());
         assertEquals(url, urlAfterResolve);
 
-        URL url3 = ResourceLoader.resolveClassPathOrURLResource("a", "file:///xxx/a.b");
+        URL url3 = ResourceLoader.resolveClassPathOrURLResource("a", "file:///xxx/a.b", Thread.currentThread().getContextClassLoader());
         assertEquals("file:/xxx/a.b", url3.toString());
 
         try
         {
-            ResourceLoader.resolveClassPathOrURLResource("a", "b");
+            ResourceLoader.resolveClassPathOrURLResource("a", "b", Thread.currentThread().getContextClassLoader());
             fail();
         }
         catch (EPException ex)

@@ -384,4 +384,5 @@ public interface EventAdapterService
     public EventAdapterAvroHandler getEventAdapterAvroHandler();
     public EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType);
     public TypeWidenerCustomizer getTypeWidenerCustomizer(EventType resultEventType);
+    public EngineImportService getEngineImportService();
 }

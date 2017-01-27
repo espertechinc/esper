@@ -12,6 +12,7 @@
 package com.espertech.esper.event.avro;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
@@ -27,7 +28,8 @@ public class EventAdapterAvroHandlerUnsupported implements EventAdapterAvroHandl
     public EventAdapterAvroHandlerUnsupported() {
     }
 
-    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
+    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EngineImportService engineImportService) {
+        // no action, init is always done
     }
 
     public AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] supertypes, Set<EventType> deepSupertypes) {

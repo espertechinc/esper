@@ -103,10 +103,9 @@ public class InstanceManufacturerUtil {
             throw new ExprValidationException(message);
         }
 
-        FastConstructor fctor;
         try {
             Constructor ctor = engineImportService.resolveCtor(targetClass, ctorTypes);
-            FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), targetClass);
+            FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(targetClass), targetClass);
             return new Pair<FastConstructor, ExprEvaluator[]>(fastClass.getConstructor(ctor), evaluators);
         }
         catch (EngineImportException ex) {

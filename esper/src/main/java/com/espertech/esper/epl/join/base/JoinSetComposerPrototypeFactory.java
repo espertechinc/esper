@@ -146,7 +146,7 @@ public class JoinSetComposerPrototypeFactory
             }
         }
 
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations());
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations(), statementContext.getEngineImportService());
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             queryPlanLog.info("Query plan: " + queryPlan.toQueryPlan());
             if (hook != null) {
@@ -280,7 +280,7 @@ public class JoinSetComposerPrototypeFactory
         Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> indexStrategies =
                 determineIndexing(filterForIndexing, streamTypes[polledViewNum], streamTypes[streamViewNum], polledViewNum, streamViewNum, statementContext, streamNames);
 
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations());
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations(), statementContext.getEngineImportService());
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             queryPlanLog.info("historical lookup strategy: " + indexStrategies.getFirst().toQueryPlan());
             queryPlanLog.info("historical index strategy: " + indexStrategies.getSecond().toQueryPlan());

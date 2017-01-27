@@ -9,17 +9,10 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.core.support;
+package com.espertech.esper.client.util;
 
-import com.espertech.esper.client.ConfigurationEngineDefaults;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
+public interface ClassForNameProvider {
+    String NAME = "ClassForNameProvider";
 
-import java.util.TimeZone;
-
-public class SupportEngineImportServiceFactory {
-
-    public static EngineImportServiceImpl make() {
-        return new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
-    }
+    Class classForName(String className) throws ClassNotFoundException;
 }

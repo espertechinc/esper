@@ -11,6 +11,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPSubscriberException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.TypeWidener;
@@ -50,9 +51,10 @@ public class ResultDeliveryStrategyFactory
      * @throws EPSubscriberException if the subscriber is invalid
      */
     public static ResultDeliveryStrategy create(EPStatement statement, Object subscriber, String methodName,
-                                                        Class[] selectClauseTypes,
-                                                        String[] selectClauseColumns,
-                                                String engineURI)
+                                                Class[] selectClauseTypes,
+                                                String[] selectClauseColumns,
+                                                String engineURI,
+                                                EngineImportService engineImportService)
             throws EPSubscriberException
     {
         if (selectClauseTypes == null) {
@@ -256,20 +258,20 @@ public class ResultDeliveryStrategyFactory
         if (isMapArrayDelivery)
         {
             return firstParameterIsEPStatement ?
-                    new ResultDeliveryStrategyMapWStmt(statement, subscriber, subscriptionMethod, selectClauseColumns) :
-                    new ResultDeliveryStrategyMap(statement, subscriber, subscriptionMethod, selectClauseColumns);
+                    new ResultDeliveryStrategyMapWStmt(statement, subscriber, subscriptionMethod, selectClauseColumns, engineImportService) :
+                    new ResultDeliveryStrategyMap(statement, subscriber, subscriptionMethod, selectClauseColumns, engineImportService);
         }
         else if (isObjectArrayDelivery)
         {
             return firstParameterIsEPStatement ?
-                    new ResultDeliveryStrategyObjectArrWStmt(statement, subscriber, subscriptionMethod) :
-                    new ResultDeliveryStrategyObjectArr(statement, subscriber, subscriptionMethod);
+                    new ResultDeliveryStrategyObjectArrWStmt(statement, subscriber, subscriptionMethod, engineImportService) :
+                    new ResultDeliveryStrategyObjectArr(statement, subscriber, subscriptionMethod, engineImportService);
         }
         else if (isTypeArrayDelivery)
         {
             return firstParameterIsEPStatement ?
-                new ResultDeliveryStrategyTypeArrWStmt(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[1].getComponentType()) :
-                new ResultDeliveryStrategyTypeArr(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[0].getComponentType());
+                new ResultDeliveryStrategyTypeArrWStmt(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[1].getComponentType(), engineImportService) :
+                new ResultDeliveryStrategyTypeArr(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[0].getComponentType(), engineImportService);
         }
 
         // Try to find the "start", "end" and "updateRStream" methods
@@ -344,7 +346,7 @@ public class ResultDeliveryStrategyFactory
             }
         }
 
-        return new ResultDeliveryStrategyImpl(statement, subscriber, convertor, subscriptionMethod, startMethod, endMethod, rStreamMethod);
+        return new ResultDeliveryStrategyImpl(statement, subscriber, convertor, subscriptionMethod, startMethod, endMethod, rStreamMethod, engineImportService);
     }
 
     private static DeliveryConvertor determineWideningDeliveryConvertor(boolean firstParameterIsEPStatement, EPStatement statement, Class[] selectClauseTypes, Class[] parameterTypes, Method method, String engineURI) {

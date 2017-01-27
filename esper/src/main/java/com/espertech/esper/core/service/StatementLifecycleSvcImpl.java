@@ -489,10 +489,10 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc
             throw new ExprValidationException("Failed to determine script dialect for script '" + script.getName() + "', please configure a default dialect or provide a dialect explicitly");
         }
         if (dialect.trim().toLowerCase().equals("mvel")) {
-            if (!MVELInvoker.isMVELInClasspath()) {
+            if (!MVELInvoker.isMVELInClasspath(services.getEngineImportService())) {
                 throw new ExprValidationException("MVEL scripting engine not found in classpath, script dialect 'mvel' requires mvel in classpath for script '" + script.getName() + "'");
             }
-            MVELHelper.verifyScript(script);
+            MVELHelper.verifyScript(script, services.getEngineImportService());
         }
         else {
             JSR223Helper.verifyCompileScript(script, dialect);

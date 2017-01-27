@@ -307,7 +307,7 @@ public class ResultSetProcessorFactoryFactory
                 selectAggregateExprNodes, selectAggregationNodesNamed, declaredNodes, groupByNodesValidated, havingAggregateExprNodes, orderByAggregateExprNodes, Collections.<ExprAggregateNodeGroupKey>emptyList(), hasGroupBy, statementSpec.getAnnotations(), stmtContext.getVariableService(), typeService.getEventTypes().length > 1, false,
                 statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(),
                 stmtContext.getAggregationServiceFactoryService(), typeService.getEventTypes(), groupByRollupDesc,
-                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect);
+                statementSpec.getOptionalContextName(), statementSpec.getIntoTableSpec(), stmtContext.getTableService(), isUnidirectional, isFireAndForget, isOnSelect, stmtContext.getEngineImportService());
 
         // Compare local-aggregation versus group-by
         boolean localGroupByMatchesGroupBy = analyzeLocalGroupBy(groupByNodesValidated, selectAggregateExprNodes, havingAggregateExprNodes, orderByAggregateExprNodes);
@@ -552,7 +552,7 @@ public class ResultSetProcessorFactoryFactory
 
         // callback when hook reporting enabled
         try {
-            GroupByRollupPlanHook hook = (GroupByRollupPlanHook) JavaClassHelper.getAnnotationHook(validationContext.getAnnotations(), HookType.INTERNAL_GROUPROLLUP_PLAN, GroupByRollupPlanHook.class, null);
+            GroupByRollupPlanHook hook = (GroupByRollupPlanHook) JavaClassHelper.getAnnotationHook(validationContext.getAnnotations(), HookType.INTERNAL_GROUPROLLUP_PLAN, GroupByRollupPlanHook.class, validationContext.getEngineImportService());
             if (hook != null) {
                 hook.query(new GroupByRollupPlanDesc(validated, rollup));
             }

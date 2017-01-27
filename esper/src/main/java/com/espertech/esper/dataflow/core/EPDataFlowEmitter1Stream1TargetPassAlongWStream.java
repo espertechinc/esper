@@ -12,6 +12,7 @@
 package com.espertech.esper.dataflow.core;
 
 import com.espertech.esper.dataflow.util.DataFlowSignalManager;
+import com.espertech.esper.epl.core.EngineImportService;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -19,8 +20,8 @@ public class EPDataFlowEmitter1Stream1TargetPassAlongWStream extends EPDataFlowE
 
     private final int streamNum;
 
-    public EPDataFlowEmitter1Stream1TargetPassAlongWStream(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target, int streamNum) {
-        super(operatorNum, signalManager, signalHandler, exceptionHandler, target);
+    public EPDataFlowEmitter1Stream1TargetPassAlongWStream(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target, int streamNum, EngineImportService engineImportService) {
+        super(operatorNum, signalManager, signalHandler, exceptionHandler, target, engineImportService);
         this.streamNum = streamNum;
     }
 

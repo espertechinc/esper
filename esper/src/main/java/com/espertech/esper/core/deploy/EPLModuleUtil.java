@@ -11,6 +11,7 @@
 
 package com.espertech.esper.core.deploy;
 
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.deploy.Module;
@@ -349,11 +350,11 @@ public class EPLModuleUtil
         }
     }
 
-    public static Module readResource(String resource) throws IOException, ParseException {
+    public static Module readResource(String resource, EngineImportService engineImportService) throws IOException, ParseException {
         String stripped = resource.startsWith("/") ? resource.substring(1) : resource;
 
         InputStream stream = null;
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = engineImportService.getClassLoader();
         if (classLoader!=null) {
             stream = classLoader.getResourceAsStream( stripped );
         }

@@ -9,17 +9,15 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.core.support;
+package com.espertech.esper.client.util;
 
-import com.espertech.esper.client.ConfigurationEngineDefaults;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
+public class ClassLoaderProviderDefault implements ClassLoaderProvider {
+    public final static ClassLoaderProviderDefault INSTANCE = new ClassLoaderProviderDefault();
 
-import java.util.TimeZone;
+    private ClassLoaderProviderDefault() {
+    }
 
-public class SupportEngineImportServiceFactory {
-
-    public static EngineImportServiceImpl make() {
-        return new EngineImportServiceImpl(true, true, true, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
+    public ClassLoader classloader() {
+        return Thread.currentThread().getContextClassLoader();
     }
 }

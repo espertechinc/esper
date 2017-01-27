@@ -11,6 +11,9 @@
 
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.epl.core.EngineImportService;
 import junit.framework.TestCase;
 import com.espertech.esper.supportunit.epl.SupportDatabaseService;
 import com.espertech.esper.client.ConfigurationDBRef;
@@ -31,6 +34,8 @@ public class TestDatabaseDMConnFactory extends TestCase
 
     public void setUp() throws Exception
     {
+        EngineImportService engineImportService = SupportEngineImportServiceFactory.make();
+
         // driver-manager config 1
         ConfigurationDBRef config = new ConfigurationDBRef();
         config.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
@@ -38,12 +43,12 @@ public class TestDatabaseDMConnFactory extends TestCase
         config.setConnectionCatalog("test");
         config.setConnectionTransactionIsolation(1);
         config.setConnectionReadOnly(true);
-        databaseDMConnFactoryOne = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings());
+        databaseDMConnFactoryOne = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings(), engineImportService);
 
         // driver-manager config 2
         config = new ConfigurationDBRef();
         config.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.PARTURL, SupportDatabaseService.DBUSER, SupportDatabaseService.DBPWD);
-        databaseDMConnFactoryTwo = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings());
+        databaseDMConnFactoryTwo = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings(), engineImportService);
 
         // driver-manager config 3
         config = new ConfigurationDBRef();
@@ -51,7 +56,7 @@ public class TestDatabaseDMConnFactory extends TestCase
         properties.setProperty("user", SupportDatabaseService.DBUSER);
         properties.setProperty("password", SupportDatabaseService.DBPWD);
         config.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.PARTURL, properties);
-        databaseDMConnFactoryThree = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings());
+        databaseDMConnFactoryThree = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings(), engineImportService);
     }
 
     public void testGetConnection() throws Exception

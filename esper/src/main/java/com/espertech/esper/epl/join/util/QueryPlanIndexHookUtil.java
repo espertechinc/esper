@@ -13,6 +13,7 @@ package com.espertech.esper.epl.join.util;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.annotation.HookType;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -20,9 +21,9 @@ import java.lang.annotation.Annotation;
 
 public class QueryPlanIndexHookUtil {
 
-    public static QueryPlanIndexHook getHook(Annotation[] annotations) {
+    public static QueryPlanIndexHook getHook(Annotation[] annotations, EngineImportService engineImportService) {
         try {
-            return (QueryPlanIndexHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_QUERY_PLAN, QueryPlanIndexHook.class, null);
+            return (QueryPlanIndexHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_QUERY_PLAN, QueryPlanIndexHook.class, engineImportService);
         }
         catch (ExprValidationException e) {
             throw new EPException("Failed to obtain hook for " + HookType.INTERNAL_QUERY_PLAN);

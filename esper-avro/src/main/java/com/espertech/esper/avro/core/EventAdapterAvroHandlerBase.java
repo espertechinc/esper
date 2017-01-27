@@ -15,6 +15,7 @@ import com.espertech.esper.avro.selectexprrep.SelectExprProcessorRepresentationF
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.client.hook.TypeRepresentationMapper;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
@@ -40,15 +41,15 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
 
     protected abstract AvroSchemaEventType makeType(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, Schema schema, ConfigurationEventTypeAvro optionalConfig, EventType[] supertypes, Set<EventType> deepSupertypes);
 
-    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
+    public void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EngineImportService engineImportService) {
         this.avroSettings = avroSettings;
 
         if (avroSettings.getTypeRepresentationMapperClass() != null) {
-            optionalTypeMapper = (TypeRepresentationMapper) JavaClassHelper.instantiate(TypeRepresentationMapper.class, avroSettings.getTypeRepresentationMapperClass());
+            optionalTypeMapper = (TypeRepresentationMapper) JavaClassHelper.instantiate(TypeRepresentationMapper.class, avroSettings.getTypeRepresentationMapperClass(), engineImportService.getClassForNameProvider());
         }
 
         if (avroSettings.getObjectValueTypeWidenerFactoryClass() != null) {
-            optionalWidenerFactory = (ObjectValueTypeWidenerFactory) JavaClassHelper.instantiate(ObjectValueTypeWidenerFactory.class, avroSettings.getObjectValueTypeWidenerFactoryClass());
+            optionalWidenerFactory = (ObjectValueTypeWidenerFactory) JavaClassHelper.instantiate(ObjectValueTypeWidenerFactory.class, avroSettings.getObjectValueTypeWidenerFactoryClass(), engineImportService.getClassForNameProvider());
         }
     }
 

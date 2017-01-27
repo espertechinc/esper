@@ -11,6 +11,7 @@
 package com.espertech.esper.metrics.instrumentation;
 
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.JavaClassHelper;
 
 public class InstrumentationHelper {
@@ -33,7 +34,7 @@ public class InstrumentationHelper {
             return;
         }
         if (assertionService == null) {
-            resolveAssertionServie();
+            resolveAssertionService(engine);
         }
         assertionService.startTest(engine, testClass, testName);
     }
@@ -45,7 +46,7 @@ public class InstrumentationHelper {
         assertionService.endTest();
     }
 
-    private static void resolveAssertionServie() {
+    private static void resolveAssertionService(EPServiceProvider epServiceProvider) {
         String provider = System.getProperty(PROVIDER_PROPERTY);
         if (provider == null) {
             throw new RuntimeException("Failed to find '" + PROVIDER_PROPERTY + "' system property");
@@ -54,7 +55,8 @@ public class InstrumentationHelper {
             assertionService = new DefaultInstrumentationAssertionService();
         }
         else {
-            assertionService = (InstrumentationAssertionService) JavaClassHelper.instantiate(InstrumentationAssertionService.class, provider);
+            EPServiceProviderSPI spi = (EPServiceProviderSPI) epServiceProvider;
+            assertionService = (InstrumentationAssertionService) JavaClassHelper.instantiate(InstrumentationAssertionService.class, provider, spi.getEngineImportService().getClassForNameProvider());
         }
     }
 

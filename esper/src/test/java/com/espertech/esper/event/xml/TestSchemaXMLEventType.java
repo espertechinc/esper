@@ -16,6 +16,7 @@ import javax.xml.xpath.XPathConstants;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 
 import org.w3c.dom.Document;
@@ -36,7 +37,7 @@ public class TestSchemaXMLEventType extends TestCase {
         configNoNS.setRootElementName("simpleEvent");
         configNoNS.addXPathProperty("customProp", "count(/ss:simpleEvent/ss:nested3/ss:nested4)", XPathConstants.NUMBER);
         configNoNS.addNamespacePrefix("ss", "samples:schemas:simpleSchema");
-        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUrl.toString(), null);
+        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUrl.toString(), null, SupportEngineImportServiceFactory.make());
         SchemaXMLEventType eventTypeNoNS = new SchemaXMLEventType(null, 1, configNoNS, model, SupportEventAdapterService.getService());
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();

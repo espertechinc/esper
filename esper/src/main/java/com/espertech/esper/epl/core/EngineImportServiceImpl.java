@@ -11,6 +11,7 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.annotation.BuiltinAnnotation;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
+import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
@@ -22,6 +23,7 @@ import com.espertech.esper.epl.expression.core.ExprCurrentEvaluationContextNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.type.MinMaxTypeEnum;
+import com.espertech.esper.util.TransientConfigurationResolver;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
 import org.slf4j.Logger;
@@ -53,9 +55,10 @@ public class EngineImportServiceImpl implements EngineImportService
     private final MathContext optionalDefaultMathContext;
     private final TimeZone timeZone;
     private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
+    private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
 
-	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, AggregationFactoryFactory aggregationFactoryFactory)
+	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory)
     {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
@@ -70,6 +73,7 @@ public class EngineImportServiceImpl implements EngineImportService
         this.optionalDefaultMathContext = optionalDefaultMathContext;
         this.timeZone = timeZone;
         this.threadingProfile = threadingProfile;
+        this.transientConfiguration = transientConfiguration;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
     }
 
@@ -84,6 +88,18 @@ public class EngineImportServiceImpl implements EngineImportService
     public ConfigurationMethodRef getConfigurationMethodRef(String className)
     {
         return methodInvocationRef.get(className);
+    }
+
+    public ClassForNameProvider getClassForNameProvider() {
+        return TransientConfigurationResolver.resolveClassForNameProvider(transientConfiguration);
+    }
+
+    public ClassLoader getFastClassClassLoader(Class clazz) {
+        return TransientConfigurationResolver.resolveFastClassClassLoaderProvider(transientConfiguration).classloader(clazz);
+    }
+
+    public ClassLoader getClassLoader() {
+        return TransientConfigurationResolver.resolveClassLoader(transientConfiguration).classloader();
     }
 
     /**
@@ -140,8 +156,7 @@ public class EngineImportServiceImpl implements EngineImportService
         Class clazz;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(className, true, cl);
+            clazz = getClassForNameProvider().classForName(className);
         }
         catch (ClassNotFoundException ex)
         {
@@ -206,8 +221,7 @@ public class EngineImportServiceImpl implements EngineImportService
         Class clazz;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(pair.getClassName(), true, cl);
+            clazz = getClassForNameProvider().classForName(pair.getClassName());
         }
         catch (ClassNotFoundException ex)
         {
@@ -306,8 +320,7 @@ public class EngineImportServiceImpl implements EngineImportService
 		// Attempt to retrieve the class with the name as-is
 		try
 		{
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            return Class.forName(className, true, cl);
+		    return getClassForNameProvider().classForName(className);
 		}
 		catch(ClassNotFoundException e)
         {
@@ -339,8 +352,7 @@ public class EngineImportServiceImpl implements EngineImportService
                 {
                     try
                     {
-                        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                        Class found = Class.forName(name, true, cl);
+                        Class found = getClassForNameProvider().classForName(name);
                         if (!requireAnnotation || found.isAnnotation()) {
                             return found;
                         }
@@ -641,15 +653,13 @@ public class EngineImportServiceImpl implements EngineImportService
                         (containsPackage && importName.endsWith(classNameWithDollar)) ||
                         (!containsPackage && importName.equals(className)) ||
                         (!containsPackage && importName.endsWith(classNameWithDollar))) {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    return Class.forName(importName, true, cl);
+                    return getClassForNameProvider().classForName(importName);
                 }
 
                 String prefixedClassName = importName + '$' + className;
                 try
                 {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class clazz = Class.forName(prefixedClassName, true, cl);
+                    Class clazz = getClassForNameProvider().classForName(prefixedClassName);
                     if (!requireAnnotation || clazz.isAnnotation()) {
                         return clazz;
                     }
@@ -674,8 +684,7 @@ public class EngineImportServiceImpl implements EngineImportService
                 String prefixedClassName = getPackageName(importName) + '.' + className;
                 try
                 {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class clazz = Class.forName(prefixedClassName, true, cl);
+                    Class clazz = getClassForNameProvider().classForName(prefixedClassName);
                     if (!requireAnnotation || clazz.isAnnotation()) {
                         return clazz;
                     }

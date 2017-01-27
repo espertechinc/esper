@@ -13,6 +13,7 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.ConfigurationPlugInPatternObject;
 import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.spec.PatternGuardSpec;
 import com.espertech.esper.epl.spec.PatternObserverSpec;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
@@ -22,6 +23,7 @@ import com.espertech.esper.pattern.guard.TimerWithinGuardFactory;
 import com.espertech.esper.pattern.observer.TimerIntervalObserverFactory;
 import com.espertech.esper.view.TestViewSupport;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -37,7 +39,7 @@ public class TestPatternObjectResolutionServiceImpl extends TestCase
         init.add(makeGuardSpec("g", "h", SupportGuardFactory.class.getName()));
         init.add(makeObserverSpec("a", "b", SupportObserverFactory.class.getName()));
         PluggableObjectCollection desc = new PluggableObjectCollection();
-        desc.addPatternObjects(init);
+        desc.addPatternObjects(init, SupportEngineImportServiceFactory.make());
         desc.addObjects(PatternObjectHelper.getBuiltinPatternObjects());
         service = new PatternObjectResolutionServiceImpl(desc);
     }
@@ -66,7 +68,7 @@ public class TestPatternObjectResolutionServiceImpl extends TestCase
         try
         {
             PluggableObjectCollection desc = new PluggableObjectCollection();
-            desc.addPatternObjects(config);
+            desc.addPatternObjects(config, SupportEngineImportServiceFactory.make());
             service = new PatternObjectResolutionServiceImpl(desc);
             fail();
         }

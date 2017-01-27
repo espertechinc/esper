@@ -106,7 +106,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         configurationPlugInView.setNamespace(namespace);
         configurationPlugInView.setName(name);
         configurationPlugInView.setFactoryClassName(viewFactoryClass);
-        plugInViews.addViews(Collections.singletonList(configurationPlugInView), Collections.<ConfigurationPlugInVirtualDataWindow>emptyList());
+        plugInViews.addViews(Collections.singletonList(configurationPlugInView), Collections.<ConfigurationPlugInVirtualDataWindow>emptyList(), engineImportService);
     }
 
     public void addPlugInAggregationMultiFunction(ConfigurationPlugInAggregationMultiFunction config) throws ConfigurationException {
@@ -236,7 +236,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
     public void addEventType(String eventTypeName, Properties typeMap)
     {
         checkTableExists(eventTypeName);
-        Map<String, Object> types = JavaClassHelper.getClassObjectFromPropertyTypeNames(typeMap);
+        Map<String, Object> types = JavaClassHelper.getClassObjectFromPropertyTypeNames(typeMap, engineImportService.getClassForNameProvider());
         try
         {
             eventAdapterService.addNestableMapType(eventTypeName, types, null, false, true, true, false, false);
@@ -320,7 +320,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             try
             {
-                schemaModel = XSDSchemaMapper.loadAndMap(xmlDOMEventTypeDesc.getSchemaResource(), xmlDOMEventTypeDesc.getSchemaText());
+                schemaModel = XSDSchemaMapper.loadAndMap(xmlDOMEventTypeDesc.getSchemaResource(), xmlDOMEventTypeDesc.getSchemaText(), engineImportService);
             }
             catch (Exception ex)
             {
@@ -426,7 +426,7 @@ public class ConfigurationOperationsImpl implements ConfigurationOperations
         {
             try
             {
-                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText());
+                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), engineImportService);
             }
             catch (Exception ex)
             {

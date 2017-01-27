@@ -12,6 +12,7 @@
 package com.espertech.esper.util;
 
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import junit.framework.TestCase;
 
 import java.util.Map;
@@ -56,13 +57,13 @@ public class TestSQLTypeMapUtil extends TestCase
 
         for (int type : testData.keySet())
         {
-            Class result = SQLTypeMapUtil.sqlTypeToClass(type, null);
+            Class result = SQLTypeMapUtil.sqlTypeToClass(type, null, ClassForNameProviderDefault.INSTANCE);
             log.debug(".testMapping Mapping " + type + " to " + result.getSimpleName());
             assertEquals(testData.get(type), result);
         }
 
-        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.JAVA_OBJECT, "java.lang.String"));
-        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.DISTINCT, "java.lang.String"));
+        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.JAVA_OBJECT, "java.lang.String", ClassForNameProviderDefault.INSTANCE));
+        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.DISTINCT, "java.lang.String", ClassForNameProviderDefault.INSTANCE));
     }
 
     public void testMappingInvalid()
@@ -77,7 +78,7 @@ public class TestSQLTypeMapUtil extends TestCase
     {
         try
         {
-            SQLTypeMapUtil.sqlTypeToClass(type, classname);
+            SQLTypeMapUtil.sqlTypeToClass(type, classname, ClassForNameProviderDefault.INSTANCE);
             fail();
         }
         catch (IllegalArgumentException ex)

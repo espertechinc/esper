@@ -12,6 +12,8 @@
 package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
@@ -48,7 +50,7 @@ public class TestDatabaseServiceImpl extends TestCase
         configs.put("name3", config);
 
         SchedulingService schedulingService = new SchedulingServiceImpl(new TimeSourceServiceImpl());
-        databaseServiceImpl = new DatabaseConfigServiceImpl(configs, schedulingService, new ScheduleBucket(1));
+        databaseServiceImpl = new DatabaseConfigServiceImpl(configs, schedulingService, new ScheduleBucket(1), SupportEngineImportServiceFactory.make());
     }
 
     public void testGetConnection() throws Exception

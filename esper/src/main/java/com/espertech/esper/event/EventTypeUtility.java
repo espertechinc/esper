@@ -169,7 +169,7 @@ public class EventTypeUtility {
             throw new ExprValidationException("Type '" + column.getType() + "' is not a primitive type");
         }
 
-        Class plain = JavaClassHelper.getClassForSimpleName(column.getType());
+        Class plain = JavaClassHelper.getClassForSimpleName(column.getType(), engineImportService.getClassForNameProvider());
         if (plain != null) {
             if (column.isArray()) {
                 plain = Array.newInstance(plain, 0).getClass();
@@ -189,7 +189,7 @@ public class EventTypeUtility {
         // resolve from classpath when not found
         if (resolved == null) {
             try {
-                resolved = JavaClassHelper.getClassForName(column.getType());
+                resolved = JavaClassHelper.getClassForName(column.getType(), engineImportService.getClassForNameProvider());
             }
             catch (ClassNotFoundException e) {
                 // expected

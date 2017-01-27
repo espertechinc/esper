@@ -12,6 +12,7 @@
 package com.espertech.esper.dataflow.core;
 
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
+import com.espertech.esper.epl.core.EngineImportService;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -27,10 +28,10 @@ public class SignalHandlerDefaultWInvoke extends SignalHandlerDefault {
     protected final Object target;
     protected final FastMethod fastMethod;
 
-    public SignalHandlerDefaultWInvoke(Object target, Method method) {
+    public SignalHandlerDefaultWInvoke(Object target, Method method, EngineImportService engineImportService) {
         this.target = target;
 
-        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), target.getClass());
+        FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(target.getClass()), target.getClass());
         fastMethod = fastClass.getMethod(method);
     }
 

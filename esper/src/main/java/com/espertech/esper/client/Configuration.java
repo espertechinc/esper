@@ -1186,6 +1186,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         variantStreams = new HashMap<String, ConfigurationVariantStream>();
         mapTypeConfigurations = new HashMap<String, ConfigurationEventTypeMap>();
         objectArrayTypeConfigurations = new HashMap<String, ConfigurationEventTypeObjectArray>();
+        transientConfiguration = new HashMap<>();
     }
 
     /**

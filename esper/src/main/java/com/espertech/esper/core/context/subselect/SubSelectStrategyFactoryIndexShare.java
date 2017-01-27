@@ -13,6 +13,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
@@ -54,7 +55,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
     private final TableService tableService;
     private SubordinateQueryPlanDesc queryPlan;
 
-    public SubSelectStrategyFactoryIndexShare(final String statementName, int statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService) throws ExprValidationException {
+    public SubSelectStrategyFactoryIndexShare(final String statementName, int statementId, int subqueryNum, EventType[] outerEventTypesSelect, final NamedWindowProcessor optionalNamedWindowProcessor, TableMetadata optionalTableMetadata, boolean fullTableScan, IndexHint optionalIndexHint, SubordPropPlan joinedPropPlan, ExprEvaluator filterExprEval, AggregationServiceFactoryDesc aggregationServiceFactory, ExprEvaluator[] groupByKeys, TableService tableService, Annotation[] annotations, StatementStopService statementStopService, EngineImportService engineImportService) throws ExprValidationException {
         this.optionalNamedWindowProcessor = optionalNamedWindowProcessor;
         this.optionalTableMetadata = optionalTableMetadata;
         this.filterExprEval = filterExprEval;
@@ -95,7 +96,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                 });
             }
         }
-        SubordinateQueryPlannerUtil.queryPlanLogOnSubq(isLogging, log, queryPlan, subqueryNum, annotations);
+        SubordinateQueryPlannerUtil.queryPlanLogOnSubq(isLogging, log, queryPlan, subqueryNum, annotations, engineImportService);
     }
 
     public SubSelectStrategyRealization instantiate(EPServicesContext services,

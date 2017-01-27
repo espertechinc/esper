@@ -11,6 +11,8 @@
 
 package com.espertech.esper.epl.expression;
 
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.core.ExprVariableNodeImpl;
@@ -27,10 +29,11 @@ public class TestExprVariableNode extends TestCase
 
     public void setUp() throws Exception
     {
+        EngineImportService engineImportService = SupportEngineImportServiceFactory.make();
         variableService = new VariableServiceImpl(100, null, null, null);
-        variableService.createNewVariable(null, "var1", "string", true, false, false, null, null);
-        variableService.createNewVariable(null, "dummy", "string", true, false, false, null, null);
-        variableService.createNewVariable(null, "intPrimitive", "int", true, false, false, null, null);
+        variableService.createNewVariable(null, "var1", "string", true, false, false, null, engineImportService);
+        variableService.createNewVariable(null, "dummy", "string", true, false, false, null, engineImportService);
+        variableService.createNewVariable(null, "intPrimitive", "int", true, false, false, null, engineImportService);
         varNode = new ExprVariableNodeImpl(variableService.getVariableMetaData("var1"), null);
     }
 

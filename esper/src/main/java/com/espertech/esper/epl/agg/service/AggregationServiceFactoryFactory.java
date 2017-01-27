@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.util.*;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateLocalGroupByDesc;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
@@ -158,7 +159,8 @@ public class AggregationServiceFactoryFactory
                                                            TableService tableService,
                                                            boolean isUnidirectional,
                                                            boolean isFireAndForget,
-                                                           boolean isOnSelect)
+                                                           boolean isOnSelect,
+                                                           EngineImportService engineImportService)
             throws ExprValidationException
     {
         // No aggregates used, we do not need this service
@@ -286,7 +288,7 @@ public class AggregationServiceFactoryFactory
         if (localGroupDesc != null) {
             localGroupByPlan = AggregationGroupByLocalGroupByAnalyzer.analyze(methodAggEvaluators, methodAggFactories, accessAggregations, localGroupDesc, groupByNodes, accessorPairs);
             try {
-                AggregationLocalLevelHook hook = (AggregationLocalLevelHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, null);
+                AggregationLocalLevelHook hook = (AggregationLocalLevelHook) JavaClassHelper.getAnnotationHook(annotations, HookType.INTERNAL_AGGLOCALLEVEL, AggregationLocalLevelHook.class, engineImportService);
                 if (hook != null) {
                     hook.planned(localGroupDesc, localGroupByPlan);
                 }

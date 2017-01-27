@@ -269,7 +269,7 @@ public class DataFlowServiceImpl implements DataFlowService {
         }
 
         boolean auditStates = AuditEnum.DATAFLOW_TRANSITION.getAudit(statementContext.getAnnotations()) != null;
-        return new EPDataFlowInstanceImpl(servicesContext.getEngineURI(), statementContext.getStatementName(), auditStates, dataFlowName, options.getDataFlowInstanceUserObject(), options.getDataFlowInstanceId(), EPDataFlowState.INSTANTIATED, sourceRunnables, operators, operatorBuildOrder, startDesc.getStatisticsProvider(), options.getParametersURIs());
+        return new EPDataFlowInstanceImpl(servicesContext.getEngineURI(), statementContext.getStatementName(), auditStates, dataFlowName, options.getDataFlowInstanceUserObject(), options.getDataFlowInstanceId(), EPDataFlowState.INSTANTIATED, sourceRunnables, operators, operatorBuildOrder, startDesc.getStatisticsProvider(), options.getParametersURIs(), statementContext.getEngineImportService());
     }
 
     private Map<String, EventType> resolveTypes(CreateDataFlowDesc desc, StatementContext statementContext, EPServicesContext servicesContext)
@@ -676,7 +676,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                 }
                 else {
                     String typeName = outputType.typeName();
-                    clazz = JavaClassHelper.getClassForSimpleName(typeName);
+                    clazz = JavaClassHelper.getClassForSimpleName(typeName, engineImportService.getClassForNameProvider());
                     if (clazz == null) {
                         try {
                             clazz = engineImportService.resolveClass(typeName, false);

@@ -91,7 +91,7 @@ public class ExprCastNode extends ExprNodeBase
             }
             if (targetType == null) {
                 try {
-                    targetType = JavaClassHelper.getClassForName(classIdentifier.trim());
+                    targetType = JavaClassHelper.getClassForName(classIdentifier.trim(), validationContext.getEngineImportService().getClassForNameProvider());
                 }
                 catch (ClassNotFoundException e) {
                     // expected
@@ -227,7 +227,7 @@ public class ExprCastNode extends ExprNodeBase
         }
         else {
             try {
-                targetType = JavaClassHelper.getClassForName(classIdentifier.trim());
+                targetType = JavaClassHelper.getClassForName(classIdentifier.trim(), validationContext.getEngineImportService().getClassForNameProvider());
             }
             catch (ClassNotFoundException e) {
                 throw new ExprValidationException("Class as listed in cast function by name '" + classIdentifier + "' cannot be loaded", e);

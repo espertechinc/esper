@@ -3275,5 +3275,28 @@ EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fiel
 			</para>
 		</sect2>
     </sect1>
-     
+          
+    <sect1 xml:id="api-osgi">
+        <title>OSGi, Class Loader, Class-For-Name</title>        
+		<indexterm><primary>OSGi</primary></indexterm>
+		<indexterm><primary>class name resolution</primary></indexterm>
+		<indexterm><primary>class loader</primary></indexterm>
+		
+		<para>
+			Esper's static configuration object (<literal>Configuration</literal>), in respect to classes, holds the fully-qualified class name and does not generally hold <literal>Class</literal> references.
+			This is by design since the configuration object can be populated from XML.
+		</para>
+		
+		<para>
+			At engine initialization time, Esper may look up classes using the fully-qualified class name. If using bean event types, the <literal>Class.forName()</literal> call can be avoided by 
+			using the runtime configuration API such as <literal>epService.getEPAdministrator().getConfiguration().addEventType(MyEvent.class);</literal>.
+		</para>
+		
+		<para>
+			When creating new EPL statements, Esper may need to look up a class by name and may need to obtain a class loader for CGLib <literal>FastClass</literal> creation.
+			For deploying resources using the deployment admin API, Esper may also use a class loader to find resources as described in the JavaDoc.
+			Your application has full control over class-for-name and classloader use. OSGi environments can provide a specific class-for-name and class loader.
+			Please refer to <xref linkend="configuration-transientobjects"/>.
+		</para>
+     </sect1>
 </chapter>

@@ -14,6 +14,7 @@ package com.espertech.esper.dataflow.core;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 import com.espertech.esper.dataflow.util.DataFlowSignalManager;
+import com.espertech.esper.epl.core.EngineImportService;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
@@ -27,13 +28,13 @@ public abstract class EPDataFlowEmitter1Stream1TargetBase implements EPDataFlowE
     protected final FastMethod fastMethod;
     protected final Object targetObject;
 
-    public EPDataFlowEmitter1Stream1TargetBase(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target) {
+    public EPDataFlowEmitter1Stream1TargetBase(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target, EngineImportService engineImportService) {
         this.operatorNum = operatorNum;
         this.signalManager = signalManager;
         this.signalHandler = signalHandler;
         this.exceptionHandler = exceptionHandler;
 
-        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), target.getTarget().getClass());
+        FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(target.getTarget().getClass()), target.getTarget().getClass());
         fastMethod = fastClass.getMethod(target.getBinding().getConsumingBindingDesc().getMethod());
         targetObject = target.getTarget();
     }

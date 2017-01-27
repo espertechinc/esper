@@ -197,7 +197,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             if (childNode instanceof ExprIdentNode) {
                 ExprIdentNode identNode = (ExprIdentNode) childNode;
                 String propname = identNode.getFullUnresolvedName().trim();
-                Class clazz = JavaClassHelper.getClassForSimpleName(propname);
+                Class clazz = JavaClassHelper.getClassForSimpleName(propname, services.getEngineImportService().getClassForNameProvider());
                 if (propname.toLowerCase().trim().equals("object")) {
                     clazz = Object.class;
                 }

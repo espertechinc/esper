@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.espertech.esper.epl.core.EngineImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMError;
@@ -69,13 +70,13 @@ public class XSDSchemaMapper
      * @param schemaText schema
      * @return model
      */
-    public static SchemaModel loadAndMap(String schemaResource, String schemaText)
+    public static SchemaModel loadAndMap(String schemaResource, String schemaText, EngineImportService engineImportService)
     {
         // Load schema
         XSModel model;
         try
         {
-            model = readSchemaInternal(schemaResource, schemaText);
+            model = readSchemaInternal(schemaResource, schemaText, engineImportService);
         }
         catch (ConfigurationException ex)
         {
@@ -90,14 +91,14 @@ public class XSDSchemaMapper
         return map(model);
     }
 
-    private static XSModel readSchemaInternal(String schemaResource, String schemaText) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
+    private static XSModel readSchemaInternal(String schemaResource, String schemaText, EngineImportService engineImportService) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
             ConfigurationException, URISyntaxException
     {
         LSInputImpl input = null;
         String baseURI = null;
         URL url = null;
         if (schemaResource != null) {
-            url = ResourceLoader.resolveClassPathOrURLResource("schema", schemaResource);
+            url = ResourceLoader.resolveClassPathOrURLResource("schema", schemaResource, engineImportService.getClassLoader());
             baseURI = url.toURI().toString();
         }
         else {

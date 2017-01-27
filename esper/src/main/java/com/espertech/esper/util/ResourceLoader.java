@@ -25,7 +25,7 @@ public class ResourceLoader
      * @param urlOrClasspathResource is a URL string or classpath-relative filename
      * @return URL or null if resolution was unsuccessful
      */
-    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource)
+    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader)
     {
         URL url;
         try
@@ -34,7 +34,7 @@ public class ResourceLoader
         }
         catch (MalformedURLException ex)
         {
-            url = getClasspathResourceAsURL(resourceName, urlOrClasspathResource);
+            url = getClasspathResourceAsURL(resourceName, urlOrClasspathResource, classLoader);
         }
         return url;
     }
@@ -62,13 +62,12 @@ public class ResourceLoader
      * @param resource is the classpath-relative filename to resolve into a URL
      * @return URL for resource
      */
-    public static URL getClasspathResourceAsURL(String resourceName, String resource)
+    public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader)
     {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
         URL url = null;
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             url = classLoader.getResource(stripped);
         }

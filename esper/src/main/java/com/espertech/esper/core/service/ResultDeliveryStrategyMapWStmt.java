@@ -14,6 +14,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.epl.core.EngineImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +26,8 @@ public class ResultDeliveryStrategyMapWStmt extends ResultDeliveryStrategyMap {
 
     private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyMapWStmt.class);
 
-    public ResultDeliveryStrategyMapWStmt(EPStatement statement, Object subscriber, Method method, String[] columnNames) {
-        super(statement, subscriber, method, columnNames);
+    public ResultDeliveryStrategyMapWStmt(EPStatement statement, Object subscriber, Method method, String[] columnNames, EngineImportService engineImportService) {
+        super(statement, subscriber, method, columnNames, engineImportService);
     }
 
     @Override

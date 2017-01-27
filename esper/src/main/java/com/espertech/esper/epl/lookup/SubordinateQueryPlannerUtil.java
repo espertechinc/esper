@@ -11,6 +11,7 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.plan.CoercionDesc;
@@ -29,8 +30,8 @@ import java.util.List;
 
 public class SubordinateQueryPlannerUtil
 {
-    public static void queryPlanLogOnExpr(boolean queryPlanLogging, Logger queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations) {
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations);
+    public static void queryPlanLogOnExpr(boolean queryPlanLogging, Logger queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations, EngineImportService engineImportService) {
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, engineImportService);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             String prefix = "On-Expr ";
             queryPlanLog.info(prefix + "strategy " + strategy.getFactory().toQueryPlan());
@@ -54,8 +55,8 @@ public class SubordinateQueryPlannerUtil
         }
     }
 
-    public static void queryPlanLogOnSubq(boolean queryPlanLogging, Logger queryPlanLog, SubordinateQueryPlanDesc plan, int subqueryNum, Annotation[] annotations) {
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations);
+    public static void queryPlanLogOnSubq(boolean queryPlanLogging, Logger queryPlanLog, SubordinateQueryPlanDesc plan, int subqueryNum, Annotation[] annotations, EngineImportService engineImportService) {
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, engineImportService);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             String prefix = "Subquery " + subqueryNum + " ";
             String strategy = (plan == null || plan.getLookupStrategyFactory() == null) ? "table scan" : plan.getLookupStrategyFactory().toQueryPlan();

@@ -12,6 +12,7 @@
 package com.espertech.esperio.kafka;
 
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -20,11 +21,11 @@ import java.util.Properties;
 
 public class EsperIOKafkaInputProcessorContext {
     private final KafkaConsumer consumer;
-    private final EPServiceProvider engine;
+    private final EPServiceProviderSPI engine;
     private final Properties properties;
     private final EsperIOKafkaInputAdapter adapter;
 
-    public EsperIOKafkaInputProcessorContext(KafkaConsumer consumer, EPServiceProvider engine, Properties properties, EsperIOKafkaInputAdapter adapter) {
+    public EsperIOKafkaInputProcessorContext(KafkaConsumer consumer, EPServiceProviderSPI engine, Properties properties, EsperIOKafkaInputAdapter adapter) {
         this.consumer = consumer;
         this.engine = engine;
         this.properties = properties;
@@ -35,7 +36,7 @@ public class EsperIOKafkaInputProcessorContext {
         return consumer;
     }
 
-    public EPServiceProvider getEngine() {
+    public EPServiceProviderSPI getEngine() {
         return engine;
     }
 

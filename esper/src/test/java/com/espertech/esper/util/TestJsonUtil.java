@@ -27,7 +27,7 @@ public class TestJsonUtil extends TestCase {
     private EngineImportService engineImportService;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, AggregationFactoryFactoryDefault.INSTANCE);
+        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
     }
 
     protected void tearDown() {

@@ -13,6 +13,7 @@ package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.epl.core.EngineImportException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.script.jsr223.ExpressionScriptCompiledJSR223;
 import com.espertech.esper.epl.script.jsr223.JSR223Helper;
@@ -112,7 +113,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
 
         // Compile script
         if (script.getCompiled() == null) {
-            compileScript(evaluators);
+            compileScript(evaluators, validationContext.getEngineImportService());
         }
 
         // Determine declared return type
@@ -151,7 +152,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         return null;
     }
 
-    private void compileScript(ExprEvaluator[] evaluators)
+    private void compileScript(ExprEvaluator[] evaluators, EngineImportService engineImportService)
             throws ExprValidationException
     {
         String dialect = script.getOptionalDialect() == null ? defaultDialect : script.getOptionalDialect();
@@ -164,7 +165,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
                 mvelInputParamTypes.put(mvelParamName, evaluators[i].getType());
             }
             mvelInputParamTypes.put(CONTEXT_BINDING_NAME, EPLScriptContext.class);
-            compiled = MVELHelper.compile(script.getName(), script.getExpression(), mvelInputParamTypes);
+            compiled = MVELHelper.compile(script.getName(), script.getExpression(), mvelInputParamTypes, engineImportService);
         }
         else {
             CompiledScript compiledScript = JSR223Helper.verifyCompileScript(script, dialect);
@@ -195,7 +196,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
             return null;
         }
 
-        Class returnType = JavaClassHelper.getClassForSimpleName(returnTypeName);
+        Class returnType = JavaClassHelper.getClassForSimpleName(returnTypeName, validationContext.getEngineImportService().getClassForNameProvider());
         if (returnType != null) {
             return returnType;
         }

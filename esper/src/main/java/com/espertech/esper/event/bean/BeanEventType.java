@@ -10,6 +10,7 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineNoSuchMethodException;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.property.*;
@@ -89,7 +90,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
         }
         propertyGetterCache = new HashMap<String, EventPropertyGetter>();
 
-        initialize(false);
+        initialize(false, eventAdapterService.getEngineImportService());
 
         EventTypeUtility.TimestampPropertyDesc desc = EventTypeUtility.validatedDetermineTimestampProps(this, optionalLegacyDef == null ? null : optionalLegacyDef.getStartTimestampPropertyName(), optionalLegacyDef == null ? null : optionalLegacyDef.getEndTimestampPropertyName(), superTypes);
         startTimestampPropertyName = desc.getStart();
@@ -331,7 +332,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
                " clazz=" + clazz.getName();
     }
 
-    private void initialize(boolean isConfigured)
+    private void initialize(boolean isConfigured, EngineImportService engineImportService)
     {
         PropertyListBuilder propertyListBuilder = PropertyListBuilderFactory.createBuilder(optionalLegacyDef);
         List<InternalEventPropDescriptor> properties = propertyListBuilder.assessProperties(clazz);
@@ -356,7 +357,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
             // get CGLib fast class using current thread class loader
             fastClass = null;
             try {
-                fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), clazz);
+                fastClass = FastClass.create(engineImportService.getFastClassClassLoader(clazz), clazz);
             }
             catch (Throwable exWithThreadClassLoader) {
                 // get CGLib fast class based on given class (for OSGI support)
@@ -366,7 +367,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType
                 catch (Throwable exWithoutThreadClassLoader) {
                     log.warn(".initialize Unable to obtain CGLib fast class and/or method implementation for class " +
                             clazz.getName() + ", error msg is " + exWithThreadClassLoader.getMessage(), exWithThreadClassLoader);
-                    log.warn(".initialize Not using the Thread.currentThread().getContextClassLoader(), error msg is: " + exWithoutThreadClassLoader.getMessage(), exWithoutThreadClassLoader);
+                    log.warn(".initialize Not using the provided class loader, the error msg is: " + exWithoutThreadClassLoader.getMessage(), exWithoutThreadClassLoader);
                     fastClass = null;
                 }
             }

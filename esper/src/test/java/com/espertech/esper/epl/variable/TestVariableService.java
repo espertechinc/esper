@@ -12,6 +12,8 @@
 package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.core.start.EPStatementStartMethod;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
@@ -25,10 +27,12 @@ import java.util.concurrent.TimeUnit;
 public class TestVariableService extends TestCase
 {
     private VariableService service;
+    private EngineImportService engineImportService;
     
     public void setUp()
     {
         service = new VariableServiceImpl(10000, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
+        engineImportService = SupportEngineImportServiceFactory.make();
     }
 
     public void testPerfSetVersion()
@@ -70,7 +74,7 @@ public class TestVariableService extends TestCase
             char c = 'A';
             c+=i;
             variables[i] = Character.toString(c);
-            service.createNewVariable(null, variables[i], Integer.class.getName(), false, false, false, 0, null);
+            service.createNewVariable(null, variables[i], Integer.class.getName(), false, false, false, 0, engineImportService);
             service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         }
 
@@ -104,7 +108,7 @@ public class TestVariableService extends TestCase
     {
         assertNull(service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
-        service.createNewVariable(null, "a", Long.class.getName(), false, false, false, 100L, null);
+        service.createNewVariable(null, "a", Long.class.getName(), false, false, false, 100L, engineImportService);
         service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         VariableReader reader = service.getReader("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         assertEquals(Long.class, reader.getVariableMetaData().getType());
@@ -131,7 +135,7 @@ public class TestVariableService extends TestCase
         VariableReader readers[] = new VariableReader[variables.length];
         for (int i = 0; i < variables.length; i++)
         {
-            service.createNewVariable(null, variables[i], Long.class.getName(), false, false, false, 100L, null);
+            service.createNewVariable(null, variables[i], Long.class.getName(), false, false, false, 100L, engineImportService);
             service.allocateVariableState(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
             readers[i] = service.getReader(variables[i], EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
         }
@@ -158,13 +162,13 @@ public class TestVariableService extends TestCase
 
     public void testInvalid() throws Exception
     {
-        service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, null);
+        service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, engineImportService);
         service.allocateVariableState("a", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID, null, false);
         assertNull(service.getReader("dummy", EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID));
 
         try
         {
-            service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, null);
+            service.createNewVariable(null, "a", Long.class.getName(), false, false, false, null, engineImportService);
             fail();
         }
         catch (VariableExistsException e)

@@ -11,6 +11,7 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.annotation.Hook;
 import com.espertech.esper.client.annotation.HookType;
+import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
@@ -797,7 +798,7 @@ public class JavaClassHelper
      * @return class for name
      * @throws ClassNotFoundException if the class cannot be found
      */
-    public static Class getClassForName(String className) throws ClassNotFoundException
+    public static Class getClassForName(String className, ClassForNameProvider classForNameProvider) throws ClassNotFoundException
     {
         if (className.equals(boolean.class.getName()))
         {
@@ -831,8 +832,7 @@ public class JavaClassHelper
         {
             return long.class;
         }
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return Class.forName(className, true, cl);
+        return classForNameProvider.classForName(className);
     }
 
     /**
@@ -844,7 +844,7 @@ public class JavaClassHelper
      * @return class
      * @throws EventAdapterException is throw if the class cannot be identified
      */
-    public static Class getClassForSimpleName(String className)
+    public static Class getClassForSimpleName(String className, ClassForNameProvider classForNameProvider)
             throws EventAdapterException
     {
         if (("string".equals(className.toLowerCase().trim())) ||
@@ -875,8 +875,7 @@ public class JavaClassHelper
 
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            return Class.forName(boxedClassName, true, cl);
+            return classForNameProvider.classForName(boxedClassName);
         }
         catch (ClassNotFoundException ex)
         {
@@ -886,8 +885,7 @@ public class JavaClassHelper
         boxedClassName = JavaClassHelper.getBoxedClassName(className.toLowerCase().trim());
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            return Class.forName(boxedClassName, true, cl);
+            return classForNameProvider.classForName(boxedClassName);
         }
         catch (ClassNotFoundException ex)
         {
@@ -1139,13 +1137,12 @@ public class JavaClassHelper
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
      */
-    public static Object instantiate(Class implementedOrExtendedClass, String className) throws ClassInstantiationException
+    public static Object instantiate(Class implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException
     {
         Class clazz;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(className, true, cl);
+            clazz = classForNameProvider.classForName(className);
         }
         catch (ClassNotFoundException ex)
         {
@@ -1491,11 +1488,11 @@ public class JavaClassHelper
      * @param annotations to search
      * @param hookType type to look for
      * @param interfaceExpected interface required
-     * @param optionalResolver for resolving references, optional, if not provided then using Class.forName
+     * @param engineImportService for resolving references
      * @return hook instance
      * @throws ExprValidationException if instantiation failed
      */
-    public static Object getAnnotationHook(Annotation[] annotations, HookType hookType, Class interfaceExpected, EngineImportService optionalResolver)
+    public static Object getAnnotationHook(Annotation[] annotations, HookType hookType, Class interfaceExpected, EngineImportService engineImportService)
             throws ExprValidationException
     {
         if (annotations == null) {
@@ -1519,12 +1516,7 @@ public class JavaClassHelper
         Class clazz;
         try
         {
-            if (optionalResolver == null) {
-                clazz = Class.forName(hookClass);
-            }
-            else {
-                clazz = optionalResolver.resolveClass(hookClass, true);
-            }
+            clazz = engineImportService.resolveClass(hookClass, false);
         }
         catch (Exception e)
         {
@@ -1721,7 +1713,7 @@ public class JavaClassHelper
         return true;
     }
 
-    public static Map<String, Object> getClassObjectFromPropertyTypeNames(Properties properties)
+    public static Map<String, Object> getClassObjectFromPropertyTypeNames(Properties properties, ClassForNameProvider classForNameProvider)
     {
         Map<String, Object> propertyTypes = new LinkedHashMap<String, Object>();
         for(Map.Entry<Object, Object> entry : properties.entrySet())
@@ -1739,8 +1731,7 @@ public class JavaClassHelper
             Class clazz;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                clazz = Class.forName(boxedClassName, true, cl);
+                clazz = classForNameProvider.classForName(boxedClassName);
             }
             catch (ClassNotFoundException ex)
             {
@@ -1752,10 +1743,9 @@ public class JavaClassHelper
         return propertyTypes;
     }
 
-    public static Class getClassInClasspath(String classname) {
+    public static Class getClassInClasspath(String classname, ClassForNameProvider classForNameProvider) {
         try {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Class clazz = Class.forName(classname, true, cl);
+            Class clazz = classForNameProvider.classForName(classname);
             return clazz;
         }
         catch (ClassNotFoundException ex) {

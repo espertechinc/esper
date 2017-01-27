@@ -12,6 +12,7 @@
 package com.espertech.esper.util;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.supportunit.bean.*;
 import junit.framework.TestCase;
 
@@ -515,7 +516,7 @@ public class TestJavaClassHelper extends TestCase
 
         for (int i = 0; i < tests.length; i++)
         {
-            assertEquals(tests[i][0], JavaClassHelper.getClassForName((String)tests[i][1]));
+            assertEquals(tests[i][0], JavaClassHelper.getClassForName((String)tests[i][1], ClassForNameProviderDefault.INSTANCE));
         }
     }
 
@@ -555,7 +556,7 @@ public class TestJavaClassHelper extends TestCase
 
         for (int i = 0; i < tests.length; i++)
         {
-            assertEquals("error in row:" + i, tests[i][1], JavaClassHelper.getClassForSimpleName((String)tests[i][0]));
+            assertEquals("error in row:" + i, tests[i][1], JavaClassHelper.getClassForSimpleName((String)tests[i][0], ClassForNameProviderDefault.INSTANCE));
         }
     }
 
@@ -906,7 +907,7 @@ public class TestJavaClassHelper extends TestCase
         props.put("p1", "int");
         props.put("p2", SupportBean.class.getName());
         
-        Map<String, Object> map = JavaClassHelper.getClassObjectFromPropertyTypeNames(props);
+        Map<String, Object> map = JavaClassHelper.getClassObjectFromPropertyTypeNames(props, ClassForNameProviderDefault.INSTANCE);
         assertEquals(String.class, map.get("p0"));
         assertEquals(Integer.class, map.get("p1"));
         assertEquals(SupportBean.class, map.get("p2"));

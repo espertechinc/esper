@@ -65,7 +65,7 @@ public class EsperIODBAdapter
 
         EPServiceProviderSPI engineSPI = (EPServiceProviderSPI) EPServiceProviderManager.getProvider(engineURI);
 
-        databaseConfigSvc = new DatabaseConfigServiceImpl(config.getJdbcConnections(), null, null);
+        databaseConfigSvc = new DatabaseConfigServiceImpl(config.getJdbcConnections(), null, null, engineSPI.getEngineImportService());
         executorFactory = new ExecutorServices(engineSPI, config.getExecutors());
 
         // Handle Upserts

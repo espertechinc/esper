@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.ConfigurationDBRef;
@@ -62,17 +63,17 @@ public class DatabasePollingViewableFactory
      * @return viewable providing poll functionality
      * @throws ExprValidationException if the validation failed
      */
-    public static HistoricalEventViewable createDBStatementView( int statementId,
-                                                                 int streamNumber,
-                                                                 DBStatementStreamSpec databaseStreamSpec,
-                                                                 DatabaseConfigService databaseConfigService,
-                                                                 EventAdapterService eventAdapterService,
-                                                                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
-                                                                 SQLColumnTypeConversion columnTypeConversionHook,
-                                                                 SQLOutputRowConversion outputRowConversionHook,
-                                                                 boolean enableJDBCLogging,
-                                                                 DataCacheFactory dataCacheFactory,
-                                                                 StatementContext statementContext)
+    public static HistoricalEventViewable createDBStatementView(int statementId,
+                                                                int streamNumber,
+                                                                DBStatementStreamSpec databaseStreamSpec,
+                                                                DatabaseConfigService databaseConfigService,
+                                                                EventAdapterService eventAdapterService,
+                                                                EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
+                                                                SQLColumnTypeConversion columnTypeConversionHook,
+                                                                SQLOutputRowConversion outputRowConversionHook,
+                                                                boolean enableJDBCLogging,
+                                                                DataCacheFactory dataCacheFactory,
+                                                                StatementContext statementContext)
             throws ExprValidationException
     {
         // Parse the SQL for placeholders and text fragments
@@ -224,7 +225,7 @@ public class DatabasePollingViewableFactory
             }
             else
             {
-                clazz = SQLTypeMapUtil.sqlTypeToClass(dbOutputDesc.getSqlType(), dbOutputDesc.getClassName());
+                clazz = SQLTypeMapUtil.sqlTypeToClass(dbOutputDesc.getSqlType(), dbOutputDesc.getClassName(), statementContext.getEngineImportService().getClassForNameProvider());
             }
 
             if (columnTypeConversionHook != null) {

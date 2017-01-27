@@ -12,6 +12,7 @@ import com.espertech.esper.core.service.Configurator;
 import com.espertech.esper.core.service.ConfiguratorContext;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.util.TransientConfigurationResolver;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Map;
@@ -125,7 +126,7 @@ public final class EPServiceProviderManager
         // cluster-wide configuration
         if (configuration != null && configuration.getEngineDefaults().getCluster() != null && configuration.getEngineDefaults().getCluster().isEnabled()) {
             String className = configuration.getEngineDefaults().getCluster().getClusterConfiguratorClass();
-            Configurator configurator = (Configurator) JavaClassHelper.instantiate(Configurator.class, className);
+            Configurator configurator = (Configurator) JavaClassHelper.instantiate(Configurator.class, className, TransientConfigurationResolver.resolveClassForNameProvider(configuration.getTransientConfiguration()));
             return configurator.configure(new ConfiguratorContext(providerURINonNull, runtimes), configuration);
         }
 

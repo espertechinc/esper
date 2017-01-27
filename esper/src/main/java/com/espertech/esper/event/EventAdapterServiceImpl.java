@@ -67,13 +67,16 @@ public class EventAdapterServiceImpl implements EventAdapterService
     private final EventTypeIdGenerator eventTypeIdGenerator;
     private final EventAdapterServiceAnonymousTypeCache anonymousTypeCache;
     private final EventAdapterAvroHandler avroHandler;
+    private final EngineImportService engineImportService;
 
     public EventAdapterServiceImpl(EventTypeIdGenerator eventTypeIdGenerator,
                                    int anonymousTypeCacheSize,
-                                   EventAdapterAvroHandler avroHandler)
+                                   EventAdapterAvroHandler avroHandler,
+                                   EngineImportService engineImportService)
     {
         this.eventTypeIdGenerator = eventTypeIdGenerator;
         this.avroHandler = avroHandler;
+        this.engineImportService = engineImportService;
 
         nameToTypeMap = new HashMap<String, EventType>();
         xmldomRootElementNames = new HashMap<String, EventType>();
@@ -85,6 +88,10 @@ public class EventAdapterServiceImpl implements EventAdapterService
         beanEventAdapter = new BeanEventAdapter(typesPerJavaBean, this, eventTypeIdGenerator);
         plugInRepresentations = new HashMap<URI, PlugInEventRepresentation>();
         anonymousTypeCache = new EventAdapterServiceAnonymousTypeCache(anonymousTypeCacheSize);
+    }
+
+    public EngineImportService getEngineImportService() {
+        return engineImportService;
     }
 
     public Map<String, EventType> getDeclaredEventTypes() {
@@ -460,8 +467,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
         Class clazz = null;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(fullyQualClassName, true, cl);
+            clazz = engineImportService.getClassForNameProvider().classForName(fullyQualClassName);
         }
         catch (ClassNotFoundException ex)
         {
@@ -476,8 +482,7 @@ public class EventAdapterServiceImpl implements EventAdapterService
                 String generatedClassName = javaPackageName + "." + fullyQualClassName;
                 try
                 {
-                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                    Class resolvedClass = Class.forName(generatedClassName, true, cl);
+                    Class resolvedClass = engineImportService.getClassForNameProvider().classForName(generatedClassName);
                     if (clazz != null)
                     {
                         throw new EventAdapterException("Failed to resolve name '" + eventTypeName + "', the class was ambigously found both in " +

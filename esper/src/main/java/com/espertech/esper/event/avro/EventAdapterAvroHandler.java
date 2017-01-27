@@ -12,6 +12,7 @@
 package com.espertech.esper.event.avro;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.*;
@@ -24,7 +25,7 @@ import java.util.Set;
 public interface EventAdapterAvroHandler {
     String HANDLER_IMPL = "com.espertech.esper.avro.core.EventAdapterAvroHandlerImpl";
 
-    void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings);
+    void init(ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings, EngineImportService engineImportService);
     SelectExprProcessorRepresentationFactory getOutputFactory();
     AvroSchemaEventType newEventTypeFromSchema(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, ConfigurationEventTypeAvro requiredConfig, EventType[] superTypes, Set<EventType> deepSuperTypes);
     AvroSchemaEventType newEventTypeFromNormalized(EventTypeMetadata metadata, String eventTypeName, int typeId, EventAdapterService eventAdapterService, Map<String, Object> properties, Annotation[] annotations, ConfigurationEventTypeAvro optionalConfig, EventType[] superTypes, Set<EventType> deepSuperTypes, String statementName, String engineURI);

@@ -12,6 +12,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.NaturalEventBean;
 import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastClass;
@@ -51,12 +52,12 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
      * @param rStreamMethod to deliver the remove stream to, or null if no such indication is required
      * @param statement statement
      */
-    public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod)
+    public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod, EngineImportService engineImportService)
     {
         this.statement = statement;
         this.subscriber = subscriber;
         this.deliveryConvertor = deliveryConvertor;
-        FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), subscriber.getClass());
+        FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(subscriber.getClass()), subscriber.getClass());
         this.updateMethodFast = fastClass.getMethod(method);
 
         if (startMethod != null) {

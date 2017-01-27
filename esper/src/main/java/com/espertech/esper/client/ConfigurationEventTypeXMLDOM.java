@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.client;
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MetaDefItem;
 
@@ -15,6 +16,7 @@ import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -287,7 +289,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
                 castToType = castToType.replace("[]", "");
             }
 
-            castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType);
+            castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType, ClassForNameProviderDefault.INSTANCE);
             if (castToTypeClass == null) {
                 throw new ConfigurationException("Invalid cast-to type for xpath expression named '" + name + "', the type is not recognized");
             }

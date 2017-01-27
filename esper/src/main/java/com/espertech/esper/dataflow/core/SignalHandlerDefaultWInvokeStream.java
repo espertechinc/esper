@@ -12,6 +12,7 @@
 package com.espertech.esper.dataflow.core;
 
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
+import com.espertech.esper.epl.core.EngineImportService;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,8 +21,8 @@ public class SignalHandlerDefaultWInvokeStream extends SignalHandlerDefaultWInvo
 
     private final int streamNum;
 
-    public SignalHandlerDefaultWInvokeStream(Object target, Method method, int streamNum) {
-        super(target, method);
+    public SignalHandlerDefaultWInvokeStream(Object target, Method method, EngineImportService engineImportService, int streamNum) {
+        super(target, method, engineImportService);
         this.streamNum = streamNum;
     }
 

@@ -14,7 +14,6 @@ package com.espertech.esper.avro.core;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterIndexedRuntimeKeyed;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterMappedRuntimeKeyed;
 import com.espertech.esper.avro.getter.AvroEventBeanGetterSimple;
-import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.avro.writer.*;
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.parse.ASTUtil;
@@ -61,13 +60,13 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         this.avroSchema = avroSchema;
         this.optionalSuperTypes = optionalSuperTypes;
         this.deepSupertypes = deepSupertypes == null ? Collections.emptySet() : deepSupertypes;
+        this.propertyItems = new LinkedHashMap<>();
+
+        init();
 
         EventTypeUtility.TimestampPropertyDesc desc = EventTypeUtility.validatedDetermineTimestampProps(this, startTimestampPropertyName, endTimestampPropertyName, optionalSuperTypes);
         this.startTimestampPropertyName = desc.getStart();
         this.endTimestampPropertyName = desc.getEnd();
-
-        propertyItems = new LinkedHashMap<>();
-        init();
     }
 
     public Class getUnderlyingType() {
@@ -92,14 +91,14 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         if (propertyGetterCache == null) {
             propertyGetterCache = new HashMap<>();
         }
-        return AvroPropertyUtil.getGetter(eventTypeName, avroSchema, propertyGetterCache, propertyItems, propertyExpression, false, eventAdapterService) != null;
+        return AvroPropertyUtil.getGetter(avroSchema, propertyGetterCache, propertyItems, propertyExpression, false, eventAdapterService) != null;
     }
 
     public EventPropertyGetter getGetter(String propertyExpression) {
         if (propertyGetterCache == null) {
             propertyGetterCache = new HashMap<>();
         }
-        return AvroPropertyUtil.getGetter(eventTypeName, avroSchema, propertyGetterCache, propertyItems, propertyExpression, true, eventAdapterService);
+        return AvroPropertyUtil.getGetter(avroSchema, propertyGetterCache, propertyItems, propertyExpression, true, eventAdapterService);
     }
 
     public FragmentEventType getFragmentType(String propertyExpression) {

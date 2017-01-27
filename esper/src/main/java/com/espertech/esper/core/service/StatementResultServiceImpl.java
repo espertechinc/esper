@@ -185,7 +185,7 @@ public class StatementResultServiceImpl implements StatementResultService
         }
 
         statementResultNaturalStrategy = ResultDeliveryStrategyFactory.create(epStatement, statementListenerSet.getSubscriber(), statementListenerSet.getSubscriberMethodName(),
-                selectClauseTypes, selectClauseColumnNames, epServiceProvider.getURI());
+                selectClauseTypes, selectClauseColumnNames, epServiceProvider.getURI(), epServiceProvider.getEngineImportService());
         isMakeNatural = true;
     }
 

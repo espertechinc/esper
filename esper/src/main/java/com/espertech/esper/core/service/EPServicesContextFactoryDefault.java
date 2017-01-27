@@ -25,12 +25,12 @@ import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowConfigurationStateServiceImpl;
 import com.espertech.esper.dataflow.core.DataFlowServiceImpl;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.lookup.EventTableIndexServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
 import com.espertech.esper.epl.named.*;
@@ -63,10 +63,7 @@ import com.espertech.esper.timer.TimeSourceService;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.timer.TimerService;
 import com.espertech.esper.timer.TimerServiceImpl;
-import com.espertech.esper.util.GraphCircularDependencyException;
-import com.espertech.esper.util.GraphUtil;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.ManagedReadWriteLock;
+import com.espertech.esper.util.*;
 import com.espertech.esper.view.ViewServicePreviousFactoryImpl;
 import com.espertech.esper.view.stream.StreamFactoryService;
 import com.espertech.esper.view.stream.StreamFactoryServiceProvider;
@@ -89,11 +86,15 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         // JNDI context for binding resources
         EngineEnvContext jndiContext = new EngineEnvContext();
 
+        // Engine import service
+        EngineImportService engineImportService = makeEngineImportService(configSnapshot, AggregationFactoryFactoryDefault.INSTANCE);
+
+        // Event Type Id Generation
         EventTypeIdGenerator eventTypeIdGenerator;
         if (configSnapshot.getEngineDefaults().getAlternativeContext() == null || configSnapshot.getEngineDefaults().getAlternativeContext().getEventTypeIdGeneratorFactory() == null) {
             eventTypeIdGenerator = new EventTypeIdGeneratorImpl();
         } else {
-            EventTypeIdGeneratorFactory eventTypeIdGeneratorFactory = (EventTypeIdGeneratorFactory) JavaClassHelper.instantiate(EventTypeIdGeneratorFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getEventTypeIdGeneratorFactory());
+            EventTypeIdGeneratorFactory eventTypeIdGeneratorFactory = (EventTypeIdGeneratorFactory) JavaClassHelper.instantiate(EventTypeIdGeneratorFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getEventTypeIdGeneratorFactory(), engineImportService.getClassForNameProvider());
             eventTypeIdGenerator = eventTypeIdGeneratorFactory.create(new EventTypeIdGeneratorContext(epServiceProvider.getURI()));
         }
 
@@ -101,20 +102,20 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         EventAdapterAvroHandler avroHandler = EventAdapterAvroHandlerUnsupported.INSTANCE;
         if (configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings().isEnableAvro()) {
             try {
-                avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL);
+                avroHandler = (EventAdapterAvroHandler) JavaClassHelper.instantiate(EventAdapterAvroHandler.class, EventAdapterAvroHandler.HANDLER_IMPL, engineImportService.getClassForNameProvider());
             }
             catch(Throwable t){
                 log.debug("Avro provider {} not instantiated, not enabling Avro support: {}", EventAdapterAvroHandler.HANDLER_IMPL, t.getMessage());
             }
             try {
-                avroHandler.init(configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings());
+                avroHandler.init(configSnapshot.getEngineDefaults().getEventMeta().getAvroSettings(), engineImportService);
             }
             catch(Throwable t){
                 throw new ConfigurationException("Failed to initialize Esper-Avro: " + t.getMessage(), t);
             }
         }
-        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler);
-        init(eventAdapterService, configSnapshot);
+        EventAdapterServiceImpl eventAdapterService = new EventAdapterServiceImpl(eventTypeIdGenerator, configSnapshot.getEngineDefaults().getEventMeta().getAnonymousCacheSize(), avroHandler, engineImportService);
+        init(eventAdapterService, configSnapshot, engineImportService);
 
         // New read-write lock for concurrent event processing
         ManagedReadWriteLock eventProcessingRWLock = new ManagedReadWriteLock("EventProcLock", false);
@@ -122,23 +123,22 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         TimeSourceService timeSourceService = makeTimeSource(configSnapshot);
         SchedulingServiceSPI schedulingService = SchedulingServiceProvider.newService(timeSourceService);
         SchedulingMgmtService schedulingMgmtService = new SchedulingMgmtServiceImpl();
-        EngineImportService engineImportService = makeEngineImportService(configSnapshot, AggregationFactoryFactoryDefault.INSTANCE);
         EngineSettingsService engineSettingsService = new EngineSettingsService(configSnapshot.getEngineDefaults(), configSnapshot.getPlugInEventTypeResolutionURIs());
-        DatabaseConfigService databaseConfigService = makeDatabaseRefService(configSnapshot, schedulingService, schedulingMgmtService);
+        DatabaseConfigService databaseConfigService = makeDatabaseRefService(configSnapshot, schedulingService, schedulingMgmtService, engineImportService);
 
         PluggableObjectCollection plugInViews = new PluggableObjectCollection();
-        plugInViews.addViews(configSnapshot.getPlugInViews(), configSnapshot.getPlugInVirtualDataWindows());
+        plugInViews.addViews(configSnapshot.getPlugInViews(), configSnapshot.getPlugInVirtualDataWindows(), engineImportService);
         PluggableObjectCollection plugInPatternObj = new PluggableObjectCollection();
-        plugInPatternObj.addPatternObjects(configSnapshot.getPlugInPatternObjects());
+        plugInPatternObj.addPatternObjects(configSnapshot.getPlugInPatternObjects(), engineImportService);
 
         // exception handling
-        ExceptionHandlingService exceptionHandlingService = initExceptionHandling(epServiceProvider.getURI(), configSnapshot.getEngineDefaults().getExceptionHandling(), configSnapshot.getEngineDefaults().getConditionHandling());
+        ExceptionHandlingService exceptionHandlingService = initExceptionHandling(epServiceProvider.getURI(), configSnapshot.getEngineDefaults().getExceptionHandling(), configSnapshot.getEngineDefaults().getConditionHandling(), engineImportService);
 
         // Statement context factory
         Class systemVirtualDWViewFactory = null;
         if (configSnapshot.getEngineDefaults().getAlternativeContext().getVirtualDataWindowViewFactory() != null) {
             try {
-                systemVirtualDWViewFactory = Class.forName(configSnapshot.getEngineDefaults().getAlternativeContext().getVirtualDataWindowViewFactory());
+                systemVirtualDWViewFactory = engineImportService.getClassForNameProvider().classForName(configSnapshot.getEngineDefaults().getAlternativeContext().getVirtualDataWindowViewFactory());
                 if (!JavaClassHelper.isImplementsInterface(systemVirtualDWViewFactory, VirtualDataWindowFactory.class)) {
                     throw new ConfigurationException("Class " + systemVirtualDWViewFactory.getName() + " does not implement the interface " + VirtualDataWindowFactory.class.getName());
                 }
@@ -187,7 +187,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             stmtMetadataFactory = new StatementMetadataFactoryDefault();
         }
         else {
-            stmtMetadataFactory = (StatementMetadataFactory) JavaClassHelper.instantiate(StatementMetadataFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getStatementMetadataFactory());
+            stmtMetadataFactory = (StatementMetadataFactory) JavaClassHelper.instantiate(StatementMetadataFactory.class, configSnapshot.getEngineDefaults().getAlternativeContext().getStatementMetadataFactory(), engineImportService.getClassForNameProvider());
         }
 
         ContextManagementService contextManagementService = new ContextManagementServiceImpl();
@@ -239,7 +239,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
     }
 
     protected static ExceptionHandlingService initExceptionHandling(String engineURI, ConfigurationEngineDefaults.ExceptionHandling exceptionHandling,
-                                                                    ConfigurationEngineDefaults.ConditionHandling conditionHandling)
+                                                                    ConfigurationEngineDefaults.ConditionHandling conditionHandling,
+                                                                    EngineImportService engineImportService)
         throws ConfigurationException
     {
         List<ExceptionHandler> exceptionHandlers;
@@ -251,7 +252,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             ExceptionHandlerFactoryContext context = new ExceptionHandlerFactoryContext(engineURI);
             for (String className : exceptionHandling.getHandlerFactories()) {
                 try {
-                    ExceptionHandlerFactory factory = (ExceptionHandlerFactory) JavaClassHelper.instantiate(ExceptionHandlerFactory.class, className);
+                    ExceptionHandlerFactory factory = (ExceptionHandlerFactory) JavaClassHelper.instantiate(ExceptionHandlerFactory.class, className, engineImportService.getClassForNameProvider());
                     ExceptionHandler handler = factory.getHandler(context);
                     if (handler == null) {
                         log.warn("Exception handler factory '" + className + "' returned a null handler, skipping factory");
@@ -274,7 +275,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             ConditionHandlerFactoryContext context = new ConditionHandlerFactoryContext(engineURI);
             for (String className : conditionHandling.getHandlerFactories()) {
                 try {
-                    ConditionHandlerFactory factory = (ConditionHandlerFactory) JavaClassHelper.instantiate(ConditionHandlerFactory.class, className);
+                    ConditionHandlerFactory factory = (ConditionHandlerFactory) JavaClassHelper.instantiate(ConditionHandlerFactory.class, className, engineImportService.getClassForNameProvider());
                     ConditionHandler handler = factory.getHandler(context);
                     if (handler == null) {
                         log.warn("Condition handler factory '" + className + "' returned a null handler, skipping factory");
@@ -337,7 +338,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      * @param eventAdapterService is events adapter
      * @param configSnapshot is the config snapshot
      */
-    protected static void init(EventAdapterService eventAdapterService, ConfigurationInformation configSnapshot)
+    protected static void init(EventAdapterService eventAdapterService, ConfigurationInformation configSnapshot, EngineImportService engineImportService)
     {
         // Extract legacy event type definitions for each event type name, if supplied.
         //
@@ -400,7 +401,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             {
                 try
                 {
-                    schemaModel = XSDSchemaMapper.loadAndMap(entry.getValue().getSchemaResource(), entry.getValue().getSchemaText());
+                    schemaModel = XSDSchemaMapper.loadAndMap(entry.getValue().getSchemaResource(), entry.getValue().getSchemaText(), engineImportService);
                 }
                 catch (Exception ex)
                 {
@@ -443,7 +444,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 Properties propertiesUnnested = mapNames.get(mapName);
                 if (propertiesUnnested != null)
                 {
-                    Map<String, Object> propertyTypes = createPropertyTypes(propertiesUnnested);
+                    Map<String, Object> propertyTypes = createPropertyTypes(propertiesUnnested, engineImportService);
                     Map<String, Object> propertyTypesCompiled = EventTypeUtility.compileMapTypeProperties(propertyTypes, eventAdapterService);
                     eventAdapterService.addNestableMapType(mapName, propertyTypesCompiled, mapConfig, true, true, true, false, false);
                 }
@@ -480,7 +481,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             {
                 ConfigurationEventTypeObjectArray objectArrayConfig = configSnapshot.getObjectArrayTypeConfigurations().get(objectArrayName);
                 Map<String, Object> propertyTypes = nestableObjectArrayNames.get(objectArrayName);
-                propertyTypes = resolveClassesForStringPropertyTypes(propertyTypes);
+                propertyTypes = resolveClassesForStringPropertyTypes(propertyTypes, engineImportService);
                 Map<String, Object> propertyTypesCompiled = EventTypeUtility.compileMapTypeProperties(propertyTypes, eventAdapterService);
                 eventAdapterService.addNestableObjectArrayType(objectArrayName, propertyTypesCompiled, objectArrayConfig, true, true, true, false, false, false, null);
             }
@@ -498,8 +499,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             Class eventRepClass;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                eventRepClass = Class.forName(className, true, cl);
+                eventRepClass = engineImportService.getClassForNameProvider().classForName(className);
             }
             catch (ClassNotFoundException ex)
             {
@@ -575,6 +575,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 configSnapshot.getEngineDefaults().getExpression().getMathContext(),
                 configSnapshot.getEngineDefaults().getExpression().getTimeZone(),
                 configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
+                configSnapshot.getTransientConfiguration(),
                 aggregationFactoryFactory);
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
@@ -623,7 +624,8 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      */
     protected static DatabaseConfigService makeDatabaseRefService(ConfigurationInformation configSnapshot,
                                                           SchedulingService schedulingService,
-                                                          SchedulingMgmtService schedulingMgmtService)
+                                                          SchedulingMgmtService schedulingMgmtService,
+                                                                  EngineImportService engineImportService)
     {
         DatabaseConfigService databaseConfigService;
 
@@ -631,7 +633,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         try
         {
             ScheduleBucket allStatementsBucket = schedulingMgmtService.allocateBucket();
-            databaseConfigService = new DatabaseConfigServiceImpl(configSnapshot.getDatabaseReferences(), schedulingService, allStatementsBucket);
+            databaseConfigService = new DatabaseConfigServiceImpl(configSnapshot.getDatabaseReferences(), schedulingService, allStatementsBucket, engineImportService);
         }
         catch (IllegalArgumentException ex)
         {
@@ -641,14 +643,14 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         return databaseConfigService;
     }
 
-    private static Map<String, Object> createPropertyTypes(Properties properties)
+    private static Map<String, Object> createPropertyTypes(Properties properties, EngineImportService engineImportService)
     {
         Map<String, Object> propertyTypes = new LinkedHashMap<String, Object>();
         for(Map.Entry entry : properties.entrySet())
         {
             String property = (String) entry.getKey();
             String className = (String) entry.getValue();
-            Class clazz = resolveClassForTypeName(className);
+            Class clazz = resolveClassForTypeName(className, engineImportService);
             if (clazz != null) {
                 propertyTypes.put(property, clazz);
             }
@@ -656,7 +658,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         return propertyTypes;
     }
 
-    private static Map<String, Object> resolveClassesForStringPropertyTypes(Map<String, Object> properties)
+    private static Map<String, Object> resolveClassesForStringPropertyTypes(Map<String, Object> properties, EngineImportService engineImportService)
     {
         Map<String, Object> propertyTypes = new LinkedHashMap<String, Object>();
         for(Map.Entry entry : properties.entrySet())
@@ -667,7 +669,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 continue;
             }
             String className = (String) entry.getValue();
-            Class clazz = resolveClassForTypeName(className);
+            Class clazz = resolveClassForTypeName(className, engineImportService);
             if (clazz != null) {
                 propertyTypes.put(property, clazz);
             }
@@ -675,7 +677,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         return propertyTypes;
     }
 
-    private static Class resolveClassForTypeName(String type) {
+    private static Class resolveClassForTypeName(String type, EngineImportService engineImportService) {
         boolean isArray = false;
         if (type != null && EventTypeUtility.isPropertyArray(type)) {
             isArray = true;
@@ -685,7 +687,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         if (type == null) {
             throw new ConfigurationException("A null value has been provided for the type");
         }
-        Class clazz = JavaClassHelper.getClassForSimpleName(type);
+        Class clazz = JavaClassHelper.getClassForSimpleName(type, engineImportService.getClassForNameProvider());
         if (clazz == null) {
             throw new ConfigurationException("The type '" + type + "' is not a recognized type");
         }

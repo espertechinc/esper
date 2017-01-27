@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 

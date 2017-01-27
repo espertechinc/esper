@@ -11,6 +11,7 @@ package com.espertech.esperio.csv;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.espertech.esper.client.util.FastClassClassLoaderProviderDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,8 @@ public abstract class AbstractTypeCoercer {
         for(String property : propertyTypes.keySet())
 		{
 			log.debug(".createPropertyConstructors property==" + property + ", type==" + propertyTypes.get(property	));
-			FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), JavaClassHelper.getBoxedType((Class) propertyTypes.get(property)));
+			Class clazz = JavaClassHelper.getBoxedType((Class) propertyTypes.get(property));
+			FastClass fastClass = FastClass.create(FastClassClassLoaderProviderDefault.INSTANCE.classloader(clazz), clazz);
 			FastConstructor constructor = fastClass.getConstructor(parameterTypes);
 			constructors.put(property, constructor);
 		}

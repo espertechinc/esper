@@ -192,7 +192,7 @@ public class AnnotationUtil
 
         // return handler
         InvocationHandler handler = new EPLAnnotationInvocationHandler(annotationClass, properties);
-        return (Annotation) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {annotationClass}, handler);
+        return (Annotation) Proxy.newProxyInstance(engineImportService.getClassLoader(), new Class[] {annotationClass}, handler);
     }
 
     private static Object getFinalValue(Class annotationClass, AnnotationAttribute annotationAttribute, Object value, EngineImportService engineImportService) throws AnnotationException

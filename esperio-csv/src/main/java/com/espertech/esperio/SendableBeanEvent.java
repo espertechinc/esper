@@ -9,6 +9,7 @@
 package com.espertech.esperio;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.util.FastClassClassLoaderProviderDefault;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.bean.BeanEventPropertyWriter;
 import com.espertech.esper.event.bean.PropertyHelper;
@@ -46,7 +47,7 @@ public class SendableBeanEvent extends AbstractSendableEvent
                 Set<WriteablePropertyDescriptor> props = PropertyHelper.getWritableProperties(beanClass);
                 writers = new HashMap<String, BeanEventPropertyWriter>();
                 writersMap.put(beanClass, writers);
-                FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), beanClass);
+                FastClass fastClass = FastClass.create(FastClassClassLoaderProviderDefault.INSTANCE.classloader(beanClass), beanClass);
                 for (WriteablePropertyDescriptor prop : props) {
                     FastMethod writerMethod = fastClass.getMethod(prop.getWriteMethod());
                     writers.put(prop.getPropertyName(), new BeanEventPropertyWriter(beanClass, writerMethod));

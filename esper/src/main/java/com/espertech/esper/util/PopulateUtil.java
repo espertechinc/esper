@@ -233,14 +233,14 @@ public class PopulateUtil {
         Class clazz = null;
         String className = (String) properties.get(CLASS_PROPERTY_NAME);
         try {
-            clazz = JavaClassHelper.getClassForName(className);
+            clazz = JavaClassHelper.getClassForName(className, engineImportService.getClassForNameProvider());
         }
         catch (ClassNotFoundException e) {
 
             if (!className.contains(".")) {
                 className = topClass.getPackage().getName() + "." + className;
                 try {
-                    clazz = JavaClassHelper.getClassForName(className);
+                    clazz = JavaClassHelper.getClassForName(className, engineImportService.getClassForNameProvider());
                 }
                 catch (ClassNotFoundException ex) {
                 }

@@ -102,7 +102,7 @@ public class EsperIOHTTPAdapter
             EsperHttpServiceBase httpService;
             if (entry.getValue().isNio()) {
                 try {
-                    Class.forName("org.apache.http.nio.NHttpServiceHandler");
+                    engineSPI.getEngineImportService().getClassForNameProvider().classForName("org.apache.http.nio.NHttpServiceHandler");
                 } catch (ClassNotFoundException e) {
                     throw new ConfigurationException("NIO Handler not found in classpath, please ensure httpcore-nio exists in classpath.");
                 }

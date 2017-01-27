@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.script.mvel;
 
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionScriptCompiled;
@@ -36,14 +37,14 @@ public class MVELHelper {
      * @param script to verify/analyze
      * @throws ExprValidationException when not all parameters are resolved
      */
-    public static void verifyScript(ExpressionScriptProvided script) throws ExprValidationException {
+    public static void verifyScript(ExpressionScriptProvided script, EngineImportService engineImportService) throws ExprValidationException {
 
         // Reflective invocation - do not add MVEL to classpath
-        Object parserContext = MVELInvoker.newParserContext();
+        Object parserContext = MVELInvoker.newParserContext(engineImportService);
 
         // this populates the parser context with the actual undefined MVEL input parameters expected
         try {
-            MVELInvoker.analysisCompile(script.getExpression(), parserContext);
+            MVELInvoker.analysisCompile(script.getExpression(), parserContext, engineImportService);
         }
         catch (InvocationTargetException ex) {
             throw handleTargetException(script.getName(), ex);
@@ -67,11 +68,11 @@ public class MVELHelper {
         }
     }
 
-    public static ExpressionScriptCompiled compile(String scriptName, String expression, Map<String, Class> mvelInputParamTypes)
+    public static ExpressionScriptCompiled compile(String scriptName, String expression, Map<String, Class> mvelInputParamTypes, EngineImportService engineImportService)
         throws ExprValidationException {
 
         // Reflective invocation - do not add MVEL to classpath
-        Object parserContext = MVELInvoker.newParserContext();
+        Object parserContext = MVELInvoker.newParserContext(engineImportService);
         MVELInvoker.setParserContextStrongTyping(parserContext);
         MVELInvoker.setParserContextInputs(parserContext, mvelInputParamTypes);
 

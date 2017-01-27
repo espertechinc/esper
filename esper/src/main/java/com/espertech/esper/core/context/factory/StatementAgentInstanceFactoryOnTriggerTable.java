@@ -76,7 +76,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
             }
         }
         SubordinateQueryPlannerUtil.queryPlanLogOnExpr(tableMetadata.isQueryPlanLogging(), TableServiceImpl.getQueryPlanLog(),
-                queryPlanResult, statementContext.getAnnotations());
+                queryPlanResult, statementContext.getAnnotations(), statementContext.getEngineImportService());
     }
 
     public OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient) {

@@ -82,7 +82,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI
         if (log.isDebugEnabled()) {
             log.debug("Reading resource '" + resource + "'");
         }
-        return EPLModuleUtil.readResource(resource);
+        return EPLModuleUtil.readResource(resource, eventAdapterService.getEngineImportService());
     }
 
     public synchronized DeploymentResult deploy(Module module, DeploymentOptions options, String assignedDeploymentId) throws DeploymentActionException

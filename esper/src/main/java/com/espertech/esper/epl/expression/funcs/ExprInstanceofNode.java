@@ -10,6 +10,7 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.JavaClassHelper;
@@ -17,6 +18,7 @@ import com.espertech.esper.util.JavaClassHelper;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -58,7 +60,7 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
         }
 
         evaluator = this.getChildNodes()[0].getExprEvaluator();
-        Set<Class> classList = getClassSet(classIdentifiers);
+        Set<Class> classList = getClassSet(classIdentifiers, validationContext.getEngineImportService());
         synchronized(this) {
             classes = classList.toArray(new Class[classList.size()]);
         }
@@ -174,7 +176,7 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
         return classIdentifiers;
     }
 
-    private Set<Class> getClassSet(String[] classIdentifiers)
+    private Set<Class> getClassSet(String[] classIdentifiers, EngineImportService engineImportService)
             throws ExprValidationException
     {
         Set<Class> classList = new HashSet<Class>();
@@ -194,7 +196,7 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
             // try to look up the class, not a primitive type name
             try
             {
-                clazz = JavaClassHelper.getClassForName(className.trim());
+                clazz = JavaClassHelper.getClassForName(className.trim(), engineImportService.getClassForNameProvider());
             }
             catch (ClassNotFoundException e)
             {

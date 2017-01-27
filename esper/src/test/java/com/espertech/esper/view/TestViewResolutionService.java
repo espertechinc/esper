@@ -14,6 +14,7 @@ package com.espertech.esper.view;
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.ConfigurationPlugInView;
 import com.espertech.esper.client.ConfigurationPlugInVirtualDataWindow;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
 import com.espertech.esper.supportunit.view.SupportViewFactoryOne;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class TestViewResolutionService extends TestCase
 {
@@ -107,7 +109,7 @@ public class TestViewResolutionService extends TestCase
         }
 
         PluggableObjectCollection desc = new PluggableObjectCollection();
-        desc.addViews(configs, Collections.<ConfigurationPlugInVirtualDataWindow>emptyList());
+        desc.addViews(configs, Collections.<ConfigurationPlugInVirtualDataWindow>emptyList(), SupportEngineImportServiceFactory.make());
         PluggableObjectRegistryImpl registry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {desc});
         return new ViewResolutionServiceImpl(registry, null, null);
     }

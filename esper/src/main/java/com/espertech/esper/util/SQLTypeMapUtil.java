@@ -8,6 +8,8 @@
  **************************************************************************************/
 package com.espertech.esper.util;
 
+import com.espertech.esper.client.util.ClassForNameProvider;
+
 import java.sql.Types;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -60,7 +62,7 @@ public class SQLTypeMapUtil
      * @param className is the classname that result metadata returns for a column
      * @return Java class for JDBC sql types
      */
-    public static Class sqlTypeToClass(int sqlType, String className)
+    public static Class sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider)
     {
         if ((sqlType == Types.BOOLEAN) ||
             (sqlType == Types.BIT))
@@ -159,8 +161,7 @@ public class SQLTypeMapUtil
             }
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                return Class.forName(className, true, cl);
+                return classForNameProvider.classForName(className);
             }
             catch (ClassNotFoundException e)
             {

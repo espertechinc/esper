@@ -45,7 +45,7 @@ public class AvroPropertyUtil {
         return AvroTypeUtil.propertyType(typeSchema);
     }
 
-    protected static EventPropertyGetter getGetter(String eventTypeName, Schema avroSchema, HashMap<String, EventPropertyGetter> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
+    protected static EventPropertyGetter getGetter(Schema avroSchema, HashMap<String, EventPropertyGetter> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
         EventPropertyGetter getter = propertyGetterCache.get(propertyName);
         if (getter != null) {
             return getter;

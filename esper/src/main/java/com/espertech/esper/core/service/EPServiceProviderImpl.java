@@ -33,17 +33,13 @@ import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.timer.TimerCallback;
 import com.espertech.esper.timer.TimerService;
-import com.espertech.esper.util.AuditPath;
-import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.util.SerializableObjectCopier;
-import com.espertech.esper.util.Version;
+import com.espertech.esper.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -472,8 +468,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             Class clazz;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                clazz = Class.forName(epServicesContextFactoryClassName, true, cl);
+                clazz = TransientConfigurationResolver.resolveClassForNameProvider(configSnapshot.getTransientConfiguration()).classForName(epServicesContextFactoryClassName);
             }
             catch (ClassNotFoundException e)
             {
@@ -521,8 +516,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             Class clazz;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                clazz = Class.forName(runtimeClassName, true, cl);
+                clazz = services.getEngineImportService().getClassForNameProvider().classForName(runtimeClassName);
             }
             catch (ClassNotFoundException e)
             {
@@ -597,8 +591,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             Class clazz;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                clazz = Class.forName(adminClassName, true, cl);
+                clazz = services.getEngineImportService().getClassForNameProvider().classForName(adminClassName);
             }
             catch (ClassNotFoundException e)
             {
@@ -716,8 +709,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             Class pluginLoaderClass;
             try
             {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                pluginLoaderClass = Class.forName(className, true, cl);
+                pluginLoaderClass = services.getEngineImportService().getClassForNameProvider().classForName(className);
             }
             catch (ClassNotFoundException ex)
             {

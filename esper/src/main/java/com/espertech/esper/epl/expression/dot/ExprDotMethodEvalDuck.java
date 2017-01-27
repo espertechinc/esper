@@ -95,7 +95,7 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
         try
         {
             Method method = engineImportService.resolveMethod(clazz, methodName, parameterTypes, new boolean[parameterTypes.length], new boolean[parameterTypes.length]);
-            FastClass declaringClass = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
+            FastClass declaringClass = FastClass.create(engineImportService.getFastClassClassLoader(method.getDeclaringClass()), method.getDeclaringClass());
             return declaringClass.getMethod(method);
         }
         catch(Exception e)

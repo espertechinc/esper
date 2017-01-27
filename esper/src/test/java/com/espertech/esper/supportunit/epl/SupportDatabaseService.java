@@ -12,6 +12,8 @@
 package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.ConfigurationDBRef;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
 
@@ -45,6 +47,6 @@ public class SupportDatabaseService
         config.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.PARTURL, properties);
         configs.put(DBNAME_PARTURL, config);
 
-        return new DatabaseConfigServiceImpl(configs, new SupportSchedulingServiceImpl(), null);
+        return new DatabaseConfigServiceImpl(configs, new SupportSchedulingServiceImpl(), null, SupportEngineImportServiceFactory.make());
     }
 }

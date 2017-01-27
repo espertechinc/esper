@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import junit.framework.TestCase;
 
 import java.util.List;

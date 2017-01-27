@@ -241,7 +241,7 @@ public class VariableServiceImpl implements VariableService
     {
         // Determime the variable type
         Class primitiveType = JavaClassHelper.getPrimitiveClassForName(variableType);
-        Class type = JavaClassHelper.getClassForSimpleName(variableType);
+        Class type = JavaClassHelper.getClassForSimpleName(variableType, engineImportService.getClassForNameProvider());
         Class arrayType = null;
         EventType eventType = null;
         if (type == null) {

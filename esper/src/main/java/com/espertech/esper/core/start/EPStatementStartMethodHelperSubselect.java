@@ -284,7 +284,7 @@ public class EPStatementStartMethodHelperSubselect
     {
         Pair<EventTableFactory, SubordTableLookupStrategyFactory> result = determineSubqueryIndexInternalFactory(filterExpr, viewableEventType, outerEventTypes, subselectTypeService, fullTableScan, optionalUniqueProps, statementContext);
 
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations());
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementContext.getAnnotations(), statementContext.getEngineImportService());
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
             queryPlanLog.info("local index");
             queryPlanLog.info("strategy " + result.getSecond().toQueryPlan());
@@ -737,7 +737,7 @@ public class EPStatementStartMethodHelperSubselect
 
             List<ExprAggregateNode> havingAgg = Collections.emptyList();
             List<ExprAggregateNode> orderByAgg = Collections.emptyList();
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false);
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {
@@ -845,7 +845,7 @@ public class EPStatementStartMethodHelperSubselect
                     ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(allStreamNames, statementContext);
                     SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
                     SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
-                            processor, null, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
+                            processor, null, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService(), statementContext.getEngineImportService());
                     return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
                 }
             }
@@ -864,7 +864,7 @@ public class EPStatementStartMethodHelperSubselect
             ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(allStreamNames, statementContext);
             SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(filterExpr, outerEventTypes.length, subselectTypeService.getEventTypes(), excludePlanHint);
             SubSelectStrategyFactory factory = new SubSelectStrategyFactoryIndexShare(statementContext.getStatementName(), statementContext.getStatementId(), subqueryNum, outerEventTypesSelect,
-                    null, metadata, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService());
+                    null, metadata, fullTableScan, indexHint, joinedPropPlan, filterExprEval, aggregationServiceFactoryDesc, groupByEvaluators, services.getTableService(), statementContext.getAnnotations(), statementContext.getStatementStopService(), statementContext.getEngineImportService());
             return new SubSelectStrategyFactoryDesc(subSelectActivation, factory, aggregationServiceFactoryDesc, priorNodes, previousNodes, subqueryNum);
         }
 

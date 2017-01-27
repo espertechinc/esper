@@ -13,6 +13,7 @@ import com.espertech.esper.client.ConfigurationPlugInPatternObject;
 import com.espertech.esper.client.ConfigurationPlugInView;
 import com.espertech.esper.client.ConfigurationPlugInVirtualDataWindow;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.epl.core.EngineImportService;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -41,10 +42,10 @@ public class PluggableObjectCollection
      * @param configurationPlugInVirtualDW virtual data window configs
      * @throws ConfigurationException if the configured views don't resolve
      */
-    public void addViews(List<ConfigurationPlugInView> configurationPlugInViews, List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDW) throws ConfigurationException
+    public void addViews(List<ConfigurationPlugInView> configurationPlugInViews, List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDW, EngineImportService engineImportService) throws ConfigurationException
     {
-        initViews(configurationPlugInViews);
-        initVirtualDW(configurationPlugInVirtualDW);
+        initViews(configurationPlugInViews, engineImportService);
+        initVirtualDW(configurationPlugInVirtualDW, engineImportService);
     }
 
     /**
@@ -52,9 +53,9 @@ public class PluggableObjectCollection
      * @param configPattern is a list of configured plug-in pattern objects.
      * @throws ConfigurationException if the configured patterns don't resolve
      */
-    public void addPatternObjects(List<ConfigurationPlugInPatternObject> configPattern) throws ConfigurationException
+    public void addPatternObjects(List<ConfigurationPlugInPatternObject> configPattern, EngineImportService engineImportService) throws ConfigurationException
     {
-        initPatterns(configPattern);
+        initPatterns(configPattern, engineImportService);
     }
 
     /**
@@ -125,29 +126,29 @@ public class PluggableObjectCollection
         return pluggables;
     }
 
-    private void initViews(List<ConfigurationPlugInView> configurationPlugInViews)
+    private void initViews(List<ConfigurationPlugInView> configurationPlugInViews, EngineImportService engineImportService)
     {
         if (configurationPlugInViews == null) {
             return;
         }
 
         for (ConfigurationPlugInView entry : configurationPlugInViews) {
-            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), PluggableObjectType.VIEW, null);
+            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), PluggableObjectType.VIEW, null, engineImportService);
         }
     }
 
-    private void initVirtualDW(List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDataWindows)
+    private void initVirtualDW(List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDataWindows, EngineImportService engineImportService)
     {
         if (configurationPlugInVirtualDataWindows == null) {
             return;
         }
 
         for (ConfigurationPlugInVirtualDataWindow entry : configurationPlugInVirtualDataWindows) {
-            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), PluggableObjectType.VIRTUALDW, entry.getConfig());
+            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), PluggableObjectType.VIRTUALDW, entry.getConfig(), engineImportService);
         }
     }
 
-    private void handleAddPluggableObject(String factoryClassName, String namespace, String name, PluggableObjectType type, Serializable optionalCustomConfig) {
+    private void handleAddPluggableObject(String factoryClassName, String namespace, String name, PluggableObjectType type, Serializable optionalCustomConfig, EngineImportService engineImportService) {
 
         if (factoryClassName == null)
         {
@@ -165,8 +166,7 @@ public class PluggableObjectCollection
         Class clazz;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(factoryClassName, true, cl);
+            clazz = engineImportService.getClassForNameProvider().classForName(factoryClassName);
         }
         catch (ClassNotFoundException ex)
         {
@@ -182,7 +182,7 @@ public class PluggableObjectCollection
         namespaceMap.put(name, new Pair<Class, PluggableObjectEntry>(clazz, new PluggableObjectEntry(type, optionalCustomConfig)));
     }
 
-    private void initPatterns(List<ConfigurationPlugInPatternObject> configEntries) throws ConfigurationException
+    private void initPatterns(List<ConfigurationPlugInPatternObject> configEntries, EngineImportService engineImportService) throws ConfigurationException
     {
         if (configEntries == null)
         {
@@ -206,7 +206,7 @@ public class PluggableObjectCollection
                 throw new IllegalArgumentException("Pattern object type '" + entry.getPatternObjectType() + "' not known");
             }
 
-            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), typeEnum, null);
+            handleAddPluggableObject(entry.getFactoryClassName(), entry.getNamespace(), entry.getName(), typeEnum, null, engineImportService);
         }
     }
 

@@ -105,39 +105,113 @@ http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd">
 		
         <para>
 			The <literal>Configuration</literal> object allows passing application objects such as services or other transient objects. 
-			This information can be used by extensions, listeners or subscribers, for example, to obtain application objects from the engine.			
+			This information can be used by extensions, listeners or subscribers, for example, to obtain application objects from the engine.	
+			Your application may provide a custom class loader or class-for-name service.
         </para>
         
         <para>
 			Use <literal>setTransientConfiguration</literal> and provide a <literal>Map&lt;String, Object&gt;</literal> that contains the application objects.
 			The engine retains and makes available the same <literal>Map</literal> instance as part of <literal>ConfigurationOperations</literal> that is available as part of the adminstrative interface,
-			and contents can be changed by an application at runtime.
+			and contents including services can be changed by an application at runtime.
         </para>
 
-        <para>
-            Assuming your application has a service <literal>myLocalService</literal> instance, the example code is:
-        </para>
-
-		<programlisting><![CDATA[Configuration configuration = new Configuration();
+		<sect2 xml:id="configuration-transientobjects-service" revision="1">
+			<title>Service Example</title>
+			<para>
+				Assuming your application has a service <literal>myLocalService</literal> instance, the example code is:
+			</para>
+	
+			<programlisting><![CDATA[Configuration configuration = new Configuration();
 HashMap<String, Object> transients = new HashMap<String, Object>();
 transients.put(SERVICE_NAME, myLocalService); // SERVICE_NAME is a well-known string value defined elsewhere
 configuration.setTransientConfiguration(transients);
 
 EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);]]></programlisting>
 
-        <para>
-            A sample listener that receives a service from transient configuation is:
-        </para>
-		<programlisting><![CDATA[public class MyListener implements StatementAwareUpdateListener {
+			<para>
+				A sample listener that receives a service from transient configuation is:
+			</para>
+			<programlisting><![CDATA[public class MyListener implements StatementAwareUpdateListener {
   public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
     MyLocalService service = (MyLocalService) epServiceProvider.getEPAdministrator().getConfiguration().getTransientConfiguration().get(SERVICE_NAME);
     // use the service here
   }
 }]]></programlisting>
 
-		<para>
-			An alternative means to obtain application services is to define a constant variable.
-		</para>
+			<para>
+				An alternative means to obtain application services is to define a constant variable.
+			</para>
+		</sect2>
+
+		<sect2 xml:id="configuration-transientobjects-classforname" revision="1">
+			<title>Class-For-Name</title>
+			<para>
+				By default, when resolving a fully-qualified class name to a <literal>Class</literal>, the <literal>com.espertech.esper.client.util.ClassForNameProviderDefault</literal> uses:
+			</para>
+			
+			<programlisting><![CDATA[ClassLoader cl = Thread.currentThread().getContextClassLoader();
+return Class.forName(className, true, cl);]]></programlisting>
+
+			<para>
+				Your application can implement the <literal>com.espertech.esper.client.util.ClassForNameProvider</literal> interface to provide an alternate implementation.
+			</para>			    
+			
+			<para>
+				For example, this provider prevents the <literal>System</literal> class from being available in EPL:
+			</para>
+			<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().getTransientConfiguration().put(ClassForNameProvider.NAME,
+  new ClassForNameProvider() {
+    public Class classForName(String className) throws ClassNotFoundException {
+      if (className.equals(System.class.getName())) { // prevent the System class from loading
+        return null;
+      }
+      return Class.forName(className, true, Thread.currentThread().getContextClassLoader());
+   }
+});]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="configuration-transientobjects-classloader" revision="1">
+			<title>Class Loader</title>
+			<para>
+				By default, to obtain a class loader, the <literal>com.espertech.esper.client.util.ClassLoaderProviderDefault</literal> uses <literal>Thread.currentThread().getContextClassLoader()</literal>.
+			</para>
+			
+			<para>
+				Your application can implement the <literal>com.espertech.esper.client.util.ClassLoaderProvider</literal> interface to provide an alternate implementation.
+			</para>			    
+			
+			<para>
+				For example, this provider returns a pre-determined classloader:
+			</para>
+			<programlisting><![CDATA[ClassLoader classLoader = new CustomClassLoader();
+epService.getEPAdministrator().getConfiguration().getTransientConfiguration().put(ClassLoaderProvider.NAME,
+  new ClassLoaderProvider() {
+    public ClassLoader classloader() {
+      return classLoader;
+    }
+});]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="configuration-transientobjects-classloaderfastclass" revision="1">
+			<title>Class Loader CGLib <literal>FastClass</literal></title>
+			<para>
+				By default, to obtain a class loader for use with CGLib <literal>FastClass</literal> code generation, the <literal>com.espertech.esper.client.util.FastClassClassLoaderProviderDefault</literal> uses <literal>Thread.currentThread().getContextClassLoader()</literal>.
+			</para>
+			
+			<para>
+				Your application can implement the <literal>com.espertech.esper.client.util.FastClassClassLoaderProvider</literal> interface to provide an alternate implementation.
+			</para>			    
+			
+			<para>
+				For example, this provider uses the class loader associated to the class:
+			</para>
+			<programlisting><![CDATA[epService.getEPAdministrator().getConfiguration().getTransientConfiguration().put(FastClassClassLoaderProvider.NAME,
+  new FastClassClassLoaderProvider() {
+    public ClassLoader classloader(Class clazz) {
+      return clazz.getClassLoader();
+    }
+});]]></programlisting>
+		</sect2>
     </sect1>
 
 	<sect1 xml:id="configuration-items" revision="1">

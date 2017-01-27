@@ -14,6 +14,7 @@ package com.espertech.esper.core.service;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.epl.core.EngineImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,8 @@ import java.lang.reflect.Method;
 public class ResultDeliveryStrategyTypeArrWStmt extends ResultDeliveryStrategyTypeArr {
     private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyTypeArrWStmt.class);
 
-    public ResultDeliveryStrategyTypeArrWStmt(EPStatement statement, Object subscriber, Method method, Class componentType) {
-        super(statement, subscriber, method, componentType);
+    public ResultDeliveryStrategyTypeArrWStmt(EPStatement statement, Object subscriber, Method method, Class componentType, EngineImportService engineImportService) {
+        super(statement, subscriber, method, componentType, engineImportService);
     }
 
     @Override

@@ -9,6 +9,7 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.event.*;
 import com.espertech.esper.util.ClassInstantiationException;
 import com.espertech.esper.util.JavaClassHelper;
@@ -56,7 +57,7 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
         {
             try
             {
-                XPathFunctionResolver fresolver = (XPathFunctionResolver) JavaClassHelper.instantiate(XPathFunctionResolver.class, configurationEventTypeXMLDOM.getXPathFunctionResolver());
+                XPathFunctionResolver fresolver = (XPathFunctionResolver) JavaClassHelper.instantiate(XPathFunctionResolver.class, configurationEventTypeXMLDOM.getXPathFunctionResolver(), ClassForNameProviderDefault.INSTANCE);
                 xPathFactory.setXPathFunctionResolver(fresolver);
             }
             catch (ClassInstantiationException ex)
@@ -69,7 +70,7 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
         {
             try
             {
-                XPathVariableResolver vresolver = (XPathVariableResolver) JavaClassHelper.instantiate(XPathVariableResolver.class, configurationEventTypeXMLDOM.getXPathVariableResolver());
+                XPathVariableResolver vresolver = (XPathVariableResolver) JavaClassHelper.instantiate(XPathVariableResolver.class, configurationEventTypeXMLDOM.getXPathVariableResolver(), ClassForNameProviderDefault.INSTANCE);
                 xPathFactory.setXPathVariableResolver(vresolver);
             }
             catch (ClassInstantiationException ex)

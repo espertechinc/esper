@@ -11,6 +11,7 @@
 
 package com.espertech.esper.event;
 
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import junit.framework.TestCase;
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
 import com.espertech.esper.client.EventBean;
@@ -23,6 +24,7 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public class TestEventAdapterServiceImpl extends TestCase
 
     public void setUp()
     {
-        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null);
+        adapterService = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null, SupportEngineImportServiceFactory.make());
     }
 
     public void testSelfRefEvent()

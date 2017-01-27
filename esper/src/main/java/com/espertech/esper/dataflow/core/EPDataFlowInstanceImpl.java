@@ -20,6 +20,7 @@ import com.espertech.esper.dataflow.interfaces.DataFlowOpOpenContext;
 import com.espertech.esper.dataflow.ops.Emitter;
 import com.espertech.esper.dataflow.runnables.CompletionListener;
 import com.espertech.esper.dataflow.runnables.GraphSourceRunnable;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.util.AuditPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +44,13 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
     private final Set<Integer> operatorBuildOrder;
     private final EPDataFlowInstanceStatistics statisticsProvider;
     private final Map<String, Object> parameters;
+    private final EngineImportService engineImportService;
 
     private List<CountDownLatch> joinedThreadLatches;
     private List<Thread> threads;
     private Thread runCurrentThread;
 
-    public EPDataFlowInstanceImpl(String engineURI, String statementName, boolean audit, String dataFlowName, Object userObject, String instanceId, EPDataFlowState state, List<GraphSourceRunnable> sourceRunnables, Map<Integer, Object> operators, Set<Integer> operatorBuildOrder, EPDataFlowInstanceStatistics statisticsProvider, Map<String, Object> parameters) {
+    public EPDataFlowInstanceImpl(String engineURI, String statementName, boolean audit, String dataFlowName, Object userObject, String instanceId, EPDataFlowState state, List<GraphSourceRunnable> sourceRunnables, Map<Integer, Object> operators, Set<Integer> operatorBuildOrder, EPDataFlowInstanceStatistics statisticsProvider, Map<String, Object> parameters, EngineImportService engineImportService) {
         this.engineURI = engineURI;
         this.statementName = statementName;
         this.audit = audit;
@@ -64,6 +66,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
         this.statisticsProvider = statisticsProvider;
         setState(state);
         this.parameters = parameters;
+        this.engineImportService = engineImportService;
     }
 
     public String getDataFlowName() {
@@ -151,7 +154,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
             GraphSourceRunnable runnable = sourceRunnables.get(i);
             String threadName = "esper." + dataFlowName + "-" + i;
             Thread thread = new Thread(runnable, threadName);
-            thread.setContextClassLoader(Thread.currentThread().getContextClassLoader());
+            thread.setContextClassLoader(engineImportService.getClassLoader());
             thread.setDaemon(true);
             runnable.addCompletionListener(new CompletionListener() {
                 public void completed() {

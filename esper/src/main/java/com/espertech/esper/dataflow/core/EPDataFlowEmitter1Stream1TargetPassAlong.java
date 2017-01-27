@@ -12,13 +12,14 @@
 package com.espertech.esper.dataflow.core;
 
 import com.espertech.esper.dataflow.util.DataFlowSignalManager;
+import com.espertech.esper.epl.core.EngineImportService;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class EPDataFlowEmitter1Stream1TargetPassAlong extends EPDataFlowEmitter1Stream1TargetBase {
 
-    public EPDataFlowEmitter1Stream1TargetPassAlong(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target) {
-        super(operatorNum, signalManager, signalHandler, exceptionHandler, target);
+    public EPDataFlowEmitter1Stream1TargetPassAlong(int operatorNum, DataFlowSignalManager signalManager, SignalHandler signalHandler, EPDataFlowEmitterExceptionHandler exceptionHandler, ObjectBindingPair target, EngineImportService engineImportService) {
+        super(operatorNum, signalManager, signalHandler, exceptionHandler, target, engineImportService);
     }
 
     public void submitInternal(Object object) {

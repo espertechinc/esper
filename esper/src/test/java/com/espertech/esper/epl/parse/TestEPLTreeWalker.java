@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.*;
@@ -232,7 +233,7 @@ public class TestEPLTreeWalker extends TestCase
     public void testWalkOnSet() throws Exception
     {
         VariableService variableService = new VariableServiceImpl(0, new SchedulingServiceImpl(new TimeSourceServiceImpl()), SupportEventAdapterService.getService(), null);
-        variableService.createNewVariable(null, "var1", Long.class.getName(), false, false, false, 100L, null);
+        variableService.createNewVariable(null, "var1", Long.class.getName(), false, false, false, 100L, SupportEngineImportServiceFactory.make());
         variableService.allocateVariableState("var1", 0, null, false);
 
         String expression = "on com.MyClass as myevent set var1 = 'a', var2 = 2*3, var3 = var1";

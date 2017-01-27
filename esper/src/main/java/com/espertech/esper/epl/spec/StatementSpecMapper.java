@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.EPAdministratorHelper;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
-import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
 import com.espertech.esper.epl.db.DatabasePollingViewableFactory;
@@ -1973,7 +1972,7 @@ public class StatementSpecMapper
             if (op.getConstantType() != null) {
                 try
                 {
-                    constantType = Class.forName(op.getConstantType());
+                    constantType = mapContext.getEngineImportService().getClassForNameProvider().classForName(op.getConstantType());
                 }
                 catch (ClassNotFoundException e)
                 {

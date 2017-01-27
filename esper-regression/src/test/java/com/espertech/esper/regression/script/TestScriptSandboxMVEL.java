@@ -11,6 +11,7 @@
 
 package com.espertech.esper.regression.script;
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.util.JavaClassHelper;
 import junit.framework.TestCase;
 
@@ -19,7 +20,7 @@ public class TestScriptSandboxMVEL extends TestCase {
     // Comment-in for MVEL support custom testing.
     public void testSandboxMVEL() {
 
-        if (JavaClassHelper.getClassInClasspath("org.mvel2.MVEL") == null) {
+        if (JavaClassHelper.getClassInClasspath("org.mvel2.MVEL", ClassForNameProviderDefault.INSTANCE) == null) {
             return;
         }
 

@@ -12,6 +12,7 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import junit.framework.TestCase;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.bean.SupportBean_S0;
@@ -20,11 +21,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventType;
 
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Test for multithread-safety for manageing statements, i.e. creating and stopping statements
@@ -35,7 +33,7 @@ public class TestEventAdapterSvcMT extends TestCase
 
     public void setUp()
     {
-        service = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null);
+        service = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 5, null, SupportEngineImportServiceFactory.make());
     }
 
     public void testAddBeanTypeClass() throws Exception

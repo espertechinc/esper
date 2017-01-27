@@ -77,7 +77,7 @@ public class ConfigurationDBRef implements Serializable
     /**
      * Sets the connection factory to use {@link java.sql.DriverManager} to obtain a
      * connection.
-     * @param className is the driver class name to lookup up via Class.forName
+     * @param className is the driver class name
      * @param url is the URL
      * @param connectionArgs are optional connection arguments
      */
@@ -89,7 +89,7 @@ public class ConfigurationDBRef implements Serializable
     /**
      * Sets the connection factory to use {@link java.sql.DriverManager} to obtain a
      * connection.
-     * @param className is the driver class name to lookup up via Class.forName
+     * @param className is the driver class name
      * @param url is the URL
      * @param username is the username to obtain a connection
      * @param password is the password to obtain a connection
@@ -102,7 +102,7 @@ public class ConfigurationDBRef implements Serializable
     /**
      * Sets the connection factory to use {@link java.sql.DriverManager} to obtain a
      * connection.
-     * @param className is the driver class name to lookup up via Class.forName
+     * @param className is the driver class name
      * @param url is the URL
      * @param username is the username to obtain a connection
      * @param password is the password to obtain a connection

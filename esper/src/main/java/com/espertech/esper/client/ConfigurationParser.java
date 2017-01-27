@@ -9,6 +9,7 @@
 package com.espertech.esper.client;
 
 import com.espertech.esper.client.soda.StreamSelector;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.client.util.EventUnderlyingType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.type.StringPatternSet;
@@ -747,7 +748,7 @@ class ConfigurationParser {
         String variableName = getRequiredAttribute(element,"name");
         String type = getRequiredAttribute(element,"type");
 
-        Class variableType = JavaClassHelper.getClassForSimpleName(type);
+        Class variableType = JavaClassHelper.getClassForSimpleName(type, ClassForNameProviderDefault.INSTANCE);
         if (variableType == null) {
             throw new ConfigurationException("Invalid variable type for variable '" + variableName + "', the type is not recognized");
         }

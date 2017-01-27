@@ -12,8 +12,8 @@
 package com.espertech.esperio.kafka;
 
 import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.JavaClassHelper;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -66,13 +66,13 @@ public class EsperIOKafkaInputAdapter {
         }
 
         // Obtain engine
-        EPServiceProvider engine = EPServiceProviderManager.getProvider(engineURI);
+        EPServiceProviderSPI engine = (EPServiceProviderSPI) EPServiceProviderManager.getProvider(engineURI);
 
         // Obtain and invoke subscriber
         String subscriberClassName = getRequiredProperty(properties, ESPERIO_SUBSCRIBER_CONFIG);
         EsperIOKafkaInputSubscriber subscriber;
         try {
-            subscriber = (EsperIOKafkaInputSubscriber) JavaClassHelper.instantiate(EsperIOKafkaInputSubscriber.class, subscriberClassName);
+            subscriber = (EsperIOKafkaInputSubscriber) JavaClassHelper.instantiate(EsperIOKafkaInputSubscriber.class, subscriberClassName, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaInputSubscriberContext subscriberContext = new EsperIOKafkaInputSubscriberContext(consumer, engine, properties);
             subscriber.subscribe(subscriberContext);
         }
@@ -83,7 +83,7 @@ public class EsperIOKafkaInputAdapter {
         // Obtain and initialize processor
         String processorClassName = getRequiredProperty(properties, ESPERIO_PROCESSOR_CONFIG);
         try {
-            processor = (EsperIOKafkaInputProcessor) JavaClassHelper.instantiate(EsperIOKafkaInputProcessor.class, processorClassName);
+            processor = (EsperIOKafkaInputProcessor) JavaClassHelper.instantiate(EsperIOKafkaInputProcessor.class, processorClassName, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaInputProcessorContext processorContext = new EsperIOKafkaInputProcessorContext(consumer, engine, properties, this);
             processor.init(processorContext);
         }

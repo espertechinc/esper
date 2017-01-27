@@ -100,7 +100,7 @@ public class FireAndForgetQueryExec
             tablePair = indexRepository.findTable(keysAvailable, rangesAvailable, optionalIndexHintInstructions);
         }
 
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations);
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, agentInstanceContext.getStatementContext().getEngineImportService());
         if (queryPlanLogging && (queryPlanLogDestination.isInfoEnabled() || hook != null)) {
             String prefix = "Fire-and-forget from " + objectName + " ";
             String indexName = tablePair != null && tablePair.getSecond() != null ? tablePair.getSecond().getIndexName() : null;

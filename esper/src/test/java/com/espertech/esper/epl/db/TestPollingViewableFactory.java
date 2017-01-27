@@ -11,6 +11,7 @@
 
 package com.espertech.esper.epl.db;
 
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.DBStatementStreamSpec;
 import com.espertech.esper.epl.spec.ViewSpec;
@@ -30,7 +31,7 @@ public class TestPollingViewableFactory extends TestCase
 
         EventCollection eventCollection = DatabasePollingViewableFactory.createDBStatementView(1, 1, spec,
                 SupportDatabaseService.makeService(),
-                SupportEventAdapterService.getService(), null, null, null, true, new DataCacheFactory(), null);
+                SupportEventAdapterService.getService(), null, null, null, true, new DataCacheFactory(), SupportStatementContextFactory.makeContext());
         
         assertEquals(Long.class, eventCollection.getEventType().getPropertyType("mybigint"));
         assertEquals(String.class, eventCollection.getEventType().getPropertyType("myvarchar"));

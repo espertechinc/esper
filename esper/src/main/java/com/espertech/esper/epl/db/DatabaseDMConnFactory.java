@@ -9,10 +9,12 @@
 package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
+import com.espertech.esper.epl.core.EngineImportService;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -30,7 +32,8 @@ public class DatabaseDMConnFactory implements DatabaseConnectionFactory
      * @throws DatabaseConfigException thrown if the driver class cannot be loaded
      */
     public DatabaseDMConnFactory(ConfigurationDBRef.DriverManagerConnection driverConfig,
-                                 ConfigurationDBRef.ConnectionSettings connectionSettings)
+                                 ConfigurationDBRef.ConnectionSettings connectionSettings,
+                                 EngineImportService engineImportService)
             throws DatabaseConfigException
     {
         this.driverConfig = driverConfig;
@@ -40,8 +43,7 @@ public class DatabaseDMConnFactory implements DatabaseConnectionFactory
         String driverClassName = driverConfig.getClassName();
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            Class.forName(driverClassName, true, cl);
+            engineImportService.getClassForNameProvider().classForName(driverClassName);
         }
         catch (ClassNotFoundException ex)
         {

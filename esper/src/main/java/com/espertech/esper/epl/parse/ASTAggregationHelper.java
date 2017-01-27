@@ -49,7 +49,7 @@ public class ASTAggregationHelper {
         if (config != null) {
             PlugInAggregationMultiFunctionFactory factory = plugInAggregations.getMap().get(config);
             if (factory == null) {
-                factory = (PlugInAggregationMultiFunctionFactory) JavaClassHelper.instantiate(PlugInAggregationMultiFunctionFactory.class, config.getMultiFunctionFactoryClassName());
+                factory = (PlugInAggregationMultiFunctionFactory) JavaClassHelper.instantiate(PlugInAggregationMultiFunctionFactory.class, config.getMultiFunctionFactoryClassName(), engineImportService.getClassForNameProvider());
                 plugInAggregations.getMap().put(config, factory);
             }
             factory.addAggregationFunction(new PlugInAggregationMultiFunctionDeclarationContext(functionName.toLowerCase(), distinct, engineURI, config));

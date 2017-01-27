@@ -22,6 +22,7 @@ import com.espertech.esper.core.service.resource.StatementResourceHolderUtil;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.core.start.EPStatementStartMethodSelectDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
@@ -225,7 +226,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
         }
 
         // allow a special context controller factory for testing
-        ContextControllerFactoryService contextControllerFactoryService = getContextControllerFactoryService(annotations);
+        ContextControllerFactoryService contextControllerFactoryService = getContextControllerFactoryService(annotations, engineServices.getEngineImportService());
 
         // may use resource tracking
         final StatementResourceService statementResourceService = new StatementResourceService(optionalContextName != null);
@@ -277,9 +278,9 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 annotationData.getPriority());
     }
 
-    private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations) {
+    private ContextControllerFactoryService getContextControllerFactoryService(Annotation[] annotations, EngineImportService engineImportService) {
         try {
-            ContextStateCache replacementCache = (ContextStateCache) JavaClassHelper.getAnnotationHook(annotations, HookType.CONTEXT_STATE_CACHE, ContextStateCache.class, null);
+            ContextStateCache replacementCache = (ContextStateCache) JavaClassHelper.getAnnotationHook(annotations, HookType.CONTEXT_STATE_CACHE, ContextStateCache.class, engineImportService);
             if (replacementCache != null) {
                 return new ContextControllerFactoryServiceImpl(replacementCache);
             }

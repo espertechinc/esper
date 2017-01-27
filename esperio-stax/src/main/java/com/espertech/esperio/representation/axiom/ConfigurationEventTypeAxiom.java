@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esperio.representation.axiom;
 
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.util.MetaDefItem;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.event.EventAdapterException;
@@ -15,6 +16,7 @@ import com.espertech.esper.client.ConfigurationException;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -153,7 +155,7 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
         {
             try
             {
-                castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType);
+                castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType, ClassForNameProviderDefault.INSTANCE);
             }
             catch (EventAdapterException ex)
             {

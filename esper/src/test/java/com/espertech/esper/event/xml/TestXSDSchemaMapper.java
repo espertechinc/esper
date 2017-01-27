@@ -15,6 +15,7 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import com.espertech.esper.util.ResourceLoader;
@@ -41,10 +42,10 @@ public class TestXSDSchemaMapper extends TestCase
 {
     public void testMap() throws Exception
     {
-        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/simpleSchema.xsd");
+        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/simpleSchema.xsd", Thread.currentThread().getContextClassLoader());
         String schemaUri = url.toURI().toString();
 
-        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null);
+        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null, SupportEngineImportServiceFactory.make());
         assertEquals(1, model.getComponents().size());
 
         SchemaElementComplex simpleEvent = model.getComponents().get(0);
@@ -92,7 +93,7 @@ public class TestXSDSchemaMapper extends TestCase
     public void testEvent() throws Exception
     {
         //URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/typeTestSchema.xsd");
-        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/simpleSchema.xsd");
+        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/simpleSchema.xsd", this.getClass().getClassLoader());
         String uri = url.toURI().toString();
 
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
@@ -116,9 +117,9 @@ public class TestXSDSchemaMapper extends TestCase
 
     public void testExtendedElements() throws Exception
     {
-        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/schemaWithExtensions.xsd");
+        URL url = ResourceLoader.resolveClassPathOrURLResource("schema", "regression/schemaWithExtensions.xsd", this.getClass().getClassLoader());
         String schemaUri = url.toURI().toString();
-        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null);
+        SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUri, null, SupportEngineImportServiceFactory.make());
 
         SchemaElementComplex complexEvent = model.getComponents().get(0);
         verifyComplexElement(complexEvent, "complexEvent", XSSimpleType.COMPLEX_TYPE, false);

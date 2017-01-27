@@ -12,6 +12,7 @@
 package com.espertech.esper.epl.script.mvel;
 
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,15 +26,15 @@ public class MVELInvoker {
     private static Class execStatementClass;
     private static Method executeExpressionMethod;
 
-    public static boolean isMVELInClasspath() {
+    public static boolean isMVELInClasspath(EngineImportService engineImportService) {
         if (mvelClass == null) {
-            init();
+            init(engineImportService);
         }
         return assertClasses();
     }
 
-    public static void analysisCompile(String expression, Object parserContext) throws InvocationTargetException {
-        assertClasspath();
+    public static void analysisCompile(String expression, Object parserContext, EngineImportService engineImportService) throws InvocationTargetException {
+        assertClasspath(engineImportService);
         Method method;
         try {
             method = mvelClass.getMethod("analysisCompile", new Class[] {String.class, parserContextClass});
@@ -67,8 +68,8 @@ public class MVELInvoker {
         }
     }
 
-    public static Object newParserContext() {
-        assertClasspath();
+    public static Object newParserContext(EngineImportService engineImportService) {
+        assertClasspath(engineImportService);
 
         try {
             return parserContextClass.newInstance();
@@ -131,10 +132,10 @@ public class MVELInvoker {
         }
     }
 
-    private static void init() {
-        mvelClass = JavaClassHelper.getClassInClasspath("org.mvel2.MVEL");
-        parserContextClass = JavaClassHelper.getClassInClasspath("org.mvel2.ParserContext");
-        execStatementClass = JavaClassHelper.getClassInClasspath("org.mvel2.compiler.ExecutableStatement");
+    private static void init(EngineImportService engineImportService) {
+        mvelClass = JavaClassHelper.getClassInClasspath("org.mvel2.MVEL", engineImportService.getClassForNameProvider());
+        parserContextClass = JavaClassHelper.getClassInClasspath("org.mvel2.ParserContext", engineImportService.getClassForNameProvider());
+        execStatementClass = JavaClassHelper.getClassInClasspath("org.mvel2.compiler.ExecutableStatement", engineImportService.getClassForNameProvider());
         if (mvelClass != null) {
             try {
                 executeExpressionMethod = mvelClass.getMethod("executeExpression", new Class[] {Object.class, Map.class});
@@ -145,9 +146,9 @@ public class MVELInvoker {
         }
     }
 
-    private static void assertClasspath() {
+    private static void assertClasspath(EngineImportService engineImportService) {
         if (mvelClass == null) {
-            init();
+            init(engineImportService);
         }
         if (!assertClasses()) {
             throw new IllegalStateException("Failed to find MVEL in classpath");

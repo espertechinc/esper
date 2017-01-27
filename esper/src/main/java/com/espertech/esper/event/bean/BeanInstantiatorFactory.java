@@ -132,7 +132,7 @@ public class BeanInstantiatorFactory
         {
             Method method = engineImportService.resolveMethodOverloadChecked(className, methodName, new Class[0], new boolean[0], new boolean[0]);
             if (beanEventType.getFastClass() != null) {
-                FastClass fastClassFactory = FastClass.create(Thread.currentThread().getContextClassLoader(), method.getDeclaringClass());
+                FastClass fastClassFactory = FastClass.create(engineImportService.getFastClassClassLoader(method.getDeclaringClass()), method.getDeclaringClass());
                 return new BeanInstantiatorByFactoryFastClass(fastClassFactory.getMethod(method));
             }
             else {

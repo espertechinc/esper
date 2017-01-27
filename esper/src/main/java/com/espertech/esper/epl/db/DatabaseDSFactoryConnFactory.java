@@ -13,6 +13,7 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.util.JavaClassHelper;
 
 import javax.sql.DataSource;
@@ -20,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -37,7 +39,8 @@ public class DatabaseDSFactoryConnFactory implements DatabaseConnectionFactory
      * @throws DatabaseConfigException when the factory cannot be configured
      */
     public DatabaseDSFactoryConnFactory(ConfigurationDBRef.DataSourceFactory dsConfig,
-                                 ConfigurationDBRef.ConnectionSettings connectionSettings)
+                                 ConfigurationDBRef.ConnectionSettings connectionSettings,
+                                        EngineImportService engineImportService)
             throws DatabaseConfigException
     {
         this.connectionSettings = connectionSettings;
@@ -45,8 +48,7 @@ public class DatabaseDSFactoryConnFactory implements DatabaseConnectionFactory
         Class clazz;
         try
         {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(dsConfig.getFactoryClassname(), true, cl);
+            clazz = engineImportService.getClassForNameProvider().classForName(dsConfig.getFactoryClassname());
         }
         catch (ClassNotFoundException e)
         {
