@@ -1489,15 +1489,23 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				</para>
 		</sect2>
 		<sect2 xml:id="perf-tips-27">
-				<title>Do not create the same EPL Statement X times</title>
+				<title>Do not create the same or similar EPL Statement X times</title>
 				
 				<para>
 					It is vastly more efficient to create an EPL statement once and attach multiple listeners, then to create the same EPL statement X times.
 				</para>
 
 				<para>
+					It is vastly more efficient to use context declaration to factor out commonalities between EPL statements then creating X similar EPL statements.
+				</para>
+
+				<para>
+					Esper is optimized for low-latency and high-throughput execution. In order to accomplish that each EPL statement must be analyzed and planned and certain information within each EPL statement must be shared within the engine so that it can remove duplication of processing and thus the engine can achieve low-latency and high-throughput. The tradeoff is that the engine must, for each EPL statement, perform some upfront analysis.
+				</para>
+
+				<para>
 					Since your goal will be to make all test code as realistic, real-world and production-like as possible, we recommend against production code or test code creating 
-					the same EPL statement multiple times. Instead consider creating the same EPL statement once and attaching multiple listeners.
+					the same or similar EPL statement multiple times. Instead consider creating the same EPL statement once and attaching multiple listeners.
 					Certain important optimizations that the engine can perform when EPL statements realistically differ, may not take place. 
 					The engine also does not try to detect duplicate EPL statements, since that can easily be done by your application using public APIs. 
 				</para>
@@ -1517,9 +1525,18 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 					EPL allows you the freedom to design your EPL in a way that reuses state and processing.
 					For example, your EPL design could utilize a named window instead of allocating 100 independent time window. 
 					Since named windows are shared, the engine only needs to track one time window instead of 100.
-					And your EPL design could use a table to maintain aggregations once and in a central place, so that tracking counts per symbol is done once instead of 100 times.
+					And your EPL design could use an EPL table to maintain aggregations once and in a central place, so that tracking counts per symbol is done once instead of 100 times.
 				</para>
+				
+				<para>
+					Context declarations can be an efficient way to take commonalities between statements (things that are similar between multiple statements) 
+					and factor them out into a context declaration. Instead of creating X similar statements, 
+					declare a context and attach one statement to the context, thus having X context partitions. This reduces the analysis that the engine must perform for each statement
+					since now the engine only needs to analyze the context declaration and the EPL statement. 
+					Your application can send start and stop events to control which context partitions exist and what events each context partition analyzes.
+				</para>				
 		</sect2>
+		
 		<sect2 xml:id="perf-tips-28">
 				<title>Comparing Single-Threaded and Multi-Threaded Performance</title>
 				

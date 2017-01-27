@@ -36,6 +36,10 @@
         <para>
           In an event processing glossary you may find the term <emphasis>event processing agent</emphasis>. An EPL statement is an <emphasis>event processing agent</emphasis>.  An alternative term for context partition is <emphasis>event processing agent instance</emphasis>. 
         </para>
+        
+        <tip>
+			<para>Think of context partitions as instances of a class, wherein the class is the EPL statement. </para>
+		</tip>
 
 		<para>
           Esper EPL allows you to declare contexts explicitly, offering the following benefits:
