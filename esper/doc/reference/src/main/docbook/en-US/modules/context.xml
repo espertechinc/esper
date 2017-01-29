@@ -784,8 +784,10 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
   			<programlisting><![CDATA[create context Every15Minutes start @now end after 15 minutes]]></programlisting>
   			
   			<tip>
+				<para>
 				A non-overlapping context with <literal>@now</literal> is always-on: A context partition is always allocated at any given point in time. Only if <literal>@now</literal> is specified
 				will a context partition always exist at any point in time.
+				</para>
 			</tip>
 
 			<note>

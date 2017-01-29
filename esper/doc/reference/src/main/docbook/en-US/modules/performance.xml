@@ -1496,7 +1496,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				</para>
 
 				<para>
-					It is vastly more efficient to use context declaration to factor out commonalities between EPL statements then creating X similar EPL statements.
+					It is vastly more efficient to use context declarations to factor out commonalities between EPL statements then creating X similar EPL statements.
 				</para>
 
 				<para>
@@ -1535,6 +1535,72 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 					since now the engine only needs to analyze the context declaration and the EPL statement. 
 					Your application can send start and stop events to control which context partitions exist and what events each context partition analyzes.
 				</para>				
+				
+				<para>
+					For example, assume we need to create 100000 similar EPL statements that all filter <literal>GeoEvent</literal> events: 
+				</para>
+				<programlisting>create schema GeoEvent(id string, value int, marker string)</programlisting>
+				<programlisting><![CDATA[@name('statment-1) select * from GeoEvent(id = '0001', value between 10 and 20, marker in ('a', 'b'))]]></programlisting>
+				<programlisting><![CDATA[@name('statment-N) select * from GeoEvent(id = '0002', value between 20 and 30, marker in ('c', 'd'))]]></programlisting>
+
+				<para>
+					If your application creates 100k statements as above, the engine must analyze each statement separately, determine filter criteria and the engine must enter each set of filter criteria into a shared reverse index. Remember that
+					the engine can process incoming events very fast, with low latency and high throughput, even for 100k statements. However analysis of 100k individual statements does take CPU time.
+				</para>				
+
+				<para>
+					In this example, the EPL statements have similar filters: <literal>id = </literal><emphasis>an_id</emphasis>, <literal>value between </literal><emphasis>start_range</emphasis><literal> and </literal><emphasis>end_range</emphasis> and
+					<literal>marker in (</literal><emphasis>markers</emphasis><literal>)</literal>.
+					We could say that statements are similar and look like:
+				</para>
+				<programlisting><![CDATA[select * from GeoEvent(id=an_id, value between start_range and end_range, marker in (markers))]]></programlisting>
+				
+				<para>
+					The <emphasis>an_id</emphasis>, <emphasis>start_range</emphasis>, <emphasis>end_range</emphasis> and <emphasis>markers</emphasis> are essential parameters to an instance of the filtering EPL statement.
+					Instances of EPL statements are context partitions. Declare a context to refactor and change our design so the common filters are in one place. 
+					This apprach just requires two statements: the context declaration and the statement with the filters. 
+					We also declare two event types: one to allocate new context partitions and one to terminate context partitions.
+				</para>
+
+				<para>
+					Start by creating an event type that controls which instances of the filtering EPL statement (the context partitions) are active:
+				</para>
+				<programlisting><![CDATA[create schema InitEvent(id string, startRange int, endRange int, markers string[])]]></programlisting>
+
+				<para>
+					Next, create an event type that controls when a context partition terminates:
+				</para>
+				<programlisting><![CDATA[create schema TermEvent(id string)]]></programlisting>
+
+				<para>
+					The context declaration tells the engine that when an <literal>InitEvent</literal> arrives we want have a new instance that is parameterized by the <literal>InitEvent</literal> properties:
+				</para>
+				<programlisting><![CDATA[create context GeoEventFilterContext
+  initiated by InitEvent as initevent
+  terminated by by TermEvent(id=initevent.id)]]></programlisting>
+
+				<para>
+					Define the statement that filters:
+				</para>
+				<programlisting><![CDATA[context GeoEventFilterContext select * from GeoEvent(id = context.initevent.id, 
+  value between context.initevent.startRange and context.initevent.endRange, 
+  marker in (context.initevent.markers))]]></programlisting>
+  
+				 <para>
+					 Your application can now send <literal>InitEvent</literal> instances, for example (notation from the online EPL tool):
+				 </para>
+				<programlisting><![CDATA[InitEvent={id='0001', startRange=10, endRange=20, markers={'a', 'b'}}
+InitEvent={id='0002', startRange=20, endRange=30, markers={'c', 'd'}}]]></programlisting>
+
+				<para>
+					When the engine receives an <literal>InitEvent</literal> instance, it can simply take the <literal>id</literal>, <literal>startRange</literal>, <literal>endRange</literal> and <literal>markers</literal> values and 
+					instantiate the EPL filter statement (aka. allocate a new context partition) and start looking for matching <literal>GeoEvent</literal> events.
+				</para>
+				
+				<para>
+					To stop looking for a given id, send a <literal>TermEvent</literal>, like so:
+				</para>
+				<programlisting><![CDATA[TermEvent={id='0001'}]]></programlisting>
 		</sect2>
 		
 		<sect2 xml:id="perf-tips-28">
