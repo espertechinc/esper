@@ -10,8 +10,9 @@ package com.espertech.esperio.kafka;
 
 public class EsperIOKafkaConfig
 {
-    public final static String ESPERIO_SUBSCRIBER_CONFIG = "esperio.kafka.input.subscriber";
-    public final static String ESPERIO_PROCESSOR_CONFIG = "esperio.kafka.input.processor";
-    public final static String ESPERIO_TIMESTAMPEXTRACTOR_CONFIG = "esperio.kafka.input.timestampextractor";
-    public final static String ESPERIO_TOPICS_CONFIG = "esperio.kafka.topics";
+    public final static String INPUT_SUBSCRIBER_CONFIG = "esperio.kafka.input.subscriber";
+    public final static String INPUT_PROCESSOR_CONFIG = "esperio.kafka.input.processor";
+    public final static String INPUT_TIMESTAMPEXTRACTOR_CONFIG = "esperio.kafka.input.timestampextractor";
+    public final static String OUTPUT_FLOWCONTROLLER_CONFIG = "esperio.kafka.output.flowcontroller";
+    public final static String TOPICS_CONFIG = "esperio.kafka.topics";
 }

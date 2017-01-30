@@ -50,10 +50,9 @@ public class TestAdapterLoader extends TestCase
         assertEquals("val", SupportPluginLoader.getProps().get(0).get("name"));
         assertEquals("val2", SupportPluginLoader.getProps().get(1).get("name2"));
 
-        EPServiceProviderSPI spi = (EPServiceProviderSPI) service;
-        Object loader = spi.getEngineEnvContext().getEnvironment().get("plugin-loader/MyLoader");
+        Object loader = service.getContext().getEnvironment().get("plugin-loader/MyLoader");
         assertTrue(loader instanceof SupportPluginLoader);
-        loader = spi.getEngineEnvContext().getEnvironment().get("plugin-loader/MyLoader2");
+        loader = service.getContext().getEnvironment().get("plugin-loader/MyLoader2");
         assertTrue(loader instanceof SupportPluginLoader);
 
         SupportPluginLoader.getPostInitializes().clear();

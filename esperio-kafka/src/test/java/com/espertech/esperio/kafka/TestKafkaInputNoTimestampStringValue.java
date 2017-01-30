@@ -25,12 +25,12 @@ import java.util.function.Supplier;
 
 public class TestKafkaInputNoTimestampStringValue extends TestCase {
 
-    private static final String TOPIC = SupportConstants.DEV_TOPIC_SUPPORTBEAN_STRING;
+    private static final String TOPIC = SupportConstants.DEV_INPUT_TOPIC_SUPPORTBEAN_STRING;
 
     public void testInput() {
-        Properties pluginProperties = SupportConstants.getPluginProps(TOPIC, SupportBeanFromStringDeserializer.class.getName(), null);
+        Properties pluginProperties = SupportConstants.getInputPluginProps(TOPIC, SupportBeanFromStringDeserializer.class.getName(), null);
 
-        EPServiceProvider epService = SupportConstants.getEngine(this.getClass().getSimpleName(), pluginProperties);
+        EPServiceProvider epService = SupportConstants.getEngineWKafkaInput(this.getClass().getSimpleName(), pluginProperties);
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean");

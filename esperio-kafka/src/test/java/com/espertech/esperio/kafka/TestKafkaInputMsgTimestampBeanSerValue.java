@@ -25,17 +25,17 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static com.espertech.esperio.kafka.SupportConstants.DEV_TOPIC_SUPPORTBEAN_JAVASERIALIZED;
+import static com.espertech.esperio.kafka.SupportConstants.DEV_INPUT_TOPIC_SUPPORTBEAN_JAVASERIALIZED;
 
 public class TestKafkaInputMsgTimestampBeanSerValue extends TestCase {
 
-    private static final String TOPIC = DEV_TOPIC_SUPPORTBEAN_JAVASERIALIZED;
+    private static final String TOPIC = DEV_INPUT_TOPIC_SUPPORTBEAN_JAVASERIALIZED;
 
     public void testInput() {
 
-        Properties pluginProperties = SupportConstants.getPluginProps(TOPIC, SupportBeanFromByteArrayDeserializer.class.getName(), EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
+        Properties pluginProperties = SupportConstants.getInputPluginProps(TOPIC, SupportBeanFromByteArrayDeserializer.class.getName(), EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
 
-        EPServiceProvider epService = SupportConstants.getEngine(this.getClass().getSimpleName(), pluginProperties);
+        EPServiceProvider epService = SupportConstants.getEngineWKafkaInput(this.getClass().getSimpleName(), pluginProperties);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 

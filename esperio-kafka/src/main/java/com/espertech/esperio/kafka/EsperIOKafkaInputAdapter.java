@@ -24,8 +24,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.espertech.esperio.kafka.EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG;
-import static com.espertech.esperio.kafka.EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG;
+import static com.espertech.esperio.kafka.EsperIOKafkaConfig.INPUT_PROCESSOR_CONFIG;
+import static com.espertech.esperio.kafka.EsperIOKafkaConfig.INPUT_SUBSCRIBER_CONFIG;
 
 public class EsperIOKafkaInputAdapter {
     private static final Logger log = LoggerFactory.getLogger(EsperIOKafkaInputAdapter.class);
@@ -46,7 +46,7 @@ public class EsperIOKafkaInputAdapter {
     public void start() {
 
         if (log.isInfoEnabled()) {
-            log.info("Starting EsperIO Kafka Adapter for engine URI '{}'", engineURI);
+            log.info("Starting EsperIO Kafka Input Adapter for engine URI '{}'", engineURI);
         }
 
         // Obtain Kafka consumer properties from provided and excluding esperio
@@ -69,7 +69,7 @@ public class EsperIOKafkaInputAdapter {
         EPServiceProviderSPI engine = (EPServiceProviderSPI) EPServiceProviderManager.getProvider(engineURI);
 
         // Obtain and invoke subscriber
-        String subscriberClassName = getRequiredProperty(properties, ESPERIO_SUBSCRIBER_CONFIG);
+        String subscriberClassName = getRequiredProperty(properties, INPUT_SUBSCRIBER_CONFIG);
         EsperIOKafkaInputSubscriber subscriber;
         try {
             subscriber = (EsperIOKafkaInputSubscriber) JavaClassHelper.instantiate(EsperIOKafkaInputSubscriber.class, subscriberClassName, engine.getEngineImportService().getClassForNameProvider());
@@ -81,7 +81,7 @@ public class EsperIOKafkaInputAdapter {
         }
 
         // Obtain and initialize processor
-        String processorClassName = getRequiredProperty(properties, ESPERIO_PROCESSOR_CONFIG);
+        String processorClassName = getRequiredProperty(properties, INPUT_PROCESSOR_CONFIG);
         try {
             processor = (EsperIOKafkaInputProcessor) JavaClassHelper.instantiate(EsperIOKafkaInputProcessor.class, processorClassName, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaInputProcessorContext processorContext = new EsperIOKafkaInputProcessorContext(consumer, engine, properties, this);
@@ -99,13 +99,13 @@ public class EsperIOKafkaInputAdapter {
         executorService.submit(runnable);
 
         if (log.isInfoEnabled()) {
-            log.info("Completed starting EsperIO Kafka Adapter for engine URI '{}'", engineURI);
+            log.info("Completed starting EsperIO Kafka Input Adapter for engine URI '{}'", engineURI);
         }
     }
 
     public void destroy() {
         if (log.isDebugEnabled()) {
-            log.debug("Destroying Esper Kafka Adapter for engine URI '{}'", engineURI);
+            log.debug("Destroying Esper Kafka Input Adapter for engine URI '{}'", engineURI);
         }
 
         runnable.setShutdown(true);

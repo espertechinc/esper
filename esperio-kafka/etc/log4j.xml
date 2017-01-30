@@ -12,11 +12,11 @@
    </appender>
 
    <logger name="com.espertech.esper">
-      <level value="DEBUG"/>
+      <level value="INFO"/>
    </logger>
 
    <logger name="com.espertech.esperio">
-      <level value="DEBUG"/>
+      <level value="INFO"/>
    </logger>
 
    <root>

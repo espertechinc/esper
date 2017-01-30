@@ -2921,6 +2921,11 @@ config.addPluginLoader("MyLoader", "org.mypackage.MyLoader", props);]]></program
 		<programlisting><![CDATA[public void destroy() {
   // Destroy resources allocated as the engine instance is being destroyed
 }]]></programlisting>
+
+		<para>
+			To access the plug-in at runtime, the <literal>getContext</literal> method provides access under the name <literal>plugin-loader/</literal><emphasis>name</emphasis>:
+		</para>
+		<programlisting><![CDATA[epService.getContext().getEnvironment().get("plugin-loader/MyLoader");]]></programlisting>
 	</sect1>
 
     <sect1 xml:id="api-annotation">

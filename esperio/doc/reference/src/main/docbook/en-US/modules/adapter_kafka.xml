@@ -35,17 +35,30 @@
 		</para>
 	</sect1>
 	
-    <sect1 xml:id="adapterkafka-configuration">
-        <title>Configuration and Start</title>
+    <sect1 xml:id="adapterkafka-imports">
+        <title>Imports Setup</title>
 
 		<para>
-			You may configure and start the EsperIO Kafka input adapter either as part of your Esper configuration file in the plugin loader section or via the adapter API.	
+			For use with the Kafka output adapter, and when using the <literal>KafkaOutputDefault</literal> annotation, please add the <literal>KafkaOutputDefault</literal> import.
+			For example: 
 		</para>
+		<synopsis>configuration.addImport(KafkaOutputDefault.class);</synopsis>		
+	</sect1>
+
+    <sect1 xml:id="adapterkafka-input">
+        <title>Input Adapter</title>
 	
-		<para>
-			The following example shows an Esper configuration file with all properties:
-		</para>
-		<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+		<sect2 xml:id="adapterkafka-input-configuration">
+			<title>Input Adapter Configuration and Start</title>
+	
+			<para>
+				You may configure and start the EsperIO Kafka input adapter either as part of your Esper configuration file in the plugin loader section or via the adapter API.	
+			</para>
+		
+			<para>
+				The following example shows an Esper configuration file with all properties:
+			</para>
+			<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://www.espertech.com/schema/esper"
   xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-6-0.xsd">
@@ -69,10 +82,10 @@
   </plugin-loader>
 </esper-configuration>]]></programlisting>		
 
-			<para>
-				Alternatively the equivalent API calls to configure the adapter are:
-			</para>
-			<programlisting><![CDATA[Properties props = new Properties();
+				<para>
+					Alternatively the equivalent API calls to configure the adapter are:
+				</para>
+				<programlisting><![CDATA[Properties props = new Properties();
 
 // Kafka Consumer Properties
 props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -81,207 +94,207 @@ props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, com.mycompany.MyCustom
 props.put(ConsumerConfig.GROUP_ID_CONFIG, "my_group_id");
 
 // EsperIO Kafka Input Adapter Properties
-props.put(EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG, EsperIOKafkaInputSubscriberByTopicList.class.getName());
-props.put(EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG, "my_topic");
-props.put(EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG, EsperIOKafkaInputProcessorDefault.class.getName());
-props.put(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG, EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
+props.put(EsperIOKafkaConfig.INPUT_SUBSCRIBER_CONFIG, EsperIOKafkaInputSubscriberByTopicList.class.getName());
+props.put(EsperIOKafkaConfig.TOPICS_CONFIG, "my_topic");
+props.put(EsperIOKafkaConfig.INPUT_PROCESSOR_CONFIG, EsperIOKafkaInputProcessorDefault.class.getName());
+props.put(EsperIOKafkaConfig.INPUT_TIMESTAMPEXTRACTOR_CONFIG, EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName());
 
 Configuration config = new Configuration();
 config.addPluginLoader("KafkaInput", EsperIOKafkaInputAdapterPlugin.class.getName(), props, null);]]></programlisting>		
 
-			<para>
-				By adding the plug-in loader to the configuration as above the engine automatically starts the adapter as part of engine initialization.
-			</para>
-
-			<para>
-				Alternatively, the adapter can be started and stopped programatically as follows:
-			</para>
-
-			<programlisting><![CDATA[// start adapter
-EsperIOKafkaInputAdapter adapter = new EsperIOKafkaInputAdapter(props, "engineURI");
+				<para>
+					By adding the plug-in loader to the configuration as above the engine automatically starts the adapter as part of engine initialization.
+				</para>
+	
+				<para>
+					Alternatively, the adapter can be started and stopped programatically as follows:
+				</para>
+	
+				<programlisting><![CDATA[// start adapter
+EsperIOKafkaInputAdapter adapter = new EsperIOKafkaInputAdapter(props, "default");
 adapter.start();
 
 // destroy the adapter when done
 adapter.destroy();]]></programlisting>
-	</sect1>
-		
-    <sect1 xml:id="adapterkafka-kafkaconnectivity">
-        <title>Kafka Connectivity</title>
-        
-        <para>
-			All properties are passed to the Kafka consumer. This allows your application to add additional properties that are not listed here and according to Kafka consumer documentation.
-        </para>
-        
-        <para>
-			Required properties are below. <literal>ConsumerConfig</literal> is part of the Kafka API in <literal>org.apache.kafka.clients.consumer.ConsumerConfig</literal>.
-        </para>
-
-		<table frame="topbot">
-			<title>Kafka Consumer Required Properties</title>
-			<tgroup cols="3">
-				<colspec colwidth="1*"/>
-				<colspec colwidth="1*"/>
-				<colspec colwidth="1*"/>
-				<thead>
-					<row>
-						<entry>Name</entry>
-						<entry>API Name</entry>
-						<entry>Description</entry>
-					</row>
-				</thead>
-				<tbody>
-					<row>
-						<entry><literal>bootstrap.servers</literal></entry>
-						<entry><literal>ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG</literal></entry>
-						<entry>Kafka bootstrap server list.</entry>
-					</row>
-					<row>
-						<entry><literal>key.deserializer</literal></entry>
-						<entry><literal>ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG</literal></entry>
-						<entry>Fully-qualified class name of Kafka message key de-serializer.</entry>
-					</row>
-					<row>
-						<entry><literal>value.deserializer</literal></entry>
-						<entry><literal>ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG</literal></entry>
-						<entry>Fully-qualified class name of Kafka message value de-serializer.</entry>
-					</row>
-					<row>
-						<entry><literal>group.id</literal></entry>
-						<entry><literal>ConsumerConfig.GROUP_ID_CONFIG</literal></entry>
-						<entry>Application consumer group id.</entry>
-					</row>
-				</tbody>
-			</tgroup>				
-		</table>
-    </sect1>
-
-    <sect1 xml:id="adapterkafka-use">
-        <title>Controlling Adapter Operation</title>
-        
-		<para>
-			Adapter operation depends on the <emphasis>subscriber</emphasis> and <emphasis>processor</emphasis>.
-		</para>
-        
-		<para>
-			The <emphasis>subscriber</emphasis> is responsible for calling Kafka consumer subscribe methods, i.e. calls Kafka API <literal>consumer.subscribe(...)</literal>.
-		</para>
-
-		<para>
-			The <emphasis>processor</emphasis> is responsible for processing Kafka API <literal>ConsumerRecords</literal> messages, i.e. implements <literal>process(ConsumerRecords records)</literal>.
-		</para>
-
-        <para>
-			Properties that define the subscriber and consumer are below.
-			<literal>EsperIOKafka</literal> is part of the EsperIO Kafka API in <literal>com.espertech.esperio.kafka.EsperIOKafkaConfig</literal>.
-        </para>
-
-		<table frame="topbot">
-			<title>Kafka Input Adapter Properties</title>
-			<tgroup cols="3">
-				<colspec colwidth="1*"/>
-				<colspec colwidth="1*"/>
-				<colspec colwidth="1*"/>
-				<thead>
-					<row>
-						<entry>Name</entry>
-						<entry>API Name</entry>
-						<entry>Description</entry>
-					</row>
-				</thead>
-				<tbody>
-					<row>
-						<entry><literal>esperio.kafka.input.subscriber</literal></entry>
-						<entry><literal>EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG</literal></entry>
-						<entry>
-							<para>
-								Required property.
-							</para> 
-							<para>
-								Fully-qualified class name of subscriber that subscribes to topics and partitions.
-							</para> 
-							<para>
-								The class must implement the interface <literal>EsperIOKafkaInputSubscriber</literal>.
-							</para>
-							<para>
-								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputSubscriberByTopicList</literal> and provide a topic list in <literal>esperio.kafka.topics</literal>.
-							</para>
-						</entry>
-					</row>
-					<row>
-						<entry><literal>esperio.kafka.topics</literal></entry>
-						<entry><literal>EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG</literal></entry>
-						<entry>
-							<para>
-								Optional property and only required if the subscriber is <literal>EsperIOKafkaInputSubscriberByTopicList</literal>.
-							</para> 
-							<para>
-								Specifies a comma-separated list of topic names to subscribe to.
-							</para> 
-						</entry>
-					</row>
-					<row>
-						<entry><literal>esperio.kafka.input.processor</literal></entry>
-						<entry><literal>EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG</literal></entry>
-						<entry>
-							<para>
-								Required property.
-							</para> 
-							<para>
-								Fully-qualified class name of the Kafka consumer records processor that sends events into the engine and may advance engine time.
-							</para> 
-							<para>
-								The class must implement the interface <literal>EsperIOKafkaInputProcessor</literal>.
-							</para>
-							<para>
-								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputProcessorDefault</literal> for default event and time processing.
-							</para>
-						</entry>
-					</row>
-					<row>
-						<entry><literal>esperio.kafka.input.timestampextractor</literal></entry>
-						<entry><literal>EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG</literal></entry>
-						<entry>
-							<para>
-								Optional property.
-							</para> 
-							<para>
-								Fully-qualified class name of the Kafka message timestamp extractor that extracts a long-typed timestamp from a consumer record, for use as time.
-							</para> 
-							<para>
-								The class must implement the interface <literal>EsperIOKafkaInputTimestampExtractor</literal>.
-							</para>
-							<para>
-								You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputTimestampExtractorConsumerRecord</literal> 
-								which returns the time of each consumer record that is part of the consumer record.
-							</para>
-						</entry>
-					</row>
-				</tbody>
-			</tgroup>				
-		</table>
-		
-		<sect2 xml:id="adapterkafka-subscriber">
-			<title>Subscriber</title>
+		</sect2>
 			
+		<sect2 xml:id="adapterkafka-input-kafkaconnectivity">
+			<title>Kafka Connectivity</title>
+        
 			<para>
-				The subcriber is responsible for calling <literal>consumer.subscribe(...)</literal>.
+				All properties are passed to the Kafka consumer. This allows your application to add additional properties that are not listed here and according to Kafka consumer documentation.
 			</para>
 			
 			<para>
-				The adapter provides a default implementation by name <literal>EsperIOKafkaInputSubscriberByTopicList</literal>. 
-				Your application may provide its own subscriber by implementing the simple <literal>EsperIOKafkaInputSubscriber</literal> interface.
+				Required properties are below. <literal>ConsumerConfig</literal> is part of the Kafka API in <literal>org.apache.kafka.clients.consumer.ConsumerConfig</literal>.
 			</para>
+	
+			<table frame="topbot">
+				<title>Kafka Consumer Required Properties</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>API Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>bootstrap.servers</literal></entry>
+							<entry><literal>ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG</literal></entry>
+							<entry>Kafka bootstrap server list.</entry>
+						</row>
+						<row>
+							<entry><literal>key.deserializer</literal></entry>
+							<entry><literal>ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG</literal></entry>
+							<entry>Fully-qualified class name of Kafka message key de-serializer.</entry>
+						</row>
+						<row>
+							<entry><literal>value.deserializer</literal></entry>
+							<entry><literal>ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG</literal></entry>
+							<entry>Fully-qualified class name of Kafka message value de-serializer.</entry>
+						</row>
+						<row>
+							<entry><literal>group.id</literal></entry>
+							<entry><literal>ConsumerConfig.GROUP_ID_CONFIG</literal></entry>
+							<entry>Application consumer group id.</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		</sect2>
 
+		<sect2 xml:id="adapterkafka-input-use">
+			<title>Controlling Input Adapter Operation</title>
+        
 			<para>
-				This default implementation takes the value of <literal>esperio.kafka.topics</literal> and subscribes to each topic.
+				The input adapter operation depends on the <emphasis>subscriber</emphasis> and <emphasis>processor</emphasis>.
 			</para>
-
+			
 			<para>
-				For reference, we provide the code of the default subscriber below (repository or source jar for full code):
+				The <emphasis>subscriber</emphasis> is responsible for calling Kafka consumer subscribe methods, i.e. calls Kafka API <literal>consumer.subscribe(...)</literal>.
 			</para>
-			<programlisting><![CDATA[public class EsperIOKafkaInputSubscriberByTopicList implements EsperIOKafkaInputSubscriber {
+		
+			<para>
+				The <emphasis>processor</emphasis> is responsible for processing Kafka API <literal>ConsumerRecords</literal> messages, i.e. implements <literal>process(ConsumerRecords records)</literal>.
+			</para>
+		
+			<para>
+				Properties that define the subscriber and consumer are below.
+				<literal>EsperIOKafka</literal> is part of the EsperIO Kafka API in <literal>com.espertech.esperio.kafka.EsperIOKafkaConfig</literal>.
+			</para>
+		
+			<table frame="topbot">
+				<title>Kafka Input Adapter Properties</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>API Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>esperio.kafka.input.subscriber</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.INPUT_SUBSCRIBER_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Required property.
+								</para> 
+								<para>
+									Fully-qualified class name of subscriber that subscribes to topics and partitions.
+								</para> 
+								<para>
+									The class must implement the interface <literal>EsperIOKafkaInputSubscriber</literal>.
+								</para>
+								<para>
+									You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputSubscriberByTopicList</literal> and provide a topic list in <literal>esperio.kafka.topics</literal>.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry><literal>esperio.kafka.topics</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.TOPICS_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Optional property and only required if the subscriber is <literal>EsperIOKafkaInputSubscriberByTopicList</literal>.
+								</para> 
+								<para>
+									Specifies a comma-separated list of topic names to subscribe to.
+								</para> 
+							</entry>
+						</row>
+						<row>
+							<entry><literal>esperio.kafka.input.processor</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.INPUT_PROCESSOR_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Required property.
+								</para> 
+								<para>
+									Fully-qualified class name of the Kafka consumer records processor that sends events into the engine and may advance engine time.
+								</para> 
+								<para>
+									The class must implement the interface <literal>EsperIOKafkaInputProcessor</literal>.
+								</para>
+								<para>
+									You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputProcessorDefault</literal> for default event and time processing.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry><literal>esperio.kafka.input.timestampextractor</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.INPUT_TIMESTAMPEXTRACTOR_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Optional property.
+								</para> 
+								<para>
+									Fully-qualified class name of the Kafka message timestamp extractor that extracts a long-typed timestamp from a consumer record, for use as time.
+								</para> 
+								<para>
+									The class must implement the interface <literal>EsperIOKafkaInputTimestampExtractor</literal>.
+								</para>
+								<para>
+									You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaInputTimestampExtractorConsumerRecord</literal> 
+									which returns the time of each consumer record that is part of the consumer record.
+								</para>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		
+			<sect3 xml:id="adapterkafka-input-subscriber">
+				<title>Subscriber</title>
+				
+				<para>
+					The subcriber is responsible for calling <literal>consumer.subscribe(...)</literal>.
+				</para>
+				
+				<para>
+					The adapter provides a default implementation by name <literal>EsperIOKafkaInputSubscriberByTopicList</literal>. 
+					Your application may provide its own subscriber by implementing the simple <literal>EsperIOKafkaInputSubscriber</literal> interface.
+				</para>
+	
+				<para>
+					This default implementation takes the value of <literal>esperio.kafka.topics</literal> and subscribes to each topic.
+				</para>
+	
+				<para>
+					For reference, we provide the code of the default subscriber below (repository or source jar for full code):
+				</para>
+				<programlisting><![CDATA[public class EsperIOKafkaInputSubscriberByTopicList implements EsperIOKafkaInputSubscriber {
   public void subscribe(EsperIOKafkaInputSubscriberContext context) {
-    String topicsCSV = EsperIOKafkaInputAdapter.getRequiredProperty(context.getProperties(), EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG);
+    String topicsCSV = EsperIOKafkaInputAdapter.getRequiredProperty(context.getProperties(), EsperIOKafkaConfig.TOPICS_CONFIG);
     String[] topicNames = topicsCSV.split(",");
     List<String> topics = new ArrayList<>();
     for (String topicName : topicNames) {
@@ -292,29 +305,29 @@ adapter.destroy();]]></programlisting>
     context.getConsumer().subscribe(topics);
   }
 }]]></programlisting>
-		</sect2>
-		
-		<sect2 xml:id="adapterkafka-processor">
-			<title>Processor</title>
+			</sect3>
 			
-			<para>
-				The processor is responsible for processing Kafka API <literal>ConsumerRecords</literal>.
-			</para>
-			
-			<para>
-				The adapter provides a default implementation by name <literal>EsperIOKafkaInputProcessorDefault</literal>. 
-				Your application may provide its own processor by implementing the simple <literal>EsperIOKafkaInputProcessor</literal> interface.
-			</para>
-
-			<para>
-				This default processor can be configured with an optional timestamp extractor that obtains a timestamp for each consumer record.
-				If no timestamp extractor is configured, the default processor does not advance time.
-			</para>
-
-			<para>
-				For reference, we provide the (slightly simplified) code of the default processor below (repository or source jar for full code):
-			</para>
-			<programlisting><![CDATA[public class EsperIOKafkaInputProcessorDefault implements EsperIOKafkaInputProcessor {
+			<sect3 xml:id="adapterkafka-input-processor">
+				<title>Processor</title>
+				
+				<para>
+					The processor is responsible for processing Kafka API <literal>ConsumerRecords</literal>.
+				</para>
+				
+				<para>
+					The adapter provides a default implementation by name <literal>EsperIOKafkaInputProcessorDefault</literal>. 
+					Your application may provide its own processor by implementing the simple <literal>EsperIOKafkaInputProcessor</literal> interface.
+				</para>
+	
+				<para>
+					This default processor can be configured with an optional timestamp extractor that obtains a timestamp for each consumer record.
+					If no timestamp extractor is configured, the default processor does not advance time.
+				</para>
+	
+				<para>
+					For reference, we provide the (slightly simplified) code of the default processor below (repository or source jar for full code):
+				</para>
+				<programlisting><![CDATA[public class EsperIOKafkaInputProcessorDefault implements EsperIOKafkaInputProcessor {
 
   private EPServiceProvider engine;
   private EsperIOKafkaInputTimestampExtractor timestampExtractor;
@@ -322,7 +335,7 @@ adapter.destroy();]]></programlisting>
   public void init(EsperIOKafkaInputProcessorContext context) {
     this.engine = context.getEngine();
 
-    String timestampExtractorClassName = context.getProperties().getProperty(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG);
+    String timestampExtractorClassName = context.getProperties().getProperty(EsperIOKafkaConfig.INPUT_TIMESTAMPEXTRACTOR_CONFIG);
     if (timestampExtractorClassName != null) {
       timestampExtractor = (EsperIOKafkaInputTimestampExtractor) JavaClassHelper.instantiate(EsperIOKafkaInputTimestampExtractor.class, timestampExtractorClassName);
     }
@@ -346,16 +359,233 @@ adapter.destroy();]]></programlisting>
   public void close() {}
 }]]></programlisting>
 
+				<para>
+					The default processor takes the message value and sends it as an event into the engine.
+					The default processor takes the extracted time, if a timestamp extractor is provided, and sends a time span event to the engine to advance engine time.
+				</para>
+	
+				<para>
+					You must provide your own processor if any additional event transformation is required or if using <literal>epRuntime.send(Map/ObjectArray/Node)</literal>
+					or if the default behavior does not fit for other reasons.
+				</para>
+			</sect3>
+		</sect2>
+    </sect1>
+    
+	<sect1 xml:id="adapterkafka-output">
+        <title>Output Adapter</title>
+	
+		<sect2 xml:id="adapterkafka-output-configuration">
+			<title>Output Adapter Configuration and Start</title>
+	
 			<para>
-				The default processor takes the message value and sends it as an event into the engine.
-				The default processor takes the extracted time, if a timestamp extractor is provided, and sends a time span event to the engine to advance engine time.
+				You may configure and start the EsperIO Kafka output adapter either as part of your Esper configuration file in the plugin loader section or via the adapter API.	
 			</para>
+		
+			<para>
+				The following example shows an Esper configuration file with all properties:
+			</para>
+			<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.espertech.com/schema/esper"
+  xsi:noNamespaceSchemaLocation="../../esper/etc/esper-configuration-6-0.xsd">
+  
+  <plugin-loader name="KafkaOutput" class-name="com.espertech.esperio.kafka.EsperIOKafkaOutputAdapterPlugin">
+    <!--
+      Kafka Producer Properties: Passed-Through to Kafka Consumer.
+    -->
+    <init-arg name="bootstrap.servers" value="127.0.0.1:9092"/>
+    <init-arg name="key.serializer" value="org.apache.kafka.common.serialization.StringSerializer"/>
+    <init-arg name="value.serializer" value="com.mycompany.MyCustomSerializer"/>
 
+    <!--
+      EsperIO Kafka Output Properties: Define a flow controller.
+    -->
+    <init-arg name="esperio.kafka.output.flowcontroller" value="com.espertech.esperio.kafka.EsperIOKafkaOutputFlowControllerByAnnotatedStmt"/>
+    <init-arg name="esperio.kafka.topics" value="my_topic"/>
+  </plugin-loader>
+</esper-configuration>]]></programlisting>		
+
+				<para>
+					Alternatively the equivalent API calls to configure the adapter are:
+				</para>
+				<programlisting><![CDATA[Properties props = new Properties();
+
+// Kafka Producer Properties
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
+
+// EsperIO Kafka Output Adapter Properties
+props.put(EsperIOKafkaConfig.OUTPUT_FLOWCONTROLLER_CONFIG, EsperIOKafkaOutputFlowControllerByAnnotatedStmt.class.getName());
+props.put(EsperIOKafkaConfig.TOPICS_CONFIG, "my_topic");
+
+Configuration config = new Configuration();
+config.addPluginLoader("KafkaOutput", EsperIOKafkaOutputAdapterPlugin.class.getName(), props, null);]]></programlisting>		
+
+				<para>
+					By adding the plug-in loader to the configuration as above the engine automatically starts the adapter as part of engine initialization.
+				</para>
+	
+				<para>
+					Alternatively, the adapter can be started and stopped programatically as follows:
+				</para>
+	
+				<programlisting><![CDATA[// start adapter
+EsperIOKafkaOutputAdapter adapter = new EsperIOKafkaOutputAdapter(props, "default");
+adapter.start();
+
+// destroy the adapter when done
+adapter.destroy();]]></programlisting>
+		</sect2>
+			
+		<sect2 xml:id="adapterkafka-output-kafkaconnectivity">
+			<title>Kafka Connectivity</title>
+        
 			<para>
-				You must provide your own processor if any additional event transformation is required or if using <literal>epRuntime.send(Map/ObjectArray/Node)</literal>
-				or if the default behavior does not fit for other reasons.
+				All properties are passed to the Kafka producer. This allows your application to add additional properties that are not listed here and according to Kafka producer documentation.
 			</para>
+			
+			<para>
+				Required properties are below. <literal>ProducerConfig</literal> is part of the Kafka API in <literal>org.apache.kafka.clients.producer.ProducerConfig</literal>.
+			</para>
+	
+			<table frame="topbot">
+				<title>Kafka Producer Required Properties</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>API Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>bootstrap.servers</literal></entry>
+							<entry><literal>ProducerConfig.BOOTSTRAP_SERVERS_CONFIG</literal></entry>
+							<entry>Kafka bootstrap server list.</entry>
+						</row>
+						<row>
+							<entry><literal>key.serializer</literal></entry>
+							<entry><literal>ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG</literal></entry>
+							<entry>Fully-qualified class name of Kafka message key serializer.</entry>
+						</row>
+						<row>
+							<entry><literal>value.serializer</literal></entry>
+							<entry><literal>ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG</literal></entry>
+							<entry>Fully-qualified class name of Kafka message value serializer.</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
 		</sect2>
 
+		<sect2 xml:id="adapterkafka-output-use">
+			<title>Controlling Output Adapter Operation</title>
+        
+			<para>
+				The output adapter operation depends on the <emphasis>flow controller</emphasis>, which is reponsible for attaching listeners to statements
+				that send messages to Kafka topics.
+			</para>
+			
+			<para>
+				Properties that define the flow controller are below.
+				<literal>EsperIOKafka</literal> is part of the EsperIO Kafka API in <literal>com.espertech.esperio.kafka.EsperIOKafkaConfig</literal>.
+			</para>
+	
+			<table frame="topbot">
+				<title>Kafka Output Adapter Properties</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry>Name</entry>
+							<entry>API Name</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><literal>esperio.kafka.output.flowcontroller</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.OUTPUT_FLOWCONTROLLER_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Required property.
+								</para> 
+								<para>
+									Fully-qualified class name of flow controller that produces messages.
+								</para> 
+								<para>
+									The class must implement the interface <literal>EsperIOKafkaOutputFlowController</literal>.
+								</para>
+								<para>
+									You may use <literal>com.espertech.esperio.kafka.EsperIOKafkaOutputFlowControllerByAnnotatedStmt</literal> and provide a topic list in <literal>esperio.kafka.topics</literal>.
+								</para>
+							</entry>
+						</row>
+						<row>
+							<entry><literal>esperio.kafka.topics</literal></entry>
+							<entry><literal>EsperIOKafkaConfig.TOPICS_CONFIG</literal></entry>
+							<entry>
+								<para>
+									Specifies a comma-separated list of topic names to produce to, for use with the above flow controller and not required otherwise.
+								</para> 
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>				
+			</table>
+		
+			<sect3 xml:id="adapterkafka-output-flowcontroller">
+				<title>Flow Controller</title>
+				
+				<para>
+					The flow controller is responsible for allocating a <literal>KafkaProducer</literal> and associating statement listeners to the producer, for listeners to send messages to Kafka topics.
+				</para>
+				
+				<para>
+					The adapter provides a default implementation by name <literal>EsperIOKafkaOutputFlowControllerByAnnotatedStmt</literal>. 
+					Your application may provide its own subscriber by implementing the simple <literal>EsperIOKafkaOutputFlowControllerContext</literal> interface.
+				</para>
+	
+				<sect4 xml:id="adapterkafka-output-flowcontroller-annotatedstmt">
+					<title>Default Flow Controller <literal>EsperIOKafkaOutputFlowControllerByAnnotatedStmt</literal></title>
+					
+					<para>
+						The flow controller takes the value of <literal>esperio.kafka.topics</literal> and produces a message to each topic for each statement listener output event.
+					</para>
+	
+					<para>
+						The flow controller attaches a listener to all statements that have the <literal>@KafkaOutputDefault</literal> annotation. 
+						Please ensure that the annotation is part of your imports. The adapter considers all newly-created statements that have the annotation.
+					</para>
+
+					<para>
+						Thus please create the EPL as follows:
+					</para>
+					<programlisting><![CDATA[@KafkaOutputDefault select * from ......]]></programlisting>
+
+					<para>
+						The flow controller produces JSON output. It uses the engine JSON renderer that can be obtained from <literal>epService.getEPRuntime().getEventRenderer().getJSONRenderer(statement.getEventType());</literal>.
+					</para>
+
+					<para>
+						The statement listeners that the flow controller attaches do not provide a key or partition id to the producer. 
+						The listeners simply invoke <literal>new ProducerRecord(topic, json)</literal> for output event and each topic.
+						The value serializer must be the string serializer. 
+					</para>
+
+					<para>
+						For reference, please find the source code of the flow controller in the repository.
+					</para>
+				</sect4>
+			</sect3>
+		</sect2>
     </sect1>
 </chapter>

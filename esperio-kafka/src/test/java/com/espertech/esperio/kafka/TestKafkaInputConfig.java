@@ -39,9 +39,9 @@ public class TestKafkaInputConfig extends TestCase {
         assertEquals("com.mycompany.MyCustomDeserializer", props.getProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
         assertEquals("my_group_id", props.getProperty(ConsumerConfig.GROUP_ID_CONFIG));
 
-        assertEquals("my_topic", props.get(EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG));
-        assertEquals(EsperIOKafkaInputProcessorDefault.class.getName(), props.get(EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG));
-        assertEquals(EsperIOKafkaInputSubscriberByTopicList.class.getName(), props.get(EsperIOKafkaConfig.ESPERIO_SUBSCRIBER_CONFIG));
-        assertEquals(EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName(), props.get(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG));
+        assertEquals("my_topic", props.get(EsperIOKafkaConfig.TOPICS_CONFIG));
+        assertEquals(EsperIOKafkaInputProcessorDefault.class.getName(), props.get(EsperIOKafkaConfig.INPUT_PROCESSOR_CONFIG));
+        assertEquals(EsperIOKafkaInputSubscriberByTopicList.class.getName(), props.get(EsperIOKafkaConfig.INPUT_SUBSCRIBER_CONFIG));
+        assertEquals(EsperIOKafkaInputTimestampExtractorConsumerRecord.class.getName(), props.get(EsperIOKafkaConfig.INPUT_TIMESTAMPEXTRACTOR_CONFIG));
     }
 }

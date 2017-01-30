@@ -24,18 +24,18 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static com.espertech.esperio.kafka.SupportConstants.DEV_TOPIC_BYTES;
+import static com.espertech.esperio.kafka.SupportConstants.DEV_INPUT_TOPIC_BYTES;
 
 public class TestKafkaInputCustomSubscriberAndProcessor extends TestCase {
 
-    private static final String TOPIC = DEV_TOPIC_BYTES;
+    private static final String TOPIC = DEV_INPUT_TOPIC_BYTES;
 
     public void testInput() {
 
-        Properties pluginProperties = SupportConstants.getPluginProps(TOPIC, ByteArrayDeserializer.class.getName(), null);
-        pluginProperties.put(EsperIOKafkaConfig.ESPERIO_PROCESSOR_CONFIG, SupportInputCustomProcessor.class.getName());
+        Properties pluginProperties = SupportConstants.getInputPluginProps(TOPIC, ByteArrayDeserializer.class.getName(), null);
+        pluginProperties.put(EsperIOKafkaConfig.INPUT_PROCESSOR_CONFIG, SupportInputCustomProcessor.class.getName());
 
-        EPServiceProvider epService = SupportConstants.getEngine(this.getClass().getSimpleName(), pluginProperties);
+        EPServiceProvider epService = SupportConstants.getEngineWKafkaInput(this.getClass().getSimpleName(), pluginProperties);
         epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
 
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportBean");

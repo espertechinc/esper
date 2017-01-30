@@ -29,7 +29,7 @@ public class EsperIOKafkaInputProcessorDefault implements EsperIOKafkaInputProce
     public void init(EsperIOKafkaInputProcessorContext context) {
         this.engine = context.getEngine();
 
-        String timestampExtractorClassName = context.getProperties().getProperty(EsperIOKafkaConfig.ESPERIO_TIMESTAMPEXTRACTOR_CONFIG);
+        String timestampExtractorClassName = context.getProperties().getProperty(EsperIOKafkaConfig.INPUT_TIMESTAMPEXTRACTOR_CONFIG);
         if (timestampExtractorClassName != null) {
             timestampExtractor = (EsperIOKafkaInputTimestampExtractor) JavaClassHelper.instantiate(EsperIOKafkaInputTimestampExtractor.class, timestampExtractorClassName, context.getEngine().getEngineImportService().getClassForNameProvider());
         }

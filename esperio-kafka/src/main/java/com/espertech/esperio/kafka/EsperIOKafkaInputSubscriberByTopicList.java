@@ -21,7 +21,7 @@ public class EsperIOKafkaInputSubscriberByTopicList implements EsperIOKafkaInput
     private static final Logger log = LoggerFactory.getLogger(EsperIOKafkaInputSubscriberByTopicList.class);
 
     public void subscribe(EsperIOKafkaInputSubscriberContext context) {
-        String topicsCSV = EsperIOKafkaInputAdapter.getRequiredProperty(context.getProperties(), EsperIOKafkaConfig.ESPERIO_TOPICS_CONFIG);
+        String topicsCSV = EsperIOKafkaInputAdapter.getRequiredProperty(context.getProperties(), EsperIOKafkaConfig.TOPICS_CONFIG);
         String[] topicNames = topicsCSV.split(",");
         List<String> topics = new ArrayList<>();
         for (String topicName : topicNames) {
